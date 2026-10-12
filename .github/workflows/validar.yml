@@ -1,0 +1,17 @@
+name: Verificar EFG Training
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validar sintaxis y datos
+        run: |
+          python -m py_compile app.py pages/2_EFG_Training.py
+          python -c "import json; d=json.load(open('training/plan.json',encoding='utf-8')); assert len(d['exercises'])>100"

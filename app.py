@@ -19,6 +19,13 @@ def num(s):
 st.title("Edu Flores Grancelli Lab")
 st.caption("by EFG · Herramientas de laboratorio")
 
+st.page_link(
+    "pages/2_EFG_Training.py",
+    label="EFG Training — Rutina y seguimiento semanal",
+    icon="💪",
+)
+
+
 tab_h, tab_p, tab_t = st.tabs([
     "💧 Análisis de humedad",
     "🧬 Conversor de proteínas",

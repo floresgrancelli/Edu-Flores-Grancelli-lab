@@ -19,40 +19,11 @@ def num(s):
 st.title("Edu Flores Grancelli Lab")
 st.caption("by EFG · Herramientas de laboratorio")
 
-tab_h, tab_p, tab_t, tab_g = st.tabs([
-    "💧 Análisis de humedad",
+tab_p, tab_t, tab_g = st.tabs([
     "🧬 Conversor de proteínas",
     "🌾 Humectación de trigo",
     "🌾 Gluten húmedo",
 ])
-
-with tab_h:
-    st.subheader("Análisis de humedad")
-    entrada = st.text_area(
-        "Pegá las humedades, una por línea",
-        placeholder="13,78\n14,25\n13,98",
-        height=170,
-    )
-    if st.button("Calcular humedad", type="primary"):
-        lineas = [s.strip() for s in entrada.splitlines() if s.strip()]
-        if not lineas:
-            st.warning("Ingresá al menos una humedad.")
-        else:
-            try:
-                valores = [num(s) for s in lineas]
-                if any(not 0 <= h <= 100 for h in valores):
-                    st.error("Las humedades deben estar entre 0 y 100 %.")
-                else:
-                    st.success(f"Muestras analizadas: {len(valores)}")
-                    a, b = st.columns(2)
-                    with a:
-                        st.metric("Promedio", pct(sum(valores) / len(valores)))
-                        st.metric("Mínimo", pct(min(valores)))
-                    with b:
-                        st.metric("Máximo", pct(max(valores)))
-                        st.metric("Rango", pct(max(valores) - min(valores)))
-            except ValueError:
-                st.error("Ingresá solo números válidos, uno por línea. Ejemplo: 13,78.")
 
 with tab_p:
     st.subheader("Conversor de proteínas")

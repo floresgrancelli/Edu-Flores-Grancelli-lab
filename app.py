@@ -190,7 +190,7 @@ with tab_g:
         except ValueError:
             st.error("Ingresá ambas pesadas y la humedad como números válidos. Se acepta coma o punto decimal.")
     with st.expander("Fórmula y criterio IRAM"):
-        st.latex(r"GH(\\%)=\\frac{m_{G2}}{10}\\times100\\times\\frac{86}{100-H}")
+        st.latex(r"GH(\%)=\frac{m_{G2}}{10}\times100\times\frac{86}{100-H}")
         st.write(
             "m_G2: masa de gluten húmedo (g); H: humedad real de la harina (%). "
             "El resultado se expresa sobre base 14 % de humedad."

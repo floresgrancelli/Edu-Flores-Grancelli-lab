@@ -19,10 +19,11 @@ def num(s):
 st.title("Edu Flores Grancelli Lab")
 st.caption("by EFG · Herramientas de laboratorio")
 
-tab_p, tab_t, tab_g = st.tabs([
+tab_p, tab_t, tab_g, tab_v = st.tabs([
     "🧬 Conversor de proteínas",
     "🌾 Humectación de trigo",
     "🌾 Gluten húmedo",
+    "🧪 Gluten vital",
 ])
 
 with tab_p:
@@ -170,3 +171,97 @@ with tab_g:
             "Se calculan ambas determinaciones y se informa su promedio con una cifra decimal. "
             "La diferencia absoluta entre duplicados no debe superar 0,5 puntos porcentuales."
         )
+
+
+with tab_v:
+    st.subheader("Determinación de gluten vital")
+    st.write(
+        "Cálculos por duplicado según la planilla GlutenVital.xlsx del laboratorio. "
+        "La masa inicial ronda 1,5 g, pero se ingresa la pesada exacta de cada determinación."
+    )
+    st.caption("Cargá las masas en gramos. Se acepta coma o punto decimal.")
+    a, b = st.columns(2)
+    with a:
+        st.markdown("**Determinación 1**")
+        v_m1_texto = st.text_input("Masa de muestra 1 (g)", placeholder="1,502")
+        v_gh1_texto = st.text_input("Gluten húmedo 1 (g)", placeholder="3,266")
+        v_gs1_texto = st.text_input("Gluten seco 1 (g)", placeholder="1,319")
+        v_i1_texto = st.text_input("Pasa por la malla 1 (g) · opcional", placeholder="1,669")
+    with b:
+        st.markdown("**Determinación 2**")
+        v_m2_texto = st.text_input("Masa de muestra 2 (g)", placeholder="1,503")
+        v_gh2_texto = st.text_input("Gluten húmedo 2 (g)", placeholder="3,244")
+        v_gs2_texto = st.text_input("Gluten seco 2 (g)", placeholder="1,332")
+        v_i2_texto = st.text_input("Pasa por la malla 2 (g) · opcional", placeholder="1,717")
+
+    if st.button("Calcular gluten vital", type="primary"):
+        try:
+            m1, m2 = num(v_m1_texto), num(v_m2_texto)
+            gh1, gh2 = num(v_gh1_texto), num(v_gh2_texto)
+            gs1, gs2 = num(v_gs1_texto), num(v_gs2_texto)
+            index_completo = bool(v_i1_texto.strip()) and bool(v_i2_texto.strip())
+            index_incompleto = bool(v_i1_texto.strip()) != bool(v_i2_texto.strip())
+
+            if index_incompleto:
+                st.error("Ingresá las masas que pasan la malla en ambos duplicados, o dejá ambas vacías.")
+            elif any(x <= 0 for x in (m1, m2, gh1, gh2, gs1, gs2)):
+                st.error("Las masas de muestra, gluten húmedo y gluten seco deben ser mayores que cero.")
+            elif gs1 > gh1 or gs2 > gh2:
+                st.error("La masa de gluten seco no puede superar la de gluten húmedo en la misma determinación.")
+            else:
+                i1 = num(v_i1_texto) if index_completo else None
+                i2 = num(v_i2_texto) if index_completo else None
+                if index_completo and (i1 < 0 or i2 < 0 or i1 > gh1 or i2 > gh2):
+                    st.error("La masa que pasa la malla debe estar entre 0 y la masa de gluten húmedo correspondiente.")
+                else:
+                    humedos = [gh1 / m1 * 100, gh2 / m2 * 100]
+                    secos = [gs1 / m1 * 100, gs2 / m2 * 100]
+                    indices = [
+                        (gh1 - i1) / gh1 * 100,
+                        (gh2 - i2) / gh2 * 100,
+                    ] if index_completo else None
+
+                    st.success("Cálculo realizado")
+                    st.markdown("**Resultados promedio de la muestra**")
+                    c1, c2, c3 = st.columns(3)
+                    with c1:
+                        st.metric("Gluten húmedo", pct(sum(humedos) / 2))
+                    with c2:
+                        st.metric("Gluten seco", pct(sum(secos) / 2))
+                    with c3:
+                        if indices is not None:
+                            st.metric("Gluten Index", pct(sum(indices) / 2))
+                        else:
+                            st.metric("Gluten Index", "No determinado")
+
+                    st.markdown("**Resultados por duplicado**")
+                    st.dataframe(
+                        {
+                            "Determinación": ["1", "2"],
+                            "Gluten húmedo (%)": [round(x, 2) for x in humedos],
+                            "Gluten seco (%)": [round(x, 2) for x in secos],
+                            **(
+                                {"Gluten Index (%)": [round(x, 2) for x in indices]}
+                                if indices is not None else {}
+                            ),
+                        },
+                        hide_index=True,
+                        use_container_width=True,
+                    )
+                    st.caption(
+                        "En gluten vital, el gluten húmedo puede superar el 100 % "
+                        "porque absorbe agua; se expresa como masa recuperada respecto de la muestra inicial."
+                    )
+        except ValueError:
+            st.error("Revisá las pesadas: ingresá números válidos (se acepta coma o punto decimal).")
+
+    with st.expander("Fórmulas utilizadas"):
+        st.latex(r"Gluten\ húmedo\ (\%)=\frac{m_{GH}}{m_{muestra}}\times100")
+        st.latex(r"Gluten\ seco\ (\%)=\frac{m_{GS}}{m_{muestra}}\times100")
+        st.latex(r"Gluten\ Index\ (\%)=\frac{m_{GH}-m_{pasa}}{m_{GH}}\times100")
+        st.write(
+            "Cada fórmula se aplica por separado a las dos determinaciones. "
+            "El resultado final es el promedio de ambas. "
+            "m_pasa es la masa de gluten húmedo que atraviesa la malla."
+        )
+        st.info("Fórmulas tomadas de la planilla interna GlutenVital.xlsx; no se atribuye una norma no verificada.")

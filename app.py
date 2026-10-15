@@ -19,11 +19,12 @@ def num(s):
 st.title("Edu Flores Grancelli Lab")
 st.caption("by EFG · Herramientas de laboratorio")
 
-tab_p, tab_t, tab_g, tab_v = st.tabs([
+tab_p, tab_t, tab_g, tab_v, tab_a = st.tabs([
     "🧬 Conversor de proteínas",
     "🌾 Humectación de trigo",
     "🌾 Gluten húmedo",
     "🧪 Gluten vital",
+    "🌻 Acidez en girasol",
 ])
 
 with tab_p:
@@ -354,3 +355,108 @@ with tab_v:
             "m_pasa es la masa de gluten húmedo que atraviesa la malla."
         )
         st.info("Fórmulas tomadas de la planilla interna GlutenVital.xlsx; no se atribuye una norma no verificada.")
+
+
+with tab_a:
+    st.subheader("Determinación de acidez en girasol")
+    st.write(
+        "Valoración con NaOH 0,1 N por duplicado. "
+        "Ingresá la masa exacta de cada muestra y el volumen de NaOH gastado."
+    )
+    st.info("Normalidad de NaOH fija: **0,1 N**.")
+    a1, a2 = st.columns(2)
+    with a1:
+        st.markdown("**Determinación 1**")
+        ac_m1_texto = st.text_input(
+            "Masa de muestra 1 (g)", placeholder="10,000", key="ac_m1"
+        )
+        ac_v1_texto = st.text_input(
+            "NaOH gastado 1 (mL)", placeholder="1,50", key="ac_v1"
+        )
+    with a2:
+        st.markdown("**Determinación 2**")
+        ac_m2_texto = st.text_input(
+            "Masa de muestra 2 (g)", placeholder="10,050", key="ac_m2"
+        )
+        ac_v2_texto = st.text_input(
+            "NaOH gastado 2 (mL)", placeholder="1,45", key="ac_v2"
+        )
+
+    if st.button("Calcular acidez en girasol", type="primary"):
+        try:
+            ac_m1, ac_m2 = num(ac_m1_texto), num(ac_m2_texto)
+            ac_v1, ac_v2 = num(ac_v1_texto), num(ac_v2_texto)
+            if ac_m1 <= 0 or ac_m2 <= 0:
+                st.error("Las masas de muestra deben ser mayores que cero.")
+            elif ac_v1 < 0 or ac_v2 < 0:
+                st.error("Los volúmenes gastados no pueden ser negativos.")
+            else:
+                normalidad = 0.1
+                ac_oleico1 = 28.2 * ac_v1 * normalidad / ac_m1
+                ac_oleico2 = 28.2 * ac_v2 * normalidad / ac_m2
+                ac_indice1 = 56.1 * ac_v1 * normalidad / ac_m1
+                ac_indice2 = 56.1 * ac_v2 * normalidad / ac_m2
+                ac_prom = (ac_oleico1 + ac_oleico2) / 2
+                ac_indice_prom = (ac_indice1 + ac_indice2) / 2
+
+                def fmt_acidez(valor, unidad):
+                    return f"{valor:.3f}".replace(".", ",") + unidad
+
+                st.success("Cálculo realizado")
+                st.markdown("**Resultados promedio**")
+                p1, p2 = st.columns(2)
+                with p1:
+                    st.metric("Acidez como ácido oleico", fmt_acidez(ac_prom, " %"))
+                with p2:
+                    st.metric("Índice de acidez", fmt_acidez(ac_indice_prom, " mg KOH/g"))
+                st.markdown("**Resultados por duplicado**")
+                st.dataframe(
+                    {
+                        "Determinación": ["1", "2"],
+                        "Acidez (% ácido oleico)": [
+                            round(ac_oleico1, 3),
+                            round(ac_oleico2, 3),
+                        ],
+                        "Índice (mg KOH/g)": [
+                            round(ac_indice1, 3),
+                            round(ac_indice2, 3),
+                        ],
+                    },
+                    hide_index=True,
+                    use_container_width=True,
+                )
+                d1, d2 = st.columns(2)
+                with d1:
+                    st.metric(
+                        "Diferencia de acidez",
+                        fmt_acidez(abs(ac_oleico1 - ac_oleico2), " puntos"),
+                    )
+                with d2:
+                    st.metric(
+                        "Diferencia de índice",
+                        fmt_acidez(abs(ac_indice1 - ac_indice2), " mg KOH/g"),
+                    )
+                st.caption(
+                    "No se aplica un límite de repetibilidad: "
+                    "falta confirmar el criterio del método utilizado."
+                )
+        except ValueError:
+            st.error(
+                "Completá las dos masas y los dos volúmenes con números válidos. "
+                "Se acepta coma o punto decimal."
+            )
+
+    with st.expander("Fórmulas de acidez"):
+        st.latex(r"A(\%)=\frac{28{,}2\times V\times N}{m}")
+        st.latex(r"I=\frac{56{,}1\times V\times N}{m}")
+        st.write(
+            "A: acidez expresada como ácido oleico (%). "
+            "I: índice de acidez (mg KOH/g). "
+            "V: volumen de NaOH consumido (mL). "
+            "N: normalidad de NaOH (0,1 N). "
+            "m: masa de muestra (g)."
+        )
+        st.write(
+            "Se calcula cada determinación por separado y se presenta "
+            "el promedio aritmético de los dos resultados."
+        )

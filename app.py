@@ -19,10 +19,11 @@ def num(s):
 st.title("Edu Flores Grancelli Lab")
 st.caption("by EFG · Herramientas de laboratorio")
 
-tab_h, tab_p, tab_t = st.tabs([
+tab_h, tab_p, tab_t, tab_g = st.tabs([
     "💧 Análisis de humedad",
     "🧬 Conversor de proteínas",
     "🌾 Humectación de trigo",
+    "🌾 Gluten húmedo",
 ])
 
 with tab_h:
@@ -136,4 +137,65 @@ with tab_t:
         st.info(
             "Los 5 mL adicionales se incorporan según el procedimiento de molienda. "
             "La humedad final real depende de las pérdidas efectivas."
+        )
+
+
+with tab_g:
+    st.subheader("Determinación de gluten húmedo")
+    st.write("Cálculo por duplicado, corregido a base 14 % de humedad (IRAM 15864-2:2013).")
+    st.info("Masa fija de harina por determinación: **10,00 g**.")
+    a, b = st.columns(2)
+    with a:
+        g1_texto = st.text_input("Pesada 1 de gluten húmedo (g)", placeholder="2,50")
+    with b:
+        g2_texto = st.text_input("Pesada 2 de gluten húmedo (g)", placeholder="2,55")
+    hg_texto = st.text_input("Humedad de la harina (%)", placeholder="14,00")
+    if st.button("Calcular gluten húmedo", type="primary"):
+        try:
+            g1 = num(g1_texto)
+            g2 = num(g2_texto)
+            h = num(hg_texto)
+            if not 0 <= h < 100:
+                st.error("La humedad debe estar entre 0 y menos de 100 %.")
+            elif g1 <= 0 or g2 <= 0:
+                st.error("Las dos pesadas deben ser mayores que cero.")
+            else:
+                # GH = (m_G2 / 10 g) × 100 × 86 / (100 - H).
+                factor = 860 / (100 - h)
+                gh1 = g1 * factor
+                gh2 = g2 * factor
+                if gh1 > 100 or gh2 > 100:
+                    st.error("El resultado supera el 100 % de gluten. Revisá los datos.")
+                else:
+                    promedio = (gh1 + gh2) / 2
+                    diferencia = abs(gh1 - gh2)
+                    st.metric(
+                        "Gluten húmedo promedio (base 14 %)",
+                        f"{promedio:.1f}".replace(".", ",") + " %",
+                    )
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        st.metric("Gluten húmedo 1", pct(gh1))
+                    with c2:
+                        st.metric("Gluten húmedo 2", pct(gh2))
+                    st.metric("Diferencia absoluta", pct(diferencia))
+                    if diferencia <= 0.5 + 1e-9:
+                        st.success("Cumple repetibilidad: diferencia ≤ 0,5 puntos porcentuales.")
+                    else:
+                        st.error("No cumple repetibilidad: diferencia > 0,5 puntos porcentuales.")
+                    st.caption(
+                        "La repetibilidad se comprueba con los resultados sin redondear. "
+                        "El promedio se informa con un decimal."
+                    )
+        except ValueError:
+            st.error("Ingresá ambas pesadas y la humedad como números válidos. Se acepta coma o punto decimal.")
+    with st.expander("Fórmula y criterio IRAM"):
+        st.latex(r"GH(\\%)=\\frac{m_{G2}}{10}\\times100\\times\\frac{86}{100-H}")
+        st.write(
+            "m_G2: masa de gluten húmedo (g); H: humedad real de la harina (%). "
+            "El resultado se expresa sobre base 14 % de humedad."
+        )
+        st.write(
+            "Se calculan ambas determinaciones y se informa su promedio con una cifra decimal. "
+            "La diferencia absoluta entre duplicados no debe superar 0,5 puntos porcentuales."
         )

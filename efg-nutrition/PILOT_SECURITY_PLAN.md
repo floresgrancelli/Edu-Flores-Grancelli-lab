@@ -65,3 +65,19 @@ https://supabase.com/docs/guides/auth
 https://www.ais.gov.au/nutrition/supplements/group_a
 https://ods.od.nih.gov/factsheets/ExerciseandAthleticPerformance-HealthProfessional/
 https://pubmed.ncbi.nlm.nih.gov/17277604/
+
+## Regla madre comercial y de privacidad — confirmada 26/10/2026
+
+**Una sola URL pública de EFG Nutrition para todos.** Compartir la URL no da acceso a información privada. El sistema identifica la sesión y el rol mediante autenticación segura sin contraseña memorizada (enlace o código de acceso de un solo uso).
+
+**Superadministrador EFG:** habilita la cuenta del coach tras su contratación, le asigna un cupo máximo de alumnos activos (asientos), gestiona renovaciones, cobros coach→EFG, activación, suspensión y estadísticas agregadas. No tiene en su panel acceso a dietas, pesos, suplementos ni actividad personal de los alumnos de otros coaches. Su propia cuenta tiene, adicionalmente, perfil de alumno propio y separado de la administración comercial.
+
+**Coach:** inicia sesión en la misma URL; dispone de un espacio privado único. Puede crear e invitar alumnos hasta su cupo habilitado, asignar planes y objetivos y visualizar únicamente sus alumnos que hayan consentido compartir los datos. La invitación genera usuario visible por ejemplo `Anita26`, pero el nombre de usuario NO habilita el acceso por sí solo. Puede revisar la información autorizada de alimentos, macros, fibras, suplementos, peso semanal y actividad, y recibir fotos privadas de comprobantes de pago de sus propios alumnos. Cobros alumno→coach muestran el alias del propio coach, previa verificación manual del pago.
+
+**Alumno:** entra por la misma URL con su propio acceso seguro; ve y registra solo su información, y autoriza el acceso a su coach. El entrenador B no puede consultar alumnos del A; un alumno no puede ver datos ajenos. Si hay baja o cambio de coach, se revoca el acceso del coach anterior. Nunca se eliminan datos por suspensión comercial sin política de retención y consentimiento.
+
+**Privacidad técnica:** RLS y autorización del servidor filtran por `organization_id`, `student_id`, rol y consentimiento vigente; se prueban cruces de cuentas adversariales. El superadministrador comercial no tendrá permisos de lectura de datos personales en la aplicación. La administración técnica directa de la infraestructura puede tener privilegios extraordinarios sobre la base de datos; si se exigiera imposibilidad criptográfica de lectura incluso para operadores técnicos, haría falta cifrado adicional con manejo de claves fuera del alcance del operador.
+
+**Cupos:** número de entrenadores en EFG no limitado por política comercial global; cada coach recibe un número concreto de alumnos activos. Crear un alumno consume un cupo; archivar o dar de baja un alumno libera el cupo según reglas de facturación, sin borrar su información automáticamente. Solo EFG puede aumentar los cupos.
+
+**No confundir prototipo con producto:** versión web pública actual es una demo local sin identidades verdaderas, ni aislamiento multi-coach, ni envío privado de comprobantes. Estas reglas constituyen el requisito de producción, no funcionalidad ya terminada.

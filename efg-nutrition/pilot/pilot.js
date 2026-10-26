@@ -339,6 +339,33 @@ function sportView(){
  '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+i+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>¿Qué conviene tomar?</h2><div class="pilot-notice"><strong>💧 Agua o agua gasificada</strong><small>Ambas hidratan; elegí según tolerancia y preferencia.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🥤 Bebidas zero</strong><small>Pueden sustituir bebidas azucaradas cuando se busca reducir calorías, pero no son superiores al agua.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🏃 Geles e isotónicas</strong><small>Más relevantes en entrenamientos prolongados o con necesidades específicas de hidratos y electrolitos.</small></div><p class="pilot-hint" style="margin-top:15px">El scoop no equivale siempre a 30 g. Omega-3 y magnesio necesitan datos reales de etiqueta y pertinencia individual.</p></div></div></div>';
 }
+function weightDateLabel(w){
+ const date=/^\d{4}-\d{2}-\d{2}$/.test(w?.measured_on||"")?w.measured_on.split("-").reverse().join("/"):"Fecha desconocida";
+ const hour=w?.measured_time?String(w.measured_time).slice(0,5):null;
+ return date+(hour?" · "+hour+" h":" · horario no registrado");
+}
+function normalizedWeights(items){
+ return (items||[]).filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(w?.measured_on||"")&&Number.isFinite(Number(w.kg))&&Number(w.kg)>0)
+ .slice().sort((a,b)=>a.measured_on.localeCompare(b.measured_on));
+}
+function weightTrendChart(items){
+ const weights=normalizedWeights(items);
+ if(!weights.length)return '<div class="empty">Sin pesajes todavía. El gráfico aparecerá cuando el alumno registre su peso.</div>';
+ const first=weights[0],last=weights[weights.length-1],previous=weights[weights.length-2];
+ const delta=(a,b)=>a===null||b===null?'—':(a-b>0?'+':'')+num(a-b,1)+' kg';
+ const vals=weights.map(w=>Number(w.kg));
+ const lo=Math.min(...vals),hi=Math.max(...vals);
+ const pad=Math.max(.5,(hi-lo)*.2),min=Math.max(0,lo-pad),max=hi+pad,span=Math.max(.1,max-min);
+ const W=700,H=235,marginL=49,marginR=24,top=24,bottom=46;
+ const xp=i=>marginL+(weights.length===1?(W-marginL-marginR)/2:i*(W-marginL-marginR)/(weights.length-1));
+ const yp=kg=>top+(max-kg)/span*(H-top-bottom);
+ const grid=Array.from({length:5},(_,i)=>{const v=min+(max-min)*i/4,y=yp(v);return '<line class="weight-chart-grid" x1="'+marginL+'" y1="'+y.toFixed(1)+'" x2="'+(W-marginR)+'" y2="'+y.toFixed(1)+'"></line><text class="weight-chart-axis" x="'+(marginL-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end">'+num(v,1)+'</text>';}).join('');
+ const points=weights.map((w,i)=>xp(i).toFixed(1)+','+yp(Number(w.kg)).toFixed(1)).join(' ');
+ const circles=weights.map((w,i)=>'<circle class="weight-chart-point" cx="'+xp(i).toFixed(1)+'" cy="'+yp(Number(w.kg)).toFixed(1)+'" r="5"><title>'+escapeHTML(weightDateLabel(w)+' · '+num(w.kg,1)+' kg')+'</title></circle>').join('');
+ const xLabels=weights.map((w,i)=>{if(weights.length>8&&i!==0&&i!==weights.length-1&&i%Math.ceil(weights.length/6)!==0)return '';return '<text class="weight-chart-axis" x="'+xp(i).toFixed(1)+'" y="'+(H-13)+'" text-anchor="middle">'+escapeHTML(w.measured_on.slice(8)+'/'+w.measured_on.slice(5,7))+'</text>';}).join('');
+ return '<div class="weight-trend"><div class="weight-summary"><div><small>Primer pesaje</small><strong>'+num(first.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(first))+'</span></div><div><small>Último pesaje</small><strong>'+num(last.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(last))+'</span></div><div><small>Variación total</small><strong>'+delta(Number(last.kg),weights.length>1?Number(first.kg):null)+'</strong><span>Desde el anterior: '+delta(Number(last.kg),previous?Number(previous.kg):null)+'</span></div></div><div class="weight-chart-scroll"><svg class="weight-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico de '+weights.length+' pesajes, desde '+num(first.kg,1)+' hasta '+num(last.kg,1)+' kilos">'+grid+(weights.length>1?'<polyline class="weight-chart-line" points="'+points+'"></polyline>':'')+circles+xLabels+'</svg></div><p class="pilot-hint">Cada punto es un pesaje real. Los días sin registro no se cuentan ni interpolan. Las variaciones aisladas pueden reflejar cambios de agua corporal.</p></div>';
+}
+const argentinaTime=()=>new Intl.DateTimeFormat("en-GB",{timeZone:"America/Argentina/Buenos_Aires",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date());
 function progressView(){
  let weights=state.weights.slice().sort((a,b)=>b.measured_on.localeCompare(a.measured_on));
  return rootText("Mi progreso","Seguimiento de peso, actividad diaria y evolución semanal.")+'<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Peso corporal semanal</h2><div class="warning" style="margin-top:15px">⚠ IMPORTANTE: Pesarse siempre a la misma hora, en la misma balanza y preferentemente por la mañana, después de ir al baño y antes del desayuno.</div><div class="pilot-form"><div class="field-row"><div class="field"><label>Fecha</label><input type="date" id="weightDay" value="'+today()+'"></div><div class="field"><label>Peso (kg)</label><input type="number" step=".1" min="20" max="400" id="weightKg" placeholder="Ej. 78,5"></div></div><button class="btn" data-act="saveWeight">Guardar peso</button></div></div><div class="card"><h2>Historial</h2>'+(weights.length?'<table class="pilot-table"><thead><tr><th>Fecha</th><th>Peso</th></tr></thead><tbody>'+weights.map(w=>'<tr><td>'+escapeHTML(w.measured_on)+'</td><td><b>'+num(w.kg,1)+' kg</b></td></tr>').join("")+'</tbody></table>':'<div class="empty">Todavía no tenés registros de peso.</div>')+'</div></div>'+
@@ -608,10 +635,14 @@ async function refresh(){
  finally{state.loading=false;}
 }
 async function saveWeight(){
- const kg=Number(document.getElementById("weightKg").value),day=document.getElementById("weightDay").value;
- if(!(kg>=20&&kg<=400&&/^\d{4}-\d{2}-\d{2}$/.test(day)))throw new Error("Ingresá una fecha y un peso válidos.");
- const {error}=await sb.from("efg_weights").upsert({student_id:state.session.user.id,measured_on:day,kg},{onConflict:"student_id,measured_on"});
- if(error)throw error;notify("Peso semanal registrado.");await loadPersonalData();await render();
+ const kg=Number(document.getElementById("weightKg")?.value),day=document.getElementById("weightDay")?.value,time=document.getElementById("weightTime")?.value;
+ if(!(kg>=20&&kg<=400&&/^\d{4}-\d{2}-\d{2}$/.test(day)&&/^([01]\d|2[0-3]):[0-5]\d$/.test(time)))throw new Error("Ingresá fecha, hora y peso válidos.");
+ if(day>today())throw new Error("No se puede guardar un pesaje con fecha futura.");
+ const parsed=new Date(day+"T12:00:00Z");
+ if(Number.isNaN(parsed.getTime())||parsed.toISOString().slice(0,10)!==day)throw new Error("La fecha de pesaje no es válida.");
+ const {error}=await sb.from("efg_weights").upsert({student_id:state.session.user.id,measured_on:day,measured_time:time,kg},{onConflict:"student_id,measured_on"});
+ if(error)throw error;
+ await loadPersonalData();await render();notify("Pesaje guardado con fecha y hora.");
 }
 async function saveActivity(){
  const steps=Number(document.getElementById("activitySteps").value),mins=Number(document.getElementById("activityMinutes").value),kind=document.getElementById("activityKind").value;

@@ -34,7 +34,7 @@ export function equivalentPortion(a,grams,b,category){
  return {grams:Math.round(grams*a[nutrient]/b[nutrient]),nutrient,estimated:true};
 }
 export function futureSlots(diary,dinnerOnly){
- if(dinnerOnly)return (diary?.skipped||{}).cena||diary?.meals?.cena?.length?[]:["cena"];
+ if(dinnerOnly)return (diary?.skipped||{}).cena?[]:["cena"];
  const meals=diary?.meals||{},skipped=diary?.skipped||{};
  let last=-1;
  MEAL_ORDER.forEach((slot,i)=>{if((meals[slot]||[]).length>0&&!skipped[slot])last=i;});
@@ -77,7 +77,7 @@ export function makePlan({foods,approved,diary,goals,totals,dinnerOnly=false,sel
  let left={...remaining};
  const meals=[];
  slots.forEach((slot,i)=>{
-   const share=(slots.length-i===2 && slot==="merienda")?.32:1;
+   const share=(slots.length-i===2 && slot==="merienda") ? 0.32 : 1;
    const p=proposeMeal({foods,approved,slot,remaining:left,share,selections});
    meals.push(p);
    for(const k of ["k","p","c","f","fi"])left[k]=Math.max(0,left[k]-p.estimate[k]);

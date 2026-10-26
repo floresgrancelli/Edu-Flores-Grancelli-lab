@@ -181,3 +181,29 @@ h1,h2,h3{color:var(--ink)}
  .sport-stats .metric-value{font-size:20px}
  .sport-stats .metric-label{font-size:9px;line-height:1.35}
 }
+
+
+/* Coach professional calculator: playful premium medical-tech visual language */
+.coach-topbar{display:flex;flex-wrap:wrap;gap:11px;align-items:center;margin:-3px 0 17px}
+.coach-identity{display:inline-flex;align-items:center;border:1px solid #dbece5;background:#fff;padding:9px 12px;border-radius:50px;color:#597971;font-size:11px;font-weight:740}
+.coach-layout{grid-template-columns:1.13fr 1fr}
+.coach-tools{display:flex;gap:13px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.coach-result{padding:4px 0}
+.result-caption{font-size:10px;letter-spacing:1.3px;color:#099582;font-weight:850;margin:4px 0 12px}
+.result-kcal{font-size:40px;font-weight:890;letter-spacing:-1.8px;color:#176c64}
+.result-kcal small{font-size:13px;letter-spacing:0;color:#819b96;font-weight:600}
+.coach-result p{font-size:12px;line-height:1.6;margin:10px 0 18px}
+.result-list{display:grid;gap:2px}
+.result-list>div{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #edf1ee;font-size:12px;color:#54757a}
+.result-list b{color:#153c47;font-size:15px}
+.calculator-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:220px;background:linear-gradient(145deg,#f0f9f5,#fffaf0);border-radius:14px;padding:28px}
+.calculator-welcome>span{font-size:40px;margin-bottom:14px}
+.calculator-welcome h3{font-size:14px;margin-bottom:9px}
+.calculator-welcome p{font-size:12px}
+.coach-target-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.coach-science{margin-top:18px;padding:19px 24px;border:1px solid #dce9e4;background:#f2f8f4;border-radius:16px;color:#4e7770}
+.coach-science b{color:#2d6761;font-size:12px}
+.coach-science p{font-size:11px;margin-top:7px;color:#6f8b87;line-height:1.8}
+.coach-science a{color:#138e81;text-decoration:underline;font-size:11px}
+@media(max-width:1130px){.coach-target-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:790px){.coach-target-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-layout{grid-template-columns:1fr}.coach-topbar{gap:7px}.coach-identity{font-size:10px;padding:7px 9px}}

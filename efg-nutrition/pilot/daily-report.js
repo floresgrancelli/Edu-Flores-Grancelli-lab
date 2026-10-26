@@ -10,7 +10,7 @@ export function buildNutritionReport(logs, mealSlots, dailyTotals, currentDay, g
   const closed=!!d.skipped?._closed;
   const comment=String(d.skipped?._comment||"").slice(0,1000);
   const supplements=(d.sports||[]).filter(x=>x.kind==="supplement"||["creatine","collagen","omega3","magnesium","electrolytes"].includes(x.id)).map(x=>({name:String(x.name||"Suplemento"),qty:Number(x.qty)||0,unit:String(x.unit||""),when:String(x.when||""),k:Number(x.k)||0,p:Number(x.p)||0,f:Number(x.f)||0}));
-  return {date:d.log_day,k:t.k,p:t.p,c:t.c,f:t.f,fi:t.fi,meals,mealCount,sportCount,supplements,comment,closed,hasData:mealCount>0||sportCount>0||!!comment,updatedAt:d.updated_at||null};
+  return {date:d.log_day,k:t.k,p:t.p,c:t.c,f:t.f,fi:t.fi,meals,mealCount,sportCount,supplements,comment,closed,hasData:mealCount>0||(d.sports||[]).some(x=>["k","p","c","f"].some(key=>Number(x[key])>0)),hasNote:!!comment,updatedAt:d.updated_at||null};
  }).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
  const recorded=days.filter(d=>d.hasData);
  const closed=recorded.filter(d=>d.closed);

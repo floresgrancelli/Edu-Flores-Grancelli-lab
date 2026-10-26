@@ -47,7 +47,7 @@ Deno.serve(async(req:Request)=>{
     const roster=rosterRes.data||[];
     if(roster.length===0){skipped++;continue;}
     const userIds=roster.map((p)=>p.user_id);
-    const consentRes=await db.from("efg_consents").select("student_id,organization_id,accepted").eq("organization_id",org.id).eq("accepted",true).in("student_id",userIds);
+    const consentRes=await db.from("efg_consents").select("student_id,organization_id,accepted,email_report_opt_in").eq("organization_id",org.id).eq("accepted",true).eq("email_report_opt_in",true).in("student_id",userIds);
     if(consentRes.error)throw consentRes.error;
     const allowed=new Set((consentRes.data||[]).map((c)=>c.student_id));
     const participants=roster.filter((p)=>allowed.has(p.user_id));

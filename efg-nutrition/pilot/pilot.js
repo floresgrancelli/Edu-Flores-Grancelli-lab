@@ -134,7 +134,16 @@ function unauthorized(msg){
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
- let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+(i.displayQty?num(i.displayQty,1)+" "+escapeHTML(i.displayUnit)+" (≈"+num(i.qty,1)+" "+escapeHTML(i.unit)+")":num(i.qty,1)+" "+escapeHTML(i.unit))).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
+ let meals=mealSlots.map(([key,title,emoji])=>{
+  let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
+  const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
+   const portion=i.displayQty?num(i.displayQty,1)+' '+escapeHTML(i.displayUnit)+' (≈'+num(i.qty,1)+' '+escapeHTML(i.unit)+')':num(i.qty,1)+' '+escapeHTML(i.unit);
+   return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span>'+portion+' · '+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
+   '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
+  }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
+  return '<div class="pilot-record meal-day-section"><div class="between"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div>'+
+  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'</div></div>';
+ }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p>'+
  '<label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'> Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label>'+
@@ -658,6 +667,13 @@ if(el.dataset.foodbulk){
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
  if(el.dataset.usealternative){const key=el.dataset.usealternative,chosen=state.plannerSelections["alt:"+key];if(!chosen)throw new Error("Elegí una alternativa.");state.plannerSelections[key]=chosen;delete state.plannerSelections["alt:"+key];return render();}
+ if(el.dataset.removefood){
+  const [slot,indexValue]=el.dataset.removefood.split(":");
+  const index=Number(indexValue),d=activeDiary();
+  if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
+  d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
+  await saveDiary();notify("Alimento eliminado. Los macros se actualizaron.");return;
+ }
  if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");

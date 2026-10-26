@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES} from "./food-catalog.js";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -134,7 +134,7 @@ function unauthorized(msg){
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
- let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+num(i.qty,1)+" "+escapeHTML(i.unit)).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
+ let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+(i.displayQty?num(i.displayQty,1)+" "+escapeHTML(i.displayUnit)+" (≈"+num(i.qty,1)+" "+escapeHTML(i.unit)+")":num(i.qty,1)+" "+escapeHTML(i.unit))).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p><label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'>Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label><button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button><small style="display:block;margin-top:9px;color:#77958a">Estado actual: '+(cons?.accepted?'Compartido con tu coach':'Solo visible para vos')+'</small></section>':'';
  const closePanel=showConsent?'<div class="nutrition-day-close"><h3>Informe de mi día</h3><p class="pilot-hint">'+
@@ -201,9 +201,13 @@ function openMealDialog(slot){
  const allowed=allowedFoods().map(id=>foods.find(x=>x.id===id)).filter(Boolean);
  state.activeMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
- '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Ingresá el peso realmente consumido.</p>'+
- '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, pollo, arroz…" autocomplete="off"></div><div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed)+'</select></div><div class="field"><label>Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min="1" max="5000" value="100"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
- updateMealDialogHint();
+ '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
+ '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, huevo, arroz…" autocomplete="off"></div>'+
+ '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed)+'</select></div>'+
+ '<div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
+ '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
+ '<div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ updateMealEntryMode(true);
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -213,16 +217,50 @@ function filterMealFoods(){
  const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
  selector.innerHTML=groupedFoodOptions(filtered);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
+ updateMealEntryMode(true);
+}
+function updateMealEntryMode(foodChanged=false){
+ const id=document.getElementById("mealEditorFood")?.value;
+ const f=foods.find(x=>x.id===id);
+ const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
+ const mode=document.getElementById("mealEntryMode"),wrap=document.getElementById("mealEntryModeWrap"),qty=document.getElementById("mealEditorQty"),label=document.getElementById("mealEditorQtyLabel");
+ if(!mode||!qty||!label||!wrap)return;
+ wrap.style.display=portion?"":"none";
+ if(foodChanged){mode.value=portion?"units":"weight";qty.value=portion?(f.id==="egg"?2:1):100;}
+ if(!portion)mode.value="weight";
+ const counting=!!portion&&mode.value==="units";
+ label.textContent=counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
+ qty.step=counting?"1":"any";
+ qty.min=counting?"1":"0.1";
+ if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  updateMealDialogHint();
 }
+function measureMealEntry(){
+ const id=document.getElementById("mealEditorFood")?.value;
+ const f=foods.find(x=>x.id===id);
+ const qty=Number(document.getElementById("mealEditorQty")?.value);
+ const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
+ const useUnits=!!portion&&document.getElementById("mealEntryMode")?.value==="units";
+ const grams=useUnits?qty*portion.grams:qty;
+ return {f,qty,grams,useUnits,portion};
+}
 function updateMealDialogHint(){
- const id=document.getElementById("mealEditorFood")?.value,qty=Number(document.getElementById("mealEditorQty")?.value),f=foods.find(x=>x.id===id),hint=document.getElementById("mealEditorHint");
- if(f&&hint&&Number.isFinite(qty))hint.textContent=num(f.k*qty)+" kcal y "+num(f.p*qty,1)+" g de proteína · "+f.source;
+ const hint=document.getElementById("mealEditorHint");
+ if(!hint)return;
+ const {f,qty,grams,useUnits,portion}=measureMealEntry();
+ if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
+ hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
+ num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+f.source+
+ (useUnits?". Porción estimada: puede variar por tamaño. Si cocinás con aceite, registralo aparte.":"");
 }
 async function saveSelectedMeal(){
- const slot=state.activeMeal,id=document.getElementById("mealEditorFood")?.value,grams=Number(document.getElementById("mealEditorQty")?.value);
- const f=foods.find(x=>x.id===id);if(!slot||!f||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000)throw new Error("Verificá el alimento y su peso.");
- const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(normItem(f,grams,slot));d.skipped[slot]=false;d.skipped._closed=false;state.activeMeal=null;
+ const slot=state.activeMeal;
+ const {f,qty,grams,useUnits,portion}=measureMealEntry();
+ if(!slot||!f||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ const d=activeDiary();d.meals[slot] ||= [];
+ const entry=normItem(f,grams,slot);
+ if(useUnits){entry.displayQty=qty;entry.displayUnit=portion.label;entry.unitEstimate=true;}
+ d.meals[slot].push(entry);d.skipped[slot]=false;d.skipped._closed=false;state.activeMeal=null;
  await saveDiary();notify("Alimento agregado, balance actualizado.");
 }
 function coachFoodChoices(p,consent){
@@ -677,7 +715,7 @@ if(el.dataset.foodbulk){
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
-root.addEventListener("change",e=>{if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.id==="mealEditorQty")updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){

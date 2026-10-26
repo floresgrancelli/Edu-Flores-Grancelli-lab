@@ -1,7 +1,7 @@
 // EFG Nutrition - motor de planificación orientativa para alimentos pesados.
 // No prescribe tratamiento; solo estima porciones en función del balance restante.
 export const FOOD_GROUPS = {
-  protein:["chicken","beef","pork","tuna","egg","yogurt","cheese","fish_hake","fish_salmon","fish_sardines","fish_mackerel","fish_cod","fish_shrimp","tuna_fresh","chicken_breast_raw","chicken_thigh_cooked","turkey_breast_cooked","lean_ground_beef","sirloin_cooked","beef_tenderloin","pork_chop","ham_cooked","tofu_firm","tempeh","egg_white","egg_boiled","yogurt_greek","yogurt_greek_light","ricotta_light","cottage_cheese","whey_powder","seitan_cooked","soy_textured_hydrated","soy_beans_cooked","veal_cutlet_cooked","ground_beef_regular","chicken_liver_cooked","squid_cooked","mussels_cooked","anchovies_canned","ricotta_whole","yogurt_high_protein"],
+  protein:["chicken","beef","pork","tuna","egg","yogurt","cheese","fish_hake","fish_salmon","fish_sardines","fish_mackerel","fish_cod","fish_shrimp","tuna_fresh","chicken_breast_raw","chicken_thigh_cooked","turkey_breast_cooked","lean_ground_beef","sirloin_cooked","beef_tenderloin","pork_chop","ham_cooked","tofu_firm","tempeh","milanesa_soy_gobinda","egg_white","egg_boiled","yogurt_greek","yogurt_greek_light","ricotta_light","cottage_cheese","whey_powder","seitan_cooked","soy_textured_hydrated","soy_beans_cooked","veal_cutlet_cooked","ground_beef_regular","chicken_liver_cooked","squid_cooked","mussels_cooked","anchovies_canned","ricotta_whole","yogurt_high_protein"],
   carbs:["brownrice","rice","potato","sweetpotato","pasta","protein_pasta","bread","banana","oats_raw","oatmeal_cooked","bread_white","bread_rye","toast_whole","rice_cakes","tortilla_wheat","quinoa_cooked","couscous_cooked","bulgur_cooked","polenta_cooked","corn_cooked","potato_baked","sweetpotato_baked","lentils_cooked","chickpeas_cooked","beans_black","beans_white","beans_red","peas_cooked","apple","pear","orange","mandarin","kiwi","strawberry","blueberry","grapes","watermelon","melon","peach","plum","pineapple","mango","grapefruit","quinoa_dry","brown_rice_dry","yamani_rice_cooked","barley_cooked","millet_cooked","buckwheat_cooked","bread_glutenfree","toast_glutenfree","oat_flour","chickpea_flour","prunes","fig_fresh","cherries","papaya","apricot","persimmon","pomegranate"],
   vegetable:["rocket","pumpkin","tomato","tomato_cherry","cucumber","lettuce","carrot_raw","carrot_cooked","broccoli_cooked","zucchini","spinach_cooked","onion","bellpepper","asparagus","cabbage","cauliflower","greenbeans","beets","eggplant","mushrooms","celery","leek","scallion","kale","watercress","radish","artichoke_cooked","turnip_cooked"],
   fat:["oil","avocado","sunflower_oil","canola_oil","butter","peanut_butter","peanuts","walnuts","almonds","cashews","pistachios","mixed_nuts","chia","flaxseed","sesame","olives","hazelnuts","pecans","brazil_nuts","macadamia_nuts","pumpkin_seeds","sunflower_seeds","coconut_oil"]
@@ -9,7 +9,7 @@ export const FOOD_GROUPS = {
 export const FOOD_DEFAULTS = ["egg","bread","milk","cheese","quince","cake","yogurt","chicken","beef","pork","tuna","brownrice","rice","potato","sweetpotato","pasta","protein_pasta","banana","rocket","pumpkin","oil","avocado","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts","coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk"];
 export const MEAL_ORDER=["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"];
 const PREFERRED={
- cena:{protein:["chicken","pork","beef","tuna","egg"],carbs:["potato","sweetpotato","brownrice","rice","pasta","protein_pasta","bread"],vegetable:["rocket","pumpkin"],fat:["oil","avocado"]},
+ cena:{protein:["chicken","pork","beef","tuna","milanesa_soy_gobinda","egg"],carbs:["potato","sweetpotato","brownrice","rice","pasta","protein_pasta","bread"],vegetable:["rocket","pumpkin"],fat:["oil","avocado"]},
  merienda:{protein:["yogurt","egg","cheese"],carbs:["bread","banana","sweetpotato"],vegetable:[],fat:[]},
  media_tarde:{protein:["yogurt","egg"],carbs:["bread","banana"],vegetable:[],fat:[]},
  almuerzo:{protein:["chicken","beef","tuna"],carbs:["brownrice","potato","rice","pasta"],vegetable:["rocket","pumpkin"],fat:["oil","avocado"]}
@@ -50,7 +50,7 @@ export function proposeMeal({foods,approved,slot,remaining,share=1,selections={}
  for(const category of ["protein","carbs","vegetable","fat"]){
   let possibles=optionsFor(foods,approved,category);
   if(!possibles.length)continue;
-  const id=selections[slot+"_"+category];
+  const id=selections[slot+"|"+category];
   let chosen=possibles.find(f=>f.id===id)||profile[category].map(pid=>possibles.find(f=>f.id===pid)).find(Boolean)||possibles[0];
   const key=MATCH[category];
   let want=remainingGoal[key];

@@ -148,3 +148,18 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 
 /* Navegación de siete secciones: deslizable y accesible en iPhone */
 @media(max-width:720px){.pilot-nav{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}.pilot-nav::-webkit-scrollbar{display:none}.pilot-nav button.navitem{flex:1 0 56px;min-width:56px;max-width:95px;font-size:9px;white-space:normal}}
+
+/* Evolución del peso semanal para alumno y coach */
+.weight-trend{min-width:0;margin-top:13px;}
+.weight-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0 16px;}
+.weight-summary>div{min-width:0;background:#f2faf6;border:1px solid #deebe4;border-radius:12px;padding:11px;}
+.weight-summary small,.weight-summary span{display:block;color:#67827c;font-size:10px;line-height:1.5;}
+.weight-summary strong{display:block;font-size:19px;color:#146e65;margin:7px 0;line-height:1.25;overflow-wrap:anywhere;}
+.weight-chart-scroll{overflow-x:auto;border:1px solid #e0ebe5;border-radius:12px;background:#fff;-webkit-overflow-scrolling:touch;}
+.weight-chart{width:100%;min-width:360px;min-height:200px;display:block;}
+.weight-chart-grid{stroke:#deece6;stroke-width:1;stroke-dasharray:3 4;}
+.weight-chart-axis{fill:#728982;font-family:system-ui,sans-serif;font-size:12px;}
+.weight-chart-line{fill:none;stroke:#168a7d;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.weight-chart-point{fill:#fff;stroke:#168a7d;stroke-width:3;}
+.weight-trend>.pilot-hint{margin-top:10px;}
+@media(max-width:720px){.weight-summary{grid-template-columns:repeat(2,minmax(0,1fr));}.weight-summary>div:last-child{grid-column:span 2;}.weight-summary strong{font-size:18px;}.weight-chart{min-width:520px;}}

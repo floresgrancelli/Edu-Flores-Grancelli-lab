@@ -113,3 +113,15 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 /* Selector de porciones por unidad, modo compacto en móvil */
 #mealEntryModeWrap select{min-height:46px}
 #mealEditorQtyLabel{line-height:1.5}
+
+/* Registro visible: cada alimento ocupa su propia línea */
+.meal-day-section{padding:16px 0;}
+.meal-day-section>.between{align-items:center;gap:12px;}
+.meal-food-list{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.meal-food-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;background:#f5faf7;border:1px solid #e0eee8;border-radius:11px;}
+.meal-food-label{display:flex;flex-direction:column;min-width:0;gap:4px;}
+.meal-food-label strong{font-size:13px;color:#2c5350;line-height:1.35;overflow-wrap:anywhere;}
+.meal-food-label span{color:#617f79;font-size:11px;line-height:1.5;}
+.meal-remove-item{flex:0 0 34px;min-width:34px;height:36px;border:1px solid #dde7e3;border-radius:9px;background:white;color:#81514c;font-size:24px;cursor:pointer;}
+.meal-food-empty{color:#8fa7a2;display:block;margin-top:8px;font-size:12px;}
+.meal-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;}

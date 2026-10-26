@@ -26,7 +26,7 @@ close(gobinda.f*125,11.15,"Gobinda: grasas por milanesa");
 close(gobinda.fi*125,7.5,"Gobinda: fibra por milanesa");
 close(gobinda.k*250,624,"Gobinda: 2 milanesas");
 close(FOOD_UNIT_PORTIONS.milanesa_soy_gobinda.grams,125,"Gobinda: peso por unidad");
-const refs=[["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
+const refs=[["oats_raw","173904",379],["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
 for(const [id,fdcId,kcal100] of refs){
  const food=foods.get(id);
  assert.ok(food,"Falta registro USDA "+id);

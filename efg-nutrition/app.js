@@ -57,12 +57,15 @@ function sportSummary(){
 }
 function sportPage(){
  var entries=sportEntries(),sums=sportSummary();
+ var remainingEnergy=state.goals.k-totals().k;
+ var energyAdvice=remainingEnergy<=250?"Con tu balance actual, priorizá bebidas sin aporte energético si solo buscás hidratación.":("Te quedan aproximadamente "+fmt(remainingEnergy)+" kcal en tu objetivo ilustrativo. Elegí bebidas según tu actividad y preferencia.");
  var products=SPORT_PRODUCTS.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>';}).join("");
  var times=SPORT_TIMES.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join("");
  var recommendation='<div class="advice-item"><span>💧</span><div><b>Para la hidratación habitual</b><p>Agua sin gas o gasificada sin azúcar: ambas pueden hidratar. Elegí según tus preferencias y tolerancia.</p></div></div>'+
  '<div class="advice-item"><span>🥤</span><div><b>¿Bebidas zero?</b><p>Pueden ayudar a reemplazar bebidas azucaradas cuando se busca reducir calorías, pero no son mejores que el agua.</p></div></div>'+
  '<div class="advice-item"><span>🏃</span><div><b>Para entrenamientos largos</b><p>En resistencia prolongada o sudoración alta pueden ser útiles bebidas con hidratos y electrolitos o geles. Se contabilizan sus calorías.</p></div></div>';
  return pageHead("NUTRICIÓN DEPORTIVA","Suplementos e hidratación","Registrá porciones, scoops, geles y bebidas según el momento del día.")+
+ '<div class="note" style="margin-bottom:16px">💧 <b>Según tu objetivo diario:</b> '+esc(energyAdvice)+' La recomendación no sustituye la valoración individual.</div>'+
  '<div class="sport-intro"><div><span class="sport-kicker">✦ COMPLEMENTÁ TU REGISTRO</span><h2>Tu entrenamiento también cuenta.</h2><p>Registrá lo que tomás o consumís antes, durante y después de entrenar. Las calorías se suman al resumen diario.</p></div><span class="sport-decor">🏋️</span></div>'+
  '<div class="grid kpi-grid sport-stats"><div class="card"><div class="metric-label">ENERGÍA REGISTRADA</div><div class="metric-value">'+fmt(sums.k)+' <span>kcal</span></div></div><div class="card"><div class="metric-label">PROTEÍNA AÑADIDA</div><div class="metric-value">'+fmt(sums.p,1)+' <span>g</span></div></div><div class="card"><div class="metric-label">HIDRATOS AÑADIDOS</div><div class="metric-value">'+fmt(sums.c,1)+' <span>g</span></div></div></div>'+
  '<div class="two-col"><div class="stack"><section class="card">'+cardHead("Agregar al registro",'<span class="pill">Datos orientativos</span>')+

@@ -101,7 +101,7 @@ function allowedFoods(){return state.profile?.role==="student"?(state.foodPlan?.
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
- let out='<section class="card planner-panel"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
+ let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
  '<p class="pilot-hint">Según lo que comiste de verdad, elegí cómo continuar. Sugerimos cantidades; vos decidís y registrás lo que pesaste.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para calcular porciones necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';

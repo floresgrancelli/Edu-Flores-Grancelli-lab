@@ -14,8 +14,8 @@ const num=(v,d=0)=>Number(v||0).toLocaleString("es-AR",{maximumFractionDigits:d}
 const mealSlots=[["desayuno","Desayuno","☀️"],["media_manana","Media mañana","🥛"],["almuerzo","Almuerzo","🍽️"],["media_tarde","Media tarde","☕"],["merienda","Merienda","🍌"],["cena","Cena","🌙"]];
 const sportTimes=[["pre","Preentrenamiento"],["during","Durante el entrenamiento"],["post","Postentrenamiento"],["morning","Media mañana"],["afternoon","Media tarde"],["other","Otro momento"]];
 const foods=[
- {id:"egg",name:"Huevo entero",unit:"g",k:1.43,p:.126,c:.007,f:.095,fi:0,source:"Tabla genérica"},
- {id:"chicken",name:"Pollo cocido sin piel",unit:"g",k:1.65,p:.31,c:0,f:.036,fi:0,source:"Tabla genérica"},
+ {id:"egg",name:"Huevo entero sin cáscara (referencia crudo)",unit:"g",k:1.48,p:.124,c:.0096,f:.0996,fi:0,source:"USDA FoodData Central Foundation Foods (04/2026), FDC 748967: huevo entero grado A grande, sin cáscara, referencia sin cocción. Valores por 100 g: 148 kcal; proteínas 12,4 g; hidratos totales 0,96 g; grasas 9,96 g. No sumar aceite de cocción; registrarlo aparte.",sourceType:"usda_fdc",sourceId:"748967",validationStatus:"tabla_referenciada"},
+ {id:"chicken",name:"Pollo cocido sin piel (estimación general)",unit:"g",k:1.65,p:.31,c:0,f:.036,fi:0,source:"Promedio genérico por 100 g, corte y método no especificados: usar la ficha de pechuga/muslo cuando se conozcan los detalles."},
  {id:"beef",name:"Carne vacuna magra cocida",unit:"g",k:2.10,p:.29,c:0,f:.09,fi:0,source:"Promedio"},
  {id:"pork",name:"Lomo de cerdo cocido",unit:"g",k:1.96,p:.29,c:0,f:.085,fi:0,source:"Promedio"},
  {id:"bread",name:"Pan integral",unit:"g",k:2.47,p:.13,c:.41,f:.042,fi:.07,source:"Promedio"},
@@ -23,8 +23,8 @@ const foods=[
  {id:"milk",name:"Leche Protein descremada",unit:"ml",k:.42,p:.052,c:.046,f:0,fi:0,source:"Estimación; verificar envase"},
  {id:"quince",name:"Dulce de membrillo",unit:"g",k:2.7,p:.003,c:.67,f:.001,fi:.004,source:"Promedio"},
  {id:"cake",name:"Budín proteico casero Edu",unit:"g",k:2.173,p:.1547,c:.2613,f:.064,fi:.0373,source:"Receta estimada"},
- {id:"rice",name:"Arroz blanco cocido",unit:"g",k:1.3,p:.027,c:.28,f:.003,fi:.004,source:"Tabla genérica"},
- {id:"potato",name:"Papa hervida",unit:"g",k:.87,p:.019,c:.201,f:.001,fi:.018,source:"Tabla genérica, peso cocido"},
+ {id:"rice",name:"Arroz blanco cocido sin aceite",unit:"g",k:1.29,p:.0267,c:.2799,f:.0028,fi:.004,source:"USDA FoodData Central FNDDS 2021-2023, FDC 2708408: arroz blanco cocido sin grasa añadida. Valores por 100 g: 129 kcal; proteínas 2,67 g; hidratos totales 27,99 g; grasas 0,28 g. Fibra: estimación heredada (0,4 g/100 g), pendiente de cotejo específico.",sourceType:"usda_fdc",sourceId:"2708408",validationStatus:"tabla_parcial_fibra_pendiente"},
+ {id:"potato",name:"Papa hervida sin piel y sin sal",unit:"g",k:.86,p:.0171,c:.2001,f:.001,fi:.018,source:"USDA FoodData Central SR Legacy (04/2018), FDC 170440: papa hervida sin piel, sin sal. Valores por 100 g cocidos: 86 kcal; proteínas 1,71 g; hidratos totales 20,01 g; grasas 0,1 g; fibra 1,8 g. Si agregás aceite, contalo por separado.",sourceType:"usda_fdc",sourceId:"170440",validationStatus:"tabla_referenciada"},
  {id:"sweetpotato",name:"Batata hervida",unit:"g",k:.76,p:.013,c:.177,f:.001,fi:.025,source:"Tabla genérica, peso cocido"},
  {id:"brownrice",name:"Arroz integral cocido",unit:"g",k:1.23,p:.027,c:.256,f:.01,fi:.018,source:"Tabla genérica, peso cocido"},
  {id:"protein_pasta",name:"Fideos proteicos cocidos (estimación)",unit:"g",k:1.55,p:.12,c:.235,f:.018,fi:.04,source:"Estimación ilustrativa: sustituir según marca y cocción"},

@@ -21,7 +21,7 @@ Fuentes oficiales:
 ## Hallazgos iniciales sobre el código de la rama
 
 - Se encontraron **134 alimentos** en RAW_FOODS, **147 alimentos** en REGIONAL_FOODS y **63 alimentos** en EXPANSION_FOODS: **344 fichas genéricas o de preparación** en la biblioteca ampliada; hay además alimentos principales declarados en pilot.js. No significa 344 alimentos verificados.
-- En RAW_FOODS hay **14 fichas con proteínas, carbohidratos y grasas en cero**: la mayoría son agua o infusiones sin azúcar y pueden ser plausibles; sin embargo, `coffee_milk`, `coffee_cortado`, `tea_milk` y `mate_cocido_milk` son bebidas «personalizables» que no deben contabilizarse como cero si se agregó leche. Verificar comportamiento del editor de bebida en la prueba funcional.
+- En RAW_FOODS hay **14 fichas base con proteínas, carbohidratos y grasas en cero**: varias corresponden a infusiones sin azúcar. **Inspección estática posterior:** la interfaz usa `calculateBeverage` para sumar los aportes de la leche seleccionada y del azúcar de las bebidas personalizables. Por ello los ceros son una referencia base y NO necesariamente un error de totales. Queda pendiente probar la operación en navegador con sesiones reales.
 - La biblioteca incluye `milanesa_soy_baked` como **estimación genérica al horno**: 11 g proteínas, 17 g carbohidratos y 7 g grasas por 100 g, equivalentes a **175 kcal / 100 g**.
 - El nuevo producto **Gobinda – Milanesas simples de harina de soja**, según foto del rótulo aportado el 26/10/2026, declara **312 kcal; 20,67 g proteínas; 32,33 g carbohidratos; 11,15 g grasas; 7,5 g fibra; 290 mg de sodio y 640 mg de potasio por milanesa de 125 g**. Esto equivale a **249,6 kcal / 100 g**. La diferencia con la genérica es de **74,6 kcal / 100 g (≈42,6%)**; deben mantenerse como entradas DISTINTAS, sin transferir los macros de una a otra.
 - Control de coherencia energética para Gobinda: proteínas×4 + carbohidratos×4 + grasas×9 = **312,35 kcal**, diferencia de **0,35 kcal** respecto de las 312 declaradas; consistente con redondeo de etiqueta. El cálculo utiliza factores 4/4/9 del rotulado.
@@ -91,3 +91,10 @@ Fuentes de consulta para cotejo de cifras por identificador:
 **No sustituir:** `chicken` (pollo cocido genérico) por la pechuga: son preparaciones diferentes. No convertir gramos crudos a cocidos sin conocer el rendimiento real. La ficha `milanesa_soy_gobinda` sigue diferenciada de `milanesa_soy_baked`.
 
 **Pruebas funcionales pendientes:** confirmar búsqueda en UI y cálculos persistentes del alumno/coach; y comprobar que Render haya recibido los últimos commits. Los cambios quedan guardados en GitHub; un commit NO equivale automáticamente a un despliegue. 
+
+
+## Control automatizable del catálogo ampliado (26/10/2026)
+
+Se añadió `pilot/test-food-catalog.mjs` para ejecutar de manera local sin datos privados. Controla que los IDs sean únicos, que existan fuentes y estados de procedencia, que kcal/macros sean números finitos no negativos, que Gobinda mantenga sus valores por 1 y 2 milanesas, y que las 4 referencias USDA dentro de `food-catalog.js` conserven FDC_ID y energía por 100 g. Ejecución: `node efg-nutrition/pilot/test-food-catalog.mjs`.
+
+**Comprobación puntual de JS en el entorno de edición:** módulo evaluado correctamente, **346 fichas en biblioteca ampliada**, 346 IDs distintos, cero números faltantes/no finitos/negativos, 341 fichas genéricas, 4 referencias USDA y 1 etiquetada Gobinda. Fuera de este módulo, `pilot.js` contiene alimentos base adicionales (3 actualizados con fuentes USDA identificadas) que no entran en ese conteo. **La prueba reproducible fue añadida al repositorio, pero aún no se ejecutó en el runtime de Node del proyecto.**

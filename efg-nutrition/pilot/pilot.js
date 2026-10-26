@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-catalog-audit-v2";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-plan-gobinda-v2";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-plan-gobinda-v2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";

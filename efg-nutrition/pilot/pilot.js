@@ -32,7 +32,7 @@ const foods=[
  {id:"avocado",name:"Palta",unit:"g",k:1.60,p:.02,c:.085,f:.147,fi:.067,source:"Tabla genérica"},
  {id:"pasta",name:"Fideos cocidos",unit:"g",k:1.55,p:.058,c:.305,f:.009,fi:.018,source:"Tabla genérica"},
  {id:"oil",name:"Aceite de oliva",unit:"g",k:8.84,p:0,c:0,f:1,fi:0,source:"Tabla genérica"},
- {id:"yogurt",name:"Yogur natural descremado",unit:"g",k:.60,p:.05,c:.07,f:.01,fi:0,source:"Promedio"},
+ {id:"yogurt",name:"Yogur natural descremado sin azúcar (referencia USDA)",unit:"g",k:.50,p:.042,c:.081,f:.00087,fi:0,sourceType:"usda_fdc",sourceId:"2647437",validationStatus:"tabla_referenciada",source:"USDA FoodData Central Foundation Foods FDC 2647437, yogur natural descremado sin azúcar añadida: 50 kcal, 4,2 g proteínas, 8,1 g hidratos y 0,087 g grasa por 100 g. NO sustituye un yogur saborizado/proteico de marca; contrastar etiqueta."},
  {id:"banana",name:"Banana",unit:"g",k:.89,p:.011,c:.228,f:.003,fi:.026,source:"Tabla genérica"},
  {id:"mandarin",name:"Mandarina",unit:"g",k:.53,p:.008,c:.133,f:.003,fi:.018,source:"Tabla genérica"},
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},

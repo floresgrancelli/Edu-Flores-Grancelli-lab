@@ -410,7 +410,7 @@ function plannerCard(){
    const label={protein:"Proteínas",carbs:"Hidratos",vegetable:"Vegetales",fat:"Grasas"}[row.category];
    const opts=optionsFor(foods,allowedFoods(),row.category).map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===row.food.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("");
    out+='<div class="planner-item"><label>'+label+' · opción A</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
-   '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b></div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
+   '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b>'+(row.food.id==="milanesa_soy_gobinda"?' <small>(≈ '+num(row.grams/125,2)+' milanesas Gobinda de 125 g; también podés registrar la cantidad real)</small>':"")+'</div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
    if(chosen&&equivalent)out+='<div class="planner-option-b"><label>Alternativa B</label><select data-planalt="'+escapeHTML(key)+'">'+alternatives.map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===chosen.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("")+'</select><button class="btn small ghost" data-usealternative="'+escapeHTML(key)+'">Elegir B</button><small>≈ '+num(equivalent.grams)+' '+escapeHTML(chosen.unit)+' para igualar '+({protein:"proteínas",carbs:"hidratos",fat:"grasas",vegetable:"calorías"}[row.category])+'. No iguala todos los macros.</small></div>';
    out+='</div>';
   }
@@ -420,6 +420,31 @@ function plannerCard(){
  out+='<div class="planner-left"><b>Si comés estas porciones, aún quedarían aprox.:</b><p>'+num(after.k)+' kcal · P '+num(after.p,1)+' g · HC '+num(after.c,1)+' g · G '+num(after.f,1)+' g</p><small>No intentamos recuperar todo con una cena enorme. Son cantidades orientativas con topes y se recalculan después de cada registro.</small></div>'+
  '<p class="pilot-hint">Solo se registra lo que realmente pesaste. Estas recomendaciones no sustituyen el plan de tu profesional.</p></section>';
  return out;
+}
+function refreshPlannerCard(focusKey=null,focusAlternative=false){
+ // Actualizar solo el planificador: conserva la posición de pantalla en el iPhone.
+ const section=document.getElementById("planSuggestionCard");
+ if(!section)return render();
+ const oldSelections=[...section.querySelectorAll("[data-planselect]")];
+ const oldQty=new Map([...section.querySelectorAll('input[id^="planQty_"]')].map(input=>{
+  const key=input.id.slice("planQty_".length);
+  const option=oldSelections.find(el=>el.dataset.planselect===key);
+  return [key,{foodId:option?.value,value:input.value}];
+ }));
+ section.outerHTML=plannerCard();
+ // Mantener las cantidades introducidas por el usuario solo si la opción A no cambió.
+ const newSection=document.getElementById("planSuggestionCard");
+ for(const [key,prior] of oldQty){
+  const option=[...newSection.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
+  if(option?.value!==prior.foodId)continue;
+  const input=[...newSection.querySelectorAll('input[id^="planQty_"]')].find(el=>el.id==="planQty_"+key);
+  if(input)input.value=prior.value;
+ }
+ if(focusKey){
+  const attr=focusAlternative?"planalt":"planselect";
+  const el=[...newSection.querySelectorAll("[data-"+attr+"]")].find(x=>x.dataset[attr]===focusKey);
+  el?.focus({preventScroll:true});
+ }
 }
 function parsePlannerKey(key){const parts=String(key).split("|");return parts.length===2&&MEAL_ORDER.includes(parts[0])&&FOOD_GROUPS[parts[1]]?[parts[0],parts[1]]:null;}
 async function addPlannedFood(key){
@@ -1033,7 +1058,16 @@ if(el.dataset.foodbulk){
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
- if(el.dataset.usealternative){const key=el.dataset.usealternative,chosen=state.plannerSelections["alt:"+key];if(!chosen)throw new Error("Elegí una alternativa.");state.plannerSelections[key]=chosen;delete state.plannerSelections["alt:"+key];return render();}
+ if(el.dataset.usealternative){
+  const key=el.dataset.usealternative;
+  const select=[...root.querySelectorAll("[data-planalt]")].find(x=>x.dataset.planalt===key);
+  const chosen=select?.value||state.plannerSelections["alt:"+key];
+  if(!chosen)throw new Error("Elegí una alternativa.");
+  state.plannerSelections[key]=chosen;
+  delete state.plannerSelections["alt:"+key];
+  refreshPlannerCard(key,false);
+  return;
+ }
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
   const index=Number(indexValue),d=activeDiary();
@@ -1126,7 +1160,7 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerSelections["alt:"+key];refreshPlannerCard(key,false);}if(e.target.dataset.planalt){const key=e.target.dataset.planalt;state.plannerSelections["alt:"+key]=e.target.value;refreshPlannerCard(key,true);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){

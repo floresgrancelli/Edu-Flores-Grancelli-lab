@@ -26,7 +26,7 @@ close(gobinda.f*125,11.15,"Gobinda: grasas por milanesa");
 close(gobinda.fi*125,7.5,"Gobinda: fibra por milanesa");
 close(gobinda.k*250,624,"Gobinda: 2 milanesas");
 close(FOOD_UNIT_PORTIONS.milanesa_soy_gobinda.grams,125,"Gobinda: peso por unidad");
-const refs=[["oats_raw","173904",379],["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
+const refs=[["oats_raw","173904",379],["yogurt_greek_light","170894",59],["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
 for(const [id,fdcId,kcal100] of refs){
  const food=foods.get(id);
  assert.ok(food,"Falta registro USDA "+id);
@@ -34,5 +34,23 @@ for(const [id,fdcId,kcal100] of refs){
  assert.equal(food.sourceId,fdcId);
  close(food.k*100,kcal100,"USDA "+id+": energía por 100 g");
 }
+const fritolim=foods.get("huevo_frito_fritolim");
+const friedOil=foods.get("huevo_frito");
+assert.ok(fritolim && friedOil,"Ambas preparaciones de huevo deben existir");
+assert.equal(fritolim.validationStatus,"receta_estimado");
+assert.equal(fritolim.oilIncluded,false);
+assert.equal(friedOil.oilIncluded,true);
+close(FOOD_UNIT_PORTIONS.huevo_frito_fritolim.grams,50,"Huevo con rocío: unidad sin cáscara");
+close(fritolim.k*50,74,"Huevo con Fritolim (base del huevo sin aerosol)");
+close(fritolim.p*50,6.2,"Huevo con Fritolim: proteína");
+close(fritolim.f*50,4.98,"Huevo con Fritolim: grasa");
+assert.ok(friedOil.k*50>fritolim.k*50,"Huevo con aceite promedio debe diferir del de rocío mínimo");
+assert.ok(friedOil.source.includes("ya incluido"),"El huevo frito con aceite debe evitar doble conteo");
+close(foods.get("milk_whole").k*100,62.83,"Leche entera: conversión de gramos a 100 ml");
+close(foods.get("milk_skim").k*100,36.05,"Leche descremada: conversión de gramos a 100 ml");
+assert.equal(foods.get("milk_whole").validationStatus,"tabla_convertida_densidad");
+assert.equal(foods.get("milk_skim").validationStatus,"tabla_convertida_densidad");
+close(foods.get("yogurt_greek_light").k*100,59,"Yogur griego natural descremado USDA");
+assert.equal(foods.get("yogurt_greek_light").sourceId,"170894");
 assert.notEqual(foods.get("milanesa_soy_baked").k,gobinda.k,"No mezclar genérica con Gobinda");
 console.log("EFG Nutrition: catálogo ampliado revisado ("+foods.size+" fichas, IDs únicos, valores finitos, productos FDC y etiqueta Gobinda).");

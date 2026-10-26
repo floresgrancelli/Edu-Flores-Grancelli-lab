@@ -565,29 +565,42 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>';
 }
 
-function macroEstimate(age,height,weight,activity,sex,goal){
+function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.8){
  if(!(age>=18&&age<=90&&height>=120&&height<=220&&weight>=35&&weight<=300&&activity>=1.2&&activity<=1.75))throw new Error("Completá edad, altura, peso y actividad de un adulto.");
- const rmr=10*weight+6.25*height-5*age+(sex==="male"?5:-161);
+ if(!["male","female"].includes(sex)||!["mifflin","tenhaaf"].includes(model)||!["fat_loss","recomp","muscle_gain"].includes(goal))throw new Error("Seleccioná una ecuación, sexo de cálculo y objetivo válidos.");
+ const proteinFactor=proteinPerKg===null?(goal==="fat_loss"?2:1.8):Number(proteinPerKg);
+ const fatFactor=Number(fatPerKg);
+ if(!Number.isFinite(proteinFactor)||proteinFactor<1.6||proteinFactor>2.2||!Number.isFinite(fatFactor)||fatFactor<.6||fatFactor>1.0)throw new Error("Usá de 1,6 a 2,2 g/kg de proteína y de 0,6 a 1,0 g/kg de grasas como opciones iniciales; revisá con un profesional.");
+ const mifflin=10*weight+6.25*height-5*age+(sex==="male"?5:-161);
+ const tenHaaf=29.279+11.936*weight+587.728*(height/100)-8.129*age+(sex==="male"?191.027:0);
+ const rmr=model==="tenhaaf"?tenHaaf:mifflin;
  const maintenance=Math.round(rmr*activity);
  const coef={fat_loss:.90,recomp:1,muscle_gain:1.07}[goal];
  const kcal=Math.round(maintenance*coef/10)*10;
- const protein=Math.round(weight*(goal==="fat_loss"?2:1.8));
- const fat=Math.round(weight*.8);
+ const protein=Math.round(weight*proteinFactor);
+ const fat=Math.round(weight*fatFactor);
  const carbs=Math.round((kcal-protein*4-fat*9)/4);
- if(kcal<1400||carbs<0)throw new Error("El resultado requiere valoración individual.");
- return {goal,kcal,protein,carbs,fat,fiber:Math.round(kcal*.014),maintenance,rmr};
+ if(kcal<1400||carbs<0)throw new Error("El resultado necesita valoración individual: las calorías no permiten distribuir los macros seleccionados.");
+ return {goal,kcal,protein,carbs,fat,fiber:Math.round(kcal*.014),maintenance,rmr,model,proteinFactor,fatFactor,activity};
 }
+const equationOptions=(model="mifflin")=>'<option value="mifflin" '+(model==="mifflin"?'selected':'')+'>Mifflin–St Jeor · población general</option><option value="tenhaaf" '+(model==="tenhaaf"?'selected':'')+'>Ten Haaf · perfil deportivo entrenado</option>';
+const proteinOptions=(p="auto")=>[['auto','Automático · según objetivo'],['1.6','1,6 g/kg'],['1.8','1,8 g/kg'],['2.0','2,0 g/kg'],['2.2','2,2 g/kg']].map(([v,l])=>'<option value="'+v+'" '+(String(p)===v?'selected':'')+'>'+l+'</option>').join('');
+const fatOptions=(f=".8")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/kg'],['1','1,0 g/kg']].map(([v,l])=>'<option value="'+v+'" '+(Number(f)===Number(v)?'selected':'')+'>'+l+'</option>').join('');
 function macroPlayground(){
- const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5};
+ const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.8};
  const fields=[["previewAge","Edad",i.age,18,90],["previewHeight","Altura (cm)",i.height,120,220],["previewWeight","Peso (kg)",i.weight,35,300]];
  const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label>'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
  '<div class="field-row"><div class="field"><label>Ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
  '<div class="field"><label>Actividad</label><select id="previewActivity">'+[[1.2,"Baja"],[1.35,"Ligera"],[1.5,"Moderada"],[1.7,"Alta"]].map(a=>'<option value="'+a[0]+'" '+(Math.abs(i.activity-a[0])<.01?"selected":"")+'>'+a[1]+'</option>').join("")+'</select></div></div>'+
+ '<div class="field-row"><div class="field"><label>Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
+ '<div class="field"><label>Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
+ '<div class="field"><label>Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
+ '<p class="pilot-hint">Ten Haaf es una alternativa para deportistas entrenados y no debe utilizarse automáticamente para todos. Los resultados son estimaciones; verificar tendencia de peso, adherencia y rendimiento.</p>'+
  '<button class="btn" data-act="previewMacros">Calcular los 3 objetivos</button></div>';
  let cards="";
  if(state.macroPreview){
   cards='<div class="macro-preview-grid">'+state.macroPreview.map(result=>'<div class="macro-preview"><b>'+({fat_loss:"Descenso de grasa",recomp:"Recomposición corporal",muscle_gain:"Aumento muscular"}[result.goal])+'</b><div class="macro-preview-kcal">'+num(result.kcal)+' kcal/día</div><small>Proteínas: '+num(result.protein)+' g<br>Hidratos: '+num(result.carbs)+' g<br>Grasas: '+num(result.fat)+' g<br>Fibra: '+num(result.fiber)+' g</small></div>').join("")+'</div>'+
-   '<p class="pilot-hint">Mantenimiento estimado: '+num(state.macroPreview[0].maintenance)+' kcal. Esta simulación no cambia el plan de ningún alumno.</p>';
+   '<p class="pilot-hint">Ecuación: '+(state.macroPreview[0].model==="tenhaaf"?"Ten Haaf (deportistas)":"Mifflin–St Jeor")+' · Metabolismo en reposo '+num(state.macroPreview[0].rmr)+' kcal · Mantenimiento estimado '+num(state.macroPreview[0].maintenance)+' kcal. Proteínas '+num(state.macroPreview[0].proteinFactor,1)+' g/kg · Grasas '+num(state.macroPreview[0].fatFactor,1)+' g/kg. No modifica planes reales.</p>';
  }
  return '<section class="card" style="margin-bottom:18px"><div class="section-head"><h2>📐 Calculadora de macros</h2><span class="pilot-pill">Tres objetivos</span></div><p class="pilot-hint">Probala incluso sin alumnos. Compará descenso de grasa, recomposición y aumento muscular. Para asignar un plan real, primero abrí la ficha de un alumno que haya autorizado el seguimiento.</p>'+form+cards+'</section>';
 }
@@ -700,8 +713,12 @@ function studentDetailView(p,consent){
  '<div class="divider"></div><h3>Variación del peso corporal</h3>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- '<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+
- '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></section>';
+ '<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
+ '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
+ '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
+ '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.8)+'</select></div></div>'+
+ '<p class="pilot-hint">El perfil deportivo es una alternativa, no una garantía de mayor precisión. Revisar el peso y el rendimiento periódicamente antes de modificar el objetivo.</p>'+
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></section>';
 }
 function adminView(){
  const orgs=state.orgs;
@@ -740,16 +757,15 @@ function updateSportHint(){
  if(hint)hint.textContent=f.source+". Porción de ejemplo: "+num(f.defaultQty)+" "+f.unit+", "+num(f.k*f.defaultQty)+" kcal.";
 }
 function calculateGoal(){
- const get=(id)=>document.getElementById(id).value;
- const weight=+get("targetWeight"),height=+get("targetHeight"),age=+get("targetAge"),activity=+get("targetActivity"),sex=get("targetSex"),goal=get("targetGoal");
- if(!(weight>=35&&weight<=300&&height>=120&&height<=220&&age>=18&&age<=90&&activity>=1.2&&activity<=1.75))throw new Error("Datos fuera del rango permitido para adultos.");
- const rmr=10*weight+6.25*height-5*age+(sex==="male"?5:-161);
- const tdee=Math.round(rmr*activity);
- const kcal=Math.round(tdee*({fat_loss:.9,recomp:1,muscle_gain:1.07}[goal])/10)*10;
- const p=Math.round(weight*(goal==="fat_loss"?2:1.8)),f=Math.round(weight*.8),c=Math.round((kcal-4*p-9*f)/4),fi=Math.round(kcal*.014);
- if(kcal<1400||c<0)throw new Error("Estimación insuficiente; necesita revisión individual.");
- state.pendingGoal={student_id:state.selectedStudent,goal_type:goal,kcal,protein_g:p,carb_g:c,fat_g:f,fiber_g:fi};
- let e=document.getElementById("goalPreview");e.innerHTML='<strong>'+num(kcal)+' kcal/día</strong><small>Proteína '+p+' g · Hidratos '+c+' g · Grasas '+f+' g · Fibra '+fi+' g</small><small>Metabolismo estimado '+num(rmr)+' kcal, mantenimiento aproximado '+num(tdee)+' kcal. No es una medición.</small>';
+ const get=(id)=>document.getElementById(id)?.value;
+ const weight=Number(get("targetWeight")),height=Number(get("targetHeight")),age=Number(get("targetAge")),activity=Number(get("targetActivity")),sex=get("targetSex"),goal=get("targetGoal"),model=get("targetModel")||"mifflin";
+ const proteinChoice=get("targetProtein")||"auto",fatChoice=Number(get("targetFat")||.8);
+ const result=macroEstimate(age,height,weight,activity,sex,goal,model,proteinChoice==="auto"?null:Number(proteinChoice),fatChoice);
+ state.pendingGoal={student_id:state.selectedStudent,goal_type:goal,kcal:result.kcal,protein_g:result.protein,carb_g:result.carbs,fat_g:result.fat,fiber_g:result.fiber,estimation_method:result.model,activity_factor:result.activity,protein_per_kg:result.proteinFactor,fat_per_kg:result.fatFactor};
+ const e=document.getElementById("goalPreview");
+ e.innerHTML='<strong>'+num(result.kcal)+' kcal/día</strong><small>Proteínas '+result.protein+' g · Hidratos '+result.carbs+' g · Grasas '+result.fat+' g · Fibra '+result.fiber+' g</small>'+
+ '<small>'+(result.model==="tenhaaf"?"Ten Haaf · perfil deportivo entrenado":"Mifflin–St Jeor · población general")+' · Metabolismo en reposo '+num(result.rmr)+' kcal · Mantenimiento '+num(result.maintenance)+' kcal.</small>'+
+ '<small>Proteínas '+num(result.proteinFactor,1)+' g/kg · Grasas '+num(result.fatFactor,1)+' g/kg. Estimación inicial: comprobar evolución, adherencia y rendimiento; no es una medición de calorimetría.</small>';
  document.getElementById("approveGoalButton").disabled=false;
 }
 async function saveDiary(){
@@ -1047,7 +1063,7 @@ if(el.dataset.foodbulk){
  if(action==="inviteStudent"){const email=document.getElementById("studentEmail").value.trim(),name=document.getElementById("studentName").value.trim();let r=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_invite_test_student":"efg_invite_student",{p_email:email,p_name:name});if(r.error)throw r.error;await loadRoleData();await render();notify("Alumno habilitado en los cupos de este coach.");return;}
  if(action==="coachAlias"){let alias=document.getElementById("coachAlias").value.trim();let r=await sb.rpc("efg_set_coach_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias de cobro guardado.");return;}
  if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim();let r=await sb.rpc("efg_set_platform_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias EFG actualizado.");return;}
- if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal));state.macroInputs=input;await render();notify("Tres propuestas calculadas sin modificar planes reales.");return;}
+ if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat")};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="calculateGoal")return calculateGoal();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}

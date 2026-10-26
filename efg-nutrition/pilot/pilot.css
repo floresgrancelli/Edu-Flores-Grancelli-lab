@@ -52,3 +52,26 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .pilot-auth-help{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px;}
 .pilot-auth-help .btn{margin-top:0;}
 @media(max-width:720px){.pilot-otp-input{font-size:27px!important;letter-spacing:.28em;}}
+
+/* Biblioteca de alimentos EFG — controles compactos para iPhone */
+.coach-selected-student{scroll-margin-top:24px;}
+.food-library-tools{background:#f5faf7;border:1px solid #e3eee9;padding:15px;border-radius:13px;margin:15px 0;}
+.food-library-tools label{display:block;color:#436b68;font-size:12px;font-weight:800;margin-bottom:8px;}
+.food-library-tools input{display:block;width:100%;min-height:43px;border:1px solid #cfe3d7;border-radius:10px;padding:10px 12px;color:#244b48;background:white;font-size:14px;}
+.food-library-tools p{margin:8px 0 0;}
+.coach-food-group{border:1px solid #e0ebe6;border-radius:14px;background:#fff;margin:10px 0;overflow:hidden;}
+.coach-food-group>summary{list-style:none;cursor:pointer;padding:15px;display:flex;align-items:center;gap:10px;justify-content:space-between;color:#274d49;font-size:14px;font-weight:800;}
+.coach-food-group>summary::-webkit-details-marker{display:none}
+.coach-food-group>summary:before{content:"▸";color:#078e7e;font-size:14px;}
+.coach-food-group[open]>summary:before{content:"▾";}
+.coach-food-group>summary span{margin-right:auto;}
+.coach-food-group>summary small{font-size:11px;font-weight:650;color:#678a82;}
+.coach-food-group .coach-food-choices{margin:0;padding:0 12px 12px;}
+.coach-food-group .coach-food-bulk{display:flex;flex-wrap:wrap;gap:8px;padding:0 12px 12px;}
+.coach-food-bulk .btn{margin:0;}
+.coach-food-choices label{cursor:pointer;min-height:43px;align-items:center;font-size:12px;}
+.coach-food-choices input{width:18px;height:18px;}
+@media(max-width:720px){
+ .coach-selected-student{scroll-margin-top:16px;}
+ .coach-food-group>summary{padding:15px 12px;}
+}

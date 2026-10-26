@@ -852,16 +852,51 @@ function updateSportHint(){
  if(label)label.textContent="Cantidad ("+f.unit+")";
  if(hint)hint.textContent=f.source+". Porción de ejemplo: "+num(f.defaultQty)+" "+f.unit+", "+num(f.k*f.defaultQty)+" kcal.";
 }
+function previewGoalRevision(){
+ const latest=state.coachGoals[0];
+ if(!latest||!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno con un plan aprobado y consentimiento activo.");
+ const goal=adjustNutritionGoal(latest,Number(document.getElementById("reviseGoalKcal")?.value),document.getElementById("reviseGoalMode")?.value);
+ if(goal.kcal===Number(latest.kcal))throw new Error("Ingresá calorías distintas de la meta actual.");
+ state.pendingGoalRevision={studentId:state.selectedStudent,baseId:latest.id,proposal:goal};
+ document.getElementById("revisedGoalPreview").innerHTML=showGoalComparison(latest,goal);
+ document.getElementById("approveGoalRevisionButton").disabled=false;
+}
+function adjustCalculatedGoal(){
+ const base=state.calculatedGoalBase;
+ if(!base||base.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta para este alumno.");
+ const goal=adjustNutritionGoal(base,Number(document.getElementById("proposalGoalKcal")?.value),document.getElementById("proposalGoalMode")?.value);
+ state.pendingGoal={...goal,student_id:state.selectedStudent};
+ document.getElementById("goalPreviewSummary").innerHTML=showGoalComparison(base,goal);
+ document.getElementById("approveGoalButton").disabled=false;
+}
+async function approveGoalRevision(){
+ const pending=state.pendingGoalRevision, latest=state.coachGoals[0];
+ if(!pending||pending.studentId!==state.selectedStudent||!state.consent?.accepted||!latest||latest.id!==pending.baseId)throw new Error("Verificá la propuesta de revisión y los permisos del alumno.");
+ const {data,error}=await sb.from("efg_goals").select("id").eq("student_id",pending.studentId).order("approved_at",{ascending:false}).limit(1).single();
+ if(error)throw error;
+ if(data.id!==pending.baseId)throw new Error("Ya existe un objetivo más reciente. Actualizá la ficha y recalculá.");
+ if(!window.confirm("¿Aprobar "+num(pending.proposal.kcal)+" kcal/día para este alumno desde hoy? El plan anterior queda en el historial."))return;
+ const {error:saveError}=await sb.from("efg_goals").insert({...pending.proposal,student_id:pending.studentId,approved_by:state.session.user.id,start_on:today()});
+ if(saveError)throw saveError;
+ state.pendingGoalRevision=null;state.pendingGoal=null;state.calculatedGoalBase=null;
+ await loadStudentDetail(pending.studentId);await render();
+ notify("Nuevo objetivo aprobado. Plan anterior conservado.");
+}
 function calculateGoal(){
  const get=(id)=>document.getElementById(id)?.value;
  const weight=Number(get("targetWeight")),height=Number(get("targetHeight")),age=Number(get("targetAge")),activity=Number(get("targetActivity")),sex=get("targetSex"),goal=get("targetGoal"),model=get("targetModel")||"mifflin";
  const proteinChoice=get("targetProtein")||"auto",fatChoice=Number(get("targetFat")||.8);
  const result=macroEstimate(age,height,weight,activity,sex,goal,model,proteinChoice==="auto"?null:Number(proteinChoice),fatChoice);
  state.pendingGoal={student_id:state.selectedStudent,goal_type:goal,kcal:result.kcal,protein_g:result.protein,carb_g:result.carbs,fat_g:result.fat,fiber_g:result.fiber,estimation_method:result.model,activity_factor:result.activity,protein_per_kg:result.proteinFactor,fat_per_kg:result.fatFactor};
+ state.calculatedGoalBase={...state.pendingGoal};
  const e=document.getElementById("goalPreview");
  e.innerHTML='<strong>'+num(result.kcal)+' kcal/día</strong><small>Proteínas '+result.protein+' g · Hidratos '+result.carbs+' g · Grasas '+result.fat+' g · Fibra '+result.fiber+' g</small>'+
  '<small>'+(result.model==="tenhaaf"?"Ten Haaf · perfil deportivo entrenado":"Mifflin–St Jeor · población general")+' · Metabolismo en reposo '+num(result.rmr)+' kcal · Mantenimiento '+num(result.maintenance)+' kcal.</small>'+
  '<small>Proteínas '+num(result.proteinFactor,1)+' g/kg · Grasas '+num(result.fatFactor,1)+' g/kg. Estimación inicial: comprobar evolución, adherencia y rendimiento; no es una medición de calorimetría.</small>';
+ e.innerHTML+='<div class="divider"></div><h4>Personalizar las calorías de esta propuesta</h4>'+
+ '<div class="field-row"><div class="field"><label for="proposalGoalKcal">Calorías objetivo</label><input type="number" id="proposalGoalKcal" min="1200" max="10000" step="1" value="'+result.kcal+'"></div>'+
+ '<div class="field"><label for="proposalGoalMode">Reparto de macros</label><select id="proposalGoalMode">'+revisionModeChoices()+'</select></div></div>'+
+ '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
  document.getElementById("approveGoalButton").disabled=false;
 }
 async function saveDiary(){
@@ -1172,6 +1207,9 @@ if(el.dataset.foodbulk){
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat")};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="calculateGoal")return calculateGoal();
+ if(action==="adjustCalculatedGoal")return adjustCalculatedGoal();
+ if(action==="previewGoalRevision")return previewGoalRevision();
+ if(action==="approveGoalRevision")return approveGoalRevision();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
  if(action==="approveGoal"){if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta.");let {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});if(error)throw error;await loadStudentDetail(state.selectedStudent);await render();notify("Plan aprobado y disponible para el alumno.");return;}
  if(action==="sendProof")return sendProof();
@@ -1187,8 +1225,8 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerSelections["alt:"+key];refreshPlannerCard(key,false);}if(e.target.dataset.planalt){const key=e.target.dataset.planalt;state.plannerSelections["alt:"+key]=e.target.value;refreshPlannerCard(key,true);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
+root.addEventListener("change",e=>{if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerSelections["alt:"+key];refreshPlannerCard(key,false);}if(e.target.dataset.planalt){const key=e.target.dataset.planalt;state.plannerSelections["alt:"+key]=e.target.value;refreshPlannerCard(key,true);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

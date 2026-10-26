@@ -38,6 +38,50 @@ const foods=[
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},
  {id:"rocket",name:"Rúcula",unit:"g",k:.25,p:.026,c:.037,f:.007,fi:.016,source:"Tabla genérica"}
 ].concat(EXTRA_FOODS);
+const BUDIN_RECIPE={
+ id:"cake",name:"Budín de avena proteico",portions:5,portionGrams:82.5,
+ allowedMeals:["media_manana","media_tarde"],
+ ingredients:[
+  {label:"1 manzana mediana, sin carozo",foodId:"apple",grams:150},
+  {label:"3 huevos medianos (sin cáscara)",foodId:"egg",grams:150},
+  {label:"100 g de avena",foodId:"oats_raw",grams:100},
+  {label:"30 g de pasas de uva",foodId:"raisins",grams:30},
+  {label:"1 scoop de proteína whey (se estima 30 g)",foodId:"whey_powder",grams:30}
+ ],
+ flavorings:["Polvo de hornear (cantidad habitual)","Extracto de vainilla a gusto","Canela a gusto"]
+};
+function setBudinNutrition(){
+ const budin=foods.find(f=>f.id===BUDIN_RECIPE.id);
+ if(!budin)throw new Error("No encontramos el budín proteico.");
+ const total={k:0,p:0,c:0,f:0,fi:0};
+ for(const ingredient of BUDIN_RECIPE.ingredients){
+  const food=foods.find(f=>f.id===ingredient.foodId);
+  if(!food)throw new Error("Falta un ingrediente: "+ingredient.foodId);
+  for(const nutrient of Object.keys(total))total[nutrient]+=Number(food[nutrient]||0)*ingredient.grams;
+ }
+ budin.name=BUDIN_RECIPE.name;
+ budin.source="Estimación a partir de los ingredientes de la receta EFG. Scoop supuesto: 30 g. Rinde 5 porciones (aprox. 80–85 g cada una).";
+ for(const nutrient of Object.keys(total))budin[nutrient]=total[nutrient]/(BUDIN_RECIPE.portions*BUDIN_RECIPE.portionGrams);
+ BUDIN_RECIPE.total=total;
+}
+setBudinNutrition();
+const foodAllowedForMeal=(food,meal)=>food?.id!=="cake" || BUDIN_RECIPE.allowedMeals.includes(meal);
+function budinRecipeHTML(){
+ const cake=foods.find(f=>f.id==="cake"),portion=BUDIN_RECIPE.portionGrams;
+ return '<details class="budin-recipe" open><summary>📖 Receta · '+BUDIN_RECIPE.name+'</summary>'+
+ '<p>Rinde <b>'+BUDIN_RECIPE.portions+' porciones</b> de <b>80–85 g</b> (referencia: 82,5 g por porción).</p>'+
+ '<ul>'+BUDIN_RECIPE.ingredients.map(i=>'<li>'+escapeHTML(i.label)+'</li>').join("")+
+ BUDIN_RECIPE.flavorings.map(x=>'<li>'+escapeHTML(x)+'</li>').join("")+'</ul>'+
+ '<p><b>Preparación orientativa:</b> integrar todos los ingredientes, colocar en un molde y hornear hasta que el centro esté bien cocido. Distribuir en cinco porciones una vez frío.</p>'+
+ '<p><b>Por porción estimada:</b> '+num(cake.k*portion)+' kcal · '+num(cake.p*portion,1)+' g proteínas · '+num(cake.c*portion,1)+' g hidratos · '+num(cake.f*portion,1)+' g grasas.</p>'+
+ '<small>La manzana se estima en 150 g comestibles, los huevos en 50 g cada uno y el scoop en 30 g. Polvo de hornear, vainilla y canela no tienen cantidad definida en esta receta y no están incluidos en los macros. El peso cocido y los valores pueden variar.</small></details>';
+}
+function updateMealRecipe(){
+ const holder=document.getElementById("mealRecipeDetail");
+ if(!holder)return;
+ const choice=document.getElementById("mealEditorFood")?.value;
+ holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():"";
+}
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
 const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
 const groupedFoodOptions=(items)=>FOOD_CATEGORIES.map(([id,title])=>{const list=items.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));return list.length?'<optgroup label="'+escapeHTML(title)+'">'+option(list)+'</optgroup>':"";}).join("");
@@ -223,7 +267,7 @@ async function addPlannedFood(key){
 }
 function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
- const allowed=allowedFoods().map(id=>foods.find(x=>x.id===id)).filter(Boolean);
+ const allowed=allowedFoods().map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  state.activeMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
@@ -231,7 +275,7 @@ function openMealDialog(slot){
  '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed)+'</select></div>'+
  '<div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
- '<div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ '<div id="mealRecipeDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
 }
 function filterMealFoods(){
@@ -239,7 +283,7 @@ function filterMealFoods(){
  if(!selector||!search)return;
  const term=search.value.trim().toLocaleLowerCase("es-AR");
  const previous=selector.value;
- const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
+ const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
  selector.innerHTML=groupedFoodOptions(filtered);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  updateMealEntryMode(true);
@@ -258,6 +302,7 @@ function updateMealEntryMode(foodChanged=false){
  qty.step=counting?"1":"any";
  qty.min=counting?"1":"0.1";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
+ updateMealRecipe();
  updateMealDialogHint();
 }
 function measureMealEntry(){
@@ -281,7 +326,7 @@ function updateMealDialogHint(){
 async function saveSelectedMeal(){
  const slot=state.activeMeal;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!slot||!f||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ if(!slot||!f||!foodAllowedForMeal(f,slot)||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const d=activeDiary();d.meals[slot] ||= [];
  const entry=normItem(f,grams,slot);
  if(useUnits){entry.displayQty=qty;entry.displayUnit=portion.label;entry.unitEstimate=true;}
@@ -695,7 +740,7 @@ async function saveEduRoutine(){
  if((d.meals.desayuno||[]).length||(d.meals.media_manana||[]).length)throw new Error("Ya existen comidas registradas. Editalas individualmente para evitar duplicarlas.");
  let get=(id,qty,when)=>normItem(foods.find(f=>f.id===id),qty,when);
  d.meals.desayuno=[get("egg",150,"desayuno"),get("bread",38,"desayuno"),get("cheese",30,"desayuno"),get("quince",20,"desayuno"),get("milk",300,"desayuno")];
- d.meals.media_manana=[get("cake",75,"media_manana")];
+ d.meals.media_manana=[{...get("cake",82.5,"media_manana"),displayQty:1,displayUnit:"porción de budín",unitEstimate:true}];
  d.sports.push(normItem(sports.find(f=>f.id==="whey"),30,"Media mañana"));
  await saveDiary();notify("Desayuno y media mañana cargados. Revisá las cantidades estimadas.");
 }

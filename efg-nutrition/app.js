@@ -45,23 +45,58 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(ch){retu
 function fmt(n,d){return Number(n||0).toLocaleString("es-AR",{maximumFractionDigits:d==null?0:d});}
 function avg(f,q){return (f||0)*q/100;}
 function current(){return state.days[TODAY]||{};}
-function totals(){var t={k:0,p:0,c:0,f:0,fi:0};Object.values(current()).forEach(function(items){(items||[]).forEach(function(it){var fd=FOODS.find(function(x){return x.id===it.id;});if(fd){Object.keys(t).forEach(function(k){t[k]+=avg(fd[k],it.grams);});}});});return t;}
+function totals(){
+ var t={k:0,p:0,c:0,f:0,fi:0};
+ Object.keys(current()).forEach(function(meal){
+   if((state.skipped[TODAY]||{})[meal])return;
+   (current()[meal]||[]).forEach(function(it){
+     var fd=FOODS.find(function(x){return x.id===it.id;});
+     if(fd)Object.keys(t).forEach(function(k){t[k]+=avg(fd[k],it.grams);});
+   });
+ });
+ return t;
+}
+function habitSuggestion(meal){
+ var dates=Object.keys(state.days).sort();
+ if(dates.length<7)return null;
+ var groups={};
+ dates.slice(-35).forEach(function(date){
+   if(date===TODAY||(state.skipped[date]||{})[meal])return;
+   var items=state.days[date]&&state.days[date][meal];
+   if(!items||!items.length)return;
+   var key=items.map(function(item){return item.id;}).sort(function(a,b){return a-b;}).join(",");
+   if(!groups[key])groups[key]={count:0,items:items,date:date};
+   groups[key].count++;
+   if(date>groups[key].date){groups[key].date=date;groups[key].items=items;}
+ });
+ var top=Object.values(groups).sort(function(a,b){return b.count-a.count;})[0];
+ return top&&top.count>=2?top.items.map(function(item){return {id:item.id,grams:item.grams};}):null;
+}
 function mealTotal(meal){return (current()[meal]||[]).reduce(function(s,it){var fd=FOODS.find(function(x){return x.id===it.id;});return s+(fd?avg(fd.k,it.grams):0);},0);}
 function put(meal,foods){state.days[TODAY]=state.days[TODAY]||{};state.days[TODAY][meal]=foods;save();render();}
 function pageHead(ey,title,sub,action){return '<div class="page-heading"><div><div class="eyebrow">'+ey+'</div><h1>'+title+'</h1><p class="subhead">'+sub+'</p></div>'+(action||"")+'</div>';}
 function cardHead(title,right){return '<div class="section-head"><h2>'+title+'</h2>'+(right||"")+'</div>';}
 function progress(v,target){return '<div class="meter"><div style="width:'+Math.min(100,Math.max(0,v/Math.max(target,1)*100))+'%"></div></div>';}
-function statistic(name,key,unit){var t=totals(),v=t[key],goal=state.goals[key];return '<div class="card"><div class="metric-label">'+name+'</div><div class="metric-value">'+fmt(v)+' <span>/ '+fmt(goal)+' '+unit+'</span></div>'+progress(v,goal)+'<div class="metric-remaining">'+(goal-v>=0?'Restan '+fmt(goal-v,1):'Exceso de '+fmt(v-goal,1))+' '+unit+'</div></div>';}
+function statistic(name,key,unit){
+ var t=totals(),v=t[key],goal=state.goals[key];
+ var glyph={k:"✦",p:"●",c:"◈",f:"◕",fi:"✳"}[key];
+ return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+glyph+' &nbsp;'+name+'</div><div class="metric-value">'+fmt(v)+' <span>/ '+fmt(goal)+' '+unit+'</span></div>'+progress(v,goal)+'<div class="metric-remaining">'+(goal-v>=0?'Te faltan '+fmt(goal-v,1):'Superaste por '+fmt(v-goal,1))+' '+unit+'</div></div>';
+}
 function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(toast.timer);toast.timer=setTimeout(function(){t.style.display="none";},3500);}
 function listMeal(m){
- var mid=m[0],entries=current()[mid]||[],skip=!!((state.skipped[TODAY]||{})[mid]),fav=state.favorites[mid];
- return '<div class="meal"><div class="meal-icon">'+m[2]+'</div><div class="meal-info"><div class="meal-title">'+m[1]+' <span class="badge">'+(skip?'Omitida':entries.length?fmt(mealTotal(mid))+' kcal':'Pendiente')+'</span></div><div class="meal-detail">'+(skip?'Comida opcional':entries.length?entries.map(function(it){return esc((FOODS[it.id]||{}).n)+" "+it.grams+" g";}).join(" · "):fav?'Tenés una comida habitual guardada':'Elegí alimentos y registrá sus gramos')+'</div></div><div class="meal-actions"><label class="switch"><input type="checkbox" data-skip="'+mid+'" '+(skip?'checked':'')+'> Omitir</label></div></div><div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:-1px 0 11px">'+(!skip?'<button class="btn small ghost" data-add="'+mid+'">+ Alimento</button>':'')+(!skip&&fav&&fav.length?'<button class="btn small light" data-usual="'+mid+'">↺ Habitual</button>':'')+(!skip&&entries.length?'<button class="btn small ghost" data-saveusual="'+mid+'">☆ Guardar habitual</button><button class="btn small ghost" data-editmeal="'+mid+'">Editar</button>':'')+'</div>';
+ var mid=m[0],entries=current()[mid]||[],skip=!!((state.skipped[TODAY]||{})[mid]),fav=state.favorites[mid]||habitSuggestion(mid);
+ return '<div class="meal"><div class="meal-icon">'+m[2]+'</div><div class="meal-info"><div class="meal-title">'+m[1]+' <span class="badge">'+(skip?'Omitida':entries.length?fmt(mealTotal(mid))+' kcal':'Pendiente')+'</span></div><div class="meal-detail">'+(skip?'Comida opcional':entries.length?entries.map(function(it){return esc((FOODS[it.id]||{}).n)+" "+it.grams+" g";}).join(" · "):fav?'Tenés una comida habitual guardada':'Elegí alimentos y registrá sus gramos')+'</div></div><div class="meal-actions"><label class="switch"><input type="checkbox" data-skip="'+mid+'" '+(skip?'checked':'')+'> Omitir</label></div></div><div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin:-1px 0 11px">'+(!skip?'<button class="btn small ghost" data-add="'+mid+'">+ Alimento</button>':'')+(!skip&&fav&&fav.length?'<button class="btn small light" data-usual="'+mid+'">↺ '+(state.favorites[mid]?"Habitual":"Sugerida")+'</button>':'')+(!skip&&entries.length?'<button class="btn small ghost" data-saveusual="'+mid+'">☆ Guardar habitual</button><button class="btn small ghost" data-editmeal="'+mid+'">Editar</button>':'')+'</div>';
 }
 function home(){
- var t=totals(),r=state.goals,remaining={p:Math.max(0,r.p-t.p),c:Math.max(0,r.c-t.c),f:Math.max(0,r.f-t.f),fi:Math.max(0,r.fi-t.fi)};
- return pageHead("TU SEGUIMIENTO","Comé mejor. Evolucioná mejor.","Registro de hoy · "+new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}),'<button class="btn" data-action="openFood">+ Registrar alimento</button>')+
+ var t=totals(),r=state.goals;
+ var remaining={p:Math.max(0,r.p-t.p),c:Math.max(0,r.c-t.c),f:Math.max(0,r.f-t.f),fi:Math.max(0,r.fi-t.fi)};
+ var active=MEALS.filter(function(m){return !((state.skipped[TODAY]||{})[m[0]]);});
+ var done=active.filter(function(m){return (current()[m[0]]||[]).length>0;}).length;
+ var complete=active.length?Math.round(done/active.length*100):100;
+ return '<section class="welcome-hero"><div class="welcome-copy"><div class="welcome-kicker">✦ Tu bienestar, todos los días</div><div class="welcome-title">¡Hola! Hoy es un buen día<br>para <em>cuidarte.</em></div><p>Elegí tus alimentos, cargá los gramos y nosotros hacemos las cuentas. Así de fácil.</p><div class="welcome-actions"><button class="btn" data-action="openFood">+ Registrar alimento</button><button class="btn ghost" data-nav="catalog">Explorar alimentos</button></div></div><div class="welcome-visual"><span class="welcome-plate">🥗</span><span class="welcome-orbit one">✦ A tu ritmo</span><span class="welcome-orbit two">🌿 Equilibrio</span></div></section>'+
  '<div class="grid stats">'+statistic("CALORÍAS","k","kcal")+statistic("PROTEÍNAS","p","g")+statistic("HIDRATOS","c","g")+statistic("GRASAS","f","g")+statistic("FIBRA","fi","g")+'</div>'+
- '<div class="two-col"><section class="card">'+cardHead("Mis comidas",'<span class="pill">5 comidas opcionales</span>')+MEALS.map(listMeal).join("")+'</section><div class="stack"><section class="card highlight-card"><div class="mini-title">✦ MOTOR DE AJUSTE</div><h2>¿Qué falta para cumplir tu objetivo?</h2><p>Calculamos los nutrientes pendientes sin modificar lo que ya comiste.</p><div class="balance" style="margin-top:16px;line-height:2.1">Proteínas: '+fmt(remaining.p)+' g<br>Hidratos: '+fmt(remaining.c)+' g<br>Grasas: '+fmt(remaining.f)+' g<br>Fibra: '+fmt(remaining.fi)+' g</div><button class="btn" data-action="recommend">Elegir qué comer ahora →</button></section><section class="card">'+cardHead("Tus comidas habituales")+'<p>Guardá una comida y después repetila o cambiá un ingrediente. A partir de la primera semana sugeriremos las combinaciones repetidas.</p><div class="divider"></div><span class="pill grey">'+Object.keys(state.favorites).length+' comidas favoritas guardadas</span></section></div></div>';
+ '<div class="daily-banner"><span class="daily-icon">🎯</span><div style="flex:1"><strong>Tu registro de hoy: '+done+' de '+active.length+' comidas</strong><small>'+(done===0?"Empezá con tu primera comida cuando quieras.":done===active.length?"¡Completaste las comidas que elegiste registrar!":"Vas avanzando. Cada comida suma a tu progreso.")+'</small></div><span class="pill">'+complete+'%</span></div>'+
+ '<div class="two-col"><section class="card">'+cardHead("Tus comidas",'<span class="pill">5 momentos opcionales</span>')+MEALS.map(listMeal).join("")+'<div class="quick-tip"><span>💡</span><div><b>Tu rutina, más simple.</b> Guardá tus comidas habituales. Tras siete días de registros, también te sugerimos las que más repetís para que solo cambies lo necesario.</div></div></section><div class="stack"><section class="card highlight-card"><div class="mini-title">✦ TU BALANCE DEL DÍA</div><h2>Un paso más cerca de tu objetivo.</h2><p>Esto te falta según las metas de prueba configuradas para hoy.</p><div class="balance" style="margin-top:17px">Proteínas: '+fmt(remaining.p)+' g · Hidratos: '+fmt(remaining.c)+' g<br>Grasas: '+fmt(remaining.f)+' g · Fibra: '+fmt(remaining.fi)+' g</div><button class="btn" data-action="recommend">Ver mis macros pendientes →</button></section><section class="card">'+cardHead("Tus comidas favoritas",'<span class="pill grey">'+Object.keys(state.favorites).length+' guardadas</span>')+'<p>¿Desayunás casi siempre lo mismo? Repetí tu comida guardada con un toque y ajustá un ingrediente si hoy comiste algo diferente.</p><div class="prize-banner"><span class="prize-icon">⚡</span><div><b>Menos tiempo registrando</b><p>Más tiempo para disfrutar tu día.</p></div></div></section></div></div>';
 }
 function progressPage(){
  var last=state.weights.slice().sort(function(a,b){return b.date.localeCompare(a.date);})[0],act=state.activity.filter(function(x){return x.date===TODAY;});
@@ -127,7 +162,7 @@ document.addEventListener("click",function(e){
  if(b.dataset.nav){nav(b.dataset.nav);return;}
  if(b.dataset.add){foodModal(b.dataset.add);return;}
  if(b.dataset.saveusual){var mid=b.dataset.saveusual;state.favorites[mid]=(current()[mid]||[]).map(function(x){return Object.assign({},x);});save();toast("Comida habitual guardada. Podrás editarla cuando quieras.");render();return;}
- if(b.dataset.usual){var me=b.dataset.usual;put(me,(state.favorites[me]||[]).map(function(x){return Object.assign({},x);}));toast("Comida habitual cargada. Podés cambiar cualquier ingrediente.");return;}
+ if(b.dataset.usual){var me=b.dataset.usual;put(me,(state.favorites[me]||habitSuggestion(me)||[]).map(function(x){return Object.assign({},x);}));toast("Comida habitual cargada. Podés cambiar cualquier ingrediente.");return;}
  if(b.dataset.editmeal){editMeal(b.dataset.editmeal);return;}
  if(b.dataset.remove){var p=b.dataset.remove.split(":"),arr=(current()[p[0]]||[]).slice();arr.splice(+p[1],1);put(p[0],arr);editMeal(p[0]);return;}
  if(b.dataset.foodgroup){foodGroup=b.dataset.foodgroup;renderFoodResults();return;}

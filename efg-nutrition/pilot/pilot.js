@@ -136,7 +136,11 @@ function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
  let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+(i.displayQty?num(i.displayQty,1)+" "+escapeHTML(i.displayUnit)+" (≈"+num(i.qty,1)+" "+escapeHTML(i.unit)+")":num(i.qty,1)+" "+escapeHTML(i.unit))).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
- const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p><label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'>Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label><button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button><small style="display:block;margin-top:9px;color:#77958a">Estado actual: '+(cons?.accepted?'Compartido con tu coach':'Solo visible para vos')+'</small></section>':'';
+ const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p>'+
+ '<label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'> Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label>'+
+ '<label style="margin-top:14px;display:flex;gap:10px;align-items:flex-start"><input id="consentEmailReport" type="checkbox" '+(cons?.email_report_opt_in?'checked':'')+'> Autorizo que EFG Nutrition envíe cada mañana a mi entrenador un correo con las calorías y los macros del día anterior. Puedo revocar este permiso.</label>'+
+ '<button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button>'+
+ '<small style="display:block;margin-top:9px;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'Solo visible para vos')+' · Correo diario: '+(cons?.accepted&&cons?.email_report_opt_in?'Autorizado':'No autorizado')+'</small></section>':'';
  const closePanel=showConsent?'<div class="nutrition-day-close"><h3>Informe de mi día</h3><p class="pilot-hint">'+
  (d.skipped?._closed?'Marcaste este día como terminado. Si modificás una comida se vuelve a considerar parcial.':'Cuando termines de registrar tus comidas, cerrá el día para que tu entrenador distinga el informe completo del parcial.')+
  '</p><button class="btn small light" data-act="toggleDayClosed" '+(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length?'disabled':'')+'>'+
@@ -698,7 +702,18 @@ if(el.dataset.foodbulk){
  if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
- if(action==="saveConsent"){const accepted=!!document.getElementById("consentToggle")?.checked;const {data,error}=await sb.from("efg_consents").update({accepted:accepted,updated_at:new Date().toISOString()}).eq("student_id",state.session.user.id).select().single();if(error)throw error;state.consent=data;await render();notify(accepted?"Consentimiento otorgado a tu coach.":"Acceso del coach revocado.");return;}
+ if(action==="saveConsent"){
+ const accepted=!!document.getElementById("consentToggle")?.checked;
+ const wanted=!!document.getElementById("consentEmailReport")?.checked;
+ if(wanted&&!accepted)throw new Error("Para habilitar los correos, autorizá primero el seguimiento.");
+ const {data,error}=await sb.from("efg_consents").update({
+  accepted,email_report_opt_in:accepted&&wanted,updated_at:new Date().toISOString()
+ }).eq("student_id",state.session.user.id).select().single();
+ if(error)throw error;
+ state.consent=data;await render();
+ notify(!accepted?"Permisos revocados.":wanted?"Seguimiento y correo diario autorizados.":"Seguimiento autorizado; correo diario desactivado.");
+ return;
+}
  if(action==="saveWeight")return saveWeight();
  if(action==="saveActivity")return saveActivity();
  if(action==="loadEdu")return saveEduRoutine();

@@ -410,9 +410,15 @@ function openMealDialog(slot){
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
  if(!selector||!search)return;
- const term=search.value.trim().toLocaleLowerCase("es-AR");
+ const normalizeQuery=(v)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
+ const term=normalizeQuery(search.value);
+ const words=term.split(/\s+/).filter(Boolean);
  const previous=selector.value;
- const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
+ const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>{
+  const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
+  const name=normalizeQuery(f.name+" "+aliases);
+  return words.every(w=>name.includes(w));
+ });
  selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  updateMealEntryMode(true);

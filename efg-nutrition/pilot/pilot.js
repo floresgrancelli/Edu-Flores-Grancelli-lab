@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES} from "./food-catalog.js";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -34,7 +35,10 @@ const foods=[
  {id:"mandarin",name:"Mandarina",unit:"g",k:.53,p:.008,c:.133,f:.003,fi:.018,source:"Tabla genérica"},
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},
  {id:"rocket",name:"Rúcula",unit:"g",k:.25,p:.026,c:.037,f:.007,fi:.016,source:"Tabla genérica"}
-];
+].concat(EXTRA_FOODS);
+const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
+const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
+const groupedFoodOptions=(items)=>FOOD_CATEGORIES.map(([id,title])=>{const list=items.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));return list.length?'<optgroup label="'+escapeHTML(title)+'">'+option(list)+'</optgroup>':"";}).join("");
 const sports=[
  {id:"whey",name:"Proteína whey (scoop)",unit:"g",defaultQty:30,k:3.86,p:.8333,c:.0667,f:.025,fi:0,source:"Estimado; 25 g proteína por scoop de 30 g"},
  {id:"creatine",name:"Creatina monohidratada",unit:"g",defaultQty:5,k:0,p:0,c:0,f:0,fi:0,source:"Sin aporte energético significativo"},
@@ -142,7 +146,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 
-function allowedFoods(){return state.profile?.role==="student"?(state.foodPlan?.approved_food_ids?.length?state.foodPlan.approved_food_ids:FOOD_DEFAULTS):FOOD_DEFAULTS;}
+function allowedFoods(){return state.profile?.role==="student"?(state.foodPlan?.approved_food_ids?.length?state.foodPlan.approved_food_ids:FOOD_DEFAULTS):foods.map(f=>f.id);}
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
@@ -193,7 +197,17 @@ function openMealDialog(slot){
  state.activeMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Ingresá el peso realmente consumido.</p>'+
- '<div class="pilot-form"><div class="field"><label>Alimento</label><select id="mealEditorFood">'+option(allowed)+'</select></div><div class="field"><label>Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min="1" max="5000" value="100"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, pollo, arroz…" autocomplete="off"></div><div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed)+'</select></div><div class="field"><label>Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min="1" max="5000" value="100"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ updateMealDialogHint();
+}
+function filterMealFoods(){
+ const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
+ if(!selector||!search)return;
+ const term=search.value.trim().toLocaleLowerCase("es-AR");
+ const previous=selector.value;
+ const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
+ selector.innerHTML=groupedFoodOptions(filtered);
+ if(filtered.some(f=>f.id===previous))selector.value=previous;
  updateMealDialogHint();
 }
 function updateMealDialogHint(){
@@ -208,9 +222,38 @@ async function saveSelectedMeal(){
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
- const active=new Set(state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
- return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3><p class="pilot-hint">Elegí la lista que verá este alumno al planificar merienda y cena y sus alternativas B.</p>'+
- '<div class="coach-food-choices">'+foods.filter(f=>Object.values(FOOD_GROUPS).flat().includes(f.id)).map(f=>'<label><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(active.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div><button class="btn light" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar lista del alumno</button>';
+ const selected=new Set(state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
+ const sections=FOOD_CATEGORIES.map(([id,title],index)=>{
+  const items=foods.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
+  if(!items.length)return "";
+  return '<details class="coach-food-group" data-foodgroup="'+id+'" '+(index===0?'open':'')+'><summary><span>'+escapeHTML(title)+'</span><small>'+items.length+' opciones</small></summary>'+
+  '<div class="coach-food-bulk"><button type="button" class="btn small light" data-foodbulk="'+id+'" data-foodchecked="yes">Marcar categoría</button><button type="button" class="btn small ghost" data-foodbulk="'+id+'" data-foodchecked="no">Desmarcar</button></div>'+
+  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(f.name.toLocaleLowerCase("es-AR"))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div></details>';
+ }).join("");
+ return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3>'+
+ '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
+ '<div class="food-library-tools"><label for="coachFoodSearch">Buscar alimentos</label><input type="search" id="coachFoodSearch" placeholder="Buscar entre '+foods.length+' alimentos…" autocomplete="off"><p id="coachFoodCount" class="pilot-hint">'+selected.size+' alimentos seleccionados de '+foods.length+'</p></div>'+
+ sections+'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>';
+}
+function filterCoachFoodLibrary(){
+ const input=document.getElementById("coachFoodSearch");
+ if(!input)return;
+ const term=input.value.trim().toLocaleLowerCase("es-AR");
+ for(const group of root.querySelectorAll(".coach-food-group")){
+  let visible=0;
+  for(const label of group.querySelectorAll("label[data-foodname]")){
+   const match=label.dataset.foodname.includes(term);
+   label.style.display=match?"":"none";
+   if(match)visible++;
+  }
+  group.style.display=visible?"":"none";
+  if(term&&visible)group.open=true;
+ }
+ updateCoachFoodCount();
+}
+function updateCoachFoodCount(){
+ const e=document.getElementById("coachFoodCount");
+ if(e)e.textContent=root.querySelectorAll('input[data-coachfood]:checked').length+" alimentos seleccionados de "+foods.length;
 }
 async function saveCoachFoods(){
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test))||!state.selectedStudent||!state.consent?.accepted)throw new Error("El alumno tiene que autorizarte primero.");
@@ -279,7 +322,7 @@ function coachView(){
  '<button class="btn block" data-act="inviteStudent" '+(used>=seats?'disabled':'')+'>Habilitar alumno</button><button class="btn light" data-act="copyStudentLink">Copiar enlace para enviar</button></div><p class="pilot-hint">El alumno recibirá el código o enlace de ingreso en su propio correo y deberá autorizarte a consultar sus registros.</p></div>'+
  (isTest?'<div class="pilot-notice"><strong>Sin pagos en modo prueba</strong><small>Estos cupos no se facturan. Tu administración comercial continúa en la pestaña Administración.</small></div>':
  '<div class="card"><h2>Alias para pagos de alumnos</h2><p class="pilot-hint">'+(org?.payment_alias?'Actual: '+escapeHTML(org.payment_alias):'Todavía no configuraste tu alias bancario.')+'</p><div class="pilot-form"><div class="field"><label>Alias bancario</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div></div>')+
- '</div><div class="pilot-stack">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div>';
+ '</div><div class="pilot-stack"><div id="studentFollowPanel" class="coach-selected-student">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div></div>';
 }
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
@@ -520,7 +563,20 @@ if(el.dataset.deleteinvite){
  if(error)throw error;
  await loadRoleData();await render();notify("Correo eliminado de las invitaciones pendientes.");return;
 }
-if(el.dataset.student){await loadStudentDetail(el.dataset.student);return render();}
+if(el.dataset.student){
+ await loadStudentDetail(el.dataset.student);
+ await render();
+ document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
+ notify("Ficha de "+(state.roster.find(p=>p.user_id===el.dataset.student)?.nickname||"alumno")+" abierta.");
+ return;
+}
+if(el.dataset.foodbulk){
+ const group=root.querySelector('.coach-food-group[data-foodgroup="'+el.dataset.foodbulk+'"]');
+ if(!group)return;
+ const checked=el.dataset.foodchecked==="yes";
+ group.querySelectorAll('input[data-coachfood]').forEach(x=>x.checked=checked);
+ updateCoachFoodCount();return;
+}
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
@@ -559,8 +615,8 @@ if(el.dataset.student){await loadStudentDetail(el.dataset.student);return render
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
-root.addEventListener("change",e=>{if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{if(e.target.id==="mealEditorQty")updateMealDialogHint();});
+root.addEventListener("change",e=>{if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
+root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.id==="mealEditorQty")updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

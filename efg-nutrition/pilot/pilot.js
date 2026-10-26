@@ -96,6 +96,86 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<div class="pilot-kpis">'+macroCard("CALORÍAS","k",tot,goal)+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
  consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
+
+function allowedFoods(){return state.profile?.role==="student"?(state.foodPlan?.approved_food_ids?.length?state.foodPlan.approved_food_ids:FOOD_DEFAULTS):FOOD_DEFAULTS;}
+function plannerCard(){
+ const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
+ const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
+ let out='<section class="card planner-panel"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
+ '<p class="pilot-hint">Según lo que comiste de verdad, elegí cómo continuar. Sugerimos cantidades; vos decidís y registrás lo que pesaste.</p>'+
+ '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
+ if(!goal)return out+'<div class="pilot-alert">Para calcular porciones necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
+ const left=plan.remaining||{};
+ out+='<div class="planner-remaining"><b>Te falta para el objetivo del día</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span></div>';
+ if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
+ if(state.profile.role==="student"&&!state.foodPlan?.approved_food_ids?.length)out+='<p class="pilot-hint">Alimentos genéricos de ejemplo; tu coach podrá elegir tu lista permitida.</p>';
+ for(const meal of plan.meals){
+  const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
+  out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
+  for(const row of meal.rows){
+   const key=meal.slot+"|"+row.category, alternatives=optionsFor(foods,allowedFoods(),row.category).filter(f=>f.id!==row.food.id);
+   const chosen=alternatives.find(f=>f.id===state.plannerSelections["alt:"+key])||alternatives[0];
+   const equivalent=chosen?equivalentPortion(row.food,row.grams,chosen,row.category):null;
+   const label={protein:"Proteínas",carbs:"Hidratos",vegetable:"Vegetales",fat:"Grasas"}[row.category];
+   const opts=optionsFor(foods,allowedFoods(),row.category).map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===row.food.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("");
+   out+='<div class="planner-item"><label>'+label+' · opción A</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
+   '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b></div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
+   if(chosen&&equivalent)out+='<div class="planner-option-b"><label>Alternativa B</label><select data-planalt="'+escapeHTML(key)+'">'+alternatives.map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===chosen.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("")+'</select><small>≈ '+num(equivalent.grams)+' '+escapeHTML(chosen.unit)+' para igualar '+({protein:"proteínas",carbs:"hidratos",fat:"grasas",vegetable:"calorías"}[row.category])+'. No iguala todos los macros.</small></div>';
+   out+='</div>';
+  }
+  out+='<p class="pilot-hint">Total sugerido: P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g</p></div>';
+ }
+ const after=plan.projectedLeft;
+ out+='<div class="planner-left"><b>Si comés estas porciones, aún quedarían aprox.:</b><p>'+num(after.k)+' kcal · P '+num(after.p,1)+' g · HC '+num(after.c,1)+' g · G '+num(after.f,1)+' g</p><small>No intentamos recuperar todo con una cena enorme. Son cantidades orientativas con topes y se recalculan después de cada registro.</small></div>'+
+ '<p class="pilot-hint">Solo se registra lo que realmente pesaste. Estas recomendaciones no sustituyen el plan de tu profesional.</p></section>';
+ return out;
+}
+function parsePlannerKey(key){const parts=String(key).split("|");return parts.length===2&&MEAL_ORDER.includes(parts[0])&&FOOD_GROUPS[parts[1]]?[parts[0],parts[1]]:null;}
+async function addPlannedFood(key){
+ const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
+ const [slot,category]=pair, grams=Number(document.getElementById("planQty_"+key)?.value);
+ if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Ingresá el peso real.");
+ const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
+ if(!row)throw new Error("La sugerencia ya cambió. Volvé a elegir una opción.");
+ const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
+ d.meals[slot].push(normItem(row.food,grams,slot));
+ await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
+}
+function openMealDialog(slot){
+ const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
+ const allowed=allowedFoods().map(id=>foods.find(x=>x.id===id)).filter(Boolean);
+ state.activeMeal=slot;
+ document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
+ '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Ingresá el peso realmente consumido.</p>'+
+ '<div class="pilot-form"><div class="field"><label>Alimento</label><select id="mealEditorFood">'+option(allowed)+'</select></div><div class="field"><label>Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min="1" max="5000" value="100"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ updateMealDialogHint();
+}
+function updateMealDialogHint(){
+ const id=document.getElementById("mealEditorFood")?.value,qty=Number(document.getElementById("mealEditorQty")?.value),f=foods.find(x=>x.id===id),hint=document.getElementById("mealEditorHint");
+ if(f&&hint&&Number.isFinite(qty))hint.textContent=num(f.k*qty)+" kcal y "+num(f.p*qty,1)+" g de proteína · "+f.source;
+}
+async function saveSelectedMeal(){
+ const slot=state.activeMeal,id=document.getElementById("mealEditorFood")?.value,grams=Number(document.getElementById("mealEditorQty")?.value);
+ const f=foods.find(x=>x.id===id);if(!slot||!f||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000)throw new Error("Verificá el alimento y su peso.");
+ const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(normItem(f,grams,slot));d.skipped[slot]=false;state.activeMeal=null;
+ await saveDiary();notify("Alimento agregado, balance actualizado.");
+}
+function coachFoodChoices(p,consent){
+ if(!consent?.accepted)return "";
+ const active=new Set(state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
+ return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3><p class="pilot-hint">Elegí la lista que verá este alumno al planificar merienda y cena y sus alternativas B.</p>'+
+ '<div class="coach-food-choices">'+foods.filter(f=>Object.values(FOOD_GROUPS).flat().includes(f.id)).map(f=>'<label><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(active.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div><button class="btn light" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar lista del alumno</button>';
+}
+async function saveCoachFoods(){
+ if(state.profile.role!=="coach"||!state.selectedStudent||!state.consent?.accepted)throw new Error("El alumno tiene que autorizarte primero.");
+ const ids=[...root.querySelectorAll("input[data-coachfood]:checked")].map(x=>x.dataset.coachfood).filter(id=>foods.some(f=>f.id===id));
+ if(!ids.length)throw new Error("Seleccioná por lo menos un alimento.");
+ const row={student_id:state.selectedStudent,coach_id:state.session.user.id,approved_food_ids:ids,updated_at:new Date().toISOString()};
+ const {error}=await sb.from("efg_food_plans").upsert(row,{onConflict:"student_id"});if(error)throw error;
+ state.coachFoodPlan=row;await render();notify("Lista alimentaria guardada para este alumno.");
+}
+
 function sportView(){
  let d=activeDiary(),entries=d.sports||[];
  return rootText("Suplementos e hidratación","Proteína whey, creatina, magnesio, omega-3, geles, isotónicas y bebidas.")+

@@ -123,7 +123,7 @@ function calculateBeverage(f,totalMl){
  const desc=withMilk?' · '+num(ml,0)+' ml '+milk.name.toLowerCase():'';
  return {
   totals,
-  name:f.name.replace(" (personalizable)","")+desc+(sugar?' · '+num(sugar,0)+' g de azúcar':''),
+  name:f.name.replace(" (personalizable)","").replace(sugar>0?" sin azúcar":"", "")+desc+(sugar?' · '+num(sugar,0)+' g de azúcar':''),
   source:"Bebida personalizada: volumen total "+num(totalMl,0)+" ml"+(withMilk?", leche "+num(ml,0)+" ml ("+milk.name+")":"")+", azúcar "+num(sugar,0)+" g. Valores genéricos estimados.",
   ingredients:{milk_id:milkId||null,milk_ml:ml,sugar_g:sugar},
   summary:num(totals.k)+" kcal · P "+num(totals.p,1)+" g · HC "+num(totals.c,1)+" g · G "+num(totals.f,1)+" g"

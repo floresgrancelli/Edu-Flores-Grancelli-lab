@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -20,7 +21,12 @@ const foods=[
  {id:"quince",name:"Dulce de membrillo",unit:"g",k:2.7,p:.003,c:.67,f:.001,fi:.004,source:"Promedio"},
  {id:"cake",name:"Budín proteico casero Edu",unit:"g",k:2.173,p:.1547,c:.2613,f:.064,fi:.0373,source:"Receta estimada"},
  {id:"rice",name:"Arroz blanco cocido",unit:"g",k:1.3,p:.027,c:.28,f:.003,fi:.004,source:"Tabla genérica"},
- {id:"potato",name:"Papa hervida",unit:"g",k:.87,p:.019,c:.20,f:.001,fi:.018,source:"Tabla genérica"},
+ {id:"potato",name:"Papa hervida",unit:"g",k:.87,p:.019,c:.201,f:.001,fi:.018,source:"Tabla genérica, peso cocido"},
+ {id:"sweetpotato",name:"Batata hervida",unit:"g",k:.76,p:.013,c:.177,f:.001,fi:.025,source:"Tabla genérica, peso cocido"},
+ {id:"brownrice",name:"Arroz integral cocido",unit:"g",k:1.23,p:.027,c:.256,f:.01,fi:.018,source:"Tabla genérica, peso cocido"},
+ {id:"protein_pasta",name:"Fideos proteicos cocidos (estimación)",unit:"g",k:1.55,p:.12,c:.235,f:.018,fi:.04,source:"Estimación ilustrativa: sustituir según marca y cocción"},
+ {id:"tuna",name:"Atún al natural escurrido",unit:"g",k:1.16,p:.26,c:0,f:.01,fi:0,source:"Tabla genérica, escurrido"},
+ {id:"avocado",name:"Palta",unit:"g",k:1.60,p:.02,c:.085,f:.147,fi:.067,source:"Tabla genérica"},
  {id:"pasta",name:"Fideos cocidos",unit:"g",k:1.55,p:.058,c:.305,f:.009,fi:.018,source:"Tabla genérica"},
  {id:"oil",name:"Aceite de oliva",unit:"g",k:8.84,p:0,c:0,f:1,fi:0,source:"Tabla genérica"},
  {id:"yogurt",name:"Yogur natural descremado",unit:"g",k:.60,p:.05,c:.07,f:.01,fi:0,source:"Promedio"},
@@ -42,7 +48,7 @@ const sports=[
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});

@@ -332,10 +332,13 @@ const cons=state.consent,showConsent=state.profile.role==="student";
 
  '<button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button>'+
  '<small style="display:block;margin-top:9px;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'Solo visible para vos')+'. Informes disponibles en la app del entrenador.'+'</small></section>':'';
- const closePanel=showConsent?'<div class="nutrition-day-close"><h3>Informe de mi día</h3><p class="pilot-hint">'+
- (d.skipped?._closed?'Marcaste este día como terminado. Si modificás una comida se vuelve a considerar parcial.':'Cuando termines de registrar tus comidas, cerrá el día para que tu entrenador distinga el informe completo del parcial.')+
- '</p><button class="btn small light" data-act="toggleDayClosed" '+(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length?'disabled':'')+'>'+
- (d.skipped?._closed?'Reabrir registro':'Terminé de registrar mi día')+'</button></div>':'';
+ const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentarios al finalizar el día</h3>'+
+ '<p class="pilot-hint">¿Tuviste dificultades con una comida, los horarios, el apetito o la saciedad? Podés contárselo a tu coach. Es opcional.</p>'+
+ '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
+ '<div class="meal-actions"><button type="button" class="btn small light" data-act="saveDayComment">Guardar comentario</button>'+
+ '<button type="button" class="btn small" data-act="toggleDayClosed" '+(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length&&!d.skipped?._closed?'disabled':'')+'>'+
+ (d.skipped?._closed?'Reabrir registro':'Terminé de registrar mi día')+'</button></div>'+
+ '<p class="pilot-hint">'+(d.skipped?._closed?'Día terminado. Si cambiás una comida o suplemento, el informe vuelve a figurar como parcial.':'Al finalizar se guarda también este comentario. Lo verá el coach solamente con tu autorización de seguimiento.')+'</p></div>':'';
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Para uso personal de Edu o de un entrenador. No modifica los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
@@ -343,7 +346,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>Un día a la vez, un hábito a la vez.</h1><p>Registrá gramos reales, suplementos y bebidas. Tus macros se calculan al instante.</p><div class="pilot-toolbar" style="margin-top:15px">'+(canAuto?'<button class="btn" data-act="loadEdu">🍳 Cargar desayuno y media mañana de Edu</button>':'')+'<button class="btn small light" data-scrollplan="true">✨ Resolver lo que me falta</button><span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  '<div class="pilot-kpis">'+macroCard("CALORÍAS","k",tot,goal)+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
- consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
+ consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+supplementsPanel(d)+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 
 function allowedFoods(){return foods.map(f=>f.id);}
@@ -973,6 +976,12 @@ if(el.dataset.foodbulk){
   d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
   await saveDiary();notify("Alimento eliminado. Los macros se actualizaron.");return;
  }
+ if(el.dataset.removesupp!==undefined){
+ const index=Number(el.dataset.removesupp),d=activeDiary(),item=d.sports?.[index];
+ if(!Number.isInteger(index)||!item||!supplementRecord(item))throw new Error("No encontramos ese suplemento.");
+ d.sports.splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
+ await saveDiary();notify("Suplemento eliminado.");return;
+}
  if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
@@ -987,16 +996,13 @@ if(el.dataset.foodbulk){
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
  if(action==="toggleDayClosed"){
-  if(state.profile.role!=="student")throw new Error("Solo el alumno puede finalizar su registro.");
-  const diary=activeDiary();
-  if(!Object.values(diary.meals||{}).some(x=>x?.length)&&!diary.sports?.length)throw new Error("Registrá primero lo consumido.");
-  diary.skipped=diary.skipped||{};
-  diary.skipped._closed=!diary.skipped._closed;
-  const closed=diary.skipped._closed;
-  await saveDiary();
-  notify(closed?"Día cerrado. Tu entrenador verá que finalizaste el registro.":"Registro reabierto para corregir datos.");
-  return;
- }
+ if(state.profile.role!=="student")throw new Error("Solo el alumno puede finalizar su registro.");
+ const diary=activeDiary();
+ if(diary.skipped?._closed){
+  diary.skipped._closed=false;await saveDiary();notify("Registro reabierto para corregir datos.");
+ }else return saveDayComment(true);
+ return;
+}
  if(action==="refreshCoachReport"){
   if(!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno que haya autorizado el seguimiento.");
   await loadStudentDetail(state.selectedStudent);
@@ -1016,6 +1022,8 @@ if(el.dataset.foodbulk){
  }
  if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
+ if(action==="addDailySupplement"){return addDailySupplement();}
+ if(action==="saveDayComment"){return saveDayComment();}
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
  if(action==="saveConsent"){
  const accepted=!!document.getElementById("consentToggle")?.checked;
@@ -1053,7 +1061,7 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){

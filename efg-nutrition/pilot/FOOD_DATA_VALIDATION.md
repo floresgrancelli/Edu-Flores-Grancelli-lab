@@ -69,6 +69,7 @@ Incorporamos referencias identificables manteniendo la diferencia crudo/cocido, 
 |---|---|---:|---:|---:|---:|---|
 | `egg` | Huevo entero grado A grande sin cáscara, referencia crudo | 148 | 12,40 | 0,96 | 9,96 | 748967, Foundation Foods 04/2026 |
 | `egg_white` | Clara grado A grande, referencia crudo | 55 | 10,70 | 2,36 | 0,00 | 747997, Foundation Foods 04/2026 |
+| `oats_raw` | Avena arrollada seca sin fortificar | 379 | 13,20 | 67,70 | 6,50 | 173904, SR Legacy 04/2018; fibra 10,1 g/100 g |
 | `rice` | Arroz blanco cocido sin grasa añadida | 129 | 2,67 | 27,99 | 0,28 | 2708408, FNDDS 2021-2023 |
 | `potato` | Papa hervida sin piel y sin sal | 86 | 1,71 | 20,01 | 0,10 | 170440, SR Legacy 04/2018 |
 | `chicken_breast_raw` | Pechuga cruda sin piel y hueso | 120 | 22,50 | 0,00 | 2,62 | 171077, SR Legacy 04/2018 |
@@ -78,13 +79,14 @@ Incorporamos referencias identificables manteniendo la diferencia crudo/cocido, 
 Fuentes de consulta para cotejo de cifras por identificador: 
 - https://nutrientgraph.com/foods/eggs-grade-a-large-egg-whole-fdc-748967/
 - https://nutrientgraph.com/foods/eggs-grade-a-large-egg-white-fdc-747997/
+- https://www.wtfgyms.com/nutrition/oats (copia con referencia USDA FDC 173904)
 - https://nutrientgraph.com/foods/rice-white-cooked-no-added-fat-fdc-2708408/
 - https://nutrientgraph.com/foods/potatoes-boiled-cooked-without-skin-flesh-without-salt-fdc-170440/
 - https://nutrientgraph.com/foods/chicken-broiler-or-fryers-breast-skinless-boneless-meat-only-raw-fdc-171077/
 - https://nutrientgraph.com/foods/chicken-breast-baked-broiled-or-roasted-skin-not-eaten-from-raw-fdc-2705956/
 - https://nutrientgraph.com/foods/chicken-broilers-or-fryers-thigh-meat-only-cooked-roasted-fdc-172388/
 
-**Diferencias de modelo energético:** el archivo ampliado EFG generaba `k` aplicando 4-4-9 a todos los macronutrientes. Para las 7 fichas referenciadas, se asigna la **energía publicada** por la tabla, que puede no coincidir con 4-4-9 por los factores Atwater específicos, tipos de carbohidrato y redondeos. En USDA el campo «Carbohydrate, by difference» puede incluir fibra, mientras que el rótulo argentino distingue fibra por separado: advertirlo antes de comparar o transformar valores.
+**Diferencias de modelo energético:** el archivo ampliado EFG generaba `k` aplicando 4-4-9 a todos los macronutrientes. Para las 8 fichas referenciadas, se asigna la **energía publicada** por la tabla, que puede no coincidir con 4-4-9 por los factores Atwater específicos, tipos de carbohidrato y redondeos. En USDA el campo «Carbohydrate, by difference» puede incluir fibra, mientras que el rótulo argentino distingue fibra por separado: advertirlo antes de comparar o transformar valores.
 
 **Campo todavía pendiente:** la fibra del arroz blanco FDC 2708408 quedó en **0,4 g/100 g de la estimación EFG anterior**, explícitamente marcada pendiente, porque el extracto cotejado no muestra ese dato. No presentarla como verificada hasta consultar el registro completo.
 
@@ -95,6 +97,10 @@ Fuentes de consulta para cotejo de cifras por identificador:
 
 ## Control automatizable del catálogo ampliado (26/10/2026)
 
-Se añadió `pilot/test-food-catalog.mjs` para ejecutar de manera local sin datos privados. Controla que los IDs sean únicos, que existan fuentes y estados de procedencia, que kcal/macros sean números finitos no negativos, que Gobinda mantenga sus valores por 1 y 2 milanesas, y que las 4 referencias USDA dentro de `food-catalog.js` conserven FDC_ID y energía por 100 g. Ejecución: `node efg-nutrition/pilot/test-food-catalog.mjs`.
+Se añadió `pilot/test-food-catalog.mjs` para ejecutar de manera local sin datos privados. Controla que los IDs sean únicos, que existan fuentes y estados de procedencia, que kcal/macros sean números finitos no negativos, que Gobinda mantenga sus valores por 1 y 2 milanesas, y que las 5 referencias USDA dentro de `food-catalog.js` conserven FDC_ID y energía por 100 g. Ejecución: `node efg-nutrition/pilot/test-food-catalog.mjs`.
 
-**Comprobación puntual de JS en el entorno de edición:** módulo evaluado correctamente, **346 fichas en biblioteca ampliada**, 346 IDs distintos, cero números faltantes/no finitos/negativos, 341 fichas genéricas, 4 referencias USDA y 1 etiquetada Gobinda. Fuera de este módulo, `pilot.js` contiene alimentos base adicionales (3 actualizados con fuentes USDA identificadas) que no entran en ese conteo. **La prueba reproducible fue añadida al repositorio, pero aún no se ejecutó en el runtime de Node del proyecto.**
+**Comprobación puntual de JS en el entorno de edición:** módulo evaluado correctamente, **346 fichas en biblioteca ampliada**, 346 IDs distintos, cero números faltantes/no finitos/negativos, 340 fichas genéricas, 5 referencias USDA y 1 etiquetada Gobinda. Fuera de este módulo, `pilot.js` contiene alimentos base adicionales (3 actualizados con fuentes USDA identificadas) que no entran en ese conteo. **La prueba reproducible fue añadida al repositorio, pero aún no se ejecutó en el runtime de Node del proyecto.**
+
+
+### Avena y receta del budín
+Se actualizó `oats_raw`: 379 kcal, 13,2 g proteínas, 67,7 g carbohidratos, 6,5 g grasas y 10,1 g fibra por 100 g de avena seca (FDC 173904). La cifra anterior derivada con 4-4-9 era aproximadamente 355 kcal y solo 60 g de hidratos por 100 g. **El budín proteico EFG recalcula sus macros desde los ingredientes en tiempo de ejecución** mediante `setBudinNutrition()`; por eso la nueva avena se refleja en sus porciones de forma automática sin modificar el peso de 82,5 g estimado por porción. La producción definitiva sigue pendiente de prueba funcional.

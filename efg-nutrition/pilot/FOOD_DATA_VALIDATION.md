@@ -143,3 +143,43 @@ La diferencia entre gramos crudos y cocidos depende de la absorción de agua. **
 - Clasificación ampliada actual: **8 fuentes USDA directas por ID**, **2 referencias USDA convertidas de g a ml**, **1 etiqueta Gobinda**, **1 receta huevo/Fritolim**, **335 fichas genéricas**. El archivo principal de la aplicación aporta otros alimentos referenciados, incluidos huevo entero, arroz/papa, yogur natural, fideos cocidos y aceite de oliva.
 - Se actualizaron pruebas locales para ingredientes de marca, porciones de huevo con aerosol, aceite ya incluido, factores de ml y las fuentes documentadas de arroz/fideos. El módulo y el archivo principal fueron revisados sintácticamente en el entorno de edición; **las pruebas de navegador, persistencia en Supabase y despliegue Render siguen pendientes**.
 - **Limitación de verificación científica**: identificación de FDC_ID y cifras cotejadas con fuentes secundarias públicas. Es necesaria una pasada final contra los detalles oficiales de USDA antes de promover estos registros a un estado institucional de validación completa.
+
+
+## Auditoría transversal de 370 alimentos — 26/10/2026
+
+**Alcance y método.** Se analizaron todas las filas de `pilot.js` (catálogo principal) y `food-catalog.js` (biblioteca ampliada) con una exportación reproducible, `audit-food-catalog.mjs`, que genera `FOOD_CATALOG_AUDIT_2026-10-26.csv` (370 filas). Cada fila conserva identificador, categoría, unidad, macros, energía, origen declarado, FDC_ID cuando existe, estado de respaldo, comparación aproximada de energía contra el método general 4/4/9 y señales de revisión. La revisión de integridad encontró **0 IDs repetidos** y **0 valores negativos o no finitos**; también hay **0 divergencias de más de 40 kcal/100 g entre energía y 4/4/9 en alimentos genéricos**, pero ese control matemático NO demuestra que los valores nutricionales sean correctos. Para USDA, pueden existir diferencias esperables por fibra y factores Atwater.
+
+**Estado después de incorporar las seis referencias siguientes:**
+
+| Nivel | Fichas | Interpretación |
+|---|---:|---|
+| Tablas USDA con FDC_ID citado | 20 | Identificadas y cotejadas con referencias públicas; **confirmación integral primaria pendiente** |
+| USDA convertidas de g a ml | 2 | Dato referenciado con densidad estimada, no etiqueta en ml |
+| Etiqueta comercial fotografiada (Gobinda) | 1 | Transcripción de envase real; la marca puede actualizar formulación |
+| Receta calculada (budín, huevo con Fritolim) | 2 | Cantidades y técnica de preparación estimadas |
+| Promedios genéricos sin registro nutricional trazable | 345 | **No validados científicamente**, disponibles solo como estimaciones orientativas |
+| **Total** | **370** | El reporte incluye cada ficha, sin exclusiones |
+
+**Seis referencias añadidas en este control:**
+- Banana cruda sin cáscara (`banana`, 173944): 89 kcal, P 1,09 g, HC totales 22,84 g, G 0,33 g/100 g.
+- Palta cruda, pulpa (`avocado`, 171705): 160 kcal, P 2 g, HC totales 8,53 g, G 14,66 g/100 g.
+- Manzana cruda con cáscara (`apple`, 171688): 52 kcal, P 0,26 g, HC totales 13,81 g, G 0,17 g/100 g.
+- Zanahoria cruda (`carrot_raw`, 170393): 41 kcal, P 0,93 g, HC totales 9,58 g, G 0,24 g/100 g.
+- Espinaca hervida escurrida (`spinach_cooked`, 168463): 23 kcal, P 2,97 g, HC totales 3,75 g, G 0,26 g/100 g.
+- Tomate rojo maduro crudo (`tomato`, 170457): 18 kcal, P 0,88 g, HC totales 3,89 g, G 0,20 g/100 g. La fibra de esta ficha sigue marcada como estimación provisional (1,2 g/100 g).
+
+**Verificación externa de este lote:** cotejo de descripciones, macros y números FDC en copias públicas con referencia a USDA SR Legacy; no se ha descargado todavía la base oficial para comprobar todos los nutrientes, revisiones y micronutrientes a nivel de campo. Ejemplos de registros públicos: https://rawpawiq.com/ingredient/bananas-raw-173944 ; https://nutrientgraph.com/foods/avocados-raw-all-commercial-varieties-fdc-171705/ ; https://rawpawiq.com/ingredient/apples-raw-with-skin-includes-foods-for-usda-s-food-distribution-program-171688 ; https://rawpawiq.com/ingredient/carrots-raw-170393 ; https://rawpawiq.com/ingredient/spinach-cooked-boiled-drained-without-salt-168463 ; https://nutrientgraph.com/foods/tomatoes-red-ripe-raw-year-round-average-fdc-170457/ .
+
+### Cambios de transparencia en la interfaz
+
+El editor ahora declara el **origen/limitación del alimento junto a sus macros**. Cada registro nuevo también conserva `sourceType`, `sourceId` cuando corresponda y `validationStatus` para permitir auditoría histórica. Los valores genéricos no se bloquean: el usuario puede seguir registrando cualquier alimento, pero verá que son estimados. El catálogo conserva whey por scoop de 30 g, huevo con Fritolim como receta estimada y marca Gobinda por etiqueta.
+
+### Pendientes imprescindibles para declarar la prioridad 1 *científicamente completa*
+
+1. Descargar y cruzar directamente USDA Foundation/SR Legacy/FNDDS, respetando versión, alimento, parte comestible y métodos de preparación, para los 20 IDs actuales y luego para los genéricos que tengan equivalentes exactos.
+2. Para **345 genéricos sin fuente**: asociar una tabla con ID verificable solo cuando alimento/preparación coincidan; en recetas variables exigir ingredientes y rendimiento, mantener la estimación si no existe receta unívoca; para marcas pedir rótulo o ficha de fabricante. No inventar una fuente ni sustituir valores masivamente.
+3. Revisión específica de hidratos por diferencia (USDA incluyen fibra) versus declaración de carbohidratos del rótulo argentino y factores energéticos; revisar coherencia de los objetivos y porcentajes sin cambiar metas personales en silencio.
+4. Verificar el flujo de alumno/coach en sesiones autorizadas y un despliegue de la última rama GitHub en Render antes de dar por visible la interfaz.
+5. Licenciamiento: FoodData Central CC0 (https://fdc.nal.usda.gov/), pero ARGENFOODS/LATINFOODS exige consulta previa a coordinadores para cualquier fin comercial (https://latinfoodsportal.net/paises/main.php?sg2=ar&sg3=arg); **no copiar** a EFG Nutrition sin permiso.
+
+**Estado:** auditoría estructural y de procedencia del catálogo completo realizada; **validación científica individual de las 345 estimaciones genéricas aún no completada**. Evitar usar las expresiones «todos los alimentos validados» o «precisión garantizada».

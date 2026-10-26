@@ -75,3 +75,37 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .coach-selected-student{scroll-margin-top:16px;}
  .coach-food-group>summary{padding:15px 12px;}
 }
+
+/* Reportes nutricionales con prioridad de legibilidad en móviles */
+.nutrition-daily-report{border:1px solid #e0ebe7;background:#f9fcfa;border-radius:15px;padding:17px;margin:14px 0 20px;scroll-margin-top:22px}
+.nutrition-daily-report h3{margin:0;font-size:17px;color:#224c4a}
+.nutrition-daily-report h4{font-size:13px;color:#2c5854;margin:0 0 12px}
+.nutrition-daily-report .pilot-hint{margin:9px 0 15px}
+.nutrition-daily-report select{background:#fff;border:1px solid #cfdfd7;border-radius:10px;min-height:42px;width:100%;padding:8px 12px;font-size:13px;color:#204c49}
+.nutrition-report-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.nutrition-report-kpis>div{border:1px solid #d9eae1;background:white;padding:13px;border-radius:11px;min-width:0}
+.nutrition-report-kpis small{display:block;color:#66847e;font-size:10px;font-weight:700;line-height:1.5}
+.nutrition-report-kpis strong{display:block;font-size:21px;color:#197d70;line-height:1.3;margin:8px 0}
+.nutrition-report-kpis span{display:block;color:#637e78;font-size:10px}
+.nutrition-day-sheet{background:#fff;border:1px solid #dcebe3;border-radius:14px;padding:14px}
+.nutrition-day-sheet h4{font-size:16px;color:#224f4b;margin:0}
+.nutrition-day-sheet>.between{gap:8px}
+.nutrition-day-energy{margin:15px 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:9px}
+.nutrition-day-energy strong{color:#13796c;font-size:27px}
+.nutrition-day-energy small{font-size:11px;color:#617b75}
+.nutrition-macro-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:10px 0}
+.nutrition-macro-grid span{font-size:11px;display:flex;flex-direction:column;gap:6px;background:#f0f8f3;padding:9px;border-radius:8px;color:#66847c}
+.nutrition-macro-grid b{color:#2a5650;font-size:13px}
+.nutrition-meal-table{margin:13px 0}
+.nutrition-meal-table>div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e9eee9;color:#446460;font-size:12px}
+.nutrition-day-sheet>small{display:block;color:#7a8e87;margin-top:10px;font-size:11px}
+.nutrition-day-close{background:#f3faf4;border:1px solid #dcebe2;padding:16px;border-radius:12px;margin-top:17px}
+.nutrition-day-close h3{margin:0 0 7px;font-size:15px;color:#28564e}
+.nutrition-day-close .btn{margin-top:8px}
+@media(max-width:720px){
+ .nutrition-daily-report{padding:12px}
+ .nutrition-report-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nutrition-report-kpis>div:first-child{grid-column:span 2}
+ .nutrition-macro-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nutrition-day-energy strong{font-size:24px}
+}

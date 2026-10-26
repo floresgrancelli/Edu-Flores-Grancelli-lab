@@ -510,10 +510,10 @@ async function saveCoachFoods(){
 }
 
 function sportView(){
- let d=activeDiary(),entries=d.sports||[];
- return rootText("Suplementos e hidratación","Proteína whey, creatina, magnesio, omega-3, geles, isotónicas y bebidas.")+
- '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar suplemento o bebida</h2><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports)+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
- '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+i+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
+ let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e)&&e.id!=="whey");
+ return rootText("Hidratación y deporte","La proteína whey se registra en comidas; los demás suplementos están debajo de Cena.")+
+ '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar bebida o producto de entrenamiento</h2><p class="pilot-hint">Creatina, colágeno, magnesio y omega-3 están en Suplementos del día, debajo de Cena.</p><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports.filter(x=>!supplementRecord(x)&&x.id!=="whey"))+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
+ '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+x._originalIndex+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>¿Qué conviene tomar?</h2><div class="pilot-notice"><strong>💧 Agua o agua gasificada</strong><small>Ambas hidratan; elegí según tolerancia y preferencia.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🥤 Bebidas zero</strong><small>Pueden sustituir bebidas azucaradas cuando se busca reducir calorías, pero no son superiores al agua.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🏃 Geles e isotónicas</strong><small>Más relevantes en entrenamientos prolongados o con necesidades específicas de hidratos y electrolitos.</small></div><p class="pilot-hint" style="margin-top:15px">El scoop no equivale siempre a 30 g. Omega-3 y magnesio necesitan datos reales de etiqueta y pertinencia individual.</p></div></div></div>';
 }
 function weightDateLabel(w){
@@ -729,8 +729,8 @@ function updateFoodHint(){
  if(hint)hint.textContent=num(f.k*100)+" kcal y "+num(f.p*100,1)+" g proteínas por 100 "+f.unit+". "+f.source;
 }
 function updateSportHint(){
- const id=document.getElementById("sportItem")?.value||sports[0].id;
- let f=sports.find(x=>x.id===id)||sports[0],hint=document.getElementById("sportInfo"),qty=document.getElementById("sportQty"),label=document.getElementById("sportQtyLabel");
+ const id=document.getElementById("sportItem")?.value||"gel";
+ let f=sports.find(x=>x.id===id)||sports.find(x=>x.id==="gel"),hint=document.getElementById("sportInfo"),qty=document.getElementById("sportQty"),label=document.getElementById("sportQtyLabel");
  if(qty)qty.value=f.defaultQty;
  if(label)label.textContent="Cantidad ("+f.unit+")";
  if(hint)hint.textContent=f.source+". Porción de ejemplo: "+num(f.defaultQty)+" "+f.unit+", "+num(f.k*f.defaultQty)+" kcal.";
@@ -1024,7 +1024,7 @@ if(el.dataset.foodbulk){
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
- if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
+ if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
  if(action==="saveConsent"){
  const accepted=!!document.getElementById("consentToggle")?.checked;
 

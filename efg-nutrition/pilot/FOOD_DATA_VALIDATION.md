@@ -153,7 +153,8 @@ La diferencia entre gramos crudos y cocidos depende de la absorción de agua. **
 
 | Nivel | Fichas | Interpretación |
 |---|---:|---|
-| Tablas USDA con FDC_ID citado | 20 | Identificadas y cotejadas con referencias públicas; **confirmación integral primaria pendiente** |
+| Tablas USDA con FDC_ID citado | 19 | Identificadas y cotejadas con referencias públicas; **confirmación integral primaria pendiente** |
+| Referencia USDA con fibra sin cotejar (arroz blanco) | 1 | Energía y macros cotejados; fibra todavía estimada |
 | USDA convertidas de g a ml | 2 | Dato referenciado con densidad estimada, no etiqueta en ml |
 | Etiqueta comercial fotografiada (Gobinda) | 1 | Transcripción de envase real; la marca puede actualizar formulación |
 | Receta calculada (budín, huevo con Fritolim) | 2 | Cantidades y técnica de preparación estimadas |

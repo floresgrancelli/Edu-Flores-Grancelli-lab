@@ -266,14 +266,14 @@ function coachView(){
  const roster=state.roster||[];
  const current=state.selectedStudent&&roster.find(p=>p.user_id===state.selectedStudent);
  const pending=(isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
- const seats=org?.seat_limit||0,used=roster.length+pending.length;
+ const seats=org?.seat_limit||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length;
  return rootText(isTest?"Coach de prueba":"Panel del entrenador",isTest?"Tu espacio de prueba con alumnos autorizados y calculadora de planes.":"Administrá tus alumnos y revisá sus registros autorizados.")+
  (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 Laboratorio de EFG — 5 cupos gratuitos de prueba</strong><small>Conservás tu cuenta de administrador. Solo ves datos de alumnos vinculados a este espacio que hayan dado consentimiento. No se solicitan pagos.</small></div>':'')+
  macroPlayground()+
- '<div class="pilot-kpis"><div class="card"><div class="metric-label">ALUMNOS VINCULADOS</div><div class="metric-value">'+roster.length+'</div></div><div class="card"><div class="metric-label">CUPO '+(isTest?'DE PRUEBA':'CONTRATADO')+'</div><div class="metric-value">'+seats+'</div></div><div class="card"><div class="metric-label">INVITACIONES PENDIENTES</div><div class="metric-value">'+pending.length+'</div></div><div class="card"><div class="metric-label">CUPOS LIBRES</div><div class="metric-value">'+Math.max(0,seats-used)+'</div></div></div>'+
+ '<div class="pilot-kpis"><div class="card"><div class="metric-label">ALUMNOS VINCULADOS</div><div class="metric-value">'+activeRoster.length+'</div></div><div class="card"><div class="metric-label">CUPO '+(isTest?'DE PRUEBA':'CONTRATADO')+'</div><div class="metric-value">'+seats+'</div></div><div class="card"><div class="metric-label">INVITACIONES PENDIENTES</div><div class="metric-value">'+pending.length+'</div></div><div class="card"><div class="metric-label">CUPOS LIBRES</div><div class="metric-value">'+Math.max(0,seats-used)+'</div></div></div>'+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Mis alumnos</h2>'+
- (roster.length?roster.map(p=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
- (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-revokeinvite="'+i.id+'">Cancelar invitación</button></div>').join(""):'')+'</div>'+
+ (roster.length?roster.map(p=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
+ (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de EFG Nutrition con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
  '<button class="btn block" data-act="inviteStudent" '+(used>=seats?'disabled':'')+'>Habilitar alumno</button><button class="btn light" data-act="copyStudentLink">Copiar enlace para enviar</button></div><p class="pilot-hint">El alumno recibirá el código o enlace de ingreso en su propio correo y deberá autorizarte a consultar sus registros.</p></div>'+
@@ -499,7 +499,28 @@ async function showProof(path){
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(el.dataset.tab){state.tab=el.dataset.tab;return render();}
- if(el.dataset.student){await loadStudentDetail(el.dataset.student);return render();}
+ if(el.dataset.studentstatus){
+ const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
+ if(!student)throw new Error("Ese alumno no pertenece a tus cupos.");
+ const next=!student.active;
+ if(!window.confirm(next
+  ?"¿Reactivar a "+student.nickname+"? Volverá a ocupar un cupo y tendrá que autorizar de nuevo el seguimiento."
+  :"¿Dar de baja a "+student.nickname+"? Liberará su cupo y se revocará el permiso del coach. Sus registros NO se borrarán."))return;
+ const {error}=await sb.rpc("efg_set_student_active",{p_student:student.user_id,p_active:next});
+ if(error)throw error;
+ if(state.selectedStudent===student.user_id){state.selectedStudent=null;state.consent=null;state.coachLogs=[];state.coachGoals=[];state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;}
+ await loadRoleData();await render();notify(next?"Alumno reactivado, pendiente de nuevo consentimiento.":"Alumno dado de baja y cupo recuperado; datos conservados.");return;
+}
+if(el.dataset.deleteinvite){
+ const invs=state.profile.role==="admin"&&state.tab==="admin"?state.invitations:(state.profile.role==="admin"&&state.org?.is_test?state.testInvitations:state.invitations);
+ const inv=invs.find(x=>x.id===el.dataset.deleteinvite);
+ if(!inv||inv.claimed_by)throw new Error("El correo ya fue utilizado o no existe.");
+ if(!window.confirm("¿Eliminar el correo "+inv.email+" de las invitaciones? Es definitivo y libera el cupo."))return;
+ const {error}=await sb.rpc("efg_delete_pending_invitation",{p_invitation:inv.id});
+ if(error)throw error;
+ await loadRoleData();await render();notify("Correo eliminado de las invitaciones pendientes.");return;
+}
+if(el.dataset.student){await loadStudentDetail(el.dataset.student);return render();}
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}

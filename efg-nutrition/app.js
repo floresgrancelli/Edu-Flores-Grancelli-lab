@@ -190,13 +190,83 @@ function progressPage(){
  return pageHead("EVALUACIÓN","Tu evolución","Peso semanal, pasos diarios y tiempo de ejercicio.")+
  '<div class="two-col"><div class="stack"><section class="card">'+cardHead("Registrar peso semanal",'<span class="pill">Seguimiento</span>')+'<div class="field-row"><div class="field"><label>Peso (kg)</label><input id="weight" inputmode="decimal" type="number" min="20" max="400" step="0.1" placeholder="Ej. 78,5"></div><div class="field"><label>Fecha</label><input id="weightDate" type="date" value="'+TODAY+'"></div></div><div class="warning" style="margin-top:15px">⚠ IMPORTANTE: Pesarse siempre a la misma hora y en la misma balanza. Preferentemente por la mañana, después de ir al baño y antes del desayuno.</div><button class="btn" style="margin-top:15px" data-action="saveWeight">Guardar peso</button></section><section class="card">'+cardHead("Historial de peso")+(state.weights.length?'<table class="table"><thead><tr><th>Fecha</th><th>Peso</th></tr></thead><tbody>'+state.weights.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).map(function(x){return '<tr><td>'+esc(x.date)+'</td><td><b>'+fmt(x.weight,1)+' kg</b></td></tr>';}).join("")+'</tbody></table>':'<div class="empty">Todavía no registraste ningún peso.</div>')+'</section></div><div class="stack"><section class="card">'+cardHead("Actividad física")+'<div class="field"><label>Pasos de hoy</label><input id="steps" type="number" min="0" placeholder="Ej. 8500"></div><div class="field" style="margin-top:12px"><label>Minutos de ejercicio de hoy</label><input id="minutes" type="number" min="0" placeholder="Ej. 60"></div><div class="field" style="margin-top:12px"><label>Tipo de entrenamiento</label><select id="kind"><option>Fuerza</option><option>Cardio</option><option>Caminata</option><option>Descanso</option><option>Otro</option></select></div><button class="btn block" style="margin-top:16px" data-action="saveActivity">Guardar actividad</button></section><section class="card">'+cardHead("Hoy")+(act.length?'<p>Pasos: <b>'+fmt(act[act.length-1].steps)+'</b></p><p>Ejercicio: <b>'+fmt(act[act.length-1].minutes)+' minutos</b></p>':'<p>Sin registros de actividad.</p>')+'<div class="divider"></div><p class="hint">Un día sin datos no significa cero actividad.</p></section></div></div>';
 }
+function coachCalculatorDefaults(){
+ return {sex:"male",age:41,height:174,weight:80,target:77,activity:1.5,goal:"recomp"};
+}
+function coachData(){
+ return Object.assign({},coachCalculatorDefaults(),state.coachCalculator||{});
+}
+function calculateCoachEstimate(data){
+ var w=Number(data.weight),target=Number(data.target),age=Number(data.age),height=Number(data.height),activity=Number(data.activity),sex=data.sex,goal=data.goal;
+ if(!Number.isFinite(w)||w<35||w>300||!Number.isFinite(target)||target<35||target>300||!Number.isFinite(age)||age<18||age>90||!Number.isFinite(height)||height<120||height>220||!Number.isFinite(activity)||activity<1.2||activity>1.75)return {error:"Revisá peso, altura, edad y actividad. Este simulador inicial es solo para adultos."};
+ if(goal==="loss"&&target>=w)return {error:"Para pérdida de grasa, elegí un peso objetivo menor al actual o usá recomposición."};
+ if(goal==="gain"&&target<=w)return {error:"Para ganancia de peso, elegí un objetivo superior al actual o usá recomposición."};
+ var rmr=10*w+6.25*height-5*age+(sex==="male"?5:-161);
+ var maintenance=Math.round(rmr*activity);
+ var mult={loss:.90,recomp:.97,gain:1.07,maint:1}[goal];
+ if(!mult)return {error:"Elegí un objetivo nutricional válido."};
+ var kcal=Math.round(maintenance*mult/10)*10;
+ if(kcal<1400)return {error:"La estimación energética es baja para este simulador. Requiere evaluación individual por un profesional de nutrición."};
+ var protein=Math.round(w*({loss:2,recomp:1.9,gain:1.8,maint:1.6}[goal]));
+ var fat=Math.round(w*.8);
+ var carbs=Math.round((kcal-4*protein-9*fat)/4);
+ if(carbs<0)return {error:"La combinación de calorías, proteínas y grasas no es viable. Requiere ajuste individual."};
+ var fiber=Math.round(14*kcal/1000);
+ var weeks=goal==="recomp"||goal==="maint"?null:Math.ceil(Math.abs(target-w)/(w*(goal==="loss"?.003:.0025)));
+ return {rmr:rmr,maintenance:maintenance,kcal:kcal,p:protein,c:carbs,f:fat,fi:fiber,weeks:weeks,goal:goal};
+}
+function coachInputs(){
+ var fields=[
+ ["coachAge","Edad (años)","age",18,90],
+ ["coachHeight","Altura (cm)","height",120,220],
+ ["coachWeight","Peso actual (kg)","weight",35,300],
+ ["coachTarget","Peso objetivo (kg)","target",35,300]
+ ];
+ var d=coachData();
+ return '<div class="field-row">'+fields.map(function(f){return '<div class="field"><label for="'+f[0]+'">'+f[1]+'</label><input id="'+f[0]+'" type="number" min="'+f[3]+'" max="'+f[4]+'" step="0.1" inputmode="decimal" value="'+esc(d[f[2]])+'"></div>';}).join("")+'</div>'+
+ '<div class="field-row" style="margin-top:13px"><div class="field"><label for="coachSex">Variable fisiológica de la fórmula</label><select id="coachSex"><option value="male" '+(d.sex==="male"?"selected":"")+'>Hombre (ecuación masculina)</option><option value="female" '+(d.sex==="female"?"selected":"")+'>Mujer (ecuación femenina)</option></select></div>'+
+ '<div class="field"><label for="coachActivity">Actividad diaria estimada</label><select id="coachActivity">'+[[1.2,"Baja"],[1.35,"Ligera"],[1.5,"Moderada"],[1.7,"Alta"]].map(function(o){return '<option value="'+o[0]+'" '+(Math.abs(d.activity-o[0])<.01?"selected":"")+'>'+o[1]+' · factor '+o[0]+'</option>';}).join("")+'</select></div></div>'+
+ '<div class="field" style="margin-top:13px"><label for="coachGoal">Objetivo del programa</label><select id="coachGoal">'+[["loss","Pérdida de grasa"],["recomp","Recomposición corporal"],["gain","Ganancia muscular"],["maint","Mantenimiento"]].map(function(o){return '<option value="'+o[0]+'" '+(d.goal===o[0]?"selected":"")+'>'+o[1]+'</option>';}).join("")+'</select></div>';
+}
+function coachResultCard(){
+ var r=state.coachEstimate;
+ if(!r)return '<div class="calculator-welcome"><span>📐</span><h3>Tu cálculo científico aparece acá</h3><p>Ingresá los datos, elegí el objetivo y tocá «Calcular propuesta».</p></div>';
+ if(r.error)return '<div class="warning">'+esc(r.error)+'</div>';
+ return '<div class="coach-result"><div class="result-caption">PROPUESTA SIN APROBAR</div><div class="result-kcal">'+fmt(r.kcal)+' <small>kcal/día</small></div><p>Estimación de mantenimiento: '+fmt(r.maintenance)+' kcal/día · Metabolismo en reposo: '+fmt(r.rmr)+' kcal/día.</p><div class="result-list">'+[
+ ["Proteínas",r.p,"g","#12a88b"],
+ ["Hidratos",r.c,"g","#6288da"],
+ ["Grasas",r.f,"g","#e9a14f"],
+ ["Fibra",r.fi,"g","#9b83d4"]
+ ].map(function(row){return '<div><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+row[3]+';margin-right:6px"></span>'+row[0]+'<b>'+fmt(row[1])+' '+row[2]+'</b></div>';}).join("")+'</div>'+
+ (r.weeks?'<div class="note" style="margin-top:13px">Cambio gradual de referencia: alrededor de '+fmt(r.weeks)+' semanas, bajo supuestos ideales. <b>No es una predicción de la evolución real.</b></div>':'<div class="note" style="margin-top:13px">La recomposición se evalúa mejor mediante peso, cintura, composición corporal y rendimiento, sin imponer una fecha final.</div>')+
+ '<button class="btn block" data-action="applyCoachEstimate" style="margin-top:14px">✓ Aprobar objetivos en esta demo</button><div class="subtle">En la versión con cuentas reales, solo el profesional autorizado podrá aprobarlos.</div></div>';
+}
 function coachPage(){
- var g=state.goals;
- return pageHead("PANEL PROFESIONAL","Gestión de objetivos","Versión de demostración: el profesional define metas; el alumno no las modifica.")+
- '<div class="grid kpi-grid" style="margin-bottom:18px"><div class="card"><div class="metric-label">ENTRENADORES CONTRATADOS</div><div class="metric-value">—</div><p class="subtle">Se habilitarán con autenticación</p></div><div class="card"><div class="metric-label">ALUMNOS CONECTADOS</div><div class="metric-value">—</div><p class="subtle">Datos individuales protegidos</p></div><div class="card"><div class="metric-label">COMPROBANTES PENDIENTES</div><div class="metric-value">'+state.receipts.filter(function(x){return x.status==="Pendiente (demo)";}).length+'</div><p class="subtle">Solo en este navegador</p></div></div>'+
- '<div class="two-col"><section class="card">'+cardHead("Plan nutricional modelo",'<span class="pill">Solo profesional en la versión real</span>')+'<p style="margin-bottom:16px">Metas de demostración para probar el cálculo. No representan una prescripción individual.</p><div class="field-row">'+[
+ var g=state.goals,amount=state.weights.length;
+ return pageHead("EFG NUTRITION PRO","Panel del entrenador","Calculá objetivos iniciales, revisá resultados y seguí la evolución. Esta es una demostración sin alumnos conectados.")+
+ '<div class="coach-topbar"><span class="coach-identity">👤 Alumno de demostración</span><span class="pill amber">Sin datos externos</span><span class="coach-identity">🛡️ Rol profesional de prueba</span></div>'+
+ '<div class="grid kpi-grid" style="margin-bottom:18px"><div class="card"><div class="metric-label">PLAN NUTRICIONAL ACTUAL</div><div class="metric-value">'+fmt(g.k)+' <span>kcal</span></div><p class="subtle">Valor editable de demostración</p></div><div class="card"><div class="metric-label">REGISTROS DE PESO</div><div class="metric-value">'+amount+'</div><p class="subtle">En este navegador solamente</p></div><div class="card"><div class="metric-label">COACHES Y ALUMNOS REALES</div><div class="metric-value">0</div><p class="subtle">Falta autenticación y base de datos</p></div></div>'+
+ '<div class="two-col coach-layout"><section class="card">'+cardHead("Calculadora de nutrición deportiva",'<span class="pill">Mifflin–St Jeor</span>')+
+ '<p style="margin-bottom:19px">La fórmula estima necesidades energéticas. La aplicación propone macros según el objetivo, sin reemplazar la valoración profesional.</p>'+
+ coachInputs()+
+ '<div class="coach-tools"><button class="btn" data-action="calculateCoach">✦ Calcular propuesta</button><span class="hint">Sin modificar el plan del alumno</span></div>'+
+ '<div class="note" style="margin-top:15px">El ajuste inicial utiliza un déficit moderado para pérdida de grasa, una aproximación al mantenimiento para recomposición o un superávit pequeño para ganancia muscular. Son parámetros revisables.</div>'+
+ '</section><div class="stack"><section class="card">'+cardHead("Resultado estimado",'<span class="pill grey">Para revisión</span>')+coachResultCard()+'</section>'+
+ '<section class="card">'+cardHead("Seguimiento inteligente")+
+ '<div class="list-row"><div><b>1 · Peso semanal</b><small>Siempre misma hora y misma balanza</small></div><span class="badge">7 días</span></div>'+
+ '<div class="list-row"><div><b>2 · Adherencia y fuerza</b><small>Calorías registradas, pasos, entrenamiento y tendencia</small></div><span class="badge">Semanal</span></div>'+
+ '<div class="list-row"><div><b>3 · Revisión de calorías</b><small>Proponer ajustes discretos, no saltos diarios</small></div><span class="badge">2–3 semanas</span></div>'+
+ '<p class="subtle" style="margin-top:14px">Ejemplo de ajuste futuro: ±100–150 kcal/día con datos suficientes y aprobación profesional; no ocurre automáticamente en esta demo.</p></section></div></div>'+
+ '<section class="card" style="margin-top:18px">'+cardHead("Plan aprobado en la demo",'<span class="pill">Editable por el profesional</span>')+'<p style="margin-bottom:16px">Estos valores de prueba gobiernan el tablero de macros del alumno. En producción se asociarán a cada usuario con historial de cambios.</p><div class="coach-target-grid">'+[
  ["gk","Calorías (kcal)",g.k],["gp","Proteínas (g)",g.p],["gc","Hidratos (g)",g.c],["gf","Grasas (g)",g.f],["gfi","Fibra (g)",g.fi]
- ].map(function(x){return '<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>';}).join("")+'</div><button class="btn" style="margin-top:16px" data-action="saveGoals">Guardar objetivos de prueba</button></section><div class="stack"><section class="card">'+cardHead("Roles de la plataforma")+'<div class="list-row"><div><b>EFG • Superadministrador</b><small>Gestión técnica y comercial</small></div><span class="pill">Propietario</span></div><div class="list-row"><div><b>Coach • Administrador propio</b><small>Planes y alumnos autorizados</small></div><span class="pill grey">Futuro</span></div><div class="list-row"><div><b>Alumno • Acceso personal</b><small>Sus registros y evolución</small></div><span class="pill grey">Futuro</span></div></section><section class="card">'+cardHead("Planificación científica")+'<p>Motor futuro: Mifflin–St Jeor, actividad, pérdida de grasa, recomposición o ganancia muscular. El profesional revisará y aprobará toda sugerencia antes de aplicarla.</p></section></div></div>';
+ ].map(function(x){return '<div class="field"><label for="'+x[0]+'">'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>';}).join("")+'</div>'+
+ '<button class="btn" style="margin-top:16px" data-action="saveGoals">Guardar objetivos de prueba</button></section>'+
+ '<div class="coach-science"><b>Base científica del simulador</b><p>Gasto en reposo: Mifflin–St Jeor (1990). Distribución proteica orientativa: ISSN (2026) y revisiones sobre entrenamiento de fuerza. El gasto total es una estimación; la evolución real y la situación clínica deben gobernar el seguimiento. Si la ecuación por sexo no representa adecuadamente a una persona, se requiere evaluación individual.</p><div style="margin-top:9px"><a href="https://pubmed.ncbi.nlm.nih.gov/42867412/" target="_blank" rel="noopener noreferrer">Posición ISSN, 2026</a> · <a href="https://www.sciencedirect.com/science/article/pii/S0002916523166986" target="_blank" rel="noopener noreferrer">Mifflin–St Jeor</a></div></div>';
+}
+function readCoachForm(){
+ return {age:Number(document.getElementById("coachAge").value),height:Number(document.getElementById("coachHeight").value),
+ weight:Number(document.getElementById("coachWeight").value),target:Number(document.getElementById("coachTarget").value),
+ sex:document.getElementById("coachSex").value,activity:Number(document.getElementById("coachActivity").value),goal:document.getElementById("coachGoal").value};
 }
 function paymentsPage(){
  var list=state.receipts.slice().reverse();
@@ -270,6 +340,8 @@ document.addEventListener("click",function(e){
  }
  if(action==="saveWeight"){var w=Number(document.getElementById("weight").value),d=document.getElementById("weightDate").value;if(!(w>=20&&w<=400&&d)){toast("Ingresá una fecha y peso válidos.");return;}state.weights=state.weights.filter(function(x){return x.date!==d;});state.weights.push({date:d,weight:w});save();render();toast("Peso semanal registrado.");return;}
  if(action==="saveActivity"){var st=Number(document.getElementById("steps").value),mi=Number(document.getElementById("minutes").value),kind=document.getElementById("kind").value;if(!Number.isFinite(st)||!Number.isFinite(mi)||st<0||mi<0||st>100000||mi>1440){toast("Revisá los valores de actividad.");return;}state.activity=state.activity.filter(function(x){return x.date!==TODAY;});state.activity.push({date:TODAY,steps:st,minutes:mi,kind:kind});save();render();toast("Actividad registrada.");return;}
+ if(action==="calculateCoach"){state.coachCalculator=readCoachForm();state.coachEstimate=calculateCoachEstimate(state.coachCalculator);save();render();toast(state.coachEstimate.error?"Revisá los datos ingresados.":"Propuesta calculada. Falta aprobarla.");return;}
+ if(action==="applyCoachEstimate"){var estimate=state.coachEstimate;if(!estimate||estimate.error){toast("Primero calculá una propuesta válida.");return;}state.goals={k:estimate.kcal,p:estimate.p,c:estimate.c,f:estimate.f,fi:estimate.fi};save();render();toast("Objetivos aprobados en esta demo. Se reflejan en Mi día.");return;}
  if(action==="saveGoals"){var obj={k:+document.getElementById("gk").value,p:+document.getElementById("gp").value,c:+document.getElementById("gc").value,f:+document.getElementById("gf").value,fi:+document.getElementById("gfi").value};if(Object.values(obj).some(function(v){return !Number.isFinite(v)||v<0||v>15000;})){toast("Corregí los objetivos numéricos.");return;}state.goals=obj;save();render();toast("Metas de demostración actualizadas.");return;}
  if(action==="saveAliases"){state.settings.coachAlias=document.getElementById("coachAlias").value.trim();state.settings.efgAlias=document.getElementById("efgAlias").value.trim();save();render();toast("Alias guardados solo en este dispositivo.");return;}
  if(action==="receiptDemo"){var amount=+document.getElementById("paymentAmount").value,type=document.getElementById("paymentType").value;var file=document.getElementById("receiptFile").files[0];if(!(amount>0)||!file){toast("Ingresá importe y seleccioná foto de ejemplo.");return;}state.receipts.push({from:type==="coach"?"Coach → EFG":"Alumno → Coach",amount:amount,date:new Date().toLocaleString("es-AR"),status:"Pendiente (demo)",photoName:file.name});save();render();toast("Solicitud de prueba registrada solo en este dispositivo.");return;}

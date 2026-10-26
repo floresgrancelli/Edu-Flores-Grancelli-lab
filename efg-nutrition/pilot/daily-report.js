@@ -8,7 +8,9 @@ export function buildNutritionReport(logs, mealSlots, dailyTotals, currentDay, g
   const mealCount=meals.filter(x=>x.foods>0&&!x.omitted).length;
   const sportCount=(d.sports||[]).length;
   const closed=!!d.skipped?._closed;
-  return {date:d.log_day,k:t.k,p:t.p,c:t.c,f:t.f,fi:t.fi,meals,mealCount,sportCount,closed,hasData:mealCount>0||sportCount>0,updatedAt:d.updated_at||null};
+  const comment=String(d.skipped?._comment||"").slice(0,1000);
+  const supplements=(d.sports||[]).filter(x=>x.kind==="supplement"||["creatine","collagen","omega3","magnesium","electrolytes"].includes(x.id)).map(x=>({name:String(x.name||"Suplemento"),qty:Number(x.qty)||0,unit:String(x.unit||""),when:String(x.when||""),k:Number(x.k)||0,p:Number(x.p)||0,f:Number(x.f)||0}));
+  return {date:d.log_day,k:t.k,p:t.p,c:t.c,f:t.f,fi:t.fi,meals,mealCount,sportCount,supplements,comment,closed,hasData:mealCount>0||sportCount>0||!!comment,updatedAt:d.updated_at||null};
  }).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
  const recorded=days.filter(d=>d.hasData);
  const closed=recorded.filter(d=>d.closed);
@@ -24,6 +26,8 @@ export function nutritionReportText(report,nickname,selectedDate){
  const date=day.date.split("-").reverse().join("/");
  let out=["EFG NUTRITION | INFORME DIARIO",nickname||"Alumno",date,day.closed?"Estado: día cerrado por el alumno":"Estado: registro parcial (sin cierre)","Calorías registradas: "+round(day.k)+" kcal","Proteínas: "+round(day.p)+" g | Carbohidratos: "+round(day.c)+" g | Grasas: "+round(day.f)+" g | Fibra: "+round(day.fi)+" g"];
  if(report.goal?.kcal){out.push("Meta: "+round(report.goal.kcal)+" kcal | Diferencia: "+(round(day.k-report.goal.kcal)>=0?"+":"")+round(day.k-report.goal.kcal)+" kcal");}
+ if(day.comment)out.push("Comentario del alumno: "+day.comment);
+ if(day.supplements?.length)out.push("Suplementos del día: "+day.supplements.map(x=>x.name+" ("+x.qty+" "+x.unit+")").join(", "));
  out.push("Comidas con registro: "+day.mealCount,"Promedio de "+report.daysRecorded+" días con registro: "+round(report.average.k)+" kcal/día","Nota: cifras orientativas. Días no registrados no se cuentan como 0. Pueden existir comidas sin cargar.");
  return out.join("\n");
 }

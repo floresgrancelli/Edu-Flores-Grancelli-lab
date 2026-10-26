@@ -197,3 +197,11 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .budin-recipe ul{margin:11px 0 12px 18px;padding:0;color:#3f655c;font-size:12px;line-height:1.7;}
 .budin-recipe li{margin:3px 0;}
 .budin-recipe small{display:block;font-size:10px;line-height:1.6;color:#698b80;margin-top:10px;}
+
+
+/* Bebidas e infusiones personalizadas, con leche y azúcar ajustables */
+.beverage-editor{margin:12px 0;padding:14px;border:1px solid #dce8e8;background:#f5faf9;border-radius:13px;}
+.beverage-editor h3{font-size:14px;margin:0 0 6px;color:#246b62;}
+.beverage-editor .field-row{margin:10px 0;}
+.beverage-editor .pilot-hint{font-size:11px;line-height:1.6;margin:7px 0;}
+.beverage-editor input,.beverage-editor select{max-width:100%;}

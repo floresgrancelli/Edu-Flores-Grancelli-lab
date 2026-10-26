@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#f8faf7"/>
+  <meta name="description" content="EFG Nutrition: seguimiento nutricional inteligente para alumnos y profesionales."/>
+  <title>EFG Nutrition · Tu progreso, con evidencia</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./fresh.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a href="#" class="brand" aria-label="EFG Nutrition Inicio">
+        <span class="brand-mark">E<span>+</span></span>
+        <span class="brand-name"><b>EFG</b> NUTRITION <small>SCIENCE • PERFORMANCE</small></span>
+      </a>
+      <div class="workspace-label">MI ESPACIO</div>
+      <nav id="navigation" class="navigation" aria-label="Secciones"></nav>
+      <div class="aside-footer">
+        <div class="aside-profile"><span class="avatar">EF</span><div><b>Versión inicial</b><small>Demostración interactiva</small></div></div>
+        <p>Los datos de esta demo se almacenan solo en este dispositivo, no se comparten con un entrenador.</p>
+      </div>
+    </aside>
+    <div class="app-main">
+      <header class="topbar">
+        <button id="menuButton" class="icon-btn mobile-menu" aria-label="Abrir menú">☰</button>
+        <div class="crumb"><span class="dot-live"></span> EFG NUTRITION <span class="crumb-sep">/</span> <span id="crumbCurrent">Mi día</span></div>
+        <div class="top-right"><span class="demo-pill">DEMO · Sin cuentas reales</span><span class="avatar avatar-sm">EF</span></div>
+      </header>
+      <main id="main" tabindex="-1"></main>
+      <footer class="footer">EFG NUTRITION · Plataforma en desarrollo · Datos de ejemplo, no prescripción médica</footer>
+    </div>
+  </div>
+  <div id="modalRoot"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>

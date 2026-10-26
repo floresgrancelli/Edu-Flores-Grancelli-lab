@@ -32,12 +32,69 @@ var FOODS=[
 ["Tomate","Genérico","vegetales",18,0.9,3.9,0.2,1.2],
 ["Proteína en polvo sin marca","Promedio ilustrativo · verificar etiqueta","suplementos",390,75,9,5,0]
 ].map(function(a,i){return {id:i,n:a[0],b:a[1],group:a[2],k:a[3],p:a[4],c:a[5],f:a[6],fi:a[7]};});
-var defaultState={goals:{k:2200,p:160,c:230,f:70,fi:30},days:{},skipped:{},favorites:{},weights:[],activity:[],receipts:[],settings:{coachAlias:"",efgAlias:""},demoRole:"alumno"};
+
+var SPORT_PRODUCTS=[
+ {id:"whey",name:"Proteína whey (genérica)",sub:"Scoop de ejemplo; verificar gramos reales y aminograma",kind:"Proteína",unit:"g",serving:30,k:3.90,p:.75,c:.09,f:.05,fi:0,detail:"El contenido proteico depende de la marca. Un scoop no siempre equivale a 30 g."},
+ {id:"creatine",name:"Creatina monohidratada",sub:"Registro de cantidad; sin aporte relevante de macros",kind:"Rendimiento",unit:"g",serving:5,k:0,p:0,c:0,f:0,fi:0,detail:"Uso habitual en adultos deportistas: 3–5 g/día cuando está indicado; no requiere postentreno."},
+ {id:"magnesium",name:"Magnesio (suplemento)",sub:"Cantidad del preparado en mg; datos de etiqueta necesarios",kind:"Micronutrientes",unit:"mg",serving:200,k:0,p:0,c:0,f:0,fi:0,detail:"Cargar el magnesio elemental declarado en la etiqueta. No inferir indicaciones."},
+ {id:"omega3",name:"Omega-3, aceite en cápsulas",sub:"Una cápsula genérica de 1 g de aceite, composición a verificar",kind:"Micronutrientes",unit:"cápsula",serving:1,k:9,p:0,c:0,f:1,fi:0,detail:"9 kcal por cápsula estimadas para 1 g de aceite. EPA y DHA requieren etiqueta."},
+ {id:"gel",name:"Gel energético para correr",sub:"Unidad genérica: 25 g de hidratos; verificar fabricante",kind:"Resistencia",unit:"gel",serving:1,k:100,p:0,c:25,f:0,fi:0,detail:"El aporte de hidratos, sodio y cafeína depende de cada gel."},
+ {id:"isotonic",name:"Bebida isotónica con azúcar",sub:"Promedio orientativo: 6 g de hidratos / 100 ml",kind:"Hidratación",unit:"ml",serving:500,k:.24,p:0,c:.06,f:0,fi:0,detail:"Para esfuerzos prolongados o calor intenso puede ser útil; verificar etiqueta."},
+ {id:"electrolytes",name:"Electrolitos sin azúcar",sub:"El sodio y otros electrolitos dependen de la marca",kind:"Hidratación",unit:"porción",serving:1,k:0,p:0,c:0,f:0,fi:0,detail:"Las necesidades de sodio varían con sudoración, actividad y condiciones."},
+ {id:"water",name:"Agua sin gas",sub:"Hidratación habitual",kind:"Hidratación",unit:"ml",serving:300,k:0,p:0,c:0,f:0,fi:0,detail:"Opción habitual para hidratación."},
+ {id:"sparkling",name:"Agua gasificada sin azúcar",sub:"Alternativa de hidratación sin calorías",kind:"Hidratación",unit:"ml",serving:300,k:0,p:0,c:0,f:0,fi:0,detail:"Una alternativa al agua sin gas si se tolera bien."},
+ {id:"zero",name:"Gaseosa zero",sub:"Sin azúcar; aporte energético aproximado cero",kind:"Hidratación",unit:"ml",serving:350,k:0,p:0,c:0,f:0,fi:0,detail:"Alternativa ocasional; no es nutricionalmente superior al agua."}
+];
+var SPORT_TIMES=[["media-manana","Media mañana"],["media-tarde","Media tarde"],["post-entreno","Postentreno"],["pre-entreno","Preentreno"],["durante-entreno","Durante entrenamiento"],["desayuno","Desayuno"],["almuerzo","Almuerzo"],["merienda","Merienda"],["cena","Cena"],["otro","Otro momento"]];
+function sportEntries(){return state.sports[TODAY]||[];}
+function sportSummary(){
+ var totals={k:0,p:0,c:0,f:0,fi:0};
+ sportEntries().forEach(function(entry){
+  var product=SPORT_PRODUCTS.find(function(x){return x.id===entry.id;});
+  if(product)Object.keys(totals).forEach(function(key){totals[key]+=product[key]*entry.amount;});
+ });
+ return totals;
+}
+function sportPage(){
+ var entries=sportEntries(),sums=sportSummary();
+ var products=SPORT_PRODUCTS.map(function(x){return '<option value="'+x.id+'">'+esc(x.name)+'</option>';}).join("");
+ var times=SPORT_TIMES.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>';}).join("");
+ var recommendation='<div class="advice-item"><span>💧</span><div><b>Para la hidratación habitual</b><p>Agua sin gas o gasificada sin azúcar: ambas pueden hidratar. Elegí según tus preferencias y tolerancia.</p></div></div>'+
+ '<div class="advice-item"><span>🥤</span><div><b>¿Bebidas zero?</b><p>Pueden ayudar a reemplazar bebidas azucaradas cuando se busca reducir calorías, pero no son mejores que el agua.</p></div></div>'+
+ '<div class="advice-item"><span>🏃</span><div><b>Para entrenamientos largos</b><p>En resistencia prolongada o sudoración alta pueden ser útiles bebidas con hidratos y electrolitos o geles. Se contabilizan sus calorías.</p></div></div>';
+ return pageHead("NUTRICIÓN DEPORTIVA","Suplementos e hidratación","Registrá porciones, scoops, geles y bebidas según el momento del día.")+
+ '<div class="sport-intro"><div><span class="sport-kicker">✦ COMPLEMENTÁ TU REGISTRO</span><h2>Tu entrenamiento también cuenta.</h2><p>Registrá lo que tomás o consumís antes, durante y después de entrenar. Las calorías se suman al resumen diario.</p></div><span class="sport-decor">🏋️</span></div>'+
+ '<div class="grid kpi-grid sport-stats"><div class="card"><div class="metric-label">ENERGÍA REGISTRADA</div><div class="metric-value">'+fmt(sums.k)+' <span>kcal</span></div></div><div class="card"><div class="metric-label">PROTEÍNA AÑADIDA</div><div class="metric-value">'+fmt(sums.p,1)+' <span>g</span></div></div><div class="card"><div class="metric-label">HIDRATOS AÑADIDOS</div><div class="metric-value">'+fmt(sums.c,1)+' <span>g</span></div></div></div>'+
+ '<div class="two-col"><div class="stack"><section class="card">'+cardHead("Agregar al registro",'<span class="pill">Datos orientativos</span>')+
+ '<div class="field"><label>Producto / suplemento</label><select id="sportProduct">'+products+'</select></div>'+
+ '<div class="field-row" style="margin-top:14px"><div class="field"><label>Momento del día</label><select id="sportTime">'+times+'</select></div><div class="field"><label>Cantidad <span id="sportUnitLabel">(g)</span></label><input type="number" id="sportAmount" min="0.1" max="2000" step="any" value="30"></div></div>'+
+ '<div id="sportProductNote" class="note" style="margin-top:14px"></div><button class="btn block" style="margin-top:14px" data-action="addSport">+ Registrar consumo</button>'+
+ '<div class="quick-tip"><span>🔬</span><div><b>Prioridad a los datos reales.</b> El scoop depende de la marca; para aminoácidos, EPA/DHA y minerales necesitaremos la etiqueta del producto. No son recomendaciones de suplementación.</div></div></section>'+
+ '<section class="card">'+cardHead("Consumos de hoy",'<span class="pill">'+entries.length+' registros</span>')+
+ (entries.length?entries.map(function(e,i){var prod=SPORT_PRODUCTS.find(function(x){return x.id===e.id;});if(!prod)return "";return '<div class="list-row"><div><b>'+esc(prod.name)+'</b><small>'+fmt(e.amount,1)+' '+esc(prod.unit)+' · '+esc((SPORT_TIMES.find(function(x){return x[0]===e.time;})||["","Otro"])[1])+' · '+fmt(prod.k*e.amount)+' kcal</small></div><button class="btn small ghost" data-remove-sport="'+i+'" aria-label="Eliminar registro">Eliminar</button></div>';}).join(""):'<div class="empty">Aún no registraste suplementos o bebidas hoy.</div>')+'</section></div>'+
+ '<div class="stack"><section class="card">'+cardHead("¿Qué bebida elegir?")+'<div class="advice-list">'+recommendation+'</div><div class="note" style="margin-top:16px">Consejos generales, no prescripciones. La bebida depende de duración, intensidad, clima, sudoración y objetivo nutricional.</div></section>'+
+ '<section class="card">'+cardHead("Evidencia científica")+
+ '<div class="list-row"><div><b>Creatina</b><small>Fuerza y ejercicios intensos; cantidad y pertinencia individual</small></div><span class="pill">Evidencia sólida</span></div>'+
+ '<div class="list-row"><div><b>Whey protein</b><small>Practicidad para alcanzar las proteínas del plan</small></div><span class="pill">Alimento deportivo</span></div>'+
+ '<div class="list-row"><div><b>Geles e isotónicas</b><small>Particularmente útiles en ciertos esfuerzos de resistencia</small></div><span class="pill grey">Según contexto</span></div>'+
+ '<div class="list-row"><div><b>Omega-3 y magnesio</b><small>Registrar sin recomendar consumo general indiscriminado</small></div><span class="pill grey">Individualizar</span></div>'+
+ '<p class="subtle" style="margin-top:14px">Fuentes: AIS Sports Supplements Framework, NIH ODS y ACSM. Los datos de productos de esta demo son estimaciones, no fichas de marca.</p></section></div></div>';
+}
+function updateSportProduct(){
+ var picker=document.getElementById("sportProduct"),qty=document.getElementById("sportAmount"),note=document.getElementById("sportProductNote"),unit=document.getElementById("sportUnitLabel");
+ if(!picker||!qty||!note||!unit)return;
+ var product=SPORT_PRODUCTS.find(function(x){return x.id===picker.value;})||SPORT_PRODUCTS[0];
+ qty.value=product.serving;
+ unit.textContent="("+product.unit+")";
+ note.textContent=product.detail+" · "+fmt(product.k*product.serving)+" kcal por porción de ejemplo.";
+}
+
+var defaultState={goals:{k:2200,p:160,c:230,f:70,fi:30},days:{},skipped:{},favorites:{},weights:[],activity:[],receipts:[],sports:{},settings:{coachAlias:"",efgAlias:""},demoRole:"alumno"};
 var state;
 try{state=Object.assign({},defaultState,JSON.parse(localStorage.getItem("efg-nutrition-demo-v1")||"{}"));}catch(e){state=JSON.parse(JSON.stringify(defaultState));}
 state.goals=Object.assign({},defaultState.goals,state.goals||{});
 state.settings=Object.assign({},defaultState.settings,state.settings||{});
-["days","skipped","favorites"].forEach(function(k){if(!state[k])state[k]={};});
+["days","skipped","favorites","sports"].forEach(function(k){if(!state[k])state[k]={};});
 ["weights","activity","receipts"].forEach(function(k){if(!Array.isArray(state[k]))state[k]=[];});
 var tab="home",foodQuery="",foodGroup="todos",selectedFood=null,selectedMeal="desayuno",imageObjectUrl=null;
 function save(){try{localStorage.setItem("efg-nutrition-demo-v1",JSON.stringify(state));}catch(e){toast("No se pudo guardar. Revisá el almacenamiento del navegador.");}}
@@ -54,6 +111,7 @@ function totals(){
      if(fd)Object.keys(t).forEach(function(k){t[k]+=avg(fd[k],it.grams);});
    });
  });
+ var sport=sportSummary();Object.keys(t).forEach(function(k){t[k]+=sport[k];});
  return t;
 }
 function habitSuggestion(meal){
@@ -127,10 +185,10 @@ function updateCatalog(){
  result.innerHTML='<p class="hint" style="margin-bottom:10px">'+matches.length+' alimentos encontrados</p><div style="overflow:auto"><table class="table"><thead><tr><th>Producto</th><th>Kcal</th><th>Proteínas</th><th>Hidratos</th><th>Grasas</th><th>Fibra</th><th></th></tr></thead><tbody>'+matches.map(function(f){return '<tr><td><b>'+esc(f.n)+'</b><br><small class="muted">'+esc(f.b)+'</small></td><td>'+fmt(f.k)+'</td><td>'+fmt(f.p,1)+'</td><td>'+fmt(f.c,1)+'</td><td>'+fmt(f.f,1)+'</td><td>'+fmt(f.fi,1)+'</td><td><button class="btn small light" data-quickfood="'+f.id+'">Agregar</button></td></tr>';}).join("")+'</tbody></table></div>';
 }
 function render(){
- document.getElementById("crumbCurrent").textContent={home:"Mi día",progress:"Progreso",coach:"Profesionales",payments:"Pagos",catalog:"Alimentos"}[tab];
- document.getElementById("navigation").innerHTML=[["home","◫","Mi día"],["catalog","⌕","Alimentos"],["progress","↗","Mi progreso"],["coach","♧","Profesionales"],["payments","▤","Pagos y alias"]].map(function(x){return '<button class="navitem '+(tab===x[0]?"active":"")+'" data-nav="'+x[0]+'"><span class="nav-icon">'+x[1]+'</span>'+x[2]+'</button>';}).join("");
- document.getElementById("main").innerHTML=({home:home,progress:progressPage,coach:coachPage,payments:paymentsPage,catalog:catalogPage}[tab])();
- if(tab==="catalog")updateCatalog();if(tab==="payments")updateAlias();
+ document.getElementById("crumbCurrent").textContent={home:"Mi día",progress:"Progreso",coach:"Profesionales",payments:"Pagos",catalog:"Alimentos",sport:"Suplementos"}[tab];
+ document.getElementById("navigation").innerHTML=[["home","◫","Mi día"],["catalog","⌕","Alimentos"],["sport","✚","Deporte"],["progress","↗","Mi progreso"],["coach","♧","Profesionales"],["payments","▤","Pagos y alias"]].map(function(x){return '<button class="navitem '+(tab===x[0]?"active":"")+'" data-nav="'+x[0]+'"><span class="nav-icon">'+x[1]+'</span>'+x[2]+'</button>';}).join("");
+ document.getElementById("main").innerHTML=({home:home,progress:progressPage,coach:coachPage,payments:paymentsPage,catalog:catalogPage,sport:sportPage}[tab])();
+ if(tab==="catalog")updateCatalog();if(tab==="payments")updateAlias();if(tab==="sport")updateSportProduct();
 }
 function modal(html){document.getElementById("modalRoot").innerHTML='<div class="modal-screen" data-overlay="1"><div class="modal" role="dialog" aria-modal="true">'+html+'</div></div>';}
 function closeModal(){document.getElementById("modalRoot").innerHTML="";}
@@ -158,8 +216,9 @@ function recommend(){
 function updateAlias(){var box=document.getElementById("aliasText"),type=document.getElementById("paymentType");if(box&&type){var alias=type.value==="coach"?state.settings.efgAlias:state.settings.coachAlias;box.textContent=alias||"Alias no configurado";}}
 function nav(page){tab=page;closeModal();document.querySelector(".sidebar").classList.remove("open");render();window.scrollTo({top:0,behavior:"smooth"});}
 document.addEventListener("click",function(e){
- var b=e.target.closest("[data-nav],[data-action],[data-add],[data-saveusual],[data-usual],[data-editmeal],[data-remove],[data-food],[data-foodgroup],[data-group],[data-quickfood]");if(!b)return;
+ var b=e.target.closest("[data-nav],[data-action],[data-add],[data-saveusual],[data-usual],[data-editmeal],[data-remove],[data-food],[data-foodgroup],[data-group],[data-quickfood],[data-remove-sport]");if(!b)return;
  if(b.dataset.nav){nav(b.dataset.nav);return;}
+ if(b.dataset.removeSport!==undefined){var idx=Number(b.dataset.removeSport);if(Number.isInteger(idx)&&idx>=0){state.sports[TODAY]=(state.sports[TODAY]||[]).filter(function(x,i){return i!==idx;});save();render();toast("Registro eliminado.");}return;}
  if(b.dataset.add){foodModal(b.dataset.add);return;}
  if(b.dataset.saveusual){var mid=b.dataset.saveusual;state.favorites[mid]=(current()[mid]||[]).map(function(x){return Object.assign({},x);});save();toast("Comida habitual guardada. Podrás editarla cuando quieras.");render();return;}
  if(b.dataset.usual){var me=b.dataset.usual;put(me,(state.favorites[me]||habitSuggestion(me)||[]).map(function(x){return Object.assign({},x);}));toast("Comida habitual cargada. Podés cambiar cualquier ingrediente.");return;}
@@ -170,6 +229,7 @@ document.addEventListener("click",function(e){
  if(b.dataset.food!==undefined){selectedFood=Number(b.dataset.food);renderFoodResults();return;}
  if(b.dataset.quickfood){foodModal("desayuno");selectedFood=Number(b.dataset.quickfood);renderFoodResults();return;}
  var action=b.dataset.action;if(!action)return;
+ if(action==="addSport"){var prod=SPORT_PRODUCTS.find(function(x){return x.id===document.getElementById("sportProduct").value;});var amount=Number(document.getElementById("sportAmount").value),time=document.getElementById("sportTime").value;if(!prod||!Number.isFinite(amount)||amount<=0||amount>2000){toast("Revisá la cantidad.");return;}state.sports[TODAY]=state.sports[TODAY]||[];state.sports[TODAY].push({id:prod.id,amount:amount,time:time});save();render();toast("Registrado y sumado al balance del día.");return;}
  if(action==="closeModal"){closeModal();return;}
  if(action==="openFood"){foodModal();return;}
  if(action==="recommend"){recommend();return;}
@@ -188,6 +248,7 @@ document.addEventListener("change",function(e){
  var el=e.target;
  if(el.dataset.skip){state.skipped[TODAY]=state.skipped[TODAY]||{};state.skipped[TODAY][el.dataset.skip]=el.checked;save();render();}
  if(el.id==="paymentType")updateAlias();
+ if(el.id==="sportProduct")updateSportProduct();
  if(el.id==="receiptFile"){var file=el.files&&el.files[0],img=document.getElementById("receiptImage");if(!img)return;if(imageObjectUrl)URL.revokeObjectURL(imageObjectUrl);if(file&&file.type.startsWith("image/")&&file.size<=6000000){imageObjectUrl=URL.createObjectURL(file);img.src=imageObjectUrl;img.style.display="block";}else{img.style.display="none";if(file)toast("Elegí una imagen JPG/PNG/WebP menor a 6 MB.");}}
 });
 document.addEventListener("input",function(e){

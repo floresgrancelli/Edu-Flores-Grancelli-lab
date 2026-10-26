@@ -82,9 +82,9 @@ function updateMealRecipe(){
  const choice=document.getElementById("mealEditorFood")?.value;
  holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():"";
 }
-const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
+const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
 const MILK_BEVERAGES={coffee_milk:125,coffee_cortado:30,tea_milk:80,mate_cocido_milk:125};
-const BEVERAGE_DEFAULT_ML={coffee_black:180,coffee_decaf:180,coffee_milk:250,coffee_cortado:100,tea_plain:250,tea_green:250,tea_milk:250,herbal_tea:250,mate_plain:250,mate_cocido:250,mate_cocido_milk:250};
+const BEVERAGE_DEFAULT_ML={coffee_black:180,coffee_decaf:180,coffee_milk:250,coffee_cortado:100,tea_plain:250,tea_green:250,tea_milk:250,herbal_tea:250,chamomile_tea:250,mint_tea:250,tilo_tea:250,cedron_tea:250,mate_plain:250,mate_cocido:250,mate_cocido_milk:250};
 const BEVERAGE_MILK_IDS=["milk_skim","milk_whole","milk_lactosefree","milk"];
 function beverageEditorHTML(f){
  if(!f||!BEVERAGE_IDS.has(f.id))return "";

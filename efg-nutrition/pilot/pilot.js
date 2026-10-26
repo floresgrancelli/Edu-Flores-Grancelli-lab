@@ -7,7 +7,8 @@ const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById("app");
-const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
+const today=()=>{const parts=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const get=k=>parts.find(p=>p.type===k)?.value||"";return get("year")+"-"+get("month")+"-"+get("day");};
+const yesterday=()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);};
 const escapeHTML=(v)=>String(v??"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=(v,d=0)=>Number(v||0).toLocaleString("es-AR",{maximumFractionDigits:d});
 const mealSlots=[["desayuno","Desayuno","☀️"],["media_manana","Media mañana","🥛"],["almuerzo","Almuerzo","🍽️"],["media_tarde","Media tarde","☕"],["merienda","Merienda","🍌"],["cena","Cena","🌙"]];
@@ -53,13 +54,24 @@ const sports=[
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null,reportDate:null};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
-const activeDiary=()=>state.diary||blankDiary();
+const activeDiary=()=>state.diary?.log_day===today()?state.diary:blankDiary();
+async function ensureCurrentDay(){
+ if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
+ if(state.daySwitching)return state.daySwitching;
+ const nowDay=today(),uid=state.session.user.id;
+ state.daySwitching=(async()=>{
+  const {data,error}=await sb.from("efg_daily_logs").select("*").eq("student_id",uid).eq("log_day",nowDay).maybeSingle();
+  if(error)throw error;
+  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.renderedDay=nowDay;state.activeMeal=null;}
+ })();
+ try{await state.daySwitching;}finally{state.daySwitching=null;}
+}
 const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.goals[0].kcal,p:state.goals[0].protein_g,c:state.goals[0].carb_g,f:state.goals[0].fat_g,fi:state.goals[0].fiber_g}:null):(state.personalTargets?{k:state.personalTargets.kcal,p:state.personalTargets.protein_g,c:state.personalTargets.carb_g,f:state.personalTargets.fat_g,fi:state.personalTargets.fiber_g}:null);
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
@@ -435,6 +447,8 @@ function paymentsView(){
 }
 async function render(){
  if(!state.profile)return loginView();
+ await ensureCurrentDay();
+ state.renderedDay=today();
  let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  if(state.tab==="home"){}
@@ -467,7 +481,8 @@ function calculateGoal(){
 }
 async function saveDiary(){
  const d=activeDiary();
- d.totals=dailyTotals(d);d.student_id=state.session.user.id;d.log_day=today();
+ if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
+ d.totals=dailyTotals(d);d.student_id=state.session.user.id;
  const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:d.student_id,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:d.totals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
  if(error)throw error;
  state.diary=data;
@@ -485,7 +500,7 @@ async function loadPersonalData(){
  ]);
  const error=results.find(x=>x.error)?.error;
  if(error)throw error;
- state.diary=results[0].data||null;state.weights=results[1].data||[];state.activities=results[2].data||[];state.goals=results[3].data||[];state.personalTargets=results[4].data||null;state.foodPlan=results[5].data||null;
+ state.diary=results[0].data||null;state.renderedDay=today();state.weights=results[1].data||[];state.activities=results[2].data||[];state.goals=results[3].data||[];state.personalTargets=results[4].data||null;state.foodPlan=results[5].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;
@@ -625,6 +640,7 @@ async function showProof(path){
 }
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
+ if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
  if(el.dataset.tab){state.tab=el.dataset.tab;return render();}
  if(el.dataset.studentstatus){
  const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
@@ -745,7 +761,16 @@ if(el.dataset.foodbulk){
  if(action==="sendProof")return sendProof();
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
+async function updateAtDayChange(){
+ if(!state.profile||!state.session||!state.renderedDay||state.renderedDay===today())return;
+ await ensureCurrentDay();
+ await render();
+ notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
+}
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
+window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
+setInterval(()=>updateAtDayChange().catch(fail),10000);
 root.addEventListener("change",e=>{if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.id==="mealEditorQty")updateMealDialogHint();});
 root.addEventListener("submit",e=>{

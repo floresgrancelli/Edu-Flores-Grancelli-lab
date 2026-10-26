@@ -131,7 +131,7 @@ function calculateBeverage(f,totalMl){
 }
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
 const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
-const SNACK_FOOD_IDS=new Set(["cake","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
+const SNACK_FOOD_IDS=new Set(["cake","whey_powder","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
 const groupedFoodOptions=(items,meal=null)=>{
  const snack=meal==="media_manana"||meal==="media_tarde";
  const suggested=snack?items.filter(f=>SNACK_FOOD_IDS.has(f.id)).sort((a,b)=>a.name.localeCompare(b.name,"es-AR")):[];
@@ -151,6 +151,78 @@ const sports=[
  {id:"water",name:"Agua",unit:"ml",defaultQty:300,k:0,p:0,c:0,f:0,fi:0,source:"Sin calorías"},
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
+
+// Suplementos declarados por el alumno. Las cantidades son las del producto consumido,
+// nunca sugerencias terapéuticas. Las sales de magnesio se registran en Mg elemental.
+const SUPPLEMENTS=[
+ {id:"creatine",name:"Creatina monohidratada",unit:"g",k:0,p:0,c:0,f:0,fi:0,source:"No aporta energía significativa. Registrá la cantidad realmente tomada."},
+ {id:"collagen",name:"Colágeno hidrolizado",unit:"g",k:3.6,p:.9,c:0,f:0,fi:0,source:"Estimación: 90 % de proteína; comprobar etiqueta. No equivale a proteína completa para hipertrofia."},
+ {id:"omega3",name:"Omega-3 en cápsulas de aceite de pescado",unit:"cápsulas",k:9,p:0,c:0,f:1,fi:0,source:"Estimación para cápsulas con 1 g de aceite. Verificar contenido real de EPA/DHA y masa del aceite."},
+ {id:"magnesium",name:"Magnesio (sin especificar sal)",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de magnesio elemental según etiqueta, no mg totales de la sal."},
+ {id:"magnesium_bisglycinate",name:"Magnesio bisglicinato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"magnesium_citrate",name:"Magnesio citrato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"magnesium_oxide",name:"Magnesio óxido",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"magnesium_chloride",name:"Magnesio cloruro",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"magnesium_malate",name:"Magnesio malato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"magnesium_threonate",name:"Magnesio L-treonato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar mg de Mg elemental declarados en la etiqueta."},
+ {id:"vitamin_d3",name:"Vitamina D3",unit:"UI",k:0,p:0,c:0,f:0,fi:0,source:"Registrar las UI de la etiqueta; no es una recomendación de dosis."},
+ {id:"vitamin_b12",name:"Vitamina B12",unit:"µg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar los microgramos de la etiqueta."},
+ {id:"vitamin_c",name:"Vitamina C",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar los mg indicados en el envase."},
+ {id:"zinc",name:"Zinc",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Registrar mg de zinc elemental, no peso de la sal."},
+ {id:"calcium",name:"Calcio",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Registrar mg de calcio elemental, no peso de la sal."},
+ {id:"multivitamin",name:"Multivitamínico",unit:"comprimidos",k:0,p:0,c:0,f:0,fi:0,source:"Composición varía según marca y etiqueta."},
+ {id:"probiotics",name:"Probióticos",unit:"cápsulas",k:0,p:0,c:0,f:0,fi:0,source:"Registrar presentación; unidades formadoras de colonias según etiqueta."},
+ {id:"psyllium",name:"Psyllium (fibra soluble)",unit:"g",k:2,p:0,c:.8,f:0,fi:.8,source:"Estimación por gramo; fibra y calorías dependen de la marca. Comprobar etiqueta."},
+ {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",k:0,p:0,c:0,f:0,fi:0,source:"Sin aporte significativo solo si la fórmula no contiene azúcar."}
+];
+const SUPPLEMENT_IDS=new Set(SUPPLEMENTS.map(s=>s.id));
+const supplementRecord=e=>e?.kind==="supplement"||SUPPLEMENT_IDS.has(e?.id);
+const supplementSummary=e=>num(e.qty,1)+" "+escapeHTML(e.unit)+" · "+num(e.k)+" kcal · P "+num(e.p,1)+" g · HC "+num(e.c,1)+" g · G "+num(e.f,1)+" g";
+function supplementsPanel(d){
+ const existing=(d.sports||[]).map((e,index)=>({e,index})).filter(x=>supplementRecord(x.e));
+ const choices=SUPPLEMENTS.slice().sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
+ return '<section class="nutrition-supplements" id="supplementsToday"><div class="section-head"><h3>💊 Suplementos del día</h3><span class="pilot-pill">'+existing.length+' registrados</span></div>'+
+ '<p class="pilot-hint">Separados de las comidas. Registrá solo lo que consumiste; no son recomendaciones para tomar suplementos.</p>'+
+ (existing.length?'<div class="supplement-entries">'+existing.map(({e,index})=>'<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(e.name)+'</strong><span>'+supplementSummary(e)+'</span></div><button class="meal-remove-item" type="button" data-removesupp="'+index+'" aria-label="Eliminar suplemento">×</button></div>').join("")+'</div>':'<p class="meal-food-empty">Todavía no registraste suplementos.</p>')+
+ '<div class="pilot-form"><div class="field"><label for="supplementItem">Suplemento</label><select id="supplementItem">'+option(choices)+'</select></div>'+
+ '<div class="field-row"><div class="field"><label for="supplementQty" id="supplementQtyLabel">Cantidad</label><input type="number" inputmode="decimal" step="any" min="0.01" max="100000" id="supplementQty" placeholder="Según etiqueta"></div>'+
+ '<div class="field"><label for="supplementMoment">Momento del día</label><select id="supplementMoment">'+[["desayuno","Desayuno"],["media_manana","Media mañana"],["almuerzo","Almuerzo"],["media_tarde","Media tarde"],["merienda","Merienda"],["cena","Cena"],["otro","Otro momento"]].map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join("")+'</select></div></div>'+
+ '<p class="pilot-hint" id="supplementHint">Anotá la cantidad de producto realmente consumida.</p>'+
+ '<button type="button" class="btn small" data-act="addDailySupplement">+ Registrar suplemento</button></div>'+
+ '<p class="pilot-hint">Creatina y minerales: sin calorías relevantes. Colágeno: puede aportar proteína; omega-3: aporta grasas. Comprobá siempre la composición del envase. No cuentes el mismo suplemento dos veces.</p></section>';
+}
+function updateSupplementHint(){
+ const item=SUPPLEMENTS.find(x=>x.id===document.getElementById("supplementItem")?.value);
+ const label=document.getElementById("supplementQtyLabel"),hint=document.getElementById("supplementHint");
+ if(label)label.textContent="Cantidad consumida ("+(item?.unit||"según envase")+")";
+ if(hint)hint.textContent=item?.source||"Elegí un suplemento.";
+}
+async function addDailySupplement(){
+ const item=SUPPLEMENTS.find(x=>x.id===document.getElementById("supplementItem")?.value);
+ const qty=Number(document.getElementById("supplementQty")?.value);
+ const moment=document.getElementById("supplementMoment")?.value||"otro";
+ if(!item||!Number.isFinite(qty)||qty<=0||qty>100000||!document.getElementById("supplementQty")?.value?.trim())throw new Error("Ingresá el suplemento y una cantidad positiva de su etiqueta.");
+ const d=activeDiary();
+ d.sports ||= [];
+ const entry=normItem(item,qty,moment);entry.kind="supplement";
+ d.sports.push(entry);d.skipped=d.skipped||{};d.skipped._closed=false;
+ await saveDiary();notify("Suplemento guardado por separado; balance actualizado cuando corresponde.");
+}
+function dayComment(d){return String(d?.skipped?._comment||"").slice(0,1000);}
+function readDayComment(){
+ const text=String(document.getElementById("dayComment")?.value||"").trim();
+ if(text.length>1000)throw new Error("El comentario puede tener hasta 1000 caracteres.");
+ return text;
+}
+async function saveDayComment(closeAfter=false){
+ if(state.profile?.role!=="student")throw new Error("Solo el alumno puede escribir comentarios del día.");
+ const d=activeDiary();
+ d.skipped=d.skipped||{};
+ d.skipped._comment=readDayComment();
+ if(closeAfter){if(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length)throw new Error("Registrá primero lo consumido.");
+ d.skipped._closed=true;}
+ await saveDiary();notify(closeAfter?"Día terminado y comentario guardado.":"Comentario del día guardado para tu informe.");
+}
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
@@ -274,7 +346,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 
-function allowedFoods(){return state.profile?.role==="student"?(state.foodPlan?.approved_food_ids?.length?state.foodPlan.approved_food_ids:FOOD_DEFAULTS):foods.map(f=>f.id);}
+function allowedFoods(){return foods.map(f=>f.id);}
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
@@ -285,7 +357,7 @@ function plannerCard(){
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Te falta para el objetivo del día</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
- if(state.profile.role==="student"&&!state.foodPlan?.approved_food_ids?.length)out+='<p class="pilot-hint">Alimentos genéricos de ejemplo; tu coach podrá elegir tu lista permitida.</p>';
+ out+='<p class="pilot-hint">El catálogo completo está disponible para todos. Cantidades y macros aproximados; revisar las etiquetas.</p>';
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
@@ -621,7 +693,7 @@ function studentDetailView(p,consent){
  '<div class="divider"></div><h3>Variación del peso corporal</h3>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- coachFoodChoices(p,consent)+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+
+ '<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></section>';
 }
 function adminView(){

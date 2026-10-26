@@ -84,7 +84,14 @@ function updateMealRecipe(){
 }
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
 const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
-const groupedFoodOptions=(items)=>FOOD_CATEGORIES.map(([id,title])=>{const list=items.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));return list.length?'<optgroup label="'+escapeHTML(title)+'">'+option(list)+'</optgroup>':"";}).join("");
+const SNACK_FOOD_IDS=new Set(["cake","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
+const groupedFoodOptions=(items,meal=null)=>{
+ const snack=meal==="media_manana"||meal==="media_tarde";
+ const suggested=snack?items.filter(f=>SNACK_FOOD_IDS.has(f.id)).sort((a,b)=>a.name.localeCompare(b.name,"es-AR")):[];
+ const regular=snack?items.filter(f=>!SNACK_FOOD_IDS.has(f.id)):items;
+ return (suggested.length?'<optgroup label="Colaciones sugeridas · budín y frutos secos">'+option(suggested)+'</optgroup>':"")+
+ FOOD_CATEGORIES.map(([id,title])=>{const list=regular.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));return list.length?'<optgroup label="'+escapeHTML(title)+'">'+option(list)+'</optgroup>':"";}).join("");
+};
 const sports=[
  {id:"whey",name:"Proteína whey (scoop)",unit:"g",defaultQty:30,k:3.86,p:.8333,c:.0667,f:.025,fi:0,source:"Estimado; 25 g proteína por scoop de 30 g"},
  {id:"creatine",name:"Creatina monohidratada",unit:"g",defaultQty:5,k:0,p:0,c:0,f:0,fi:0,source:"Sin aporte energético significativo"},
@@ -272,7 +279,7 @@ function openMealDialog(slot){
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, huevo, arroz…" autocomplete="off"></div>'+
- '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed)+'</select></div>'+
+ '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
@@ -284,7 +291,7 @@ function filterMealFoods(){
  const term=search.value.trim().toLocaleLowerCase("es-AR");
  const previous=selector.value;
  const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>f.name.toLocaleLowerCase("es-AR").includes(term));
- selector.innerHTML=groupedFoodOptions(filtered);
+ selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  updateMealEntryMode(true);
 }

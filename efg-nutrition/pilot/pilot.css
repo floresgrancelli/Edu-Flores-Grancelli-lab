@@ -125,3 +125,23 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .meal-remove-item{flex:0 0 34px;min-width:34px;height:36px;border:1px solid #dde7e3;border-radius:9px;background:white;color:#81514c;font-size:24px;cursor:pointer;}
 .meal-food-empty{color:#8fa7a2;display:block;margin-top:8px;font-size:12px;}
 .meal-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;}
+
+/* Informes privados de coach: gráficos adaptables */
+.coach-report-students{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0;}
+.coach-report-students .btn{margin:0;}
+.nutrition-trend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:16px 0;}
+.nutrition-trend{border:1px solid #dfece4;background:#f8fcf9;border-radius:14px;padding:13px;min-width:0;}
+.nutrition-trend h4{font-size:14px;color:#315a54;margin:0 0 12px;}
+.nutrition-bars{display:flex;gap:5px;align-items:end;justify-content:space-around;min-height:185px;}
+.nutrition-bar-column{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:4px;}
+.nutrition-bar-column b{font-size:9px;font-weight:700;color:#476c65;white-space:nowrap;}
+.nutrition-bar-column small{font-size:9px;color:#8ba49b;white-space:nowrap;}
+.nutrition-bar-track{height:142px;width:100%;max-width:26px;background:#eaf3ef;border-radius:6px;display:flex;align-items:flex-end;overflow:hidden;}
+.nutrition-bar-fill{display:block;width:100%;border-radius:5px 5px 0 0;transition:height .2s;}
+.nutrition-bar-fill.closed.kind-k{background:#149282;}
+.nutrition-bar-fill.closed.kind-p{background:#3184ac;}
+.nutrition-bar-fill.closed.kind-c{background:#e4a74d;}
+.nutrition-bar-fill.closed.kind-f{background:#986ea6;}
+.nutrition-bar-fill.partial{background:#a5c5b8;}
+.nutrition-trend .pilot-hint{margin:12px 0 0;font-size:10px;}
+@media(max-width:800px){.nutrition-trend-grid{grid-template-columns:minmax(0,1fr)}}

@@ -75,12 +75,12 @@ function frame(content){
 }
 function loginView(message=""){
  const verification=!!state.otpEmail;
- const title=verification?"Ingresá el código de 6 dígitos":"Ingresá a tu espacio privado.";
+ const title=verification?"Ingresá el código que recibiste":"Ingresá a tu espacio privado.";
  const details=verification
   ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
-  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="6" placeholder="000000" class="pilot-otp-input"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
+  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Una vez que ingreses desde este dispositivo, tu sesión se conservará mientras siga vigente. No es necesario pedir un código cada vez.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🥗 ✨</div><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
@@ -99,7 +99,7 @@ async function requestOtp(email){
   if(error)throw error;
   state.otpEmail=normalized;
   state.loggingIn=false;
-  loginView("Si tu correo está habilitado, recibirás un código de seis dígitos. Puede tardar unos instantes; revisá Spam si es necesario.");
+  loginView("Si tu correo está habilitado, recibirás un código numérico de acceso. Puede tardar unos instantes; revisá Spam si es necesario.");
  }catch(err){
   state.loggingIn=false;
   fail(err);
@@ -109,7 +109,7 @@ async function requestOtp(email){
 async function confirmOtp(token){
  const email=state.otpEmail;
  const code=String(token||"").trim();
- if(!email||!/^\d{6}$/.test(code))throw new Error("El código debe tener exactamente seis dígitos.");
+ if(!email||!/^\d{6,10}$/.test(code))throw new Error("El código debe tener entre 6 y 10 dígitos numéricos.");
  state.loggingIn=true;
  try{
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});

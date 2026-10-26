@@ -13,6 +13,7 @@ Fuentes oficiales:
 - USDA: https://fdc.nal.usda.gov/data-documentation/
 - USDA descargas/versiones: https://fdc.nal.usda.gov/download-datasets/
 - FAO INFOODS, Argentina: https://www.fao.org/infoods/infoods/tablas-y-bases-de-datos/america-latina/es/
+- **Licencias:** USDA FDC es CC0/dominio público (https://fdc.nal.usda.gov/api-guide/). ARGENFOODS/LATINFOODS publica restricciones de reproducción/alteración/comercialización y exige contacto para fines comerciales (https://latinfoodsportal.net/paises/main.php?sg2=ar&sg3=arg). Usarla para orientación y evaluación de disponibilidad, NO copiarla al catálogo comercial sin consentimiento/licencia expresa.
 - Portal LATINFOODS: https://www.latinfoodsportal.net/latinfoods.php
 - ANMAT / SIFeGA: https://www.argentina.gob.ar/node/410817
 - Factores energéticos del rotulado argentino: https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-683-2005-110017/actualizacion
@@ -58,3 +59,35 @@ Arroz blanco/integral crudo y cocido; papa y batata crudas/hervidas/al horno; hu
 ## Estado técnico
 
 Esta fase solo toca el catálogo público de alimentos y documentación científica de la rama `efg-nutrition-app`. No modifica autenticación, roles, consentimiento, pagos ni datos privados de alumnos. Verificar despliegue en Render antes de afirmar que una nueva ficha ya es visible en producción.
+
+
+## Lote 2 — fuentes USDA por FDC_ID (26/10/2026)
+
+Incorporamos referencias identificables manteniendo la diferencia crudo/cocido, las fuentes de energía propias de USDA y la marca de dato genérico vs. dato de tabla. **Los valores se contrastaron contra fichas secundarias que reproducen los registros FDC e indican fecha y FDC_ID; la comprobación independiente directa vía API oficial USDA continúa pendiente**. Por eso no es correcto afirmar que todo el catálogo se verificó con descarga directa ni que se analizó químicamente.
+
+| Registro en EFG | Condición específica | kcal/100 g | Proteína/100 g | HC/100 g | Grasa/100 g | ID, fuente y año |
+|---|---|---:|---:|---:|---:|---|
+| `egg` | Huevo entero grado A grande sin cáscara, referencia crudo | 148 | 12,40 | 0,96 | 9,96 | 748967, Foundation Foods 04/2026 |
+| `egg_white` | Clara grado A grande, referencia crudo | 55 | 10,70 | 2,36 | 0,00 | 747997, Foundation Foods 04/2026 |
+| `rice` | Arroz blanco cocido sin grasa añadida | 129 | 2,67 | 27,99 | 0,28 | 2708408, FNDDS 2021-2023 |
+| `potato` | Papa hervida sin piel y sin sal | 86 | 1,71 | 20,01 | 0,10 | 170440, SR Legacy 04/2018 |
+| `chicken_breast_raw` | Pechuga cruda sin piel y hueso | 120 | 22,50 | 0,00 | 2,62 | 171077, SR Legacy 04/2018 |
+| `chicken_breast_roasted` (nueva) | Pechuga al horno sin consumir la piel, desde crudo | 161 | 30,22 | 0,00 | 3,52 | 2705956, FNDDS 2021-2023 |
+| `chicken_thigh_cooked` | Muslo de pollo sin piel asado | 179 | 24,76 | 0,00 | 8,15 | 172388, SR Legacy 04/2018 |
+
+Fuentes de consulta para cotejo de cifras por identificador: 
+- https://nutrientgraph.com/foods/eggs-grade-a-large-egg-whole-fdc-748967/
+- https://nutrientgraph.com/foods/eggs-grade-a-large-egg-white-fdc-747997/
+- https://nutrientgraph.com/foods/rice-white-cooked-no-added-fat-fdc-2708408/
+- https://nutrientgraph.com/foods/potatoes-boiled-cooked-without-skin-flesh-without-salt-fdc-170440/
+- https://nutrientgraph.com/foods/chicken-broiler-or-fryers-breast-skinless-boneless-meat-only-raw-fdc-171077/
+- https://nutrientgraph.com/foods/chicken-breast-baked-broiled-or-roasted-skin-not-eaten-from-raw-fdc-2705956/
+- https://nutrientgraph.com/foods/chicken-broilers-or-fryers-thigh-meat-only-cooked-roasted-fdc-172388/
+
+**Diferencias de modelo energético:** el archivo ampliado EFG generaba `k` aplicando 4-4-9 a todos los macronutrientes. Para las 7 fichas referenciadas, se asigna la **energía publicada** por la tabla, que puede no coincidir con 4-4-9 por los factores Atwater específicos, tipos de carbohidrato y redondeos. En USDA el campo «Carbohydrate, by difference» puede incluir fibra, mientras que el rótulo argentino distingue fibra por separado: advertirlo antes de comparar o transformar valores.
+
+**Campo todavía pendiente:** la fibra del arroz blanco FDC 2708408 quedó en **0,4 g/100 g de la estimación EFG anterior**, explícitamente marcada pendiente, porque el extracto cotejado no muestra ese dato. No presentarla como verificada hasta consultar el registro completo.
+
+**No sustituir:** `chicken` (pollo cocido genérico) por la pechuga: son preparaciones diferentes. No convertir gramos crudos a cocidos sin conocer el rendimiento real. La ficha `milanesa_soy_gobinda` sigue diferenciada de `milanesa_soy_baked`.
+
+**Pruebas funcionales pendientes:** confirmar búsqueda en UI y cálculos persistentes del alumno/coach; y comprobar que Render haya recibido los últimos commits. Los cambios quedan guardados en GitHub; un commit NO equivale automáticamente a un despliegue. 

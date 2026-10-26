@@ -207,3 +207,17 @@ h1,h2,h3{color:var(--ink)}
 .coach-science a{color:#138e81;text-decoration:underline;font-size:11px}
 @media(max-width:1130px){.coach-target-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:790px){.coach-target-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-layout{grid-template-columns:1fr}.coach-topbar{gap:7px}.coach-identity{font-size:10px;padding:7px 9px}}
+
+
+/* Panel profesional – calculadora científica */
+.coach-result{display:grid;gap:9px;margin:16px 0}
+.coach-result>div{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f6faf7;border-radius:11px;padding:13px 14px}
+.coach-result small{font-size:11px;color:#78928c}
+.coach-result strong{font-size:15px;color:#285a56}
+.coach-result .coach-energy{background:linear-gradient(115deg,#e0f7e8,#edf7ec)}
+.coach-result .coach-energy strong{font-size:21px;color:#048e7e}
+.coach-macro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+.coach-macro{display:grid;gap:7px;align-content:center;background:#f8faf7;border:1px solid #e8f0ea;padding:13px;border-radius:12px;min-height:78px}
+.coach-macro small{font-size:10px;color:#869a98}
+.coach-macro strong{font-size:18px;color:#224d4b}
+@media(max-width:790px){.coach-result{margin:13px 0}.coach-result .coach-energy strong{font-size:18px}.coach-macro strong{font-size:16px}}

@@ -40,3 +40,9 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .meal-backdrop{padding:12px}
  .meal-popup{padding:20px 17px;border-radius:20px}
 }
+
+.macro-preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:18px 0}
+.macro-preview{padding:15px;border:1px solid #dceae2;border-radius:14px;background:linear-gradient(120deg,#eaf8f1,#fffaf0)}
+.macro-preview b{display:block;font-size:12px;color:#397b70}
+.macro-preview-kcal{font-size:23px;font-weight:800;color:#168574;margin:10px 0}
+.macro-preview small{font-size:11px;line-height:1.75;color:#627b77}

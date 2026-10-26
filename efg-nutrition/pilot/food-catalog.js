@@ -11,11 +11,15 @@ const RAW_FOODS=[["chicken_breast_raw","Pechuga de pollo cruda","protein",22.5,0
 ["tea_green","Té verde sin azúcar","drink",0,0,0,0],
 ["tea_milk","Té con leche (personalizable)","drink",0,0,0,0],
 ["herbal_tea","Infusión de hierbas (manzanilla, tilo, menta, etc.)","drink",0,0,0,0],
+["chamomile_tea","Infusión de manzanilla","drink",0,0,0,0],
+["mint_tea","Infusión de menta","drink",0,0,0,0],
+["tilo_tea","Infusión de tilo","drink",0,0,0,0],
+["cedron_tea","Infusión de cedrón","drink",0,0,0,0],
 ["mate_plain","Mate cebado sin azúcar","drink",0,0,0,0],
 ["mate_cocido","Mate cocido sin azúcar","drink",0,0,0,0],
 ["mate_cocido_milk","Mate cocido con leche (personalizable)","drink",0,0,0,0],
 ["soda_zero","Gaseosa zero","drink",0,0,0,0]];
-const LIQUIDS=new Set(["kefir","milk_skim","milk_whole","milk_lactosefree","coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","mate_plain","mate_cocido","mate_cocido_milk","soda_zero"]);
+const LIQUIDS=new Set(["kefir","milk_skim","milk_whole","milk_lactosefree","coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk","soda_zero"]);
 export const EXTRA_FOODS=RAW_FOODS.map(([id,name,category,p,c,f,fi])=>({
  id,name,category,unit:LIQUIDS.has(id)?"ml":"g",
  k:Math.round((p*4+c*4+f*9)*100)/10000,

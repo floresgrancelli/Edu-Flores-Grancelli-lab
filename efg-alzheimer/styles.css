@@ -54,3 +54,12 @@
 .zico-thumb.active{border-color:#167c71}
 .zico-thumb img{display:block;width:100%;height:110px;object-fit:cover;border-radius:8px}
 @media(max-width:600px){.zico-question-photo{max-height:310px}.zico-figure figcaption{font-size:15px}.zico-album-card{padding:12px}.zico-album-main{max-height:380px}.zico-thumbs{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.zico-thumb img{height:92px}.zico-gallery-actions .btn{flex:1;font-size:16px}}
+
+
+/* EFG Cognitivo - Fotos de Zico, responsive */
+.zico-photo{margin:15px auto 20px;max-width:600px;text-align:center}
+.zico-photo img{display:block;width:100%;max-height:350px;object-fit:contain;border-radius:22px;background:#f7f4ef;box-shadow:0 8px 22px rgba(19,42,54,.08)}
+.zico-photo figcaption{margin-top:8px;font-size:15px;font-weight:800;color:#5b646c}
+.zico-group-photo{height:42px;width:42px;object-fit:cover;border-radius:12px;vertical-align:middle}
+.zico-game-photo{height:68px;width:68px;object-fit:cover;border-radius:16px;vertical-align:middle}
+@media(max-width:520px){.zico-photo img{max-height:275px}.zico-group-photo{height:35px;width:35px}.zico-game-photo{height:58px;width:58px}}

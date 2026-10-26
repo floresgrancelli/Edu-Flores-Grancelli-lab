@@ -104,3 +104,42 @@ Se añadió `pilot/test-food-catalog.mjs` para ejecutar de manera local sin dato
 
 ### Avena y receta del budín
 Se actualizó `oats_raw`: 379 kcal, 13,2 g proteínas, 67,7 g carbohidratos, 6,5 g grasas y 10,1 g fibra por 100 g de avena seca (FDC 173904). La cifra anterior derivada con 4-4-9 era aproximadamente 355 kcal y solo 60 g de hidratos por 100 g. **El budín proteico EFG recalcula sus macros desde los ingredientes en tiempo de ejecución** mediante `setBudinNutrition()`; por eso la nueva avena se refleja en sus porciones de forma automática sin modificar el peso de 82,5 g estimado por porción. La producción definitiva sigue pendiente de prueba funcional.
+
+
+## Lote 3 — Fritolim, lácteos y cereales (26/10/2026)
+
+### Huevo frito con Fritolín / Fritolim
+- **Nueva ficha**: `huevo_frito_fritolim`, preparación a la plancha con aerosol antideslizante en **pulverización mínima**, que se considera energéticamente despreciable para el registro de uso habitual, **pero no químicamente sin calorías**. Por unidad de huevo sin cáscara (50 g, peso de referencia crudo): ≈74 kcal, 6,2 g de proteínas, 0,48 g de hidratos y 4,98 g de grasas (base FDC 748967).
+- Su identificación correcta no es «huevo frito con aceite», y no debe recibir automáticamente los 109 kcal estimados para esa otra preparación.
+- Fritolim (también llamado informalmente «Fritolín») es rocío vegetal; las porciones muy pequeñas pueden declararse «0 kcal» por **redondeo regulatorio**, no porque un aerosol a base de aceite tenga literalmente 0 calorías. Una pulverización de mayor duración o varias aplicaciones debe contabilizarse por separado. Fuentes orientativas: https://www.fatsecret.com.ar/calorías-nutrición/cocinero ; https://www.argentina.gob.ar/normativa/nacional/resoluci%C3%B3n-683-2005-110017/actualizacion (umbral de 4 kcal por porción para declaración de cantidades no significativas).
+- **Corrección de la ficha anterior** `huevo_frito`: el valor de 109 kcal por unidad de 50 g representa una **preparación promedio con aceite YA incluido**. Se actualiza su nombre y la ayuda del modal para evitar doble contabilización. No afirma que todos los huevos fritos absorban idéntica cantidad de aceite.
+- **No usar los valores del huevo crudo por 100 g para afirmar composición medida del huevo cocido por 100 g**: la unidad equivale a un huevo mediano de referencia, cuya masa comestible inicial es 50 g. Se conserva el estado de **receta estimada**, NO «tabla USDA validada» para la preparación Fritolim.
+
+### Lácteos
+
+| Código | Especificación | Referencia USDA FDC | Estado | Energía | Proteínas | Carbohidratos | Grasas |
+|---|---|---|---|---:|---:|---:|---:|
+| `milk_whole` | Leche entera 3,25% | 171265 | Tabla convertida de g a ml | 62,83 kcal/100 ml | 3,2445 g/100 ml | 4,944 g/100 ml | 3,3475 g/100 ml |
+| `milk_skim` | Leche descremada, sin vitaminas añadidas | 173432 | Tabla convertida de g a ml | 36,05 kcal/100 ml | 3,4711 g/100 ml | 5,0058 g/100 ml | 0,1854 g/100 ml |
+| `yogurt` | Yogur natural descremado sin azúcar | 2647437 | Tabla referenciada | 50 kcal/100 g | 4,2 g/100 g | 8,1 g/100 g | 0,087 g/100 g |
+| `yogurt_greek_light` | Yogur griego natural 0% | 170894 | Tabla referenciada | 59 kcal/100 g | 10,2 g/100 g | 3,6 g/100 g | 0,39 g/100 g |
+
+La conversión de las dos leches usa densidad **1,03 g/ml**, valor orientativo en el intervalo físico documentado de leche vacuna. Este factor tiene incertidumbre y no sustituye la etiqueta de una marca argentina. Fuente para la densidad: https://www.argentina.gob.ar/sites/default/files/informe_definitivo_uai_no_031-001-2016.pdf (rango de referencia 1,028–1,035 g/cm³). La ficha de la leche descremada USDA corresponde a una composición sin vitaminas A/D añadidas; el enriquecimiento de marcas nacionales puede diferir. Porciones expresadas originalmente en g, no en ml.
+
+### Cereales y grasas (crudos/cocidos no intercambiables)
+
+| Código | Especificación exacta | USDA FDC | Energía (kcal/100 g) | P/100 g | HC/100 g | G/100 g |
+|---|---|---|---:|---:|---:|---:|
+| `rice_dry` | Arroz blanco largo seco, sin enriquecer | 169756 | 365 | 7,1 | 80,0 | 0,7 |
+| `rice` | Arroz blanco cocido sin aceite | 2708408 | 129 | 2,67 | 27,99 | 0,28 |
+| `pasta_dry` | Fideos de trigo secos sin enriquecer | 168927 | 371 | 13,0 | 74,7 | 1,51 |
+| `pasta` | Fideos cocidos sin salsa | 169737 | 158 | 5,8 | 30,9 | 0,93 |
+| `oil` | Aceite de oliva en gramos | 171413 | 884 | 0 | 0 | 100 |
+
+La diferencia entre gramos crudos y cocidos depende de la absorción de agua. **Nunca aplicar un factor de rendimiento fijo a todos los tipos de arroz y pasta** sin estandarización culinaria.
+
+### Verificación técnica (sin datos privados)
+- Control estático y evaluación del módulo de catálogo superados: **347 fichas ampliadas, todas con ID distinto**, sin cantidades energéticas/macros negativas o no finitas en ese módulo.
+- Clasificación ampliada actual: **8 fuentes USDA directas por ID**, **2 referencias USDA convertidas de g a ml**, **1 etiqueta Gobinda**, **1 receta huevo/Fritolim**, **335 fichas genéricas**. El archivo principal de la aplicación aporta otros alimentos referenciados, incluidos huevo entero, arroz/papa, yogur natural, fideos cocidos y aceite de oliva.
+- Se actualizaron pruebas locales para ingredientes de marca, porciones de huevo con aerosol, aceite ya incluido, factores de ml y las fuentes documentadas de arroz/fideos. El módulo y el archivo principal fueron revisados sintácticamente en el entorno de edición; **las pruebas de navegador, persistencia en Supabase y despliegue Render siguen pendientes**.
+- **Limitación de verificación científica**: identificación de FDC_ID y cifras cotejadas con fuentes secundarias públicas. Es necesaria una pasada final contra los detalles oficiales de USDA antes de promover estos registros a un estado institucional de validación completa.

@@ -435,14 +435,35 @@ function coachView(){
  '<div class="card"><h2>Alias para pagos de alumnos</h2><p class="pilot-hint">'+(org?.payment_alias?'Actual: '+escapeHTML(org.payment_alias):'Todavía no configuraste tu alias bancario.')+'</p><div class="pilot-form"><div class="field"><label>Alias bancario</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div></div>')+
  '</div><div class="pilot-stack"><div id="studentFollowPanel" class="coach-selected-student">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div></div>';
 }
-function coachTrendChart(days,key,label,unit){
- const logs=[...(days||[])].reverse().filter(d=>d.hasData).slice(-14);
- if(!logs.length)return '<div class="empty">Aún no hay registros para graficar.</div>';
- const max=Math.max(1,...logs.map(d=>Number(d[key])||0));
- return '<div class="nutrition-trend"><h4>'+escapeHTML(label)+'</h4><div class="nutrition-bars" role="img" aria-label="'+escapeHTML(label)+' por día">'+
- logs.map(d=>{const n=Number(d[key])||0,pct=Math.round(n/max*100);return '<div class="nutrition-bar-column" title="'+escapeHTML(d.date)+' · '+num(n,1)+' '+unit+(d.closed?' (cerrado)':' (parcial)')+'"><b>'+num(n,key==="k"?0:1)+'</b>'+
- '<div class="nutrition-bar-track"><span class="nutrition-bar-fill '+(d.closed?'closed':'partial')+' kind-'+key+'" style="height:'+pct+'%"></span></div><small>'+escapeHTML(d.date.slice(8))+'/'+escapeHTML(d.date.slice(5,7))+'</small></div>';}).join("")+
- '</div><p class="pilot-hint">Barras claras: registro parcial. Valores en '+escapeHTML(unit)+'.</p></div>';
+function coachTrendChart(days,key,label,unit,goalValue=null){
+ const logs=[...(days||[])].filter(d=>d.hasData && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && Number.isFinite(Number(d[key]))).sort((a,b)=>a.date.localeCompare(b.date)).slice(-14);
+ if(!logs.length)return '<div class="nutrition-trend"><h4>'+escapeHTML(label)+'</h4><div class="empty">No hay registros para graficar.</div></div>';
+ const values=logs.map(d=>Number(d[key]));
+ const lo=Math.min(...values),hi=Math.max(...values),span=Math.max(key==="k"?120:8,hi-lo);
+ const pad=Math.max(key==="k"?35:3,span*.18);
+ const min=Math.max(0,lo-pad),max=hi+pad;
+ const goal=Number(goalValue),validGoal=goalValue!==null&&goalValue!==undefined&&Number.isFinite(goal)&&goal>0;
+ const showGoal=validGoal&&goal>=min&&goal<=max;
+ const W=660,H=228,L=47,R=19,T=22,B=45;
+ const dayUtc=d=>Date.parse(d+"T12:00:00Z")/86400000;
+ const firstDay=dayUtc(logs[0].date),lastDay=dayUtc(logs[logs.length-1].date);
+ const range=Math.max(1,lastDay-firstDay);
+ const xp=d=>L+(dayUtc(d.date)-firstDay)/range*(W-L-R);
+ const yp=n=>T+(max-n)/(max-min)*(H-T-B);
+ const yTicks=Array.from({length:5},(_,i)=>min+(max-min)*i/4);
+ const grid=yTicks.map(v=>'<line class="nutrition-line-grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+yp(v).toFixed(2)+'" y2="'+yp(v).toFixed(2)+'"/><text class="nutrition-line-axis" x="'+(L-7)+'" y="'+(yp(v)+4).toFixed(2)+'" text-anchor="end">'+num(v,key==="k"?0:1)+'</text>').join("");
+ const lines=logs.slice(1).map((d,i)=>{const prev=logs[i],gap=dayUtc(d.date)-dayUtc(prev.date);
+   return gap===1?'<line class="nutrition-line-segment kind-'+key+'" x1="'+xp(prev).toFixed(2)+'" y1="'+yp(Number(prev[key])).toFixed(2)+'" x2="'+xp(d).toFixed(2)+'" y2="'+yp(Number(d[key])).toFixed(2)+'"/>':'';
+ }).join("");
+ const targetLine=showGoal?'<line class="nutrition-line-goal" x1="'+L+'" x2="'+(W-R)+'" y1="'+yp(goal).toFixed(2)+'" y2="'+yp(goal).toFixed(2)+'"><title>Objetivo: '+num(goal,key==="k"?0:1)+' '+unit+'</title></line>':'';
+ const circles=logs.map(d=>'<circle class="nutrition-line-point '+(d.closed?'closed':'partial')+' kind-'+key+'" cx="'+xp(d).toFixed(2)+'" cy="'+yp(Number(d[key])).toFixed(2)+'" r="5"><title>'+escapeHTML(d.date.split("-").reverse().join("/")+' · '+num(Number(d[key]),1)+' '+unit+' · '+(d.closed?'Día cerrado':'Registro parcial'))+'</title></circle>').join("");
+ const every=Math.max(1,Math.ceil(logs.length/6));
+ const xLabels=logs.map((d,i)=>(i!==0&&i!==logs.length-1&&i%every!==0)?'':'<text class="nutrition-line-axis" x="'+xp(d).toFixed(2)+'" y="'+(H-12)+'" text-anchor="middle">'+escapeHTML(d.date.slice(8)+"/"+d.date.slice(5,7))+'</text>').join("");
+ return '<div class="nutrition-trend"><div class="nutrition-trend-heading"><h4>'+escapeHTML(label)+'</h4><span>'+num(values[values.length-1],key==="k"?0:1)+' '+unit+' · último registro</span></div>'+
+ '<div class="nutrition-line-scroll"><svg class="nutrition-line-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolución diaria de '+escapeHTML(label)+' de '+logs.length+' días con registros">'+grid+targetLine+lines+circles+xLabels+'</svg></div>'+
+ '<p class="pilot-hint">● Punto lleno: día cerrado · ○ Punto vacío: día parcial.'+
+ (validGoal?(showGoal?' Línea punteada: objetivo '+num(goal,key==="k"?0:1)+' '+unit+'.':' Objetivo: '+num(goal,key==="k"?0:1)+' '+unit+' (fuera de la escala).'):'')+
+ ' Escala ajustada para ver cambios pequeños; no se unen días faltantes.</p></div>';
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -457,7 +478,7 @@ function coachReportsView(){
  const prev=report.days.find(d=>d.date===yesterday());
  const status=!prev||!prev.hasData?'Sin registros':prev.closed?'Cerrado':'Parcial';
  out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div><p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
- out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal")+coachTrendChart(report.days,"p","Proteínas","g")+coachTrendChart(report.days,"c","Carbohidratos","g")+coachTrendChart(report.days,"f","Grasas","g")+'</div></section>';
+ out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
  return out;

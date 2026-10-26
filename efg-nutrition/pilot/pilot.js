@@ -38,6 +38,20 @@ const foods=[
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},
  {id:"rocket",name:"Rúcula",unit:"g",k:.25,p:.026,c:.037,f:.007,fi:.016,source:"Tabla genérica"}
 ].concat(EXTRA_FOODS);
+// Origen visible: NO atribuir análisis USDA a los promedios EFG ni tratar un rótulo como una medición propia.
+for(const food of foods){
+ food.validationStatus ||= food.id==="cake"?"receta_estimado":food.sourceId?"referencia_pendiente_confirmacion":"generico_pendiente";
+ food.sourceType ||= food.id==="cake"?"recipe_estimate":food.sourceId?"usda_fdc":"generic_estimate";
+}
+const FOOD_PROVENANCE_LABELS={
+ generico_pendiente:"Estimación genérica; todavía sin cotejo con tabla específica",
+ tabla_referenciada:"Referencia USDA identificada (pendiente revisión final de fuente primaria)",
+ tabla_convertida_densidad:"USDA convertido de gramos a mililitros; densidad estimada",
+ rotulo_fotografiado:"Datos de etiqueta comercial fotografiada",
+ receta_estimado:"Receta o preparación estimada",
+ referencia_pendiente_confirmacion:"Referencia documental pendiente de cotejo oficial"
+};
+const foodProvenance=(f)=>FOOD_PROVENANCE_LABELS[f?.validationStatus]||"Procedencia pendiente de clasificación";
 const BUDIN_RECIPE={
  id:"cake",name:"Budín de avena proteico",portions:5,portionGrams:82.5,
  allowedMeals:["media_manana","media_tarde"],
@@ -269,7 +283,7 @@ async function ensureCurrentDay(){
 const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.goals[0].kcal,p:state.goals[0].protein_g,c:state.goals[0].carb_g,f:state.goals[0].fat_g,fi:state.goals[0].fiber_g}:null):(state.personalTargets?{k:state.personalTargets.kcal,p:state.personalTargets.protein_g,c:state.personalTargets.carb_g,f:state.personalTargets.fat_g,fi:state.personalTargets.fiber_g}:null);
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
-function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
+function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
@@ -480,7 +494,7 @@ function updateMealDialogHint(){
  if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
- num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+f.source+
+ num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+foodProvenance(f)+". "+f.source+
  (useUnits?(f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):"");
 }
 async function saveSelectedMeal(){
@@ -777,7 +791,7 @@ async function render(){
 function updateFoodHint(){
  const id=document.getElementById("mealFood")?.value||foods[0].id;
  let f=foods.find(x=>x.id===id)||foods[0],hint=document.getElementById("mealHint");
- if(hint)hint.textContent=num(f.k*100)+" kcal y "+num(f.p*100,1)+" g proteínas por 100 "+f.unit+". "+f.source;
+ if(hint)hint.textContent=num(f.k*100)+" kcal y "+num(f.p*100,1)+" g proteínas por 100 "+f.unit+". "+foodProvenance(f)+". "+f.source;
 }
 function updateSportHint(){
  const id=document.getElementById("sportItem")?.value||"gel";

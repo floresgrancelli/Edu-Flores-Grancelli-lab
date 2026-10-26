@@ -174,6 +174,30 @@ const SUPPLEMENTS=[
  {id:"probiotics",name:"Probióticos",unit:"cápsulas",k:0,p:0,c:0,f:0,fi:0,source:"Registrar presentación; unidades formadoras de colonias según etiqueta."},
  {id:"psyllium",name:"Psyllium (fibra soluble)",unit:"g",k:2,p:0,c:.8,f:0,fi:.8,source:"Estimación por gramo; fibra y calorías dependen de la marca. Comprobar etiqueta."},
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",k:0,p:0,c:0,f:0,fi:0,source:"Sin aporte significativo solo si la fórmula no contiene azúcar."}
+,
+ {id:"magnesium_taurate",name:"Magnesio taurato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar magnesio elemental declarado en la etiqueta; no miligramos de taurato."},
+ {id:"magnesium_lactate",name:"Magnesio lactato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar magnesio elemental declarado en la etiqueta."},
+ {id:"magnesium_gluconate",name:"Magnesio gluconato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar magnesio elemental declarado en la etiqueta."},
+ {id:"magnesium_aspartate",name:"Magnesio aspartato",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Ingresar magnesio elemental declarado en la etiqueta."},
+ {id:"vitamin_b6",name:"Vitamina B6 (piridoxina)",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los miligramos de la etiqueta; evitar suponer una dosis segura."},
+ {id:"vitamin_b9",name:"Vitamina B9 (folato/ácido fólico)",unit:"µg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los microgramos de la etiqueta y la forma indicada por el fabricante."},
+ {id:"vitamin_k2",name:"Vitamina K2",unit:"µg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los microgramos de la etiqueta. Puede interactuar con anticoagulantes."},
+ {id:"vitamin_e",name:"Vitamina E",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los mg de vitamina E declarados; verificar la formulación."},
+ {id:"b_complex",name:"Complejo de vitaminas B",unit:"comprimidos",k:0,p:0,c:0,f:0,fi:0,source:"Registrar unidades consumidas. La composición varía según marca; revisar la etiqueta."},
+ {id:"iron_elemental",name:"Hierro",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Registrar hierro elemental y no la sal total. Consultar antes de suplementar hierro."},
+ {id:"selenium",name:"Selenio",unit:"µg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los microgramos reales. Dosis excesivas pueden ser perjudiciales."},
+ {id:"iodine",name:"Yodo",unit:"µg",k:0,p:0,c:0,f:0,fi:0,source:"Indicar los microgramos de la etiqueta; especialmente relevante revisar la función tiroidea."},
+ {id:"copper",name:"Cobre",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Registrar miligramos de cobre elemental, no peso de la sal."},
+ {id:"potassium",name:"Potasio",unit:"mg elementales",k:0,p:0,c:0,f:0,fi:0,source:"Registrar potasio elemental. Precaución con enfermedad renal y ciertos medicamentos."},
+ {id:"omega3_algae",name:"Omega-3 de algas (aceite)",unit:"cápsulas",k:9,p:0,c:0,f:1,fi:0,source:"Estimación por cápsula que contiene 1 g de aceite. Verificar aceite total y contenido de DHA/EPA."},
+ {id:"fish_oil_liquid",name:"Aceite de pescado líquido",unit:"g",k:9,p:0,c:0,f:1,fi:0,source:"Por gramo de aceite. No confundir el contenido total del aceite con los mg de EPA y DHA."},
+ {id:"creatine_hcl",name:"Creatina HCl",unit:"g",k:0,p:0,c:0,f:0,fi:0,source:"Registrar los gramos reales del producto; no equivale automáticamente a creatina monohidratada."},
+ {id:"beta_alanine",name:"Beta-alanina",unit:"g",k:0,p:0,c:0,f:0,fi:0,source:"Registrar gramos reales. Aporte energético no estimado en esta herramienta; verificar etiqueta."},
+ {id:"citrulline",name:"L-citrulina / citrulina malato",unit:"g",k:0,p:0,c:0,f:0,fi:0,source:"Registrar gramos del producto y especificación de la fórmula. No se incluyen calorías por falta de composición."},
+ {id:"coenzyme_q10",name:"Coenzima Q10",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar los mg declarados. Excipientes oleosos no cuantificados."},
+ {id:"glucosamine",name:"Glucosamina",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar mg del compuesto informado en el envase; aporte energético no estimado."},
+ {id:"chondroitin",name:"Condroitina",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar los mg indicados. No implica beneficio clínico garantizado."},
+ {id:"caffeine",name:"Cafeína en suplemento",unit:"mg",k:0,p:0,c:0,f:0,fi:0,source:"Registrar mg totales, sumando otras fuentes de cafeína. Puede causar efectos adversos o interacciones."}
 ];
 const SUPPLEMENT_IDS=new Set(SUPPLEMENTS.map(s=>s.id));
 const supplementRecord=e=>e?.kind==="supplement"||SUPPLEMENT_IDS.has(e?.id);

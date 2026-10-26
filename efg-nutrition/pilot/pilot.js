@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-plan-gobinda-v2";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-plan-gobinda-v2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-goalcoach-v1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -263,7 +264,7 @@ async function saveDayComment(closeAfter=false){
  await saveDiary();notify(closeAfter?"Día terminado y comentario guardado.":"Comentario del día guardado para tu informe.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -776,6 +777,31 @@ function coachDailyReport(p){
  report.days.map(d=>'<tr><td>'+dateLabel(d.date)+'</td><td>'+(d.hasData?num(d.k):'—')+'</td><td>'+(d.hasData?num(d.p,1)+' g':'—')+'</td><td>'+(d.closed?'Cerrado':d.hasData?'Parcial':'Sin comidas')+'</td></tr>').join("")+'</tbody></table></div></section>';
  return out;
 }
+function revisionModeChoices(){
+ return '<option value="proportional">Proporcional · bajar o subir todos los macros</option>'+
+ '<option value="protect_protein">Conservar proteína y grasa · ajustar carbohidratos</option>';
+}
+function showGoalComparison(base,goal){
+ const delta=goal.kcal-base.kcal;
+ return '<strong>'+num(base.kcal)+' → '+num(goal.kcal)+' kcal/día ('+(delta>=0?'+':'')+num(delta)+' kcal)</strong>'+
+ '<small>Proteínas '+num(base.protein_g)+' → <b>'+num(goal.protein_g)+' g</b> · Hidratos '+num(base.carb_g)+' → <b>'+num(goal.carb_g)+' g</b> · Grasas '+num(base.fat_g)+' → <b>'+num(goal.fat_g)+' g</b> · Fibra orientativa '+num(goal.fiber_g)+' g.</small>'+
+ '<small>Los gramos se redondean; calculá los objetivos según adherencia, actividad y evolución, no como una prescripción automática.</small>';
+}
+function goalRevisionSection(latest){
+ if(!latest)return "";
+ const goals=state.coachGoals||[];
+ const history='<details style="margin-top:15px"><summary>Historial de objetivos ('+goals.length+')</summary>'+
+ goals.map(g=>'<div class="pilot-macro"><span>Desde '+escapeHTML(String(g.start_on||"").split("-").reverse().join("/"))+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' / HC '+num(g.carb_g)+' / G '+num(g.fat_g)+' g</b></div>').join("")+
+ '<p class="pilot-hint">Los objetivos anteriores y registros alimentarios no se borran.</p></details>';
+ return '<div class="divider"></div><h3>✏️ Revisar objetivo durante el plan</h3>'+
+ '<p class="pilot-hint">Por ejemplo, luego del primer mes podés cambiar calorías y cantidades. El nuevo objetivo entra en vigencia desde hoy y los anteriores quedan conservados.</p>'+
+ '<div class="pilot-form"><div class="field-row"><div class="field"><label for="reviseGoalKcal">Nuevo objetivo (kcal/día)</label><input id="reviseGoalKcal" type="number" min="1200" max="10000" step="1" value="'+Number(latest.kcal)+'"></div>'+
+ '<div class="field"><label for="reviseGoalMode">Reparto de macros</label><select id="reviseGoalMode">'+revisionModeChoices()+'</select></div></div>'+
+ '<button type="button" class="btn block light" data-act="previewGoalRevision">Ver nuevo reparto de macros</button></div>'+
+ '<div class="pilot-notice" id="revisedGoalPreview" aria-live="polite" style="margin-top:10px">Objetivo actual: '+num(latest.kcal)+' kcal. Elegí un cambio para previsualizar.</div>'+
+ '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px">Aprobar nuevo objetivo desde hoy</button>'+
+ '<p class="pilot-hint">Si disminuís las calorías proporcionalmente, baja también la proteína. Para preservar masa muscular, evaluá mantenerla estable y reducir hidratos cuando sea viable.</p>'+history;
+}
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
@@ -783,7 +809,7 @@ function studentDetailView(p,consent){
  '<div class="divider"></div><h3>Variación del peso corporal</h3>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- '<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
+ ''+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.8)+'</select></div></div>'+
@@ -853,7 +879,7 @@ async function loadPersonalData(){
  sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",today()).maybeSingle(),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
- sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(1),
+ sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_personal_targets").select("*").eq("user_id",id).maybeSingle(),
  sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
  ]);
@@ -904,6 +930,7 @@ async function loadRoleData(){
 async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  state.selectedStudent=studentId;
+ state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
@@ -913,7 +940,7 @@ async function loadStudentDetail(studentId){
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
  sb.from("efg_activities").select("*").eq("student_id",studentId).order("activity_day",{ascending:false}).limit(15),
- sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(1),
+ sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle()
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;

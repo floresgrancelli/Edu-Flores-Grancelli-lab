@@ -152,3 +152,32 @@ h1,h2,h3{color:var(--ink)}
   .daily-banner .btn{margin-left:0}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Nutrición deportiva y seguimiento fácil */
+.sport-intro{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:28px 32px;margin-bottom:18px;background:linear-gradient(117deg,#e1f5ee,#f3f5dc 63%,#fff0de);border:1px solid #e1eee4;border-radius:22px;overflow:hidden}
+.sport-intro h2{font-size:27px;letter-spacing:-.7px;line-height:1.2;margin:10px 0}
+.sport-intro p{max-width:500px;font-size:12px}
+.sport-kicker{font-size:10px;letter-spacing:1.3px;font-weight:800;color:#168575}
+.sport-decor{font-size:76px;filter:drop-shadow(0 15px 15px #608e7942);transform:rotate(-11deg);margin-right:25px}
+.sport-stats{margin-bottom:18px}
+.sport-stats .card{background:#fdfefd}
+.sport-stats .metric-value{color:#078c7e}
+.advice-list{display:grid;gap:0}
+.advice-item{display:flex;align-items:flex-start;gap:12px;padding:17px 0;border-bottom:1px solid #eef2ee}
+.advice-item:last-child{border-bottom:0}
+.advice-item>span{font-size:24px;width:34px;text-align:center;flex-shrink:0}
+.advice-item b{font-size:12px;color:#325e5b}
+.advice-item p{font-size:11px;color:#769092;margin-top:6px}
+@media(max-width:790px){
+ .sidebar .navigation{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .navitem{font-size:8px;letter-spacing:-.15px}
+ .nav-icon{font-size:20px}
+ .sport-intro{padding:20px;gap:7px}
+ .sport-intro h2{font-size:21px}
+ .sport-decor{font-size:43px;margin-right:0}
+ .sport-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .sport-stats .card{padding:12px;min-height:100px}
+ .sport-stats .metric-value{font-size:20px}
+ .sport-stats .metric-label{font-size:9px;line-height:1.35}
+}

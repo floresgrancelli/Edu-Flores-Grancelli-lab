@@ -82,6 +82,53 @@ function updateMealRecipe(){
  const choice=document.getElementById("mealEditorFood")?.value;
  holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():"";
 }
+const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
+const MILK_BEVERAGES={coffee_milk:125,coffee_cortado:30,tea_milk:80,mate_cocido_milk:125};
+const BEVERAGE_DEFAULT_ML={coffee_black:180,coffee_decaf:180,coffee_milk:250,coffee_cortado:100,tea_plain:250,tea_green:250,tea_milk:250,herbal_tea:250,mate_plain:250,mate_cocido:250,mate_cocido_milk:250};
+const BEVERAGE_MILK_IDS=["milk_skim","milk_whole","milk_lactosefree","milk"];
+function beverageEditorHTML(f){
+ if(!f||!BEVERAGE_IDS.has(f.id))return "";
+ const needMilk=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,f.id);
+ const milkChoices=BEVERAGE_MILK_IDS.map(id=>foods.find(x=>x.id===id)).filter(Boolean);
+ return '<div class="beverage-editor"><h3>☕ Personalizá tu bebida</h3><p class="pilot-hint">Indicá el volumen total y los ingredientes reales para calcular sus macros.</p>'+
+ (needMilk?'<div class="field-row"><div class="field"><label for="beverageMilkType">Tipo de leche</label><select id="beverageMilkType">'+option(milkChoices)+'</select></div>'+
+ '<div class="field"><label for="beverageMilkMl">Leche agregada (ml)</label><input id="beverageMilkMl" type="number" min="1" max="1000" step="1" value="'+MILK_BEVERAGES[f.id]+'"></div></div>':'')+
+ '<div class="field"><label for="beverageSugarG">Azúcar agregada (g)</label><input id="beverageSugarG" type="number" min="0" max="60" step="1" value="0"></div>'+
+ '<p class="pilot-hint">Sin azúcar o con edulcorante sin aporte energético: dejá 0 g. Si usás azúcar, indicá los gramos. El volumen total incluye la leche.</p></div>';
+}
+function updateMealBeverage(){
+ const holder=document.getElementById("mealBeverageDetail");
+ if(!holder)return;
+ const f=foods.find(x=>x.id===document.getElementById("mealEditorFood")?.value);
+ holder.innerHTML=beverageEditorHTML(f);
+ const qty=document.getElementById("mealEditorQty");
+ if(qty&&f&&BEVERAGE_IDS.has(f.id))qty.value=BEVERAGE_DEFAULT_ML[f.id]||250;
+}
+function calculateBeverage(f,totalMl){
+ if(!f||!BEVERAGE_IDS.has(f.id))return null;
+ if(!Number.isFinite(totalMl)||totalMl<=0||totalMl>5000)throw new Error("Ingresá el volumen total de la bebida en ml.");
+ const sugar=Number(document.getElementById("beverageSugarG")?.value??0);
+ if(!Number.isFinite(sugar)||sugar<0||sugar>60)throw new Error("Revisá el azúcar agregada (0 a 60 g).");
+ const withMilk=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,f.id);
+ const ml=withMilk?Number(document.getElementById("beverageMilkMl")?.value):0;
+ const milkId=withMilk?document.getElementById("beverageMilkType")?.value:null;
+ const milk=withMilk?foods.find(x=>x.id===milkId&&BEVERAGE_MILK_IDS.includes(x.id)):null;
+ if(withMilk&&(!milk||!Number.isFinite(ml)||ml<=0||ml>totalMl))throw new Error("Indicá un tipo de leche y una cantidad mayor que 0 y no superior al volumen total.");
+ const base=withMilk?totalMl-ml:totalMl;
+ const infusionId=f.id==="coffee_milk"||f.id==="coffee_cortado"?"coffee_black":f.id==="tea_milk"?"tea_plain":f.id==="mate_cocido_milk"?"mate_cocido":f.id;
+ const infusion=foods.find(x=>x.id===infusionId)||f;
+ const sugarFood=foods.find(x=>x.id==="sugar");
+ const totals={};
+ for(const k of ["k","p","c","f","fi"])totals[k]=Math.round(((infusion[k]||0)*base+(milk?.[k]||0)*ml+(sugarFood?.[k]||0)*sugar)*100)/100;
+ const desc=withMilk?' · '+num(ml,0)+' ml '+milk.name.toLowerCase():'';
+ return {
+  totals,
+  name:f.name.replace(" (personalizable)","")+desc+(sugar?' · '+num(sugar,0)+' g de azúcar':''),
+  source:"Bebida personalizada: volumen total "+num(totalMl,0)+" ml"+(withMilk?", leche "+num(ml,0)+" ml ("+milk.name+")":"")+", azúcar "+num(sugar,0)+" g. Valores genéricos estimados.",
+  ingredients:{milk_id:milkId||null,milk_ml:ml,sugar_g:sugar},
+  summary:num(totals.k)+" kcal · P "+num(totals.p,1)+" g · HC "+num(totals.c,1)+" g · G "+num(totals.f,1)+" g"
+ };
+}
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
 const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
 const SNACK_FOOD_IDS=new Set(["cake","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
@@ -282,7 +329,7 @@ function openMealDialog(slot){
  '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
- '<div id="mealRecipeDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
+ '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
 }
 function filterMealFoods(){
@@ -302,7 +349,7 @@ function updateMealEntryMode(foodChanged=false){
  const mode=document.getElementById("mealEntryMode"),wrap=document.getElementById("mealEntryModeWrap"),qty=document.getElementById("mealEditorQty"),label=document.getElementById("mealEditorQtyLabel");
  if(!mode||!qty||!label||!wrap)return;
  wrap.style.display=portion?"":"none";
- if(foodChanged){mode.value=portion?"units":"weight";qty.value=portion?(f.id==="egg"?2:1):100;}
+ if(foodChanged){mode.value=portion?"units":"weight";qty.value=portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
  if(!portion)mode.value="weight";
  const counting=!!portion&&mode.value==="units";
  label.textContent=counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
@@ -326,6 +373,7 @@ function updateMealDialogHint(){
  if(!hint)return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
+ if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+f.source+
  (useUnits?". Porción estimada: puede variar por tamaño. Si cocinás con aceite, registralo aparte.":"");
@@ -335,7 +383,9 @@ async function saveSelectedMeal(){
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||!foodAllowedForMeal(f,slot)||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const d=activeDiary();d.meals[slot] ||= [];
+ const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
  const entry=normItem(f,grams,slot);
+ if(drink){entry.name=drink.name;entry.source=drink.source;entry.ingredients=drink.ingredients;Object.assign(entry,drink.totals);}
  if(useUnits){entry.displayQty=qty;entry.displayUnit=portion.label;entry.unitEstimate=true;}
  d.meals[slot].push(entry);d.skipped[slot]=false;d.skipped._closed=false;state.activeMeal=null;
  await saveDiary();notify("Alimento agregado, balance actualizado.");
@@ -931,8 +981,8 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.id==="mealEditorQty")updateMealDialogHint();});
+root.addEventListener("change",e=>{if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

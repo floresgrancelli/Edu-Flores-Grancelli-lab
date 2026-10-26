@@ -145,3 +145,6 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .nutrition-bar-fill.partial{background:#a5c5b8;}
 .nutrition-trend .pilot-hint{margin:12px 0 0;font-size:10px;}
 @media(max-width:800px){.nutrition-trend-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Navegación de siete secciones: deslizable y accesible en iPhone */
+@media(max-width:720px){.pilot-nav{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}.pilot-nav::-webkit-scrollbar{display:none}.pilot-nav button.navitem{flex:1 0 56px;min-width:56px;max-width:95px;font-size:9px;white-space:normal}}

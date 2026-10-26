@@ -41,7 +41,7 @@ for(const f of all){
  assert.ok(f.id&&!seen.has(f.id),"ID duplicado: "+f.id);
  seen.add(f.id);
  const flags=risk(f);
- const status=f.validationStatus==="generico_pendiente"?"ESTIMACION_PENDIENTE_DE_FUENTE":f.validationStatus==="rotulo_fotografiado"?"ETIQUETA_VERIFICADA_VISUALMENTE":f.validationStatus==="receta_estimado"?"RECETA_ESTIMADA":f.validationStatus==="tabla_convertida_densidad"?"TABLA_Y_CONVERSION_PENDIENTE_DE_COTEJO_OFICIAL":"TABLA_REFERENCIADA_PENDIENTE_DE_COTEJO_OFICIAL";
+ const status=f.validationStatus==="generico_pendiente"?"ESTIMACION_PENDIENTE_DE_FUENTE":f.validationStatus==="rotulo_fotografiado"?"ETIQUETA_VERIFICADA_VISUALMENTE":f.validationStatus==="receta_estimado"?"RECETA_ESTIMADA":f.validationStatus==="tabla_convertida_densidad"?"TABLA_Y_CONVERSION_PENDIENTE_DE_COTEJO_OFICIAL":f.validationStatus==="tabla_parcial_fibra_pendiente"?"TABLA_PARCIAL_FIBRA_PENDIENTE":"TABLA_REFERENCIADA_PENDIENTE_DE_COTEJO_OFICIAL";
  rows.push([f.id,f.name,f.category,f.unit||"g",status,f.sourceType,f.sourceId||"",f.validationStatus,+(f.k*100).toFixed(3),+(f.p*100).toFixed(3),+(f.c*100).toFixed(3),+(f.f*100).toFixed(3),+(f.fi*100).toFixed(3),+((f.k*100)-(400*f.p+400*f.c+900*f.f)).toFixed(2),flags.join(";"),f.source||""]);
 }
 const header=["id","alimento","categoria","unidad","estado_auditoria","tipo_fuente","fdc_id","estado_original","kcal_100","proteinas_100","hidratos_100","grasas_100","fibra_100","diferencia_4_4_9_kcal_100","alertas","descripcion_fuente"];

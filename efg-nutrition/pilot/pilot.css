@@ -109,3 +109,7 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .nutrition-macro-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .nutrition-day-energy strong{font-size:24px}
 }
+
+/* Selector de porciones por unidad, modo compacto en móvil */
+#mealEntryModeWrap select{min-height:46px}
+#mealEditorQtyLabel{line-height:1.5}

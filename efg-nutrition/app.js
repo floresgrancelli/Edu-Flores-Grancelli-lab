@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 var TODAY=new Date().toLocaleDateString("en-CA");
-var MEALS=[["desayuno","Desayuno","☀"],["almuerzo","Almuerzo","◒"],["media","Media tarde","☕"],["merienda","Merienda","🍎"],["cena","Cena","☾"]];
+var MEALS=[["desayuno","Desayuno","☀"],["media-manana","Media mañana","🥛"],["almuerzo","Almuerzo","◒"],["media","Media tarde","☕"],["merienda","Merienda","🍎"],["cena","Cena","☾"]];
 var FOODS=[
 ["Huevo entero","Genérico","proteinas",143,12.6,0.7,9.5,0],
 ["Clara de huevo","Genérico","proteinas",52,10.9,0.7,0.2,0],
@@ -30,7 +30,11 @@ var FOODS=[
 ["Calabaza cocida","Genérico","vegetales",34,1,8,0.1,1],
 ["Rúcula","Genérico","vegetales",25,2.6,3.7,0.7,1.6],
 ["Tomate","Genérico","vegetales",18,0.9,3.9,0.2,1.2],
-["Proteína en polvo sin marca","Promedio ilustrativo · verificar etiqueta","suplementos",390,75,9,5,0]
+["Proteína en polvo sin marca","Promedio ilustrativo · verificar etiqueta","suplementos",390,75,9,5,0],
+["Leche Protein descremada","La Serenísima · etiqueta específica a confirmar","lacteos",42,5.2,4.6,0,0],
+["Dulce de membrillo","Genérico estimado","hidratos",270,0.3,67,0.1,0.4],
+["Budín proteico casero Edu","Receta propia · estimación por porción de 75 g","hidratos",217.3,15.47,26.13,6.4,3.73],
+["Queso untable descremado (capa fina)","Genérico estimado","lacteos",150,9,5,10,0]
 ].map(function(a,i){return {id:i,n:a[0],b:a[1],group:a[2],k:a[3],p:a[4],c:a[5],f:a[6],fi:a[7]};});
 
 var SPORT_PRODUCTS=[
@@ -90,6 +94,28 @@ function updateSportProduct(){
  qty.value=product.serving;
  unit.textContent="("+product.unit+")";
  note.textContent=product.detail+" · "+fmt(product.k*product.serving)+" kcal por porción de ejemplo.";
+}
+
+
+function foodIdByName(name){var f=FOODS.find(function(x){return x.n===name;});return f?f.id:null;}
+function eduRoutine(){
+ var egg=foodIdByName("Huevo entero"),bread=foodIdByName("Pan integral"),cheese=foodIdByName("Queso Port Salut Light"),quince=foodIdByName("Dulce de membrillo"),milk=foodIdByName("Leche Protein descremada"),cake=foodIdByName("Budín proteico casero Edu");
+ var breakfast=[{id:egg,grams:150},{id:bread,grams:38},{id:cheese,grams:30},{id:quince,grams:20},{id:milk,grams:300}];
+ var morning=(new Date().getDay()===0||new Date().getDay()===6)?[]:[{id:cake,grams:75}];
+ return {breakfast:breakfast,morning:morning,whey:{id:"whey",amount:30,time:"media-manana"}};
+}
+function installEduDemoRoutine(){
+ var demo=eduRoutine();
+ state.favorites.desayuno=demo.breakfast.map(function(i){return Object.assign({},i);});
+ if(demo.morning.length)state.favorites["media-manana"]=demo.morning.map(function(i){return Object.assign({},i);});
+ state.days[TODAY]=state.days[TODAY]||{};
+ state.days[TODAY].desayuno=demo.breakfast.map(function(i){return Object.assign({},i);});
+ state.days[TODAY]["media-manana"]=demo.morning.map(function(i){return Object.assign({},i);});
+ state.sports[TODAY]=(state.sports[TODAY]||[]).filter(function(i){return !(i.id==="whey"&&i.time==="media-manana");});
+ state.sports[TODAY].push(demo.whey);
+ state.skipped[TODAY]=state.skipped[TODAY]||{};
+ state.skipped[TODAY].desayuno=false;state.skipped[TODAY]["media-manana"]=false;
+ save();render();toast("Rutina de Edu cargada en esta demo. Podés modificar las cantidades.");
 }
 
 var defaultState={goals:{k:2200,p:160,c:230,f:70,fi:30},days:{},skipped:{},favorites:{},weights:[],activity:[],receipts:[],sports:{},settings:{coachAlias:"",efgAlias:""},demoRole:"alumno"};
@@ -154,10 +180,10 @@ function home(){
  var active=MEALS.filter(function(m){return !((state.skipped[TODAY]||{})[m[0]]);});
  var done=active.filter(function(m){return (current()[m[0]]||[]).length>0;}).length;
  var complete=active.length?Math.round(done/active.length*100):100;
- return '<section class="welcome-hero"><div class="welcome-copy"><div class="welcome-kicker">✦ Tu bienestar, todos los días</div><div class="welcome-title">¡Hola! Hoy es un buen día<br>para <em>cuidarte.</em></div><p>Elegí tus alimentos, cargá los gramos y nosotros hacemos las cuentas. Así de fácil.</p><div class="welcome-actions"><button class="btn" data-action="openFood">+ Registrar alimento</button><button class="btn ghost" data-nav="catalog">Explorar alimentos</button></div></div><div class="welcome-visual"><span class="welcome-plate">🥗</span><span class="welcome-orbit one">✦ A tu ritmo</span><span class="welcome-orbit two">🌿 Equilibrio</span></div></section>'+
+ return '<section class="welcome-hero"><div class="welcome-copy"><div class="welcome-kicker">✦ Tu bienestar, todos los días</div><div class="welcome-title">¡Hola! Hoy es un buen día<br>para <em>cuidarte.</em></div><p>Elegí tus alimentos, cargá los gramos y nosotros hacemos las cuentas. Así de fácil.</p><div class="welcome-actions"><button class="btn" data-action="openFood">+ Registrar alimento</button><button class="btn ghost" data-nav="catalog">Explorar alimentos</button><button class="btn ghost" data-action="fillEdu">🍳 Cargar rutina Edu</button></div></div><div class="welcome-visual"><span class="welcome-plate">🥗</span><span class="welcome-orbit one">✦ A tu ritmo</span><span class="welcome-orbit two">🌿 Equilibrio</span></div></section>'+
  '<div class="grid stats">'+statistic("CALORÍAS","k","kcal")+statistic("PROTEÍNAS","p","g")+statistic("HIDRATOS","c","g")+statistic("GRASAS","f","g")+statistic("FIBRA","fi","g")+'</div>'+
  '<div class="daily-banner"><span class="daily-icon">🎯</span><div style="flex:1"><strong>Tu registro de hoy: '+done+' de '+active.length+' comidas</strong><small>'+(done===0?"Empezá con tu primera comida cuando quieras.":done===active.length?"¡Completaste las comidas que elegiste registrar!":"Vas avanzando. Cada comida suma a tu progreso.")+'</small></div><span class="pill">'+complete+'%</span></div>'+
- '<div class="two-col"><section class="card">'+cardHead("Tus comidas",'<span class="pill">5 momentos opcionales</span>')+MEALS.map(listMeal).join("")+'<div class="quick-tip"><span>💡</span><div><b>Tu rutina, más simple.</b> Guardá tus comidas habituales. Tras siete días de registros, también te sugerimos las que más repetís para que solo cambies lo necesario.</div></div></section><div class="stack"><section class="card highlight-card"><div class="mini-title">✦ TU BALANCE DEL DÍA</div><h2>Un paso más cerca de tu objetivo.</h2><p>Esto te falta según las metas de prueba configuradas para hoy.</p><div class="balance" style="margin-top:17px">Proteínas: '+fmt(remaining.p)+' g · Hidratos: '+fmt(remaining.c)+' g<br>Grasas: '+fmt(remaining.f)+' g · Fibra: '+fmt(remaining.fi)+' g</div><button class="btn" data-action="recommend">Ver mis macros pendientes →</button></section><section class="card">'+cardHead("Tus comidas favoritas",'<span class="pill grey">'+Object.keys(state.favorites).length+' guardadas</span>')+'<p>¿Desayunás casi siempre lo mismo? Repetí tu comida guardada con un toque y ajustá un ingrediente si hoy comiste algo diferente.</p><div class="prize-banner"><span class="prize-icon">⚡</span><div><b>Menos tiempo registrando</b><p>Más tiempo para disfrutar tu día.</p></div></div></section></div></div>';
+ '<div class="two-col"><section class="card">'+cardHead("Tus comidas",'<span class="pill">6 momentos opcionales</span>')+MEALS.map(listMeal).join("")+'<div class="quick-tip"><span>💡</span><div><b>Tu rutina, más simple.</b> Guardá tus comidas habituales. Tras siete días de registros, también te sugerimos las que más repetís para que solo cambies lo necesario.</div></div></section><div class="stack"><section class="card highlight-card"><div class="mini-title">✦ TU BALANCE DEL DÍA</div><h2>Un paso más cerca de tu objetivo.</h2><p>Esto te falta según las metas de prueba configuradas para hoy.</p><div class="balance" style="margin-top:17px">Proteínas: '+fmt(remaining.p)+' g · Hidratos: '+fmt(remaining.c)+' g<br>Grasas: '+fmt(remaining.f)+' g · Fibra: '+fmt(remaining.fi)+' g</div><button class="btn" data-action="recommend">Ver mis macros pendientes →</button></section><section class="card">'+cardHead("Tus comidas favoritas",'<span class="pill grey">'+Object.keys(state.favorites).length+' guardadas</span>')+'<p>¿Desayunás casi siempre lo mismo? Repetí tu comida guardada con un toque y ajustá un ingrediente si hoy comiste algo diferente.</p><div class="prize-banner"><span class="prize-icon">⚡</span><div><b>Menos tiempo registrando</b><p>Más tiempo para disfrutar tu día.</p></div></div></section></div></div>';
 }
 function progressPage(){
  var last=state.weights.slice().sort(function(a,b){return b.date.localeCompare(a.date);})[0],act=state.activity.filter(function(x){return x.date===TODAY;});
@@ -232,6 +258,7 @@ document.addEventListener("click",function(e){
  if(b.dataset.food!==undefined){selectedFood=Number(b.dataset.food);renderFoodResults();return;}
  if(b.dataset.quickfood){foodModal("desayuno");selectedFood=Number(b.dataset.quickfood);renderFoodResults();return;}
  var action=b.dataset.action;if(!action)return;
+ if(action==="fillEdu"){installEduDemoRoutine();return;}
  if(action==="addSport"){var prod=SPORT_PRODUCTS.find(function(x){return x.id===document.getElementById("sportProduct").value;});var amount=Number(document.getElementById("sportAmount").value),time=document.getElementById("sportTime").value;if(!prod||!Number.isFinite(amount)||amount<=0||amount>2000){toast("Revisá la cantidad.");return;}state.sports[TODAY]=state.sports[TODAY]||[];state.sports[TODAY].push({id:prod.id,amount:amount,time:time});save();render();toast("Registrado y sumado al balance del día.");return;}
  if(action==="closeModal"){closeModal();return;}
  if(action==="openFood"){foodModal();return;}

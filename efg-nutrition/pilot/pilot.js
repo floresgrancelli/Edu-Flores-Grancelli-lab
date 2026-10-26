@@ -593,6 +593,7 @@ if(el.dataset.deleteinvite){
  await loadRoleData();await render();notify("Correo eliminado de las invitaciones pendientes.");return;
 }
 if(el.dataset.student){
+ state.reportDate=null;
  await loadStudentDetail(el.dataset.student);
  await render();
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
@@ -624,6 +625,23 @@ if(el.dataset.foodbulk){
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
+ if(action==="refreshCoachReport"){
+  if(!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno que haya autorizado el seguimiento.");
+  await loadStudentDetail(state.selectedStudent);
+  await render();
+  document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});
+  notify("Informe actualizado con los consumos registrados.");
+  return;
+ }
+ if(action==="copyDailyReport"){
+  const p=state.roster.find(x=>x.user_id===state.selectedStudent);
+  if(!p||!state.consent?.accepted)throw new Error("Acceso no autorizado.");
+  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+  const content=nutritionReportText(report,p.nickname,state.reportDate||report.today?.date||report.days[0]?.date);
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(content);notify("Informe del día copiado.");}
+  else window.prompt("Copiá el informe:",content);
+  return;
+ }
  if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));await saveDiary();notify("Consumo registrado.");return;}
@@ -644,7 +662,7 @@ if(el.dataset.foodbulk){
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
-root.addEventListener("change",e=>{if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.id==="mealEditorQty")updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){

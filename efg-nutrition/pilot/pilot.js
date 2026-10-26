@@ -46,6 +46,7 @@ for(const food of foods){
 const FOOD_PROVENANCE_LABELS={
  generico_pendiente:"Estimación genérica; todavía sin cotejo con tabla específica",
  tabla_referenciada:"Referencia USDA identificada (pendiente revisión final de fuente primaria)",
+ tabla_parcial_fibra_pendiente:"Referencia USDA parcial: fibra todavía estimada",
  tabla_convertida_densidad:"USDA convertido de gramos a mililitros; densidad estimada",
  rotulo_fotografiado:"Datos de etiqueta comercial fotografiada",
  receta_estimado:"Receta o preparación estimada",

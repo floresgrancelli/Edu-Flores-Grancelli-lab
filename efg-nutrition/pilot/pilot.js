@@ -654,7 +654,9 @@ function coachReportsView(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const prev=report.days.find(d=>d.date===yesterday());
  const status=!prev||!prev.hasData?'Sin registros':prev.closed?'Cerrado':'Parcial';
- out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div><p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
+ out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
+ (prev?.comment?'<div class="coach-comment-detail"><strong>📝 Comentario del alumno de ayer</strong><p>'+escapeHTML(prev.comment)+'</p></div>':'')+
+ '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
@@ -681,7 +683,9 @@ function coachDailyReport(p){
    '<div class="nutrition-day-energy"><strong>'+num(selected.k)+' kcal</strong>'+(latest?.kcal?'<small>Objetivo actual '+num(latest.kcal)+' kcal · '+(diff>=0?'+':'')+num(diff)+' kcal</small>':'<small>Sin objetivo aprobado</small>')+'</div>'+
    '<div class="nutrition-macro-grid"><span>P <b>'+num(selected.p,1)+' g</b></span><span>HC <b>'+num(selected.c,1)+' g</b></span><span>G <b>'+num(selected.f,1)+' g</b></span><span>Fibra <b>'+num(selected.fi,1)+' g</b></span></div>'+
    '<div class="nutrition-meal-table">'+selected.meals.filter(m=>m.foods>0&&!m.omitted).map(m=>'<div><span>'+escapeHTML(m.label)+'</span><b>'+num(m.kcal)+' kcal</b></div>').join("")+'</div>'+
-   '<small>'+selected.mealCount+' comidas registradas'+(selected.sportCount?' · '+selected.sportCount+' suplementos o bebidas':'')+'. '+(selected.closed?'Marcado como terminado por el alumno.':'Puede faltar carga de alimentos.')+'</small></div>'+
+   '<small>'+selected.mealCount+' comidas registradas'+(selected.sportCount?' · '+selected.sportCount+' suplementos o bebidas':'')+'. '+(selected.closed?'Marcado como terminado por el alumno.':'Puede faltar carga de alimentos.')+'</small>'+
+   (selected.supplements?.length?'<div class="coach-supplements-detail"><strong>💊 Suplementos registrados</strong>'+selected.supplements.map(s=>'<div class="pilot-macro"><span>'+escapeHTML(s.name)+'</span><b>'+num(s.qty,1)+' '+escapeHTML(s.unit)+'</b></div>').join("")+'</div>':'')+
+   '<div class="coach-comment-detail"><strong>📝 Comentario del alumno</strong><p>'+(selected.comment?escapeHTML(selected.comment):'<span class="pilot-hint">No dejó un comentario para este día.</span>')+'</p></div></div>'+
    '<button class="btn light" data-act="copyDailyReport" style="margin-top:12px">Copiar informe del día</button>';
  }
  out+='<h4 style="margin-top:18px">Historial de hasta 14 días</h4>'+

@@ -27,7 +27,7 @@ close(gobinda.f*125,11.15,"Gobinda: grasas por milanesa");
 close(gobinda.fi*125,7.5,"Gobinda: fibra por milanesa");
 close(gobinda.k*250,624,"Gobinda: 2 milanesas");
 close(FOOD_UNIT_PORTIONS.milanesa_soy_gobinda.grams,125,"Gobinda: peso por unidad");
-const refs=[["rice_dry","169756",365],["pasta_dry","168927",371],["oats_raw","173904",379],["yogurt_greek_light","170894",59],["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
+const refs=[["apple","171688",52],["carrot_raw","170393",41],["spinach_cooked","168463",23],["tomato","170457",18],["rice_dry","169756",365],["pasta_dry","168927",371],["oats_raw","173904",379],["yogurt_greek_light","170894",59],["chicken_breast_raw","171077",120],["chicken_breast_roasted","2705956",161],["chicken_thigh_cooked","172388",179],["egg_white","747997",55]];
 for(const [id,fdcId,kcal100] of refs){
  const food=foods.get(id);
  assert.ok(food,"Falta registro USDA "+id);
@@ -54,7 +54,7 @@ assert.equal(foods.get("milk_skim").validationStatus,"tabla_convertida_densidad"
 close(foods.get("yogurt_greek_light").k*100,59,"Yogur griego natural descremado USDA");
 assert.equal(foods.get("yogurt_greek_light").sourceId,"170894");
 const appText=await readFile(new URL("./pilot.js",import.meta.url),"utf8");
-for(const id of ["748967","2708408","170440","2647437","169737","171413"]){
+for(const id of ["748967","2708408","170440","2647437","169737","171413","173944","171705"]){
  assert.ok(appText.includes('sourceId:"'+id+'"'),"Falta FDC_ID "+id+" en alimentos principales");
 }
 assert.ok(appText.includes("f.oilIncluded?"),"El aviso de aceite debe distinguir preparación con aceite incluido");

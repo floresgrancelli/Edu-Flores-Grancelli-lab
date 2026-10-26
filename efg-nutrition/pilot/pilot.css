@@ -163,3 +163,28 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .weight-chart-point{fill:#fff;stroke:#168a7d;stroke-width:3;}
 .weight-trend>.pilot-hint{margin-top:10px;}
 @media(max-width:720px){.weight-summary{grid-template-columns:repeat(2,minmax(0,1fr));}.weight-summary>div:last-child{grid-column:span 2;}.weight-summary strong{font-size:18px;}.weight-chart{min-width:520px;}}
+
+
+/* Gráficos de líneas de calorías y macros: sensibles a variaciones pequeñas */
+.nutrition-line-scroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid #e5eee9;border-radius:11px;background:#fff}
+.nutrition-line-chart{display:block;width:100%;min-width:340px;min-height:160px}
+.nutrition-trend-heading{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+.nutrition-trend-heading h4{margin:0}
+.nutrition-trend-heading span{font-size:11px;font-weight:700;color:#386d64}
+.nutrition-line-grid{stroke:#e1eae5;stroke-width:1;stroke-dasharray:3 4}
+.nutrition-line-axis{font-family:system-ui,sans-serif;fill:#78918a;font-size:11px}
+.nutrition-line-segment{stroke-width:3;stroke-linecap:round;stroke:#168f7e}
+.nutrition-line-segment.kind-p{stroke:#3184ac}
+.nutrition-line-segment.kind-c{stroke:#d69a44}
+.nutrition-line-segment.kind-f{stroke:#966eb4}
+.nutrition-line-point{stroke-width:3;fill:#fff;stroke:#168f7e}
+.nutrition-line-point.kind-p{stroke:#3184ac}
+.nutrition-line-point.kind-c{stroke:#d69a44}
+.nutrition-line-point.kind-f{stroke:#966eb4}
+.nutrition-line-point.closed.kind-k{fill:#168f7e}
+.nutrition-line-point.closed.kind-p{fill:#3184ac}
+.nutrition-line-point.closed.kind-c{fill:#d69a44}
+.nutrition-line-point.closed.kind-f{fill:#966eb4}
+.nutrition-line-goal{stroke:#8a9d91;stroke-width:2;stroke-dasharray:7 5}
+.nutrition-trend .pilot-hint{line-height:1.7}
+@media(max-width:720px){.nutrition-line-chart{min-width:485px}}

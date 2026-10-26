@@ -40,10 +40,10 @@ window.EFGGameCatalog={
       q("¿Cuál de estos es un animal?",[{text:"Gato",icon:"🐈"},{text:"Manzana",icon:"🍎"},{text:"Bicicleta",icon:"🚲"}],0,"Es un ser vivo que puede ser una mascota.","🐈")
     ]},
     {id:"diferente",name:"¿Cuál es diferente?",short:"Descubrir el que no pertenece",icon:"🔎",color:"blue",questions:[
-      q("Dos son frutas. ¿Cuál es diferente?",[{text:"Naranja",icon:"🍊"},{text:"Manzana",icon:"🍎"},{text:"Zapato",icon:"👞"}],2,"Buscá lo que no se come.","🍊"),
-      q("Dos sirven para escribir. ¿Cuál es diferente?",[{text:"Lápiz",icon:"✏️"},{text:"Cuchara",icon:"🥄"},{text:"Lapicera",icon:"🖊️"}],1,"Pensá en lo que usamos sobre el papel.","✏️"),
-      q("Dos son animales. ¿Cuál es diferente?",[{text:"Perro",icon:"🐕"},{text:"Gato",icon:"🐈"},{text:"Auto",icon:"🚙"}],2,"Buscá lo que tiene ruedas.","🐕"),
-      q("Dos sirven para tomar bebidas. ¿Cuál es diferente?",[{text:"Vaso",icon:"🥛"},{text:"Taza",icon:"☕"},{text:"Peine",icon:"🪮"}],2,"Pensá en algo que usamos para arreglarnos el pelo.","🥛")
+      q("¿Cuál de estos NO es una fruta?",[{text:"Naranja",icon:"🍊"},{text:"Manzana",icon:"🍎"},{text:"Zapato",icon:"👞"}],2,"Buscá lo que no se come.","🍊"),
+      q("¿Cuál de estos NO sirve para escribir?",[{text:"Lápiz",icon:"✏️"},{text:"Cuchara",icon:"🥄"},{text:"Lapicera",icon:"🖊️"}],1,"Pensá en lo que usamos sobre el papel.","✏️"),
+      q("¿Cuál de estos NO es un animal?",[{text:"Perro",icon:"🐕"},{text:"Gato",icon:"🐈"},{text:"Auto",icon:"🚙"}],2,"Buscá lo que tiene ruedas.","🐕"),
+      q("¿Cuál de estos NO se usa para tomar bebidas?",[{text:"Vaso",icon:"🥛"},{text:"Taza",icon:"☕"},{text:"Peine",icon:"🪮"}],2,"Pensá en algo que usamos para arreglarnos el pelo.","🥛")
     ]},
     {id:"colores",name:"Colores y formas",short:"Observar figuras y tonos",icon:"🎨",color:"pink",questions:[
       q("¿Cuál de estas figuras es un círculo?",[{text:"Cuadrado",icon:"🟦"},{text:"Círculo",icon:"🔴"},{text:"Triángulo",icon:"🔺"}],1,"Es redonda, sin esquinas.","🔵"),

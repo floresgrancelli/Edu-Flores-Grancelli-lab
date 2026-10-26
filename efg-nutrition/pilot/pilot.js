@@ -82,8 +82,8 @@ function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",studen
 function frame(content){
  const role=state.profile.role;
  const menu=[["home","☀","Mi alimentación"],["weight","↗","Progreso"],["sport","✚","Deporte"]];
- if(role==="coach")menu.push(["coach","♧","Mis alumnos"]);
- if(role==="admin"){menu.push(["testCoach","♧","Coach de prueba"]);menu.push(["admin","♛","Administración"]);}
+ if(role==="coach")menu.push(["coach","♧","Mis alumnos"],["reports","▥","Informes"]);
+ if(role==="admin"){menu.push(["testCoach","♧","Coach de prueba"],["reports","▥","Informes de prueba"]);menu.push(["admin","♛","Administración"]);}
  menu.push(["payments","▤","Pagos"]);
  root.innerHTML='<div class="pilot-layout"><aside class="pilot-nav"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button class="navitem '+(state.tab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
@@ -392,10 +392,36 @@ function coachView(){
  '<div class="card"><h2>Alias para pagos de alumnos</h2><p class="pilot-hint">'+(org?.payment_alias?'Actual: '+escapeHTML(org.payment_alias):'Todavía no configuraste tu alias bancario.')+'</p><div class="pilot-form"><div class="field"><label>Alias bancario</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div></div>')+
  '</div><div class="pilot-stack"><div id="studentFollowPanel" class="coach-selected-student">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div></div>';
 }
+function coachTrendChart(days,key,label,unit){
+ const logs=[...(days||[])].reverse().filter(d=>d.hasData).slice(-14);
+ if(!logs.length)return '<div class="empty">Aún no hay registros para graficar.</div>';
+ const max=Math.max(1,...logs.map(d=>Number(d[key])||0));
+ return '<div class="nutrition-trend"><h4>'+escapeHTML(label)+'</h4><div class="nutrition-bars" role="img" aria-label="'+escapeHTML(label)+' por día">'+
+ logs.map(d=>{const n=Number(d[key])||0,pct=Math.round(n/max*100);return '<div class="nutrition-bar-column" title="'+escapeHTML(d.date)+' · '+num(n,1)+' '+unit+(d.closed?' (cerrado)':' (parcial)')+'"><b>'+num(n,key==="k"?0:1)+'</b>'+
+ '<div class="nutrition-bar-track"><span class="nutrition-bar-fill '+(d.closed?'closed':'partial')+' kind-'+key+'" style="height:'+pct+'%"></span></div><small>'+escapeHTML(d.date.slice(8))+'/'+escapeHTML(d.date.slice(5,7))+'</small></div>';}).join("")+
+ '</div><p class="pilot-hint">Barras claras: registro parcial. Valores en '+escapeHTML(unit)+'.</p></div>';
+}
+function coachReportsView(){
+ if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
+ const roster=(state.roster||[]).filter(p=>p.active);
+ const p=roster.find(p=>p.user_id===state.selectedStudent);
+ let out=rootText("Informes diarios","Consultá automáticamente el día anterior y la evolución de tus alumnos, sin correos.");
+ if(!roster.length)return out+'<section class="card"><div class="empty">No hay alumnos activos.</div></section>';
+ out+='<section class="card"><h2>Seleccionar alumno</h2><div class="coach-report-students">'+roster.map(r=>'<button class="btn '+(p?.user_id===r.user_id?'':'light')+'" data-reportstudent="'+r.user_id+'">'+escapeHTML(r.nickname)+'</button>').join("")+'</div></section>';
+ if(!p)return out+'<section class="card"><p class="pilot-hint">Seleccioná un alumno para consultar sus reportes.</p></section>';
+ if(!state.consent?.accepted)return out+'<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert">Este alumno no autorizó el seguimiento de sus registros.</div></section>';
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const prev=report.days.find(d=>d.date===yesterday());
+ const status=!prev||!prev.hasData?'Sin registros':prev.closed?'Cerrado':'Parcial';
+ out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div><p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
+ out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal")+coachTrendChart(report.days,"p","Proteínas","g")+coachTrendChart(report.days,"c","Carbohidratos","g")+coachTrendChart(report.days,"f","Grasas","g")+'</div></section>';
+ out+='<section class="card">'+coachDailyReport(p)+'</section>';
+ return out;
+}
 function coachDailyReport(p){
  const latest=state.coachGoals[0]||null;
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),latest);
- const selected=report.days.find(x=>x.date===state.reportDate)||report.today||report.days[0]||null;
+ const selected=report.days.find(x=>x.date===state.reportDate)||report.days.find(x=>x.date===yesterday())||report.today||report.days[0]||null;
  const dateLabel=(d)=>d.split("-").reverse().join("/");
  let out='<section class="nutrition-daily-report" id="coachDailyReport"><div class="section-head"><h3>📊 Informe nutricional diario</h3><button type="button" class="btn small light" data-act="refreshCoachReport">Actualizar</button></div>'+
  '<p class="pilot-hint">Se actualiza con los registros guardados y se consulta únicamente dentro de la app.</p>';
@@ -449,7 +475,7 @@ async function render(){
  if(!state.profile)return loginView();
  await ensureCurrentDay();
  state.renderedDay=today();
- let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  if(state.tab==="home"){}
  if(state.tab==="sport")updateSportHint();
@@ -543,7 +569,7 @@ async function loadRoleData(){
  }
 }
 async function loadStudentDetail(studentId){
- if(!state.roster.some(p=>p.user_id===studentId))throw new Error("Alumno no autorizado.");
+ if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  state.selectedStudent=studentId;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
@@ -641,7 +667,14 @@ async function showProof(path){
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
- if(el.dataset.tab){state.tab=el.dataset.tab;return render();}
+ if(el.dataset.tab){
+  state.tab=el.dataset.tab;
+  if(state.tab==="reports"&&!state.selectedStudent){
+   const student=(state.roster||[]).find(p=>p.active);
+   if(student)await loadStudentDetail(student.user_id);
+  }
+  return render();
+}
  if(el.dataset.studentstatus){
  const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
  if(!student)throw new Error("Ese alumno no pertenece a tus cupos.");
@@ -662,6 +695,12 @@ if(el.dataset.deleteinvite){
  const {error}=await sb.rpc("efg_delete_pending_invitation",{p_invitation:inv.id});
  if(error)throw error;
  await loadRoleData();await render();notify("Correo eliminado de las invitaciones pendientes.");return;
+}
+if(el.dataset.reportstudent){
+ const p=(state.roster||[]).find(p=>p.user_id===el.dataset.reportstudent&&p.active);
+ if(!p)throw new Error("No tenés permiso para consultar este alumno.");
+ state.reportDate=null;await loadStudentDetail(p.user_id);await render();
+ document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;
 }
 if(el.dataset.student){
  state.reportDate=null;

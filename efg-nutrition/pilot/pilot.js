@@ -48,7 +48,7 @@ const sports=[
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -74,9 +74,54 @@ function frame(content){
  '<main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
 }
 function loginView(message=""){
- root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🥗 ✨</div><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Un espacio para registrar tu alimentación, seguir tus objetivos y conectar con tu entrenador, con privacidad desde el primer día.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>Ingresá a tu espacio privado.</h2><p>Usá el correo electrónico que EFG o tu coach habilitó. Te enviaremos un enlace seguro de acceso, sin contraseñas.</p>'+
+ const verification=!!state.otpEmail;
+ const title=verification?"Ingresá el código de 6 dígitos":"Ingresá a tu espacio privado.";
+ const details=verification
+  ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
+  :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
+ const form=verification
+  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="6" placeholder="000000" class="pilot-otp-input"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
+  :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Una vez que ingreses desde este dispositivo, tu sesión se conservará mientras siga vigente. No es necesario pedir un código cada vez.</div>';
+ root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🥗 ✨</div><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
- '<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?"disabled":"")+'>'+(state.loggingIn?"Enviando…":"Enviarme un enlace de acceso")+'</button></form><div class="pilot-footnote">El usuario visible (por ejemplo, Anita26) lo asigna tu entrenador. El ingreso se verifica por correo electrónico.</div><a class="pilot-return" href="../">Volver a la presentación pública</a></div></div></div>';
+ form+'<p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
+}
+async function requestOtp(email){
+ if(state.loggingIn)return;
+ const normalized=String(email||"").trim().toLowerCase();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)||normalized.length>200)throw new Error("Ingresá un correo electrónico válido.");
+ state.loggingIn=true;
+ try{
+  const {error}=await sb.auth.signInWithOtp({
+   email:normalized,
+   options:{shouldCreateUser:true,emailRedirectTo:"https://efg-nutrition.onrender.com/pilot/"}
+  });
+  if(error)throw error;
+  state.otpEmail=normalized;
+  state.loggingIn=false;
+  loginView("Si tu correo está habilitado, recibirás un código de seis dígitos. Puede tardar unos instantes; revisá Spam si es necesario.");
+ }catch(err){
+  state.loggingIn=false;
+  fail(err);
+  loginView(err.message);
+ }
+}
+async function confirmOtp(token){
+ const email=state.otpEmail;
+ const code=String(token||"").trim();
+ if(!email||!/^\d{6}$/.test(code))throw new Error("El código debe tener exactamente seis dígitos.");
+ state.loggingIn=true;
+ try{
+  const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
+  if(error)throw error;
+  state.otpEmail=null;
+  state.loggingIn=false;
+  await refresh();
+ }catch(err){
+  state.loggingIn=false;
+  fail(err);
+  loginView("El código es incorrecto o venció. Revisá el correo o solicitá otro.");
+ }
 }
 function unauthorized(msg){
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>EFG Nutrition protege los datos personales y nutricionales de cada alumno.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><h2>Cuenta pendiente de habilitación</h2><p>'+escapeHTML(msg||"Este correo aún no fue habilitado.")+'</p><div class="pilot-alert" style="margin:20px 0">Tu entrenador debe crear tu usuario antes de que puedas usar la aplicación. Si sos el administrador, ingresá con el correo habilitado por EFG.</div><button class="btn block" data-act="logout">Cerrar sesión</button></div></div></div>';
@@ -469,7 +514,9 @@ async function mainClick(event){
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
  if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";return loginView();}
+ if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;return loginView();}
+ if(action==="loginBack"){state.otpEmail=null;return loginView();}
+ if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
  if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
@@ -493,19 +540,18 @@ async function mainClick(event){
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 root.addEventListener("change",e=>{if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(e.target.id==="mealEditorQty")updateMealDialogHint();});
-root.addEventListener("submit",async e=>{
- if(e.target.id!=="pilot-login-form")return;
- e.preventDefault();
- if(state.loggingIn)return;
- const email=e.target.querySelector("#loginEmail")?.value;
- state.loggingIn=true;
- try{
-  if(!email)throw new Error("Ingresá tu correo en la casilla de acceso.");
-  const redirectTo="https://efg-nutrition.onrender.com/pilot/";
-  const {error}=await sb.auth.signInWithOtp({email:email.toLowerCase().trim(),options:{emailRedirectTo:redirectTo,shouldCreateUser:true}});
-  if(error)throw error;
-  loginView("Revisá tu correo y abrí el enlace de acceso. Si todavía no tenés una invitación, pedísela a tu coach.");
- }catch(err){fail(err);loginView(err.message);}finally{state.loggingIn=false;}
+root.addEventListener("submit",e=>{
+ if(e.target.id==="pilot-login-form"){
+  e.preventDefault();
+  if(state.loggingIn)return;
+  const email=e.target.querySelector("#loginEmail")?.value;
+  requestOtp(email).catch(fail);
+ }else if(e.target.id==="pilot-otp-form"){
+  e.preventDefault();
+  if(state.loggingIn)return;
+  const token=e.target.querySelector("#loginOtp")?.value;
+  confirmOtp(token).catch(fail);
+ }
 });
 (async function init(){
  const {data,error}=await sb.auth.getSession();

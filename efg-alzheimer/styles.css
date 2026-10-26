@@ -7,3 +7,13 @@
 .music-form input[type=file]{font-size:16px}
 .music-form input::file-selector-button{border:0;background:#e0f2ee;color:#235f59;border-radius:12px;padding:12px;margin-right:11px;cursor:pointer}
 @media(max-width:540px){.music-form{grid-template-columns:1fr}.music-form label:first-child{grid-column:auto}}
+
+.album-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:20px 0}
+.album-tile{display:flex;flex-direction:column;gap:12px;background:#f8fbf7;border:1px solid #d6e8dc;padding:12px;border-radius:20px;min-width:0}
+.album-tile img{width:100%;height:180px;object-fit:cover;border-radius:14px;background:#e6e7e3}
+.album-tile label{display:flex;flex-direction:column;gap:6px;font-size:15px;font-weight:750}
+.album-tile input{min-width:0;width:100%;border:2px solid #d0dfe0;padding:10px;border-radius:12px;font-size:17px;color:#2a3445;background:white}
+.album-main-photo{width:100%;height:auto;max-height:380px;object-fit:contain;border-radius:22px;background:#f3f3ee;margin:12px auto 17px;display:block}
+.album-photo-caption{font-size:19px;color:#3a665b;font-weight:700}
+@media(max-width:760px){.album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.album-grid{grid-template-columns:1fr}.album-tile img{height:225px}.album-main-photo{max-height:300px}}

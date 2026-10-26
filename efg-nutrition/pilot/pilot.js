@@ -85,7 +85,6 @@ function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
  let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+num(i.qty,1)+" "+escapeHTML(i.unit)).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
- let form='<div class="pilot-form"><div class="field"><label for="mealSlot">Momento del día</label><select id="mealSlot">'+mealSlots.map(m=>'<option value="'+m[0]+'">'+m[1]+'</option>').join("")+'</select></div><div class="field"><label for="mealFood">Alimento (valores de referencia)</label><select id="mealFood">'+option(foods)+'</select></div><div class="field-row"><div class="field"><label for="mealQty">Cantidad (g o ml)</label><input type="number" min="1" max="5000" step="any" value="100" id="mealQty"></div><div class="field"><label>Dato nutricional</label><div class="note" id="mealHint">Consultar etiqueta del alimento</div></div></div><button class="btn block" data-act="addFood">Agregar y recalcular</button></div>';
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p><label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'>Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label><button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button><small style="display:block;margin-top:9px;color:#77958a">Estado actual: '+(cons?.accepted?'Compartido con tu coach':'Solo visible para vos')+'</small></section>':'';
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Para uso personal de Edu o de un entrenador. No modifica los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
@@ -95,7 +94,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>Un día a la vez, un hábito a la vez.</h1><p>Registrá gramos reales, suplementos y bebidas. Tus macros se calculan al instante.</p><div class="pilot-toolbar" style="margin-top:15px">'+(canAuto?'<button class="btn" data-act="loadEdu">🍳 Cargar desayuno y media mañana de Edu</button>':'')+'<span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  '<div class="pilot-kpis">'+macroCard("CALORÍAS","k",tot,goal)+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
- consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'</div><div class="pilot-stack"><div class="card"><h2>Registrar un alimento</h2><p class="pilot-hint">Podés elegir la marca cuando esté verificada. Hasta entonces, los valores son promedios indicativos.</p>'+form+'</div><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+goalForm;
+ consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 function sportView(){
  let d=activeDiary(),entries=d.sports||[];
@@ -131,7 +130,7 @@ function studentDetailView(p,consent){
  (state.coachLogs.length?'<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Día</th><th>Kcal</th><th>Proteínas</th></tr></thead><tbody>'+state.coachLogs.slice(0,7).map(d=>{let t=dailyTotals(d);return '<tr><td>'+escapeHTML(d.log_day)+'</td><td>'+num(t.k)+'</td><td>'+num(t.p,1)+' g</td></tr>';}).join("")+'</tbody></table></div>':'<div class="empty">Sin registros de comidas.</div>')+
  '<div class="divider"></div><h3>Pesos registrados</h3>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(w.measured_on)+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- '<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+
+ coachFoodChoices(p,consent)+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></section>';
 }
 function adminView(){
@@ -153,7 +152,7 @@ async function render(){
  if(!state.profile)return loginView();
  let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
- if(state.tab==="home")updateFoodHint();
+ if(state.tab==="home"){}
  if(state.tab==="sport")updateSportHint();
 }
 function updateFoodHint(){
@@ -333,7 +332,9 @@ async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(el.dataset.tab){state.tab=el.dataset.tab;return render();}
  if(el.dataset.student){await loadStudentDetail(el.dataset.student);return render();}
- if(el.dataset.setmeal){let select=document.getElementById("mealSlot");if(select){select.value=el.dataset.setmeal;select.focus();window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});}return;}
+ if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
+ if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
+ if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
  if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];return saveDiary();}
  if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
@@ -345,7 +346,8 @@ async function mainClick(event){
  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";return loginView();}
  if(action==="retry")return refresh();
- if(action==="addFood"){let id=document.getElementById("mealFood").value,slot=document.getElementById("mealSlot").value,qty=Number(document.getElementById("mealQty").value);if(!Number.isFinite(qty)||qty<=0||qty>5000)throw new Error("Ingresá gramos válidos.");let food=foods.find(f=>f.id===id),d=activeDiary();d.meals[slot]=d.meals[slot]||[];d.meals[slot].push(normItem(food,qty,slot));await saveDiary();notify("Alimento registrado.");return;}
+ if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
+ if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));await saveDiary();notify("Consumo registrado.");return;}
  if(action==="saveConsent"){const accepted=!!document.getElementById("consentToggle")?.checked;const {data,error}=await sb.from("efg_consents").update({accepted:accepted,updated_at:new Date().toISOString()}).eq("student_id",state.session.user.id).select().single();if(error)throw error;state.consent=data;await render();notify(accepted?"Consentimiento otorgado a tu coach.":"Acceso del coach revocado.");return;}
  if(action==="saveWeight")return saveWeight();
@@ -356,12 +358,14 @@ async function mainClick(event){
  if(action==="coachAlias"){let alias=document.getElementById("coachAlias").value.trim();let r=await sb.rpc("efg_set_coach_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias de cobro guardado.");return;}
  if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim();let r=await sb.rpc("efg_set_platform_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias EFG actualizado.");return;}
  if(action==="calculateGoal")return calculateGoal();
+ if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
  if(action==="approveGoal"){if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta.");let {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});if(error)throw error;await loadStudentDetail(state.selectedStudent);await render();notify("Plan aprobado y disponible para el alumno.");return;}
  if(action==="sendProof")return sendProof();
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
-root.addEventListener("change",e=>{if(e.target.id==="mealFood")updateFoodHint();if(e.target.id==="sportItem")updateSportHint();if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="mealEditorFood")updateMealDialogHint();if(e.target.dataset.planselect){state.plannerSelections[e.target.dataset.planselect]=e.target.value;render();}if(e.target.dataset.planalt){state.plannerSelections["alt_"+e.target.dataset.planalt]=e.target.value;render();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
+root.addEventListener("input",e=>{if(e.target.id==="mealEditorQty")updateMealDialogHint();});
 root.addEventListener("submit",async e=>{
  if(e.target.id!=="pilot-login-form")return;
  e.preventDefault();

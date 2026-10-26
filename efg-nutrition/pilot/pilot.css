@@ -205,3 +205,18 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .beverage-editor .field-row{margin:10px 0;}
 .beverage-editor .pilot-hint{font-size:11px;line-height:1.6;margin:7px 0;}
 .beverage-editor input,.beverage-editor select{max-width:100%;}
+
+
+/* Registro de suplementos junto a la cena, independiente de comidas */
+.nutrition-supplements{margin:20px 0;padding:16px;border:1px solid #d6e8df;background:#f7fcf9;border-radius:15px;}
+.nutrition-supplements .section-head{margin-bottom:10px;}
+.nutrition-supplements .section-head h3{font-size:17px;margin:0;}
+.nutrition-supplements .pilot-form{margin-top:13px;padding-top:13px;border-top:1px solid #e0ebe6;}
+.supplement-entries{margin:10px 0;}
+.nutrition-day-close{margin-top:18px;padding:16px;background:#f7f9fc;border:1px solid #e2e9ef;border-radius:15px;}
+.nutrition-day-close .field{margin:14px 0;}
+.nutrition-day-close textarea{width:100%;min-height:95px;resize:vertical;font:inherit;padding:11px;border:1px solid #ccdad4;border-radius:10px;background:#fff;color:#1b4640;box-sizing:border-box;}
+.coach-comment-detail{border:1px solid #dce8e4;border-left:3px solid #198578;border-radius:10px;padding:12px;margin-top:13px;background:#f6faf8;overflow-wrap:anywhere;}
+.coach-comment-detail strong,.coach-supplements-detail strong{font-size:13px;color:#28756a;}
+.coach-comment-detail p{margin:8px 0 0;white-space:pre-wrap;line-height:1.65;font-size:13px;}
+.coach-supplements-detail{padding:13px;margin-top:12px;border-radius:10px;border:1px solid #e2e9ed;}

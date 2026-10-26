@@ -2,6 +2,7 @@
 // Ejecutar desde la raíz: node efg-nutrition/pilot/test-food-catalog.mjs
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
+import vm from "node:vm";
 
 // El catálogo se carga sin exigir cambios de package.json del sitio, cuyo frontend usa módulos ESM.
 const source=await readFile(new URL("./food-catalog.js",import.meta.url),"utf8");
@@ -58,4 +59,26 @@ for(const id of ["748967","2708408","170440","2647437","169737","171413"]){
 }
 assert.ok(appText.includes("f.oilIncluded?"),"El aviso de aceite debe distinguir preparación con aceite incluido");
 assert.notEqual(foods.get("milanesa_soy_baked").k,gobinda.k,"No mezclar genérica con Gobinda");
-console.log("EFG Nutrition: catálogo ampliado revisado ("+foods.size+" fichas, IDs únicos, valores finitos, productos FDC y etiqueta Gobinda).");
+// Control global: las entradas principales y ampliadas forman un catálogo sin IDs repetidos.
+const pStart=appText.indexOf("const foods=[");
+const pEnd=appText.indexOf("].concat(EXTRA_FOODS);",pStart);
+assert.ok(pStart>=0&&pEnd>pStart,"No se pudo localizar el arreglo principal");
+const primary=vm.runInNewContext(appText.slice(pStart+"const foods=".length,pEnd+1),{});
+const all=[...primary,...EXTRA_FOODS];
+const seen=new Set();
+for(const food of all){
+ assert.ok(!seen.has(food.id),"ID duplicado en catálogo completo "+food.id);
+ seen.add(food.id);
+ assert.ok(food.source,"Ficha sin descripción de origen "+food.id);
+ for(const n of ["k","p","c","f","fi"])assert.ok(Number.isFinite(food[n])&&food[n]>=0,"Composición inválida "+food.id+": "+n);
+ if(!food.validationStatus)assert.ok(food.id==="cake"||!food.sourceId||food.sourceType==="usda_fdc","Falta estado de fuente "+food.id);
+}
+assert.equal(all.length,370,"Revisar altas/bajas de alimentos y generar nuevamente el informe CSV");
+assert.ok(appText.includes("foodProvenance(f)"),"El alumno debe poder ver procedencia de ficha en el editor");
+assert.ok(appText.includes("sourceType:p.sourceType"),"Conservar procedencia en registros futuros");
+const whey=foods.get("whey_powder");
+assert.ok(whey&&FOOD_UNIT_PORTIONS.whey_powder.grams===30,"Un scoop de whey representa 30 g");
+close(whey.p*30,24,"Un scoop genérico de whey aporta 24 g de proteínas");
+close(whey.p*60,48,"Dos scoops de whey aportan 48 g de proteínas");
+assert.ok(appText.includes('"media_manana"')&&appText.includes('"media_tarde"'),"El menú debe permitir ambas colaciones");
+console.log("EFG Nutrition: auditoría de "+all.length+" alimentos, sin IDs duplicados ni valores inválidos. Orígenes y etiquetas visibles; ver informe CSV para fuentes pendientes.");

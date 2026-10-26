@@ -25,7 +25,7 @@ const LIQUIDS=new Set(["kefir","milk_skim","milk_whole","milk_lactosefree","milk
 // Productos de marca: conservar el dato del fabricante y la porción original.
 // La fuente es el rótulo fotografiado; no equivale a un análisis de laboratorio.
 const BRANDED_FOODS=[{
- id:"milanesa_soy_gobinda",name:"Milanesa de soja Gobinda - simple",category:"plant",unit:"g",
+ id:"milanesa_soy_gobinda",name:"Milanesa de soja Gobinda - simple (marca sugerida)",category:"plant",unit:"g",
  k:312/125,p:20.67/125,c:32.33/125,f:11.15/125,fi:7.5/125,
  sodiumMgPerUnit:290/125,potassiumMgPerUnit:640/125,
  brand:"Gobinda",productType:"Milanesa de harina de soja",servingGrams:125,packUnits:6,

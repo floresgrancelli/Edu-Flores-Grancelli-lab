@@ -46,7 +46,7 @@ const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[]
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
-const dailyTotals=(diary)=>values([...(Object.values(diary?.meals||{}).flat()),...(diary?.sports||[])]);
+const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
 const activeDiary=()=>state.diary||blankDiary();
 const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.goals[0].kcal,p:state.goals[0].protein_g,c:state.goals[0].carb_g,f:state.goals[0].fat_g,fi:state.goals[0].fiber_g}:null):(state.personalTargets?{k:state.personalTargets.kcal,p:state.personalTargets.protein_g,c:state.personalTargets.carb_g,f:state.personalTargets.fat_g,fi:state.personalTargets.fiber_g}:null);
@@ -78,7 +78,7 @@ function unauthorized(msg){
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
- let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]);return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+num(i.qty,1)+" "+escapeHTML(i.unit)).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+num(values(items).k)+' kcal</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
+ let meals=mealSlots.map(([key,title,emoji])=>{let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];return '<div class="pilot-record"><div class="between"><div><strong>'+emoji+' '+title+'</strong><small>'+(items.length?items.map(i=>escapeHTML(i.name)+" "+num(i.qty,1)+" "+escapeHTML(i.unit)).join(" · "):'Todavía no hay alimentos registrados')+'</small></div><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+ (items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar</button>':'')+'</div></div>';}).join("");
  let form='<div class="pilot-form"><div class="field"><label for="mealSlot">Momento del día</label><select id="mealSlot">'+mealSlots.map(m=>'<option value="'+m[0]+'">'+m[1]+'</option>').join("")+'</select></div><div class="field"><label for="mealFood">Alimento (valores de referencia)</label><select id="mealFood">'+option(foods)+'</select></div><div class="field-row"><div class="field"><label for="mealQty">Cantidad (g o ml)</label><input type="number" min="1" max="5000" step="any" value="100" id="mealQty"></div><div class="field"><label>Dato nutricional</label><div class="note" id="mealHint">Consultar etiqueta del alimento</div></div></div><button class="btn block" data-act="addFood">Agregar y recalcular</button></div>';
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p><label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'>Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label><button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button><small style="display:block;margin-top:9px;color:#77958a">Estado actual: '+(cons?.accepted?'Compartido con tu coach':'Solo visible para vos')+'</small></section>':'';
@@ -288,9 +288,9 @@ async function saveEduRoutine(){
  await saveDiary();notify("Desayuno y media mañana cargados. Revisá las cantidades estimadas.");
 }
 async function savePersonalTargets(){
- let n=id=>Number(document.getElementById(id).value);
+ let n=id=>{const input=document.getElementById(id);return input.value.trim()===''?NaN:Number(input.value);};
  let vals={user_id:state.session.user.id,kcal:n("selfK"),protein_g:n("selfP"),carb_g:n("selfC"),fat_g:n("selfF"),fiber_g:n("selfFi"),updated_at:new Date().toISOString()};
- if(vals.kcal<1200||vals.kcal>10000||Object.values(vals).slice(2,6).some(v=>!Number.isFinite(v)||v<0))throw new Error("Objetivos personales fuera de rango.");
+ if(!Number.isFinite(vals.kcal)||vals.kcal<1200||vals.kcal>10000||Object.values(vals).slice(2,6).some(v=>!Number.isFinite(v)||v<0))throw new Error("Objetivos personales fuera de rango.");
  let {error}=await sb.from("efg_personal_targets").upsert(vals,{onConflict:"user_id"});
  if(error)throw error;state.personalTargets=vals;notify("Tus objetivos personales se actualizaron.");await render();
 }
@@ -352,7 +352,7 @@ async function mainClick(event){
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
-root.addEventListener("change",e=>{if(e.target.id==="mealFood")updateFoodHint();if(e.target.id==="sportItem")updateSportHint();});
+root.addEventListener("change",e=>{if(e.target.id==="mealFood")updateFoodHint();if(e.target.id==="sportItem")updateSportHint();if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;saveDiary().catch(fail);}});
 root.addEventListener("submit",async e=>{
  if(e.target.id!=="pilot-login-form")return;
  e.preventDefault();

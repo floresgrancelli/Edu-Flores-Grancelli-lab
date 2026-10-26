@@ -120,7 +120,7 @@ function plannerCard(){
    const opts=optionsFor(foods,allowedFoods(),row.category).map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===row.food.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("");
    out+='<div class="planner-item"><label>'+label+' · opción A</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
    '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b></div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
-   if(chosen&&equivalent)out+='<div class="planner-option-b"><label>Alternativa B</label><select data-planalt="'+escapeHTML(key)+'">'+alternatives.map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===chosen.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("")+'</select><small>≈ '+num(equivalent.grams)+' '+escapeHTML(chosen.unit)+' para igualar '+({protein:"proteínas",carbs:"hidratos",fat:"grasas",vegetable:"calorías"}[row.category])+'. No iguala todos los macros.</small></div>';
+   if(chosen&&equivalent)out+='<div class="planner-option-b"><label>Alternativa B</label><select data-planalt="'+escapeHTML(key)+'">'+alternatives.map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===chosen.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("")+'</select><button class="btn small ghost" data-usealternative="'+escapeHTML(key)+'">Elegir B</button><small>≈ '+num(equivalent.grams)+' '+escapeHTML(chosen.unit)+' para igualar '+({protein:"proteínas",carbs:"hidratos",fat:"grasas",vegetable:"calorías"}[row.category])+'. No iguala todos los macros.</small></div>';
    out+='</div>';
   }
   out+='<p class="pilot-hint">Total sugerido: P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g</p></div>';
@@ -275,11 +275,12 @@ async function loadPersonalData(){
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(1),
- sb.from("efg_personal_targets").select("*").eq("user_id",id).maybeSingle()
+ sb.from("efg_personal_targets").select("*").eq("user_id",id).maybeSingle(),
+ sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
  ]);
  const error=results.find(x=>x.error)?.error;
  if(error)throw error;
- state.diary=results[0].data||null;state.weights=results[1].data||[];state.activities=results[2].data||[];state.goals=results[3].data||[];state.personalTargets=results[4].data||null;
+ state.diary=results[0].data||null;state.weights=results[1].data||[];state.activities=results[2].data||[];state.goals=results[3].data||[];state.personalTargets=results[4].data||null;state.foodPlan=results[5].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;
@@ -320,15 +321,17 @@ async function loadStudentDetail(studentId){
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
+ state.coachFoodPlan=null;
  if(!c.data?.accepted){state.coachLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
  const results=await Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
  sb.from("efg_activities").select("*").eq("student_id",studentId).order("activity_day",{ascending:false}).limit(15),
- sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(1)
+ sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(1),
+ sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle()
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
- state.coachLogs=results[0].data||[];state.coachWeights=results[1].data||[];state.coachActivities=results[2].data||[];state.coachGoals=results[3].data||[];
+ state.coachLogs=results[0].data||[];state.coachWeights=results[1].data||[];state.coachActivities=results[2].data||[];state.coachGoals=results[3].data||[];state.coachFoodPlan=results[4].data||null;
 }
 async function refresh(){
  if(state.loading)return;
@@ -415,6 +418,7 @@ async function mainClick(event){
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
+ if(el.dataset.usealternative){const key=el.dataset.usealternative,chosen=state.plannerSelections["alt:"+key];if(!chosen)throw new Error("Elegí una alternativa.");state.plannerSelections[key]=chosen;delete state.plannerSelections["alt:"+key];return render();}
  if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];return saveDiary();}
  if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");

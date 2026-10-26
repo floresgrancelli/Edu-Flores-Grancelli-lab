@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES} from "./food-catalog.js";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -52,7 +53,7 @@ const sports=[
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,otpEmail:null,reportDate:null};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -324,11 +325,39 @@ function coachView(){
  '<div class="card"><h2>Alias para pagos de alumnos</h2><p class="pilot-hint">'+(org?.payment_alias?'Actual: '+escapeHTML(org.payment_alias):'Todavía no configuraste tu alias bancario.')+'</p><div class="pilot-form"><div class="field"><label>Alias bancario</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div></div>')+
  '</div><div class="pilot-stack"><div id="studentFollowPanel" class="coach-selected-student">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div></div>';
 }
+function coachDailyReport(p){
+ const latest=state.coachGoals[0]||null;
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),latest);
+ const selected=report.days.find(x=>x.date===state.reportDate)||report.today||report.days[0]||null;
+ const dateLabel=(d)=>d.split("-").reverse().join("/");
+ let out='<section class="nutrition-daily-report" id="coachDailyReport"><div class="section-head"><h3>📊 Informe nutricional diario</h3><button type="button" class="btn small light" data-act="refreshCoachReport">Actualizar</button></div>'+
+ '<p class="pilot-hint">Se actualiza con los registros del alumno. Se consulta desde el panel; todavía no se envía automáticamente por correo.</p>';
+ if(!report.daysRecorded)return out+'<div class="empty">Sin consumos registrados. El informe aparecerá cuando el alumno cargue su primera comida.</div></section>';
+ const haveClosed=report.daysClosed>0;
+ out+='<div class="nutrition-report-kpis">'+
+ '<div><small>Promedio de días registrados</small><strong>'+num(report.average.k)+' kcal</strong><span>'+report.daysRecorded+' día(s) con consumo</span></div>'+
+ '<div><small>Días cerrados</small><strong>'+report.daysClosed+'</strong><span>De '+report.daysRecorded+' días registrados</span></div>'+
+ '<div><small>Promedio de días cerrados</small><strong>'+(haveClosed?num(report.finishedAverage.k)+' kcal':'—')+'</strong><span>'+(haveClosed?'Cierres confirmados':'Aún sin días cerrados')+'</span></div></div>'+
+ '<p class="pilot-hint">Los días sin registros no se cuentan como cero. Los días parciales pueden cambiar. El cierre lo declara el alumno.</p>'+
+ '<div class="field" style="margin:12px 0"><label for="coachReportDate">Elegí la fecha del informe</label><select id="coachReportDate">'+report.days.map(d=>'<option value="'+escapeHTML(d.date)+'" '+(d.date===selected?.date?'selected':'')+'>'+dateLabel(d.date)+' · '+(d.closed?'Cerrado':'Parcial')+'</option>').join("")+'</select></div>';
+ if(selected){
+  const diff=latest?.kcal?Math.round(selected.k-latest.kcal):null;
+  out+='<div class="nutrition-day-sheet"><div class="between"><h4>'+dateLabel(selected.date)+'</h4><span class="pilot-pill">'+(selected.closed?'Día cerrado':'Registro parcial')+'</span></div>'+
+   '<div class="nutrition-day-energy"><strong>'+num(selected.k)+' kcal</strong>'+(latest?.kcal?'<small>Objetivo actual '+num(latest.kcal)+' kcal · '+(diff>=0?'+':'')+num(diff)+' kcal</small>':'<small>Sin objetivo aprobado</small>')+'</div>'+
+   '<div class="nutrition-macro-grid"><span>P <b>'+num(selected.p,1)+' g</b></span><span>HC <b>'+num(selected.c,1)+' g</b></span><span>G <b>'+num(selected.f,1)+' g</b></span><span>Fibra <b>'+num(selected.fi,1)+' g</b></span></div>'+
+   '<div class="nutrition-meal-table">'+selected.meals.filter(m=>m.foods>0&&!m.omitted).map(m=>'<div><span>'+escapeHTML(m.label)+'</span><b>'+num(m.kcal)+' kcal</b></div>').join("")+'</div>'+
+   '<small>'+selected.mealCount+' comidas registradas'+(selected.sportCount?' · '+selected.sportCount+' suplementos o bebidas':'')+'. '+(selected.closed?'Marcado como terminado por el alumno.':'Puede faltar carga de alimentos.')+'</small></div>'+
+   '<button class="btn light" data-act="copyDailyReport" style="margin-top:12px">Copiar informe del día</button>';
+ }
+ out+='<h4 style="margin-top:18px">Historial de hasta 14 días</h4>'+
+ '<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Día</th><th>Kcal</th><th>Proteínas</th><th>Estado</th></tr></thead><tbody>'+
+ report.days.map(d=>'<tr><td>'+dateLabel(d.date)+'</td><td>'+(d.hasData?num(d.k):'—')+'</td><td>'+(d.hasData?num(d.p,1)+' g':'—')+'</td><td>'+(d.closed?'Cerrado':d.hasData?'Parcial':'Sin comidas')+'</td></tr>').join("")+'</tbody></table></div></section>';
+ return out;
+}
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
- return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span><div class="divider"></div><h3>Última semana registrada</h3>'+
- (state.coachLogs.length?'<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Día</th><th>Kcal</th><th>Proteínas</th></tr></thead><tbody>'+state.coachLogs.slice(0,7).map(d=>{let t=dailyTotals(d);return '<tr><td>'+escapeHTML(d.log_day)+'</td><td>'+num(t.k)+'</td><td>'+num(t.p,1)+' g</td></tr>';}).join("")+'</tbody></table></div>':'<div class="empty">Sin registros de comidas.</div>')+
+ return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span><div class="divider"></div>'+coachDailyReport(p)+
  '<div class="divider"></div><h3>Pesos registrados</h3>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(w.measured_on)+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  coachFoodChoices(p,consent)+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación de Mifflin–St Jeor para adultos. Propuesta inicial revisable según entrenamiento y evolución.</p>'+

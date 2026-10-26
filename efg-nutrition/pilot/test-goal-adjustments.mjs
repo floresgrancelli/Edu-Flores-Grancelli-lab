@@ -16,7 +16,7 @@ for(const g of [proportional,protectedGoal]){
 assert.deepEqual([base.kcal,base.protein_g,base.carb_g,base.fat_g],[2530,144,345,64],"La meta previa permanece sin cambios");
 assert.throws(()=>adjustNutritionGoal(base,1100),"Objetivo demasiado bajo");
 assert.throws(()=>adjustNutritionGoal(base,"hola"),"Valor incorrecto");
-assert.throws(()=>adjustNutritionGoal(base,1200,"protect_protein"),"Macros no viables");
+assert.throws(()=>adjustNutritionGoal({...base,protein_g:260,fat_g:75},1200,"protect_protein"),"Macros no viables");
 const revised={...protectedGoal,start_on:"2026-10-26",approved_at:"2026-10-26T22:00:00Z",id:"nuevo"};
 assert.equal(goalForDate([revised,base],"2026-10-01").id,"historico","Las fechas pasadas conservan la meta previa");
 assert.equal(goalForDate([revised,base],"2026-10-26").id,"nuevo","La nueva meta se aplica desde la fecha aprobada");

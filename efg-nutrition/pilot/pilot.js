@@ -762,9 +762,10 @@ function coachDailyReport(p){
  '<p class="pilot-hint">Los días sin registros no se cuentan como cero. Los días parciales pueden cambiar. El cierre lo declara el alumno.</p>'+
  '<div class="field" style="margin:12px 0"><label for="coachReportDate">Elegí la fecha del informe</label><select id="coachReportDate">'+report.days.map(d=>'<option value="'+escapeHTML(d.date)+'" '+(d.date===selected?.date?'selected':'')+'>'+dateLabel(d.date)+' · '+(d.closed?'Cerrado':'Parcial')+'</option>').join("")+'</select></div>';
  if(selected){
-  const diff=latest?.kcal?Math.round(selected.k-latest.kcal):null;
+  const applicableGoal=goalForDate(state.coachGoals,selected.date);
+  const diff=applicableGoal?.kcal?Math.round(selected.k-applicableGoal.kcal):null;
   out+='<div class="nutrition-day-sheet"><div class="between"><h4>'+dateLabel(selected.date)+'</h4><span class="pilot-pill">'+(selected.closed?'Día cerrado':'Registro parcial')+'</span></div>'+
-   '<div class="nutrition-day-energy"><strong>'+num(selected.k)+' kcal</strong>'+(latest?.kcal?'<small>Objetivo actual '+num(latest.kcal)+' kcal · '+(diff>=0?'+':'')+num(diff)+' kcal</small>':'<small>Sin objetivo aprobado</small>')+'</div>'+
+   '<div class="nutrition-day-energy"><strong>'+num(selected.k)+' kcal</strong>'+(applicableGoal?.kcal?'<small>Objetivo de esa fecha '+num(applicableGoal.kcal)+' kcal · '+(diff>=0?'+':'')+num(diff)+' kcal</small>':'<small>Sin objetivo aprobado para esa fecha</small>')+'</div>'+
    '<div class="nutrition-macro-grid"><span>P <b>'+num(selected.p,1)+' g</b></span><span>HC <b>'+num(selected.c,1)+' g</b></span><span>G <b>'+num(selected.f,1)+' g</b></span><span>Fibra <b>'+num(selected.fi,1)+' g</b></span></div>'+
    '<div class="nutrition-meal-table">'+selected.meals.filter(m=>m.foods>0&&!m.omitted).map(m=>'<div><span>'+escapeHTML(m.label)+'</span><b>'+num(m.kcal)+' kcal</b></div>').join("")+'</div>'+
    '<small>'+selected.mealCount+' comidas registradas'+(selected.sportCount?' · '+selected.sportCount+' suplementos o bebidas':'')+'. '+(selected.closed?'Marcado como terminado por el alumno.':'Puede faltar carga de alimentos.')+'</small>'+

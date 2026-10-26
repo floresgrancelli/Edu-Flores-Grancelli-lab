@@ -46,3 +46,9 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .macro-preview b{display:block;font-size:12px;color:#397b70}
 .macro-preview-kcal{font-size:23px;font-weight:800;color:#168574;margin:10px 0}
 .macro-preview small{font-size:11px;line-height:1.75;color:#627b77}
+
+/* Ingreso simple por OTP: seis cifras dentro de la misma app */
+.pilot-otp-input{font-size:31px!important;letter-spacing:.35em;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:#116a60!important;min-height:64px!important;padding:12px 6px!important;}
+.pilot-auth-help{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px;}
+.pilot-auth-help .btn{margin-top:0;}
+@media(max-width:720px){.pilot-otp-input{font-size:27px!important;letter-spacing:.28em;}}

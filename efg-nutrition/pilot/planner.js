@@ -50,7 +50,7 @@ const EMPTY={k:0,p:0,c:0,f:0,fi:0};
 function portionMax(food,position){
  const id=food?.id||"",category=food?.category||"";
  if(id==="milanesa_soy_gobinda")return 250; // Hasta dos unidades de 125 g.
- if(/oil|aceite|butter|manteca/i.test(id)||(/oil|aceite/i.test(food?.name||"")))return 20;
+ if(/oil|aceite|butter|manteca/i.test(id))return 20; // Nunca inferir grasas del nombre: "arroz sin aceite" no es aceite.
  if(/whey|creatine|protein_powder/i.test(id))return 60;
  if(category==="fat")return 55;
  if(category==="extra")return 30;

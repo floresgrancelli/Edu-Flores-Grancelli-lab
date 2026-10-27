@@ -335,7 +335,12 @@ async function loadCloudHabituales(){
  cloudHabituales=data||[];
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
  for(const [slot] of mealSlots){
-  const local=getHabitualList(slot);
+  let local=[];
+  try{
+   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+   if(Array.isArray(saved)&&saved.length)local=saved;
+   else {const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");if(Array.isArray(older)&&older.length)local=[{name:"Mi habitual anterior",items:older}];}
+  }catch(_){} 
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){
    if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;

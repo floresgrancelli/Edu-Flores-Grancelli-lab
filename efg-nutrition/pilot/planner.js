@@ -167,3 +167,33 @@ export function makePlan({foods,approved,diary,goals,totals,dinnerOnly=false,sel
  });
  return {ready:true,remaining,slots,meals,projectedLeft:left,split:split?"one-third-two-thirds":null};
 }
+
+
+// Resumen energético para mostrar objetivo, porciones elegidas y faltantes.
+// Admite gramajes modificados antes de registrar y reasigna en pantalla a
+// la cena las kcal no cubiertas por la merienda, sin guardar datos.
+export function plannerEnergyBreakdown(plan,gramOverrides={}){
+ if(!plan?.ready||!Array.isArray(plan.meals))return [];
+ const balance=sane(plan.remaining?.k);
+ const two=plan.split==="one-third-two-thirds"&&plan.meals.length===2;
+ let snackChosen=0;
+ return plan.meals.map((meal,index)=>{
+  const selected=meal.rows.reduce((total,row)=>{
+   if(!row.food)return total;
+   const key=meal.slot+"|"+row.category;
+   const raw=Object.prototype.hasOwnProperty.call(gramOverrides,key)?Number(gramOverrides[key]):Number(row.grams);
+   const grams=Number.isFinite(raw)&&raw>=0?raw:0;
+   return total+sane(row.food.k)*grams;
+  },0);
+  const baseline=two?(index===0?balance/3:balance*2/3):sane(meal.target?.k??balance);
+  const goal=two&&index===1?Math.max(0,balance-snackChosen):baseline;
+  const carry=two&&index===1?balance/3-snackChosen:0;
+  const result={
+   slot:meal.slot,target:goal,baseline,suggested:sane(meal.estimate?.k),
+   selected,remaining:Math.max(0,goal-selected),exceeded:Math.max(0,selected-goal),
+   transfer:carry
+  };
+  if(index===0&&two)snackChosen=selected;
+  return result;
+ });
+}

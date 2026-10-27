@@ -340,3 +340,67 @@
  .efg-admin-banner h2{font-size:27px;margin-top:10px}
  .efg-admin-banner p{font-size:12px;max-width:320px}
 }
+
+
+/* Premium 3.3 — nutritional progress dashboard */
+.efg-progress-dashboard{margin:28px 0 20px;scroll-margin-top:95px}
+.efg-progress-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+.efg-progress-header .eyebrow{display:block;font-size:10px;letter-spacing:.14em;color:#168779;font-weight:850}
+.efg-progress-header h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.04em;color:#203e4a;margin:7px 0}
+.efg-progress-header p{font-size:13px;color:#74898b;margin:0}
+.efg-progress-range{display:inline-flex;gap:4px;padding:5px;border-radius:15px;background:#eef5f2;flex-shrink:0}
+.efg-progress-range button{border:0;border-radius:11px;background:transparent;padding:10px 14px;min-height:44px;color:#597876;font-weight:750;white-space:nowrap;cursor:pointer}
+.efg-progress-range button.selected{background:#fff;color:#117d6b;box-shadow:0 2px 10px #1e5e4e14}
+.efg-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.efg-progress-panel{background:#fff;border:1px solid #e3ece9;border-radius:24px;padding:23px;min-width:0;box-shadow:0 5px 20px #193b4810}
+.efg-progress-wide{grid-column:1/-1}
+.efg-chart-heading h3{font-size:19px;letter-spacing:-.025em;color:#24434e;margin:0 0 6px}
+.efg-chart-heading p{font-size:12px;color:#718a8b;margin:0 0 18px;line-height:1.5}
+.efg-chart-svg{width:100%;height:auto;max-height:320px;display:block}
+.efg-chart-tick{font-size:11px;fill:#6b8587;font-weight:600}
+.efg-chart-legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.efg-chart-legend span{font-size:12px;color:#637e7e;display:flex;align-items:center;gap:6px}
+.efg-chart-legend i,.efg-meal-legend i{width:11px;height:11px;display:inline-block;border-radius:4px;flex-shrink:0}
+.efg-chart-footnote{font-size:11px;color:#7a9190;line-height:1.5;margin:16px 0 0}
+.efg-chart-empty{padding:34px 14px;text-align:center;border:1px dashed #d7e5df;border-radius:17px;background:#f8fbf9;color:#748a88;font-size:13px}
+.efg-chart-subdate{color:#688784;font-size:12px;margin:0 0 20px}
+.efg-goal-bars{display:flex;flex-direction:column;gap:16px}
+.efg-goal-caption{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;margin-bottom:7px;color:#2e4f56}
+.efg-goal-caption span{color:#6e8688;text-align:right;font-size:11px}
+.efg-goal-track{height:10px;background:#eaf0ee;border-radius:99px;overflow:hidden}
+.efg-goal-track>span{display:block;height:100%;border-radius:99px}
+.efg-consistency-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.efg-consistency-head strong{font-size:38px;letter-spacing:-.05em;color:#138a78}
+.efg-consistency-head span{font-size:12px;color:#6d8785}
+.efg-consistency-columns{display:flex;align-items:end;gap:9px;min-height:164px;overflow-x:auto}
+.efg-consistency-week{flex:1;min-width:35px;text-align:center;display:flex;align-items:center;flex-direction:column;gap:4px;color:#617d7c}
+.efg-consistency-column{height:115px;display:flex;align-items:flex-end;justify-content:center;width:100%;background:#f0f6f3;border-radius:11px}
+.efg-consistency-column i{width:100%;background:linear-gradient(180deg,#59c4a7,#148c79);border-radius:10px;display:block}
+.efg-consistency-week strong{font-size:11px}.efg-consistency-week small{font-size:10px}
+.efg-meal-donut-layout{display:grid;grid-template-columns:minmax(170px,240px) 1fr;align-items:center;gap:28px}
+.efg-meal-donut{display:block;width:100%;height:auto}
+.efg-donut-number{font-size:23px;font-weight:850;fill:#24464e}
+.efg-donut-unit{font-size:9px;fill:#7c9691}
+.efg-meal-legend{display:flex;flex-direction:column;gap:11px}
+.efg-meal-legend>div{display:flex;align-items:center;gap:9px;font-size:12px;color:#5b787b}
+.efg-meal-legend>div span{flex:1}
+.efg-meal-legend>div b{font-size:12px;color:#25464e;font-weight:750}
+.nutrition-daily-report .section-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.nutrition-daily-report .efg-report-refresh{min-width:116px;width:auto;flex:0 0 auto;white-space:nowrap;overflow-wrap:normal;word-break:normal;padding:11px 16px;line-height:1.2}
+@media(max-width:720px){
+ .efg-progress-dashboard{margin-top:22px}
+ .efg-progress-header{display:block}
+ .efg-progress-range{margin-top:14px;width:100%;justify-content:space-between}
+ .efg-progress-range button{flex:1}
+ .efg-progress-grid{grid-template-columns:minmax(0,1fr);gap:13px}
+ .efg-progress-panel{padding:18px 15px;border-radius:20px}
+ .efg-progress-wide{grid-column:auto}
+ .efg-chart-heading h3{font-size:17px}
+ .efg-chart-legend{gap:9px}
+ .efg-chart-legend span{font-size:10px}
+ .efg-meal-donut-layout{grid-template-columns:1fr;gap:10px}
+ .efg-meal-donut{max-width:200px;margin:auto}
+ .efg-goal-caption{font-size:11px}
+ .efg-consistency-columns{gap:5px}
+ .nutrition-daily-report .efg-report-refresh{min-width:120px;min-height:44px}
+}

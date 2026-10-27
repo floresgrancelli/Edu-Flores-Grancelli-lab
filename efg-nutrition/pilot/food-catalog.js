@@ -68,7 +68,7 @@ const FRIED_EGG_WITH_OIL={
 // La aplicación recalcula estos valores desde los alimentos individuales al iniciarse.
 const FRUIT_SALAD_FOODS=[{
  id:"fruit_salad_basic",name:"Ensalada de frutas casera (sin azúcar añadida)",category:"fruit",unit:"g",
- k:(.52+.89+.47+.53)/4,
+ k:(.52+.89+.517+.53)/4,
  p:(.0026+.0109+.009+.008)/4,
  c:(.1381+.2284+.118+.133)/4,
  f:(.0017+.0033+.001+.003)/4,

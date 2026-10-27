@@ -1,0 +1,115 @@
+
+/* EFG NUTRITION · PREMIUM SYSTEM 3.0
+   Mobile-first design tokens, inspired by clean pastel dashboard references.
+   Only presentation rules; business logic and privacy stay in existing JS. */
+:root{
+ --efg-ink:#1a3446;--efg-subtle:#738788;--efg-green:#168676;
+ --efg-mint:#e2f4e9;--efg-blue:#e7edff;--efg-peach:#fff0e1;
+ --efg-lilac:#f0eafa;--efg-cream:#fff8e9;--efg-bg:#f8fafb;
+ --efg-line:#e6edef;--efg-radius:22px;
+}
+*{box-sizing:border-box}
+.pilot-layout{background:var(--efg-bg);min-width:0;max-width:100%;color:var(--efg-ink);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.pilot-layout .pilot-main{min-width:0;width:100%;max-width:1100px}
+.pilot-layout .pilot-main>*,.pilot-layout .pilot-two>*,.pilot-layout .pilot-stack>*{min-width:0}
+.pilot-layout .pilot-nav{background:#fff;border-right:1px solid var(--efg-line)}
+.pilot-layout .pilot-nav button.navitem{border-radius:14px;transition:background .16s,color .16s}
+.pilot-layout .pilot-nav button.navitem.active{background:#def4eb;color:#147d6f;font-weight:800}
+.pilot-layout .pilot-nav .nav-icon{font-size:21px}
+.pilot-layout .pilot-title{font-size:clamp(25px,4.5vw,35px);letter-spacing:-.035em;color:var(--efg-ink);line-height:1.12}
+.pilot-layout .pilot-lead{font-size:13px;color:var(--efg-subtle);max-width:650px}
+.pilot-layout .card{background:#fff;border:1px solid var(--efg-line);border-radius:var(--efg-radius);box-shadow:0 5px 22px rgba(30,64,78,.035)}
+.pilot-layout .pilot-hero{border-radius:26px;background:linear-gradient(130deg,#e6f6ee,#eaf0ff 68%,#fff6e5);border:1px solid #e1eee9;box-shadow:none;min-width:0}
+.pilot-layout .pilot-hero h1{color:var(--efg-ink);line-height:1.16;font-size:clamp(21px,4.5vw,32px)}
+.pilot-layout .btn{border-radius:13px;min-height:42px}
+.pilot-layout button:focus-visible,.pilot-layout a:focus-visible,.pilot-layout summary:focus-visible{outline:3px solid #218e7d;outline-offset:3px}
+.pilot-layout input,.pilot-layout select,.pilot-layout textarea{max-width:100%;min-width:0}
+.pilot-layout :where(.pilot-record,.meal-day-section){border-radius:16px}
+.pilot-layout .pilot-kpis{gap:11px;min-width:0}
+.pilot-layout .metric-card{min-width:0;padding:15px 12px}
+.pilot-layout .metric-card .metric-label{font-size:10px;color:#66817d;font-weight:800;letter-spacing:.04em}
+.pilot-layout .metric-card .metric-value{font-size:clamp(18px,3vw,23px);line-height:1.3;overflow-wrap:anywhere}
+.pilot-layout .metric-card .metric-value span{font-size:10px;color:#7b9492}
+.pilot-layout .metric-card .meter{height:6px;border-radius:100px;overflow:hidden}
+.pilot-layout .pilot-toolbar{min-width:0}
+.pilot-layout .pilot-macro{gap:10px}
+.pilot-layout .pilot-macro span,.pilot-layout .pilot-macro b{overflow-wrap:anywhere}
+.student-daily-focus{box-shadow:0 12px 30px rgba(40,110,96,.05);border-radius:25px}
+.student-daily-focus .student-focus-grid strong{font-size:clamp(25px,5vw,37px);letter-spacing:-.035em}
+.efg-role-student .pilot-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+.efg-role-student .pilot-two.student-daily-layout{grid-template-columns:minmax(0,1fr)}
+.efg-role-student .student-daily-layout>.card{width:100%}
+.efg-role-student .student-daily-layout>.pilot-stack>.card{max-width:100%}
+.efg-role-student .meal-day-section{border:1px solid var(--efg-line)}
+.efg-role-student .student-meal-heading{gap:10px}
+.efg-role-student .student-meal-heading strong{font-size:14px}
+.efg-role-student .student-meal-card .student-meal-details{padding:0 15px 15px}
+.efg-role-student .student-shortcuts{margin:15px 0 18px}
+.efg-role-student .student-shortcuts button{font:inherit;border:1px solid #deebe8;border-radius:17px;background:var(--efg-mint);color:#236c60;min-height:58px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.efg-role-student .student-shortcuts button:nth-child(2){background:var(--efg-blue);border-color:#dae4fb;color:#536da8}
+.efg-role-student .student-shortcuts button:nth-child(3){background:var(--efg-peach);border-color:#f2e2d3;color:#9a714b}
+.efg-optional-panel{margin:18px 0;border-top:1px solid var(--efg-line);padding:14px 0}
+.efg-optional-panel summary{cursor:pointer;color:#436e68;font-weight:750;font-size:13px;min-height:40px;padding:8px}
+.efg-quick-more{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:20px 0}
+.efg-quick-more button{min-width:0;white-space:normal;padding:10px;font-size:12px;background:#fff}
+.efg-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:22px 0 35px}
+.efg-menu-card{border:1px solid rgba(32,87,75,.065);border-radius:24px;padding:20px;min-height:148px;text-align:left;position:relative;display:flex;flex-direction:column;gap:15px;align-items:flex-start;justify-content:center;font:inherit;color:var(--efg-ink);cursor:pointer;box-shadow:0 4px 18px rgba(20,54,70,.03);touch-action:manipulation}
+.efg-menu-card strong{font-size:clamp(15px,2vw,20px);letter-spacing:-.02em;line-height:1.25}
+.efg-menu-emoji{font-size:27px;line-height:1}
+.efg-menu-arrow{position:absolute;right:17px;top:14px;font-size:18px;color:#78918e}
+.efg-menu-mint{background:var(--efg-mint)}
+.efg-menu-blue{background:var(--efg-blue)}
+.efg-menu-lilac{background:var(--efg-lilac)}
+.efg-menu-peach{background:var(--efg-peach)}
+.efg-menu-cream{background:var(--efg-cream)}
+.efg-content-card{max-width:100%;overflow-wrap:anywhere}
+.efg-actions{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
+.efg-role-admin .admin-command-grid{gap:14px}
+.efg-role-admin .admin-command-tile{border-radius:23px;min-height:150px;padding:20px}
+.efg-role-admin .admin-command-tile strong{font-size:clamp(14px,2vw,19px)}
+.efg-role-coach .coach-hub-tile{border-radius:23px;min-height:145px}
+.efg-role-coach .coach-inbox{margin:20px 0}
+.pilot-layout .planner-panel{overflow:hidden}
+.pilot-layout .planner-panel :where(.planner-qty,.planner-item,.planner-meal){min-width:0}
+@media(min-width:1100px){
+ .pilot-layout .pilot-main{padding:40px 48px 65px}
+ .efg-menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:980px){
+ .pilot-layout .pilot-main{width:100%;max-width:none}
+}
+@media(max-width:720px){
+ html,body{max-width:100%;overflow-x:hidden}
+ .pilot-layout{display:block;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));overflow-x:clip}
+ .pilot-layout .pilot-main{padding:23px 15px calc(110px + env(safe-area-inset-bottom,0px));overflow-x:clip}
+ .pilot-layout .pilot-nav{display:flex;overflow:hidden;position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;z-index:80;flex-direction:row;justify-content:space-around;align-items:stretch;gap:5px;padding:8px 9px max(10px,env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);box-shadow:0 -6px 25px rgba(15,62,56,.07);border-radius:20px 20px 0 0}
+ .pilot-layout .pilot-nav .pilot-logo,.pilot-layout .pilot-nav .pilot-avatar,.pilot-layout .pilot-nav .pilot-logout{display:none}
+ .pilot-layout .pilot-nav button.navitem{flex:1 1 0;min-width:0;max-width:none;min-height:55px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;white-space:normal;font-size:11px;padding:7px 4px;line-height:1.15}
+ .pilot-layout .pilot-nav .nav-icon{font-size:22px;line-height:1}
+ .pilot-layout .pilot-title{font-size:clamp(26px,7vw,33px)}
+ .pilot-layout .pilot-lead{font-size:12px;line-height:1.55}
+ .pilot-layout .pilot-top{margin-bottom:16px}
+ .pilot-layout .pilot-hero{padding:21px 19px;border-radius:23px}
+ .pilot-layout .pilot-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .efg-role-student .pilot-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .efg-role-student .pilot-kpis .metric-card{padding:13px 8px}
+ .efg-role-student .metric-card .metric-label{font-size:9px}
+ .efg-role-student .metric-card .metric-value{font-size:17px}
+ .efg-role-student .metric-card .metric-value span{display:block;font-size:9px}
+ .efg-role-student .metric-card .metric-remaining{font-size:10px}
+ .pilot-layout .pilot-two{grid-template-columns:minmax(0,1fr)}
+ .pilot-layout .card{border-radius:20px}
+ .pilot-layout .student-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .efg-menu-grid{gap:11px}
+ .efg-menu-card{padding:15px;border-radius:20px;min-height:128px}
+ .efg-menu-card strong{font-size:14px}
+ .efg-quick-more{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .efg-quick-more button{font-size:10px;line-height:1.4}
+}
+@media(max-width:365px){
+ .efg-menu-grid{grid-template-columns:minmax(0,1fr)}
+ .efg-role-student .student-shortcuts button{font-size:10px}
+ .efg-role-student .pilot-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .efg-quick-more{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.pilot-layout *, .pilot-layout *::before,.pilot-layout *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}

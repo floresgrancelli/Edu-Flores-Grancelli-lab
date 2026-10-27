@@ -17,3 +17,10 @@
 .coach-selected-student{min-width:0}
 @media(min-width:920px){#studentFollowPanel .nutrition-trend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#studentFollowPanel .nutrition-report-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#studentFollowPanel .nutrition-day-sheet{overflow-x:auto}}
+
+.coach-student-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.coach-profile-avatar{width:54px;height:54px;border-radius:18px;background:#e4f4ed;color:#1d615b;display:grid;place-items:center;font-weight:800;letter-spacing:.03em;flex-shrink:0}
+.coach-profile-tabs{display:flex;gap:9px;overflow-x:auto;margin:16px 0 3px;padding:0 0 8px;scrollbar-width:thin}
+.coach-profile-tabs a{display:inline-flex;align-items:center;white-space:nowrap;padding:10px 14px;border-radius:13px;background:#f0f6f3;color:#1d625c;text-decoration:none;font-size:.86rem;font-weight:700;min-height:42px}
+.coach-profile-tabs a:focus-visible{outline:3px solid #1d625c;outline-offset:2px}
+#coachStudentNutrition,#coachStudentWeight,#coachStudentGoals{scroll-margin-top:26px}

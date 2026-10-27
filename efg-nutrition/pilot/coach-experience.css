@@ -7,3 +7,13 @@
 #coachToolsSection>details>summary{padding:8px 2px}#coachRosterSection{scroll-margin-top:20px}
 @media(min-width:920px){.coach-hub-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.coach-hub-tile{min-height:145px}}
 @media(max-width:400px){.coach-hub-grid{gap:9px}.coach-hub-tile{padding:13px;min-height:120px;border-radius:18px}.coach-hub-tile strong{font-size:.95rem}}
+
+/* Compact, readable coach forms and report sections */
+#studentFollowPanel .card{scroll-margin-top:20px}
+#studentFollowPanel .nutrition-report-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#studentFollowPanel .nutrition-report-kpis>div{min-width:0}
+#studentFollowPanel .nutrition-trend-grid{display:grid;grid-template-columns:1fr;gap:12px}
+#studentFollowPanel .pilot-form .field-row{gap:12px}
+.coach-selected-student{min-width:0}
+@media(min-width:920px){#studentFollowPanel .nutrition-trend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#studentFollowPanel .nutrition-report-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#studentFollowPanel .nutrition-day-sheet{overflow-x:auto}}

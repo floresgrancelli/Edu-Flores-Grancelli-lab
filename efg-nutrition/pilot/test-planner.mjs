@@ -51,6 +51,30 @@ assert.equal(none.rows.filter(x=>x.food).length,0);
 const plan=makePlan({foods:foodList,approved:ids,diary:{meals:{},skipped:{}},
  goals:remaining,totals:{k:0,p:0,c:0,f:0,fi:0},dinnerOnly:true,selections:choice});
 assert.equal(plan.slots[0],"cena");
+// Cálculo corregido: proteína, luego hidratos, extras únicamente para calorías.
+const egg=catalog.EXTRA_FOODS.find(f=>f.id==="egg_boiled");
+assert.ok(egg,"Debe existir huevo duro en el catálogo");
+const target={k:1508.4,p:93.6,c:170.4,f:49.6,fi:0};
+const eggDinner=proposeMeal({foods:[egg,rice,oil],approved:[egg.id,rice.id,oil.id],
+ slot:"cena",remaining:target,
+ selections:{"cena|protein":egg.id,"cena|carbs":"rice","cena|vegetable":"none","cena|fat":"none"}});
+assert.equal(eggDinner.rows[0].targetNutrient,"p");
+assert.equal(eggDinner.rows[1].targetNutrient,"c");
+assert.equal(eggDinner.rows[2].targetNutrient,"k");
+assert.equal(eggDinner.rows[0].grams,150,"Tres huevos como límite orientativo");
+assert.ok(eggDinner.rows[0].neededGrams>700,"Necesidad teórica visible: más de 700 g de huevo");
+assert.equal(eggDinner.rows[0].capped,true,"No confundir porción realista con meta completa");
+assert.ok(eggDinner.rows[1].neededGrams>400,"El hidrato se calcula descontando el huevo");
+assert.equal(eggDinner.rows[2].grams,0,"Sin extras no se añade aceite");
+const withOil=proposeMeal({foods:[egg,rice,oil],approved:[egg.id,rice.id,oil.id],
+ slot:"cena",remaining:target,
+ selections:{"cena|protein":egg.id,"cena|carbs":"rice","cena|vegetable":"oil","cena|fat":"none"}});
+assert.ok(withOil.rows[2].grams>0&&withOil.rows[2].grams<=20,"Extra calórico con tope");
+const noCalories=proposeMeal({foods:[egg,rice,oil],approved:[egg.id,rice.id,oil.id],
+ slot:"cena",remaining:{k:100,p:93.6,c:170.4,f:49.6},
+ selections:{"cena|protein":egg.id,"cena|carbs":"rice","cena|vegetable":"oil","cena|fat":"none"}});
+assert.equal(noCalories.rows[2].grams,0,"No dar extras cuando no faltan calorías");
+
 assert.ok(plan.projectedLeft.f>0&&plan.projectedLeft.k>=0,"Macros pendientes positivos");
 assert.ok(Math.abs(plan.projectedLeft.f-(remaining.f-p.estimate.f))<.001);
 const ui=await load("pilot.js"),style=await load("pilot.css");
@@ -65,5 +89,12 @@ assert.ok(ui.includes("if(e.target.id.startsWith(\"planQty_\"))updatePlannerPrev
 assert.ok(ui.includes("data-planadd=")&&ui.includes("function addPlannedFood("),"Registro de cantidades reales intacto");
 assert.ok(ui.includes("function openPlannedFoodEditor("),"Bebidas personalizables sin macros engañosos");
 assert.ok(style.includes(".planner-food-search"),"Maquetación de buscador");
+
+assert.ok(ui.includes('protein:"Proteína"')&&ui.includes('carbs:"Hidratos"'),"Etiquetas por macro");
+assert.ok(ui.includes("Extra para calorías"),"Extras vinculados a calorías");
+assert.ok(ui.includes("row.neededGrams")&&ui.includes("row.capped"),"Razón del tope de porciones");
+assert.ok(!ui.includes("const oldQty=new Map"),"No reutilizar gramos obsoletos al cambiar alimento");
+assert.ok(ui.includes("pendientes (informativo)"),"Grasas pendientes solo informativas");
+
 assert.ok(!ui.includes("Alternativa B")&&!ui.includes("data-planalt")&&!ui.includes("data-usealternative"),"No se vuelve a mostrar B");
 console.log("EFG Nutrition: catálogo integral, pollo+arroz, soja, límites, extras opcionales, aviso y registro OK");

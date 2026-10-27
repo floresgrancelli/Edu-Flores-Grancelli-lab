@@ -305,6 +305,7 @@ async function saveDayComment(){
  d.skipped._comment=readDayComment();
  await saveDiary();notify("Comentario guardado para el informe de tu coach.");
 }
+let coachRosterConsent={};
 let myWeeklyReports=[];
 async function loadMyWeeklyReports(){
  if(state.profile?.role!=="student"){myWeeklyReports=[];return;}
@@ -1095,8 +1096,8 @@ function coachView(){
  '<div class="pilot-kpis"><div class="card"><div class="metric-label">ALUMNOS VINCULADOS</div><div class="metric-value">'+activeRoster.length+'</div></div><div class="card"><div class="metric-label">CUPO '+(isTest?'DE PRUEBA':'CONTRATADO')+'</div><div class="metric-value">'+seats+'</div></div><div class="card"><div class="metric-label">INVITACIONES PENDIENTES</div><div class="metric-value">'+pending.length+'</div></div><div class="card"><div class="metric-label">CUPOS LIBRES</div><div class="metric-value">'+Math.max(0,seats-used)+'</div></div></div>'+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Mis alumnos</h2>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
- (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
- (roster.length?roster.map(p=>'<div class="pilot-record" data-rosteractive="'+(p.active?'yes':'no')+'" data-rostername="'+escapeHTML((p.nickname+" "+(p.email||"")).toLocaleLowerCase("es-AR"))+'"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
+ (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
+ (roster.length?roster.map(p=>'<div class="pilot-record" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML((p.nickname+" "+(p.email||"")).toLocaleLowerCase("es-AR"))+'"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de EFG Nutrition con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
@@ -1419,6 +1420,10 @@ async function loadRoleData(){
   const [r,inv]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]);
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
+  coachRosterConsent={};
+  const ids=state.roster.map(p=>p.user_id).filter(Boolean);
+  if(ids.length){const cr=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);if(cr.error)throw cr.error;for(const c of cr.data||[])coachRosterConsent[c.student_id]=c.accepted===true;}
+
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }
  if(role==="student"){
@@ -1593,7 +1598,7 @@ if(el.dataset.foodbulk){
   const filter=el.dataset.rosterfilter;
   const rows=root.querySelectorAll("[data-rostername]");
   let visible=0;
-  for(const item of rows){const active=item.dataset.rosteractive==="yes";const allow=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active);item.style.display=allow?"":"none";if(allow)visible++;}
+  for(const item of rows){const active=item.dataset.rosteractive==="yes";const allow=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&item.dataset.rosterconsent!=="yes");item.style.display=allow?"":"none";if(allow)visible++;}
   const count=document.getElementById("coachRosterCount");if(count)count.textContent=visible+" alumnos visibles";
   for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===filter);button.classList.toggle("ghost",button.dataset.rosterfilter!==filter);}
   return;

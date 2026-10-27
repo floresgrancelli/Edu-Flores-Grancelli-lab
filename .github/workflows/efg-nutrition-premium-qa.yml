@@ -2,7 +2,7 @@ name: EFG Nutrition Premium QA
 
 on:
   push:
-    branches: [efg-premium-redesign-dev]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-premium-qa.yml'
@@ -26,10 +26,13 @@ jobs:
           node --check efg-nutrition/pilot/pilot.js
           node --check efg-nutrition/tests/premium-ui-smoke.mjs
           node --check efg-nutrition/pilot/progress-charts.js
+          node --check efg-nutrition/pilot/fit-recipes.js
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: Verify real-data chart calculations
         run: node efg-nutrition/tests/premium-progress-charts.mjs
+      - name: Verify Fit recipes and payment workflow
+        run: node efg-nutrition/tests/fit-recipes-payments.mjs
       - name: Require real mobile and privacy checks before release
         run: |
           echo "Static gate only: NOT permission to deploy."

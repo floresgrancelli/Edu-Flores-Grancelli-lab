@@ -392,6 +392,50 @@ async function habitualAction(slot,action){
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
  await saveDiary();notify("Comida habitual registrada; balance recalculado.");
 }
+function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
+function myRecipes(){try{const x=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");return Array.isArray(x)?x:[];}catch(_){return [];}}
+async function createPersonalRecipe(){
+ const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
+ if(name===null)return;
+ if(!name.trim()||name.trim().length>70)throw Error("Usá un nombre de 1 a 70 caracteres.");
+ const ingredients=[];
+ for(let i=0;i<12;i++){
+  const nameInput=prompt("Ingrediente "+(i+1)+". Escribí su nombre; dejalo vacío para terminar.\nEj.: yogur, granola, banana",i===0?"":"");
+  if(nameInput===null){if(!ingredients.length)return;break;}
+  const term=nameInput.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
+  if(!term){if(!ingredients.length)throw Error("Agregá al menos un ingrediente.");break;}
+  const matches=foods.filter(f=>f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
+  if(!matches.length){notify("No encontramos ese ingrediente en el catálogo.");i--;continue;}
+  const chosen=prompt("Elegí el número del ingrediente:\n"+matches.map((f,j)=>(j+1)+". "+f.name).join("\n"),"1");
+  if(chosen===null)return;
+  const idx=Number(chosen)-1;if(!Number.isInteger(idx)||!matches[idx])throw Error("Ingrediente inválido.");
+  const gramsText=prompt("Cantidad de "+matches[idx].name+" en gramos o mililitros (según ficha):","100");
+  if(gramsText===null)return;
+  const grams=Number(gramsText.replace(",","."));if(!Number.isFinite(grams)||grams<=0||grams>5000)throw Error("Cantidad inválida.");
+  ingredients.push({foodId:matches[idx].id,grams});
+ }
+ if(!ingredients.length)return;
+ const portionsText=prompt("¿Cuántas porciones rinde la receta?","1");if(portionsText===null)return;
+ const portions=Number(portionsText);if(!Number.isInteger(portions)||portions<1||portions>50)throw Error("Cantidad de porciones inválida.");
+ const totals={k:0,p:0,c:0,f:0,fi:0};
+ for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
+ const recipe={name:name.trim(),ingredients,portions,totals};
+ const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
+ saved.push(recipe);localStorage.setItem(recipeStoreKey(),JSON.stringify(saved));
+ notify("Receta guardada: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+}
+async function registerPersonalRecipe(){
+ const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
+ const choice=prompt("Elegí la receta a registrar:\n"+saved.map((r,i)=>(i+1)+". "+r.name+" · "+num(r.totals.k/r.portions)+" kcal/porción").join("\n"),"1");
+ if(choice===null)return;const selected=saved[Number(choice)-1];if(!selected)throw Error("Número de receta inválido.");
+ const meal=prompt("Elegí la comida:\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"5");
+ if(meal===null)return;const slot=mealSlots[Number(meal)-1]?.[0];if(!slot)throw Error("Comida inválida.");
+ const qtyText=prompt("¿Cuántas porciones comiste?","1");if(qtyText===null)return;
+ const qty=Number(qtyText.replace(",","."));if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Número de porciones inválido.");
+ const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+ for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
+ const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;await saveDiary();notify("Receta registrada y macros recalculados.");
+}
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
@@ -510,7 +554,7 @@ function unauthorized(msg){
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
- const motivation=motivationOfTheDay();
+ const motivation=motivationOfTheDay();\n const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en este dispositivo</small></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -1464,7 +1508,7 @@ if(el.dataset.foodbulk){
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.act==="copyWeeklyDraft"){const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;const week=report.days.filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);const avg=k=>week.reduce((t,d)=>t+Number(d[k]||0),0)/Math.max(1,week.length);const lines=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Días con registros: "+week.length+"/7","Proteína media: "+num(avg("p"),1)+" g","Energía media: "+num(avg("k"))+" kcal","Los días sin registros no se interpretan como cero."];await navigator.clipboard.writeText(lines.join("\\n"));notify("Borrador copiado para revisión del coach.");return;}
- if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
+ if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}\n if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}\n if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";state.plannerDraftGrams={};return render();}

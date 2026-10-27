@@ -27,3 +27,5 @@
 
 /* Individual avatar, ready for future profile picture support */
 .coach-roster-person{display:flex;align-items:center;gap:11px;min-width:0}.coach-roster-person>div{min-width:0;overflow-wrap:anywhere}.coach-roster-avatar{width:46px;height:46px;flex:0 0 46px;border-radius:15px;background:linear-gradient(135deg,#d7f1e6,#e1eafa);display:grid;place-items:center;color:#225e64;font-size:1rem;font-weight:800;letter-spacing:.04em}.coach-roster-person strong,.coach-roster-person small{display:block}
+
+.coach-roster-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.coach-roster-heading h2{margin:3px 0}.coach-roster-heading .pilot-hint{max-width:400px}.coach-roster-total{border-radius:999px;background:#e4f4ed;color:#215d55;padding:8px 11px;font-size:.8rem;font-weight:700;white-space:nowrap}.coach-roster-person .coach-roster-avatar{overflow:hidden}

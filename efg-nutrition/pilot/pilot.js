@@ -5,6 +5,7 @@ import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=2026
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
+import {fitRecipeIllustration} from "./fit-recipe-illustrations.js?v=20261027-art1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -641,7 +642,7 @@ function studentMoreView(){
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
- return '<article class="efg-fit-card"><div class="efg-fit-card-top"><span class="efg-fit-emoji" aria-hidden="true">'+recipe.emoji+'</span><div><span class="efg-fit-tag">'+escapeHTML(recipe.tag)+' · '+recipe.time+' min</span><h3>'+escapeHTML(recipe.name)+'</h3><p>'+num(p.k)+' kcal · P '+num(p.p,1)+' g · HC '+num(p.c,1)+' g · G '+num(p.f,1)+' g <span class="efg-fit-muted">por porción</span></p></div></div>'+
+ return '<article class="efg-fit-card"><div class="efg-fit-art" role="img" aria-label="Ilustración del plato terminado: '+escapeHTML(recipe.name)+'">'+fitRecipeIllustration(recipe.id)+'</div><div class="efg-fit-card-top"><div><span class="efg-fit-tag">'+escapeHTML(recipe.tag)+' · '+recipe.time+' min</span><h3>'+escapeHTML(recipe.name)+'</h3><p>'+num(p.k)+' kcal · P '+num(p.p,1)+' g · HC '+num(p.c,1)+' g · G '+num(p.f,1)+' g <span class="efg-fit-muted">por porción</span></p></div></div>'+
  '<details class="efg-fit-detail"><summary>Ingredientes y preparación</summary><div class="efg-fit-inner"><strong>Ingredientes para '+recipe.portions+' porciones</strong><ul>'+data.details.map(x=>'<li>'+num(x.grams)+' g · '+escapeHTML(x.name)+'</li>').join("")+'</ul>'+(recipe.extras?'<p>'+escapeHTML(recipe.extras)+'</p>':'')+'<strong>Preparación</strong><ol>'+recipe.steps.map(step=>'<li>'+escapeHTML(step)+'</li>').join("")+'</ol><small>Valores orientativos calculados a partir del catálogo. El rendimiento, las marcas y la cocción pueden modificarlos.</small></div></details>'+
  '<button type="button" class="btn small efg-fit-register" data-fitrecipe="'+recipe.id+'">+ Registrar porción</button></article>';
 }

@@ -296,7 +296,7 @@ async function saveDayComment(){
  await saveDiary();notify("Comentario guardado para el informe de tu coach.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -331,6 +331,42 @@ function frame(content){
  menu.map(m=>'<button class="navitem '+(state.tab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+}
+// Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
+function welcomeView(){
+ const disabled=state.welcomeSubmitting?'disabled aria-busy="true"':'';
+ root.innerHTML='<div class="efg-onboard" role="main" aria-labelledby="efg-onboard-heading">'+
+  '<section class="efg-onboard-sheet">'+
+   '<header class="efg-onboard-brand"><span class="efg-onboard-leaf" aria-hidden="true">🌿</span>'+
+    '<strong>EFG</strong><small>NUTRITION PRO</small></header>'+
+   '<div class="efg-onboard-photo" role="img" aria-label="Bol de vegetales frescos, palta, tomate, zanahoria, hojas verdes y cereales"></div>'+
+   '<div class="efg-onboard-copy">'+
+    '<h1 id="efg-onboard-heading">Hoy comienza una <em>nueva forma de cuidarte.</em></h1>'+
+    '<p>Cada buena elección cuenta. Descubrí una alimentación que se adapte a vos, a tus objetivos y a tu vida.</p>'+
+    '<button type="button" class="efg-onboard-cta" data-act="completeWelcome" '+disabled+'>'+
+    (state.welcomeSubmitting?'Guardando tu bienvenida…':'Comenzar mi cambio <span aria-hidden="true">›</span>')+
+    '</button>'+
+    '<p class="efg-onboard-motto">Una alimentación consciente.<br><b>Un hábito a la vez.</b></p>'+
+   '</div>'+
+  '</section></div>';
+}
+async function loadWelcomeStatus(){
+ state.welcomePending=false;
+ if(state.profile?.role!=="student"||!state.profile?.active)return;
+ const {data,error}=await sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle();
+ // Un error de red o configuración nunca impide consultar los diarios privados.
+ if(error){console.warn("No se pudo comprobar la bienvenida:",error.message);return;}
+ state.welcomePending=!data;
+}
+async function completeWelcome(){
+ if(!state.welcomePending||state.welcomeSubmitting||state.profile?.role!=="student")return;
+ state.welcomeSubmitting=true;welcomeView();
+ try{
+  const {error}=await sb.from("efg_student_onboarding").upsert({user_id:state.session.user.id},{onConflict:"user_id",ignoreDuplicates:true});
+  if(error)throw error;
+  state.welcomePending=false;
+  await render();
+ }finally{state.welcomeSubmitting=false;}
 }
 function loginView(message=""){
  const verification=!!state.otpEmail;
@@ -871,6 +907,7 @@ function paymentsView(){
 }
 async function render(){
  if(!state.profile)return loginView();
+ if(state.welcomePending)return welcomeView();
  await ensureCurrentDay();
  state.renderedDay=today();
  let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
@@ -1047,6 +1084,7 @@ async function refresh(){
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await loadRoleData();
+  await loadWelcomeStatus();
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
  finally{state.loading=false;}
@@ -1191,7 +1229,8 @@ if(el.dataset.foodbulk){
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
  if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;return loginView();}
+ if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;return loginView();}
+ if(action==="completeWelcome")return completeWelcome();
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();

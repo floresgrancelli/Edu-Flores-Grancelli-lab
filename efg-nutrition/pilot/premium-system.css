@@ -170,3 +170,17 @@
 .efg-consent-reminder .btn{flex-shrink:0}
 @media(max-width:720px){.efg-quick-add>summary{font-size:14px;min-height:58px;padding:13px}.efg-quick-add-grid{padding:0 11px 13px;gap:8px}.efg-consent-reminder .btn{min-height:44px}}
 @media(max-width:350px){.efg-quick-add-grid{grid-template-columns:1fr}}
+
+/* Coach profile: show the summary first, details on demand */
+.coach-profile-tabs{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 1px 11px;margin:16px 0 5px}
+.coach-profile-tabs button{flex:0 0 auto;min-height:45px;border:1px solid #dcebe5;border-radius:14px;background:#edf6f1;color:#216f63;padding:10px 14px;white-space:nowrap;font:inherit;font-size:13px;font-weight:750;cursor:pointer;touch-action:manipulation}
+.coach-profile-tabs button:nth-child(2){background:#edf0ff;border-color:#e2e6f5;color:#5369a3}
+.coach-profile-tabs button:nth-child(3){background:#fff1df;border-color:#f6e7d0;color:#8e6a37}
+.coach-profile-accordion{margin:14px 0;border:1px solid #e1eae8;border-radius:18px;background:#fff;padding:0 14px 14px;scroll-margin-top:22px}
+.coach-profile-accordion:not([open]){padding-bottom:0}
+.coach-profile-accordion>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:61px;line-height:1.4;font-size:15px;font-weight:800;color:#234555}
+.coach-profile-accordion>summary::-webkit-details-marker{display:none}
+.coach-profile-accordion>summary:after{content:"⌄";font-size:20px;color:#79918b;margin-left:auto}
+.coach-profile-accordion[open]>summary:after{transform:rotate(180deg)}
+.coach-profile-accordion h3{margin-top:15px}
+@media(max-width:720px){.coach-profile-accordion{padding-left:11px;padding-right:11px}.coach-profile-tabs button{font-size:12px;padding:10px 11px}}

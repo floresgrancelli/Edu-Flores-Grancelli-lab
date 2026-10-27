@@ -90,9 +90,11 @@ try{
    await render();
   },role);
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore"]:role==="coach"?["coach","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore"];
   for(const dest of destinations){
-   await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
+   if(dest==="recipes")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="recipes";await v.render();});
+   else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
+   if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",sender_id:"demo-student-a",recipient_id:"demo-coach",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
@@ -106,6 +108,18 @@ try{
    pageReport.pages.push({dest,...metrics});
    if(metrics.documentWidth>width+2)pageReport.errors.push(dest+": horizontal overflow "+metrics.documentWidth+"/"+width);
    if(metrics.nav.some(x=>x.height<44))pageReport.errors.push(dest+": short nav touch target");
+   if(role==="student"&&dest==="recipes"){
+     if((await page.locator(".efg-fit-card").count())!==12)pageReport.errors.push("Fit recipe library should show 12 cards");
+     if(!(await page.getByText("Budín de avena y manzana de Edu",{exact:true}).count()))pageReport.errors.push("Edu budin missing");
+     await page.locator('[data-fitfilter="Almuerzos y cenas"]').click();
+     if((await page.locator(".efg-fit-card").count())!==6)pageReport.errors.push("Fit category filter did not narrow to six meals");
+     await page.locator('[data-fitfilter="all"]').click();
+   }
+   if(role==="coach"&&dest==="payments"){
+     if(!(await page.locator("#coachAlias").count()))pageReport.errors.push("Coach alias editor missing in payments");
+     if(!(await page.getByText("Comprobantes de mis alumnos",{exact:true}).count()))pageReport.errors.push("Coach receipts inbox missing");
+     if(!(await page.getByText("Alex Gómez",{exact:false}).count()))pageReport.errors.push("Sender name missing in coach inbox");
+   }
    if(role==="student"&&dest==="weight"){
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){
        if(!(await page.getByText(heading,{exact:true}).count()))pageReport.errors.push("Missing chart "+heading);

@@ -404,3 +404,61 @@
  .efg-consistency-columns{gap:5px}
  .nutrition-daily-report .efg-report-refresh{min-width:120px;min-height:44px}
 }
+
+
+/* Premium 3.4 — curated Fit recipe library and payment workflow */
+.efg-fit-library{margin:0 0 24px}
+.efg-fit-intro,.efg-own-recipes-header{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+.efg-fit-intro h2,.efg-own-recipes-header h2{font-size:25px;color:#23454b;letter-spacing:-.04em;margin:4px 0 7px}
+.efg-fit-intro p{font-size:13px;line-height:1.5;color:#748b89;max-width:590px;margin:0}
+.efg-fit-count{padding:9px 13px;background:#eaf5ef;border-radius:12px;font-size:12px;font-weight:800;color:#23836d;white-space:nowrap}
+.efg-fit-filter{display:flex;gap:7px;flex-wrap:wrap;margin:15px 0}
+.efg-fit-filter button{border:1px solid #dfece6;background:#fff;border-radius:99px;color:#557772;padding:10px 16px;min-height:44px;cursor:pointer;font-size:12px;font-weight:750}
+.efg-fit-filter button.active{background:#1c8b79;color:white;border-color:#1c8b79}
+.efg-fit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.efg-fit-card{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid #e2ece7;border-radius:23px;background:#fff;box-shadow:0 6px 22px #18453b0c;min-width:0}
+.efg-fit-card-top{display:flex;align-items:flex-start;gap:13px}
+.efg-fit-emoji{width:51px;height:51px;flex:0 0 51px;display:grid;place-items:center;background:#eaf6f0;border-radius:17px;font-size:27px}
+.efg-fit-tag{font-size:10px;color:#17846e;font-weight:850;letter-spacing:.04em;text-transform:uppercase}
+.efg-fit-card h3{font-size:17px;line-height:1.25;letter-spacing:-.02em;color:#23434b;margin:5px 0 8px}
+.efg-fit-card-top p{font-size:12px;line-height:1.5;color:#416d66;margin:0;font-weight:750}
+.efg-fit-muted{color:#81938d;font-weight:400}
+.efg-fit-detail{border-top:1px solid #edf3ef;padding-top:11px}
+.efg-fit-detail summary{cursor:pointer;font-size:12px;font-weight:800;color:#2a8575;min-height:30px}
+.efg-fit-inner{padding:8px 2px;color:#506f6b;font-size:12px;line-height:1.65}
+.efg-fit-inner strong{color:#31554e}
+.efg-fit-inner ul,.efg-fit-inner ol{padding-left:19px;margin:6px 0 13px}
+.efg-fit-inner p,.efg-fit-inner small{color:#78928b}
+.efg-fit-register{align-self:flex-start;margin-top:auto}
+.efg-fit-disclaimer{font-size:11px;color:#7b918b;line-height:1.6;margin:16px 0}
+.efg-own-recipes-header{margin-bottom:12px}
+.efg-own-recipes-header .efg-actions{display:flex;flex-wrap:wrap;gap:8px}
+.efg-payment-alias{margin-bottom:17px}
+.efg-payment-alias h2{font-size:21px;color:#26484b;margin:7px 0}
+.efg-alias-form{display:flex;align-items:end;gap:12px;margin:16px 0 10px;flex-wrap:wrap}
+.efg-alias-form .field{flex:1;min-width:220px}
+.efg-alias-form button{min-height:44px}
+.efg-payment-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.efg-payment-summary>div{padding:17px;border:1px solid #dfece6;border-radius:18px;background:#f7fbf8;display:flex;flex-direction:column;gap:4px}
+.efg-payment-summary strong{font-size:28px;color:#1d826e;letter-spacing:-.05em}
+.efg-payment-summary span{font-size:12px;color:#65837b}
+.efg-payment-inbox{margin:18px 0}
+.efg-payment-inbox .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.efg-payment-item{border-radius:14px;padding:13px;margin:9px 0}
+.efg-payment-new{border:1px solid #b6dfd2;background:#f1faf6}
+.efg-payment-target{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin:16px 0}
+.efg-payment-target strong{overflow-wrap:anywhere}
+.efg-payment-target small{flex-basis:100%}
+@media(max-width:700px){
+ .efg-fit-grid{grid-template-columns:minmax(0,1fr)}
+ .efg-fit-card{padding:17px;border-radius:20px}
+ .efg-fit-intro h2{font-size:23px}
+ .efg-fit-count{font-size:11px}
+ .efg-payment-summary{gap:7px}
+ .efg-payment-summary>div{padding:11px 9px;border-radius:14px}
+ .efg-payment-summary strong{font-size:24px}
+ .efg-payment-summary span{font-size:10px}
+ .efg-payment-inbox{padding:15px}
+ .efg-alias-form{display:block}
+ .efg-alias-form button{width:100%;margin-top:10px}
+}

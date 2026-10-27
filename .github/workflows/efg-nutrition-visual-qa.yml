@@ -2,7 +2,7 @@ name: EFG Nutrition Visual QA (isolated fixture)
 
 on:
   push:
-    branches: [efg-premium-redesign-dev]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
@@ -27,6 +27,7 @@ jobs:
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/premium-progress-charts.mjs
+          node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: Preserve screenshots and machine-readable layout report
         if: always()

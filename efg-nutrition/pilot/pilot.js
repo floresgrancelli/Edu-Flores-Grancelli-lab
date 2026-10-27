@@ -493,6 +493,26 @@ async function registerPersonalRecipe(){
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
+function efgNavIcon(tab){
+ const p={
+ home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+ planner:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18m-12 5h6m-3-3v6"/>',
+ weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
+ studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
+ coach:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 15l3-3 3 2 4-5M7 18h10"/>',
+ coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
+ reports:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ payments:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h5"/>',
+ admin:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h3v3H8zm5 0h3v3h-3zM8 14h3v3H8zm5 0h3v3h-3z"/>',
+ testCoach:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
+ adminMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>'
+ };
+ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(p[tab]||p.home)+'</svg>';
+}
+function efgAvatarLetters(name){
+ const w=String(name||"").trim().split(/\s+/).filter(Boolean);
+ return (w.length>1?w.slice(0,2).map(x=>x.slice(0,1)).join(""):(w[0]||"EF").slice(0,2)).toLocaleUpperCase("es-AR");
+}
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
@@ -503,9 +523,9 @@ function frame(content){
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
+ menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
- '<main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ '<header class="efg-mobile-header"><div class="efg-mobile-brand"><span class="efg-mobile-monogram" aria-hidden="true">E<span>+</span></span><span class="efg-mobile-brand-text"><strong>EFG Nutrition</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -655,7 +675,7 @@ function homeView(){
    return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span>'+portion+' · '+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
-  return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></summary><div class="student-meal-details">'+
+  return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
   detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button>'+(getHabitual(key)?'<button class="btn small light" data-habitualuse="'+key+'">↻ Repetir habitual</button>':'')+'</div></div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
@@ -671,7 +691,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
   return rootText("Mi alimentación","Tus registros se guardan en tu cuenta privada. Solo vos y, si lo autorizás, tu coach podrán consultarlos.")+
  '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>'+escapeHTML(motivation.title)+'</h1><p>'+escapeHTML(motivation.subtitle)+'</p><div class="pilot-toolbar" style="margin-top:15px">'+'<button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button><span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
- '<section class="student-daily-focus"><div class="student-focus-top"><span>RESUMEN NUTRICIONAL DE HOY</span><span>'+today().split("-").reverse().join("/")+'</span></div><div class="student-focus-grid"><div><strong>'+num(tot.k)+' kcal</strong><small>Registradas'+(goal?' de '+num(goal.k)+' kcal':' · sin meta aprobada')+'</small></div><div><strong>'+num(tot.p,1)+' g</strong><small>Proteínas registradas</small></div></div>'+(goal&&goal.k>0?'<div class="student-energy-track" role="progressbar" aria-label="Calorías registradas sobre objetivo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,Math.round(tot.k/goal.k*100))+'"><span style="width:'+Math.min(100,Math.max(0,tot.k/goal.k*100))+'%"></span></div><p class="pilot-hint">Este porcentaje representa calorías registradas, no la calidad de la alimentación.</p>':'<p class="pilot-hint">Tu coach debe aprobar una meta antes de mostrar porcentajes de avance.</p>')+'</section>'+ (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button data-tab="home">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+ '<div class="pilot-kpis efg-student-macros">'+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
+ '<section class="student-daily-focus"><div class="student-focus-top"><span>RESUMEN NUTRICIONAL DE HOY</span><span>'+today().split("-").reverse().join("/")+'</span></div><div class="student-focus-grid"><div><strong>'+num(tot.k)+' kcal</strong><small>Registradas'+(goal?' de '+num(goal.k)+' kcal':' · sin meta aprobada')+'</small></div><div><strong>'+num(tot.p,1)+' g</strong><small>Proteínas registradas</small></div></div>'+(goal&&goal.k>0?'<div class="student-energy-track" role="progressbar" aria-label="Calorías registradas sobre objetivo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,Math.round(tot.k/goal.k*100))+'"><span style="width:'+Math.min(100,Math.max(0,tot.k/goal.k*100))+'%"></span></div><p class="pilot-hint">Este porcentaje representa calorías registradas, no la calidad de la alimentación.</p>':'<p class="pilot-hint">Tu coach debe aprobar una meta antes de mostrar porcentajes de avance.</p>')+'</section>'+ (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+ '<div class="pilot-kpis efg-student-macros">'+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
  '<details class="efg-quick-add"><summary>＋ Registrar alimento <span>Elegí la comida</span></summary><div class="efg-quick-add-grid">'+mealSlots.map(([key,title,emoji])=>'<button type="button" data-setmeal="'+escapeHTML(key)+'">'+emoji+' '+escapeHTML(title)+'</button>').join("")+'</div></details>'+'<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div><div id="mealDialogContainer"></div>'+goalForm;
 }
 
@@ -1621,6 +1641,7 @@ async function showProof(path){
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
+ if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
   state.tab=el.dataset.tab;
   if(state.tab==="reports"&&!state.selectedStudent){

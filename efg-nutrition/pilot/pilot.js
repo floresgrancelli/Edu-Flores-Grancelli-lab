@@ -81,6 +81,39 @@ function setBudinNutrition(){
  BUDIN_RECIPE.total=total;
 }
 setBudinNutrition();
+const FRUIT_SALAD_RECIPE={
+ id:"fruit_salad_basic",portionGrams:200,
+ ingredients:[
+  {label:"Manzana con cáscara",foodId:"apple",grams:50},
+  {label:"Banana sin cáscara",foodId:"banana",grams:50},
+  {label:"Naranja sin cáscara",foodId:"orange",grams:50},
+  {label:"Mandarina sin cáscara",foodId:"mandarin",grams:50}
+ ]
+};
+function setFruitSaladNutrition(){
+ const salad=foods.find(f=>f.id===FRUIT_SALAD_RECIPE.id);
+ if(!salad)throw new Error("Falta la ensalada de frutas en el catálogo.");
+ const total={k:0,p:0,c:0,f:0,fi:0};
+ for(const ingredient of FRUIT_SALAD_RECIPE.ingredients){
+  const food=foods.find(f=>f.id===ingredient.foodId);
+  if(!food)throw new Error("Falta fruta en la ensalada: "+ingredient.foodId);
+  for(const key of Object.keys(total))total[key]+=Number(food[key]||0)*ingredient.grams;
+ }
+ for(const key of Object.keys(total))salad[key]=total[key]/FRUIT_SALAD_RECIPE.portionGrams;
+ salad.source="Receta estimada: 50 g de manzana, banana, naranja y mandarina (total 200 g de fruta comestible), sin azúcar, jugo, miel ni almíbar añadidos. La mezcla real puede variar; anotá cualquier agregado por separado.";
+ salad.sourceType="recipe_estimate";
+ salad.validationStatus="receta_estimado";
+ FRUIT_SALAD_RECIPE.total=total;
+}
+setFruitSaladNutrition();
+function fruitSaladRecipeHTML(){
+ const salad=foods.find(f=>f.id===FRUIT_SALAD_RECIPE.id),portion=FRUIT_SALAD_RECIPE.portionGrams;
+ return '<details class="budin-recipe" open><summary>🍎 Mezcla orientativa · ensalada de frutas</summary>'+
+ '<p><b>Bol de referencia: 200 g</b> de fruta comestible, sin agregados.</p><ul>'+
+ FRUIT_SALAD_RECIPE.ingredients.map(i=>'<li>'+escapeHTML(i.label)+': '+num(i.grams)+' g</li>').join("")+
+ '</ul><p>Por bol: <b>'+num(salad.k*portion)+' kcal</b> · P '+num(salad.p*portion,1)+' g · HC '+num(salad.c*portion,1)+' g · G '+num(salad.f*portion,1)+' g.</p>'+
+ '<small>Podés registrar 1 bol (200 g) o elegir «Peso» y cargar lo realmente consumido. Si la mezcla es diferente, los valores son aproximados. Azúcar, miel, almíbar, jugo o yogur se registran por separado.</small></details>';
+}
 const foodAllowedForMeal=(food,meal)=>food?.id!=="cake" || BUDIN_RECIPE.allowedMeals.includes(meal);
 function budinRecipeHTML(){
  const cake=foods.find(f=>f.id==="cake"),portion=BUDIN_RECIPE.portionGrams;
@@ -96,7 +129,7 @@ function updateMealRecipe(){
  const holder=document.getElementById("mealRecipeDetail");
  if(!holder)return;
  const choice=document.getElementById("mealEditorFood")?.value;
- holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():"";
+ holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():choice==="fruit_salad_basic"?fruitSaladRecipeHTML():"";
 }
 const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
 const MILK_BEVERAGES={coffee_milk:125,coffee_cortado:30,tea_milk:80,mate_cocido_milk:125};

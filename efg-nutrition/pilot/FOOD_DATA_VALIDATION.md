@@ -184,3 +184,12 @@ El editor ahora declara el **origen/limitación del alimento junto a sus macros*
 5. Licenciamiento: FoodData Central CC0 (https://fdc.nal.usda.gov/), pero ARGENFOODS/LATINFOODS exige consulta previa a coordinadores para cualquier fin comercial (https://latinfoodsportal.net/paises/main.php?sg2=ar&sg3=arg); **no copiar** a EFG Nutrition sin permiso.
 
 **Estado:** auditoría estructural y de procedencia del catálogo completo realizada; **validación científica individual de las 345 estimaciones genéricas aún no completada**. Evitar usar las expresiones «todos los alimentos validados» o «precisión garantizada».
+
+
+## Alta de ensalada de frutas (26/10/2026)
+
+La biblioteca amplía de **370 a 371 fichas**. Se incorporó `fruit_salad_basic` (Ensalada de frutas casera, sin azúcar añadida), clasificada **receta estimada**. Referencia explícita: 50 g de manzana con cáscara, 50 g de banana sin cáscara, 50 g de naranja y 50 g de mandarina; 200 g comestibles en total. Se recalculan los nutrientes desde las fichas individuales al iniciar la aplicación, por lo que los ajustes futuros de cada fruta se trasladan a la mezcla.
+
+**Una porción de 200 g** aporta actualmente ≈**122,85 kcal; P 1,525 g; HC 30,875 g; G 0,45 g; fibra 4,6 g**. El usuario puede registrar un bol de 200 g o el peso real; la mezcla, el azúcar, jugo, miel o almíbar agregados cambian las calorías y deben registrarse separadamente. El ingrediente naranja aún proviene de una composición **genérica** del catálogo: no declarar esta receta validada mediante análisis. La fuente es la **receta modelo** y los registros individuales de fruta de EFG.
+
+El CSV de auditoría se actualizó para **371 alimentos**; la nueva entrada se marca `RECETA_ESTIMADA`. Las pruebas de catálogo y planificador incluyen ahora esta ficha. Sigue abierta la validación científica individual del conjunto de promedios sin tabla trazable y el cotejo final con datos USDA oficiales.

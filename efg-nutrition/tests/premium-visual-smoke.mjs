@@ -62,6 +62,15 @@ try{
      almuerzo:[{id:"chicken",name:"Pechuga de pollo",qty:180,unit:"g",k:297,p:55,c:0,f:6,fi:0}],
      media_tarde:[],merienda:[],cena:[]},sports:[],skipped:{},totals:{}};
    state.goals=[{kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28}];
+   const demoLogs=Array.from({length:7},(_,i)=>{
+     const dt=new Date(day+"T12:00:00Z");dt.setUTCDate(dt.getUTCDate()-i);
+     return {log_day:dt.toISOString().slice(0,10),meals:{
+       desayuno:[{k:330,p:23,c:32,f:12,fi:3}],media_manana:[],almuerzo:[{k:670,p:48,c:75,f:18,fi:7}],
+       media_tarde:[],merienda:[{k:220,p:18,c:22,f:7,fi:2}],cena:[{k:520,p:42,c:55,f:15,fi:6}]},sports:[],skipped:{}};
+   });
+   state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
+   state.coachGoals=state.goals;
+
    state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
    state.consent={accepted:true};
    state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS"};
@@ -97,6 +106,16 @@ try{
    pageReport.pages.push({dest,...metrics});
    if(metrics.documentWidth>width+2)pageReport.errors.push(dest+": horizontal overflow "+metrics.documentWidth+"/"+width);
    if(metrics.nav.some(x=>x.height<44))pageReport.errors.push(dest+": short nav touch target");
+   if(role==="student"&&dest==="weight"){
+     for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){
+       if(!(await page.getByText(heading,{exact:true}).count()))pageReport.errors.push("Missing chart "+heading);
+     }
+     await page.locator('[data-progress-range="30"]').click();
+     if((await page.locator('[data-progress-range="30"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("30-day filter not activated");
+     await page.locator('[data-progress-range="90"]').click();
+     if((await page.locator('[data-progress-range="90"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("90-day filter not activated");
+     await page.locator('[data-progress-range="7"]').click();
+   }
    if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);

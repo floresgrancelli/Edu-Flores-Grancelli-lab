@@ -1012,6 +1012,26 @@ function coachTrendChart(days,key,label,unit,goalValue=null){
  (validGoal?(showGoal?' Línea punteada: objetivo '+num(goal,key==="k"?0:1)+' '+unit+'.':' Objetivo: '+num(goal,key==="k"?0:1)+' '+unit+' (fuera de la escala).'):'')+
  ' Escala ajustada para ver cambios pequeños; no se unen días faltantes.</p></div>';
 }
+function weeklyCoachDraft(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!week.length)return '<section class="card"><h2>🌱 Resumen semanal para el alumno</h2><p class="pilot-hint">Todavía no hay registros alimentarios en los últimos 7 días. No generamos conclusiones a partir de datos ausentes.</p></section>';
+ const mean=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
+ const goal=state.coachGoals[0]||null;
+ const proteins=goal?.protein_g>0?Math.round(mean("p")/goal.protein_g*100):null;
+ const kcal=goal?.kcal>0?Math.round(mean("k")/goal.kcal*100):null;
+ const weights=(state.coachWeights||[]).filter(w=>Number.isFinite(Number(w.kg))&&Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
+ const delta=weights.length>=2?Number(weights[0].kg)-Number(weights[1].kg):null;
+ const observations=[];
+ observations.push("Registraste alimentación "+week.length+" de los últimos 7 días. Los días sin datos no se contabilizan como ingesta cero.");
+ if(proteins!==null)observations.push("Tu promedio de proteína representa aproximadamente "+proteins+"% del objetivo actual. "+(proteins<90?"Podrías revisar con tu entrenador qué comidas permiten distribuir mejor las proteínas.":"Mantené la distribución de proteínas que te resulte sostenible."));
+ if(kcal!==null)observations.push("El promedio calórico de los días registrados equivale a "+kcal+"% del objetivo actual. Una diferencia no prueba por sí sola un problema de adherencia.");
+ if(delta!==null)observations.push("Entre los dos últimos pesajes disponibles hubo una variación de "+(delta>0?"+":"")+num(delta,2)+" kg. Es necesario evaluar más mediciones y condiciones comparables antes de interpretar la tendencia.");
+ else observations.push("Faltan al menos dos pesajes para comparar cambios de peso.");
+ const draft="Resumen semanal EFG Nutrition Pro\\n"+observations.join("\\n")+"\\nSiguiente paso: elegí junto a tu entrenador uno o dos hábitos concretos para trabajar esta semana.";
+ return '<section class="card"><h2>🌱 Borrador de resumen semanal</h2><p class="pilot-hint">Preparado a partir de datos registrados. Todavía no utiliza IA generativa ni se envía automáticamente; el coach debe revisar cada conclusión.</p><div class="nutrition-report-kpis"><div><small>Días con registros (7 días)</small><strong>'+week.length+'/7</strong></div><div><small>Proteína media</small><strong>'+num(mean("p"),1)+' g</strong></div><div><small>Energía media registrada</small><strong>'+num(mean("k"))+' kcal</strong></div></div><div class="pilot-notice">'+observations.map(t=>'<p>'+escapeHTML(t)+'</p>').join("")+'</div><button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar borrador para revisar</button></section>';
+}
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
  const roster=(state.roster||[]).filter(p=>p.active);
@@ -1027,6 +1047,7 @@ function coachReportsView(){
  out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
  (prev?.comment?'<div class="coach-comment-detail"><strong>📝 Comentario del alumno de ayer</strong><p>'+escapeHTML(prev.comment)+'</p></div>':'')+
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
+ out+=weeklyCoachDraft();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
@@ -1414,6 +1435,7 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.act==="copyWeeklyDraft"){const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;const week=report.days.filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);const avg=k=>week.reduce((t,d)=>t+Number(d[k]||0),0)/Math.max(1,week.length);const lines=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Días con registros: "+week.length+"/7","Proteína media: "+num(avg("p"),1)+" g","Energía media: "+num(avg("k"))+" kcal","Los días sin registros no se interpretan como cero."];await navigator.clipboard.writeText(lines.join("\\n"));notify("Borrador copiado para revisión del coach.");return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}

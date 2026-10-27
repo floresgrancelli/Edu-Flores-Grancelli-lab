@@ -1088,7 +1088,7 @@ function macroPlayground(){
  }
  return '<section class="card" style="margin-bottom:18px"><div class="section-head"><h2>📐 Calculadora de macros</h2><span class="pilot-pill">Tres objetivos</span></div><p class="pilot-hint">Probala incluso sin alumnos. Compará descenso de grasa, recomposición y aumento muscular. Para asignar un plan real, primero abrí la ficha de un alumno que haya autorizado el seguimiento.</p>'+form+cards+'</section>';
 }
-function coachPreferredNames(){try{return JSON.parse(localStorage.getItem("efg-coach-names-"+state.user.id)||"{}")}catch{return {}}}
+function coachPreferredNames(){try{return JSON.parse(localStorage.getItem("efg-coach-names-"+state.session?.user?.id||"local")||"{}")}catch{return {}}}
 function coachDisplayName(p){return coachPreferredNames()[p.user_id]||p.nickname||"Alumno"}
 function coachAvatarLetters(p){return String(coachDisplayName(p)).trim().split(/\s+/).slice(0,2).map(w=>w.charAt(0)).join("").toUpperCase()||"?"}
 function coachView(){
@@ -1593,7 +1593,7 @@ if(el.dataset.reportstudent){
  state.reportDate=null;await loadStudentDetail(p.user_id);await render();
  document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;
 }
-if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+state.user.id,JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
+if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+state.session?.user?.id||"local",JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
 if(el.dataset.student){
  state.reportDate=null;
  await loadStudentDetail(el.dataset.student);

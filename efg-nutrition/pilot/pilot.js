@@ -349,6 +349,10 @@ async function loadCloudHabituales(){
    if(created.error)throw created.error;
    remote.push(created.data);cloudHabituales.push(created.data);
   }
+  // Respaldo local ya importado: evita que una comida eliminada reaparezca.
+  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
+   localStorage.removeItem(habitualListKey(slot));localStorage.removeItem(habitualKey(slot));
+  }
  }
 }
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
@@ -410,6 +414,8 @@ async function loadCloudRecipes(){
   if(created.error)throw created.error;
   cloudRecipes.push(created.data);
  }
+ // Al completar la importación, retirar el respaldo local para no recrear recetas eliminadas.
+ if(Array.isArray(saved)&&saved.length)localStorage.removeItem(recipeStoreKey());
 }
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");

@@ -501,7 +501,7 @@ function frame(content){
   ?[["coach","⌂","Inicio"],["coachStudents","♧","Alumnos"],["reports","▥","Informes"],["payments","▤","Pagos"]]
   :[["admin","⌂","Inicio"],["home","◷","Mi día"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
- const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments"].includes(state.tab))?"adminMore":state.tab;
+ const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
@@ -642,7 +642,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["admin","⚙️","Centro administrativo","lilac"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Gestionar organizaciones","lilac"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
 }
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
@@ -1351,6 +1351,19 @@ function studentDetailView(p,consent){
  '<p class="pilot-hint">El perfil deportivo es una alternativa, no una garantía de mayor precisión. Revisar el peso y el rendimiento periódicamente antes de modificar el objetivo.</p>'+
  '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></section>';
 }
+
+function adminHomeView(){
+ const orgs=state.orgs||[];
+ return rootText("Hola, "+state.profile.nickname,"Tu centro de control EFG. Todos los espacios, en un único lugar.")+
+ '<section class="efg-admin-banner"><span class="eyebrow">EFG NUTRITION PRO · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
+ '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos habilitados</span></div></div>'+
+ '<section class="efg-menu-grid">'+[
+ ["home","🍽️","Mi alimentación","mint"],["testCoach","👥","Coach de prueba","blue"],
+ ["reports","📈","Informes","peach"],["adminManage","⚙️","Organizaciones","lilac"],
+ ["payments","💳","Pagos y licencias","cream"],["adminMore","☷","Más herramientas","mint"]
+ ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
+ '<section class="card efg-content-card"><h2>Privacidad por diseño</h2><p class="pilot-hint">El administrador gestiona organizaciones y licencias, pero no accede automáticamente a los registros nutricionales privados de todos sus alumnos. Solo el seguimiento autorizado en el espacio de coach habilita la consulta.</p></section>';
+}
 function adminView(){
  const orgs=state.orgs;
  return rootText("Centro de administración","Todos tus espacios de EFG en un solo lugar, respetando los permisos de cada perfil.")+
@@ -1379,7 +1392,7 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  if(state.tab==="planner")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();

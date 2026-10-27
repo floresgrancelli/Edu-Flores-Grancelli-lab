@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
+import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -287,14 +288,12 @@ function readDayComment(){
  if(text.length>1000)throw new Error("El comentario puede tener hasta 1000 caracteres.");
  return text;
 }
-async function saveDayComment(closeAfter=false){
+async function saveDayComment(){
  if(state.profile?.role!=="student")throw new Error("Solo el alumno puede escribir comentarios del día.");
  const d=activeDiary();
  d.skipped=d.skipped||{};
  d.skipped._comment=readDayComment();
- if(closeAfter){if(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length)throw new Error("Registrá primero lo consumido.");
- d.skipped._closed=true;}
- await saveDiary();notify(closeAfter?"Día terminado y comentario guardado.":"Comentario del día guardado para tu informe.");
+ await saveDiary();notify("Comentario guardado para el informe de tu coach.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null};
@@ -341,7 +340,7 @@ function loginView(message=""){
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
   ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
-  :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Una vez que ingreses desde este dispositivo, tu sesión se conservará mientras siga vigente. No es necesario pedir un código cada vez.</div>';
+  :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🥗 ✨</div><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
  form+'<p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
@@ -405,13 +404,11 @@ const cons=state.consent,showConsent=state.profile.role==="student";
 
  '<button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button>'+
  '<small style="display:block;margin-top:9px;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'Solo visible para vos')+'. Informes disponibles en la app del entrenador.'+'</small></section>':'';
- const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentarios al finalizar el día</h3>'+
+ const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentario del día</h3>'+
  '<p class="pilot-hint">¿Tuviste dificultades con una comida, los horarios, el apetito o la saciedad? Podés contárselo a tu coach. Es opcional.</p>'+
  '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
- '<div class="meal-actions"><button type="button" class="btn small light" data-act="saveDayComment">Guardar comentario</button>'+
- '<button type="button" class="btn small" data-act="toggleDayClosed" '+(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length&&!d.skipped?._closed?'disabled':'')+'>'+
- (d.skipped?._closed?'Reabrir registro':'Terminé de registrar mi día')+'</button></div>'+
- '<p class="pilot-hint">'+(d.skipped?._closed?'Día terminado. Si cambiás una comida o suplemento, el informe vuelve a figurar como parcial.':'Al finalizar se guarda también este comentario. Lo verá el coach solamente con tu autorización de seguimiento.')+'</p></div>':'';
+ '<div class="meal-actions"><button type="button" class="btn small light" data-act="saveDayComment">Guardar comentario</button></div>'+
+ '<p class="pilot-hint">El día se cierra automáticamente a las 23:59 (hora de Argentina). Hasta entonces podés registrar y corregir comidas. No hace falta cerrar nada manualmente.</p></div>':'';
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
@@ -937,6 +934,9 @@ function calculateGoal(){
 async function saveDiary(){
  const d=activeDiary();
  if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
+ if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
+ d.skipped=d.skipped||{};
+ d.skipped._closed=false; // El día vigente permanece abierto hasta el horario automático.
  d.totals=dailyTotals(d);d.student_id=state.session.user.id;
  const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:d.student_id,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:d.totals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
  if(error)throw error;
@@ -1181,14 +1181,6 @@ if(el.dataset.foodbulk){
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
- if(action==="toggleDayClosed"){
- if(state.profile.role!=="student")throw new Error("Solo el alumno puede finalizar su registro.");
- const diary=activeDiary();
- if(diary.skipped?._closed){
-  diary.skipped._closed=false;await saveDiary();notify("Registro reabierto para corregir datos.");
- }else return saveDayComment(true);
- return;
-}
  if(action==="refreshCoachReport"){
   if(!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno que haya autorizado el seguimiento.");
   await loadStudentDetail(state.selectedStudent);
@@ -1240,10 +1232,16 @@ if(el.dataset.foodbulk){
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 async function updateAtDayChange(){
- if(!state.profile||!state.session||!state.renderedDay||state.renderedDay===today())return;
- await ensureCurrentDay();
- await render();
- notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
+ if(!state.profile||!state.session||!state.renderedDay)return;
+ if(state.renderedDay!==today()){
+  await ensureCurrentDay();await render();
+  notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
+  return;
+ }
+ if(state.profile.role==="student"&&isNutritionDayClosed(today())&&state.lastAutoCloseNotice!==today()){
+  state.lastAutoCloseNotice=today();
+  await render();notify("El registro de hoy se cerró automáticamente a las 23:59.");
+ }
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});

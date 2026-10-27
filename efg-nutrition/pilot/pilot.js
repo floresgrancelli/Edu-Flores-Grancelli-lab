@@ -327,10 +327,19 @@ const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.go
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
+let cloudHabituales=[];
+async function loadCloudHabituales(){
+ if(state.profile?.role!=="student"){cloudHabituales=[];return;}
+ const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
+ cloudHabituales=data||[];
+}
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
  try{
+  const remote=cloudHabituales.filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
+  if(remote.length)return remote;
   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
   if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
   const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
@@ -349,9 +358,10 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  existing.push({name:clean,items:structuredClone(d.meals[slot])});
-  localStorage.setItem(habitualListKey(slot),JSON.stringify(existing));
-  notify("Guardaste «"+clean+"» en este dispositivo.");return render();
+  const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
+  if(error)throw error;
+  cloudHabituales.push(data);
+  notify("Guardaste «"+clean+"» en tu cuenta.");return render();
  }
  const favorites=getHabitualList(slot);
  if(!favorites.length)throw Error("No hay comidas habituales guardadas.");
@@ -1319,6 +1329,7 @@ async function refresh(){
   state.profile=p.data;
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
+  await loadCloudHabituales();
   await loadRoleData();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
    // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.

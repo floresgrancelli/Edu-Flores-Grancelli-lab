@@ -49,6 +49,7 @@ const NUTRIENTS=["k","p","c","f"];
 const EMPTY={k:0,p:0,c:0,f:0,fi:0};
 function portionMax(food,position){
  const id=food?.id||"",category=food?.category||"";
+ if(id==="milanesa_soy_gobinda")return 250; // Hasta dos unidades de 125 g.
  if(/oil|aceite|butter|manteca/i.test(id)||(/oil|aceite/i.test(food?.name||"")))return 20;
  if(/whey|creatine|protein_powder/i.test(id))return 60;
  if(category==="fat")return 55;
@@ -85,7 +86,8 @@ function optimizePortions(items,target){
    if(!meaningful){amounts[i]=0;continue;}
    let best=portionCost(items,amounts,target),amount=amounts[i];
    const cap=portionMax(food,i);
-   for(let g=0;g<=cap;g+=5){
+   const step=Number(food.servingGrams)>0&&Number(food.servingGrams)<=cap?Number(food.servingGrams):5;
+   for(let g=0;g<=cap;g+=step){
     amounts[i]=g;
     const cost=portionCost(items,amounts,target);
     if(cost<best-1e-8){best=cost;amount=g;}

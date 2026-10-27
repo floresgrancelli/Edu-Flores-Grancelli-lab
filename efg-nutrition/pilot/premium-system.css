@@ -476,3 +476,12 @@
  .efg-fit-art{border-radius:15px}
  .efg-fit-card-top h3{font-size:18px}
 }
+
+/* Real food photography: uniform, responsive 480:250 crops with clear source credit. */
+.efg-fit-art{position:relative;background:linear-gradient(135deg,#e6eee9,#f4f1e7)}
+.efg-fit-photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#e5eee7}
+.efg-fit-photo[hidden],.efg-fit-photo-fallback[hidden]{display:none!important}
+.efg-fit-photo-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-align:center;font-size:13px;padding:16px;color:#48665e}
+.efg-fit-photo-label{position:absolute;top:12px;left:12px;background:#fafff0e8;color:#275347;border-radius:18px;padding:7px 11px;font-weight:800;font-size:10px;line-height:1.1;box-shadow:0 2px 8px #112d2217}
+.efg-fit-photo-credit{position:absolute;bottom:0;left:0;right:0;display:block;max-width:100%;padding:20px 12px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff!important;font-size:10px;font-weight:700;line-height:1.3;text-decoration:none;text-shadow:0 1px 4px #1119;background:linear-gradient(transparent,#11251cc4)}
+.efg-fit-photo-credit:focus-visible{outline:2px solid #fff;outline-offset:-3px}

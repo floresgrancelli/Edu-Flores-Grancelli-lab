@@ -1,22 +1,24 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const source=readFileSync("efg-nutrition/pilot/fit-recipes.js","utf8");
-const artSource=readFileSync("efg-nutrition/pilot/fit-recipe-illustrations.js","utf8");
-const {fitRecipeIllustration}=await import("data:text/javascript;base64,"+Buffer.from(artSource).toString("base64"));
+const photoSource=readFileSync("efg-nutrition/pilot/fit-recipe-photos.js","utf8");
+const {FIT_RECIPE_PHOTOS}=await import("data:text/javascript;base64,"+Buffer.from(photoSource).toString("base64"));
 
 const {FIT_RECIPES,recipeTotals}=await import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
 const catalog=readFileSync("efg-nutrition/pilot/food-catalog.js","utf8");
 const app=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
 const css=readFileSync("efg-nutrition/pilot/premium-system.css","utf8");
 assert.equal(FIT_RECIPES.length,12);
-const illustrations=FIT_RECIPES.map(r=>fitRecipeIllustration(r.id));
-assert.equal(new Set(illustrations).size,12,"Each recipe needs a different finished-dish illustration");
-for(const art of illustrations){
- assert.ok(art.startsWith('<svg')&&art.includes('viewBox="0 0 480 250"'),"Must use responsive SVG");
- assert.ok(art.includes("</svg>")&&!art.includes("<image"),"No external image dependency");
- assert.ok(!art.includes("undefined")&&!art.includes("[object Object]"),"Valid SVG markup");
+const photos=FIT_RECIPES.map(r=>FIT_RECIPE_PHOTOS[r.id]);
+assert.ok(photos.every(Boolean),"Every recipe needs an assigned stock photo");
+assert.equal(new Set(photos.map(p=>p.src)).size,12,"All twelve photographs must differ");
+for(const p of photos){
+ assert.ok(/^https:\/\/images\.(unsplash|pexels)\.com\//.test(p.src),"Approved photo CDN");
+ assert.ok(p.author&&p.provider&&/^https:\/\/(unsplash\.com|www\.pexels\.com)\//.test(p.source),"Attribution is mandatory in EFG");
 }
-assert.ok(app.includes("fitRecipeIllustration(recipe.id)"),"Cards must display finished-dish art");
+assert.ok(app.includes("FIT_RECIPE_PHOTOS[recipe.id]"),"Photographs replace SVG illustrations");
+assert.ok(app.includes("Foto ilustrativa"),"Dish photograph is not claimed to be the exact cooked recipe");
+assert.ok(!app.includes("fitRecipeIllustration(recipe.id)"),"Do not render cartoons");
 
 assert.equal(new Set(FIT_RECIPES.map(x=>x.id)).size,12);
 for(const recipe of FIT_RECIPES){
@@ -46,4 +48,4 @@ assert.ok(app.includes('p.payment_kind==="student_coach"&&p.organization_id===or
 assert.ok(app.includes('p.payer_id===state.session.user.id'),"Payment sender is payer_id, not sender_id");
 assert.ok(!app.includes('p.sender_id'),"Legacy sender_id does not exist in payment schema");
 assert.ok(app.includes('Comprobantes de licencias EFG'),"Admin billing must be preserved");
-console.log("PASS: 12 Fit recipes, two distinct budins, ingredient ids, per-portion math, coach alias, payment receipts and refresh.");
+console.log("PASS: 12 Fit recipes, 12 credited real photographs, budins, macros and payment UI.");

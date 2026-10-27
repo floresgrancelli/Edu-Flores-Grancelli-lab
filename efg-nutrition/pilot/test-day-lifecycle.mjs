@@ -1,0 +1,21 @@
+// EFG Nutrition: prueba de cierre automático independiente del navegador.
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const folder=new URL("./",import.meta.url);
+const moduleText=await readFile(new URL("./day-lifecycle.js",folder),"utf8");
+const {argentinaClock,isNutritionDayClosed}=await import("data:text/javascript;base64,"+Buffer.from(moduleText).toString("base64"));
+const yesterday="2026-10-26",today="2026-10-27";
+assert.equal(argentinaClock(new Date("2026-10-28T02:58:59.000Z")).day,today);
+assert.equal(isNutritionDayClosed(today,new Date("2026-10-28T02:58:59.000Z")),false,"Abierto a las 23:58:59");
+assert.equal(isNutritionDayClosed(today,new Date("2026-10-28T02:59:00.000Z")),true,"Cierre a las 23:59:00");
+assert.equal(isNutritionDayClosed(today,new Date("2026-10-28T02:59:59.000Z")),true,"Cerrado durante el último minuto");
+assert.equal(isNutritionDayClosed(yesterday,new Date("2026-10-27T13:48:00Z")),true,"Los días previos permanecen cerrados");
+assert.equal(isNutritionDayClosed("2026-10-28",new Date("2026-10-27T13:48:00Z")),false);
+const ui=await readFile(new URL("./pilot.js",folder),"utf8");
+const report=await readFile(new URL("./daily-report.js",folder),"utf8");
+assert.ok(!ui.includes("toggleDayClosed")&&!ui.includes("Terminé de registrar mi día"),"Nunca mostrar cierre manual");
+assert.ok(ui.includes("if(isNutritionDayClosed(d.log_day))"),"Impedir guardado tras las 23:59");
+assert.ok(ui.includes("async function saveDayComment()"),"Comentario opcional no cierra el día");
+assert.ok(report.includes("isNutritionDayClosed(d.log_day)"),"Informe sigue el reloj, no el botón");
+assert.ok(ui.includes("persistSession:true")&&ui.includes("autoRefreshToken:true"),"Sesión persistente habilitada");
+console.log("EFG Nutrition: cierre 23:59 (Argentina), informes y guardado OK");

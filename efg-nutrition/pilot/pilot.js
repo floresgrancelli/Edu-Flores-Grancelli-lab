@@ -691,7 +691,7 @@ function plannerCard(){
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   const available=all; // Catálogo íntegro: todas las categorías y comidas para planificar.
-  out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
+  out+='<details class="planner-meal efg-planner-stage" '+(meal.slot==="merienda"||plan.meals.length===1?'open':'')+'><summary class="efg-planner-stage-head"><span><small>COMIDA PLANIFICADA</small><strong>'+escapeHTML(title)+'</strong></span><span class="pilot-pill">'+num(meal.estimate.k)+' kcal</span></summary>';
   out+='<div class="planner-energy-summary" data-plan-energy="'+escapeHTML(meal.slot)+'">'+
    '<div class="planner-energy-stats">'+
    '<div><span>Objetivo</span><strong data-plan-energy-target>'+num(meal.target.k)+' <small>kcal</small></strong></div>'+
@@ -748,7 +748,7 @@ function plannerCard(){
    }
    out+='</div>';
   }
-  out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></div>';
+  out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
  out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
  '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+

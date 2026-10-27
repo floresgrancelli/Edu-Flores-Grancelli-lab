@@ -50,3 +50,19 @@ Fotos de perfil y cualquier tabla de fotos en Supabase. Se mantienen avatares co
 - [ ] Comprobación visual auténtica en Safari iOS y Chrome Android, capturas por rol.
 - [ ] Interacciones y persistencia con tres cuentas autorizadas de prueba.
 - [ ] Revisión final antes de desplegar: **no fusionar ni publicar** por estas verificaciones estáticas.
+
+## Validación visual automatizada Premium 3.2 — 27/10/2026
+
+- [x] Chromium Playwright ejecutado sobre HTML, CSS y JavaScript de esta rama, con backend de Supabase simulado y datos ficticios en memoria.
+- [x] Diez combinaciones de rol y tamaño móvil; cuarenta destinos reales navegados desde la barra inferior.
+- [x] Cero errores de JavaScript, cero desbordes de documento y acciones táctiles de navegación de 44 px o más en la batería simulada.
+- [x] Seis tarjetas de comidas presentes; el botón «Mis comidas» posiciona y enfoca la sección correcta.
+- [x] Macros proteína, hidratos y grasas en una misma fila, incluso a 360 px. Se corrigió una regla global anterior que expandía la última tarjeta.
+- [x] Hero de administrador legible en bloque vertical (antes aparecía comprimido en tres columnas flex).
+- [x] Capturas con ejemplos de Alumno, Coach y Administrador, obtenidas desde la interfaz real con **cuentas y números de demostración**.
+- [x] GitHub Actions: https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/40590174958
+- [ ] Safari iPhone físico y Chrome Android físico, incluidos teclado, sesión y área segura.
+- [ ] Pruebas E2E autenticadas con usuarios de prueba autorizados, guardado en Supabase, consentimiento y permisos RLS.
+- [ ] Revisión visual y aprobación del dueño del producto antes de fusionar o publicar en Render.
+
+**Estado:** diseño 3.2 aprobado por pruebas automáticas aisladas; no habilitado todavía para producción. Ningún paso de la prueba actualiza Render, usuarios reales ni esquema de base de datos.

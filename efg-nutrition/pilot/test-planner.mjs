@@ -9,6 +9,12 @@ const {FOOD_GROUPS,optionsFor,proposeMeal,makePlan,equivalentPortion}=await impo
 const catalog=await import("data:text/javascript;base64,"+Buffer.from(await load("food-catalog.js")).toString("base64"));
 const gobinda=catalog.EXTRA_FOODS.find(f=>f.id==="milanesa_soy_gobinda");
 assert.ok(gobinda && FOOD_GROUPS.protein.includes(gobinda.id),"Gobinda debe aparecer en proteínas");
+const fruitSalad=catalog.EXTRA_FOODS.find(f=>f.id==="fruit_salad_basic");
+assert.ok(fruitSalad,"Debe existir ensalada de frutas");
+assert.ok(FOOD_GROUPS.carbs.includes(fruitSalad.id),"La ensalada debe ser una alternativa para hidratos");
+assert.ok(optionsFor([fruitSalad],[fruitSalad.id],"carbs").some(f=>f.id===fruitSalad.id));
+assert.ok(fruitSalad.validationStatus==="receta_estimado","No declarar ensalada de frutas como analítica");
+
 assert.equal(gobinda.k*125,312,"Una milanesa Gobinda de 125 g = 312 kcal");
 const fake=[gobinda,
  {id:"chicken",name:"Pollo",unit:"g",k:1.65,p:.31,c:0,f:.04,fi:0},

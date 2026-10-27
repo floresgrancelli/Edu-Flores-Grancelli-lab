@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-v2";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -813,7 +813,8 @@ function coachDailyReport(p){
 }
 function revisionModeChoices(){
  return '<option value="proportional">Proporcional · bajar o subir todos los macros</option>'+
- '<option value="protect_protein">Conservar proteína y grasa · ajustar carbohidratos</option>';
+ '<option value="protect_protein">Conservar proteína y grasa · ajustar carbohidratos</option>'+
+ '<option value="protect_protein_balanced">Conservar proteína · repartir ajuste entre hidratos y grasas</option>';
 }
 function showGoalComparison(base,goal){
  const delta=goal.kcal-base.kcal;

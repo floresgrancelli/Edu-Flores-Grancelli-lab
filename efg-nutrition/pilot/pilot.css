@@ -243,7 +243,7 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .efg-onboard-photo{
  width:100%;height:clamp(208px,36vh,308px);
  background-color:#e1ecda;
- background-image:url("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1100&q=86");
+ background-image:url("./welcome-bowl.jpg");
  background-position:center 52%;background-size:cover
 }
 .efg-onboard-copy{text-align:center;padding:24px clamp(24px,6vw,45px) 30px}

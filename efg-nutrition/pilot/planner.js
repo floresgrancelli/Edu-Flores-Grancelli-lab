@@ -44,79 +44,64 @@ export function allPlannerFoods(foods,approved){
  const permitted=new Set(Array.isArray(approved)&&approved.length?approved:foods.map(f=>f.id));
  return foods.filter(f=>permitted.has(f.id));
 }
+// Prioridad fija: proteína -> hidratos -> calorías. La grasa siempre se cuenta
+// pero nunca fuerza a añadir aceite u otro alimento para cerrar una cifra.
 const SLOTS=["protein","carbs","vegetable","fat"];
-const NUTRIENTS=["k","p","c","f"];
+const NUTRIENTS=["k","p","c","f","fi"];
 const EMPTY={k:0,p:0,c:0,f:0,fi:0};
-function portionMax(food,position){
+function portionMax(food){
  const id=food?.id||"",category=food?.category||"";
+ if(/^(egg|egg_boiled|egg_fried|huevo_frito)/.test(id))return 150; // ≈ 3 huevos por comida.
  if(id==="milanesa_soy_gobinda")return 250; // Hasta dos unidades de 125 g.
- if(/oil|aceite|butter|manteca/i.test(id))return 20; // Nunca inferir grasas del nombre: "arroz sin aceite" no es aceite.
+ if(/oil|aceite|butter|manteca/i.test(id))return 20; // Nunca buscar "aceite" en nombres como arroz sin aceite.
  if(/whey|creatine|protein_powder/i.test(id))return 60;
  if(category==="fat")return 55;
  if(category==="extra")return 30;
  if(category==="dessert"||category==="bakery")return 140;
  if(category==="drink")return 450;
  if(category==="recipe"||category==="prepared")return 350;
- return position>=2?240:350;
+ return 400;
 }
-function portionCost(foods,grams,target){
- const total={...EMPTY};
- foods.forEach((food,i)=>{
-  if(!food)return;
-  for(const key of NUTRIENTS)total[key]+=sane(food[key])*grams[i];
- });
- const floor={k:160,p:18,c:25,f:8};
- let score=0;
- for(const key of NUTRIENTS){
-  const deficit=(total[key]-target[key])/Math.max(target[key],floor[key]);
-  score+=(key==="k"?1.5:1)*(deficit>0?2:1)*deficit*deficit;
- }
- // Preferir porciones manejables ante combinaciones nutricionalmente equivalentes.
- grams.forEach((g,i)=>{if(foods[i])score+=.009*Math.pow(g/Math.max(portionMax(foods[i],i),1),2)});
- return score;
+function suggestedStep(food){
+ if(food?.id==="egg"||food?.id==="egg_boiled"||/^huevo_frito/.test(food?.id||""))return 50;
+ const serving=Number(food?.servingGrams);
+ if(Number.isFinite(serving)&&serving>0&&serving<=portionMax(food))return serving;
+ return 5;
 }
-function optimizePortions(items,target){
- let amounts=items.map(()=>0);
- // Búsqueda determinista por coordenadas con pasos de 5 g; nunca se sugiere
- // compensar un macronutriente con cantidades ilimitadas de otro.
- for(let pass=0;pass<6;pass++){
-  for(let i=0;i<items.length;i++){
-   const food=items[i];if(!food){amounts[i]=0;continue;}
-   const meaningful=NUTRIENTS.some(key=>sane(food[key])>.00001);
-   if(!meaningful){amounts[i]=0;continue;}
-   let best=portionCost(items,amounts,target),amount=amounts[i];
-   const cap=portionMax(food,i);
-   const step=Number(food.servingGrams)>0&&Number(food.servingGrams)<=cap?Number(food.servingGrams):5;
-   for(let g=0;g<=cap;g+=step){
-    amounts[i]=g;
-    const cost=portionCost(items,amounts,target);
-    if(cost<best-1e-8){best=cost;amount=g;}
-   }
-   amounts[i]=amount;
-  }
- }
- return amounts;
+function recommendedPortion(food,needed,unitTarget){
+ const nutrient=Number(food?.[unitTarget])||0, cap=food?portionMax(food):0;
+ const step=food?suggestedStep(food):5;
+ if(!food)return {grams:0,neededGrams:0,capped:false,reason:"No agregar"};
+ if(!(nutrient>0)||!(needed>0))return {grams:0,neededGrams:0,capped:false,
+   reason:nutrient<=0?"Este alimento no aporta "+(unitTarget==="p"?"proteínas":unitTarget==="c"?"hidratos":"calorías")+".":"Ese objetivo ya está cubierto."};
+ const neededGrams=needed/nutrient;
+ const grams=Math.min(cap,Math.max(step,Math.round(neededGrams/step)*step));
+ return {grams,neededGrams,capped:neededGrams>cap+step/2,reason:null};
 }
 export function proposeMeal({foods,approved,slot,remaining,share=1,selections={}}){
- const catalog=allPlannerFoods(foods,approved),profiles=PREFERRED[slot]||PREFERRED.cena;
- const byId=new Map(catalog.map(f=>[f.id,f]));
- const target=Object.fromEntries(NUTRIENTS.map(key=>[key,sane(remaining?.[key])*share]));
+ const catalog=allPlannerFoods(foods,approved),profile=PREFERRED[slot]||PREFERRED.cena;
+ const lookup=new Map(catalog.map(f=>[f.id,f]));
+ const target=Object.fromEntries(NUTRIENTS.map(n=>[n,sane(remaining?.[n])*share]));
  const chosen=SLOTS.map((category,i)=>{
   const id=selections[slot+"|"+category];
   if(id==="none"||(!id&&i>=2))return null;
-  if(id&&byId.has(id))return byId.get(id);
-  if(id&&!byId.has(id))return null;
-  const preferred=(profiles[category]||[]).map(x=>byId.get(x)).find(Boolean);
-  return preferred||catalog.find(f=>NUTRIENTS.some(key=>sane(f[key])>0))||null;
+  if(id&&lookup.has(id))return lookup.get(id);
+  if(id&&!lookup.has(id))return null;
+  return (profile[category]||[]).map(x=>lookup.get(x)).find(Boolean)||catalog[0]||null;
  });
- const portions=optimizePortions(chosen,target);
- const rows=SLOTS.map((category,i)=>({food:chosen[i],category,grams:portions[i],unit:chosen[i]?.unit||"g"}));
- const estimate={...EMPTY};
- rows.forEach(row=>{
-  if(!row.food)return;
-  for(const key of Object.keys(estimate))estimate[key]+=sane(row.food[key])*row.grams;
- });
- return {slot,rows,estimate};
+ const total={...EMPTY};
+ const rows=[];
+ for(let i=0;i<SLOTS.length;i++){
+  const category=SLOTS[i],food=chosen[i],nutrient=i===0?"p":i===1?"c":"k";
+  const missing=Math.max(0,target[nutrient]-total[nutrient]);
+  const portion=recommendedPortion(food,missing,nutrient);
+  const row={food,category,unit:food?.unit||"g",grams:portion.grams,
+   neededGrams:portion.neededGrams,capped:portion.capped,
+   targetNutrient:nutrient,reason:portion.reason};
+  rows.push(row);
+  if(food)for(const key of NUTRIENTS)total[key]+=sane(food[key])*portion.grams;
+ }
+ return {slot,rows,estimate:total,priority:["p","c","k"]};
 }
 export function makePlan({foods,approved,diary,goals,totals,dinnerOnly=false,selections={}}){
  if(!goals)return {ready:false,reason:"Para calcular porciones necesitamos primero las metas aprobadas por el coach."};

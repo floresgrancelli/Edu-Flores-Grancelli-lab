@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261027-seafood-medallions-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
+import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -1139,14 +1140,15 @@ function weeklyAdherenceSummary(){
  const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
  const days=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
  const complete=days.filter(d=>d.closed);
+ const metrics=weeklyNumbers(days,state.coachGoals,state.coachWeights);
  const goal=state.coachGoals[0];
  const valid=days.filter(d=>d.hasData&&Number.isFinite(Number(d.p)));
- const proteinWithin=goal?.protein_g>0?valid.filter(d=>Number(d.p)>=goal.protein_g*.9).length:null;
+ const proteinWithin=metrics.proteinDaysCompared?metrics.proteinDaysOnTarget:null;
  return '<section class="card"><h3>📅 Adherencia de los últimos 7 días</h3>'+
  '<div class="nutrition-report-kpis"><div><small>Días con registros</small><strong>'+days.length+'/7</strong></div>'+
  '<div><small>Días completos</small><strong>'+complete.length+'</strong></div>'+
- '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+valid.length)+'</strong></div></div>'+
- '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo actual y es orientativa si hubo ajustes durante la semana.</p></section>';
+ '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+metrics.proteinDaysCompared)+'</strong></div></div>'+
+ '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo aprobado vigente en cada fecha registrada.</p></section>';
 }
 function weeklyDraftText(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);

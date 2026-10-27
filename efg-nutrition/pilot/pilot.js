@@ -606,6 +606,41 @@ function unauthorized(msg){
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>EFG Nutrition protege los datos personales y nutricionales de cada alumno.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><h2>Cuenta pendiente de habilitación</h2><p>'+escapeHTML(msg||"Este correo aún no fue habilitado.")+'</p><div class="pilot-alert" style="margin:20px 0">Tu entrenador debe crear tu usuario antes de que puedas usar la aplicación. Si sos el administrador, ingresá con el correo habilitado por EFG.</div><button class="btn block" data-act="logout">Cerrar sesión</button></div></div></div>';
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
+
+function premiumMenuView(title,description,entries){
+ return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>';
+}
+function studentMoreView(){
+ return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
+ ["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+}
+function studentRecipesView(){
+ let rs=myRecipes();
+ return rootText("Mis recetas","Guardá tus preparaciones y registrá sus porciones sin volver a cargar cada ingrediente.")+
+ '<section class="card efg-content-card"><div class="efg-actions"><button class="btn" data-act="createPersonalRecipe">+ Crear receta</button><button class="btn light" data-act="registerPersonalRecipe" '+(!rs.length?'disabled':'')+'>Registrar receta</button></div>'+
+ (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas. Creá tu primera preparación.</div>')+'</section>';
+}
+function studentSupplementsView(){
+ return rootText("Suplementos","Registrá tus suplementos del día independientemente de las comidas.")+
+ '<section class="card efg-content-card">'+supplementsPanel(activeDiary())+'</section>';
+}
+function studentSummariesView(){
+ return rootText("Mis informes","Los resúmenes semanales que revisó y compartió tu coach.")+
+ (weeklyStudentPanel()||'<section class="card"><p class="pilot-hint">Este espacio está disponible para alumnos.</p></section>');
+}
+function studentPrivacyView(){
+ const c=state.consent;
+ return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
+ '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>';
+}
+function studentPlannerView(){
+ return rootText("Mi planificador","Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.")+
+ plannerCard()+'<div id="mealDialogContainer"></div>';
+}
+function adminMoreView(){
+ return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
+ ["admin","⚙️","Centro administrativo","lilac"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();

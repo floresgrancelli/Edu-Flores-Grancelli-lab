@@ -15,7 +15,7 @@ assert.equal(sum.slotTotals.length,6);
 const skipped=summarizeLog({...example,skipped:{almuerzo:true}});
 assert.equal(skipped.totals.k,1040);
 const rendered=progressDashboard([example],[goal],7,"2026-10-27",()=>goal);
-for(const marker of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida","1640","7 días","30 días","90 días","Desayuno","Cena"])assert.ok(rendered.includes(marker),"Missing "+marker);
+for(const marker of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida","1.640","7 días","30 días","90 días","Desayuno","Cena"])assert.ok(rendered.includes(marker),"Missing "+marker);
 assert.ok(!rendered.includes("masa muscular")&&!rendered.includes("grasa corporal"));
 const noData=progressDashboard([],[],30,"2026-10-27",()=>null);
 assert.ok(noData.includes("Todavía no hay comidas registradas"));

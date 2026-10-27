@@ -49,3 +49,9 @@
 }
 @media(max-width:340px){.coach-hub-grid{grid-template-columns:1fr}.coach-hub-tile{min-height:90px}}
 @supports(padding:max(0px)){.coach-profile-tabs{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}}
+
+/* Coach reports and navigation polish */
+.coach-report-students{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.coach-report-students .btn{min-height:44px;border-radius:14px}
+@media(max-width:600px){.coach-report-students{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.coach-report-students .btn{min-width:0;white-space:normal;overflow-wrap:anywhere}.coach-inbox-item button{min-height:44px}}
+@media(max-width:360px){.coach-report-students{grid-template-columns:1fr}}

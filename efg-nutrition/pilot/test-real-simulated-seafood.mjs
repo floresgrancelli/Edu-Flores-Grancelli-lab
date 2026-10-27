@@ -35,10 +35,13 @@ for(const id of expected){
  const food=EXTRA_FOODS.find(x=>x.id===id);
  assert.ok(food,"Falta el alimento "+id);
  assert.equal(food.unit,"g");
- assert.equal(food.sourceType,"generic_estimate");
+ assert.equal(food.sourceType,["pulpo_cocido","mejillones_cocidos"].includes(id)?"usda_fdc":"generic_estimate");
  assert.ok(food.k>0&&food.p>=0&&food.c>=0&&food.f>=0);
 }
 assert.equal(new Set(EXTRA_FOODS.map(x=>x.id)).size,EXTRA_FOODS.length,"No duplicar ids");
+assert.equal(EXTRA_FOODS.find(f=>f.id==="pulpo_cocido").k,1.64);
+assert.equal(EXTRA_FOODS.find(f=>f.id==="mejillones_cocidos").k,1.72);
+
 assert.ok(FOOD_CATEGORIES[0][1].includes("mariscos"));
 for(const id of expected.filter(x=>x.startsWith("medallon_"))){
  assert.equal(FOOD_UNIT_PORTIONS[id].grams,100);
@@ -57,4 +60,4 @@ assert.ok(ui.includes("projectNutritionBalance({consumed:balance,goals:goal,sele
 assert.ok(ui.includes("Saldo REAL"));
 assert.ok(ui.includes("SIMULACIÓN"));
 assert.ok(ui.includes("plannerPlannedNumbers")&&ui.includes("plannerRealNumbers"));
-console.log("Salvo real/simulado y nuevos pescados/medallones: OK");
+console.log("Saldo real/simulado y nuevos pescados/medallones: OK");

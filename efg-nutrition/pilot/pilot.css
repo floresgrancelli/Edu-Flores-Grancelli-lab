@@ -220,3 +220,60 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .coach-comment-detail strong,.coach-supplements-detail strong{font-size:13px;color:#28756a;}
 .coach-comment-detail p{margin:8px 0 0;white-space:pre-wrap;line-height:1.65;font-size:13px;}
 .coach-supplements-detail{padding:13px;margin-top:12px;border-radius:10px;border:1px solid #e2e9ed;}
+
+
+/* Bienvenida premium: primera entrada, exclusiva de alumnos nuevos */
+.efg-onboard{
+ min-height:100vh;min-height:100dvh;display:grid;place-items:center;
+ padding:25px 14px max(25px,env(safe-area-inset-bottom));
+ background:radial-gradient(ellipse at 8% 3%,#edf0e6 0%,transparent 44%),
+ linear-gradient(135deg,#eceee2,#f9f7f0 62%,#e7eedf);
+ font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#283d30
+}
+.efg-onboard-sheet{
+ box-sizing:border-box;width:min(100%,480px);border-radius:31px;
+ background:#fffefb;overflow:hidden;position:relative;
+ box-shadow:0 20px 70px #2439221b,0 2px 8px #3445290b;
+ border:1px solid #fffffff2
+}
+.efg-onboard-brand{text-align:center;padding:32px 20px 23px;display:flex;align-items:center;flex-direction:column;gap:0}
+.efg-onboard-leaf{font-size:24px;line-height:1;margin-bottom:7px}
+.efg-onboard-brand strong{font:normal 61px/.98 Georgia,"Times New Roman",serif;letter-spacing:.085em;color:#2a3f2b}
+.efg-onboard-brand small{font-size:12px;letter-spacing:.35em;margin-top:13px;color:#5d765b;font-weight:600}
+.efg-onboard-photo{
+ width:100%;height:clamp(208px,36vh,308px);
+ background-color:#e1ecda;
+ background-image:url("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1100&q=86");
+ background-position:center 52%;background-size:cover
+}
+.efg-onboard-copy{text-align:center;padding:24px clamp(24px,6vw,45px) 30px}
+.efg-onboard-copy h1{margin:0 auto;font:normal clamp(29px,7vw,43px)/1.16 Georgia,"Times New Roman",serif;letter-spacing:-.045em;color:#242e26;max-width:390px}
+.efg-onboard-copy h1 em{font-style:normal;color:#637951}
+.efg-onboard-copy>p:not(.efg-onboard-motto){font-size:clamp(14px,3vw,16px);line-height:1.6;color:#677367;max-width:365px;margin:17px auto 26px}
+.efg-onboard-cta{
+ display:flex;align-items:center;justify-content:center;gap:17px;width:100%;border:0;
+ border-radius:999px;min-height:59px;background:#576e43;color:white;
+ font-size:16px;font-weight:650;padding:16px 18px;letter-spacing:.01em;
+ box-shadow:0 7px 19px #354c313b;cursor:pointer;transition:transform .15s ease,background .15s ease
+}
+.efg-onboard-cta:not(:disabled):hover{background:#405931;transform:translateY(-1px)}
+.efg-onboard-cta:disabled{opacity:.68;cursor:wait}
+.efg-onboard-cta span{font-size:29px;font-weight:300;line-height:.7}
+.efg-onboard-motto{margin:22px 0 0!important;font:normal 13px/1.75 Georgia,"Times New Roman",serif!important;letter-spacing:.1em;color:#697c64!important}
+.efg-onboard-motto b{font-weight:normal;color:#496342}
+@media(max-width:560px){
+ .efg-onboard{padding:0;background:#fffefb;align-items:start}
+ .efg-onboard-sheet{width:100%;min-height:100dvh;border-radius:0;border:0;box-shadow:none;display:flex;flex-direction:column}
+ .efg-onboard-brand{padding-top:max(27px,env(safe-area-inset-top));padding-bottom:21px}
+ .efg-onboard-photo{height:clamp(215px,36dvh,345px);flex-shrink:0}
+ .efg-onboard-copy{flex:1;display:flex;flex-direction:column;justify-content:center;padding:26px 31px max(25px,env(safe-area-inset-bottom))}
+ .efg-onboard-copy>p:not(.efg-onboard-motto){margin:19px auto 24px}
+}
+@media(max-height:715px) and (max-width:560px){
+ .efg-onboard-brand{padding-top:16px;padding-bottom:13px}
+ .efg-onboard-brand strong{font-size:47px}
+ .efg-onboard-photo{height:190px}
+ .efg-onboard-copy{padding-top:18px}
+ .efg-onboard-motto{margin-top:15px!important}
+}
+@media(prefers-reduced-motion:reduce){.efg-onboard-cta{transition:none}}

@@ -206,3 +206,67 @@
  .pilot-layout .planner-energy-stats strong{font-size:18px;white-space:nowrap}
  .pilot-layout .planner-energy-stats span{font-size:11px}
 }
+
+
+/* Premium 3.1 — cohesive navigation, app identity and tactile mobile cards */
+:root{--efg-subtle:#536e73}
+.efg-mobile-header{display:none}
+.pilot-layout .pilot-nav .nav-icon{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;flex:0 0 25px}
+.pilot-layout .pilot-nav .nav-icon svg{display:block;width:23px;height:23px;stroke:currentColor}
+.pilot-layout .pilot-nav .navitem .nav-label{min-width:0;line-height:1.2}
+.efg-role-student .efg-student-macros .metric-card{position:relative;border:0;box-shadow:none;min-height:116px}
+.efg-role-student .efg-student-macros .metric-p{background:#e2f5e9}
+.efg-role-student .efg-student-macros .metric-c{background:#e8edff}
+.efg-role-student .efg-student-macros .metric-f{background:#fff0e4}
+.efg-role-student .efg-student-macros .metric-label{color:#345b62;font-size:11px}
+.efg-role-student .efg-student-macros .metric-value{font-weight:850;color:#1c3545}
+.efg-role-student .efg-student-macros .metric-remaining{color:#48676b;font-weight:650}
+.efg-role-student .efg-student-macros .meter{background:rgba(37,70,83,.12)}
+.efg-role-student .student-meal-card{background:#fff;border-color:#e3ece9;box-shadow:0 3px 12px rgba(29,64,76,.025)}
+.efg-role-student .student-meal-heading strong{font-size:15px;line-height:1.4}
+.efg-role-student .student-meal-heading .pilot-pill{margin-left:auto;flex-shrink:0;color:#396b64;background:#edf7f2}
+.efg-role-student .student-meal-card[open]{border-color:#cce8dc;box-shadow:0 5px 24px rgba(27,83,65,.06)}
+.efg-role-student .student-meal-card[open] .student-meal-heading{background:linear-gradient(95deg,#f4fbf7,#f8faff)}
+.pilot-layout .meal-remove-item{min-width:44px;height:44px;flex:0 0 44px;border-radius:13px}
+.pilot-layout .efg-menu-card,.pilot-layout .coach-hub-tile,.pilot-layout .admin-command-tile{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+@media(hover:hover) and (pointer:fine){
+ .pilot-layout .efg-menu-card:hover,.pilot-layout .coach-hub-tile:hover,.pilot-layout .admin-command-tile:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,69,72,.075);border-color:#b9d8cc}
+}
+.pilot-layout .efg-menu-card:active,.pilot-layout .coach-hub-tile:active,.pilot-layout .admin-command-tile:active{transform:scale(.985)}
+.pilot-layout .efg-menu-card:focus-visible,.pilot-layout .coach-hub-tile:focus-visible,.pilot-layout .admin-command-tile:focus-visible{outline:3px solid #178675;outline-offset:3px}
+#studentMeals{scroll-margin-top:95px}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-header{position:sticky;top:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;padding:calc(12px + env(safe-area-inset-top,0px)) 17px 12px;background:rgba(255,255,255,.96);border-bottom:1px solid #edf1f1;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+ .efg-mobile-brand{display:flex;gap:10px;align-items:center;min-width:0}
+ .efg-mobile-monogram{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:13px;background:#1e796d;color:#fff;font-size:19px;font-weight:900;letter-spacing:-.04em}
+ .efg-mobile-monogram span{color:#b8f1d9}
+ .efg-mobile-brand-text{display:flex;flex-direction:column;gap:3px;white-space:nowrap}
+ .efg-mobile-brand-text strong{font-size:15px;letter-spacing:-.035em;color:#193a46;line-height:1.1}
+ .efg-mobile-brand-text small{font-size:9px;font-weight:850;letter-spacing:.12em;color:#588478}
+ .efg-mobile-person{display:flex;align-items:center;gap:9px;min-width:0}
+ .efg-mobile-user{font-size:12px;font-weight:700;color:#5c7679;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px}
+ .efg-mobile-avatar{display:grid;place-items:center;background:linear-gradient(145deg,#e0f3e9,#e6eaff);width:39px;height:39px;flex:0 0 39px;border-radius:14px;color:#276469;font-size:12px;font-weight:850}
+ .pilot-layout .pilot-main{padding-top:17px}
+ .pilot-layout .pilot-nav{isolation:isolate}
+ .pilot-layout .pilot-nav button.navitem{position:relative;gap:5px;border:0;border-radius:15px;background:transparent;color:#637d7d}
+ .pilot-layout .pilot-nav button.navitem.active{background:#e2f4ed;color:#117c69}
+ .pilot-layout .pilot-nav button.navitem.active:before{content:"";position:absolute;top:2px;height:3px;width:23px;border-radius:9px;background:#168876}
+ .pilot-layout .pilot-nav button.navitem .nav-label{font-size:11px;font-weight:750}
+ .pilot-layout .pilot-nav .nav-icon{height:24px}
+ .pilot-layout .pilot-nav .nav-icon svg{width:23px;height:23px}
+ .efg-role-student .efg-student-macros .metric-card{padding:14px 10px;min-height:123px;border-radius:19px}
+ .efg-role-student .student-meal-card .student-meal-heading{padding:15px 12px;gap:7px;min-height:64px}
+ .efg-role-student .student-meal-heading strong{font-size:13px}
+ .efg-role-student .student-meal-heading .pilot-pill{font-size:10px;padding:7px 9px}
+ .efg-role-student .student-meal-details{padding:0 11px 15px}
+ .efg-role-student .meal-actions .btn{min-height:44px}
+ .efg-role-student .student-shortcuts button{min-height:60px;line-height:1.3}
+ .efg-role-student .student-daily-focus{box-shadow:none;background:linear-gradient(135deg,#e0f5eb,#e9efff);border:0}
+}
+@media(max-width:390px){
+ .efg-mobile-user{display:none}
+ .efg-role-student .student-meal-heading .pilot-pill{font-size:9px}
+}
+@media(max-width:365px){
+ .efg-role-student .efg-student-macros .metric-card{min-height:112px}
+}

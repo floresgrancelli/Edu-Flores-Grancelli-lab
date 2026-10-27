@@ -1170,8 +1170,8 @@ function weeklyCoachDraft(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
  const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
- return '<section class="card"><h2>🌱 Resumen semanal revisable</h2>'+
- '<p class="pilot-hint">Análisis descriptivo automatizado, sin IA generativa aún. El coach puede editar el texto antes de copiarlo; no se envía automáticamente al alumno.</p>'+
+ return '<section class="card"><h2>🌱 Tu evolución semanal</h2>'+
+ '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
  '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
  '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
  '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+

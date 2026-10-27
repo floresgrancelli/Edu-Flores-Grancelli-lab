@@ -66,3 +66,17 @@ Fotos de perfil y cualquier tabla de fotos en Supabase. Se mantienen avatares co
 - [ ] Revisión visual y aprobación del dueño del producto antes de fusionar o publicar en Render.
 
 **Estado:** diseño 3.2 aprobado por pruebas automáticas aisladas; no habilitado todavía para producción. Ningún paso de la prueba actualiza Render, usuarios reales ni esquema de base de datos.
+
+## Premium 3.3 — panel nutricional (27/10/2026)
+
+- [x] Cuatro gráficos en el progreso del alumno: kcal por macro, comparación de metas, constancia de registro, energía por las seis comidas.
+- [x] Filtros 7/30/90 días, persistidos únicamente en el estado de la sesión, sin mutar registros.
+- [x] Coach autorizado: mismos gráficos en la ficha del alumno; no se muestra sin consentimiento vigente.
+- [x] Se consultan registros reales de hasta 90 días con RLS. Días sin carga se excluyen de los promedios y se indican como ausentes.
+- [x] Sin composición corporal ni porcentajes de masa muscular/grasa.
+- [x] Botón «Actualizar» del informe del coach con ancho mínimo, sin separación de letras.
+- [x] Prueba de cálculos de macronutrientes, comidas omitidas, ausencia de datos y objetivos faltantes.
+- [ ] Revisión de captura y navegación en Chromium para el último commit de la rama.
+- [ ] Prueba autenticada en Safari iPhone y Android físico antes de publicar.
+
+No fusionar ni desplegar sin terminar QA. No hay cambios en datos de producción ni en Supabase.

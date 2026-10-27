@@ -476,7 +476,7 @@ function plannerCard(){
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
  const left=plan.remaining||{};
- out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
+ out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
  const all=allPlannerFoods(foods,allowedFoods());
  const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};

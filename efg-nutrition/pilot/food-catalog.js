@@ -99,15 +99,15 @@ const SEAFOOD_MEDALLION_DATA=[
  ["vieiras_cocidas","Vieiras cocidas sin aceite","protein",24,5,0.8,0],
  ["centolla_cocida","Centolla cocida, carne limpia","protein",19,0,1.5,0],
  ["camarones_cocidos","Camarones cocidos sin aceite","protein",24,0,1.5,0],
- ["rabas_rebozadas_fritas","Rabas de calamar rebozadas fritas (genérico)","prepared",14,20,12,1],
+ ["rabas_rebozadas_fritas","Rabas de calamar rebozadas fritas (genérico)","protein",14,20,12,1],
  ["medallon_pescado_simple","Medallón de pescado sin rebozar, al horno (genérico)","protein",19,3,3.5,0.5],
- ["medallon_pescado_rebozado","Medallón de pescado rebozado, al horno (genérico)","prepared",14,20,7,1],
+ ["medallon_pescado_rebozado","Medallón de pescado rebozado, al horno (genérico)","protein",14,20,7,1],
  ["medallon_salmon_simple","Medallón de salmón sin rebozar, al horno (genérico)","protein",21,2,10,0.5],
  ["medallon_pollo_simple","Medallón de pollo sin rebozar, al horno (genérico)","protein",23,2,5,0.5],
- ["medallon_pollo_rebozado","Medallón de pollo rebozado, al horno (genérico)","prepared",14,19,9,1],
+ ["medallon_pollo_rebozado","Medallón de pollo rebozado, al horno (genérico)","protein",14,19,9,1],
  ["medallon_pollo_espinaca","Medallón de pollo con espinaca sin rebozar (genérico)","protein",20,4,4,1.5],
  ["medallon_cerdo_simple","Medallón de cerdo sin rebozar, a la plancha (genérico)","protein",24,2,10,0.5],
- ["medallon_cerdo_rebozado","Medallón de cerdo rebozado, al horno (genérico)","prepared",16,16,12,1],
+ ["medallon_cerdo_rebozado","Medallón de cerdo rebozado, al horno (genérico)","protein",16,16,12,1],
  ["medallon_cerdo_vegetales","Medallón de cerdo con vegetales sin rebozar (genérico)","protein",21,5,8,1.2]
 ];
 const SEAFOOD_MEDALLION_FOODS=SEAFOOD_MEDALLION_DATA.map(([id,name,category,p,c,f,fi])=>({

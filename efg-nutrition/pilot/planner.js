@@ -28,11 +28,6 @@ export function optionsFor(foods,approved,category){
  const allowed=new Set(Array.isArray(approved)&&approved.length?approved:FOOD_DEFAULTS);
  return (FOOD_GROUPS[category]||[]).filter(id=>allowed.has(id)).map(id=>foods.find(f=>f.id===id)).filter(Boolean);
 }
-export function equivalentPortion(a,grams,b,category){
- let nutrient=MATCH[category]||"c";
- if(!a||!b||a[nutrient]<=0||b[nutrient]<=0||grams<=0)return null;
- return {grams:Math.round(grams*a[nutrient]/b[nutrient]),nutrient,estimated:true};
-}
 export function futureSlots(diary,dinnerOnly){
  if(dinnerOnly)return (diary?.skipped||{}).cena?[]:["cena"];
  const meals=diary?.meals||{},skipped=diary?.skipped||{};

@@ -382,6 +382,12 @@ async function confirmOtp(token){
   loginView("El código es incorrecto o venció. Revisá el correo o solicitá otro.");
  }
 }
+function sessionConnectionRetry(){
+ root.innerHTML='<div class="pilot-loader"><h2>No pudimos verificar tu sesión</h2>'+
+ '<p>Si entrás desde el mismo navegador, tus datos de acceso pueden seguir guardados. Reintentá antes de solicitar otro correo.</p>'+
+ '<div class="pilot-toolbar"><button class="btn" data-act="retry">Reintentar conexión</button>'+
+ '<button class="btn small ghost" data-act="logout">Salir e ingresar nuevamente</button></div></div>';
+}
 function unauthorized(msg){
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>EFG Nutrition protege los datos personales y nutricionales de cada alumno.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><h2>Cuenta pendiente de habilitación</h2><p>'+escapeHTML(msg||"Este correo aún no fue habilitado.")+'</p><div class="pilot-alert" style="margin:20px 0">Tu entrenador debe crear tu usuario antes de que puedas usar la aplicación. Si sos el administrador, ingresá con el correo habilitado por EFG.</div><button class="btn block" data-act="logout">Cerrar sesión</button></div></div></div>';
 }
@@ -1021,7 +1027,15 @@ async function refresh(){
  state.loading=true;
  try{
   const result=await sb.auth.getUser();
-  if(result.error||!result.data.user){state.profile=null;return loginView();}
+  if(result.error){
+   // Un error de red no debe confundirse con ausencia de sesión.
+   // No se muestran datos privados hasta que getUser valide la identidad.
+   let savedSession=null;
+   try{savedSession=(await sb.auth.getSession()).data?.session||null;}catch(_){}
+   if(savedSession){sessionConnectionRetry();return;}
+   state.profile=null;return loginView("Tu sesión no está disponible. Volvé a ingresar si hace falta.");
+  }
+  if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   if(state.session?.user?.id!==id){state.selectedStudent=null;state.tab="home";}
   state.session={user:result.data.user};
@@ -1265,7 +1279,7 @@ root.addEventListener("submit",e=>{
 (async function init(){
  const {data,error}=await sb.auth.getSession();
  if(error)fail(error);
- if(data?.session)await refresh();else loginView();
+ if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
  sb.auth.onAuthStateChange((event,session)=>{
   if(event==="SIGNED_IN"&&!state.loading)queueMicrotask(()=>refresh());
   if(event==="SIGNED_OUT"){state.session=null;state.profile=null;loginView();}

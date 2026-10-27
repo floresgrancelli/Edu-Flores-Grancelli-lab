@@ -184,3 +184,25 @@
 .coach-profile-accordion[open]>summary:after{transform:rotate(180deg)}
 .coach-profile-accordion h3{margin-top:15px}
 @media(max-width:720px){.coach-profile-accordion{padding-left:11px;padding-right:11px}.coach-profile-tabs button{font-size:12px;padding:10px 11px}}
+
+/* Anti-overflow and form ergonomics for narrow iPhone and Android screens */
+@media(max-width:720px){
+ .pilot-layout input:not([type="checkbox"]):not([type="radio"]),.pilot-layout select,.pilot-layout textarea{font-size:16px}
+ .pilot-layout .planner-item,.pilot-layout .planner-qty,.pilot-layout .meal-food-label,.pilot-layout .pilot-record{max-width:100%;overflow-wrap:anywhere}
+ .pilot-layout .planner-qty{display:flex;flex-wrap:wrap;align-items:end;gap:11px}
+ .pilot-layout .planner-qty>label{min-width:105px;max-width:100%;flex:1 1 115px}
+ .pilot-layout .planner-qty>label input{width:100%;max-width:190px;min-height:46px}
+ .pilot-layout .planner-qty>button{min-height:46px}
+ .pilot-layout .planner-energy-stats{gap:6px}
+ .pilot-layout .planner-energy-stats>div{padding:10px 5px}
+ .pilot-layout .planner-energy-stats strong{font-size:16px}
+ .pilot-layout .meal-popup{max-height:calc(100dvh - 34px - env(safe-area-inset-bottom,0px));overflow-y:auto}
+ .pilot-layout .field-row{min-width:0}
+ .pilot-layout .field-row>*{min-width:0}
+}
+@media(max-width:380px){
+ .pilot-layout .planner-energy-stats{grid-template-columns:minmax(0,1fr)}
+ .pilot-layout .planner-energy-stats>div{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:8px 11px}
+ .pilot-layout .planner-energy-stats strong{font-size:18px;white-space:nowrap}
+ .pilot-layout .planner-energy-stats span{font-size:11px}
+}

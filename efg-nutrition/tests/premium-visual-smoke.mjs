@@ -100,10 +100,17 @@ try{
    if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
+    const macroPositions=await page.locator(".efg-student-macros > .metric-card").evaluateAll(cards=>cards.map(x=>({x:x.getBoundingClientRect().x,y:x.getBoundingClientRect().y,width:x.getBoundingClientRect().width})));
+    if(macroPositions.length!==3 || Math.max(...macroPositions.map(x=>x.y))-Math.min(...macroPositions.map(x=>x.y))>5)pageReport.errors.push("The three macro cards must occupy the same row");
+    if(macroPositions.some(x=>x.width<75))pageReport.errors.push("Macro card too narrow for legible quantities");
     const shortcut=page.locator('button[data-scrollto="studentMeals"]');
     await shortcut.click();
     const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
     if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
+   }
+   if(role==="admin"&&dest==="admin"){
+    const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));
+    if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
    if(width===390 || width===360){
      await page.screenshot({path:join(outDir,role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});

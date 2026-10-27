@@ -1,0 +1,33 @@
+name: EFG Nutrition Premium QA
+
+on:
+  push:
+    branches: [efg-premium-redesign-dev]
+    paths:
+      - 'efg-nutrition/**'
+      - '.github/workflows/efg-nutrition-premium-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-ux-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript module syntax
+        run: |
+          node --check efg-nutrition/pilot/pilot.js
+          node --check efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: Validate role-specific UX contracts
+        run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: Require real mobile and privacy checks before release
+        run: |
+          echo "Static gate only: NOT permission to deploy."
+          echo "Manual iPhone/Android screenshots and Supabase E2E remain required."

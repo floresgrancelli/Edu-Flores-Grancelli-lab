@@ -561,14 +561,15 @@ function updatePlannerPreview(){
  }
  const remain=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,Number(goal[k]||0)-projected[k])]));
  const excess=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,projected[k]-Number(goal[k]||0))]));
- const pending=remain.k>2||remain.p>.4||remain.c>.4||remain.f>.4;
- notice.classList.toggle("planner-complete",!pending);
+ const pendingMain=remain.k>2||remain.p>.4||remain.c>.4;
+ const fatOnly=!pendingMain&&remain.f>.4;
+ notice.classList.toggle("planner-complete",!pendingMain);
  const heading=notice.querySelector("b");
- if(heading)heading.textContent=pending?"Faltan estos macros para completar el día":"Objetivos diarios aproximadamente cubiertos";
+ if(heading)heading.textContent=pendingMain?"Faltan estos macros para completar el día":fatOnly?"Proteína, hidratos y calorías cubiertos; grasas pendientes (informativo)":"Objetivos diarios aproximadamente cubiertos";
  numbers.textContent="Calorías: "+num(remain.k)+" kcal · Proteínas: "+num(remain.p,1)+" g · Hidratos: "+num(remain.c,1)+" g · Grasas: "+num(remain.f,1)+" g";
  const excessParts=[["k","kcal",5],["p","g de proteína",.8],["c","g de hidratos",.8],["f","g de grasas",.8]].filter(([key,,limit])=>excess[key]>limit).map(([key,label])=>num(excess[key],1)+" "+label);
  details.textContent=(excessParts.length?"La combinación superaría algunos objetivos: "+excessParts.join(" · ")+". ":"")+
-  (remain.f>.5?"Si querés agregar grasas, elegí un alimento en uno de los espacios opcionales. ":"")+
+  (remain.k>2?"Si querés sumar alimentos para acercarte a las calorías pendientes, usá un extra opcional. ":"")+
   (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
   "El cálculo usa los alimentos y gramos indicados; no agrega otros alimentos automáticamente.";
 }

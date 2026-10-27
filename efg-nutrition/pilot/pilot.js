@@ -829,13 +829,13 @@ function goalRevisionSection(latest){
  goals.map(g=>'<div class="pilot-macro"><span>Desde '+escapeHTML(String(g.start_on||"").split("-").reverse().join("/"))+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' / HC '+num(g.carb_g)+' / G '+num(g.fat_g)+' g</b></div>').join("")+
  '<p class="pilot-hint">Los objetivos anteriores y registros alimentarios no se borran.</p></details>';
  return '<div class="divider"></div><h3>✏️ Revisar objetivo durante el plan</h3>'+
- '<p class="pilot-hint">Por ejemplo, luego del primer mes podés cambiar calorías y cantidades. El nuevo objetivo entra en vigencia desde hoy y los anteriores quedan conservados.</p>'+
+ '<p class="pilot-hint">Podés revisar el objetivo en cualquier momento, incluso al día siguiente o varias veces el mismo día, sin plazo mínimo. Si el alumno refiere poca energía, hambre, fatiga o dificultades de adaptación, evaluá sus registros, actividad y evolución y ajustá las calorías y los macros. El cambio comienza al aprobarlo; los planes anteriores quedan guardados.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label for="reviseGoalKcal">Nuevo objetivo (kcal/día)</label><input id="reviseGoalKcal" type="number" min="1200" max="10000" step="1" value="'+Number(latest.kcal)+'"></div>'+
  '<div class="field"><label for="reviseGoalMode">Reparto de macros</label><select id="reviseGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn block light" data-act="previewGoalRevision">Ver nuevo reparto de macros</button></div>'+
  '<div class="pilot-notice" id="revisedGoalPreview" aria-live="polite" style="margin-top:10px">Objetivo actual: '+num(latest.kcal)+' kcal. Elegí un cambio para previsualizar.</div>'+
- '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px">Aprobar nuevo objetivo desde hoy</button>'+
- '<p class="pilot-hint">Si disminuís las calorías proporcionalmente, baja también la proteína. Para preservar masa muscular, evaluá mantenerla estable y reducir hidratos cuando sea viable.</p>'+history;
+ '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px">Aplicar ajuste ahora</button>'+
+ '<p class="pilot-hint">No hay período de espera ni límite de revisiones. Podés aumentar o reducir las calorías según la respuesta del alumno. Si reducís todo proporcionalmente, también baja la proteína; evaluá conservarla para objetivos de fuerza o masa muscular.</p>'+history;
 }
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
@@ -910,7 +910,7 @@ async function approveGoalRevision(){
  const {data,error}=await sb.from("efg_goals").select("id").eq("student_id",pending.studentId).order("approved_at",{ascending:false}).limit(1).single();
  if(error)throw error;
  if(data.id!==pending.baseId)throw new Error("Ya existe un objetivo más reciente. Actualizá la ficha y recalculá.");
- if(!window.confirm("¿Aprobar "+num(pending.proposal.kcal)+" kcal/día para este alumno desde hoy? El plan anterior queda en el historial."))return;
+ if(!window.confirm("¿Aplicar ahora "+num(pending.proposal.kcal)+" kcal/día para este alumno? Podés volver a ajustarlo cuando haga falta; el objetivo previo se conserva en el historial."))return;
  const {error:saveError}=await sb.from("efg_goals").insert({...pending.proposal,student_id:pending.studentId,approved_by:state.session.user.id,start_on:today()});
  if(saveError)throw saveError;
  state.pendingGoalRevision=null;state.pendingGoal=null;state.calculatedGoalBase=null;

@@ -1111,6 +1111,20 @@ function coachTrendChart(days,key,label,unit,goalValue=null){
  (validGoal?(showGoal?' Línea punteada: objetivo '+num(goal,key==="k"?0:1)+' '+unit+'.':' Objetivo: '+num(goal,key==="k"?0:1)+' '+unit+' (fuera de la escala).'):'')+
  ' Escala ajustada para ver cambios pequeños; no se unen días faltantes.</p></div>';
 }
+function weeklyAdherenceSummary(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const days=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
+ const complete=days.filter(d=>d.closed);
+ const goal=state.coachGoals[0];
+ const valid=days.filter(d=>d.hasData&&Number.isFinite(Number(d.p)));
+ const proteinWithin=goal?.protein_g>0?valid.filter(d=>Number(d.p)>=goal.protein_g*.9).length:null;
+ return '<section class="card"><h3>📅 Adherencia de los últimos 7 días</h3>'+
+ '<div class="nutrition-report-kpis"><div><small>Días con registros</small><strong>'+days.length+'/7</strong></div>'+
+ '<div><small>Días completos</small><strong>'+complete.length+'</strong></div>'+
+ '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+valid.length)+'</strong></div></div>'+
+ '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo actual y es orientativa si hubo ajustes durante la semana.</p></section>';
+}
 function weeklyCoachDraft(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
@@ -1146,6 +1160,7 @@ function coachReportsView(){
  out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
  (prev?.comment?'<div class="coach-comment-detail"><strong>📝 Comentario del alumno de ayer</strong><p>'+escapeHTML(prev.comment)+'</p></div>':'')+
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
+ out+=weeklyAdherenceSummary();
  out+=weeklyCoachDraft();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';

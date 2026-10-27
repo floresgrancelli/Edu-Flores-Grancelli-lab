@@ -24,6 +24,12 @@ assert.match(js,/data-scrollto="studentMeals"/,"The meals shortcut must scroll t
 assert.match(js,/id="studentMeals"/,"The meals destination must exist");
 assert.match(css,/\.pilot-layout \.meal-remove-item\{min-width:44px;height:44px/,"Meal delete targets must be at least 44px");
 
+// Regression: the admin's test-coach roster must load the same persisted consent state as a coach.
+const roleLoader=js.slice(js.indexOf("async function loadRoleData(){"),js.indexOf("async function loadStudentDetail("));
+assert.match(js,/async function loadCoachRosterConsent\(\)/,"Shared consent loader must exist");
+assert.match(roleLoader,/state\.roster=students\.data\|\|\[\];state\.testInvitations=pending\.data\|\|\[\];\s*await loadCoachRosterConsent\(\)/,"Admin test-coach must load persisted student consents");
+assert.match(roleLoader,/state\.roster=r\.data\|\|\[\];state\.invitations=inv\.data\|\|\[\];\s*await loadCoachRosterConsent\(\)/,"Coach must use the same consent loader");
+assert.match(js,/\.from\("efg_consents"\)\.select\("student_id,accepted"\)/,"Consent status must be read from database, not inferred from enrollment");
 assert.ok(html.lastIndexOf("premium-system.css")>html.lastIndexOf("admin-experience.css"),"Premium styles must load last");
 assert.ok(!js.slice(js.indexOf("function macroCard("),js.indexOf("function homeView()")).includes("</summary>"),"Macro card contains unexpected closing summary");
 let depth=0;for(const c of css){if(c==="{")depth++;if(c==="}"){depth--;assert.ok(depth>=0,"CSS braces close too early")}}assert.equal(depth,0,"CSS braces unbalanced");

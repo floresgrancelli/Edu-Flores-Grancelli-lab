@@ -1499,6 +1499,16 @@ async function loadOrgAndPayments(){
  if(bill.error)throw bill.error;
  state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;
 }
+async function loadCoachRosterConsent(){
+ // One source of truth for real coaches AND the admin's test-coach workspace.
+ // Read only; never infer consent from enrollment or modify a student's decision.
+ coachRosterConsent={};
+ const ids=(state.roster||[]).map(p=>p.user_id).filter(Boolean);
+ if(!ids.length)return;
+ const {data,error}=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);
+ if(error)throw error;
+ for(const consent of data||[])coachRosterConsent[consent.student_id]=consent.accepted===true;
+}
 async function loadRoleData(){
  const role=state.profile.role;
  if(role==="admin"){
@@ -1509,6 +1519,7 @@ async function loadRoleData(){
    const [students,pending]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",state.org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",state.org.id).eq("role","student")]);
    if(students.error||pending.error)throw students.error||pending.error;
    state.roster=students.data||[];state.testInvitations=pending.data||[];
+   await loadCoachRosterConsent();
    if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
   }
  }
@@ -1518,9 +1529,7 @@ async function loadRoleData(){
   const [r,inv]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]);
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
-  coachRosterConsent={};
-  const ids=state.roster.map(p=>p.user_id).filter(Boolean);
-  if(ids.length){const cr=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);if(cr.error)throw cr.error;for(const c of cr.data||[])coachRosterConsent[c.student_id]=c.accepted===true;}
+  await loadCoachRosterConsent();
 
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }

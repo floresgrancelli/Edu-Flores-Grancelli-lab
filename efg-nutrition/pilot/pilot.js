@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown} from "./planner.js?v=20261027-energy-summary-v1";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-real-vs-simulated-v1";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261027-seafood-medallions-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
@@ -476,7 +476,7 @@ function plannerCard(){
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
  const left=plan.remaining||{};
- out+='<div class="planner-remaining"><b>Te falta para el objetivo del día</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span></div>';
+ out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
  const all=allPlannerFoods(foods,allowedFoods());
  const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};
@@ -542,10 +542,12 @@ function plannerCard(){
   }
   out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></div>';
  }
- out+='<div class="planner-left" id="plannerPendingNotice" aria-live="polite">'+
- '<b>Faltan estos macros para completar el día</b>'+
- '<p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div>'+
- '<p class="pilot-hint">Si algo queda pendiente, es un aviso, no una obligación de comer de más. Solo se guardará lo que realmente registres. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
+ out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
+ '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
+ '<p id="plannerRealNumbers"></p><small>Coincide con los valores de Mi alimentación. No incluye ningún alimento simulado.</small></div>'+
+ '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
+ '<p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>'+
+ '<p class="pilot-hint">La simulación NO registra alimentos. El saldo real solo cambia cuando guardás lo que efectivamente comiste. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
  return out;
 }
 const plannerNormalizeQuery=(v)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();

@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261027-seafood-medallions-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
+import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -304,6 +305,34 @@ async function saveDayComment(){
  d.skipped._comment=readDayComment();
  await saveDiary();notify("Comentario guardado para el informe de tu coach.");
 }
+let coachRosterConsent={};
+let myWeeklyReports=[];
+async function loadMyWeeklyReports(){
+ if(state.profile?.role!=="student"){myWeeklyReports=[];return;}
+ const {data,error}=await sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12);
+ if(error)throw error;myWeeklyReports=data||[];
+}
+function weeklyStudentPanel(){
+ if(state.profile?.role!=="student")return "";
+ const items=myWeeklyReports.map(r=>'<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+'</summary><p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p></details>').join("");
+ return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
+}
+function weeklyReportEnd(){
+ const d=new Date(today()+"T12:00:00Z");
+ d.setUTCDate(d.getUTCDate()+(7-d.getUTCDay())%7);
+ return d.toISOString().slice(0,10);
+}
+async function publishWeeklyReport(){
+ if(state.profile?.role!=="coach")throw Error("Solo un entrenador puede publicar informes.");
+ const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
+ if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
+ const reportText=document.getElementById("weeklyCoachDraftText")?.value?.trim();
+ if(!reportText||reportText.length>8000)throw Error("Revisá el borrador antes de compartirlo.");
+ if(!confirm("¿Confirmás que revisaste el informe y querés compartirlo con el alumno?"))return;
+ const {error}=await sb.from("efg_weekly_reports").upsert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()},{onConflict:"student_id,week_ending"});
+ if(error)throw error;
+ notify("Informe compartido con el alumno.");
+}
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
@@ -327,10 +356,40 @@ const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.go
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
+let cloudHabituales=[];
+async function loadCloudHabituales(){
+ if(state.profile?.role!=="student"){cloudHabituales=[];return;}
+ const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
+ cloudHabituales=data||[];
+ // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
+ for(const [slot] of mealSlots){
+  let local=[];
+  try{
+   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+   if(Array.isArray(saved)&&saved.length)local=saved;
+   else {const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");if(Array.isArray(older)&&older.length)local=[{name:"Mi habitual anterior",items:older}];}
+  }catch(_){} 
+  const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
+  for(const item of local){
+   if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
+   if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
+   const created=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   if(created.error)throw created.error;
+   remote.push(created.data);cloudHabituales.push(created.data);
+  }
+  // Respaldo local ya importado: evita que una comida eliminada reaparezca.
+  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
+   localStorage.removeItem(habitualListKey(slot));localStorage.removeItem(habitualKey(slot));
+  }
+ }
+}
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
  try{
+  const remote=cloudHabituales.filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
+  if(remote.length)return remote;
   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
   if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
   const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
@@ -349,9 +408,10 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  existing.push({name:clean,items:structuredClone(d.meals[slot])});
-  localStorage.setItem(habitualListKey(slot),JSON.stringify(existing));
-  notify("Guardaste «"+clean+"» en este dispositivo.");return render();
+  const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
+  if(error)throw error;
+  cloudHabituales.push(data);
+  notify("Guardaste «"+clean+"» en tu cuenta.");return render();
  }
  const favorites=getHabitualList(slot);
  if(!favorites.length)throw Error("No hay comidas habituales guardadas.");
@@ -364,6 +424,71 @@ async function habitualAction(slot,action){
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
  await saveDiary();notify("Comida habitual registrada; balance recalculado.");
+}
+function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
+let cloudRecipes=[];
+function myRecipes(){return cloudRecipes;}
+async function loadCloudRecipes(){
+ if(state.profile?.role!=="student"){cloudRecipes=[];return;}
+ const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
+ cloudRecipes=data||[];
+ let saved=[];
+ try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
+ if(Array.isArray(saved))for(const recipe of saved){
+  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals)continue;
+  if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
+  if(cloudRecipes.length>=30)break;
+  const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  if(created.error)throw created.error;
+  cloudRecipes.push(created.data);
+ }
+ // Al completar la importación, retirar el respaldo local para no recrear recetas eliminadas.
+ if(Array.isArray(saved)&&saved.length)localStorage.removeItem(recipeStoreKey());
+}
+async function createPersonalRecipe(){
+ const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
+ if(name===null)return;
+ if(!name.trim()||name.trim().length>70)throw Error("Usá un nombre de 1 a 70 caracteres.");
+ const ingredients=[];
+ for(let i=0;i<12;i++){
+  const nameInput=prompt("Ingrediente "+(i+1)+". Escribí su nombre; dejalo vacío para terminar.\nEj.: yogur, granola, banana",i===0?"":"");
+  if(nameInput===null){if(!ingredients.length)return;break;}
+  const term=nameInput.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
+  if(!term){if(!ingredients.length)throw Error("Agregá al menos un ingrediente.");break;}
+  const matches=foods.filter(f=>f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
+  if(!matches.length){notify("No encontramos ese ingrediente en el catálogo.");i--;continue;}
+  const chosen=prompt("Elegí el número del ingrediente:\n"+matches.map((f,j)=>(j+1)+". "+f.name).join("\n"),"1");
+  if(chosen===null)return;
+  const idx=Number(chosen)-1;if(!Number.isInteger(idx)||!matches[idx])throw Error("Ingrediente inválido.");
+  const gramsText=prompt("Cantidad de "+matches[idx].name+" en gramos o mililitros (según ficha):","100");
+  if(gramsText===null)return;
+  const grams=Number(gramsText.replace(",","."));if(!Number.isFinite(grams)||grams<=0||grams>5000)throw Error("Cantidad inválida.");
+  ingredients.push({foodId:matches[idx].id,grams});
+ }
+ if(!ingredients.length)return;
+ const portionsText=prompt("¿Cuántas porciones rinde la receta?","1");if(portionsText===null)return;
+ const portions=Number(portionsText);if(!Number.isInteger(portions)||portions<1||portions>50)throw Error("Cantidad de porciones inválida.");
+ const totals={k:0,p:0,c:0,f:0,fi:0};
+ for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
+ const recipe={name:name.trim(),ingredients,portions,totals};
+ const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
+ const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+ if(error)throw error;
+ cloudRecipes.push(data);
+ notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+}
+async function registerPersonalRecipe(){
+ const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
+ const choice=prompt("Elegí la receta a registrar:\n"+saved.map((r,i)=>(i+1)+". "+r.name+" · "+num(r.totals.k/r.portions)+" kcal/porción").join("\n"),"1");
+ if(choice===null)return;const selected=saved[Number(choice)-1];if(!selected)throw Error("Número de receta inválido.");
+ const meal=prompt("Elegí la comida:\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"5");
+ if(meal===null)return;const slot=mealSlots[Number(meal)-1]?.[0];if(!slot)throw Error("Comida inválida.");
+ const qtyText=prompt("¿Cuántas porciones comiste?","1");if(qtyText===null)return;
+ const qty=Number(qtyText.replace(",","."));if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Número de porciones inválido.");
+ const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+ for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
+ const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;await saveDiary();notify("Receta registrada y macros recalculados.");
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
@@ -484,6 +609,7 @@ function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
+ const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -508,7 +634,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>'+escapeHTML(motivation.title)+'</h1><p>'+escapeHTML(motivation.subtitle)+'</p><div class="pilot-toolbar" style="margin-top:15px">'+'<button class="btn small light" data-scrollplan="true">✨ Resolver lo que me falta</button><span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  '<div class="pilot-kpis">'+macroCard("CALORÍAS","k",tot,goal)+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
- consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+supplementsPanel(d)+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
+ consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+supplementsPanel(d)+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+recipeTools+weeklyStudentPanel()+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 
 function allowedFoods(){return foods.map(f=>f.id);}
@@ -768,6 +894,8 @@ function filterMealFoods(){
  });
  selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
+ else if(filtered.length)selector.value=filtered[0].id;
+ else selector.innerHTML='<option value="" disabled selected>Sin coincidencias</option>';
  updateMealEntryMode(true);
 }
 function updateMealEntryMode(foodChanged=false){
@@ -972,7 +1100,9 @@ function coachView(){
  macroPlayground()+
  '<div class="pilot-kpis"><div class="card"><div class="metric-label">ALUMNOS VINCULADOS</div><div class="metric-value">'+activeRoster.length+'</div></div><div class="card"><div class="metric-label">CUPO '+(isTest?'DE PRUEBA':'CONTRATADO')+'</div><div class="metric-value">'+seats+'</div></div><div class="card"><div class="metric-label">INVITACIONES PENDIENTES</div><div class="metric-value">'+pending.length+'</div></div><div class="card"><div class="metric-label">CUPOS LIBRES</div><div class="metric-value">'+Math.max(0,seats-used)+'</div></div></div>'+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Mis alumnos</h2>'+
- (roster.length?roster.map(p=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
+ (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
+ (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
+ (roster.length?roster.map(p=>'<div class="pilot-record" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML((p.nickname+" "+(p.email||"")).toLocaleLowerCase("es-AR"))+'"><div class="between"><div><strong>'+escapeHTML(p.nickname)+'</strong><small>'+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de EFG Nutrition con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
@@ -1011,6 +1141,53 @@ function coachTrendChart(days,key,label,unit,goalValue=null){
  (validGoal?(showGoal?' Línea punteada: objetivo '+num(goal,key==="k"?0:1)+' '+unit+'.':' Objetivo: '+num(goal,key==="k"?0:1)+' '+unit+' (fuera de la escala).'):'')+
  ' Escala ajustada para ver cambios pequeños; no se unen días faltantes.</p></div>';
 }
+function weeklyAdherenceSummary(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const days=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
+ const complete=days.filter(d=>d.closed);
+ const metrics=weeklyNumbers(days,state.coachGoals,state.coachWeights);
+ const goal=state.coachGoals[0];
+ const valid=days.filter(d=>d.hasData&&Number.isFinite(Number(d.p)));
+ const proteinWithin=metrics.proteinDaysCompared?metrics.proteinDaysOnTarget:null;
+ return '<section class="card"><h3>📅 Adherencia de los últimos 7 días</h3>'+
+ '<div class="nutrition-report-kpis"><div><small>Días con registros</small><strong>'+days.length+'/7</strong></div>'+
+ '<div><small>Días completos</small><strong>'+complete.length+'</strong></div>'+
+ '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+metrics.proteinDaysCompared)+'</strong></div></div>'+
+ '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo aprobado vigente en cada fecha registrada.</p></section>';
+}
+function weeklyDraftText(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!week.length)return "Sin registros alimentarios suficientes en los últimos 7 días. No corresponde emitir conclusiones.";
+ const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
+ const goal=state.coachGoals[0]||null;
+ const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
+ if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
+ if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
+ const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
+ if(weights.length>=2)notes.push("Peso: cambio entre los dos últimos pesajes disponibles "+num(Number(weights[0].kg)-Number(weights[1].kg),2)+" kg. No equivale necesariamente a cambios de grasa ni de masa magra.");
+ else notes.push("Peso: faltan al menos dos mediciones para comparar una tendencia.");
+ const comments=week.filter(d=>d.comment).map(d=>d.date+": "+d.comment).slice(-3);
+ if(comments.length)notes.push("Comentarios del alumno para revisar: "+comments.join(" | "));
+ notes.push("Propuesta para conversar: revisar regularidad de registros y elegir uno o dos ajustes de hábitos sostenibles, según preferencias y objetivos aprobados.");
+ notes.push("BORRADOR SIN ENVÍO. El entrenador debe corregir, aprobar y compartirlo por el canal que acuerde con el alumno.");
+ return notes.join("\\n\\n");
+}
+function weeklyCoachDraft(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
+ return '<section class="card"><h2>🌱 Tu evolución semanal</h2>'+
+ '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
+ '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
+ '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
+ '<div class="pilot-notice"><strong>🧬 Entender para mejorar</strong><small>Proteínas: se analiza la cercanía al objetivo del coach, no la calidad de la persona. Peso: un cambio aislado puede incluir agua y glucógeno. Días sin registro: faltan datos, no significa que se haya comido menos. Las recomendaciones deben considerar objetivos, evolución y comentarios del alumno.</small></div>'+
+ '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+
+ '<button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar texto revisado</button><button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>'+
+ '<p class="pilot-hint">La copia no representa aprobación ni entrega. No emitir recomendaciones clínicas automáticas.</p></section>';
+}
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
  const roster=(state.roster||[]).filter(p=>p.active);
@@ -1026,6 +1203,8 @@ function coachReportsView(){
  out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
  (prev?.comment?'<div class="coach-comment-detail"><strong>📝 Comentario del alumno de ayer</strong><p>'+escapeHTML(prev.comment)+'</p></div>':'')+
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
+ out+=weeklyAdherenceSummary();
+ out+=weeklyCoachDraft();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
@@ -1095,7 +1274,7 @@ function studentDetailView(p,consent){
  return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span><div class="divider"></div>'+coachDailyReport(p)+
  '<div class="divider"></div><h3>Variación del peso corporal</h3>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
- '<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
+ '<div class="divider"></div><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  ''+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="1.2">Baja</option><option value="1.35">Ligera</option><option value="1.5" selected>Moderada</option><option value="1.7">Alta</option></select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
@@ -1246,6 +1425,10 @@ async function loadRoleData(){
   const [r,inv]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]);
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
+  coachRosterConsent={};
+  const ids=state.roster.map(p=>p.user_id).filter(Boolean);
+  if(ids.length){const cr=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);if(cr.error)throw cr.error;for(const c of cr.data||[])coachRosterConsent[c.student_id]=c.accepted===true;}
+
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }
  if(role==="student"){
@@ -1297,6 +1480,7 @@ async function refresh(){
   state.profile=p.data;
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
+  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
    // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
@@ -1413,6 +1597,18 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
+ if(el.dataset.act==="copyWeeklyDraft"){const draft=document.getElementById("weeklyCoachDraftText")?.value?.trim();if(!draft)throw Error("El borrador está vacío.");await navigator.clipboard.writeText(draft);notify("Texto revisado copiado. El envío al alumno queda a cargo del entrenador.");return;}
+ if(el.dataset.rosterfilter){
+  root.dataset.rosterFilter=el.dataset.rosterfilter;
+  const search=document.getElementById("coachRosterSearch");
+  if(search)search.dispatchEvent(new Event("input",{bubbles:true}));
+  for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
+  return;
+ }
+ if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
+ if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
+ if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
@@ -1525,7 +1721,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 root.addEventListener("change",e=>{if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
+root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
  const key=e.target.id.slice("planQty_".length);
  const select=[...root.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===key);
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};

@@ -699,6 +699,8 @@ async function addPlannedFood(key){
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
  d.meals[slot].push(normItem(row.food,grams,slot));
+ // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
+ state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
  await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
 }

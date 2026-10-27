@@ -112,10 +112,13 @@ const SEAFOOD_MEDALLION_DATA=[
 ];
 const SEAFOOD_MEDALLION_FOODS=SEAFOOD_MEDALLION_DATA.map(([id,name,category,p,c,f,fi])=>({
  id,name,category,unit:"g",
- k:Math.round((p*4+c*4+f*9)*100)/10000,
+ k:id==="pulpo_cocido"?1.64:id==="mejillones_cocidos"?1.72:Math.round((p*4+c*4+f*9)*100)/10000,
  p:p/100,c:c/100,f:f/100,fi:fi/100,
+ ...(id==="pulpo_cocido"?{sourceType:"usda_fdc",validationStatus:"tabla_referenciada",sourceId:"174249"}:
+     id==="mejillones_cocidos"?{sourceType:"usda_fdc",validationStatus:"tabla_referenciada",sourceId:"174217"}:{}),
  ...(id.startsWith("medallon_")?{servingGrams:100}:{}),
- sourceType:"generic_estimate",validationStatus:"generico_pendiente",
+ sourceType:id==="pulpo_cocido"||id==="mejillones_cocidos"?"usda_fdc":"generic_estimate",
+ validationStatus:id==="pulpo_cocido"||id==="mejillones_cocidos"?"tabla_referenciada":"generico_pendiente",
  source:id==="pulpo_cocido"?
  "Valor de referencia por 100 g cocidos: USDA FoodData Central, SR Legacy FDC 174249 (pulpo cocido con calor húmedo). Sin aceite adicional.":
  id==="mejillones_cocidos"?

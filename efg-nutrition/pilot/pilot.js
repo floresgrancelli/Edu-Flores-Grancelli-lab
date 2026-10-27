@@ -333,6 +333,18 @@ async function loadCloudHabituales(){
  const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
  if(error)throw error;
  cloudHabituales=data||[];
+ // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
+ for(const [slot] of mealSlots){
+  const local=getHabitualList(slot);
+  const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
+  for(const item of local){
+   if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
+   if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
+   const created=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   if(created.error)throw created.error;
+   remote.push(created.data);cloudHabituales.push(created.data);
+  }
+ }
 }
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}

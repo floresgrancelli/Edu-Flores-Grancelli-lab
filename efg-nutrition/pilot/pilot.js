@@ -388,7 +388,7 @@ function unauthorized(msg){
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 function homeView(){
- let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal(),canAuto=state.profile.role==="admin";
+ let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -412,11 +412,11 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<button type="button" class="btn small" data-act="toggleDayClosed" '+(!Object.values(d.meals||{}).some(x=>x?.length)&&!d.sports?.length&&!d.skipped?._closed?'disabled':'')+'>'+
  (d.skipped?._closed?'Reabrir registro':'Terminé de registrar mi día')+'</button></div>'+
  '<p class="pilot-hint">'+(d.skipped?._closed?'Día terminado. Si cambiás una comida o suplemento, el informe vuelve a figurar como parcial.':'Al finalizar se guarda también este comentario. Lo verá el coach solamente con tu autorización de seguimiento.')+'</p></div>':'';
- const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Para uso personal de Edu o de un entrenador. No modifica los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
+ const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
   return rootText("Mi alimentación","Tus registros se guardan en tu cuenta privada. Solo vos y, si lo autorizás, tu coach podrán consultarlos.")+
- '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>Un día a la vez, un hábito a la vez.</h1><p>Registrá gramos reales, suplementos y bebidas. Tus macros se calculan al instante.</p><div class="pilot-toolbar" style="margin-top:15px">'+(canAuto?'<button class="btn" data-act="loadEdu">🍳 Cargar desayuno y media mañana de Edu</button>':'')+'<button class="btn small light" data-scrollplan="true">✨ Resolver lo que me falta</button><span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
+ '<section class="pilot-hero"><div class="eyebrow">🌿 HOY · '+today().split("-").reverse().join("/")+'</div><h1>Un día a la vez, un hábito a la vez.</h1><p>Registrá gramos reales, suplementos y bebidas. Tus macros se calculan al instante.</p><div class="pilot-toolbar" style="margin-top:15px">'+'<button class="btn small light" data-scrollplan="true">✨ Resolver lo que me falta</button><span class="pilot-pill">'+roleLabel()+'</span></div></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  '<div class="pilot-kpis">'+macroCard("CALORÍAS","k",tot,goal)+macroCard("PROTEÍNAS","p",tot,goal)+macroCard("HIDRATOS","c",tot,goal)+macroCard("GRASAS","f",tot,goal)+'</div>'+
  consentPanel+'<div class="pilot-two"><div class="card">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+supplementsPanel(d)+closePanel+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+plannerCard()+'<div id="mealDialogContainer"></div>'+goalForm;
@@ -1053,16 +1053,6 @@ async function saveActivity(){
  const {error}=await sb.from("efg_activities").upsert({student_id:state.session.user.id,activity_day:today(),steps,exercise_minutes:mins,kind},{onConflict:"student_id,activity_day"});
  if(error)throw error;notify("Actividad registrada.");await loadPersonalData();await render();
 }
-async function saveEduRoutine(){
- if(state.profile.role!=="admin")throw new Error("Esa rutina pertenece a la cuenta personal de Edu.");
- let d=activeDiary();
- if((d.meals.desayuno||[]).length||(d.meals.media_manana||[]).length)throw new Error("Ya existen comidas registradas. Editalas individualmente para evitar duplicarlas.");
- let get=(id,qty,when)=>normItem(foods.find(f=>f.id===id),qty,when);
- d.meals.desayuno=[get("egg",150,"desayuno"),get("bread",38,"desayuno"),get("cheese",30,"desayuno"),get("quince",20,"desayuno"),get("milk",300,"desayuno")];
- d.meals.media_manana=[{...get("cake",82.5,"media_manana"),displayQty:1,displayUnit:"porción de budín",unitEstimate:true}];
- d.sports.push(normItem(sports.find(f=>f.id==="whey"),30,"Media mañana"));
- await saveDiary();notify("Desayuno y media mañana cargados. Revisá las cantidades estimadas.");
-}
 async function savePersonalTargets(){
  let n=id=>{const input=document.getElementById(id);return input.value.trim()===''?NaN:Number(input.value);};
  let vals={user_id:state.session.user.id,kcal:n("selfK"),protein_g:n("selfP"),carb_g:n("selfC"),fat_g:n("selfF"),fiber_g:n("selfFi"),updated_at:new Date().toISOString()};
@@ -1234,7 +1224,6 @@ if(el.dataset.foodbulk){
 }
  if(action==="saveWeight")return saveWeight();
  if(action==="saveActivity")return saveActivity();
- if(action==="loadEdu")return saveEduRoutine();
  if(action==="inviteCoach"){const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim(),seats=Number(document.getElementById("newCoachSeats").value);let r=await sb.rpc("efg_invite_coach",{p_email:email,p_name:name,p_seats:seats});if(r.error)throw r.error;await loadRoleData();await render();notify("Coach habilitado. Compartí su correo y dirección de acceso.");return;}
  if(action==="inviteStudent"){const email=document.getElementById("studentEmail").value.trim(),name=document.getElementById("studentName").value.trim();let r=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_invite_test_student":"efg_invite_student",{p_email:email,p_name:name});if(r.error)throw r.error;await loadRoleData();await render();notify("Alumno habilitado en los cupos de este coach.");return;}
  if(action==="coachAlias"){let alias=document.getElementById("coachAlias").value.trim();let r=await sb.rpc("efg_set_coach_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias de cobro guardado.");return;}

@@ -31,7 +31,7 @@ assert.match(roleLoader,/state\.roster=students\.data\|\|\[\];state\.testInvitat
 assert.match(roleLoader,/state\.roster=r\.data\|\|\[\];state\.invitations=inv\.data\|\|\[\];\s*await loadCoachRosterConsent\(\)/,"Coach must use the same consent loader");
 assert.match(js,/\.from\("efg_consents"\)\.select\("student_id,accepted"\)/,"Consent status must be read from database, not inferred from enrollment");
 assert.ok(html.lastIndexOf("premium-system.css")>html.lastIndexOf("admin-experience.css"),"Premium styles must load last");
-assert.ok(!js.slice(js.indexOf("function macroCard("),js.indexOf("function homeView()")).includes("</summary>"),"Macro card contains unexpected closing summary");
+assert.ok(!js.slice(js.indexOf("function macroCard("),js.indexOf("function premiumMenuView(")).includes("</summary>"),"Macro card contains unexpected closing summary");
 let depth=0;for(const c of css){if(c==="{")depth++;if(c==="}"){depth--;assert.ok(depth>=0,"CSS braces close too early")}}assert.equal(depth,0,"CSS braces unbalanced");
 console.log("PASS: JS syntax, UX destinations, profile sections, CSS/mobile structure, macro markup.");
 console.log("NOT TESTED: real auth, live iPhone/Android screenshots, mobile visual overflow, live Supabase persistence and permissions.");

@@ -546,7 +546,7 @@ function plannerCard(){
  '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
  '<p id="plannerRealNumbers"></p><small>Coincide con los valores de Mi alimentación. No incluye ningún alimento simulado.</small></div>'+
  '<div class="planner-left planner-simulated-balance"><b id="plannerSimulationHeading">SIMULACIÓN · si comieras lo seleccionado</b>'+
- '<p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>'+
+ '<p id="plannerPlannedNumbers"></p><p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div></section>'+
  '<p class="pilot-hint">La simulación NO registra alimentos. El saldo real solo cambia cuando guardás lo que efectivamente comiste. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
  return out;
 }
@@ -572,11 +572,11 @@ function filterPlannerFoods(input){
 function updatePlannerPreview(){
  const notice=document.getElementById("plannerPendingNotice");
  const numbers=document.getElementById("plannerPendingNumbers"),details=document.getElementById("plannerPendingDetail");
+ const realNumbers=document.getElementById("plannerRealNumbers"),plannedNumbers=document.getElementById("plannerPlannedNumbers"),simulatedHeading=document.getElementById("plannerSimulationHeading");
  if(!notice||!numbers||!details)return;
  const balance=dailyTotals(activeDiary()),goal=activeGoal();
  if(!goal)return;
- const projected={k:balance.k,p:balance.p,c:balance.c,f:balance.f};
- const gramChoices={};
+ const gramChoices={},chosenFoods=[];
  let hasUnsupported=false;
  for(const select of notice.closest("#planSuggestionCard").querySelectorAll("[data-planselect]")){
   const key=select.dataset.planselect;
@@ -586,7 +586,7 @@ function updatePlannerPreview(){
   const grams=Number(document.getElementById("planQty_"+key)?.value)||0;
   if(grams<0||!Number.isFinite(grams))continue;
   gramChoices[key]=grams;
-  for(const nutrient of ["k","p","c","f"])projected[nutrient]+=Number(food[nutrient]||0)*grams;
+  chosenFoods.push({food,grams});
  }
  const energyPlan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const energy=plannerEnergyBreakdown(energyPlan,gramChoices);
@@ -620,19 +620,22 @@ function updatePlannerPreview(){
    entry.exceeded>2?"Esta comida ya supera su presupuesto: no hace falta elegir extras.":
    "Ya se alcanzó el presupuesto de esta comida; no necesitás agregar extras.";
  }
- const remain=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,Number(goal[k]||0)-projected[k])]));
- const excess=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,projected[k]-Number(goal[k]||0))]));
+ const balanceView=projectNutritionBalance({consumed:balance,goals:goal,selected:chosenFoods});
+ const fmt=(obj)=>"Calorías "+num(obj.k,1)+" kcal · Proteínas "+num(obj.p,1)+" g · Hidratos "+num(obj.c,1)+" g · Grasas "+num(obj.f,1)+" g";
+ if(realNumbers)realNumbers.textContent=fmt(balanceView.remaining);
+ if(plannedNumbers)plannedNumbers.textContent="Las porciones seleccionadas aportarían: "+fmt(balanceView.planned);
+ const remain=balanceView.projectedRemaining,excess=balanceView.projectedExceeded;
  const pendingMain=remain.k>2||remain.p>.4||remain.c>.4;
  const fatOnly=!pendingMain&&remain.f>.4;
  notice.classList.toggle("planner-complete",!pendingMain);
- const heading=notice.querySelector("b");
- if(heading)heading.textContent=pendingMain?"Faltan estos macros para completar el día":fatOnly?"Proteína, hidratos y calorías cubiertos; grasas pendientes (informativo)":"Objetivos diarios aproximadamente cubiertos";
- numbers.textContent="Calorías: "+num(remain.k)+" kcal · Proteínas: "+num(remain.p,1)+" g · Hidratos: "+num(remain.c,1)+" g · Grasas: "+num(remain.f,1)+" g";
+ const heading=simulatedHeading;
+ if(heading)heading.textContent=pendingMain?"SIMULACIÓN · quedarían por cubrir":fatOnly?"SIMULACIÓN · solo grasas pendientes (informativo)":"SIMULACIÓN · objetivos aproximadamente cubiertos";
+ numbers.textContent="Si comieras todas estas porciones, quedarían: "+fmt(remain);
  const excessParts=[["k","kcal",5],["p","g de proteína",.8],["c","g de hidratos",.8],["f","g de grasas",.8]].filter(([key,,limit])=>excess[key]>limit).map(([key,label])=>num(excess[key],1)+" "+label);
- details.textContent=(excessParts.length?"La combinación superaría algunos objetivos: "+excessParts.join(" · ")+". ":"")+
+ details.textContent="Esto todavía NO se registró. "+(excessParts.length?"La combinación superaría algunos objetivos: "+excessParts.join(" · ")+". ":"")+
   (remain.k>2?"Si querés sumar alimentos para acercarte a las calorías pendientes, usá un extra opcional. ":"")+
   (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
-  "El cálculo usa los alimentos y gramos indicados; no agrega otros alimentos automáticamente.";
+  "El saldo real solo cambia cuando registrás efectivamente lo consumido.";
 }
 function refreshPlannerCard(focusKey=null){
  const section=document.getElementById("planSuggestionCard");

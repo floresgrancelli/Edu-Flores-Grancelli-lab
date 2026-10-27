@@ -18,8 +18,14 @@ includesAll(js,[
  '["home","⌂","Hoy"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
 ]);
 includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","efg-quick-add-grid","coach-profile-accordion"]);
+includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-scrollto=\"studentMeals\"",'aria-current="page"',"if(el.dataset.scrollto)"]);
+includesAll(css,[".efg-mobile-header","efg-mobile-avatar","efg-student-macros","meal-remove-item","safe-area-inset-top"]);
+assert.match(js,/data-scrollto="studentMeals"/,"The meals shortcut must scroll to the actual meal section");
+assert.match(js,/id="studentMeals"/,"The meals destination must exist");
+assert.match(css,/\.pilot-layout \.meal-remove-item\{min-width:44px;height:44px/,"Meal delete targets must be at least 44px");
+
 assert.ok(html.lastIndexOf("premium-system.css")>html.lastIndexOf("admin-experience.css"),"Premium styles must load last");
 assert.ok(!js.slice(js.indexOf("function macroCard("),js.indexOf("function homeView()")).includes("</summary>"),"Macro card contains unexpected closing summary");
 let depth=0;for(const c of css){if(c==="{")depth++;if(c==="}"){depth--;assert.ok(depth>=0,"CSS braces close too early")}}assert.equal(depth,0,"CSS braces unbalanced");
 console.log("PASS: JS syntax, UX destinations, profile sections, CSS/mobile structure, macro markup.");
-console.log("NOT TESTED: real auth, mobile visual overflow, live Supabase persistence and permissions.");
+console.log("NOT TESTED: real auth, live iPhone/Android screenshots, mobile visual overflow, live Supabase persistence and permissions.");

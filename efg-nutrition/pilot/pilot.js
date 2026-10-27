@@ -1125,25 +1125,36 @@ function weeklyAdherenceSummary(){
  '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+valid.length)+'</strong></div></div>'+
  '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo actual y es orientativa si hubo ajustes durante la semana.</p></section>';
 }
-function weeklyCoachDraft(){
+function weeklyDraftText(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
  const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff).sort((a,b)=>a.date.localeCompare(b.date));
- if(!week.length)return '<section class="card"><h2>🌱 Resumen semanal para el alumno</h2><p class="pilot-hint">Todavía no hay registros alimentarios en los últimos 7 días. No generamos conclusiones a partir de datos ausentes.</p></section>';
- const mean=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
+ if(!week.length)return "Sin registros alimentarios suficientes en los últimos 7 días. No corresponde emitir conclusiones.";
+ const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
  const goal=state.coachGoals[0]||null;
- const proteins=goal?.protein_g>0?Math.round(mean("p")/goal.protein_g*100):null;
- const kcal=goal?.kcal>0?Math.round(mean("k")/goal.kcal*100):null;
- const weights=(state.coachWeights||[]).filter(w=>Number.isFinite(Number(w.kg))&&Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
- const delta=weights.length>=2?Number(weights[0].kg)-Number(weights[1].kg):null;
- const observations=[];
- observations.push("Registraste alimentación "+week.length+" de los últimos 7 días. Los días sin datos no se contabilizan como ingesta cero.");
- if(proteins!==null)observations.push("Tu promedio de proteína representa aproximadamente "+proteins+"% del objetivo actual. "+(proteins<90?"Podrías revisar con tu entrenador qué comidas permiten distribuir mejor las proteínas.":"Mantené la distribución de proteínas que te resulte sostenible."));
- if(kcal!==null)observations.push("El promedio calórico de los días registrados equivale a "+kcal+"% del objetivo actual. Una diferencia no prueba por sí sola un problema de adherencia.");
- if(delta!==null)observations.push("Entre los dos últimos pesajes disponibles hubo una variación de "+(delta>0?"+":"")+num(delta,2)+" kg. Es necesario evaluar más mediciones y condiciones comparables antes de interpretar la tendencia.");
- else observations.push("Faltan al menos dos pesajes para comparar cambios de peso.");
- const draft="Resumen semanal EFG Nutrition Pro\\n"+observations.join("\\n")+"\\nSiguiente paso: elegí junto a tu entrenador uno o dos hábitos concretos para trabajar esta semana.";
- return '<section class="card"><h2>🌱 Borrador de resumen semanal</h2><p class="pilot-hint">Preparado a partir de datos registrados. Todavía no utiliza IA generativa ni se envía automáticamente; el coach debe revisar cada conclusión.</p><div class="nutrition-report-kpis"><div><small>Días con registros (7 días)</small><strong>'+week.length+'/7</strong></div><div><small>Proteína media</small><strong>'+num(mean("p"),1)+' g</strong></div><div><small>Energía media registrada</small><strong>'+num(mean("k"))+' kcal</strong></div></div><div class="pilot-notice">'+observations.map(t=>'<p>'+escapeHTML(t)+'</p>').join("")+'</div><button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar borrador para revisar</button></section>';
+ const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
+ if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
+ if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
+ const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
+ if(weights.length>=2)notes.push("Peso: cambio entre los dos últimos pesajes disponibles "+num(Number(weights[0].kg)-Number(weights[1].kg),2)+" kg. No equivale necesariamente a cambios de grasa ni de masa magra.");
+ else notes.push("Peso: faltan al menos dos mediciones para comparar una tendencia.");
+ const comments=week.filter(d=>d.comment).map(d=>d.date+": "+d.comment).slice(-3);
+ if(comments.length)notes.push("Comentarios del alumno para revisar: "+comments.join(" | "));
+ notes.push("Propuesta para conversar: revisar regularidad de registros y elegir uno o dos ajustes de hábitos sostenibles, según preferencias y objetivos aprobados.");
+ notes.push("BORRADOR SIN ENVÍO. El entrenador debe corregir, aprobar y compartirlo por el canal que acuerde con el alumno.");
+ return notes.join("\\n\\n");
+}
+function weeklyCoachDraft(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
+ const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
+ return '<section class="card"><h2>🌱 Resumen semanal revisable</h2>'+
+ '<p class="pilot-hint">Análisis descriptivo automatizado, sin IA generativa aún. El coach puede editar el texto antes de copiarlo; no se envía automáticamente al alumno.</p>'+
+ '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
+ '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
+ '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+
+ '<button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar texto revisado</button>'+
+ '<p class="pilot-hint">La copia no representa aprobación ni entrega. No emitir recomendaciones clínicas automáticas.</p></section>';
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -1550,7 +1561,7 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
- if(el.dataset.act==="copyWeeklyDraft"){const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;const week=report.days.filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);const avg=k=>week.reduce((t,d)=>t+Number(d[k]||0),0)/Math.max(1,week.length);const lines=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Días con registros: "+week.length+"/7","Proteína media: "+num(avg("p"),1)+" g","Energía media: "+num(avg("k"))+" kcal","Los días sin registros no se interpretan como cero."];await navigator.clipboard.writeText(lines.join("\\n"));notify("Borrador copiado para revisión del coach.");return;}
+ if(el.dataset.act==="copyWeeklyDraft"){const draft=document.getElementById("weeklyCoachDraftText")?.value?.trim();if(!draft)throw Error("El borrador está vacío.");await navigator.clipboard.writeText(draft);notify("Texto revisado copiado. El envío al alumno queda a cargo del entrenador.");return;}
  if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}

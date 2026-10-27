@@ -73,7 +73,7 @@ try{
 
    state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
    state.consent={accepted:true};
-   state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS"};
+   state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS",coach_id:role==="admin"?"demo-admin":"demo-coach"};
    state.orgs=[
      {id:"demo1",name:"Coach Norte",seat_limit:20,status:"active",coach_id:"demo-coach1"},
      {id:"demo2",name:"Coach Centro",seat_limit:30,status:"trial",coach_id:"demo-coach2"},
@@ -90,11 +90,12 @@ try{
    await render();
   },role);
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){
-   if(dest==="recipes")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="recipes";await v.render();});
+   if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
+   else if(dest==="recipes")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="recipes";await v.render();});
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
-   if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",sender_id:"demo-student-a",recipient_id:"demo-coach",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
+   if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
@@ -115,10 +116,12 @@ try{
      if((await page.locator(".efg-fit-card").count())!==6)pageReport.errors.push("Fit category filter did not narrow to six meals");
      await page.locator('[data-fitfilter="all"]').click();
    }
-   if(role==="coach"&&dest==="payments"){
+   if((role==="coach"||role==="admin")&&dest==="payments"){
      if(!(await page.locator("#coachAlias").count()))pageReport.errors.push("Coach alias editor missing in payments");
      if(!(await page.getByText("Comprobantes de mis alumnos",{exact:true}).count()))pageReport.errors.push("Coach receipts inbox missing");
      if(!(await page.getByText("Alex Gómez",{exact:false}).count()))pageReport.errors.push("Sender name missing in coach inbox");
+     if((await page.locator(".efg-payment-inbox .efg-payment-item").count())!==1)pageReport.errors.push("Coach receipts inbox should contain one org-scoped receipt");
+     if(role==="admin"&&!(await page.getByText("Superadministración",{exact:true}).count()))pageReport.errors.push("Admin billing view must remain available");
    }
    if(role==="student"&&dest==="weight"){
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){

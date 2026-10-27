@@ -495,8 +495,8 @@ function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'"
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
 function frame(content){
  const role=state.profile.role;
- const menu=[["home","☀","Mi alimentación"],["weight","↗","Progreso"],["sport","✚","Deporte"]];
- if(role==="coach")menu.push(["coach","♧","Mis alumnos"],["reports","▥","Informes"]);
+ const menu=role==="coach"?[["coach","◫","Inicio"],["reports","▥","Informes"]]:[["home","☀","Mi alimentación"],["weight","↗","Progreso"],["sport","✚","Deporte"]];
+ 
  if(role==="admin"){menu.push(["testCoach","♧","Coach de prueba"],["reports","▥","Informes de prueba"]);menu.push(["admin","♛","Administración"]);}
  menu.push(["payments","▤","Pagos"]);
  root.innerHTML='<div class="pilot-layout"><aside class="pilot-nav"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+

@@ -28,8 +28,12 @@ assert.throws(()=>adjustNutritionGoal(base,2200,"unknown_mode"),"No aceptar otro
 const revised={...protectedGoal,start_on:"2026-10-26",approved_at:"2026-10-26T22:00:00Z",id:"nuevo"};
 assert.equal(goalForDate([revised,base],"2026-10-01").id,"historico","Las fechas pasadas conservan la meta previa");
 assert.equal(goalForDate([revised,base],"2026-10-26").id,"nuevo","La nueva meta se aplica desde la fecha aprobada");
+const adjustedAgain={...revised,kcal:2350,approved_at:"2026-10-26T23:20:00Z",id:"corregido_mismo_dia"};
+assert.equal(goalForDate([revised,adjustedAgain,base],"2026-10-26").id,"corregido_mismo_dia","Puede corregirse varias veces el mismo día sin período mínimo");
+assert.equal(goalForDate([revised,adjustedAgain,base],"2026-10-01").id,"historico","Revisar hoy no altera el objetivo de fechas anteriores");
 const ui=await readFile(new URL("./pilot.js",import.meta.url),"utf8");
 assert.ok(ui.includes("previewGoalRevision()")&&ui.includes("approveGoalRevision()"),"Acciones de revisión disponibles");
+assert.ok(ui.includes("sin plazo mínimo")&&ui.includes("Aplicar ajuste ahora"),"El coach debe conocer que puede ajustar en cualquier momento");
 assert.ok(ui.includes('value="protect_protein_balanced"')&&ui.includes("function revisionModeChoices()"),"El tercer modo aparece en propuesta y revisión");
 assert.ok(ui.includes('goalForDate(state.coachGoals,selected.date)'),"Informes históricos usan la meta vigente en la fecha");
 assert.ok(ui.includes('.insert({...pending.proposal,student_id:pending.studentId,approved_by:state.session.user.id,start_on:today()})'),"Se insertan metas nuevas sin sobrescribir las anteriores");

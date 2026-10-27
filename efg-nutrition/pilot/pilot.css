@@ -12,15 +12,11 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .planner-meal h3{font-size:16px;margin:0}
 .planner-item{border:1px solid #e2eee8;background:#fbfefb;border-radius:14px;padding:13px;margin-top:13px}
 .planner-item>label{font-size:11px;font-weight:800;color:#567b78;display:block;margin-bottom:7px}
-.planner-item>select,.planner-option-b>select{width:100%;min-height:42px;border:1px solid #d4e7dc;border-radius:10px;background:white;color:#214e4b;padding:8px;font-size:13px;max-width:100%;text-overflow:ellipsis}
+.planner-item>select{width:100%;min-height:42px;border:1px solid #d4e7dc;border-radius:10px;background:white;color:#214e4b;padding:8px;font-size:13px;max-width:100%;text-overflow:ellipsis}
 .planner-qty{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin-top:12px}
 .planner-qty>div{font-size:12px;color:#508376;margin-right:auto;max-width:110px;line-height:1.5}
 .planner-qty>label{font-size:10px;color:#6e8984;font-weight:700}
 .planner-qty input{display:block;width:105px;min-height:38px;border:1px solid #d4e7dc;border-radius:9px;padding:8px;font-size:13px;margin-top:5px}
-.planner-option-b{margin-top:13px;border-top:1px dashed #d9e9de;padding-top:12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.planner-option-b label{font-size:11px;font-weight:800;color:#6d8a86}
-.planner-option-b select{width:auto;flex:1;min-width:130px}
-.planner-option-b small{font-size:10px;color:#738d87;line-height:1.55;flex-basis:100%}
 .planner-left{background:#fff5e6;border:1px solid #f5e1bd;color:#796442;border-radius:13px;padding:16px;margin:15px 0}
 .planner-left b{font-size:12px}.planner-left p{font-size:12px;margin:6px 0}
 .planner-left small{font-size:10px;line-height:1.6;display:block}
@@ -316,4 +312,32 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .pilot-loader-message{font-size:26px;margin-bottom:17px}
  .pilot-loader.pilot-loader-wellness .spin{margin-bottom:12px}
  .pilot-loader-subtitle{margin-bottom:12px}
+}
+
+/* Resolver lo que me falta · catálogo completo con búsqueda, gramajes y balance */
+.planner-item{padding:15px;border-color:#dcece5}
+.planner-food-search{
+ width:100%;box-sizing:border-box;display:block;min-height:44px;
+ border:1px solid #d4e7dc;border-radius:10px;background:#fff;
+ padding:10px 13px;margin:0 0 9px;color:#214e4b;font-size:14px;
+ outline-offset:2px
+}
+.planner-item>select{font-size:14px;min-height:46px;margin-bottom:4px}
+.planner-qty{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 14px;align-items:end}
+.planner-qty .planner-recommendation{max-width:none;grid-column:1/-1;font-size:13px;line-height:1.55;color:#32665b}
+.planner-qty .planner-recommendation b{font-size:16px;color:#1d6354}
+.planner-qty>label{font-size:12px;font-weight:700;min-width:0}
+.planner-qty>label input{width:100%;min-width:0;max-width:210px;font-size:16px;box-sizing:border-box}
+.planner-qty>button{min-height:44px;white-space:normal}
+.planner-skipped{margin:10px 0 0!important;padding:7px 0}
+.planner-left{border-color:#ecd49b;padding:18px;margin-top:20px}
+.planner-left b{font-size:14px}
+.planner-left p{font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.planner-left small{font-size:11px;line-height:1.6}
+.planner-left.planner-complete{background:#ecf8f1;border-color:#c6e6d4;color:#285f4b}
+@media(max-width:480px){
+ .planner-meal{padding-top:18px}
+ .planner-item{padding:13px}
+ .planner-qty{grid-template-columns:minmax(0,1fr) minmax(95px,auto)}
+ .planner-food-search{font-size:16px}
 }

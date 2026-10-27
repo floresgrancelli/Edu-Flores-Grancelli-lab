@@ -393,7 +393,24 @@ async function habitualAction(slot,action){
  await saveDiary();notify("Comida habitual registrada; balance recalculado.");
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
-function myRecipes(){try{const x=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");return Array.isArray(x)?x:[];}catch(_){return [];}}
+let cloudRecipes=[];
+function myRecipes(){return cloudRecipes;}
+async function loadCloudRecipes(){
+ if(state.profile?.role!=="student"){cloudRecipes=[];return;}
+ const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
+ cloudRecipes=data||[];
+ let saved=[];
+ try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
+ if(Array.isArray(saved))for(const recipe of saved){
+  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals)continue;
+  if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
+  if(cloudRecipes.length>=30)break;
+  const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  if(created.error)throw created.error;
+  cloudRecipes.push(created.data);
+ }
+}
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
  if(name===null)return;
@@ -421,8 +438,10 @@ async function createPersonalRecipe(){
  for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
  const recipe={name:name.trim(),ingredients,portions,totals};
  const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
- saved.push(recipe);localStorage.setItem(recipeStoreKey(),JSON.stringify(saved));
- notify("Receta guardada: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+ const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+ if(error)throw error;
+ cloudRecipes.push(data);
+ notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
 async function registerPersonalRecipe(){
  const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
@@ -555,7 +574,7 @@ function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
- const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en este dispositivo</small></section>';
+ const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -1393,7 +1412,7 @@ async function refresh(){
   state.profile=p.data;
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
-  await loadCloudHabituales();
+  await Promise.all([loadCloudHabituales(),loadCloudRecipes()]);
   await loadRoleData();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
    // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.

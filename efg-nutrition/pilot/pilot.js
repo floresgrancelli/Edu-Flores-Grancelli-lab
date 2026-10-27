@@ -1628,7 +1628,7 @@ async function mainClick(event){
    if(student)await loadStudentDetail(student.user_id);
   }
   await render();
-  window.scrollTo({top:0,behavior:"instant"});
+  window.scrollTo(0,0);
   return;
 }
  if(el.dataset.studentstatus){

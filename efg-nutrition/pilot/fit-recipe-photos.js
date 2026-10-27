@@ -1,9 +1,9 @@
 // EFG Nutrition Pro — fotografías reales ilustrativas, no de recetas preparadas por EFG.
 // Fotos de Unsplash y Pexels; crédito original junto a cada tarjeta.
 export const FIT_RECIPE_PHOTOS=Object.freeze({
- "budin-edu":Object.freeze({src:"https://images.unsplash.com/photo-1767065887793-f68f736ea9d6?auto=format&fit=crop&w=1080&q=80",author:"Diego Arenas de Rodrigo",source:"https://unsplash.com/photos/bWj_oZPjXS8",provider:"Unsplash"}),
+ "budin-edu":Object.freeze({"src":"https://images.pexels.com/photos/6803031/pexels-photo-6803031.jpeg?auto=compress&cs=tinysrgb&w=1080","author":"David Payne","source":"https://www.pexels.com/photo/close-up-of-a-simple-loaf-cake-6803031/","provider":"Pexels"}),
  "budin-whey":Object.freeze({src:"https://images.unsplash.com/photo-1632931057819-4eefffa8e007?auto=format&fit=crop&w=1080&q=80",author:"Cody Chan",source:"https://unsplash.com/photos/a0fBbS8RZAo",provider:"Unsplash"}),
- "pancakes":Object.freeze({src:"https://images.unsplash.com/photo-1736013042026-ffb1435aaa8b?auto=format&fit=crop&w=1080&q=80",author:"David Magalhães",source:"https://unsplash.com/photos/lzbCUVfPkcU",provider:"Unsplash"}),
+ "pancakes":Object.freeze({"src":"https://images.unsplash.com/photo-1504854991036-ca1b54063e48?auto=format&fit=crop&w=1080&q=80","author":"Brenda Godinez","source":"https://unsplash.com/photos/pancakes-with-syrup-on-white-plate--KlkI_4N52I","provider":"Unsplash"}),
  "omelette":Object.freeze({src:"https://images.unsplash.com/photo-1539546671426-4ec2a754d823?auto=format&fit=crop&w=1080&q=80",author:"Heloisa Nass",source:"https://unsplash.com/photos/KjCRLweJsrA",provider:"Unsplash"}),
  "overnight":Object.freeze({src:"https://images.unsplash.com/photo-1681150405668-cd5b2a37195d?auto=format&fit=crop&w=1080&q=80",author:"Jessica Arias",source:"https://unsplash.com/photos/jQqdHj6oT6k",provider:"Unsplash"}),
  "chia":Object.freeze({src:"https://images.unsplash.com/photo-1642423453088-69ad302f0d3c?auto=format&fit=crop&w=1080&q=80",author:"Rohtopia.com",source:"https://unsplash.com/photos/qsVkBDiWqPk",provider:"Unsplash"}),

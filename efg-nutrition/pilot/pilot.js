@@ -597,13 +597,27 @@ function refreshPlannerCard(focusKey=null){
  }
 }
 function parsePlannerKey(key){const parts=String(key).split("|");return parts.length===2&&MEAL_ORDER.includes(parts[0])&&FOOD_GROUPS[parts[1]]?[parts[0],parts[1]]:null;}
+function openPlannedFoodEditor(key){
+ const pair=parsePlannerKey(key);
+ if(!pair)throw new Error("Selección inválida.");
+ const [slot,category]=pair;
+ const id=state.plannerSelections[key]||"";
+ const selected=foods.find(f=>f.id===id);
+ if(!selected)throw new Error("Seleccioná un alimento.");
+ openMealDialog(slot);
+ const picker=document.getElementById("mealEditorFood");
+ if(!picker)return;
+ picker.value=selected.id;
+ updateMealEntryMode(true);
+}
 async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
  const [slot,category]=pair, grams=Number(document.getElementById("planQty_"+key)?.value);
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Ingresá el peso real.");
  const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
- if(!row)throw new Error("La sugerencia ya cambió. Volvé a elegir una opción.");
+ if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
+ if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
  d.meals[slot].push(normItem(row.food,grams,slot));
  await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
@@ -989,7 +1003,7 @@ async function render(){
  state.renderedDay=today();
  let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
- if(state.tab==="home"){}
+ if(state.tab==="home")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();
 }
 function updateFoodHint(){
@@ -1274,6 +1288,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
+ if(el.dataset.planopenmeal){return openPlannedFoodEditor(el.dataset.planopenmeal);}
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
   const index=Number(indexValue),d=activeDiary();
@@ -1368,7 +1383,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 root.addEventListener("change",e=>{if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
+root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_"))updatePlannerPreview();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

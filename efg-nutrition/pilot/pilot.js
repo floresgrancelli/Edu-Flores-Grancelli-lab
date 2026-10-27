@@ -1528,13 +1528,15 @@ async function refresh(){
   }
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
-  if(state.session?.user?.id!==id){state.selectedStudent=null;state.tab="home";}
+  const switchingUser=state.session?.user?.id!==id;
+  if(switchingUser){state.selectedStudent=null;state.tab="home";}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
   if(p.error)throw p.error;
   state.profile=p.data;
+  if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);

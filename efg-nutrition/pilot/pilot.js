@@ -482,7 +482,7 @@ function plannerCard(){
  const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
-  const available=all.filter(f=>foodAllowedForMeal(f,meal.slot));
+  const available=all; // Catálogo íntegro: todas las categorías y comidas para planificar.
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
   for(const row of meal.rows){
    const key=meal.slot+"|"+row.category;
@@ -531,7 +531,7 @@ function filterPlannerFoods(input){
  if(!select)return;
  const chosenId=select.value;
  const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
- const available=allPlannerFoods(foods,allowedFoods()).filter(f=>foodAllowedForMeal(f,slot));
+ const available=allPlannerFoods(foods,allowedFoods()); // Buscar sobre todo el catálogo.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=plannerNormalizeQuery(f.name+" "+aliases);

@@ -1203,7 +1203,7 @@ function coachReportsView(){
  const p=roster.find(p=>p.user_id===state.selectedStudent);
  let out=rootText("Informes diarios","Consultá automáticamente el día anterior y la evolución de tus alumnos, sin correos.");
  if(!roster.length)return out+'<section class="card"><div class="empty">No hay alumnos activos.</div></section>';
- out+='<section class="card"><h2>Seleccionar alumno</h2><div class="coach-report-students">'+roster.map(r=>'<button class="btn '+(p?.user_id===r.user_id?'':'light')+'" data-reportstudent="'+r.user_id+'">'+escapeHTML(r.nickname)+'</button>').join("")+'</div></section>';
+ out+='<section class="card"><div class="eyebrow">SEGUIMIENTO PERSONALIZADO</div><h2>Seleccionar alumno</h2><p class="pilot-hint">Consultá registros e informes individuales.</p><div class="coach-report-students">'+roster.map(r=>'<button class="btn '+(p?.user_id===r.user_id?'':'light')+'" data-reportstudent="'+r.user_id+'">'+escapeHTML(r.nickname)+'</button>').join("")+'</div></section>';
  if(!p)return out+'<section class="card"><p class="pilot-hint">Seleccioná un alumno para consultar sus reportes.</p></section>';
  if(!state.consent?.accepted)return out+'<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert">Este alumno no autorizó el seguimiento de sus registros.</div></section>';
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);

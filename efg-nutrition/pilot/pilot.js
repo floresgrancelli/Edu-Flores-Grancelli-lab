@@ -495,12 +495,15 @@ function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'"
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
 function frame(content){
  const role=state.profile.role;
- const menu=role==="coach"?[["coach","◫","Inicio"],["reports","▥","Informes"]]:[["home","☀","Mi alimentación"],["weight","↗","Progreso"],["sport","✚","Deporte"]];
- 
- if(role==="admin"){menu.push(["testCoach","♧","Coach de prueba"],["reports","▥","Informes de prueba"]);menu.push(["admin","♛","Administración"]);}
- menu.push(["payments","▤","Pagos"]);
- root.innerHTML='<div class="pilot-layout"><aside class="pilot-nav"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- menu.map(m=>'<button class="navitem '+(state.tab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
+ const menu=role==="student"
+  ?[["home","⌂","Hoy"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
+  :role==="coach"
+  ?[["coach","⌂","Inicio"],["reports","▥","Informes"],["payments","▤","Pagos"]]
+  :[["admin","⌂","Inicio"],["home","◷","Mi día"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
+ const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
+ const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments"].includes(state.tab))?"adminMore":state.tab;
+ root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
+ menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
 }
@@ -1357,9 +1360,9 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={home:homeView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
- if(state.tab==="home")updatePlannerPreview();
+ if(state.tab==="planner")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();
 }
 function updateFoodHint(){

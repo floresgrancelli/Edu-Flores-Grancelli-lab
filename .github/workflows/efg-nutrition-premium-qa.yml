@@ -25,8 +25,11 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/pilot.js
           node --check efg-nutrition/tests/premium-ui-smoke.mjs
+          node --check efg-nutrition/pilot/progress-charts.js
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: Verify real-data chart calculations
+        run: node efg-nutrition/tests/premium-progress-charts.mjs
       - name: Require real mobile and privacy checks before release
         run: |
           echo "Static gate only: NOT permission to deploy."

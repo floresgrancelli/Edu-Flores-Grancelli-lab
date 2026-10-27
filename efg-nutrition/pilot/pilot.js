@@ -734,7 +734,7 @@ function updateMealEntryMode(foodChanged=false){
  qty.min=counting?"1":"0.1";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  const stateInput=document.getElementById("mealWeightState"),stateWrap=document.getElementById("mealWeightStateWrap"),stateHint=document.getElementById("mealWeightStateHint");
- if(stateInput&&stateWrap&&stateHint){const raw=/\\b(crud[oa]|sec[oa])\\b/i.test(f?.name||"");const cooked=/\\b(cocid[oa]s?|hervid[oa]s?|hornead[oa]s?)\\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!(raw||cooked);stateHint.textContent=raw?"Esta ficha es para alimento crudo o seco. Para cocido, buscá la ficha cocida en el catálogo.":cooked?"Esta ficha es para alimento cocido. Para usar peso crudo, seleccioná una ficha cruda del catálogo; no se aplica un factor universal.":"Esta ficha no especifica crudo/cocido; no podemos convertirla con precisión. Elegí una ficha específica si está disponible.";}
+ if(stateInput&&stateWrap&&stateHint){const raw=/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");const cooked=/\b(cocid[oa]s?|hervid[oa]s?|hornead[oa]s?)\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=true;stateHint.textContent=raw?"Esta ficha es para alimento crudo o seco. Para cocido, buscá la ficha cocida en el catálogo.":cooked?"Esta ficha es para alimento cocido. Para usar peso crudo, seleccioná una ficha cruda del catálogo; no se aplica un factor universal.":"Esta ficha no especifica crudo/cocido; no podemos convertirla con precisión. Elegí una ficha específica si está disponible.";}
  updateMealRecipe();
  updateMealDialogHint();
 }

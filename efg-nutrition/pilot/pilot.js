@@ -840,6 +840,8 @@ function filterMealFoods(){
  });
  selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
+ else if(filtered.length)selector.value=filtered[0].id;
+ else selector.innerHTML='<option value="" disabled selected>Sin coincidencias</option>';
  updateMealEntryMode(true);
 }
 function updateMealEntryMode(foodChanged=false){

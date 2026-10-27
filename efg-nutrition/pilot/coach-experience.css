@@ -32,3 +32,20 @@
 
 .coach-inbox{margin-bottom:17px}.coach-inbox-header{display:flex;justify-content:space-between;align-items:center}.coach-inbox-header h2{margin:3px 0 8px}.coach-inbox-grid{display:grid;gap:11px;margin-top:17px}.coach-inbox-item{display:flex;align-items:center;gap:12px;border:1px solid #e8efee;background:#fbfdfc;border-radius:17px;padding:13px}.coach-inbox-mark{width:39px;height:39px;flex-shrink:0;display:grid;place-items:center;border-radius:13px;background:#eaf2f1;font-size:19px}.coach-inbox-item>div{flex:1;min-width:0}.coach-inbox-item strong,.coach-inbox-item small{display:block}.coach-inbox-item strong{font-size:.91rem;color:#17344a}.coach-inbox-item small{font-size:.76rem;color:#647880;margin-top:3px;line-height:1.35}.coach-inbox-item .btn{flex-shrink:0}
 @media(max-width:390px){.coach-inbox-item{flex-wrap:wrap}.coach-inbox-item .btn{margin-left:51px}}
+/* iOS Safari + Android Chrome: touch-first safe layouts */
+.coach-hub-grid,.coach-inbox-grid,.coach-selected-student{max-width:100%;min-width:0}
+.coach-hub-tile,.coach-inbox-item button,.coach-profile-tabs a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.coach-hub-tile{min-height:118px}
+.coach-roster-person{min-width:0}
+.coach-student-profile,.coach-inbox,.coach-hub-grid{overflow-wrap:anywhere}
+.coach-profile-tabs{-webkit-overflow-scrolling:touch}
+@media(max-width:600px){
+ .coach-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .coach-inbox-item .btn{min-height:44px}
+ .coach-hub-tile{min-width:0}
+ .coach-student-heading{flex-wrap:wrap}
+ #coachRosterSection .pilot-toolbar{flex-wrap:wrap}
+ #coachRosterSection .pilot-record .between{flex-wrap:wrap;gap:10px}
+}
+@media(max-width:340px){.coach-hub-grid{grid-template-columns:1fr}.coach-hub-tile{min-height:90px}}
+@supports(padding:max(0px)){.coach-profile-tabs{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}}

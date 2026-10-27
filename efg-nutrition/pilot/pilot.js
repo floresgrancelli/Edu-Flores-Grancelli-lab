@@ -573,10 +573,17 @@ function filterPlannerFoods(input){
   const name=plannerNormalizeQuery(f.name+" "+aliases);
   return words.every(w=>name.includes(w));
  });
- const chosen=available.find(f=>f.id===chosenId);
- if(chosen&&!matched.some(f=>f.id===chosen.id))matched.unshift(chosen);
+ const hasQuery=words.length>0;
+ const selectedMatch=matched.find(f=>f.id===chosenId);
+ const nextId=hasQuery?(selectedMatch?.id||matched[0]?.id||"none"):chosenId;
+ // El resultado visible debe coincidir con el texto ingresado, también en iOS.
  select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
- select.value=chosenId;
+ select.value=nextId;
+ if(hasQuery&&nextId!==chosenId){
+  state.plannerSelections[key]=nextId;
+  delete state.plannerDraftGrams[key];
+  updatePlannerPreview();
+ }
 }
 function updatePlannerPreview(){
  const notice=document.getElementById("plannerPendingNotice");

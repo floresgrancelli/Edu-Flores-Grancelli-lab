@@ -328,8 +328,43 @@ function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"sho
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
-function getHabitual(slot){try{const x=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");return Array.isArray(x)&&x.length?x:null;}catch(_){return null;}}
-async function habitualAction(slot,action){if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");const d=activeDiary();d.meals[slot] ||= [];if(action==="save"){if(!d.meals[slot].length)throw Error("Primero registrá alimentos en esta comida.");localStorage.setItem(habitualKey(slot),JSON.stringify(d.meals[slot]));notify("Comida habitual guardada en este dispositivo.");return render();}const fav=getHabitual(slot);if(!fav)throw Error("No hay una comida habitual guardada.");if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por tu habitual?"))return;d.meals[slot]=structuredClone(fav);d.skipped[slot]=false;d.skipped._closed=false;await saveDiary();notify("Comida habitual registrada; balance recalculado.");}
+function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
+function getHabitualList(slot){
+ try{
+  const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+  if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
+  const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+  return Array.isArray(legacy)&&legacy.length?[{name:"Mi habitual anterior",items:legacy}]:[];
+ }catch(_){return [];}
+}
+function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
+async function habitualAction(slot,action){
+ if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");
+ const d=activeDiary();d.meals[slot] ||= [];
+ if(action==="save"){
+  if(!d.meals[slot].length)throw Error("Primero registrá alimentos en esta comida.");
+  const existing=getHabitualList(slot);
+  const name=prompt("Nombre de esta comida habitual (ej.: Yogur con granola):","Habitual "+(existing.length+1));
+  if(name===null)return;
+  const clean=name.trim().slice(0,60);
+  if(!clean)throw Error("Ingresá un nombre para identificarla.");
+  if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
+  existing.push({name:clean,items:structuredClone(d.meals[slot])});
+  localStorage.setItem(habitualListKey(slot),JSON.stringify(existing));
+  notify("Guardaste «"+clean+"» en este dispositivo.");return render();
+ }
+ const favorites=getHabitualList(slot);
+ if(!favorites.length)throw Error("No hay comidas habituales guardadas.");
+ const menu=favorites.map((x,i)=>(i+1)+". "+x.name).join("\n");
+ const answer=prompt("Elegí la comida habitual escribiendo su número:\n"+menu,"1");
+ if(answer===null)return;
+ if(!/^[0-9]+$/.test(answer.trim()))throw Error("Ingresá un número de la lista.");
+ const index=Number(answer.trim())-1,fav=favorites[index];
+ if(!fav)throw Error("Número de comida habitual inválido.");
+ if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
+ d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
+ await saveDiary();notify("Comida habitual registrada; balance recalculado.");
+}
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}

@@ -79,13 +79,70 @@ const FRUIT_SALAD_FOODS=[{
 }];
 // Pechuga cocida preparada al horno: no mezclar con cortes genéricos ni la ficha de pechuga cruda.
 const USDA_FDC_ADDITIONS=[{id:"chicken_breast_roasted",name:"Pechuga de pollo cocida al horno sin piel",category:"protein",unit:"g",k:1.61,p:.3022,c:0,f:.0352,fi:0,sourceType:"usda_fdc",sourceId:"2705956",validationStatus:"tabla_referenciada",source:"USDA FoodData Central FNDDS 2021-2023, FDC 2705956: pechuga al horno/asada, sin consumir piel, preparada desde crudo. 100 g de parte comestible cocida: 161 kcal; proteínas 30,22 g; hidratos 0 g; grasas 3,52 g. Si se agrega aceite, registrarlo aparte."}];
+// Nuevos pescados, mariscos y medallones. Por 100 g de alimento comestible
+// preparado tal como indica el nombre; valores GENÉRICOS, no marca concreta.
+// Los productos rebozados se distinguen de los medallones sin pan rallado.
+const SEAFOOD_MEDALLION_DATA=[
+ ["lenguado_cocido","Lenguado a la plancha sin aceite","protein",24,0,2,0],
+ ["corvina_cocida","Corvina cocida al horno sin aceite","protein",23,0,2.5,0],
+ ["pejerrey_cocido","Pejerrey cocido al horno sin aceite","protein",22,0,3.2,0],
+ ["brotola_cocida","Brótola cocida al horno sin aceite","protein",23,0,1.8,0],
+ ["abadejo_cocido","Abadejo cocido sin aceite","protein",24,0,1.5,0],
+ ["trucha_cocida","Trucha cocida al horno sin aceite","protein",24,0,6,0],
+ ["besugo_cocido","Besugo al horno sin aceite","protein",23,0,3,0],
+ ["mero_cocido","Mero cocido sin aceite","protein",24,0,1.8,0],
+ ["tilapia_cocida","Tilapia cocida sin aceite","protein",26,0,2.7,0],
+ ["merluza_filet_cruda","Filet de merluza crudo sin rebozar","protein",17,0,0.9,0],
+ ["pulpo_cocido","Pulpo cocido sin aceite","protein",29.8,4.4,2.1,0],
+ ["mejillones_cocidos","Mejillones cocidos sin valvas","protein",23.8,7.4,4.5,0],
+ ["almejas_cocidas","Almejas cocidas sin valvas","protein",25.5,5.1,2,0],
+ ["vieiras_cocidas","Vieiras cocidas sin aceite","protein",24,5,0.8,0],
+ ["centolla_cocida","Centolla cocida, carne limpia","protein",19,0,1.5,0],
+ ["camarones_cocidos","Camarones cocidos sin aceite","protein",24,0,1.5,0],
+ ["rabas_rebozadas_fritas","Rabas de calamar rebozadas fritas (genérico)","prepared",14,20,12,1],
+ ["medallon_pescado_simple","Medallón de pescado sin rebozar, al horno (genérico)","protein",19,3,3.5,0.5],
+ ["medallon_pescado_rebozado","Medallón de pescado rebozado, al horno (genérico)","prepared",14,20,7,1],
+ ["medallon_salmon_simple","Medallón de salmón sin rebozar, al horno (genérico)","protein",21,2,10,0.5],
+ ["medallon_pollo_simple","Medallón de pollo sin rebozar, al horno (genérico)","protein",23,2,5,0.5],
+ ["medallon_pollo_rebozado","Medallón de pollo rebozado, al horno (genérico)","prepared",14,19,9,1],
+ ["medallon_pollo_espinaca","Medallón de pollo con espinaca sin rebozar (genérico)","protein",20,4,4,1.5],
+ ["medallon_cerdo_simple","Medallón de cerdo sin rebozar, a la plancha (genérico)","protein",24,2,10,0.5],
+ ["medallon_cerdo_rebozado","Medallón de cerdo rebozado, al horno (genérico)","prepared",16,16,12,1],
+ ["medallon_cerdo_vegetales","Medallón de cerdo con vegetales sin rebozar (genérico)","protein",21,5,8,1.2]
+];
+const SEAFOOD_MEDALLION_FOODS=SEAFOOD_MEDALLION_DATA.map(([id,name,category,p,c,f,fi])=>({
+ id,name,category,unit:"g",
+ k:Math.round((p*4+c*4+f*9)*100)/10000,
+ p:p/100,c:c/100,f:f/100,fi:fi/100,
+ ...(id.startsWith("medallon_")?{servingGrams:100}:{}),
+ sourceType:"generic_estimate",validationStatus:"generico_pendiente",
+ source:id==="pulpo_cocido"?
+ "Valor de referencia por 100 g cocidos: USDA FoodData Central, SR Legacy FDC 174249 (pulpo cocido con calor húmedo). Sin aceite adicional.":
+ id==="mejillones_cocidos"?
+ "Valor de referencia por 100 g cocidos: USDA FoodData Central, SR Legacy FDC 174217 (mejillones cocidos con calor húmedo). Sin valvas ni aceite.":
+ id.startsWith("medallon_")?
+ "Estimación genérica por 100 g de medallón preparado según descripción. NO es etiqueta de fabricante. La marca, el porcentaje real de carne/pescado, pan rallado, almidones y método de cocción pueden cambiar considerablemente calorías y macros; preferir etiqueta del envase cuando esté disponible. No incluye aceite añadido en casa.":
+ "Composición aproximada de referencia por 100 g de parte comestible en la preparación indicada, SIN aceite extra (salvo rabas fritas). Es una estimación, no una etiqueta de producto comercial; según especie y cocción puede variar."
+}));
 export const EXTRA_FOODS=RAW_FOODS.concat(REGIONAL_FOODS,EXPANSION_FOODS).map(([id,name,category,p,c,f,fi])=>({
  id,name,category,unit:LIQUIDS.has(id)?"ml":"g",
  k:Math.round((p*4+c*4+f*9)*100)/10000,
  p:p/100,c:c/100,f:f/100,fi:fi/100,
  sourceType:"generic_estimate",validationStatus:"generico_pendiente",
  source:EXPANSION_FOODS.some(x=>x[0]===id)?"Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.":REGIONAL_FOODS.some(x=>x[0]===id)?"Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.":id==="mixed_nuts"?"Estimación: partes iguales de maní, nueces, almendras y cajú, sin azúcar añadida. Revisar composición real.":category==="drink"?"Infusión sin azúcar; café con leche y similares requieren personalizar cantidad y tipo de leche.":"Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta"
-})).map(food=>({...food,...(USDA_FDC_OVERRIDES[food.id]||{}),...(food.id==="huevo_frito"?FRIED_EGG_WITH_OIL:{})})).concat(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS);
+})).map(food=>({...food,...(USDA_FDC_OVERRIDES[food.id]||{}),...(food.id==="huevo_frito"?FRIED_EGG_WITH_OIL:{})})).concat(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS);
 
 // Porciones caseras estimadas. En el registro se guardan gramos equivalentes; no representan mediciones exactas.
 export const FOOD_UNIT_PORTIONS={"egg":{"grams":50,"label":"huevo mediano"},"egg_boiled":{"grams":50,"label":"huevo mediano"},"egg_white":{"grams":34,"label":"clara"},"apple":{"grams":150,"label":"manzana mediana"},"banana":{"grams":120,"label":"banana mediana sin cáscara"},"mandarin":{"grams":90,"label":"mandarina mediana"},"orange":{"grams":130,"label":"naranja mediana"},"pear":{"grams":160,"label":"pera mediana"},"kiwi":{"grams":80,"label":"kiwi mediano"},"strawberry":{"grams":15,"label":"frutilla mediana"},"peach":{"grams":150,"label":"durazno mediano"},"plum":{"grams":65,"label":"ciruela mediana"},"grapefruit":{"grams":230,"label":"pomelo mediano"},"lemon":{"grams":60,"label":"limón mediano"},"mango":{"grams":200,"label":"mango mediano (pulpa)"},"bread":{"grams":30,"label":"rebanada"},"bread_white":{"grams":30,"label":"rebanada"},"bread_rye":{"grams":30,"label":"rebanada"},"toast_whole":{"grams":12,"label":"tostada"},"rice_cakes":{"grams":9,"label":"galleta"},"tortilla_wheat":{"grams":45,"label":"tortilla"},"cheese":{"grams":25,"label":"feta"},"ham_cooked":{"grams":25,"label":"feta"},"mozzarella":{"grams":25,"label":"feta"},"walnuts":{"grams":5,"label":"nuez sin cáscara"},"almonds":{"grams":1.2,"label":"almendra"},"cashews":{"grams":1.5,"label":"castaña de cajú"},"olives":{"grams":4,"label":"aceituna"},"dates":{"grams":8,"label":"dátil sin carozo"},"cake":{"grams":82.5,"label":"porción de budín"},"whey_powder":{"grams":30,"label":"scoop de whey (30 g)"},"medialuna_butter":{"grams":45,"label":"medialuna"},"medialuna_fat":{"grams":45,"label":"medialuna"},"chipa":{"grams":35,"label":"chipá"},"alfajor_chocolate":{"grams":60,"label":"alfajor"},"alfajor_maicena":{"grams":60,"label":"alfajor"},"tostado_ham_cheese":{"grams":125,"label":"tostado"},"sandwich_miga_ham_cheese":{"grams":70,"label":"sándwich de miga"},"chorizo_cooked":{"grams":90,"label":"chorizo sin pan"},"morcilla_cooked":{"grams":90,"label":"morcilla"},"barrita_cereal":{"grams":25,"label":"barrita"},"pan_frances":{"grams":50,"label":"porción de pan"},"pan_lactal":{"grams":30,"label":"rebanada"},"pan_lactal_integral":{"grams":30,"label":"rebanada"},"huevo_frito":{"grams":50,"label":"huevo frito"},"huevo_frito_fritolim":{"grams":50,"label":"huevo con rocío vegetal mínimo"},"milanesa_chicken_baked":{"grams":150,"label":"milanesa mediana al horno"},"milanesa_beef_baked":{"grams":150,"label":"milanesa mediana al horno"},"milanesa_chicken_fried":{"grams":150,"label":"milanesa mediana frita"},"milanesa_beef_fried":{"grams":150,"label":"milanesa mediana frita"},"empanada_beef_baked":{"grams":90,"label":"empanada mediana"},"empanada_chicken_baked":{"grams":90,"label":"empanada mediana"},"empanada_ham_cheese":{"grams":90,"label":"empanada mediana"},"empanada_caprese":{"grams":90,"label":"empanada mediana"},"empanada_vegetable":{"grams":90,"label":"empanada mediana"},"empanada_corn":{"grams":90,"label":"empanada mediana"},"pizza_muzzarella":{"grams":130,"label":"porción de pizza"},"pizza_napolitana":{"grams":130,"label":"porción de pizza"},"pizza_fugazzeta":{"grams":130,"label":"porción de pizza"},"faina":{"grams":100,"label":"porción de fainá"},"tarta_spinach":{"grams":170,"label":"porción de tarta"},"tarta_chicken":{"grams":170,"label":"porción de tarta"},"tarta_ham_cheese":{"grams":170,"label":"porción de tarta"},"tarta_vegetable":{"grams":170,"label":"porción de tarta"},"tarta_pumpkin":{"grams":170,"label":"porción de tarta"},"mixed_nuts":{"grams":30,"label":"porción de mezcla de frutos secos"},"peanuts":{"grams":30,"label":"puñado chico de maní sin cáscara"},"pistachios":{"grams":30,"label":"puñado chico de pistachos sin cáscara"},"egg_quail":{"grams":9,"label":"huevo de codorniz sin cáscara"},"bread_glutenfree":{"grams":30,"label":"rebanada de pan sin gluten"},"toast_glutenfree":{"grams":12,"label":"tostada sin gluten"},"protein_bar_generic":{"grams":50,"label":"barra proteica genérica"},"hazelnuts":{"grams":1.4,"label":"avellana"},"pecans":{"grams":3,"label":"nuez pecán sin cáscara"},"brazil_nuts":{"grams":5,"label":"castaña de Brasil"},"scrambled_eggs":{"grams":100,"label":"porción de huevos revueltos"},"milanesa_soy_gobinda":{"grams":125,"label":"milanesa"},"fruit_salad_basic":{"grams":200,"label":"bol de ensalada de frutas"}};
+
+Object.assign(FOOD_UNIT_PORTIONS,{
+ medallon_pescado_simple:{grams:100,label:"medallón de pescado"},
+ medallon_pescado_rebozado:{grams:100,label:"medallón rebozado de pescado"},
+ medallon_salmon_simple:{grams:100,label:"medallón de salmón"},
+ medallon_pollo_simple:{grams:100,label:"medallón de pollo"},
+ medallon_pollo_rebozado:{grams:100,label:"medallón rebozado de pollo"},
+ medallon_pollo_espinaca:{grams:100,label:"medallón de pollo con espinaca"},
+ medallon_cerdo_simple:{grams:100,label:"medallón de cerdo"},
+ medallon_cerdo_rebozado:{grams:100,label:"medallón rebozado de cerdo"},
+ medallon_cerdo_vegetales:{grams:100,label:"medallón de cerdo con vegetales"}
+});

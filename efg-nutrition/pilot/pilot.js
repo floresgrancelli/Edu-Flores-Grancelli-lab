@@ -319,6 +319,9 @@ const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.go
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
+function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
+function getHabitual(slot){try{const x=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");return Array.isArray(x)&&x.length?x:null;}catch(_){return null;}}
+async function habitualAction(slot,action){if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");const d=activeDiary();d.meals[slot] ||= [];if(action==="save"){if(!d.meals[slot].length)throw Error("Primero registrá alimentos en esta comida.");localStorage.setItem(habitualKey(slot),JSON.stringify(d.meals[slot]));notify("Comida habitual guardada en este dispositivo.");return render();}const fav=getHabitual(slot);if(!fav)throw Error("No hay una comida habitual guardada.");if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por tu habitual?"))return;d.meals[slot]=structuredClone(fav);d.skipped[slot]=false;d.skipped._closed=false;await saveDiary();notify("Comida habitual registrada; balance recalculado.");}
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
@@ -380,7 +383,7 @@ function loginView(message=""){
   ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
-  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
+  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Al ingresar con este código, autorizás a tu coach asignado a consultar tus registros nutricionales, peso, actividad y suplementos para tu seguimiento. Podrás revocar el acceso desde la app. El código verifica tu identidad; ingresarlo confirma esta autorización.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🥗 ✨</div><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
@@ -414,6 +417,8 @@ async function confirmOtp(token){
  try{
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
   if(error)throw error;
+  const who=(await sb.auth.getUser()).data?.user;
+  if(who?.id)sessionStorage.setItem("efgNutritionCoachConsent:"+who.id,"yes");
   state.otpEmail=null;
   state.loggingIn=false;
   await refresh();
@@ -444,14 +449,10 @@ function homeView(){
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   return '<div class="pilot-record meal-day-section"><div class="between"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></div>'+
-  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'</div></div>';
+  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button>'+(getHabitual(key)?'<button class="btn small light" data-habitualuse="'+key+'">↻ Repetir habitual</button>':'')+'</div></div>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
- const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint" style="margin-bottom:12px">Solo tu entrenador asignado podrá consultar tus comidas, peso, actividad y suplementos si autorizás compartirlos. Podés revocar el permiso cuando quieras.</p>'+
- '<label><input id="consentToggle" type="checkbox" '+(cons?.accepted?'checked':'')+'> Autorizo a mi entrenador a consultar mis registros nutricionales y de actividad para el seguimiento del plan.</label>'+
-
- '<button class="btn small" style="margin-top:13px" data-act="saveConsent">Guardar mi decisión</button>'+
- '<small style="display:block;margin-top:9px;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'Solo visible para vos')+'. Informes disponibles en la app del entrenador.'+'</small></section>':'';
+ const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos cuando autorizás el seguimiento al ingresar con tu código. Podés retirar el permiso cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
  const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentario del día</h3>'+
  '<p class="pilot-hint">¿Tuviste dificultades con una comida, los horarios, el apetito o la saciedad? Podés contárselo a tu coach. Es opcional.</p>'+
  '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
@@ -697,7 +698,7 @@ function openMealDialog(slot){
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, huevo, arroz…" autocomplete="off"></div>'+
  '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
- '<div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
+ '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
@@ -732,6 +733,8 @@ function updateMealEntryMode(foodChanged=false){
  qty.step=counting?"1":"any";
  qty.min=counting?"1":"0.1";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
+ const stateInput=document.getElementById("mealWeightState"),stateWrap=document.getElementById("mealWeightStateWrap"),stateHint=document.getElementById("mealWeightStateHint");
+ if(stateInput&&stateWrap&&stateHint){const raw=/\\b(crud[oa]|sec[oa])\\b/i.test(f?.name||"");const cooked=/\\b(cocid[oa]s?|hervid[oa]s?|hornead[oa]s?)\\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!(raw||cooked);stateHint.textContent=raw?"Esta ficha es para alimento crudo o seco. Para cocido, buscá la ficha cocida en el catálogo.":cooked?"Esta ficha es para alimento cocido. Para usar peso crudo, seleccioná una ficha cruda del catálogo; no se aplica un factor universal.":"Esta ficha no especifica crudo/cocido; no podemos convertirla con precisión. Elegí una ficha específica si está disponible.";}
  updateMealRecipe();
  updateMealDialogHint();
 }
@@ -1243,6 +1246,11 @@ async function refresh(){
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await loadRoleData();
+  if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
+   // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
+   const acceptedNotice=sessionStorage.getItem("efgNutritionCoachConsent:"+id)==="yes";
+   if(acceptedNotice){const result=await sb.from("efg_consents").update({accepted:true,email_report_opt_in:false,updated_at:new Date().toISOString()}).eq("student_id",id).eq("accepted",false).select().maybeSingle();if(!result.error&&result.data)state.consent=result.data;sessionStorage.removeItem("efgNutritionCoachConsent:"+id);}
+  }
   await loadWelcomeStatus();
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
@@ -1353,6 +1361,8 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
+ if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";state.plannerDraftGrams={};return render();}
  if(el.dataset.planextra){
@@ -1418,8 +1428,8 @@ if(el.dataset.foodbulk){
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
- if(action==="saveConsent"){
- const accepted=!!document.getElementById("consentToggle")?.checked;
+ if(action==="revokeConsent"||action==="grantConsent"){
+ const accepted=action==="grantConsent";
 
  const {data,error}=await sb.from("efg_consents").update({
   accepted,email_report_opt_in:false,updated_at:new Date().toISOString()

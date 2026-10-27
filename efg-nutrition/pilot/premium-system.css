@@ -157,3 +157,16 @@
  .efg-planner-stage-head{padding:16px 13px}
  .efg-planner-stage[open]>.planner-energy-summary,.efg-planner-stage[open]>.planner-item,.efg-planner-stage[open]>.planner-split-target,.efg-planner-stage[open]>.planner-extras-helper,.efg-planner-stage[open]>p{margin-left:10px;margin-right:10px}
 }
+
+/* Quick entry, accessibility and coach consent — premium mobile actions */
+.efg-quick-add{background:linear-gradient(110deg,#e7f6ee,#eaf1ff);border:1px solid #dbebe5;border-radius:21px;margin:16px 0;padding:0;box-shadow:0 4px 18px rgba(42,102,90,.035)}
+.efg-quick-add>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:64px;padding:16px 18px;list-style:none;cursor:pointer;font-size:16px;color:#1a514f;font-weight:800}
+.efg-quick-add>summary::-webkit-details-marker{display:none}
+.efg-quick-add>summary span{font-size:11px;font-weight:600;color:#668d84}
+.efg-quick-add-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 14px 16px}
+.efg-quick-add-grid button{min-height:50px;border:1px solid #e4eee8;border-radius:13px;padding:12px 9px;background:#fff;color:#275e59;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;touch-action:manipulation}
+.efg-quick-add-grid button:hover,.efg-quick-add-grid button:focus-visible{background:#f3faf6;border-color:#b2d8c9}
+.efg-consent-reminder{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fff7e7;border:1px solid #f2e2c0;border-radius:17px;margin:14px 0;padding:12px 14px;color:#6c5631;font-size:12px;line-height:1.5}
+.efg-consent-reminder .btn{flex-shrink:0}
+@media(max-width:720px){.efg-quick-add>summary{font-size:14px;min-height:58px;padding:13px}.efg-quick-add-grid{padding:0 11px 13px;gap:8px}.efg-consent-reminder .btn{min-height:44px}}
+@media(max-width:350px){.efg-quick-add-grid{grid-template-columns:1fr}}

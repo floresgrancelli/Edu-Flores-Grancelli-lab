@@ -326,6 +326,7 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .planner-qty{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 14px;align-items:end}
 .planner-qty .planner-recommendation{max-width:none;grid-column:1/-1;font-size:13px;line-height:1.55;color:#32665b}
 .planner-qty .planner-recommendation b{font-size:16px;color:#1d6354}
+.planner-qty .planner-recommendation small{display:block;margin-top:7px;font-size:11px;line-height:1.5;color:#687f79}
 .planner-qty>label{font-size:12px;font-weight:700;min-width:0}
 .planner-qty>label input{width:100%;min-width:0;max-width:210px;font-size:16px;box-sizing:border-box}
 .planner-qty>button{min-height:44px;white-space:normal}

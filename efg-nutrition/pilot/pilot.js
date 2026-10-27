@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-any-foods-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
@@ -472,52 +472,127 @@ function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
  let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
- '<p class="pilot-hint">Según lo que comiste de verdad, elegí cómo continuar. Sugerimos cantidades; vos decidís y registrás lo que pesaste.</p>'+
+ '<p class="pilot-hint">Elegí cualquier alimento del catálogo, como al registrar tus comidas. Calculamos porciones orientativas con todos sus macros; vos decidís qué consumís y cuánto pesaste.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
- if(!goal)return out+'<div class="pilot-alert">Para calcular porciones necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
+ if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Te falta para el objetivo del día</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
- out+='<p class="pilot-hint">El catálogo completo está disponible para todos. Cantidades y macros aproximados; revisar las etiquetas.</p>';
+ const all=allPlannerFoods(foods,allowedFoods());
+ const slotNames={protein:"Alimento 1",carbs:"Alimento 2",vegetable:"Extra opcional 1",fat:"Extra opcional 2"};
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
+  const available=all.filter(f=>foodAllowedForMeal(f,meal.slot));
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
   for(const row of meal.rows){
    const key=meal.slot+"|"+row.category;
-   const label={protein:"Proteínas",carbs:"Hidratos",vegetable:"Vegetales",fat:"Grasas"}[row.category];
-   const opts=optionsFor(foods,allowedFoods(),row.category).map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===row.food.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("");
-   out+='<div class="planner-item"><label>'+label+' · elegí tu alimento</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
-   '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b>'+(row.food.id==="milanesa_soy_gobinda"?' <small>(≈ '+num(row.grams/125,2)+' milanesas Gobinda de 125 g; también podés registrar la cantidad real)</small>':"")+'</div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
+   const label=slotNames[row.category]||"Alimento";
+   const currentId=row.food?.id||"none";
+   let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(available,meal.slot);
+   if(currentId!=="none")options=options.replace('<option value="'+escapeHTML(currentId)+'">','<option value="'+escapeHTML(currentId)+'" selected>');
+   out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
+    '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
+    '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>';
+   if(row.food){
+    const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
+    const qty=row.grams;
+    out+='<div class="planner-qty"><div class="planner-recommendation">'+
+      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida: <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>':'Sin cantidad útil para los macros pendientes; podés registrar la cantidad real.')+
+      (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+
+      '</div>';
+    if(unsupported){
+      out+='<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">Registrar con ingredientes</button>';
+    }else{
+      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+num(qty)+'" inputmode="decimal"></label>'+
+       '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button>';
+    }
+    out+='</div>';
+   }else{
+    out+='<p class="pilot-hint planner-skipped">No se añadirá ningún alimento en este espacio.</p>';
+   }
    out+='</div>';
   }
-  out+='<p class="pilot-hint">Total sugerido: P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g</p></div>';
+  out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></div>';
  }
- const after=plan.projectedLeft;
- out+='<div class="planner-left"><b>Si comés estas porciones, aún quedarían aprox.:</b><p>'+num(after.k)+' kcal · P '+num(after.p,1)+' g · HC '+num(after.c,1)+' g · G '+num(after.f,1)+' g</p><small>No intentamos recuperar todo con una cena enorme. Son cantidades orientativas con topes y se recalculan después de cada registro.</small></div>'+
- '<p class="pilot-hint">Solo se registra lo que realmente pesaste. Estas recomendaciones no sustituyen el plan de tu profesional.</p></section>';
+ out+='<div class="planner-left" id="plannerPendingNotice" aria-live="polite">'+
+ '<b>Faltan estos macros para completar el día</b>'+
+ '<p id="plannerPendingNumbers"></p><small id="plannerPendingDetail"></small></div>'+
+ '<p class="pilot-hint">Si algo queda pendiente, es un aviso, no una obligación de comer de más. Solo se guardará lo que realmente registres. Estas sugerencias no sustituyen las indicaciones de tu coach.</p></section>';
  return out;
 }
+const plannerNormalizeQuery=(v)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
+function filterPlannerFoods(input){
+ if(!input?.dataset?.plansearch)return;
+ const key=input.dataset.plansearch,slot=key.split("|")[0];
+ const select=[...root.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
+ if(!select)return;
+ const chosenId=select.value;
+ const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
+ const available=allPlannerFoods(foods,allowedFoods()).filter(f=>foodAllowedForMeal(f,slot));
+ const matched=available.filter(f=>{
+  const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
+  const name=plannerNormalizeQuery(f.name+" "+aliases);
+  return words.every(w=>name.includes(w));
+ });
+ const chosen=available.find(f=>f.id===chosenId);
+ if(chosen&&!matched.some(f=>f.id===chosen.id))matched.unshift(chosen);
+ select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
+ select.value=chosenId;
+}
+function updatePlannerPreview(){
+ const notice=document.getElementById("plannerPendingNotice");
+ const numbers=document.getElementById("plannerPendingNumbers"),details=document.getElementById("plannerPendingDetail");
+ if(!notice||!numbers||!details)return;
+ const balance=dailyTotals(activeDiary()),goal=activeGoal();
+ if(!goal)return;
+ const projected={k:balance.k,p:balance.p,c:balance.c,f:balance.f};
+ let hasUnsupported=false;
+ for(const select of notice.closest("#planSuggestionCard").querySelectorAll("[data-planselect]")){
+  const key=select.dataset.planselect;
+  const food=foods.find(f=>f.id===select.value);
+  if(!food)continue;
+  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,food.id)){hasUnsupported=true;continue;}
+  const grams=Number(document.getElementById("planQty_"+key)?.value)||0;
+  if(grams<0||!Number.isFinite(grams))continue;
+  for(const nutrient of ["k","p","c","f"])projected[nutrient]+=Number(food[nutrient]||0)*grams;
+ }
+ const remain=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,Number(goal[k]||0)-projected[k])]));
+ const excess=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,projected[k]-Number(goal[k]||0))]));
+ const pending=remain.k>2||remain.p>.4||remain.c>.4||remain.f>.4;
+ notice.classList.toggle("planner-complete",!pending);
+ numbers.textContent=(pending?"Aún quedarían: ":"Objetivo diario aproximadamente cubierto: ")+
+  num(remain.k)+" kcal · Proteínas "+num(remain.p,1)+" g · Hidratos "+num(remain.c,1)+" g · Grasas "+num(remain.f,1)+" g";
+ const warning=["k","p","c","f"].some(k=>excess[k]>(k==="k"?5:.8));
+ details.textContent=(warning?"Algunos objetivos podrían superarse. ":"")+
+  (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
+  "El cálculo incluye los alimentos que seleccionaste y los gramos indicados; no agrega otros alimentos automáticamente.";
+}
 function refreshPlannerCard(focusKey=null){
- // Actualizar solo el planificador: conserva la posición de pantalla en el iPhone.
  const section=document.getElementById("planSuggestionCard");
  if(!section)return render();
+ const queries=new Map([...section.querySelectorAll("[data-plansearch]")].map(el=>[el.dataset.plansearch,el.value]));
  const oldSelections=[...section.querySelectorAll("[data-planselect]")];
  const oldQty=new Map([...section.querySelectorAll('input[id^="planQty_"]')].map(input=>{
   const key=input.id.slice("planQty_".length);
-  const option=oldSelections.find(el=>el.dataset.planselect===key);
-  return [key,{foodId:option?.value,value:input.value}];
+  const select=oldSelections.find(el=>el.dataset.planselect===key);
+  return [key,{foodId:select?.value,value:input.value}];
  }));
  section.outerHTML=plannerCard();
- // Mantener las cantidades introducidas por el usuario solo si el alimento no cambió.
- const newSection=document.getElementById("planSuggestionCard");
+ const newer=document.getElementById("planSuggestionCard");
  for(const [key,prior] of oldQty){
-  const option=[...newSection.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
-  if(option?.value!==prior.foodId)continue;
-  const input=[...newSection.querySelectorAll('input[id^="planQty_"]')].find(el=>el.id==="planQty_"+key);
+  const select=[...newer.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
+  if(select?.value!==prior.foodId)continue;
+  const input=document.getElementById("planQty_"+key);
   if(input)input.value=prior.value;
  }
+ for(const [key,value] of queries){
+  if(key===focusKey)continue;
+  const field=[...newer.querySelectorAll("[data-plansearch]")].find(el=>el.dataset.plansearch===key);
+  if(field){field.value=value;filterPlannerFoods(field);}
+ }
+ updatePlannerPreview();
  if(focusKey){
-  const el=[...newSection.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===focusKey);
+  const el=[...newer.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===focusKey);
   el?.focus({preventScroll:true});
  }
 }

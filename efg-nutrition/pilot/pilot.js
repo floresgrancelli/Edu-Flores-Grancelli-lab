@@ -5,7 +5,7 @@ import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=2026
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
-import {fitRecipeIllustration} from "./fit-recipe-illustrations.js?v=20261027-art1";
+import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -642,7 +642,10 @@ function studentMoreView(){
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
- return '<article class="efg-fit-card"><div class="efg-fit-art" role="img" aria-label="Ilustración del plato terminado: '+escapeHTML(recipe.name)+'">'+fitRecipeIllustration(recipe.id)+'</div><div class="efg-fit-card-top"><div><span class="efg-fit-tag">'+escapeHTML(recipe.tag)+' · '+recipe.time+' min</span><h3>'+escapeHTML(recipe.name)+'</h3><p>'+num(p.k)+' kcal · P '+num(p.p,1)+' g · HC '+num(p.c,1)+' g · G '+num(p.f,1)+' g <span class="efg-fit-muted">por porción</span></p></div></div>'+
+ const photo=FIT_RECIPE_PHOTOS[recipe.id];
+ const picture=photo?'<img class="efg-fit-photo" src="'+escapeHTML(photo.src)+'" alt="Fotografía ilustrativa de '+escapeHTML(recipe.name)+'" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="efg-fit-photo-fallback" hidden>Fotografía temporalmente no disponible</span>':'<span class="efg-fit-photo-fallback">Fotografía temporalmente no disponible</span>';
+ const credit=photo?'<a class="efg-fit-photo-credit" href="'+escapeHTML(photo.source)+'" target="_blank" rel="noopener noreferrer" aria-label="Fuente de fotografía: '+escapeHTML(photo.author)+' en '+escapeHTML(photo.provider)+'">Foto: '+escapeHTML(photo.author)+' · '+escapeHTML(photo.provider)+'</a>':'';
+ return '<article class="efg-fit-card"><div class="efg-fit-art">'+picture+'<span class="efg-fit-photo-label">Foto ilustrativa</span>'+credit+'</div><div class="efg-fit-card-top"><div><span class="efg-fit-tag">'+escapeHTML(recipe.tag)+' · '+recipe.time+' min</span><h3>'+escapeHTML(recipe.name)+'</h3><p>'+num(p.k)+' kcal · P '+num(p.p,1)+' g · HC '+num(p.c,1)+' g · G '+num(p.f,1)+' g <span class="efg-fit-muted">por porción</span></p></div></div>'+
  '<details class="efg-fit-detail"><summary>Ingredientes y preparación</summary><div class="efg-fit-inner"><strong>Ingredientes para '+recipe.portions+' porciones</strong><ul>'+data.details.map(x=>'<li>'+num(x.grams)+' g · '+escapeHTML(x.name)+'</li>').join("")+'</ul>'+(recipe.extras?'<p>'+escapeHTML(recipe.extras)+'</p>':'')+'<strong>Preparación</strong><ol>'+recipe.steps.map(step=>'<li>'+escapeHTML(step)+'</li>').join("")+'</ol><small>Valores orientativos calculados a partir del catálogo. El rendimiento, las marcas y la cocción pueden modificarlos.</small></div></details>'+
  '<button type="button" class="btn small efg-fit-register" data-fitrecipe="'+recipe.id+'">+ Registrar porción</button></article>';
 }

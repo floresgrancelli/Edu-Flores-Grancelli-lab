@@ -40,6 +40,11 @@ try{
  for(const [role,width] of scenarios){
   const context=await browser.newContext({viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
   await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:sbStub}));
+  // Layout-only fixtures: live photo availability is tested separately in real browsers.
+  await context.route(/^https:\/\/images\.(unsplash|pexels)\.com\//,route=>route.fulfill({
+   status:200,contentType:"image/png",
+   body:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Y9ycAAAAASUVORK5CYII=","base64")
+  }));
   await context.route(/https:\/\/[^/]*supabase\.co\/.*/,route=>{
    blockedBackendCalls++;
    return route.abort("blockedbyclient");

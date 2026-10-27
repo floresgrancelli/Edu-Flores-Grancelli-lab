@@ -2,7 +2,7 @@ name: EFG Nutrition Visual QA (isolated fixture)
 
 on:
   push:
-    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'

@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
@@ -483,14 +483,11 @@ function plannerCard(){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
   for(const row of meal.rows){
-   const key=meal.slot+"|"+row.category, alternatives=optionsFor(foods,allowedFoods(),row.category).filter(f=>f.id!==row.food.id);
-   const chosen=alternatives.find(f=>f.id===state.plannerSelections["alt:"+key])||alternatives[0];
-   const equivalent=chosen?equivalentPortion(row.food,row.grams,chosen,row.category):null;
+   const key=meal.slot+"|"+row.category;
    const label={protein:"Proteínas",carbs:"Hidratos",vegetable:"Vegetales",fat:"Grasas"}[row.category];
    const opts=optionsFor(foods,allowedFoods(),row.category).map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===row.food.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("");
-   out+='<div class="planner-item"><label>'+label+' · opción A</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
+   out+='<div class="planner-item"><label>'+label+' · elegí tu alimento</label><select data-planselect="'+escapeHTML(key)+'">'+opts+'</select>'+
    '<div class="planner-qty"><div>Te recomendamos <b>'+num(row.grams)+' '+escapeHTML(row.unit)+'</b>'+(row.food.id==="milanesa_soy_gobinda"?' <small>(≈ '+num(row.grams/125,2)+' milanesas Gobinda de 125 g; también podés registrar la cantidad real)</small>':"")+'</div><label>¿Cuánto pesaste?<input type="number" min="1" max="3000" id="planQty_'+escapeHTML(key)+'" value="'+Math.round(row.grams)+'"></label><button class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button></div>';
-   if(chosen&&equivalent)out+='<div class="planner-option-b"><label>Alternativa B</label><select data-planalt="'+escapeHTML(key)+'">'+alternatives.map(f=>'<option value="'+escapeHTML(f.id)+'" '+(f.id===chosen.id?'selected':'')+'>'+escapeHTML(f.name)+'</option>').join("")+'</select><button class="btn small ghost" data-usealternative="'+escapeHTML(key)+'">Elegir B</button><small>≈ '+num(equivalent.grams)+' '+escapeHTML(chosen.unit)+' para igualar '+({protein:"proteínas",carbs:"hidratos",fat:"grasas",vegetable:"calorías"}[row.category])+'. No iguala todos los macros.</small></div>';
    out+='</div>';
   }
   out+='<p class="pilot-hint">Total sugerido: P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g</p></div>';
@@ -500,7 +497,7 @@ function plannerCard(){
  '<p class="pilot-hint">Solo se registra lo que realmente pesaste. Estas recomendaciones no sustituyen el plan de tu profesional.</p></section>';
  return out;
 }
-function refreshPlannerCard(focusKey=null,focusAlternative=false){
+function refreshPlannerCard(focusKey=null){
  // Actualizar solo el planificador: conserva la posición de pantalla en el iPhone.
  const section=document.getElementById("planSuggestionCard");
  if(!section)return render();
@@ -511,7 +508,7 @@ function refreshPlannerCard(focusKey=null,focusAlternative=false){
   return [key,{foodId:option?.value,value:input.value}];
  }));
  section.outerHTML=plannerCard();
- // Mantener las cantidades introducidas por el usuario solo si la opción A no cambió.
+ // Mantener las cantidades introducidas por el usuario solo si el alimento no cambió.
  const newSection=document.getElementById("planSuggestionCard");
  for(const [key,prior] of oldQty){
   const option=[...newSection.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
@@ -520,8 +517,7 @@ function refreshPlannerCard(focusKey=null,focusAlternative=false){
   if(input)input.value=prior.value;
  }
  if(focusKey){
-  const attr=focusAlternative?"planalt":"planselect";
-  const el=[...newSection.querySelectorAll("[data-"+attr+"]")].find(x=>x.dataset[attr]===focusKey);
+  const el=[...newSection.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===focusKey);
   el?.focus({preventScroll:true});
  }
 }
@@ -1203,16 +1199,6 @@ if(el.dataset.foodbulk){
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
- if(el.dataset.usealternative){
-  const key=el.dataset.usealternative;
-  const select=[...root.querySelectorAll("[data-planalt]")].find(x=>x.dataset.planalt===key);
-  const chosen=select?.value||state.plannerSelections["alt:"+key];
-  if(!chosen)throw new Error("Elegí una alternativa.");
-  state.plannerSelections[key]=chosen;
-  delete state.plannerSelections["alt:"+key];
-  refreshPlannerCard(key,false);
-  return;
- }
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
   const index=Number(indexValue),d=activeDiary();
@@ -1306,7 +1292,7 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-root.addEventListener("change",e=>{if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerSelections["alt:"+key];refreshPlannerCard(key,false);}if(e.target.dataset.planalt){const key=e.target.dataset.planalt;state.plannerSelections["alt:"+key]=e.target.value;refreshPlannerCard(key,true);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("change",e=>{if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){

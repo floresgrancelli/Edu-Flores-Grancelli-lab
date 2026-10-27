@@ -574,6 +574,7 @@ function updatePlannerPreview(){
  const balance=dailyTotals(activeDiary()),goal=activeGoal();
  if(!goal)return;
  const projected={k:balance.k,p:balance.p,c:balance.c,f:balance.f};
+ const gramChoices={};
  let hasUnsupported=false;
  for(const select of notice.closest("#planSuggestionCard").querySelectorAll("[data-planselect]")){
   const key=select.dataset.planselect;
@@ -582,7 +583,40 @@ function updatePlannerPreview(){
   if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,food.id)){hasUnsupported=true;continue;}
   const grams=Number(document.getElementById("planQty_"+key)?.value)||0;
   if(grams<0||!Number.isFinite(grams))continue;
+  gramChoices[key]=grams;
   for(const nutrient of ["k","p","c","f"])projected[nutrient]+=Number(food[nutrient]||0)*grams;
+ }
+ const energyPlan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const energy=plannerEnergyBreakdown(energyPlan,gramChoices);
+ for(const [i,entry] of energy.entries()){
+  const section=[...notice.closest("#planSuggestionCard").querySelectorAll("[data-plan-energy]")].find(el=>el.dataset.planEnergy===entry.slot);
+  if(!section)continue;
+  const fmt=(v)=>num(v)+" <small>kcal</small>";
+  const targetEl=section.querySelector("[data-plan-energy-target]");
+  const selectedEl=section.querySelector("[data-plan-energy-selected]");
+  const leftEl=section.querySelector("[data-plan-energy-left]");
+  if(targetEl)targetEl.innerHTML=fmt(entry.target);
+  if(selectedEl)selectedEl.innerHTML=fmt(entry.selected);
+  if(leftEl)leftEl.innerHTML=fmt(entry.remaining);
+  const status=section.querySelector("[data-plan-energy-message]");
+  if(status){
+   status.textContent=entry.exceeded>2?"Supera este presupuesto en "+num(entry.exceeded)+" kcal. Podés ajustar las cantidades.":
+    entry.remaining>2?"Faltan "+num(entry.remaining)+" kcal para este presupuesto. Podés elegir un extra, sin obligación de completarlo.":
+    "El objetivo de calorías de esta comida está aproximadamente cubierto.";
+   if(energyPlan.split==="one-third-two-thirds"&&entry.slot==="merienda"){
+    status.textContent+=" "+(entry.exceeded>2?"La cena tendrá menos calorías disponibles.":"Lo que no se cubra aquí se traslada a la cena.");
+   }
+   if(energyPlan.split==="one-third-two-thirds"&&entry.slot==="cena"&&i===1){
+    status.textContent+=" Presupuesto inicial: "+num(entry.baseline)+" kcal"+
+      (entry.transfer>2?"; más "+num(entry.transfer)+" kcal no cubiertas en la merienda.":
+       entry.transfer< -2?"; menos "+num(-entry.transfer)+" kcal utilizadas de más en la merienda.":".");
+   }
+  }
+  const extra=[...notice.closest("#planSuggestionCard").querySelectorAll("[data-plan-extra-remaining]")].find(el=>el.dataset.planExtraRemaining===entry.slot);
+  if(extra)extra.textContent=entry.remaining>2?
+   "Quedan "+num(entry.remaining)+" kcal dentro de este presupuesto. Elegí un extra si querés acercarte al objetivo.":
+   entry.exceeded>2?"Esta comida ya supera su presupuesto: no hace falta elegir extras.":
+   "Ya se alcanzó el presupuesto de esta comida; no necesitás agregar extras.";
  }
  const remain=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,Number(goal[k]||0)-projected[k])]));
  const excess=Object.fromEntries(["k","p","c","f"].map(k=>[k,Math.max(0,projected[k]-Number(goal[k]||0))]));
@@ -1308,6 +1342,18 @@ if(el.dataset.foodbulk){
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";return render();}
+ if(el.dataset.planextra){
+  const key=el.dataset.planextra,foodId=el.dataset.planfood;
+  const parts=parsePlannerKey(key);
+  if(!parts||!["vegetable","fat"].includes(parts[1]))throw new Error("Extra inválido.");
+  const candidate=allPlannerFoods(foods,allowedFoods()).find(f=>f.id===foodId);
+  if(!candidate)throw new Error("Este alimento no está disponible en tu catálogo.");
+  const first=parts[0]+"|vegetable",second=parts[0]+"|fat";
+  const target=state.plannerSelections[first]&&state.plannerSelections[first]!=="none"?second:first;
+  state.plannerSelections[target]=candidate.id;
+  refreshPlannerCard();
+  return;
+ }
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
  if(el.dataset.planopenmeal){return openPlannedFoodEditor(el.dataset.planopenmeal);}
  if(el.dataset.removefood){

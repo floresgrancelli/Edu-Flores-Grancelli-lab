@@ -49,12 +49,26 @@ export function allPlannerFoods(foods,approved){
 const SLOTS=["protein","carbs","vegetable","fat"];
 const NUTRIENTS=["k","p","c","f","fi"];
 const EMPTY={k:0,p:0,c:0,f:0,fi:0};
-function portionMax(food){
+function portionMax(food,slot="cena"){
  const id=food?.id||"",category=food?.category||"";
- if(/^(egg|egg_boiled|egg_fried|huevo_frito)/.test(id))return 150; // ≈ 3 huevos por comida.
- if(id==="milanesa_soy_gobinda")return 250; // Hasta dos unidades de 125 g.
- if(/oil|aceite|butter|manteca/i.test(id))return 20; // Nunca buscar "aceite" en nombres como arroz sin aceite.
- if(/whey|creatine|protein_powder/i.test(id))return 60;
+ const snack=slot==="merienda"||slot==="media_tarde";
+ // Merienda: porciones orientativas plausibles; cualquier déficit pasa a la cena.
+ if(/^(egg|egg_boiled|egg_fried|huevo_frito)/.test(id))return snack?100:150;
+ if(id==="milanesa_soy_gobinda")return snack?125:250;
+ if(/oil|aceite|butter|manteca/i.test(id))return snack?10:20;
+ if(/whey|creatine|protein_powder/i.test(id))return snack?30:60;
+ if(snack){
+  if(id.startsWith("yogurt")||/kefir/i.test(id))return 200;
+  if(/bread|toast|pan_|^pan$|tortilla_wheat|rice_cakes/.test(id))return 100;
+  if(category==="dairy")return 150;
+  if(category==="fruit")return 250;
+  if(category==="fat")return 30;
+  if(category==="extra")return 25;
+  if(category==="drink")return 300;
+  if(category==="recipe"||category==="dessert"||category==="bakery")return 130;
+  if(category==="prepared"||category==="protein"||category==="plant")return 200;
+  return 200;
+ }
  if(category==="fat")return 55;
  if(category==="extra")return 30;
  if(category==="dessert"||category==="bakery")return 140;
@@ -62,21 +76,46 @@ function portionMax(food){
  if(category==="recipe"||category==="prepared")return 350;
  return 400;
 }
-function suggestedStep(food){
+function suggestedStep(food,slot="cena"){
  if(food?.id==="egg"||food?.id==="egg_boiled"||/^huevo_frito/.test(food?.id||""))return 50;
  const serving=Number(food?.servingGrams);
- if(Number.isFinite(serving)&&serving>0&&serving<=portionMax(food))return serving;
+ if(Number.isFinite(serving)&&serving>0&&serving<=portionMax(food,slot))return serving;
  return 5;
 }
-function recommendedPortion(food,needed,unitTarget){
- const nutrient=Number(food?.[unitTarget])||0, cap=food?portionMax(food):0;
- const step=food?suggestedStep(food):5;
+function minPracticalPortion(food,slot){
+ if(!food)return 0;
+ if(slot!=="merienda"&&slot!=="media_tarde")return suggestedStep(food,slot);
+ const id=food.id||"",cat=food.category||"",step=suggestedStep(food,slot);
+ if(id.startsWith("yogurt")||/kefir/i.test(id))return 90;
+ if(/whey|protein_powder/.test(id))return step;
+ if(/bread|toast|pan_|^pan$|tortilla_wheat|rice_cakes/.test(id))return 20;
+ if(cat==="fruit"||cat==="vegetable")return 60;
+ if(cat==="dairy")return 30;
+ if(cat==="fat")return 10;
+ if(cat==="drink")return 120;
+ if(cat==="recipe"||cat==="prepared"||cat==="bakery")return 35;
+ return step;
+}
+function recommendedPortion(food,needed,unitTarget,slot="cena",energyRoom=Infinity){
+ const nutrient=Number(food?.[unitTarget])||0;
+ const step=food?suggestedStep(food,slot):5;
  if(!food)return {grams:0,neededGrams:0,capped:false,reason:"No agregar"};
  if(!(nutrient>0)||!(needed>0))return {grams:0,neededGrams:0,capped:false,
    reason:nutrient<=0?"Este alimento no aporta "+(unitTarget==="p"?"proteínas":unitTarget==="c"?"hidratos":"calorías")+".":"Ese objetivo ya está cubierto."};
  const neededGrams=needed/nutrient;
- const grams=Math.min(cap,Math.max(step,Math.round(neededGrams/step)*step));
- return {grams,neededGrams,capped:neededGrams>cap+step/2,reason:null};
+ const max=portionMax(food,slot);
+ const kcal=Number(food.k)||0;
+ const energyLimited=(slot==="merienda"||slot==="media_tarde")&&kcal>0;
+ const energyCap=energyLimited?Math.floor(Math.max(0,energyRoom)/(kcal*step))*step:max;
+ const cap=Math.min(max,energyCap);
+ const min=minPracticalPortion(food,slot);
+ if(cap<min||neededGrams<min*.5){
+  return {grams:0,neededGrams,capped:true,
+   reason:cap<min?"La porción mínima razonable excedería las calorías reservadas para esta comida; pasa a la cena.":"Queda muy poco por cubrir aquí; lo reservamos para la cena."};
+ }
+ const target=Math.round(neededGrams/step)*step;
+ const grams=Math.min(cap,Math.max(min,target));
+ return {grams,neededGrams,capped:neededGrams>grams+step/2,reason:null};
 }
 export function proposeMeal({foods,approved,slot,remaining,share=1,selections={}}){
  const catalog=allPlannerFoods(foods,approved),profile=PREFERRED[slot]||PREFERRED.cena;
@@ -94,14 +133,14 @@ export function proposeMeal({foods,approved,slot,remaining,share=1,selections={}
  for(let i=0;i<SLOTS.length;i++){
   const category=SLOTS[i],food=chosen[i],nutrient=i===0?"p":i===1?"c":"k";
   const missing=Math.max(0,target[nutrient]-total[nutrient]);
-  const portion=recommendedPortion(food,missing,nutrient);
+  const portion=recommendedPortion(food,missing,nutrient,slot,Math.max(0,target.k-total.k));
   const row={food,category,unit:food?.unit||"g",grams:portion.grams,
    neededGrams:portion.neededGrams,capped:portion.capped,
    targetNutrient:nutrient,reason:portion.reason};
   rows.push(row);
   if(food)for(const key of NUTRIENTS)total[key]+=sane(food[key])*portion.grams;
  }
- return {slot,rows,estimate:total,priority:["p","c","k"]};
+ return {slot,rows,estimate:total,target,priority:["p","c","k"]};
 }
 export function makePlan({foods,approved,diary,goals,totals,dinnerOnly=false,selections={}}){
  if(!goals)return {ready:false,reason:"Para calcular porciones necesitamos primero las metas aprobadas por el coach."};
@@ -109,12 +148,22 @@ export function makePlan({foods,approved,diary,goals,totals,dinnerOnly=false,sel
  const slots=futureSlots(diary,dinnerOnly);
  if(!slots.length)return {ready:false,remaining,reason:dinnerOnly?"La cena ya está registrada u omitida. Podés corregirla desde el diario.":"Todas las comidas posteriores ya se registraron u omitieron."};
  let left={...remaining};
+ const split=slots.length===2&&slots[0]==="merienda"&&slots[1]==="cena";
+ const baseline=split?Object.fromEntries(Object.keys(remaining).map(k=>[k,remaining[k]/3])):null;
  const meals=[];
  slots.forEach((slot,i)=>{
-   const share=(slots.length-i===2 && slot==="merienda") ? 0.32 : 1;
-   const p=proposeMeal({foods,approved,slot,remaining:left,share,selections});
-   meals.push(p);
-   for(const k of ["k","p","c","f","fi"])left[k]=Math.max(0,left[k]-p.estimate[k]);
+  // Exactamente 1/3 de cada macro y calorías a merienda, 2/3 de base a cena.
+  // Lo que no se pueda cubrir con porciones razonables se traslada a cena.
+  const share=split&&i===0?1/3:1;
+  const p=proposeMeal({foods,approved,slot,remaining:left,share,selections});
+  p.split=split?(i===0?"snack-third":"dinner-two-thirds"):null;
+  p.baselineTarget=split&&i===0?{...baseline}:split&&i===1?
+    Object.fromEntries(Object.keys(remaining).map(k=>[k,remaining[k]*2/3])):null;
+  if(split&&i===1){
+   p.carriedFromSnack=Object.fromEntries(Object.keys(remaining).map(k=>[k,Math.max(0,baseline[k]-(meals[0]?.estimate[k]||0))]));
+  }
+  meals.push(p);
+  for(const k of ["k","p","c","f","fi"])left[k]=Math.max(0,left[k]-p.estimate[k]);
  });
- return {ready:true,remaining,slots,meals,projectedLeft:left};
+ return {ready:true,remaining,slots,meals,projectedLeft:left,split:split?"one-third-two-thirds":null};
 }

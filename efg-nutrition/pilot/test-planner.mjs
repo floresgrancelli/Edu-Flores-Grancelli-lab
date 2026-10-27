@@ -31,7 +31,7 @@ const p=proposeMeal({foods:foodList,approved:ids,slot:"cena",remaining,selection
 assert.equal(p.rows.length,4);
 assert.deepEqual(p.rows.map(x=>x.food?.id||"none"),["chicken","rice","none","none"]);
 assert.ok(p.rows[0].grams>0&&p.rows[0].grams<=350,"Pollo en una porción realista");
-assert.ok(p.rows[1].grams>0&&p.rows[1].grams<=350,"Arroz en una porción realista");
+assert.ok(p.rows[1].grams>=100&&p.rows[1].grams<=350,"Arroz sin aceite NO debe interpretarse como aceite ni limitarse a 20 g");
 assert.ok(p.estimate.f<remaining.f,"Debe avisar que faltan grasas");
 assert.ok(p.estimate.p>0&&p.estimate.c>0&&p.estimate.k>0,"Considera proteínas, hidratos y calorías");
 const soyMeal=proposeMeal({foods:foodList,approved:ids,slot:"cena",remaining,

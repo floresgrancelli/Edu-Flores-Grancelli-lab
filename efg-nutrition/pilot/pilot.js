@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-any-foods-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-priority-protein-carbs-kcal-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
@@ -472,14 +472,14 @@ function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
  let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
- '<p class="pilot-hint">Elegí cualquier alimento del catálogo, como al registrar tus comidas. Calculamos porciones orientativas con todos sus macros; vos decidís qué consumís y cuánto pesaste.</p>'+
+ '<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
  if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Te falta para el objetivo del día</b><span>'+num(left.k)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
  const all=allPlannerFoods(foods,allowedFoods());
- const slotNames={protein:"Alimento 1",carbs:"Alimento 2",vegetable:"Extra opcional 1",fat:"Extra opcional 2"};
+ const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   const available=all.filter(f=>foodAllowedForMeal(f,meal.slot));
@@ -496,14 +496,17 @@ function plannerCard(){
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
     const qty=row.grams;
+    const nutrientLabel=row.targetNutrient==="p"?"proteínas":row.targetNutrient==="c"?"hidratos":"calorías";
+    const targetExplanation=row.capped?' <small>Para cubrir el objetivo solo con este alimento harían falta aproximadamente '+num(row.neededGrams)+' '+escapeHTML(row.unit)+'. Se recomienda una porción limitada; el resto quedará indicado abajo.</small>':"";
     out+='<div class="planner-qty"><div class="planner-recommendation">'+
-      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida: <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>':'Sin cantidad útil para los macros pendientes; podés registrar la cantidad real.')+
+      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>'+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
       (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+
+      (["egg","egg_boiled","huevo_frito","huevo_frito_fritolim"].includes(row.food.id)&&qty>0?' <small>(≈ '+num(qty/50)+' huevos de 50 g)</small>':"")+
       '</div>';
     if(unsupported){
       out+='<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">Registrar con ingredientes</button>';
     }else{
-      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+num(qty)+'" inputmode="decimal"></label>'+
+      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+qty+'" inputmode="decimal"></label>'+
        '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button>';
     }
     out+='</div>';
@@ -573,20 +576,10 @@ function refreshPlannerCard(focusKey=null){
  const section=document.getElementById("planSuggestionCard");
  if(!section)return render();
  const queries=new Map([...section.querySelectorAll("[data-plansearch]")].map(el=>[el.dataset.plansearch,el.value]));
- const oldSelections=[...section.querySelectorAll("[data-planselect]")];
- const oldQty=new Map([...section.querySelectorAll('input[id^="planQty_"]')].map(input=>{
-  const key=input.id.slice("planQty_".length);
-  const select=oldSelections.find(el=>el.dataset.planselect===key);
-  return [key,{foodId:select?.value,value:input.value}];
- }));
+ // Cada cambio de alimento vuelve a calcular sugerencia y cantidad inicial.
+ // No restaurar la cantidad vieja (causaba, por ejemplo, 340 g vs 20 g sugeridos).
  section.outerHTML=plannerCard();
  const newer=document.getElementById("planSuggestionCard");
- for(const [key,prior] of oldQty){
-  const select=[...newer.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
-  if(select?.value!==prior.foodId)continue;
-  const input=document.getElementById("planQty_"+key);
-  if(input)input.value=prior.value;
- }
  for(const [key,value] of queries){
   if(key===focusKey)continue;
   const field=[...newer.querySelectorAll("[data-plansearch]")].find(el=>el.dataset.plansearch===key);

@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-snack-third-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown} from "./planner.js?v=20261027-energy-summary-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
@@ -484,6 +484,12 @@ function plannerCard(){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   const available=all; // Catálogo íntegro: todas las categorías y comidas para planificar.
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
+  out+='<div class="planner-energy-summary" data-plan-energy="'+escapeHTML(meal.slot)+'">'+
+   '<div class="planner-energy-stats">'+
+   '<div><span>Objetivo</span><strong data-plan-energy-target>'+num(meal.target.k)+' <small>kcal</small></strong></div>'+
+   '<div><span>Porciones elegidas</span><strong data-plan-energy-selected>'+num(meal.estimate.k)+' <small>kcal</small></strong></div>'+
+   '<div><span>Por cubrir</span><strong data-plan-energy-left>'+num(Math.max(0,meal.target.k-meal.estimate.k))+' <small>kcal</small></strong></div>'+
+   '</div><p data-plan-energy-message></p></div>';
   if(meal.split){
    const snack=meal.split==="snack-third";
    const budget=meal.target||meal.baselineTarget||{};
@@ -493,6 +499,17 @@ function plannerCard(){
     '</div>';
   }
   for(const row of meal.rows){
+   if(row.category==="vegetable"){
+    const choices=meal.slot==="merienda"?["banana","bread","walnuts"]:["avocado","bread","potato"];
+    const idsAlready=new Set(meal.rows.slice(0,2).map(x=>x.food?.id));
+    const suggestions=choices.map(id=>available.find(f=>f.id===id)).filter(f=>f&&!idsAlready.has(f.id));
+    if(suggestions.length){
+     out+='<div class="planner-extras-helper"><b>¿Querés completar calorías con un extra?</b>'+
+       '<p data-plan-extra-remaining="'+escapeHTML(meal.slot)+'">Las calorías que faltan aparecen arriba. Elegí un extra solo si querés.</p>'+
+       '<div class="planner-extra-actions">'+suggestions.map(f=>'<button type="button" class="planner-extra-chip" data-planextra="'+escapeHTML(meal.slot)+'|vegetable" data-planfood="'+escapeHTML(f.id)+'">+ '+escapeHTML(f.name)+'</button>').join("")+'</div>'+
+       '<small>Elegir uno solo prepara la sugerencia de gramos; no registra alimentos automáticamente.</small></div>';
+    }
+   }
    const key=meal.slot+"|"+row.category;
    const label=slotNames[row.category]||"Alimento";
    const currentId=row.food?.id||"none";

@@ -34,6 +34,8 @@ jobs:
         run: node efg-nutrition/tests/premium-progress-charts.mjs
       - name: Verify Fit recipes and payment workflow
         run: node efg-nutrition/tests/fit-recipes-payments.mjs
+      - name: Verify all 12 photo sources are reachable (HTTP image responses)
+        run: node efg-nutrition/tests/fit-photo-live.mjs
       - name: Require real mobile and privacy checks before release
         run: |
           echo "Static gate only: NOT permission to deploy."

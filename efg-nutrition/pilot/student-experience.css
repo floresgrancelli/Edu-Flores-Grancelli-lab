@@ -1,0 +1,15 @@
+/* Alumno 2.0: navegación mobile-first y tarjetas de comidas desplegables */
+.student-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0}
+.student-shortcuts a{display:flex;align-items:center;justify-content:center;min-height:53px;padding:10px 8px;border:1px solid #dceae5;border-radius:17px;background:#eaf5f0;text-align:center;text-decoration:none;color:#20574f;font-weight:750;font-size:.84rem;touch-action:manipulation}
+.student-shortcuts a:nth-child(2){background:#e9eeff;border-color:#dce3f9;color:#3c5380}
+.student-shortcuts a:nth-child(3){background:#fff1dc;border-color:#f4e5cc;color:#8a6531}
+.student-meal-card{border:1px solid #e1eae6;border-radius:17px;margin:10px 0;overflow:hidden;background:#fff;padding:0}
+.student-meal-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:17px;cursor:pointer;list-style:none;min-height:64px}
+.student-meal-heading::-webkit-details-marker{display:none}.student-meal-heading:after{content:"⌄";color:#67847e;font-size:1.25rem;transition:transform .15s}
+.student-meal-card[open]>.student-meal-heading:after{transform:rotate(180deg)}
+.student-meal-heading strong{font-size:.98rem;color:#193b4d}
+.student-meal-heading .pilot-pill{white-space:nowrap}
+.student-meal-details{padding:0 14px 15px}
+.student-meal-card[open]{background:#fbfdfc}
+#studentMeals,#studentPlanning,#studentProgress{scroll-margin-top:22px}
+@media(max-width:370px){.student-shortcuts{gap:6px}.student-shortcuts a{font-size:.73rem;padding:8px 4px}.student-meal-heading{padding:13px}}

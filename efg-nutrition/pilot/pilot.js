@@ -317,6 +317,11 @@ function weeklyStudentPanel(){
  const items=myWeeklyReports.map(r=>'<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+'</summary><p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p></details>').join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
 }
+function weeklyReportEnd(){
+ const d=new Date(today()+"T12:00:00Z");
+ d.setUTCDate(d.getUTCDate()+(7-d.getUTCDay())%7);
+ return d.toISOString().slice(0,10);
+}
 async function publishWeeklyReport(){
  if(state.profile?.role!=="coach")throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
@@ -324,7 +329,7 @@ async function publishWeeklyReport(){
  const reportText=document.getElementById("weeklyCoachDraftText")?.value?.trim();
  if(!reportText||reportText.length>8000)throw Error("Revisá el borrador antes de compartirlo.");
  if(!confirm("¿Confirmás que revisaste el informe y querés compartirlo con el alumno?"))return;
- const {error}=await sb.from("efg_weekly_reports").upsert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:today(),report_text:reportText,updated_at:new Date().toISOString()},{onConflict:"student_id,week_ending"});
+ const {error}=await sb.from("efg_weekly_reports").upsert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()},{onConflict:"student_id,week_ending"});
  if(error)throw error;
  notify("Informe compartido con el alumno.");
 }

@@ -15,6 +15,14 @@ const yesterday=()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUT
 const escapeHTML=(v)=>String(v??"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=(v,d=0)=>Number(v||0).toLocaleString("es-AR",{maximumFractionDigits:d});
 const mealSlots=[["desayuno","Desayuno","☀️"],["media_manana","Media mañana","🥛"],["almuerzo","Almuerzo","🍽️"],["media_tarde","Media tarde","☕"],["merienda","Merienda","🍌"],["cena","Cena","🌙"]];
+const FOOD_STATE_PAIRS={rice:["rice","rice_raw"],pasta:["pasta","pasta_raw"],potato:["potato","potato_raw"],chicken:["chicken","chicken_raw"]};
+const RAW_STATE_FOODS=[
+{id:"rice_raw",name:"Arroz blanco crudo / seco",unit:"g",k:3.65,p:.0713,c:.80,f:.0066,fi:.013,sourceType:"usda_fdc",sourceId:"169756",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 169756: valores por 100 g en crudo."},
+{id:"pasta_raw",name:"Fideos de trigo secos / crudos",unit:"g",k:3.71,p:.13,c:.747,f:.0151,fi:.032,sourceType:"usda_fdc",sourceId:"168927",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 168927: pasta seca sin enriquecer por 100 g."},
+{id:"potato_raw",name:"Papa cruda con piel",unit:"g",k:.77,p:.0205,c:.1749,f:.0009,fi:.021,sourceType:"usda_fdc",sourceId:"170026",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 170026: papa cruda con piel por 100 g. Para papa pelada utilizar una ficha específica."},
+{id:"chicken_raw",name:"Pechuga de pollo cruda sin piel ni hueso",unit:"g",k:1.20,p:.225,c:0,f:.0262,fi:0,sourceType:"usda_fdc",sourceId:"171077",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 171077: pechuga cruda sin piel ni hueso por 100 g. El equivalente cocido debe coincidir en corte y preparación."}
+];
+foods.push(...RAW_STATE_FOODS);
 const sportTimes=[["pre","Preentrenamiento"],["during","Durante el entrenamiento"],["post","Postentrenamiento"],["morning","Media mañana"],["afternoon","Media tarde"],["other","Otro momento"]];
 const foods=[
  {id:"egg",name:"Huevo entero sin cáscara (referencia crudo)",unit:"g",k:1.48,p:.124,c:.0096,f:.0996,fi:0,source:"USDA FoodData Central Foundation Foods (04/2026), FDC 748967: huevo entero grado A grande, sin cáscara, referencia sin cocción. Valores por 100 g: 148 kcal; proteínas 12,4 g; hidratos totales 0,96 g; grasas 9,96 g. No sumar aceite de cocción; registrarlo aparte.",sourceType:"usda_fdc",sourceId:"748967",validationStatus:"tabla_referenciada"},
@@ -692,7 +700,8 @@ async function addPlannedFood(key){
 }
 function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
- const allowed=allowedFoods().map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
+ const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
+ const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  state.activeMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
@@ -710,7 +719,8 @@ function filterMealFoods(){
  const term=normalizeQuery(search.value);
  const words=term.split(/\s+/).filter(Boolean);
  const previous=selector.value;
- const filtered=allowedFoods().map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>{
+ const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
+ const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=normalizeQuery(f.name+" "+aliases);
   return words.every(w=>name.includes(w));
@@ -733,8 +743,9 @@ function updateMealEntryMode(foodChanged=false){
  qty.step=counting?"1":"any";
  qty.min=counting?"1":"0.1";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
- const stateInput=document.getElementById("mealWeightState"),stateWrap=document.getElementById("mealWeightStateWrap"),stateHint=document.getElementById("mealWeightStateHint");
- if(stateInput&&stateWrap&&stateHint){const raw=/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");const cooked=/\b(cocid[oa]s?|hervid[oa]s?|hornead[oa]s?)\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=true;stateHint.textContent=raw?"Esta ficha es para alimento crudo o seco. Para cocido, buscá la ficha cocida en el catálogo.":cooked?"Esta ficha es para alimento cocido. Para usar peso crudo, seleccioná una ficha cruda del catálogo; no se aplica un factor universal.":"Esta ficha no especifica crudo/cocido; no podemos convertirla con precisión. Elegí una ficha específica si está disponible.";}
+ const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
+ if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
+
  updateMealRecipe();
  updateMealDialogHint();
 }
@@ -760,7 +771,7 @@ function updateMealDialogHint(){
 async function saveSelectedMeal(){
  const slot=state.activeMeal;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!slot||!f||!foodAllowedForMeal(f,slot)||!allowedFoods().includes(f.id)||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const d=activeDiary();d.meals[slot] ||= [];
  const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
  const entry=normItem(f,grams,slot);
@@ -1479,6 +1490,7 @@ root.addEventListener("input",e=>{if(["reviseGoalKcal","reviseGoalMode"].include
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
+root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

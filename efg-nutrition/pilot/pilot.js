@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,equivalentPortion,makePlan} from "./planner.js?v=20261026-fruit-salad-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
-import {buildNutritionReport,nutritionReportText} from "./daily-report.js";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 

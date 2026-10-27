@@ -197,3 +197,22 @@ export function plannerEnergyBreakdown(plan,gramOverrides={}){
   return result;
  });
 }
+
+// Fuente única del comparativo: lo registrado en el diario no incluye
+// ninguna porción simulada. Registrar es una acción separada del usuario.
+export function projectNutritionBalance({consumed={},goals={},selected=[]}={}){
+ const keys=["k","p","c","f"];
+ const real=Object.fromEntries(keys.map(key=>[key,sane(consumed[key])]));
+ const planned=Object.fromEntries(keys.map(key=>[key,0]));
+ for(const choice of selected){
+  const food=choice?.food;
+  const grams=Number(choice?.grams);
+  if(!food||!Number.isFinite(grams)||grams<=0)continue;
+  for(const key of keys)planned[key]+=sane(food[key])*grams;
+ }
+ const projected=Object.fromEntries(keys.map(key=>[key,real[key]+planned[key]]));
+ const remaining=Object.fromEntries(keys.map(key=>[key,Math.max(0,sane(goals[key])-real[key])]));
+ const projectedRemaining=Object.fromEntries(keys.map(key=>[key,Math.max(0,sane(goals[key])-projected[key])]));
+ const projectedExceeded=Object.fromEntries(keys.map(key=>[key,Math.max(0,projected[key]-sane(goals[key]))]));
+ return {consumed:real,remaining,planned,projected,projectedRemaining,projectedExceeded};
+}

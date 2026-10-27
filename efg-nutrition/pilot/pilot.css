@@ -342,3 +342,18 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .planner-qty{grid-template-columns:minmax(0,1fr) minmax(95px,auto)}
  .planner-food-search{font-size:16px}
 }
+
+/* Distribución orientativa de merienda (1/3) y cena (2/3 + sobrantes) */
+.planner-split-target{
+ margin:12px 0 17px;padding:12px 15px;
+ background:linear-gradient(110deg,#eff7f3,#f9fbf6);
+ border:1px solid #dcece4;border-radius:12px;
+ display:flex;flex-direction:column;gap:5px;color:#416e63;
+}
+.planner-split-target b{font-size:13px;color:#1e7666}
+.planner-split-target span{font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.planner-split-target small{font-size:11px;line-height:1.5;color:#6a817b}
+@media(max-width:440px){
+ .planner-split-target{padding:12px}
+ .planner-split-target span{font-size:12px}
+}

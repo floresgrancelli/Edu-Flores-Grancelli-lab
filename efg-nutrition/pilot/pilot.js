@@ -3,6 +3,7 @@ import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261027-seafood-medallions-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
+import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -334,7 +335,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",diary:null,weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false};
+const state={session:null,profile:null,org:null,tab:"home",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false};
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -1085,6 +1086,11 @@ function weightTrendChart(items){
  return '<div class="weight-trend"><div class="weight-summary"><div><small>Primer pesaje</small><strong>'+num(first.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(first))+'</span></div><div><small>Último pesaje</small><strong>'+num(last.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(last))+'</span></div><div><small>Variación total</small><strong>'+delta(Number(last.kg),weights.length>1?Number(first.kg):null)+'</strong><span>Desde el anterior: '+delta(Number(last.kg),previous?Number(previous.kg):null)+'</span></div></div><div class="weight-chart-scroll"><svg class="weight-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico de '+weights.length+' pesajes, desde '+num(first.kg,1)+' hasta '+num(last.kg,1)+' kilos">'+grid+(weights.length>1?'<polyline class="weight-chart-line" points="'+points+'"></polyline>':'')+circles+xLabels+'</svg></div><p class="pilot-hint">Cada punto es un pesaje real. Los días sin registro no se cuentan ni interpolan. Las variaciones aisladas pueden reflejar cambios de agua corporal.</p></div>';
 }
 const argentinaTime=()=>new Intl.DateTimeFormat("en-GB",{timeZone:"America/Argentina/Buenos_Aires",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date());
+function nutritionProgressPanel(isCoach=false){
+ const logs=isCoach?state.coachProgressLogs:state.progressLogs;
+ const goals=isCoach?state.coachGoals:state.goals;
+ return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student");
+}
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
  const last=weights[0];
@@ -1104,7 +1110,7 @@ function progressView(){
  '<div class="field"><label>Minutos de ejercicio</label><input id="activityMinutes" type="number" min="0" max="1440" placeholder="Ej. 60"></div>'+
  '<div class="field"><label>Tipo</label><select id="activityKind"><option>Entrenamiento de fuerza</option><option>Running</option><option>Cardio</option><option>Caminata</option><option>Otro</option></select></div>'+
  '<button class="btn" data-act="saveActivity">Guardar actividad</button></div></div>'+
- '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>';
+ '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.8){
@@ -1294,7 +1300,7 @@ function coachDailyReport(p){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),latest);
  const selected=report.days.find(x=>x.date===state.reportDate)||report.days.find(x=>x.date===yesterday())||report.today||report.days[0]||null;
  const dateLabel=(d)=>d.split("-").reverse().join("/");
- let out='<section class="nutrition-daily-report" id="coachDailyReport"><div class="section-head"><h3>📊 Informe nutricional diario</h3><button type="button" class="btn small light" data-act="refreshCoachReport">Actualizar</button></div>'+
+ let out='<section class="nutrition-daily-report" id="coachDailyReport"><div class="section-head"><h3>📊 Informe nutricional diario</h3><button type="button" class="btn small light efg-report-refresh" data-act="refreshCoachReport">Actualizar</button></div>'+
  '<p class="pilot-hint">Se actualiza con los registros guardados y se consulta únicamente dentro de la app.</p>';
  if(!report.daysRecorded)return out+'<div class="empty">Sin consumos registrados. El informe aparecerá cuando el alumno cargue su primera comida.</div></section>';
  const haveClosed=report.daysClosed>0;
@@ -1350,7 +1356,7 @@ function goalRevisionSection(latest){
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
- return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+
+ return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
@@ -1470,12 +1476,15 @@ async function saveDiary(){
  const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:d.student_id,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:d.totals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
  if(error)throw error;
  state.diary=data;
+ const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
+ if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
  await render();
 }
 async function loadPersonalData(){
  const id=state.session.user.id;
  const results=await Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",today()).maybeSingle(),
+ sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
@@ -1484,7 +1493,7 @@ async function loadPersonalData(){
  ]);
  const error=results.find(x=>x.error)?.error;
  if(error)throw error;
- state.diary=results[0].data||null;state.renderedDay=today();state.weights=results[1].data||[];state.activities=results[2].data||[];state.goals=results[3].data||[];state.personalTargets=results[4].data||null;state.foodPlan=results[5].data||null;
+ state.diary=results[0].data||null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;
@@ -1547,16 +1556,17 @@ async function loadStudentDetail(studentId){
  if(c.error)throw c.error;
  state.consent=c.data;
  state.coachFoodPlan=null;
- if(!c.data?.accepted){state.coachLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
+ if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
  const results=await Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
+ sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",studentId).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
  sb.from("efg_activities").select("*").eq("student_id",studentId).order("activity_day",{ascending:false}).limit(15),
  sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle()
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
- state.coachLogs=results[0].data||[];state.coachWeights=results[1].data||[];state.coachActivities=results[2].data||[];state.coachGoals=results[3].data||[];state.coachFoodPlan=results[4].data||null;
+ state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
 }
 async function refresh(){
  if(state.loading)return;
@@ -1650,6 +1660,7 @@ async function showProof(path){
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
+ if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
   state.tab=el.dataset.tab;

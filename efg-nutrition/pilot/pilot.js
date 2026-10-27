@@ -496,7 +496,7 @@ function plannerCard(){
   out+='<div class="planner-energy-summary" data-plan-energy="'+escapeHTML(meal.slot)+'">'+
    '<div class="planner-energy-stats">'+
    '<div><span>Objetivo</span><strong data-plan-energy-target>'+num(meal.target.k)+' <small>kcal</small></strong></div>'+
-   '<div><span>Porciones elegidas</span><strong data-plan-energy-selected>'+num(meal.estimate.k)+' <small>kcal</small></strong></div>'+
+   '<div><span>Comida planificada</span><strong data-plan-energy-selected>'+num(meal.estimate.k)+' <small>kcal</small></strong></div>'+
    '<div><span>Por cubrir</span><strong data-plan-energy-left>'+num(Math.max(0,meal.target.k-meal.estimate.k))+' <small>kcal</small></strong></div>'+
    '</div><p data-plan-energy-message></p></div>';
   if(meal.split){

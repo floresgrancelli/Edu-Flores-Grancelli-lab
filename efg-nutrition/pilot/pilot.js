@@ -498,10 +498,10 @@ function frame(content){
  const menu=role==="student"
   ?[["home","⌂","Hoy"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
-  ?[["coach","⌂","Inicio"],["reports","▥","Informes"],["payments","▤","Pagos"]]
+  ?[["coach","⌂","Inicio"],["coachStudents","♧","Alumnos"],["reports","▥","Informes"],["payments","▤","Pagos"]]
   :[["admin","⌂","Inicio"],["home","◷","Mi día"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
- const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments"].includes(state.tab))?"adminMore":state.tab;
+ const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'"><span class="nav-icon">'+m[1]+'</span>'+m[2]+'</button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
@@ -1129,6 +1129,25 @@ function macroPlayground(){
 function coachPreferredNames(){try{return JSON.parse(localStorage.getItem("efg-coach-names-"+(state.session?.user?.id||"local"))||"{}")}catch{return {}}}
 function coachDisplayName(p){return coachPreferredNames()[p.user_id]||p.nickname||"Alumno"}
 function coachAvatarLetters(p){return String(coachDisplayName(p)).trim().split(/\s+/).slice(0,2).map(w=>w.charAt(0)).join("").toUpperCase()||"?"}
+
+function coachHomeView(){
+ const test=state.profile.role==="admin"&&state.org?.is_test;
+ const roster=(state.roster||[]).filter(p=>p.active);
+ const pending=(test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
+ const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
+ return rootText(test?"Mi laboratorio de coach":"Hola, "+state.profile.nickname,"Alumnos, seguimiento e informes: lo importante está a un toque.")+
+ '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
+ '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
+ '<section class="efg-menu-grid efg-coach-tiles">'+[
+  ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
+ ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
+ '<section class="card efg-content-card"><div class="section-head"><h2>Mis alumnos</h2><button type="button" class="btn small light" data-tab="coachStudents">Ver todos</button></div>'+
+ (roster.length?roster.slice(0,5).map(p=>'<div class="efg-student-compact"><span class="coach-roster-avatar">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+(coachRosterConsent[p.user_id]===true?'Seguimiento autorizado':'Autorización pendiente')+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Abrir</button></div>').join(""):'<div class="empty">Todavía no hay alumnos activos. Podés invitarlos desde Mis alumnos.</div>')+
+ '</section>';
+}
+function coachToolsView(){
+ return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground();
+}
 function coachView(){
  const org=state.org;
  const isTest=state.profile.role==="admin"&&!!org?.is_test;
@@ -1360,7 +1379,7 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachView,testCoach:state.profile.role==="admin"?coachView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  if(state.tab==="planner")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();
@@ -1642,6 +1661,7 @@ if(el.dataset.reportstudent){
 }
 if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+(state.session?.user?.id||"local"),JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
 if(el.dataset.student){
+ if(state.tab==="coach"||state.tab==="testCoach")state.tab="coachStudents";
  state.reportDate=null;
  await loadStudentDetail(el.dataset.student);
  await render();

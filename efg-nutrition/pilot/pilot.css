@@ -391,3 +391,36 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .planner-energy-stats strong{font-size:17px}
  .planner-extra-chip{font-size:11px}
 }
+
+/* Dos saldos inequívocos: datos reales del diario y simulación no guardada. */
+.planner-balance-compare{display:grid;gap:13px;margin:22px 0 15px}
+.planner-real-balance,.planner-simulated-balance{
+ border-radius:14px;padding:17px;min-width:0
+}
+.planner-real-balance{
+ background:#eff8f3;border:1px solid #cfe7dc;color:#326a5d
+}
+.planner-real-balance b,.planner-simulated-balance b{
+ display:block;font-size:14px;font-weight:800;margin:0 0 10px;line-height:1.35
+}
+.planner-real-balance p,.planner-simulated-balance p{
+ margin:8px 0 0;font-size:13px;line-height:1.65;overflow-wrap:anywhere
+}
+.planner-real-balance small,.planner-simulated-balance small{
+ display:block;margin-top:10px;font-size:11px;line-height:1.65
+}
+.planner-real-balance small{color:#5c8176}
+.planner-simulated-balance{
+ margin:0;background:#fff6e8;border:1px solid #ecd9b1;color:#775d36
+}
+.planner-simulated-balance #plannerPlannedNumbers{font-weight:650}
+.planner-simulated-balance #plannerPendingNumbers{
+ border-top:1px dashed #d9c6a9;padding-top:10px;margin-top:12px
+}
+.planner-balance-compare.planner-complete .planner-simulated-balance{
+ background:#edf8f0;border-color:#cce6d4;color:#306e56
+}
+@media(max-width:480px){
+ .planner-real-balance,.planner-simulated-balance{padding:14px}
+ .planner-real-balance p,.planner-simulated-balance p{font-size:12.5px}
+}

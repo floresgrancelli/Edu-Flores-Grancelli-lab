@@ -682,7 +682,7 @@ function plannerCard(){
  let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
  '<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
- if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Completá tus objetivos personales más abajo.")+'</div></section>';
+ if(!goal)return out+'<div class="pilot-alert">Para sugerir cantidades necesitamos un objetivo nutricional definido. '+(state.profile.role==="student"?"Tu entrenador debe aprobarlo.":"Configurá tus objetivos personales desde Mi día.")+'</div></section>';
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';

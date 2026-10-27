@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-priority-protein-carbs-kcal-v1";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan} from "./planner.js?v=20261027-snack-third-v1";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261026-fruit-salad-v1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
@@ -484,6 +484,14 @@ function plannerCard(){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
   const available=all; // Catálogo íntegro: todas las categorías y comidas para planificar.
   out+='<div class="planner-meal"><div class="between"><h3>'+escapeHTML(title)+'</h3><span class="pilot-pill">'+num(meal.estimate.k)+' kcal sugeridas</span></div>';
+  if(meal.split){
+   const snack=meal.split==="snack-third";
+   const budget=meal.target||meal.baselineTarget||{};
+   out+='<div class="planner-split-target"><b>'+(snack?'⅓ para la merienda':'⅔ para la cena + lo no cubierto en la merienda')+'</b>'+
+    '<span>Objetivo orientativo: '+num(budget.k)+' kcal · P '+num(budget.p,1)+' g · HC '+num(budget.c,1)+' g · G '+num(budget.f,1)+' g</span>'+
+    (snack?'<small>Porciones moderadas; lo que no cubras se reserva para la cena.</small>':'<small>La cena considera el remanente real de la merienda, no solo su fracción inicial.</small>')+
+    '</div>';
+  }
   for(const row of meal.rows){
    const key=meal.slot+"|"+row.category;
    const label=slotNames[row.category]||"Alimento";
@@ -497,7 +505,7 @@ function plannerCard(){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
     const qty=row.grams;
     const nutrientLabel=row.targetNutrient==="p"?"proteínas":row.targetNutrient==="c"?"hidratos":"calorías";
-    const targetExplanation=row.capped?' <small>Para cubrir el objetivo solo con este alimento harían falta aproximadamente '+num(row.neededGrams)+' '+escapeHTML(row.unit)+'. Se recomienda una porción limitada; el resto quedará indicado abajo.</small>':"";
+    const targetExplanation=row.capped?' <small>'+(meal.split==="snack-third"?"Se sugiere una porción moderada de merienda. Lo que falte pasará a la cena.":"Para cubrir el objetivo solo con este alimento harían falta aproximadamente "+num(row.neededGrams)+" "+escapeHTML(row.unit)+". Se recomienda una porción limitada; el resto quedará indicado abajo.")+'</small>':"";
     out+='<div class="planner-qty"><div class="planner-recommendation">'+
       (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>'+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
       (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+

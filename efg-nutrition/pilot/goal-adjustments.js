@@ -4,11 +4,20 @@ export function adjustNutritionGoal(base,targetCalories,mode="proportional"){
  if(!base||!["fat_loss","recomp","muscle_gain","maintenance"].includes(base.goal_type))throw new Error("Primero calculá o elegí un plan vigente.");
  const baseline=Number(base.kcal),target=Number(targetCalories);
  if(!Number.isFinite(baseline)||baseline<1200||!Number.isFinite(target)||!Number.isInteger(target)||target<1200||target>10000)throw new Error("Ingresá calorías enteras entre 1200 y 10000; los valores extremos requieren evaluación profesional.");
- if(!["proportional","protect_protein"].includes(mode))throw new Error("Seleccioná una forma de redistribuir macronutrientes.");
+ if(!["proportional","protect_protein","protect_protein_balanced"].includes(mode))throw new Error("Seleccioná una forma de redistribuir macronutrientes.");
  for(const key of ["protein_g","carb_g","fat_g"])if(!Number.isFinite(Number(base[key]))||Number(base[key])<0)throw new Error("El plan inicial no tiene una distribución válida.");
  const ratio=target/baseline;
+ // La modalidad equilibrada conserva proteínas y distribuye la energía disponible
+ // entre carbohidratos y grasas, respetando su proporción energética anterior.
+ // La corrección final de hidratos compensa el redondeo a gramos enteros (4/4/9).
  const protein=mode==="proportional"?Math.round(Number(base.protein_g)*ratio):Math.round(Number(base.protein_g));
- const fat=mode==="proportional"?Math.round(Number(base.fat_g)*ratio):Math.round(Number(base.fat_g));
+ const originalFat=Number(base.fat_g), originalCarbs=Number(base.carb_g);
+ const nonProteinEnergy=4*originalCarbs+9*originalFat;
+ const availableNonProtein=target-4*protein;
+ if(mode==="protect_protein_balanced" && (nonProteinEnergy<=0 || availableNonProtein<0))throw new Error("El objetivo no permite preservar las proteínas y distribuir carbohidratos y grasas. Revisá las calorías.");
+ const fat=mode==="protect_protein_balanced"
+   ?Math.round(originalFat*availableNonProtein/nonProteinEnergy)
+   :mode==="proportional"?Math.round(originalFat*ratio):Math.round(originalFat);
  const carbs=Math.round((target-4*protein-9*fat)/4);
  if(protein<0||protein>1000||fat<0||fat>1000||carbs<0||carbs>2000)throw new Error("No se pueden distribuir esos macros con estas calorías. Subí el objetivo o elegí el ajuste proporcional.");
  const energy=protein*4+carbs*4+fat*9;

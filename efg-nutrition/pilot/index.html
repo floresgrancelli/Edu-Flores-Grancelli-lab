@@ -6,9 +6,19 @@
 <title>EFG Nutrition Pro · Acceso privado</title>
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="../fresh.css">
-<link rel="stylesheet" href="./pilot.css?v=20261027-onboarding-premium-v1">
+<link rel="preload" as="image" href="./loading-option-1.webp">
+<link rel="stylesheet" href="./pilot.css?v=20261027-loading-option1-v1">
 </head><body>
-<div id="app" role="main"><div class="pilot-loader"><div class="spin"></div><h2>EFG Nutrition Pro</h2><p>Iniciando el espacio privado…</p></div></div>
+<div id="app" role="main">
+  <div class="pilot-loader pilot-loader-wellness" aria-live="polite">
+    <span class="pilot-loader-wordmark">EFG NUTRITION PRO</span>
+    <img class="pilot-loader-photo" src="./loading-option-1.webp" alt="Bowl saludable con pollo, palta, vegetales y cereales" width="240" height="198" fetchpriority="high" decoding="async">
+    <h1 class="pilot-loader-message">Cada buena elección <em>cuenta.</em></h1>
+    <div class="spin" role="status" aria-label="Cargando EFG Nutrition"></div>
+    <p class="pilot-loader-subtitle">Preparando tu espacio privado…</p>
+    <small class="pilot-loader-signature">Un hábito a la vez.</small>
+  </div>
+</div>
 <div id="pilot-toast" role="status" aria-live="polite"></div>
 <script type="module" src="./pilot.js?v=20261027-onboarding-premium-v1"></script>
 </body></html>

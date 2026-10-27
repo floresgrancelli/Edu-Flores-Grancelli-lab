@@ -1,0 +1,9 @@
+/* EFG Coach Experience 2.0 — coach-only cards */
+.coach-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.coach-hub-tile{min-height:130px;border:1px solid rgba(39,80,79,.07);border-radius:22px;padding:18px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;color:#17344a;box-shadow:0 3px 13px rgba(20,58,55,.04);cursor:pointer;transition:transform .15s,box-shadow .15s;font:inherit}
+.coach-hub-tile:active{transform:scale(.98)}.coach-hub-tile:focus-visible{outline:3px solid #247e76;outline-offset:3px}
+.coach-hub-icon{font-size:27px;line-height:1.1}.coach-hub-tile strong{font-size:1.06rem;line-height:1.2}.coach-hub-tile small{font-size:.77rem;line-height:1.35;color:#516975}
+.tile-clients{background:#e8f4ef}.tile-reports{background:#e9efff}.tile-goals{background:#fff0db}.tile-tools{background:#f0eafb}
+#coachToolsSection>details>summary{padding:8px 2px}#coachRosterSection{scroll-margin-top:20px}
+@media(min-width:920px){.coach-hub-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.coach-hub-tile{min-height:145px}}
+@media(max-width:400px){.coach-hub-grid{gap:9px}.coach-hub-tile{padding:13px;min-height:120px;border-radius:18px}.coach-hub-tile strong{font-size:.95rem}}

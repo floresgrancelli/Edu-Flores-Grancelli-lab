@@ -29,14 +29,14 @@ export function optionsFor(foods,approved,category){
  return (FOOD_GROUPS[category]||[]).filter(id=>allowed.has(id)).map(id=>foods.find(f=>f.id===id)).filter(Boolean);
 }
 export function futureSlots(diary,dinnerOnly){
- if(dinnerOnly)return (diary?.skipped||{}).cena?[]:["cena"];
- const meals=diary?.meals||{},skipped=diary?.skipped||{};
- let last=-1;
- MEAL_ORDER.forEach((slot,i)=>{if((meals[slot]||[]).length>0&&!skipped[slot])last=i;});
- const future=MEAL_ORDER.filter((slot,i)=>i>last&&!skipped[slot]&&!(meals[slot]||[]).length);
- // Sugerir merienda + cena, evitando exigir además "media tarde".
- if(future.includes("cena"))return (future.includes("merienda")?["merienda","cena"]:["cena"]);
- return future.slice(0,2);
+ const skipped=diary?.skipped||{},meals=diary?.meals||{};
+ if(dinnerOnly)return skipped.cena?[]:["cena"];
+ // Una comida con solo proteína registrada sigue abierta para cargar hidratos.
+ // No inferir que una merienda se completó por el primer alimento.
+ if(!skipped.merienda&&!skipped.cena)return ["merienda","cena"];
+ if(!skipped.merienda&&skipped.cena)return ["merienda"];
+ if(!skipped.cena)return ["cena"];
+ return [];
 }
 // No existe una lista nutricional reducida: todos los alimentos del catálogo son elegibles.
 // En la interfaz se ordenan por los mismos grupos que al registrar comidas.

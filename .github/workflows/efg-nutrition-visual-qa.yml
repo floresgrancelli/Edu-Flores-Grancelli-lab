@@ -25,7 +25,9 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Test actual UI with mock profiles only (no production connectivity)
-        run: node efg-nutrition/tests/premium-visual-smoke.mjs
+        run: |
+          node efg-nutrition/tests/premium-progress-charts.mjs
+          node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: Preserve screenshots and machine-readable layout report
         if: always()
         uses: actions/upload-artifact@v4

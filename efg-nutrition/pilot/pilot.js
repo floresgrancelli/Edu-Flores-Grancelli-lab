@@ -22,7 +22,6 @@ const RAW_STATE_FOODS=[
 {id:"potato_raw",name:"Papa cruda con piel",unit:"g",k:.77,p:.0205,c:.1749,f:.0009,fi:.021,sourceType:"usda_fdc",sourceId:"170026",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 170026: papa cruda con piel por 100 g. Para papa pelada utilizar una ficha específica."},
 {id:"chicken_raw",name:"Pechuga de pollo cruda sin piel ni hueso",unit:"g",k:1.20,p:.225,c:0,f:.0262,fi:0,sourceType:"usda_fdc",sourceId:"171077",validationStatus:"tabla_referenciada",source:"USDA FoodData Central SR Legacy FDC 171077: pechuga cruda sin piel ni hueso por 100 g. El equivalente cocido debe coincidir en corte y preparación."}
 ];
-foods.push(...RAW_STATE_FOODS);
 const sportTimes=[["pre","Preentrenamiento"],["during","Durante el entrenamiento"],["post","Postentrenamiento"],["morning","Media mañana"],["afternoon","Media tarde"],["other","Otro momento"]];
 const foods=[
  {id:"egg",name:"Huevo entero sin cáscara (referencia crudo)",unit:"g",k:1.48,p:.124,c:.0096,f:.0996,fi:0,source:"USDA FoodData Central Foundation Foods (04/2026), FDC 748967: huevo entero grado A grande, sin cáscara, referencia sin cocción. Valores por 100 g: 148 kcal; proteínas 12,4 g; hidratos totales 0,96 g; grasas 9,96 g. No sumar aceite de cocción; registrarlo aparte.",sourceType:"usda_fdc",sourceId:"748967",validationStatus:"tabla_referenciada"},
@@ -210,6 +209,7 @@ const sports=[
  {id:"water",name:"Agua",unit:"ml",defaultQty:300,k:0,p:0,c:0,f:0,fi:0,source:"Sin calorías"},
  {id:"electrolytes",name:"Electrolitos sin azúcar",unit:"porciones",defaultQty:1,k:0,p:0,c:0,f:0,fi:0,source:"Sales y sodio por etiqueta"}
 ];
+foods.push(...RAW_STATE_FOODS);
 
 // Suplementos declarados por el alumno. Las cantidades son las del producto consumido,
 // nunca sugerencias terapéuticas. Las sales de magnesio se registran en Mg elemental.

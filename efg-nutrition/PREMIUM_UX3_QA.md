@@ -39,3 +39,14 @@ Referencia aprobada: dashboards móviles minimalistas, tarjetas pastel grandes, 
 
 ## Fuera de alcance del lanzamiento visual
 Fotos de perfil y cualquier tabla de fotos en Supabase. Se mantienen avatares con iniciales. El nombre preferido del coach se guarda localmente hasta implementar sincronización deliberadamente.
+
+## Actualización Premium 3.1 — 27/10/2026
+- [x] Cabecera móvil EFG con avatar de iniciales, sin depender de fotografías.
+- [x] Iconografía vectorial coherente y pestaña activa identificable para lectores de pantalla.
+- [x] Corrección funcional: «Mis comidas» navega hasta las seis tarjetas del día; ya no recarga inicio.
+- [x] Tarjetas pastel diferentes para proteína, hidratos y grasas; botones para quitar alimentos de al menos 44 px.
+- [x] Contenedores seguros para iPhone con notch y barra inferior; sin cambiar datos, objetivos ni RLS.
+- [x] Cache-busting específico de la rama de desarrollo.
+- [ ] Comprobación visual auténtica en Safari iOS y Chrome Android, capturas por rol.
+- [ ] Interacciones y persistencia con tres cuentas autorizadas de prueba.
+- [ ] Revisión final antes de desplegar: **no fusionar ni publicar** por estas verificaciones estáticas.

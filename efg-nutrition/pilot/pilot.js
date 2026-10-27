@@ -1174,6 +1174,7 @@ function weeklyCoachDraft(){
  '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
  '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
  '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
+ '<div class="pilot-notice"><strong>🧬 Entender para mejorar</strong><small>Proteínas: se analiza la cercanía al objetivo del coach, no la calidad de la persona. Peso: un cambio aislado puede incluir agua y glucógeno. Días sin registro: faltan datos, no significa que se haya comido menos. Las recomendaciones deben considerar objetivos, evolución y comentarios del alumno.</small></div>'+
  '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+
  '<button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar texto revisado</button><button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>'+
  '<p class="pilot-hint">La copia no representa aprobación ni entrega. No emitir recomendaciones clínicas automáticas.</p></section>';

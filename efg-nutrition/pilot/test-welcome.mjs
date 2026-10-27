@@ -1,0 +1,24 @@
+// Regresión EFG Nutrition: bienvenida premium para alumnos nuevos.
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const root=new URL("./",import.meta.url);
+const read=name=>readFile(new URL(name,root),"utf8");
+const [ui,css,html]=await Promise.all(["pilot.js","pilot.css","index.html"].map(read));
+const photo=await readFile(new URL("welcome-bowl.jpg",root));
+assert.equal(photo[0],0xff);assert.equal(photo[1],0xd8);assert.equal(photo.at(-2),0xff);assert.equal(photo.at(-1),0xd9);
+assert.ok(photo.length>2000,"Imagen propia incluida y no un enlace externo");
+assert.match(css,/background-image:url\("\.\/welcome-bowl\.jpg"\)/,"Fotografía local");
+assert.match(css,/\.efg-onboard\{/,"Estilos de bienvenida");
+assert.match(css,/@media\(max-width:560px\)/,"Versión iPhone");
+assert.ok(ui.includes("Hoy comienza una <em>nueva forma de cuidarte.</em>"));
+assert.ok(ui.includes("Comenzar mi cambio"));
+assert.ok(ui.includes("Una alimentación consciente."));
+assert.ok(ui.includes('if(state.profile?.role!=="student"||!state.profile?.active)return'),"Sólo alumnos activos");
+assert.ok(ui.includes('sb.from("efg_student_onboarding").select("seen_at")'),"Consulta de primer ingreso");
+assert.ok(ui.includes('sb.from("efg_student_onboarding").upsert('),"Guarda confirmación entre dispositivos");
+assert.ok(ui.includes("if(state.welcomePending)return welcomeView()"),"Sólo primera entrada");
+assert.ok(ui.includes('if(action==="completeWelcome")return completeWelcome()'),"Botón interactivo");
+assert.ok(ui.includes("await loadWelcomeStatus()"),"Carga de estado al iniciar sesión");
+assert.match(html,/pilot\.js\?v=20261027-onboarding-premium-v1/,"Caché de JavaScript");
+assert.match(html,/pilot\.css\?v=20261027-onboarding-premium-v1/,"Caché de CSS");
+console.log("Bienvenida primer acceso: foto, mensaje, CTA, persistencia y responsividad OK");

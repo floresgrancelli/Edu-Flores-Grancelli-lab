@@ -655,7 +655,7 @@ function homeView(){
    return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span>'+portion+' · '+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
-  return '<details class="pilot-record meal-day-section student-meal-card"><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></summary><div class="student-meal-details">'+
+  return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':num(values(items).k)+' kcal')+'</span></summary><div class="student-meal-details">'+
   detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button>'+(getHabitual(key)?'<button class="btn small light" data-habitualuse="'+key+'">↻ Repetir habitual</button>':'')+'</div></div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
@@ -907,7 +907,7 @@ function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
  const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
- state.activeMeal=slot;
+ state.activeMeal=slot;state.lastEditedMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, huevo, arroz…" autocomplete="off"></div>'+

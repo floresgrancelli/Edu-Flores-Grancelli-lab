@@ -277,3 +277,43 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .efg-onboard-motto{margin-top:15px!important}
 }
 @media(prefers-reduced-motion:reduce){.efg-onboard-cta{transition:none}}
+
+
+/* Splash de inicio · imagen aprobada opción 1, sin interferir con las pantallas de error */
+.pilot-loader.pilot-loader-wellness{
+  min-height:100vh;min-height:100dvh;box-sizing:border-box;
+  background:radial-gradient(ellipse at 85% 6%,#e7efe4 0%,transparent 45%),linear-gradient(145deg,#f7faf6,#faf8f0);
+  padding:max(30px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom));
+  gap:0;text-align:center;color:#21453c;
+}
+.pilot-loader-wordmark{font-size:12px;font-weight:790;letter-spacing:.23em;color:#477668;margin:0 0 26px}
+.pilot-loader-photo{
+ display:block;width:min(75vw,340px);height:auto;aspect-ratio:240/198;
+ object-fit:cover;border-radius:27px;
+ box-shadow:0 14px 40px #374e3e25;border:1px solid #ffffffad;
+ margin:0 0 30px;
+}
+.pilot-loader-message{
+ font:normal clamp(27px,7vw,36px)/1.18 Georgia,"Times New Roman",serif;
+ letter-spacing:-.035em;color:#263f32;
+ max-width:370px;margin:0 auto 26px;
+}
+.pilot-loader-message em{font-style:normal;color:#698355}
+.pilot-loader.pilot-loader-wellness .spin{
+ width:39px;height:39px;border-width:4px;margin:0 0 20px;
+}
+.pilot-loader-subtitle{font-size:14px;line-height:1.45;color:#667e7d;margin:0 0 20px}
+.pilot-loader-signature{font:normal 14px Georgia,"Times New Roman",serif;color:#5d7865;letter-spacing:.11em}
+@media(max-width:440px){
+ .pilot-loader-wordmark{margin-bottom:20px}
+ .pilot-loader-photo{width:min(75vw,300px);margin-bottom:25px}
+ .pilot-loader-message{margin-bottom:22px}
+}
+@media(max-height:700px){
+ .pilot-loader.pilot-loader-wellness{padding-top:18px;padding-bottom:18px}
+ .pilot-loader-wordmark{margin-bottom:12px}
+ .pilot-loader-photo{width:min(58vw,250px);margin-bottom:17px}
+ .pilot-loader-message{font-size:26px;margin-bottom:17px}
+ .pilot-loader.pilot-loader-wellness .spin{margin-bottom:12px}
+ .pilot-loader-subtitle{margin-bottom:12px}
+}

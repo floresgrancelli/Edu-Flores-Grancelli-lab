@@ -113,3 +113,31 @@
  .efg-quick-more{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){.pilot-layout *, .pilot-layout *::before,.pilot-layout *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Premium concise coach/admin landing pages */
+.efg-coach-banner,.efg-admin-banner{min-width:0;padding:24px 26px;border-radius:26px;margin:18px 0 14px;background:linear-gradient(125deg,#e0f4e9 0%,#e7eefc 70%,#fff6e5 100%);color:#244a51;border:1px solid #e3eeed;position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.efg-admin-banner{background:linear-gradient(125deg,#e7ecff 0%,#f0eaf7 55%,#fff4e5 100%)}
+.efg-coach-banner h2,.efg-admin-banner h2{font-size:clamp(22px,4vw,32px);letter-spacing:-.04em;line-height:1.12;margin:10px 0 8px;color:#1a3446}
+.efg-coach-banner p,.efg-admin-banner p{font-size:13px;line-height:1.55;color:#5c777c;margin:0}
+.efg-coach-banner-icon{font-size:53px;opacity:.6;flex-shrink:0}
+.efg-coach-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.efg-coach-stat-grid>div{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0;border:1px solid #e7eeed;border-radius:18px;padding:17px;background:#fff}
+.efg-coach-stat-grid strong{font-size:clamp(21px,4vw,28px);line-height:1.1;color:#1a3446;letter-spacing:-.03em}
+.efg-coach-stat-grid span{font-size:11px;line-height:1.4;color:#73878b}
+.efg-coach-tiles{margin:18px 0}
+.efg-student-compact{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid #edf1f1;min-width:0}
+.efg-student-compact:last-child{border-bottom:0}
+.efg-student-compact>.coach-roster-avatar{flex-shrink:0}
+.efg-student-compact>div{flex:1;min-width:0}
+.efg-student-compact strong,.efg-student-compact small{display:block;overflow-wrap:anywhere}
+.efg-student-compact strong{font-size:14px;color:#1a3446}
+.efg-student-compact small{font-size:11px;color:#819096;margin-top:5px}
+.efg-student-compact>.btn{flex-shrink:0}
+@media(max-width:720px){
+ .efg-coach-banner,.efg-admin-banner{padding:21px 18px;border-radius:22px;margin-top:11px}
+ .efg-coach-stat-grid{gap:8px}
+ .efg-coach-stat-grid>div{padding:12px 10px;border-radius:15px}
+ .efg-coach-stat-grid strong{font-size:24px}
+ .efg-coach-stat-grid span{font-size:10px}
+ .efg-coach-banner-icon{font-size:32px}
+}

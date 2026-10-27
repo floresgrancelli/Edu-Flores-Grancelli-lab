@@ -53,11 +53,20 @@ assert.equal(foods.get("milk_whole").validationStatus,"tabla_convertida_densidad
 assert.equal(foods.get("milk_skim").validationStatus,"tabla_convertida_densidad");
 close(foods.get("yogurt_greek_light").k*100,59,"Yogur griego natural descremado USDA");
 assert.equal(foods.get("yogurt_greek_light").sourceId,"170894");
+const fruitSalad=foods.get("fruit_salad_basic");
+assert.ok(fruitSalad,"Debe existir ensalada de frutas sin azúcar añadida");
+assert.equal(fruitSalad.validationStatus,"receta_estimado");
+assert.equal(fruitSalad.sourceType,"recipe_estimate");
+assert.equal(FOOD_UNIT_PORTIONS.fruit_salad_basic.grams,200,"Bol de referencia");
+close(fruitSalad.k*200,122.85,"Fruta combinada: kcal por bol de referencia");
+close(fruitSalad.c*200,30.875,"Fruta combinada: hidratos por bol");
+close(fruitSalad.fi*200,4.6,"Fruta combinada: fibra por bol");
 const appText=await readFile(new URL("./pilot.js",import.meta.url),"utf8");
 for(const id of ["748967","2708408","170440","2647437","169737","171413","173944","171705"]){
  assert.ok(appText.includes('sourceId:"'+id+'"'),"Falta FDC_ID "+id+" en alimentos principales");
 }
 assert.ok(appText.includes("f.oilIncluded?"),"El aviso de aceite debe distinguir preparación con aceite incluido");
+assert.ok(appText.includes("setFruitSaladNutrition();")&&appText.includes("fruitSaladRecipeHTML()"),"El alumno debe ver la mezcla de ensalada y el cálculo desde ingredientes");
 assert.notEqual(foods.get("milanesa_soy_baked").k,gobinda.k,"No mezclar genérica con Gobinda");
 // Control global: las entradas principales y ampliadas forman un catálogo sin IDs repetidos.
 const pStart=appText.indexOf("const foods=[");
@@ -73,7 +82,7 @@ for(const food of all){
  for(const n of ["k","p","c","f","fi"])assert.ok(Number.isFinite(food[n])&&food[n]>=0,"Composición inválida "+food.id+": "+n);
  if(!food.validationStatus)assert.ok(food.id==="cake"||!food.sourceId||food.sourceType==="usda_fdc","Falta estado de fuente "+food.id);
 }
-assert.equal(all.length,370,"Revisar altas/bajas de alimentos y generar nuevamente el informe CSV");
+assert.equal(all.length,371,"Revisar altas/bajas de alimentos y generar nuevamente el informe CSV");
 assert.ok(appText.includes("foodProvenance(f)"),"El alumno debe poder ver procedencia de ficha en el editor");
 assert.ok(appText.includes("sourceType:p.sourceType"),"Conservar procedencia en registros futuros");
 const whey=foods.get("whey_powder");

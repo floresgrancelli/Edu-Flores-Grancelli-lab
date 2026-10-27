@@ -366,6 +366,10 @@ async function completeWelcome(){
   if(error)throw error;
   state.welcomePending=false;
   await render();
+ }catch(error){
+  state.welcomeSubmitting=false;
+  welcomeView();
+  throw error;
  }finally{state.welcomeSubmitting=false;}
 }
 function loginView(message=""){

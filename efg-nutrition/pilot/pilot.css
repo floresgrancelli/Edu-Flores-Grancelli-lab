@@ -424,3 +424,21 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
  .planner-real-balance,.planner-simulated-balance{padding:14px}
  .planner-real-balance p,.planner-simulated-balance p{font-size:12.5px}
 }
+
+/* EFG cinco comidas, muestra aprobada por el coach y no un registro consumido. */
+.efg-guide-shell,.efg-guide-baseline,.efg-guide-student{margin:16px 0;padding:17px;border:1px solid #dce9e0;border-radius:17px;background:linear-gradient(140deg,#f3f9f4,#fff)}
+.efg-guide-shell .eyebrow,.efg-guide-student .eyebrow{color:#266548;font-size:.75rem;font-weight:800;letter-spacing:.08em}
+.efg-guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:11px;margin:15px 0}
+.efg-guide-meal{background:#fff;border:1px solid #dce8e1;border-radius:12px;padding:12px}
+.efg-guide-meal-head,.efg-guide-food{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.efg-guide-meal-head{border-bottom:1px solid #e8eee9;padding-bottom:8px;margin-bottom:10px;color:#245c42}
+.efg-guide-food{margin:10px 0;font-size:.86rem}
+.efg-guide-food span{flex:1;min-width:0}.efg-guide-food b{white-space:nowrap;font-size:.84rem}
+.efg-guide-food input{width:68px;padding:6px;border:1px solid #cadecf;border-radius:8px;text-align:right}
+.efg-guide-meal small,.efg-guide-summary small,.efg-guide-baseline small{display:block;margin-top:8px;color:#567565;line-height:1.5}
+.efg-guide-summary{background:#e9f3ec;border-radius:11px;padding:12px;margin-top:12px}
+.efg-guide-summary b{color:#185035}
+.efg-guide-note{display:block;font-weight:700;margin-top:10px}
+.efg-guide-note textarea{display:block;width:100%;margin-top:7px;border-radius:8px;border:1px solid #cbded2;padding:10px}
+.efg-guide-student details{margin:12px 0}.efg-guide-student summary{color:#235b41;font-weight:800;cursor:pointer}
+@media(max-width:650px){.efg-guide-grid{grid-template-columns:1fr}.efg-guide-shell,.efg-guide-student,.efg-guide-baseline{padding:13px}}

@@ -1589,14 +1589,43 @@ function paymentsView(){
  '<div class="pilot-two"><div class="pilot-stack">'+(kind?'<section class="card"><h2>'+(role==="coach"?"Mi pago a EFG":"Enviar comprobante")+'</h2><div class="pilot-notice efg-payment-target"><strong>Alias del destinatario: '+escapeHTML(alias||"Todavía no configurado")+'</strong>'+(role==="student"&&alias?'<button type="button" class="btn small light" data-copyalias="1">Copiar alias</button>':'')+'<small>'+(kind==="student_coach"?"Tu entrenador recibe el comprobante y verifica el pago.":"EFG Nutrition recibe y verifica la suscripción profesional.")+'</small></div><div class="pilot-form"><div class="field"><label for="payAmount">Importe transferido (ARS)</label><input id="payAmount" type="number" min="1" step=".01" placeholder="Importe"></div><div class="field"><label for="payPeriod">Mes / período del pago</label><input id="payPeriod" type="month" value="'+today().slice(0,7)+'"></div><div class="field"><label for="payFile">Foto del comprobante (máximo 5 MB)</label><input id="payFile" type="file" accept="image/jpeg,image/png,image/webp"></div><button class="btn block" data-act="sendProof" '+(!alias?'disabled':'')+'>Enviar comprobante</button></div><p class="pilot-hint">Adjuntar una foto no acredita el pago; el destinatario debe comprobarlo.</p></section>':'<section class="card"><h2>Superadministración</h2><p>Los pagos de licencias profesionales se gestionan desde la cuenta EFG.</p></section>')+'</div>'+
  '<div class="pilot-stack"><section class="card"><h2>'+(role==="coach"?"Mis pagos a EFG":"Mis transferencias")+'</h2>'+(sent.length?sent.map(paymentCard).join(""):'<div class="empty">Todavía no enviaste comprobantes.</div>')+'</section></div></div>';
 }
+// Retain open sections and unsaved coach inputs only when the view identity is unchanged.
+let lastRenderedViewKey=null;
+const activeViewKey=()=>[state.session?.user?.id||"",state.profile?.role||"",state.tab,state.selectedStudent||""].join("|");
+function captureViewContinuity(key){
+ if(key!==lastRenderedViewKey||!state.profile)return null;
+ const inputValues={},goals=root.querySelector("#coachStudentGoals");
+ if(goals)for(const el of goals.querySelectorAll("input[id],select[id],textarea[id]")){
+  if(el.type==="file"||el.type==="password")continue;
+  inputValues[el.id]=el.type==="checkbox"?el.checked:el.value;
+ }
+ return {openDetails:[...root.querySelectorAll("details")].map(d=>d.open),
+  scrollX:window.scrollX,scrollY:window.scrollY,inputValues};
+}
+function restoreViewContinuity(snapshot){
+ if(!snapshot)return;
+ root.querySelectorAll("details").forEach((el,i)=>{if(i<snapshot.openDetails.length)el.open=!!snapshot.openDetails[i];});
+ const goals=root.querySelector("#coachStudentGoals");
+ if(goals)for(const [id,value] of Object.entries(snapshot.inputValues)){
+  const el=document.getElementById(id);
+  if(!el||!goals.contains(el)||el.type==="file")continue;
+  if(el.type==="checkbox")el.checked=value;else el.value=value;
+ }
+ window.scrollTo(snapshot.scrollX,snapshot.scrollY);
+ // iOS Safari may settle scroll dimensions after the newly rendered content lays out.
+ requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
+}
 async function render(){
  if(!state.profile)return loginView();
  if(state.welcomePending)return welcomeView();
+ const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
+ lastRenderedViewKey=activeViewKey();
+ if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
  if(state.tab==="notifications")inbox.repaint();
  if(state.tab==="messages")messages.mount();
  if(state.tab==="planner")updatePlannerPreview();
@@ -2097,12 +2126,25 @@ root.addEventListener("submit",e=>{
   confirmOtp(token).catch(fail);
  }
 });
+// Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
+// the coach's screen or reset the pending nutrition-guide draft.
+function handleAuthStateChange(event,session){
+ if(event==="SIGNED_IN"){
+  const user=session?.user;
+  if(user&&state.profile?.user_id===user.id&&state.session?.user?.id===user.id){
+   state.session={user};
+   return;
+  }
+  if(!state.loading)queueMicrotask(()=>refresh());
+ }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
+  state.session={user:session.user};
+ }else if(event==="SIGNED_OUT"){
+  state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
+ }
+}
 (async function init(){
  const {data,error}=await sb.auth.getSession();
  if(error)fail(error);
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
- sb.auth.onAuthStateChange((event,session)=>{
-  if(event==="SIGNED_IN"&&!state.loading)queueMicrotask(()=>refresh());
-  if(event==="SIGNED_OUT"){state.session=null;state.profile=null;loginView();}
- });
+ sb.auth.onAuthStateChange(handleAuthStateChange);
 })();

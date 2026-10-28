@@ -45,6 +45,8 @@ jobs:
         run: node efg-nutrition/tests/notifications-messages.mjs
       - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
         run: node efg-nutrition/tests/food-catalog-expansion.mjs
+      - name: Validate expanded Argentine foods, sushi, pizza and sweets
+        run: node efg-nutrition/tests/food-library-expansion.mjs
       - name: Verify scientific macro engine for men and women
         run: node efg-nutrition/tests/scientific-macros.mjs
       - name: Verify guided five-meal day and baseline

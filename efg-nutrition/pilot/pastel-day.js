@@ -24,7 +24,7 @@ export function pastelDaySummary(tot,goal,diary,mealSlots){
  const label=hasGoal?fmt(target)+" kcal de objetivo":"Objetivo pendiente del coach";
  const macroInfo=defs.map(d=>{
   const val=safe(tot?.[d.key]),g=safe(goal?.[d.key]),progress=hasGoal&&g>0?pct(val,g):0;
-  return '<div class="efg-pastel-macro"><span class="efg-pastel-macro-icon '+d.key+'">'+d.icon+'</span>'+
+  return '<div class="efg-pastel-macro"><span class="efg-pastel-macro-icon '+d.key+'" aria-hidden="true" style="--macro-color:'+d.color+';--macro-progress:'+progress.toFixed(2)+'%"><span class="efg-pastel-macro-glyph">'+d.icon+'</span></span>'+
    '<div class="efg-pastel-macro-info"><span>'+d.name+'</span><strong>'+fmt(val,1)+' g</strong>'+
    (hasGoal&&g>0?'<small>de '+fmt(g,1)+' g</small>':'<small>sin meta</small>')+
    '<div class="efg-pastel-meter" aria-hidden="true" style="--macro-color:'+d.color+';--macro-progress:'+progress.toFixed(2)+'%"><span></span></div></div></div>';

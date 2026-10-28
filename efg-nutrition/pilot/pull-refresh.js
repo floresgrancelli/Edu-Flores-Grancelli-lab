@@ -15,7 +15,7 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
  function paint(message,amount=0,mode=""){
   panel.className="efg-pull-refresh"+(amount>0||mode?" is-visible":"")+(mode?" is-"+mode:"");
   panel.style.setProperty("--efg-pull-progress",String(Math.min(1,amount/threshold)));
-  panel.style.transform="translate(-50%, "+(amount>0?Math.min(74,amount*.55)-68:-68)+"px)";
+  panel.style.transform="translate(-50%, "+(amount>0?Math.min(24,amount-68):-68)+"px)";
   label.textContent=message;
  }
  function clearDelayed(){

@@ -472,3 +472,10 @@ html,body{background:var(--pastel-bg)!important}
 .pilot-layout.efg-role-admin .efg-admin-banner p{
  max-width:780px;
 }
+
+/* Corrección QA escritorio 1280px: el encabezado ADMIN no debe quedar
+   limitado a los 540px del estilo anterior. Sin alterar su contenido. */
+.pilot-layout .efg-admin-banner h2{
+ width:100%;
+ max-width:none;
+}

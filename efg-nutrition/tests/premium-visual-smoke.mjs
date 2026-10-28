@@ -190,8 +190,10 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
      if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
    }
-   const brandBadge=await page.locator(".efg-mobile-monogram").first().textContent();
-   if((brandBadge||"").trim()!=="EFG")pageReport.errors.push("The mobile emblem must say EFG, not E+");
+   if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
+     pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
+   const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();
+   if(!(brandText||"").includes("EFG Nutrition"))pageReport.errors.push("Brand text EFG Nutrition must remain visible");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));

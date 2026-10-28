@@ -1,0 +1,26 @@
+name: EFG Nutrition Security Guardrails
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/**'
+      - '.github/workflows/efg-nutrition-security-qa.yml'
+  push:
+    branches: [efg-security-hardening-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  security-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate static security contract
+        run: node efg-nutrition/tests/security-guardrails.mjs
+      - name: Declare coverage limitations
+        run: |
+          echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

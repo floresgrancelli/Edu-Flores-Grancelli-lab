@@ -11,7 +11,8 @@ export function createVersionNotice({
  });
  const initialSignature=signature(document);
  const sourceUrl=new URL("./index.html",import.meta.url);
- let latest=null,dismissed=null,working=false,lastChecked=0;
+ let latest=null,dismissed=null,working=false,lastChecked=0,lastError=null;
+ let inFlight=null,finishFlight=null;
  const host=document.createElement("aside");
  host.id="efgVersionNotice";
  host.className="efg-version-notice";
@@ -31,9 +32,14 @@ export function createVersionNotice({
    '<button type="button" class="efg-version-later" data-version-action="later">Más tarde</button>'+
    '<button type="button" class="efg-version-update" data-version-action="update">Actualizar ahora</button></div>';
  }
- async function check({force=false}={}){
-  if(working)return false;
+ async function check({force=false,reopen=false}={}){
+  if(inFlight){
+   await inFlight;
+   if(reopen&&latest){dismissed=null;paint();}
+   return !!latest;
+  }
   if(!force&&document.hidden)return false;
+  inFlight=new Promise(resolve=>{finishFlight=resolve;});
   working=true;
   try{
    const url=new URL(sourceUrl);
@@ -48,10 +54,15 @@ export function createVersionNotice({
    const changed=(serverVersion&&serverVersion!==headVersion)||(serverSignature&&serverSignature!==initialSignature);
    // No update banner if the response is ambiguous or the server is unavailable.
    latest=changed?{key:serverVersion||serverSignature,version:serverVersion}:null;
-   lastChecked=Date.now();
+   lastChecked=Date.now();lastError=null;
+   if(reopen&&latest)dismissed=null;
    paint();return !!latest;
-  }catch(err){console.warn("EFG version check unavailable:",err.message);return false}
-  finally{working=false;}
+  }catch(err){lastError=String(err?.message||err);console.warn("EFG version check unavailable:",lastError);return false}
+  finally{
+   working=false;
+   const finish=finishFlight;inFlight=null;finishFlight=null;
+   if(finish)finish();
+  }
  }
  function onAction(event){
   const button=event.target.closest("[data-version-action]");
@@ -73,7 +84,7 @@ export function createVersionNotice({
  const poll=setInterval(()=>{void check();},intervalMs);
  // Do the first fetch promptly after all module initializers have mounted.
  queueMicrotask(()=>{void check({force:true});});
- return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
+ return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
   clearInterval(poll);host.removeEventListener("click",onAction);
   document.removeEventListener("visibilitychange",visibilityHandler);
   window.removeEventListener("focus",focusHandler);host.remove();

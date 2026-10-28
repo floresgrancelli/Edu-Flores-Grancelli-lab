@@ -282,6 +282,21 @@ try{
    if(!warningShown||page.url()!==urlBefore)pageReport.errors.push("Draft guard did not prevent a forced version reload");
    await banner.locator('[data-version-action="later"]').click();
    if(await banner.isVisible())pageReport.errors.push("Later button did not dismiss update notice");
+   await page.evaluate(async()=>{
+    const x=window.__EFG_VISUAL_QA__;
+    x.state.tab="coachTools";await x.render();
+   });
+   const manualCheck=page.locator('[data-act="checkAppVersion"]');
+   if(!(await manualCheck.count()))pageReport.errors.push("Manual version checker missing from Coach More");
+   else{
+    await manualCheck.click();
+    await page.waitForFunction(()=>/nueva versión|Estás al día|No se pudo comprobar|La comprobación sigue/.test(
+     document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
+    const label=await page.locator("#efgBuildStatus").textContent();
+    const visible=await banner.isVisible();
+    if(!label.includes("nueva versión")||!visible)
+     pageReport.errors.push("User-initiated check failed to reopen a postponed release: label="+label+", visible="+visible);
+   }
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }
   results.push(pageReport);

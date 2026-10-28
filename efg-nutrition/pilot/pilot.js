@@ -14,7 +14,7 @@ import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarize
 import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
 import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg2";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
-import {createVersionNotice} from "./version-notice.js?v=20261028-version1";
+import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -672,8 +672,14 @@ function unauthorized(msg){
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 
+function versionCheckCard(){
+ return '<section class="card efg-version-settings"><h3>🔄 Versión de EFG Nutrition Pro</h3>'+
+ '<p class="pilot-hint">Comprobá si hay una publicación nueva sin salir de tu cuenta.</p>'+
+ '<button type="button" class="btn small light" data-act="checkAppVersion">Comprobar actualizaciones</button>'+
+ '<p class="pilot-hint" id="efgBuildStatus" role="status" aria-live="polite">La app también revisa versiones automáticamente.</p></section>';
+}
 function premiumMenuView(title,description,entries){
- return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>';
+ return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
@@ -1243,7 +1249,7 @@ function coachHomeView(){
  '</section>';
 }
 function coachToolsView(){
- return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground();
+ return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground()+versionCheckCard();
 }
 function coachView(){
  const org=state.org;
@@ -1851,6 +1857,8 @@ async function refreshVisibleWorkspace(){
  const coachEdits={guided:state.coachGuidedDraft,pending:state.pendingGoal,
   base:state.calculatedGoalBase,revision:state.pendingGoalRevision};
  try{
+  // This check is independent of the potentially slow data synchronization.
+  void versionNotice.check({force:true});
   const user=await sb.auth.getUser();
   if(user.error||user.data?.user?.id!==id)throw Error("No se pudo validar la sesión. Revisá tu conexión e intentá nuevamente.");
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
@@ -1866,8 +1874,6 @@ async function refreshVisibleWorkspace(){
    state.pendingGoalRevision=coachEdits.revision;
   }
   await inbox.refresh();
-  // A pull gesture also checks if a NEW code release was published.
-  await versionNotice.check({force:true});
   if(state.tab==="messages"){
    // Leave the message composer mounted to avoid dropping the keyboard or draft.
    await messages.refresh();
@@ -2115,6 +2121,17 @@ if(el.dataset.foodbulk){
  if(action==="approveGoalRevision")return approveGoalRevision();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
  if(action==="approveGoal"){if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta.");let {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});if(error)throw error;await loadStudentDetail(state.selectedStudent);await render();notify("Plan aprobado y disponible para el alumno.");return;}
+ if(action==="checkAppVersion"){
+  const label=document.getElementById("efgBuildStatus");
+  if(label)label.textContent="Comprobando la versión publicada…";
+  await versionNotice.check({force:true,reopen:true});
+  const status=versionNotice.getStatus();
+  if(label)label.textContent=status.working?"La comprobación sigue en curso. Probá de nuevo en unos segundos.":
+   status.lastError?"No se pudo comprobar la versión. Revisá tu conexión e intentá otra vez.":
+   status.hasUpdate?"Hay una nueva versión: mirá el aviso sobre la barra inferior.":
+   status.lastChecked?"Estás al día. No hay una versión nueva para instalar.":"Todavía no pudimos comprobar la versión.";
+  return;
+ }
  if(action==="refreshPayments"){await loadOrgAndPayments();await render();notify("Comprobantes actualizados.");return;}
  if(action==="sendProof")return sendProof();
  if(action==="setSelfGoals"){return savePersonalTargets();}

@@ -326,8 +326,14 @@ function weeklyStudentPanel(){
 }
 function weeklyReportEnd(){
  const d=new Date(today()+"T12:00:00Z");
- d.setUTCDate(d.getUTCDate()+(5-d.getUTCDay()+7)%7); // Ends on Friday.
+ d.setUTCDate(d.getUTCDate()-(d.getUTCDay()-5+7)%7); // Latest Friday, never a future one.
  return d.toISOString().slice(0,10);
+}
+function weeklyReportWindow(){
+ const friday=new Date(weeklyReportEnd()+"T12:00:00Z");
+ const from=new Date(friday),to=new Date(friday);
+ from.setUTCDate(from.getUTCDate()-7);to.setUTCDate(to.getUTCDate()-1);
+ return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
 }
 async function publishWeeklyReport(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
@@ -1306,12 +1312,12 @@ function weeklyAdherenceSummary(){
 }
 function weeklyDraftText(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
- const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
- const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff).sort((a,b)=>a.date.localeCompare(b.date));
- if(!week.length)return "Sin registros alimentarios suficientes en los últimos 7 días. No corresponde emitir conclusiones.";
+ const window=weeklyReportWindow();
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!week.length)return "Semana del "+window.from+" al "+window.to+": sin registros alimentarios suficientes. No corresponde emitir conclusiones.";
  const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
  const goal=state.coachGoals[0]||null;
- const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
+ const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Período: "+window.from+" a "+window.to+" (se presenta el viernes "+window.friday+").","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
  if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
  if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
  const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
@@ -1325,9 +1331,9 @@ function weeklyDraftText(){
 }
 function weeklyCoachDraft(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
- const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
- const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
- return '<section class="card" id="coachReportWeek"><h2>🌱 Informe semanal para revisar</h2>'+
+ const window=weeklyReportWindow();
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to);
+ return '<section class="card" id="coachReportWeek"><h2>🌱 Informe del viernes '+window.friday+'</h2><p class="pilot-hint">Período evaluado: '+window.from+' a '+window.to+'. El borrador se construye con registros reales guardados, y debe ser revisado antes de compartir.</p>'+
  '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
  '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
  '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
@@ -1449,7 +1455,7 @@ function coachGuidedSection(){
  '<p class="pilot-hint">El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.</p>'+
  (!goal?'<div class="pilot-notice">Primero aprobá el objetivo nutricional de este alumno.</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
- '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?'Regenerar':'Generar')+' cinco comidas</button></div>'+
+ '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Ajustar porciones a la meta</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
  '<p class="pilot-hint">Guía aprobada y disponible para el alumno. Para editarla, generá otra versión.</p>'):
@@ -2015,7 +2021,8 @@ if(el.dataset.foodbulk){
  if(action==="makeGuidedDay"){
   const goal=state.coachGoals[0];
   if(!goal||!state.selectedStudent||!state.consent?.accepted)throw new Error("Primero aprobá la meta del alumno.");
-  state.coachGuidedDraft=generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
+  state.coachGuidedDraft=(!state.coachGuidedDraft&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
+     structuredClone(state.coachFoodPlan.guided_plan):generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
   showGuidedEditor();notify("Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}

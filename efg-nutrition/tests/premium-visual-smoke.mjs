@@ -318,7 +318,9 @@ try{
    const goals=page.locator("#coachStudentGoals");
    await page.locator("details#coachStudentGoals > summary").click();
    await page.locator("#targetAge").fill("41");
-   await page.evaluate(()=>window.scrollTo(0,1500));
+   // Safari WebKit puede animar scrollTo de forma asíncrona; comparar cuando la animación terminó.
+   await page.evaluate(()=>window.scrollTo({top:1500,behavior:"instant"}));
+   await page.waitForTimeout(engine==="webkit"?220:40);
    const previousY=await page.evaluate(()=>window.scrollY);
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;

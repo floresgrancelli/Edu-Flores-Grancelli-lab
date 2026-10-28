@@ -39,7 +39,7 @@ assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
 assert.ok(html.lastIndexOf("pastel-system.css")>html.lastIndexOf("premium-system.css"),"Preview stylesheet loaded last");
 assert.match(app,/pastelDaySummary\(tot,goal,d,mealSlots\)/);
-assert.match(app,/el\\.dataset\\.openquickadd/);
+assert.ok(app.includes("el.dataset.openquickadd"),"handler installed");
 assert.match(app,/id="studentQuickAdd"/);
 assert.match(app,/\.from\("efg_consents"\)/,"Consent workflow retained");
 assert.match(app,/id="studentMeals"/,"Diary retained");

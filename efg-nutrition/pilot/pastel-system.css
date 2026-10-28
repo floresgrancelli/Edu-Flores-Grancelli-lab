@@ -502,3 +502,69 @@ html,body{background:var(--pastel-bg)!important}
  background:#E9D7F6!important;
  color:#59427E!important;
 }
+
+
+/* Paleta refinada y diferenciación de accesos — PREVIEW PR #27.
+   Fondo lavanda más profundo; rosa claro para liberar peso visual. */
+:root{
+ --pastel-bg:#D9C5E9;
+ --pastel-surface:#FAECF2;
+ --pastel-panel-alt:#EFE2F7;
+ --pastel-panel-soft:#F8E5EF;
+ --pastel-line:#CCB4DB;
+}
+.pilot-layout{
+ background:
+ radial-gradient(ellipse 600px 480px at 94% 8%,rgba(250,230,241,.42),transparent 87%),
+ radial-gradient(ellipse 510px 520px at 0% 93%,rgba(192,167,224,.30),transparent 90%),
+ var(--pastel-bg)!important;
+}
+.pilot-layout .efg-mobile-header,.pilot-layout .pilot-nav{background:rgba(239,226,247,.97)!important}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-header{background:rgba(239,226,247,.96)!important}
+ .pilot-layout .pilot-nav{background:rgba(239,226,247,.99)!important}
+}
+/* La marca transitoria ahora se lee EFG; el nombre definitivo sigue pendiente. */
+.pilot-layout .brand-mark,.pilot-layout .efg-mobile-monogram{
+ background:#25212F!important;
+ color:#F8E9F2!important;
+ font-size:13px!important;
+ letter-spacing:-.035em!important;
+ font-weight:850!important;
+ white-space:nowrap;
+}
+/* Seis tarjetas, seis tonos visualmente diferenciables (dos columnas por tres filas).
+   No se repiten tonos en tarjetas vecinas dentro del menú principal de cada rol. */
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(1),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(1){
+ background:#F67796!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(2),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(2){
+ background:#75BAF0!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(3),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(3){
+ background:#F7B34C!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(4),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(4){
+ background:#A876E9!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(5),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(5){
+ background:#E38ACB!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(6),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(6){
+ background:#6BCBDF!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card,
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card{
+ color:#1C232D!important;
+ border:1px solid rgba(55,40,72,.25)!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card :is(.efg-menu-arrow,strong),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card :is(.efg-menu-arrow,strong){
+ color:inherit!important
+}

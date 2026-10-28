@@ -28,7 +28,7 @@ assert.ok(!/grant\s+insert\s+on\s+public\.efg_notifications\s+to\s+authenticated
 assert.match(notificationSQL,/\* \* 5'/,"Reports must be scheduled on Fridays");
 assert.match(notificationSQL,/on conflict\(recipient_id,event_key\) do nothing/i,"Notifications must be deduplicated");
 assert.match(app,/function weeklyReportEnd\(\)/);
-assert.doesNotThrow(()=>new Function(versions.replace(/^export /gm,"").replace(/import\\.meta\\.url/g,'"https://example.test/pilot/version-notice.js"')),"Version notice JS parses");
+assert.doesNotThrow(()=>new Function(versions.replace(/^export /gm,"").replace(/import\.meta\.url/g,'"https://example.test/pilot/version-notice.js"')),"Version notice JS parses");
 assert.match(html,/<meta name="efg-build" content="[^"]+">/,"Build identity must be embedded in deployed HTML");
 assert.match(html,/version-notice\.css/,"Release banner CSS must load");
 assert.match(app,/version-notice\.js/,"Version checker must be imported");

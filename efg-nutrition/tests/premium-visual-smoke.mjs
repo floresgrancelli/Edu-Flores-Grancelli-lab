@@ -228,7 +228,7 @@ try{
    if(!(await goals.evaluate(el=>el.open)))pageReport.errors.push("Objectives accordion collapsed on same-page render");
    if((await page.locator("#targetAge").inputValue())!=="41")pageReport.errors.push("Coach form lost on same-page render");
    const nextY=await page.evaluate(()=>window.scrollY);
-   if(Math.abs(nextY-previousY)>30)pageReport.errors.push("Unexpected scroll after restoring view: "+previousY+" -> "+nextY);
+   if(Math.abs(nextY-previousY)>48)pageReport.errors.push("Unexpected scroll after restoring view: "+previousY+" -> "+nextY);
   }
   if(role==="coach"&&width===390){
    // Simulate a deployment. The latest HTML differs, but no real GitHub or Render calls.

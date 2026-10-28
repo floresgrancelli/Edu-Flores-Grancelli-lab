@@ -39,6 +39,6 @@ assert.ok(search("pizza").length>=8);
 assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
-assert.match(html,/20261028-foodwide/,"Force iPhone Safari asset update");
+assert.match(html,/20261028-catalogue1/,"Force iPhone Safari asset update");
 console.log("PASS:",count,"new items, no identifier collisions, numeric macros, 7 portion types, searchable aliases, catalog and Safari integration.");
 console.log("QA note: prepared dishes are generic estimates; manufacturer labels and weighed recipes remain required for exact entries.");

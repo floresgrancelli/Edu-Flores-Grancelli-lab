@@ -190,6 +190,25 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
      if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
    }
+   const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
+   if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");
+   else {
+     const b=await brandLogo.evaluate(img=>{
+       const r=img.getBoundingClientRect();
+       return {complete:img.complete,naturalWidth:img.naturalWidth,width:r.width,height:r.height,src:img.getAttribute("src")};
+     });
+     if(!b.complete||b.naturalWidth<80)pageReport.errors.push("Watercolor serotonin asset failed to load: "+JSON.stringify(b));
+     if(b.width>60||b.height>39)pageReport.errors.push("Serotonin mark must be small and subtle: "+JSON.stringify(b));
+     if(!b.src.includes("serotonina-acuarela.avif"))pageReport.errors.push("Wrong serotonin logo asset");
+   }
+   if(role==="student"&&dest==="home"){
+     const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
+       const styles=getComputedStyle(el);
+       return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
+     }));
+     if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
+       pageReport.errors.push("3 real progress rings required, not flat macro icons");
+   }
    if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
      pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
    const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();

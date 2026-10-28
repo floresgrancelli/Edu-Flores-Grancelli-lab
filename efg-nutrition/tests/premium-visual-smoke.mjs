@@ -177,7 +177,7 @@ try{
     x.state.coachFoodPlan=null;await x.render();
    });
    const goals=page.locator("#coachStudentGoals");
-   await goals.locator("summary").click();
+   await page.locator("details#coachStudentGoals > summary").click();
    await page.locator("#targetAge").fill("41");
    await page.evaluate(()=>window.scrollTo(0,1500));
    const previousY=await page.evaluate(()=>window.scrollY);

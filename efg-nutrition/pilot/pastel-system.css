@@ -183,3 +183,32 @@ html,body{background:#fff9f6}
  .pilot-layout .efg-pastel-motivation{padding:13px 15px}
  .pilot-layout .efg-pastel-motivation h2{font-size:15px}
 }
+
+/* Retoque posterior a inspección de screenshots reales de alumno, coach y admin. */
+.pilot-layout .pilot-top .eyebrow,.pilot-layout .pilot-top .pilot-tag{display:none}
+.pilot-layout .pilot-top{margin-bottom:14px}
+.pilot-layout .efg-coach-banner .eyebrow,.pilot-layout .efg-admin-banner .eyebrow,
+.pilot-layout .pilot-hero .eyebrow{color:#8b579c!important}
+.pilot-layout .efg-mobile-brand-text small,.pilot-layout .pilot-logo small{color:#89718c!important}
+.pilot-layout .efg-mobile-monogram span,.pilot-layout .brand-mark span{color:#f6aac0!important}
+.pilot-layout .pilot-nav .nav-icon,.pilot-layout .pilot-nav button.navitem.active .nav-icon{color:#7554a6}
+.pilot-layout :is(.pilot-tag,.pilot-pill,.pilot-role-badge){
+ background:#f6edff!important;color:#6b5286!important;border-color:#eadcf5!important
+}
+.pilot-layout .pilot-avatar .avatar,.pilot-layout .efg-mobile-person .efg-mobile-avatar{color:#7250aa;background:#f0e6ff}
+.pilot-layout .efg-coach-banner,.pilot-layout .efg-admin-banner{color:#282633}
+.pilot-layout .efg-coach-banner .eyebrow{color:#855ca6}
+.pilot-layout .student-shortcuts{margin:12px 0 15px}
+.pilot-layout .student-shortcuts button{min-height:45px;padding:8px 7px;font-size:12px}
+.pilot-layout .efg-quick-add:not([open]){display:none}
+.pilot-layout .efg-quick-add[open]{background:#fff;border:1px solid #ecddf4;border-radius:18px;padding:13px;margin:12px 0}
+.pilot-layout .efg-quick-add[open]>summary{color:#664a85;background:#f7ecff;border-radius:12px;padding:12px;min-height:44px}
+.pilot-layout .efg-quick-add-grid button{background:#fff7fd;color:#4d3c63;border:1px solid #ecdff1;border-radius:11px;min-height:44px}
+.pilot-layout .efg-quick-add-grid button:hover{background:#f7ecff}
+.pilot-layout .efg-fit-register{background:#1c232d;color:#fff}
+.pilot-layout .efg-fit-tag{background:#f5ebff;color:#7550a0}
+.pilot-layout .efg-payment-target strong{color:#393045}
+.pilot-layout .efg-payment-summary>div{background:linear-gradient(140deg,#faf3ff,#fff8f3)}
+.pilot-layout .pilot-consent,.pilot-layout .efg-consent-reminder{color:#463e56}
+.pilot-layout .pilot-consent .btn{background:#1c232d;color:#fff}
+.pilot-layout .coach-inbox,.pilot-layout .efg-payment-inbox{background:#fff}

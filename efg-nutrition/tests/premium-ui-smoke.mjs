@@ -15,7 +15,7 @@ includesAll(js,[
  "function studentSupplementsView()","function studentPrivacyView()",
  "efg-quick-add-grid","efg-consent-reminder",
  "data-coachsection","coach-profile-accordion",
- '["home","⌂","Hoy"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
+ '["home","⌂","Mi día"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
 ]);
 includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","efg-quick-add-grid","coach-profile-accordion"]);
 includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-scrollto=\"studentMeals\"",'aria-current="page"',"if(el.dataset.scrollto)"]);

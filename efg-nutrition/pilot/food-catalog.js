@@ -160,6 +160,6 @@ export const FOOD_SEARCH_ALIASES=Object.freeze({
  ...EXPANDED_ALIASES
 });
 export function foodSearchText(food){
- return [food.name,...(FOOD_SEARCH_ALIASES[food.id]||[])].join(" ");
+ return [food.name,food.brand||"",food.productType||"",...(FOOD_SEARCH_ALIASES[food.id]||[])].join(" ");
 }
 export {EXPANDED_COUNT};

@@ -1,7 +1,7 @@
 // EFG Nutrition Pro — five-meal educational guide. No network, storage, or patient data.
 // Never equate this sample menu with the meals actually consumed.
 export const GUIDE_MEALS=Object.freeze([
- {slot:"desayuno",label:"Desayuno",items:[["egg",110],["bread",35],["cheese",35],["milk_skim",230]]},
+ {slot:"desayuno",label:"Desayuno",items:[["egg",110],["bread",35],["cheese",35],["milk_skim",230],["coffee_black",50]]},
  {slot:"media_manana",label:"Media mañana",items:[["yogurt",200],["apple",130],["oats_raw",30]]},
  {slot:"almuerzo",label:"Almuerzo",items:[["chicken",175],["brownrice",185],["pumpkin",200],["oil",5]]},
  {slot:"merienda",label:"Merienda",items:[["bread",35],["cheese",35],["mandarin",140]]},
@@ -52,6 +52,7 @@ const sum=(items)=>items.reduce((acc,item)=>{for(const k of NUTRIENTS)acc[k]+=(N
 // Practical defaults for the example, not universal or clinical limits.
 const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  id==="egg"?[55,165,55]:
+ id==="coffee_black"?[30,80,10]:
  /^(chicken|beef|pork|fish_hake|fish_salmon|turkey_breast_cooked)$/.test(id)?[160,300,10]:
  /^(milk_skim|milk|milk_whole|milk_lactosefree)$/.test(id)?[180,350,10]:
  /^yogurt/.test(id)?[150,300,10]:

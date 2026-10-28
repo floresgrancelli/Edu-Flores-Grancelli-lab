@@ -843,6 +843,7 @@ function plannerCard(){
    out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
     '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
     '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>';
+   out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
     const qty=row.grams;
@@ -863,9 +864,9 @@ function plannerCard(){
    }else{
     out+='<p class="pilot-hint planner-skipped">No se añadirá ningún alimento en este espacio.</p>';
    }
-   out+='</div>';
+   out+='</div></div>';
   }
-  out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
+  out+='<p class="pilot-hint">Estos alimentos aporta aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
  out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
  '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
@@ -876,6 +877,37 @@ function plannerCard(){
  return out;
 }
 const plannerNormalizeQuery=(v)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
+// Actualizar solamente los controles del extra buscado: NO reconstruir el panel
+// mientras el usuario escribe, porque Safari iOS pierde foco/teclado y scroll.
+function syncPlannerSearchActions(key){
+ const panel=document.getElementById("planSuggestionCard");
+ if(!panel)return;
+ const mount=[...panel.querySelectorAll("[data-plancontrols]")].find(el=>el.dataset.plancontrols===key);
+ if(!mount)return;
+ const pair=parsePlannerKey(key);
+ if(!pair)return;
+ const [slot,category]=pair;
+ const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const row=plan.meals?.find(meal=>meal.slot===slot)?.rows?.find(item=>item.category===category);
+ if(!row?.food){
+  mount.innerHTML='<p class="pilot-hint planner-skipped">No se añadirá ningún alimento en este espacio.</p>';
+  return;
+ }
+ const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
+ if(unsupported){
+  mount.innerHTML='<div class="planner-qty"><p class="planner-recommendation">Bebida con leche: personalizá sus ingredientes al registrar.</p>'+
+    '<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">REGISTRAR CON INGREDIENTES</button></div>';
+  return;
+ }
+ const suggested=Number(row.grams);
+ const hint=suggested>0?
+  'Cantidad sugerida: <b>'+num(suggested)+' '+escapeHTML(row.unit)+'</b>. Modificala por la que realmente comiste.':
+  'No necesitás este extra para el objetivo, pero podés registrar la cantidad que realmente comiste.';
+ mount.innerHTML='<div class="planner-qty"><div class="planner-recommendation">'+hint+'</div>'+
+  '<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')'+
+  '<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+(suggested>0?num(suggested):'')+'" inputmode="decimal" placeholder="Gramos consumidos"></label>'+
+  '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">AGREGAR AL REGISTRO</button></div>';
+}
 function filterPlannerFoods(input){
  if(!input?.dataset?.plansearch)return;
  const key=input.dataset.plansearch,slot=key.split("|")[0];
@@ -898,6 +930,7 @@ function filterPlannerFoods(input){
  if(hasQuery&&nextId!==chosenId){
   state.plannerSelections[key]=nextId;
   delete state.plannerDraftGrams[key];
+  syncPlannerSearchActions(key);
   updatePlannerPreview();
  }
 }

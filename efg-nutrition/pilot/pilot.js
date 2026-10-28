@@ -61,7 +61,6 @@ const foods=[
 ].concat(EXTRA_FOODS);
 // Solo cambia modelos nutricionales de 4 tartas en memoria; nunca muta diarios guardados.
 // No se confunde una preparación supuesta con un dato analítico o etiqueta.
-for(const food of foods){food.sourceType ||= food.sourceId?"usda_fdc":"generic_estimate";food.validationStatus ||= food.sourceId?"referencia_pendiente_confirmacion":"generico_pendiente";}
 applyRecipeModels(foods);
 // Origen visible: NO atribuir análisis USDA a los promedios EFG ni tratar un rótulo como una medición propia.
 for(const food of foods){

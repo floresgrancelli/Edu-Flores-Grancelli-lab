@@ -454,3 +454,21 @@ html,body{background:var(--pastel-bg)!important}
   font-size:clamp(18px,5.4vw,24px);line-height:1.2;
  }
 }
+
+
+/* QA a 1280px: el titular del administrador usa el ancho disponible,
+   sin heredar el max-width de 540px de la experiencia anterior. */
+.pilot-layout.efg-role-admin .efg-admin-banner{
+ display:block;
+ width:100%;
+ min-width:0;
+}
+.pilot-layout.efg-role-admin .efg-admin-banner h2{
+ display:block;
+ max-width:100%;
+ width:100%;
+ line-height:1.13;
+}
+.pilot-layout.efg-role-admin .efg-admin-banner p{
+ max-width:780px;
+}

@@ -5,7 +5,7 @@ import {EXTRA_FOODS,FOOD_UNIT_PORTIONS,foodSearchText} from "../pilot/food-catal
 import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "../pilot/user-photo-labels.js";
 
 assert.equal(new Set(EXTRA_FOODS.map(f=>f.id)).size,EXTRA_FOODS.length,"No duplicate food IDs");
-assert.equal(USER_PHOTO_LABEL_FOODS.length,4,"Four photographed products: only chocolate has own nutrition label, others use proxies");
+assert.equal(USER_PHOTO_LABEL_FOODS.length,5,"Four photographed products plus generic sweet popcorn requested by text");
 const chocolate=EXTRA_FOODS.find(x=>x.id==="colonial_chocolate_organico_80_cacao");
 assert.ok(chocolate,"Photo-labeled product must be in normal food search catalogue");
 assert.equal(chocolate.brand,"Chocolate Colonial");
@@ -105,4 +105,25 @@ for(const [key,expected] of Object.entries({k:369,p:12,c:72,f:2.5,fi:4.7})){
 assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinoa pop"));
 assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinoa inflada"));
 assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinua inflada"));
-console.log("PASS: Four photo items; Colonial chocolate from its own label, mix/orange/quinoa from explicitly marked proxies; no invented bag weight.");
+const popcorn=EXTRA_FOODS.find(f=>f.id==="pochoclos_dulces_acaramelados_genericos");
+assert.ok(popcorn,"Generic sweet popcorn must be available for daily logging");
+assert.equal(popcorn.category,"dessert");
+assert.equal(popcorn.unit,"g");
+assert.equal(popcorn.sourceType,"generic_estimate","User provided no manufacturer label");
+assert.equal(popcorn.validationStatus,"generico_pendiente");
+assert.equal(popcorn.servingGrams,30);
+assert.equal(popcorn.servingIsEstimated,true);
+assert.equal(FOOD_UNIT_PORTIONS[popcorn.id].grams,30);
+assert.match(popcorn.source,/SOLICITUD POR TEXTO/);
+assert.match(popcorn.source,/FDC 167552/);
+assert.match(popcorn.source,/Puede variar sustancialmente/);
+assert.match(popcorn.source,/No es tabla nutricional/);
+for(const [key,expected] of Object.entries({k:431,p:3.8,c:79.1,f:12.8,fi:5.2})){
+ close(popcorn[key]*100,expected,"USDA caramel popcorn proxy per 100g: "+key);
+}
+close(popcorn.sugarPer100g,53.2,"USDA caramel popcorn total sugars");
+close(popcorn.k*30,129.3,"30g suggested serving energy");
+assert.ok(foodSearchText(popcorn).toLowerCase().includes("pochoclo dulce"));
+assert.ok(foodSearchText(popcorn).toLowerCase().includes("palomitas dulces"));
+assert.ok(foodSearchText(popcorn).toLowerCase().includes("popcorn dulce"));
+console.log("PASS: Five user-requested foods, four photographic items and sweet popcorn from USDA proxy; precise provenance, editable grams, no published changes.");

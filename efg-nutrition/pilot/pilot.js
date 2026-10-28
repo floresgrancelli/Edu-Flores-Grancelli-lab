@@ -12,7 +12,8 @@ import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
-import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg1";
+import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg2";
+import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -1594,10 +1595,14 @@ let lastRenderedViewKey=null;
 const activeViewKey=()=>[state.session?.user?.id||"",state.profile?.role||"",state.tab,state.selectedStudent||""].join("|");
 function captureViewContinuity(key){
  if(key!==lastRenderedViewKey||!state.profile)return null;
- const inputValues={},goals=root.querySelector("#coachStudentGoals");
- if(goals)for(const el of goals.querySelectorAll("input[id],select[id],textarea[id]")){
+ const inputValues={};
+ // Keep the user's unsaved form values while updating the data beneath them.
+ // File inputs cannot be restored safely and are intentionally excluded.
+ for(const el of root.querySelectorAll(".pilot-main input[id],.pilot-main select[id],.pilot-main textarea[id],.pilot-main [data-guideqty]")){
   if(el.type==="file"||el.type==="password")continue;
-  inputValues[el.id]=el.type==="checkbox"?el.checked:el.value;
+  const key=el.id?"id:"+el.id:el.dataset.guideqty?"guideqty:"+el.dataset.guideqty:null;
+  if(!key)continue;
+  inputValues[key]=el.type==="checkbox"||el.type==="radio"?el.checked:el.value;
  }
  return {openDetails:[...root.querySelectorAll("details")].map(d=>d.open),
   scrollX:window.scrollX,scrollY:window.scrollY,inputValues};
@@ -1605,11 +1610,14 @@ function captureViewContinuity(key){
 function restoreViewContinuity(snapshot){
  if(!snapshot)return;
  root.querySelectorAll("details").forEach((el,i)=>{if(i<snapshot.openDetails.length)el.open=!!snapshot.openDetails[i];});
- const goals=root.querySelector("#coachStudentGoals");
- if(goals)for(const [id,value] of Object.entries(snapshot.inputValues)){
-  const el=document.getElementById(id);
-  if(!el||!goals.contains(el)||el.type==="file")continue;
-  if(el.type==="checkbox")el.checked=value;else el.value=value;
+ const controls=[...root.querySelectorAll(".pilot-main input[id],.pilot-main select[id],.pilot-main textarea[id],.pilot-main [data-guideqty]")];
+ for(const el of controls){
+  if(el.type==="file"||el.type==="password")continue;
+  const key=el.id?"id:"+el.id:el.dataset.guideqty?"guideqty:"+el.dataset.guideqty:null;
+  if(!key||!Object.prototype.hasOwnProperty.call(snapshot.inputValues,key))continue;
+  const value=snapshot.inputValues[key];
+  if(el.type==="checkbox"||el.type==="radio")el.checked=value;
+  else el.value=value;
  }
  window.scrollTo(snapshot.scrollX,snapshot.scrollY);
  // iOS Safari may settle scroll dimensions after the newly rendered content lays out.
@@ -1830,6 +1838,42 @@ async function refresh(){
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
  finally{state.loading=false;}
+}
+// Explicit pull-to-refresh: re-fetch role-authorized data but never navigate or reload the page.
+let refreshingWorkspace=false;
+async function refreshVisibleWorkspace(){
+ if(refreshingWorkspace||state.loading)throw Error("Ya hay una actualización en curso.");
+ if(!state.profile||!state.session?.user?.id||state.welcomePending)throw Error("Ingresá a tu cuenta para actualizar.");
+ refreshingWorkspace=true;
+ const id=state.session.user.id,originalView=activeViewKey();
+ const selected=state.selectedStudent,goalId=state.coachGoals[0]?.id;
+ const coachEdits={guided:state.coachGuidedDraft,pending:state.pendingGoal,
+  base:state.calculatedGoalBase,revision:state.pendingGoalRevision};
+ try{
+  const user=await sb.auth.getUser();
+  if(user.error||user.data?.user?.id!==id)throw Error("No se pudo validar la sesión. Revisá tu conexión e intentá nuevamente.");
+  await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
+  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
+  await loadRoleData();
+  // loadStudentDetail clears drafts to protect switching pupils; restore ONLY for
+  // the same pupil with active consent and the same approved nutritional goal.
+  if(selected&&state.selectedStudent===selected&&state.consent?.accepted&&
+     state.coachGoals[0]?.id===goalId&&activeViewKey()===originalView){
+   state.coachGuidedDraft=coachEdits.guided;
+   state.pendingGoal=coachEdits.pending;
+   state.calculatedGoalBase=coachEdits.base;
+   state.pendingGoalRevision=coachEdits.revision;
+  }
+  await inbox.refresh();
+  if(state.tab==="messages"){
+   // Leave the message composer mounted to avoid dropping the keyboard or draft.
+   await messages.refresh();
+  }else if(state.tab==="notifications"){
+   inbox.repaint();
+  }else{
+   await render(); // Same-view continuity keeps accordions, draft inputs and scroll.
+  }
+ }finally{refreshingWorkspace=false;}
 }
 async function saveWeight(){
  const kg=Number(document.getElementById("weightKg")?.value),day=document.getElementById("weightDay")?.value,time=document.getElementById("weightTime")?.value;
@@ -2142,6 +2186,10 @@ function handleAuthStateChange(event,session){
   state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
  }
 }
+const pullRefresh=createPullToRefresh({
+ canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,
+ refresh:refreshVisibleWorkspace
+});
 (async function init(){
  const {data,error}=await sb.auth.getSession();
  if(error)fail(error);

@@ -253,8 +253,8 @@ try{
   if(role==="coach"&&width===390){
    // Simulate a deployment. The latest HTML differs, but no real GitHub or Render calls.
    const freshHtml=(await page.locator("html").evaluate(el=>el.outerHTML))
-    .replace('content="20261028-version1"','content="20261028-version2"')
-    .replace('./pilot.js?v=20261028-version1','./pilot.js?v=20261028-version2');
+    .replace(/(<meta name="efg-build" content=")[^"]+(")/,'$1QA-new-build$2')
+    .replace(/\.\/pilot\.js\?v=[^"']+/,'./pilot.js?v=QA-new-build');
    await page.route("**/pilot/index.html?efg_version_check=*",route=>
     route.fulfill({status:200,contentType:"text/html",body:"<!doctype html>"+freshHtml}));
    await page.evaluate(async()=>{

@@ -148,7 +148,7 @@ try{
    if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
    if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
    const actionAudit=await page.evaluate(()=>{
-     const rgb=s=>{const n=(s.match(/[\\d.]+/g)||[]).slice(0,3).map(Number);return n.length===3?n:null;};
+     const rgb=s=>{const n=(s.match(/[0-9.]+/g)||[]).slice(0,3).map(Number);return n.length===3?n:null;};
      const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
      const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
      const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};

@@ -31,6 +31,7 @@ jobs:
           node --check efg-nutrition/pilot/pilot.js
           node --check efg-nutrition/tests/premium-ui-smoke.mjs
           node --check efg-nutrition/pilot/macro-engine.js
+          node --check efg-nutrition/pilot/guided-day.js
           node --check efg-nutrition/pilot/progress-charts.js
           node --check efg-nutrition/pilot/fit-recipes.js
           node --check efg-nutrition/pilot/fit-recipe-illustrations.js
@@ -38,6 +39,8 @@ jobs:
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: Verify scientific macro engine for men and women
         run: node efg-nutrition/tests/scientific-macros.mjs
+      - name: Verify guided five-meal day and baseline
+        run: node efg-nutrition/tests/guided-five-meals.mjs
       - name: Verify real-data chart calculations
         run: node efg-nutrition/tests/premium-progress-charts.mjs
       - name: Verify Fit recipes and payment workflow

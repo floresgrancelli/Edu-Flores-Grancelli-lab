@@ -32,6 +32,7 @@ jobs:
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
+          node efg-nutrition/tests/guided-five-meals.mjs
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs

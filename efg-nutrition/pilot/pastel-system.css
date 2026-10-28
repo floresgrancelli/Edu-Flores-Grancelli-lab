@@ -1,0 +1,693 @@
+/* EFG Nutrition Pro · Fase 3 · pasteles globales · PREVIEW AISLADA.
+   Interfaz compartida alumno / coach / admin. No altera lógica, permisos, ni datos.
+   Aplicar después de premium-system.css. No insertar cambios en producción sin QA-32.
+*/
+:root{
+ --pastel-ink:#19202c;--pastel-muted:#687181;--pastel-line:#e9e7ed;
+ --pastel-coral:#f67796;--pastel-amber:#f7b34c;--pastel-lilac:#a876e9;
+ --pastel-blue:#75baf0;--pastel-surface:#fff;--pastel-radius:24px;
+ --pastel-bg:#fff9f6;--pastel-shadow:0 11px 36px rgba(73,51,76,.052);
+}
+html,body{background:#fff9f6}
+.pilot-layout{
+ --efg-ink:var(--pastel-ink);--efg-subtle:var(--pastel-muted);
+ --efg-green:#79668e;--efg-mint:#faedf6;--efg-blue:#eaf3ff;
+ --efg-peach:#fff2e6;--efg-lilac:#f3ecff;--efg-cream:#fff9eb;
+ --efg-bg:var(--pastel-bg);--efg-line:var(--pastel-line);
+ color:var(--pastel-ink);
+ background:radial-gradient(ellipse 480px 390px at 1% 2%,#fff0e8 0%,transparent 90%),
+            radial-gradient(ellipse 620px 520px at 97% 19%,#eef2ff 0%,transparent 90%),
+            radial-gradient(ellipse 450px 380px at 20% 92%,#fbeafa 0%,transparent 92%),#fff9f6;
+}
+.pilot-layout .pilot-main{color:var(--pastel-ink)}
+.pilot-layout .pilot-title{color:var(--pastel-ink);font-weight:840;letter-spacing:-.045em}
+.pilot-layout .pilot-lead,.pilot-layout .pilot-hint{color:var(--pastel-muted)}
+.pilot-layout .pilot-top .eyebrow,.pilot-layout .pilot-top .pilot-tag{color:#8f7799}
+.pilot-layout .card,.pilot-layout .pilot-record,.pilot-layout .meal-day-section{
+ background:rgba(255,255,255,.94);border:1px solid rgba(227,222,230,.9);
+ box-shadow:var(--pastel-shadow);border-radius:var(--pastel-radius)
+}
+.pilot-layout .pilot-nav{background:rgba(255,255,255,.94);border-color:var(--pastel-line)}
+.pilot-layout .pilot-nav button.navitem{color:#626b7a}
+.pilot-layout .pilot-nav button.navitem:hover,.pilot-layout .pilot-nav button.navitem.active{
+ background:#f7ecff;color:#5d3e84;border-radius:16px
+}
+.pilot-layout .pilot-nav button.navitem:focus-visible,.pilot-layout button:focus-visible,
+.pilot-layout a:focus-visible,.pilot-layout summary:focus-visible,
+.pilot-layout input:focus-visible,.pilot-layout select:focus-visible,.pilot-layout textarea:focus-visible{
+ outline:3px solid #8654c5;outline-offset:3px
+}
+.pilot-layout .efg-mobile-header{
+ background:rgba(255,251,249,.86);border-color:rgba(233,224,235,.75);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
+}
+.pilot-layout .efg-mobile-monogram,.pilot-layout .brand-mark{
+ background:#191f29!important;color:#fff!important
+}
+.pilot-layout .efg-mobile-avatar,.pilot-layout .avatar{background:#efe6ff;color:#5c4189}
+.pilot-layout .pilot-hero,.pilot-layout .efg-coach-banner,.pilot-layout .efg-admin-banner{
+ background:linear-gradient(124deg,#fff1eb,#f6efff 60%,#edf5ff);
+ border-color:#f1e3ed;color:var(--pastel-ink);box-shadow:var(--pastel-shadow)
+}
+.pilot-layout :is(.btn,button.btn).block,.pilot-layout .btn:not(.light):not(.ghost){
+ background:#1c232d;color:#fff;border-color:#1c232d;
+ box-shadow:0 5px 16px rgba(28,35,45,.10)
+}
+.pilot-layout :is(.btn.light,.btn.ghost){background:#f9f4ff;color:#5d487a;border:1px solid #eadff7}
+.pilot-layout .btn:hover:not(:disabled){filter:brightness(.94)}
+.pilot-layout :is(input,select,textarea){
+ border-color:#e3dfe8;background:rgba(255,255,255,.98);color:var(--pastel-ink);
+ border-radius:13px;min-height:42px
+}
+.pilot-layout :is(.pilot-notice,.pilot-alert){border-radius:16px}
+.pilot-layout .pilot-pill{background:#f8f3ff;color:#6b4d90;border-color:#eadff7}
+.pilot-layout .efg-menu-card,.pilot-layout .efg-coach-tile,.pilot-layout .coach-hub-tile,
+.pilot-layout .admin-command-tile{
+ border:1px solid rgba(231,224,235,.85);box-shadow:var(--pastel-shadow);
+ border-radius:23px
+}
+.pilot-layout .efg-menu-mint,.pilot-layout .efg-menu-lilac{background:#f8ecff}
+.pilot-layout .efg-menu-blue{background:#edf4ff}
+.pilot-layout .efg-menu-peach{background:#fff0e8}
+.pilot-layout .efg-menu-cream{background:#fff7e8}
+.pilot-layout .efg-quick-more button,.pilot-layout .student-shortcuts button{
+ border-radius:16px;min-height:48px
+}
+.pilot-layout .student-shortcuts button:first-child{background:#f9ebff;color:#684c89;border-color:#f1e0ff}
+.pilot-layout .student-shortcuts button:nth-child(2){background:#edf5ff;color:#4b6d9f;border-color:#d9e8ff}
+.pilot-layout .student-shortcuts button:nth-child(3){background:#fff2e5;color:#94633d;border-color:#ffe1c7}
+.pilot-layout .efg-guide-student,.pilot-layout .coach-profile-accordion{
+ border-color:#e8dff0;background:rgba(255,255,255,.95)
+}
+.pilot-layout :is(.efg-payment-summary>div,.efg-payment-new){
+ background:#f8f1ff;border-color:#e6d9f6
+}
+.pilot-layout .efg-payment-summary strong{color:#665188}
+.pilot-layout .metric-card .meter{background:#ebe7ef}
+.pilot-layout .metric-card.metric-p .meter>div{background:var(--pastel-coral)}
+.pilot-layout .metric-card.metric-c .meter>div{background:var(--pastel-amber)}
+.pilot-layout .metric-card.metric-f .meter>div{background:var(--pastel-lilac)}
+.pilot-layout .efg-fit-art{background:#f7eef9}
+.pilot-layout .efg-fit-tag,.pilot-layout .efg-fit-count{color:#76549b}
+
+/* El tablero 'Mi día' resume los datos REALES del diario; nunca usa cifras demo. */
+.pilot-layout .efg-pastel-day{padding:18px 19px 16px;margin:16px 0 14px}
+.efg-pastel-day-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:15px}
+.efg-pastel-day-head strong{font-size:16px;letter-spacing:-.02em}
+.efg-pastel-day-head small{font-size:11px;color:var(--pastel-muted)}
+.efg-pastel-day-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:16px;align-items:center}
+.efg-pastel-ring{
+ width:100%;max-width:265px;aspect-ratio:1;position:relative;
+ border-radius:50%;padding:15px;margin:auto;
+ background:conic-gradient(var(--pastel-coral) 0 var(--ring-a),
+ var(--pastel-amber) var(--ring-a) var(--ring-b),
+ var(--pastel-lilac) var(--ring-b) var(--ring-c),
+ #e9e6ee var(--ring-c) 100%);
+}
+.efg-pastel-ring:before{content:"";display:block;position:absolute;inset:16px;background:#fff;border-radius:50%}
+.efg-pastel-ring-inner{position:absolute;inset:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px}
+.efg-pastel-ring-inner strong{font-size:clamp(22px,5vw,32px);letter-spacing:-.05em;line-height:1.1}
+.efg-pastel-ring-inner span{color:#747889;font-size:11px}
+.efg-pastel-ring-inner small{font-size:10px;color:#8f8295}
+.efg-pastel-macros{display:flex;flex-direction:column;gap:8px;min-width:0}
+.efg-pastel-macro{display:grid;grid-template-columns:29px minmax(0,1fr);gap:8px;align-items:center;min-width:0}
+.efg-pastel-macro-icon{width:29px;height:29px;border-radius:10px;display:grid;place-items:center;font-size:17px}
+.efg-pastel-macro-icon.p{background:#fff0f3;color:#ef6c8d}
+.efg-pastel-macro-icon.c{background:#fff5e7;color:#d9992c}
+.efg-pastel-macro-icon.f{background:#f6eaff;color:#8a56ce}
+.efg-pastel-macro-icon svg{width:23px;height:23px;display:block}
+.efg-pastel-macro-info{min-width:0}
+.efg-pastel-macro-info>span{font-size:10px;color:#606b7a;display:block}
+.efg-pastel-macro-info strong{font-size:13px;line-height:1.1}
+.efg-pastel-macro-info small{font-size:10px;color:#8b8591;margin-left:3px}
+.efg-pastel-meter{height:5px;border-radius:99px;background:#eeeaf0;overflow:hidden;margin-top:5px}
+.efg-pastel-meter>span{display:block;height:100%;border-radius:99px;background:var(--macro-color);width:var(--macro-progress)}
+.efg-pastel-day-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}
+.efg-pastel-stat{padding:11px 8px;border:1px solid #f1eaf0;border-radius:15px;text-align:center;background:var(--tile-bg)}
+.efg-pastel-stat strong{font-size:17px;display:block;letter-spacing:-.035em}
+.efg-pastel-stat small{font-size:10px;color:#727080;display:block;line-height:1.25;margin-top:3px}
+.efg-pastel-day-note{font-size:10px;color:#757687;line-height:1.45;margin:7px 0 0}
+.efg-pastel-day .efg-pastel-register{display:block;width:100%;padding:15px 12px;background:#1c232d;
+ color:#fff;text-align:center;border:0;border-radius:999px;font-weight:800;font-size:14px;
+ min-height:48px;cursor:pointer}
+.efg-pastel-day .efg-pastel-register:focus-visible{outline:3px solid #8654c5;outline-offset:3px}
+.efg-pastel-day .efg-pastel-register:hover{background:#383744}
+.pilot-layout.efg-role-student .student-meal-card{box-shadow:none;border:1px solid #ece8ed;border-radius:17px}
+.pilot-layout .student-meal-card .pilot-pill{background:#faf4ff}
+.pilot-layout .student-meal-heading strong{color:#242733}
+
+/* Las acciones de permisos y alertas deben seguir explícitas y visibles. */
+.pilot-layout .pilot-consent{border-color:#e8e1eb;background:#fff}
+.pilot-layout .efg-consent-reminder{border-color:#e2d9f0;background:#faf5ff}
+.pilot-layout .efg-consent-reminder .btn{background:#201d2a;color:#fff}
+@media (max-width:720px){
+ .pilot-layout .pilot-nav{background:rgba(255,252,253,.97);border:1px solid #f0e9f3;border-bottom:0;
+ box-shadow:0 -7px 28px rgba(88,60,95,.095)}
+ .pilot-layout .pilot-nav button.navitem{font-size:11px}
+ .pilot-layout .pilot-main{padding-top:18px}
+ .pilot-layout .efg-pastel-day{padding:14px 13px}
+ .efg-pastel-day-grid{gap:10px}
+ .efg-pastel-ring{padding:10px}
+ .efg-pastel-ring:before{inset:13px}
+ .efg-pastel-ring-inner{inset:14px}
+ .efg-pastel-ring-inner strong{font-size:clamp(21px,6vw,29px)}
+ .efg-pastel-day-stats{gap:6px}
+}
+@media (max-width:370px){
+ .efg-pastel-ring-inner strong{font-size:20px}
+ .efg-pastel-day-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}
+ .efg-pastel-macro-icon{width:24px;height:25px}
+ .efg-pastel-macro{grid-template-columns:24px minmax(0,1fr);gap:5px}
+ .efg-pastel-macro-info strong{font-size:12px}
+ .efg-pastel-stat strong{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+ .pilot-layout .efg-pastel-day *{animation:none!important;transition:none!important}
+}
+
+/* Señales secundarias discretas para que el anillo siga siendo protagonista. */
+.pilot-layout .efg-pastel-motivation{padding:15px 18px;margin:12px 0 16px}
+.pilot-layout .efg-pastel-motivation .eyebrow{font-size:10px;color:#8c7095}
+.pilot-layout .efg-pastel-motivation h2{font-size:17px;line-height:1.3;margin:6px 0;color:#272735}
+.pilot-layout .efg-pastel-motivation p{font-size:12px;line-height:1.5;color:#686879;margin:4px 0 12px}
+.pilot-layout .efg-pastel-motivation .btn{min-height:40px;font-size:12px}
+.pilot-layout .efg-pastel-guide{background:#fff;border:1px solid #eee2f3;
+ border-radius:18px;margin:10px 0;padding:0 13px;box-shadow:var(--pastel-shadow)}
+.pilot-layout .efg-pastel-guide>summary{cursor:pointer;font-weight:750;font-size:13px;
+ padding:16px 4px;min-height:48px;color:#544478}
+.pilot-layout .efg-pastel-guide .efg-guide-student{margin:0 0 12px;box-shadow:none}
+.pilot-layout .student-meal-card[open]{background:#fffafd}
+.pilot-layout .student-meal-heading{color:#242733}
+.pilot-layout .student-daily-layout .card>.section-head{margin-bottom:8px}
+@media(max-width:720px){
+ .pilot-layout .efg-pastel-motivation{padding:13px 15px}
+ .pilot-layout .efg-pastel-motivation h2{font-size:15px}
+}
+
+/* Retoque posterior a inspección de screenshots reales de alumno, coach y admin. */
+.pilot-layout .pilot-top .eyebrow,.pilot-layout .pilot-top .pilot-tag{display:none}
+.pilot-layout .pilot-top{margin-bottom:14px}
+.pilot-layout .efg-coach-banner .eyebrow,.pilot-layout .efg-admin-banner .eyebrow,
+.pilot-layout .pilot-hero .eyebrow{color:#8b579c!important}
+.pilot-layout .efg-mobile-brand-text small,.pilot-layout .pilot-logo small{color:#89718c!important}
+.pilot-layout .efg-mobile-monogram span,.pilot-layout .brand-mark span{color:#f6aac0!important}
+.pilot-layout .pilot-nav .nav-icon,.pilot-layout .pilot-nav button.navitem.active .nav-icon{color:#7554a6}
+.pilot-layout :is(.pilot-tag,.pilot-pill,.pilot-role-badge){
+ background:#f6edff!important;color:#6b5286!important;border-color:#eadcf5!important
+}
+.pilot-layout .pilot-avatar .avatar,.pilot-layout .efg-mobile-person .efg-mobile-avatar{color:#7250aa;background:#f0e6ff}
+.pilot-layout .efg-coach-banner,.pilot-layout .efg-admin-banner{color:#282633}
+.pilot-layout .efg-coach-banner .eyebrow{color:#855ca6}
+.pilot-layout .student-shortcuts{margin:12px 0 15px}
+.pilot-layout .student-shortcuts button{min-height:45px;padding:8px 7px;font-size:12px}
+.pilot-layout .efg-quick-add:not([open]){display:none}
+.pilot-layout .efg-quick-add[open]{background:#fff;border:1px solid #ecddf4;border-radius:18px;padding:13px;margin:12px 0}
+.pilot-layout .efg-quick-add[open]>summary{color:#664a85;background:#f7ecff;border-radius:12px;padding:12px;min-height:44px}
+.pilot-layout .efg-quick-add-grid button{background:#fff7fd;color:#4d3c63;border:1px solid #ecdff1;border-radius:11px;min-height:44px}
+.pilot-layout .efg-quick-add-grid button:hover{background:#f7ecff}
+.pilot-layout .efg-fit-register{background:#1c232d;color:#fff}
+.pilot-layout .efg-fit-tag{background:#f5ebff;color:#7550a0}
+.pilot-layout .efg-payment-target strong{color:#393045}
+.pilot-layout .efg-payment-summary>div{background:linear-gradient(140deg,#faf3ff,#fff8f3)}
+.pilot-layout .pilot-consent,.pilot-layout .efg-consent-reminder{color:#463e56}
+.pilot-layout .pilot-consent .btn{background:#1c232d;color:#fff}
+.pilot-layout .coach-inbox,.pilot-layout .efg-payment-inbox{background:#fff}
+
+
+/* Fase 3 — propuesta bicolor LAVANDA + ROSA EMPOLVADO, sin superficies blancas.
+   Ensayo visual del PR #27, NO para producción sin QA y aprobación humana. */
+:root{
+ --pastel-bg:#E9E0F3; /* fondo lavanda empolvado */
+ --pastel-surface:#F3E0E9; /* tarjetas rosa empolvado */
+ --pastel-panel-alt:#F1E7F8; /* relieve lavanda */
+ --pastel-panel-soft:#F7E9F0; /* rosa secundario */
+ --pastel-line:#D8C8DE;
+ --pastel-shadow:0 9px 26px rgba(82,53,99,.075);
+}
+html,body{background:var(--pastel-bg)!important}
+.pilot-layout{
+ --efg-bg:var(--pastel-bg);--efg-line:var(--pastel-line);
+ background:radial-gradient(ellipse 560px 460px at 80% 10%,rgba(249,218,232,.62),transparent 86%),
+ radial-gradient(ellipse 520px 490px at 5% 91%,rgba(216,199,236,.48),transparent 90%),var(--pastel-bg)!important;
+}
+.pilot-layout .pilot-main{background:transparent!important}
+.pilot-layout :is(.card,.pilot-record,.meal-day-section,.efg-fit-card,
+ .efg-content-card,.efg-guide-student,.coach-profile-accordion,
+ .efg-payment-inbox,.coach-inbox,.efg-quick-add[open],.efg-pastel-guide,
+ .pilot-consent,.efg-pastel-day,.student-meal-card){
+ background:var(--pastel-surface)!important;
+ border-color:var(--pastel-line)!important;
+}
+.pilot-layout :is(.efg-mobile-header,.pilot-nav){
+ background:rgba(241,231,248,.96)!important;
+ border-color:var(--pastel-line)!important;
+}
+.pilot-layout :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile,
+ .efg-payment-summary>div,.efg-payment-new,.student-meal-details,.meal-actions){
+ background:var(--pastel-panel-alt)!important;
+ border-color:#DDD0E7!important;
+}
+.pilot-layout :is(.pilot-hero,.efg-coach-banner,.efg-admin-banner,.efg-pastel-motivation){
+ background:linear-gradient(135deg,#EEDBEB 0%,#E9DDF2 61%,#F3DBE7 100%)!important;
+ border-color:#D9C7E1!important;
+}
+.pilot-layout :is(input,select,textarea,.field input,.field select,.field textarea){
+ background:var(--pastel-panel-alt)!important;
+ border-color:#CBBBD8!important;
+ color:var(--pastel-ink)!important;
+}
+.pilot-layout :is(.pilot-notice,.pilot-alert,.pilot-plan-empty,.efg-consent-reminder){
+ background:var(--pastel-panel-soft)!important;
+ border-color:#D9C7DF!important;
+ color:#44384F;
+}
+.pilot-layout :is(.efg-quick-add-grid button,.student-shortcuts button,
+ .efg-quick-more button,.efg-menu-card){
+ border-color:#D8C8DE!important;
+}
+.pilot-layout .efg-pastel-ring:before{
+ background:var(--pastel-surface)!important
+}
+.pilot-layout .efg-pastel-macro-icon.p{background:#F4D5DF!important}
+.pilot-layout .efg-pastel-macro-icon.c{background:#F6E1C3!important}
+.pilot-layout .efg-pastel-macro-icon.f{background:#E9D7F6!important}
+.pilot-layout .efg-pastel-stat[style*="--tile-bg"]{
+ background:var(--pastel-panel-alt)!important;border-color:#DCCCE4!important
+}
+.pilot-layout .efg-pastel-guide>summary{color:#544478}
+.pilot-layout :is(.btn.light,.btn.ghost){
+ background:var(--pastel-panel-alt)!important;border-color:#D8C8E5!important;color:#523D70!important
+}
+/* Color blanco reservado a iconografía/texto sobre botones oscuros para contraste. */
+@media(max-width:720px){
+ .pilot-layout .pilot-nav{background:rgba(241,231,248,.98)!important}
+ .pilot-layout .efg-mobile-header{background:rgba(241,231,248,.94)!important}
+}
+
+
+/* Fase 3 — Accesos de color VIVO sobre superficies lavanda/rosa.
+   Contraste calculado vs #1C232D: coral 6.02:1, ámbar 8.67:1,
+   lila 4.85:1 y azul 7.56:1. Mantener texto/iconos oscuros.
+   No recolorear acciones destructivas, estados de error ni controles deshabilitados. */
+:root{
+ --efg-action-coral:#F67796;
+ --efg-action-amber:#F7B34C;
+ --efg-action-violet:#A876E9;
+ --efg-action-blue:#75BAF0;
+ --efg-action-text:#1C232D;
+}
+.pilot-layout .efg-pastel-day .efg-pastel-register{
+ background:var(--efg-action-coral)!important;
+ color:var(--efg-action-text)!important;
+ box-shadow:0 8px 20px rgba(183,65,109,.18)!important;
+ font-weight:800;
+}
+.pilot-layout .student-shortcuts button{
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.22)!important;
+ font-weight:750;
+ box-shadow:0 3px 10px rgba(65,43,89,.08);
+}
+.pilot-layout .student-shortcuts button:nth-child(1){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(2){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(3){
+ background:var(--efg-action-blue)!important;
+}
+/* Menús de herramientas — mismo código cromático en los tres roles. */
+.pilot-layout .efg-menu-card.efg-menu-mint,
+.pilot-layout .efg-menu-card.efg-menu-peach{
+ background:var(--efg-action-coral)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-peach{
+ background:var(--efg-action-amber)!important;
+ color:var(--efg-action-text)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-blue{
+ background:var(--efg-action-blue)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-lilac{
+ background:var(--efg-action-violet)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-cream{
+ background:var(--efg-action-amber)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card :is(strong,.efg-menu-emoji,.efg-menu-arrow){
+ color:inherit!important;
+}
+/* Recetas y seguimiento: tres accesos diferenciables más allá del texto. */
+.pilot-layout .efg-quick-more .btn.light{
+ color:var(--efg-action-text)!important;
+ border:1px solid rgba(65,43,89,.24)!important;
+ font-weight:750;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(1){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(2){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(3){
+ background:var(--efg-action-blue)!important;
+}
+/* Selector rápido: categorías alternadas, sin alterar sus acciones. */
+.pilot-layout .efg-quick-add-grid button{
+ color:var(--efg-action-text)!important;
+ border:1px solid rgba(65,43,89,.23)!important;
+ font-weight:700;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+1){
+ background:var(--efg-action-coral)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+2){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+3){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n){
+ background:var(--efg-action-blue)!important;
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):not(:disabled):hover{
+ filter:brightness(.96);
+ transform:translateY(-1px);
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):active{
+ transform:translateY(0);
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):disabled{
+ opacity:.45;filter:none;transform:none;cursor:not-allowed;
+}
+@media(prefers-reduced-motion:reduce){
+ .pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register){
+  transition:none!important;transform:none!important;
+ }
+}
+
+
+/* Fase 3 — Lenguaje tipográfico aprobado: títulos, acciones y accesos en mayúsculas.
+   Sólo aplica a textos de UI, no a alimentos, cifras, formularios ni explicaciones.
+   Espaciado discreto para mantener claridad y tamaños táctiles. */
+.pilot-layout :is(h1,h2,h3,h4,.pilot-title,.section-head>strong,.efg-pastel-day-head>strong,
+ .pilot-logo,.efg-mobile-brand-text strong,.nav-label,.efg-menu-card strong){
+ text-transform:uppercase;
+ letter-spacing:.022em;
+}
+.pilot-layout :is(button,.btn,[role="button"]){
+ text-transform:uppercase;
+ letter-spacing:.024em;
+}
+.pilot-layout :is(.efg-quick-add,.efg-pastel-guide,.efg-optional-panel)>summary{
+ text-transform:uppercase;
+ letter-spacing:.018em;
+}
+/* Etiquetas de macros y comidas sin truncamiento. Los nombres de comidas,
+   alimentos y campos descriptivos siguen legibles en tamaño de oración. */
+.pilot-layout :is(.efg-menu-card strong,.pilot-nav .nav-label,.efg-coach-banner h2,
+ .efg-admin-banner h2,.pilot-hero h2){
+ overflow-wrap:break-word;
+ hyphens:auto;
+}
+.pilot-layout .pilot-nav .nav-label{
+ font-size:clamp(9px,2.6vw,12px);
+ letter-spacing:.025em;
+ white-space:normal;
+}
+.pilot-layout .efg-menu-card strong{line-height:1.22}
+.pilot-layout button:focus-visible{
+ outline:3px solid #684393;
+ outline-offset:3px;
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,.efg-menu-card,
+ .efg-pastel-register,.efg-quick-add-grid button){
+ min-height:44px;
+}
+/* Indicadores del coach y administrador: sin blanco, aun sobre fondo rosa. */
+.pilot-layout .efg-coach-stat-grid>div{
+ background:var(--pastel-panel-alt)!important;
+ border:1px solid #DAC8E8!important;
+ color:var(--pastel-ink)!important;
+ box-shadow:0 4px 14px rgba(85,58,95,.06);
+}
+.pilot-layout .efg-coach-stat-grid>div:nth-child(2){background:var(--pastel-panel-soft)!important}
+.pilot-layout .efg-coach-stat-grid>div:nth-child(3){background:#E8D5F1!important}
+.pilot-layout .efg-coach-stat-grid strong{color:#332642!important}
+.pilot-layout .efg-coach-stat-grid span{color:#51465A!important}
+@media(max-width:400px){
+ .pilot-layout .efg-menu-card strong{font-size:clamp(11px,3.3vw,15px)}
+ .pilot-layout .efg-coach-banner h2,.pilot-layout .efg-admin-banner h2{
+  font-size:clamp(18px,5.4vw,24px);line-height:1.2;
+ }
+}
+
+
+/* QA a 1280px: el titular del administrador usa el ancho disponible,
+   sin heredar el max-width de 540px de la experiencia anterior. */
+.pilot-layout.efg-role-admin .efg-admin-banner{
+ display:block;
+ width:100%;
+ min-width:0;
+}
+.pilot-layout.efg-role-admin .efg-admin-banner h2{
+ display:block;
+ max-width:100%;
+ width:100%;
+ line-height:1.13;
+}
+.pilot-layout.efg-role-admin .efg-admin-banner p{
+ max-width:780px;
+}
+
+/* Corrección QA escritorio 1280px: el encabezado ADMIN no debe quedar
+   limitado a los 540px del estilo anterior. Sin alterar su contenido. */
+.pilot-layout .efg-admin-banner h2{
+ width:100%;
+ max-width:none;
+}
+
+
+/* Último ajuste tipográfico: cada comida es un encabezado corto, no un dato de usuario. */
+.pilot-layout .student-meal-heading strong,
+.pilot-layout .efg-pastel-macro-info>span{
+ text-transform:uppercase;
+ letter-spacing:.025em;
+}
+
+
+/* Últimos restos de blanco/verde heredados: sólo apariencia, no permisos. */
+.pilot-layout .pilot-logout{
+ background:var(--pastel-panel-soft)!important;
+ border:1px solid #D6C5E1!important;
+ color:#543C69!important;
+}
+.pilot-layout .pilot-nav button.navitem.active:before{
+ background:var(--pastel-lilac)!important;
+}
+.pilot-layout .efg-student-compact .avatar{
+ background:#E9D7F6!important;
+ color:#59427E!important;
+}
+
+
+/* Paleta refinada y diferenciación de accesos — PREVIEW PR #27.
+   Fondo lavanda más profundo; rosa claro para liberar peso visual. */
+:root{
+ --pastel-bg:#D9C5E9;
+ --pastel-surface:#FAECF2;
+ --pastel-panel-alt:#EFE2F7;
+ --pastel-panel-soft:#F8E5EF;
+ --pastel-line:#CCB4DB;
+}
+.pilot-layout{
+ background:
+ radial-gradient(ellipse 600px 480px at 94% 8%,rgba(250,230,241,.42),transparent 87%),
+ radial-gradient(ellipse 510px 520px at 0% 93%,rgba(192,167,224,.30),transparent 90%),
+ var(--pastel-bg)!important;
+}
+.pilot-layout .efg-mobile-header,.pilot-layout .pilot-nav{background:rgba(239,226,247,.97)!important}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-header{background:rgba(239,226,247,.96)!important}
+ .pilot-layout .pilot-nav{background:rgba(239,226,247,.99)!important}
+}
+/* La marca transitoria ahora se lee EFG; el nombre definitivo sigue pendiente. */
+.pilot-layout .brand-mark,.pilot-layout .efg-mobile-monogram{
+ background:#25212F!important;
+ color:#F8E9F2!important;
+ font-size:13px!important;
+ letter-spacing:-.035em!important;
+ font-weight:850!important;
+ white-space:nowrap;
+}
+/* Seis tarjetas, seis tonos visualmente diferenciables (dos columnas por tres filas).
+   No se repiten tonos en tarjetas vecinas dentro del menú principal de cada rol. */
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(1),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(1){
+ background:#F67796!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(2),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(2){
+ background:#75BAF0!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(3),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(3){
+ background:#F7B34C!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(4),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(4){
+ background:#A876E9!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(5),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(5){
+ background:#E38ACB!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(6),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(6){
+ background:#6BCBDF!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card,
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card{
+ color:#1C232D!important;
+ border:1px solid rgba(55,40,72,.25)!important;
+}
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card :is(.efg-menu-arrow,strong),
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card :is(.efg-menu-arrow,strong){
+ color:inherit!important
+}
+
+
+/* Fase 3 — acabados finales de MI DÍA, referencia visual aprobada.
+   Serotonina auténtica, miniaturas macro con avances REALES, estética lavanda/rosa. */
+.pilot-layout .efg-serotonin-symbol{
+ display:block; flex:0 0 auto; object-fit:contain; object-position:center;
+ width:58px;height:34px;max-width:none;
+ background:none!important;border:0!important;filter:none!important;
+ opacity:.92;
+}
+.pilot-layout .pilot-logo{gap:7px}
+.pilot-layout .pilot-logo .efg-serotonin-symbol{width:64px;height:37px}
+.pilot-layout .efg-mobile-brand{gap:6px}
+.pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:50px;height:30px}
+.pilot-layout .efg-mobile-brand-text strong{
+ color:#291d45!important;font-weight:850!important;letter-spacing:.018em!important;
+ font-size:clamp(12px,3.6vw,16px)!important
+}
+.pilot-layout .efg-mobile-brand-text small{
+ color:#735b89!important;font-size:9px!important
+}
+.pilot-layout .efg-mobile-header{min-height:65px}
+.pilot-layout .efg-pastel-day{
+ background:linear-gradient(150deg,#D6B8E9 0%,#E6CAF0 39%,#F9E2EF 100%)!important;
+ border:1px solid #CAB2DE!important;
+ box-shadow:0 14px 38px rgba(95,55,126,.10)!important;
+}
+.pilot-layout .efg-pastel-day-head strong{font-size:clamp(15px,3.5vw,18px)}
+.pilot-layout .efg-pastel-day-grid{
+ display:grid;
+ grid-template-columns:minmax(120px, .85fr) minmax(0,1.45fr);
+ gap:12px;
+ align-items:center;
+}
+.pilot-layout .efg-pastel-ring{
+ max-width:205px;
+ min-width:0;
+ width:100%;
+ background:conic-gradient(#724AC7 0 var(--ring-a),#BA67EB var(--ring-a) var(--ring-b),#F779AD var(--ring-b) var(--ring-c),#DBCFEC var(--ring-c) 100%);
+ box-shadow:0 4px 16px rgba(119,75,156,.14)
+}
+.pilot-layout .efg-pastel-ring:before{
+ background:#EFE0F5!important;
+}
+.pilot-layout .efg-pastel-macros{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:9px;
+ align-items:start;
+ width:100%;
+}
+.pilot-layout .efg-pastel-macro{
+ display:flex;flex-direction:column;align-items:center;
+ min-width:0;gap:7px;text-align:center;
+}
+.pilot-layout .efg-pastel-macro-icon{
+ width:clamp(52px,7vw,84px)!important;
+ height:auto!important;
+ aspect-ratio:1;border-radius:50%!important;
+ display:grid;place-items:center;
+ position:relative;
+ padding:9px;
+ background:conic-gradient(var(--macro-color) var(--macro-progress),rgba(239,220,246,.92) var(--macro-progress) 100%)!important;
+ box-shadow:0 3px 10px rgba(76,43,104,.08);
+}
+.pilot-layout .efg-pastel-macro-icon:before{
+ content:"";position:absolute;inset:8px;border-radius:50%;
+ background:#F8E9F3;z-index:0
+}
+.pilot-layout .efg-pastel-macro-glyph{
+ position:relative;z-index:1;display:grid;place-items:center;
+ font-size:clamp(15px,2.8vw,25px);
+ width:100%;height:100%;
+}
+.pilot-layout .efg-pastel-macro-glyph svg{width:25px;height:25px;max-width:70%;max-height:70%}
+.pilot-layout .efg-pastel-macro-info{
+ display:flex;flex-direction:column;gap:3px;width:100%;min-width:0;
+}
+.pilot-layout .efg-pastel-macro-info>span{
+ font-size:clamp(9px,1vw,12px);line-height:1.15;font-weight:800;overflow-wrap:anywhere;
+}
+.pilot-layout .efg-pastel-macro-info strong{font-size:clamp(12px,2vw,19px);font-weight:850}
+.pilot-layout .efg-pastel-macro-info small{font-size:clamp(9px,1.1vw,11px)}
+.pilot-layout .efg-pastel-meter{height:4px;max-width:95px;width:100%;margin:3px auto 0}
+.pilot-layout .efg-pastel-day-stats{margin-top:18px}
+.pilot-layout .efg-pastel-register{
+ border-radius:99px!important;
+ letter-spacing:.045em;
+}
+.pilot-layout .student-meal-card .student-meal-heading{
+ min-height:64px;
+ padding:12px 13px;
+ background:#FAECF2;
+ border-radius:15px;
+}
+.pilot-layout .student-meal-card .student-meal-heading strong{
+ font-weight:850;letter-spacing:.022em
+}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:48px;height:28px}
+ .pilot-layout .efg-pastel-day-grid{grid-template-columns:1fr;gap:18px}
+ .pilot-layout .efg-pastel-ring{width:clamp(143px,42vw,175px);margin:auto}
+ .pilot-layout .efg-pastel-macros{gap:11px}
+ .pilot-layout .efg-pastel-macro-icon{width:clamp(59px,18vw,76px)!important}
+ .pilot-layout .efg-pastel-macro-info>span{font-size:10px}
+ .pilot-layout .efg-pastel-macro-info strong{font-size:15px}
+ .pilot-layout .efg-pastel-day-head{align-items:center;gap:6px;flex-wrap:wrap}
+ .pilot-layout .efg-pastel-day-head small{font-size:10px}
+}
+@media(max-width:355px){
+ .pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:38px;height:23px}
+ .pilot-layout .efg-mobile-brand-text strong{font-size:11px!important}
+ .pilot-layout .efg-pastel-macros{gap:5px}
+ .pilot-layout .efg-pastel-macro-icon{width:53px!important}
+ .pilot-layout .efg-pastel-macro-info strong{font-size:12px}
+}
+
+/* QA: las clases históricas .p/.c/.f eran más específicas y ocultaban el anillo. */
+.pilot-layout .efg-pastel-macro-icon.p,
+.pilot-layout .efg-pastel-macro-icon.c,
+.pilot-layout .efg-pastel-macro-icon.f{
+ background:conic-gradient(var(--macro-color) var(--macro-progress),#E5CFEF var(--macro-progress) 100%)!important;
+}

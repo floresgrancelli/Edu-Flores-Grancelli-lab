@@ -2,7 +2,7 @@
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { chromium } from "playwright";
+import { chromium,webkit } from "playwright";
 import assert from "node:assert/strict";
 
 const rootDir=process.cwd();
@@ -28,12 +28,13 @@ const server=createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(0,"127.0.0.1",r));
 const port=server.address().port;
-const browser=await chromium.launch({headless:true});
+const engine=process.env.EFG_QA_ENGINE==="webkit"?"webkit":"chromium";
+const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=[
- ["student",360],["student",375],["student",390],["student",430],
- ["coach",360],["coach",390],["coach",412],
- ["admin",360],["admin",390],["admin",412]
+const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+ ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
+ ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
+ ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
 ];
 const sbStub='export function createClient(){const b=()=>{const q={select(){return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
 try{
@@ -54,7 +55,7 @@ try{
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
   await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__);
-  if(role==="coach"&&width===390){
+  if(role==="coach"&&width===390&&engine==="chromium"){
    // Isolated iPhone-width touch regression before the fixture signs in.
    const gesture=await page.evaluate(async()=>{
     const {createPullToRefresh}=await import("./pull-refresh.js?v=20261028-pull1");
@@ -135,6 +136,83 @@ try{
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   const pastelColors=await page.evaluate(()=>{
+     const sample=selector=>{
+       const el=document.querySelector(selector);
+       return el?getComputedStyle(el).backgroundColor:null;
+     };
+     return {body:sample("body"),card:sample(".pilot-layout .card"),nav:sample(".pilot-layout .pilot-nav"),header:sample(".pilot-layout .efg-mobile-header")};
+   });
+   const isWhite=s=>(s||"").startsWith("rgb(255, 255, 255)")||(s||"").startsWith("rgba(255, 255, 255,");
+   if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
+   if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
+   if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
+   const typography=await page.evaluate(()=>{
+     const styleOf=selector=>{
+       const el=[...document.querySelectorAll(selector)].find(x=>x.getClientRects().length>0);
+       return el?{text:(el.textContent||"").trim().slice(0,60),transform:getComputedStyle(el).textTransform}:null;
+     };
+     const stats=[...document.querySelectorAll(".efg-coach-stat-grid > div")]
+       .filter(x=>x.getClientRects().length>0).map(el=>getComputedStyle(el).backgroundColor);
+     return {heading:styleOf(".pilot-layout .pilot-title,.pilot-layout h2"),
+       button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
+   });
+   for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
+     if(sample&&sample.transform!=="uppercase")pageReport.errors.push(kind+" must render uppercase: "+sample.text);
+   }
+   if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))
+     pageReport.errors.push("Coach/admin KPI stat backgrounds cannot be white");
+   const actionAudit=await page.evaluate(()=>{
+     const rgb=s=>{const n=(s.match(/[0-9.]+/g)||[]).slice(0,3).map(Number);return n.length===3?n:null;};
+     const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
+     const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
+     const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};
+     const selector=".efg-pastel-register,.student-shortcuts button,.efg-quick-more button,.efg-menu-card,.efg-quick-add-grid button";
+     return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
+       .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
+         return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
+           color:cs.color,background:cs.backgroundColor,height:el.getBoundingClientRect().height,
+           ratio:fg&&bg?contrast(fg,bg):0};});
+   });
+   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)","rgb(227, 138, 203)","rgb(107, 203, 223)"]);
+   for(const action of actionAudit){
+     if(!vivid.has(action.background))pageReport.errors.push("Quick action has non-vivid color: "+action.text+" "+action.background);
+     if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
+     if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
+   }
+   if(role==="student"&&dest==="home"&&actionAudit.filter(x=>x.text.includes("Registrar alimento")).length!==1)
+     pageReport.errors.push("Main Register CTA needs vivid coral and accessible size");
+   if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
+     const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
+     const menuColors=await page.locator(menuSelector).evaluateAll(els=>
+       els.filter(el=>el.getClientRects().length>0).slice(0,6)
+         .map(el=>getComputedStyle(el).backgroundColor));
+     if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
+     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
+   }
+   const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
+   if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");
+   else {
+     const b=await brandLogo.evaluate(img=>{
+       const r=img.getBoundingClientRect();
+       return {complete:img.complete,naturalWidth:img.naturalWidth,width:r.width,height:r.height,src:img.getAttribute("src")};
+     });
+     if(!b.complete||b.naturalWidth<80)pageReport.errors.push("Watercolor serotonin asset failed to load: "+JSON.stringify(b));
+     if(b.width>60||b.height>39)pageReport.errors.push("Serotonin mark must be small and subtle: "+JSON.stringify(b));
+     if(!b.src.includes("serotonina-acuarela.avif"))pageReport.errors.push("Wrong serotonin logo asset");
+   }
+   if(role==="student"&&dest==="home"){
+     const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
+       const styles=getComputedStyle(el);
+       return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
+     }));
+     if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
+       pageReport.errors.push("3 real progress rings required, not flat macro icons");
+   }
+   if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
+     pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
+   const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();
+   if(!(brandText||"").includes("EFG Nutrition"))pageReport.errors.push("Brand text EFG Nutrition must remain visible");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));
@@ -159,7 +237,9 @@ try{
    }
    if(role==="student"&&width===390&&dest==="home"){
     // Regression for the food-catalog expansion on mobile without live Supabase writes.
-    await page.locator(".efg-quick-add > summary").click();
+    // El botón principal abre el mismo selector anterior, manteniendo la prueba de catálogo.
+    await page.locator(".efg-pastel-register").click();
+    if(!(await page.locator("#studentQuickAdd").evaluate(el=>el.open)))pageReport.errors.push("Quick-add panel did not open");
     await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
@@ -270,11 +350,28 @@ try{
      await page.locator('[data-progress-range="7"]').click();
    }
    if(role==="student"&&dest==="home"){
+    const ring=page.locator(".efg-pastel-ring");
+    if((await ring.count())!==1)pageReport.errors.push("Phase 3 ring missing");
+    else{
+     const ringLabel=await ring.getAttribute("aria-label")||"";
+     if(!ringLabel.includes("560")||!ringLabel.includes("2.100"))pageReport.errors.push("Ring does not reflect REAL diary: "+ringLabel);
+     const rendered=await page.locator(".efg-pastel-day").innerText();
+     if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
+     if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");
+     if(rendered.includes("6.200")||rendered.includes("1,5 L"))pageReport.errors.push("Fake health metrics detected");
+     const openButton=page.locator(".efg-pastel-register");
+     await openButton.click();
+     if(!(await page.locator("#studentQuickAdd").evaluate(x=>x.open)))pageReport.errors.push("Register button failed to open existing selector");
+     await page.locator("#studentQuickAdd").evaluate(x=>x.open=false);
+    }
+   }
+   if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
-    const macroPositions=await page.locator(".efg-student-macros > .metric-card").evaluateAll(cards=>cards.map(x=>({x:x.getBoundingClientRect().x,y:x.getBoundingClientRect().y,width:x.getBoundingClientRect().width})));
-    if(macroPositions.length!==3 || Math.max(...macroPositions.map(x=>x.y))-Math.min(...macroPositions.map(x=>x.y))>5)pageReport.errors.push("The three macro cards must occupy the same row");
-    if(macroPositions.some(x=>x.width<75))pageReport.errors.push("Macro card too narrow for legible quantities");
+    const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
+    if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
+    if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
+    if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     const shortcut=page.locator('button[data-scrollto="studentMeals"]');
     await shortcut.click();
     const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
@@ -284,8 +381,8 @@ try{
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));
     if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
-   if(width===390 || width===360){
-     await page.screenshot({path:join(outDir,role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
+   if(width===390 || width===360 || ((width===320||width===768||width===1280)&&dest===destinations[0])){
+     await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
@@ -300,7 +397,9 @@ try{
    const goals=page.locator("#coachStudentGoals");
    await page.locator("details#coachStudentGoals > summary").click();
    await page.locator("#targetAge").fill("41");
-   await page.evaluate(()=>window.scrollTo(0,1500));
+   // Safari WebKit puede animar scrollTo de forma asíncrona; comparar cuando la animación terminó.
+   await page.evaluate(()=>window.scrollTo({top:1500,behavior:"instant"}));
+   await page.waitForTimeout(engine==="webkit"?220:40);
    const previousY=await page.evaluate(()=>window.scrollY);
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;
@@ -362,8 +461,8 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report.json"),JSON.stringify(report,null,2));
+writeFileSync(join(outDir,"report-"+engine+".json"),JSON.stringify(report,null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
-console.log(JSON.stringify({passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
+console.log(JSON.stringify({engine,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;

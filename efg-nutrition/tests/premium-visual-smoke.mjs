@@ -180,6 +180,16 @@ try{
     const verifiedHint=await page.locator("#mealEditorHint").textContent();
     if(!verifiedHint.includes("USDA")||!verifiedHint.includes("FDC 168809"))
       pageReport.errors.push("Audited chocolate ice cream has no source trace on student mobile");
+    await page.locator("#mealFoodSearch").fill("espinaca");
+    await page.locator("#mealEditorFood").selectOption("espinaca_hervida");
+    const leafHint=await page.locator("#mealEditorHint").textContent();
+    if(!leafHint.includes("USDA")||!leafHint.includes("FDC 168463"))
+      pageReport.errors.push("Second audit batch spinach source not visible to student");
+    await page.locator("#mealFoodSearch").fill("choclo");
+    await page.locator("#mealEditorFood").selectOption("choclo_hervido");
+    const cornHint=await page.locator("#mealEditorHint").textContent();
+    if(!cornHint.includes("FDC 169999"))
+      pageReport.errors.push("Second audit batch corn source not visible to student");
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();

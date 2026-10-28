@@ -5,7 +5,7 @@ import {EXTRA_FOODS,FOOD_UNIT_PORTIONS,foodSearchText} from "../pilot/food-catal
 import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "../pilot/user-photo-labels.js";
 
 assert.equal(new Set(EXTRA_FOODS.map(f=>f.id)).size,EXTRA_FOODS.length,"No duplicate food IDs");
-assert.equal(USER_PHOTO_LABEL_FOODS.length,2,"Chocolate photographed label and separately identified four-ingredient mix");
+assert.equal(USER_PHOTO_LABEL_FOODS.length,3,"Chocolate photographic label plus two separate, clearly estimated products from photos");
 const chocolate=EXTRA_FOODS.find(x=>x.id==="colonial_chocolate_organico_80_cacao");
 assert.ok(chocolate,"Photo-labeled product must be in normal food search catalogue");
 assert.equal(chocolate.brand,"Chocolate Colonial");
@@ -60,4 +60,27 @@ assert.ok(foodSearchText(mix).toLowerCase().includes("avellanas"));
 assert.ok(foodSearchText(mix).toLowerCase().includes("cajú"));
 assert.ok(foodSearchText(mix).toLowerCase().includes("mi mix"));
 assert.equal(mix.k*25,161.75,"25g estimate from equal-quarter assumption");
-console.log("PASS: Chocolate Colonial 80% cacao photographic label; Mi mix with four explicit ingredients and clearly illustrative equal-quarter nutrition, no invented label proportions.");
+const orange=EXTRA_FOODS.find(f=>f.id==="naranja_azucarada_cascara_confitada_granel");
+assert.ok(orange,"Candied sugared orange must be searchable");
+assert.match(orange.name,/Naranja azucarada/);
+assert.match(orange.name,/cáscara de naranja confitada/i);
+assert.equal(orange.category,"dessert");
+assert.equal(orange.sourceType,"generic_estimate");
+assert.equal(orange.validationStatus,"generico_pendiente");
+assert.equal(orange.packagePriceARS,2500);
+assert.equal(orange.packageGrams,null,"Never guess package weight from price tag");
+assert.equal(orange.servingIsEstimated,true);
+assert.equal(orange.servingGrams,25);
+assert.equal(FOOD_UNIT_PORTIONS[orange.id].grams,25);
+assert.match(orange.source,/SIN TABLA NUTRICIONAL/);
+assert.match(orange.source,/PESO NO INDICADO/);
+assert.match(orange.source,/NO RÓTULO DEL ENVASE/);
+assert.match(orange.source,/datafood\.ch\/en\/food\/candied-orange-peel/);
+assert.match(orange.source,/Puede diferir considerablemente/);
+for(const [key,expected] of Object.entries({k:306,p:.4,c:74.3,f:.3,fi:2.3})){
+  close(orange[key]*100,expected,"Sugar-coated orange proxy "+key+" per 100g");
+}
+assert.ok(foodSearchText(orange).toLowerCase().includes("naranja confitada"));
+assert.ok(foodSearchText(orange).toLowerCase().includes("naranja azucarada"));
+assert.ok(foodSearchText(orange).toLowerCase().includes("cascaritas"));
+console.log("PASS: Colonial chocolate from photographed label; four-ingredient mix and sugared orange from auditable estimates, without invented product weights.");

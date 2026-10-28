@@ -324,6 +324,10 @@ html,body{background:var(--pastel-bg)!important}
  color:var(--efg-action-text)!important;
  border-color:rgba(65,43,89,.24)!important;
 }
+.pilot-layout .efg-menu-card.efg-menu-peach{
+ background:var(--efg-action-amber)!important;
+ color:var(--efg-action-text)!important;
+}
 .pilot-layout .efg-menu-card.efg-menu-blue{
  background:var(--efg-action-blue)!important;
  color:var(--efg-action-text)!important;

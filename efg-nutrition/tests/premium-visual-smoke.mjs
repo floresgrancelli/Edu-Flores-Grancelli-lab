@@ -54,6 +54,39 @@ try{
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
   await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__);
+  if(role==="coach"&&width===390){
+   // Isolated iPhone-width touch regression before the fixture signs in.
+   const gesture=await page.evaluate(async()=>{
+    const {createPullToRefresh}=await import("./pull-refresh.js?v=20261028-pull1");
+    let count=0;
+    const test=createPullToRefresh({canRefresh:()=>true,refresh:async()=>{count++;}});
+    window.scrollTo(0,0);
+    const event=(type,target,y,all)=>{
+     const touch=new Touch({identifier:33,target,clientX:100,clientY:y});
+     return new TouchEvent(type,{bubbles:true,cancelable:true,
+      touches:all?[touch]:[],targetTouches:all?[touch]:[],changedTouches:[touch]});
+    };
+    const drag=(target,startY,endY)=>{
+     target.dispatchEvent(event("touchstart",target,startY,true));
+     const mid=event("touchmove",target,endY,true);
+     target.dispatchEvent(mid);
+     target.dispatchEvent(event("touchend",target,endY,false));
+     return mid.defaultPrevented;
+    };
+    const firstBlocked=drag(document.body,90,270);
+    await new Promise(resolve=>setTimeout(resolve,50));
+    const first=count,visible=document.querySelectorAll("#efgPullRefresh.is-success").length;
+    drag(document.body,90,135);await new Promise(resolve=>setTimeout(resolve,30));
+    const afterShort=count;
+    const field=document.createElement("textarea");document.body.append(field);
+    drag(field,90,270);await new Promise(resolve=>setTimeout(resolve,30));
+    const afterInput=count;field.remove();
+    test.dispose();
+    return {firstBlocked,first,visible,afterShort,afterInput};
+   });
+   if(!gesture.firstBlocked||gesture.first!==1||gesture.visible!==1||
+      gesture.afterShort!==1||gesture.afterInput!==1)errors.push("pull-refresh touch gesture failed: "+JSON.stringify(gesture));
+  }
   await page.evaluate(async(role)=>{
    const {state,render,today,setConsentMap}=window.__EFG_VISUAL_QA__;
    const userId="demo-"+role, day=today();

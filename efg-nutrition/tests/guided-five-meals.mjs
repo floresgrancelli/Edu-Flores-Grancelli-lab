@@ -6,7 +6,7 @@ yogurt:[.50,.042,.081,.0009],apple:[.52,.003,.138,.002],chicken:[1.65,.31,0,.036
 pumpkin:[.34,.01,.08,.001],oil:[8.84,0,0,1],cheese:[2.17,.27,.017,.12],mandarin:[.53,.008,.133,.003],
 fish_hake:[.82,.178,0,.007],potato:[.86,.0171,.2001,.001],rocket:[.25,.026,.037,.007],whey_powder:[3.9,.83,.07,.025],rice:[1.29,.0267,.2799,.0028],bread_white:[2.65,.09,.49,.032]
 };
-data.oats_raw=[3.89,.169,.663,.069];
+data.oats_raw=[3.89,.169,.663,.069];data.coffee_black=[.001,0,0,0];
 const catalog=Object.entries(data).map(([id,[k,p,c,f]])=>({id,name:id,unit:id==="milk_skim"?"ml":"g",k,p,c,f,fi:0}));
 const goal={kcal:2250,protein_g:155,carb_g:250,fat_g:70};
 for(const includeWhey of [false,true]){
@@ -14,6 +14,7 @@ for(const includeWhey of [false,true]){
  assert.deepEqual(plan.meals.map(x=>x.slot),GUIDE_MEALS.map(x=>x.slot));
  assert.equal(plan.meals.length,5);
  assert.match(describeGuidedMeal(plan.meals[0]),/revueltos|plancha/);
+ assert.ok(plan.meals[0].items.some(x=>x.id==="coffee_black"),"Coffee with milk must list both ingredients");
  assert.ok(plan.meals[0].items.find(x=>x.id==="bread").qty<=50,"Do not propose excessive breakfast bread");
  assert.ok(plan.meals[2].items.find(x=>x.id==="chicken").qty>=160,"No tiny lunch protein portions");
  assert.ok(plan.meals.flatMap(x=>x.items).filter(x=>["apple","mandarin"].includes(x.id)).every(x=>x.qty<=220),"Fruit portions stay reasonable");

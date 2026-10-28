@@ -1,0 +1,166 @@
+/* EFG Nutrition Pro · Fase 3 · pasteles globales · PREVIEW AISLADA.
+   Interfaz compartida alumno / coach / admin. No altera lógica, permisos, ni datos.
+   Aplicar después de premium-system.css. No insertar cambios en producción sin QA-32.
+*/
+:root{
+ --pastel-ink:#19202c;--pastel-muted:#687181;--pastel-line:#e9e7ed;
+ --pastel-coral:#f67796;--pastel-amber:#f7b34c;--pastel-lilac:#a876e9;
+ --pastel-blue:#75baf0;--pastel-surface:#fff;--pastel-radius:24px;
+ --pastel-bg:#fff9f6;--pastel-shadow:0 11px 36px rgba(73,51,76,.052);
+}
+html,body{background:#fff9f6}
+.pilot-layout{
+ --efg-ink:var(--pastel-ink);--efg-subtle:var(--pastel-muted);
+ --efg-green:#79668e;--efg-mint:#faedf6;--efg-blue:#eaf3ff;
+ --efg-peach:#fff2e6;--efg-lilac:#f3ecff;--efg-cream:#fff9eb;
+ --efg-bg:var(--pastel-bg);--efg-line:var(--pastel-line);
+ color:var(--pastel-ink);
+ background:radial-gradient(ellipse 480px 390px at 1% 2%,#fff0e8 0%,transparent 90%),
+            radial-gradient(ellipse 620px 520px at 97% 19%,#eef2ff 0%,transparent 90%),
+            radial-gradient(ellipse 450px 380px at 20% 92%,#fbeafa 0%,transparent 92%),#fff9f6;
+}
+.pilot-layout .pilot-main{color:var(--pastel-ink)}
+.pilot-layout .pilot-title{color:var(--pastel-ink);font-weight:840;letter-spacing:-.045em}
+.pilot-layout .pilot-lead,.pilot-layout .pilot-hint{color:var(--pastel-muted)}
+.pilot-layout .pilot-top .eyebrow,.pilot-layout .pilot-top .pilot-tag{color:#8f7799}
+.pilot-layout .card,.pilot-layout .pilot-record,.pilot-layout .meal-day-section{
+ background:rgba(255,255,255,.94);border:1px solid rgba(227,222,230,.9);
+ box-shadow:var(--pastel-shadow);border-radius:var(--pastel-radius)
+}
+.pilot-layout .pilot-nav{background:rgba(255,255,255,.94);border-color:var(--pastel-line)}
+.pilot-layout .pilot-nav button.navitem{color:#626b7a}
+.pilot-layout .pilot-nav button.navitem:hover,.pilot-layout .pilot-nav button.navitem.active{
+ background:#f7ecff;color:#5d3e84;border-radius:16px
+}
+.pilot-layout .pilot-nav button.navitem:focus-visible,.pilot-layout button:focus-visible,
+.pilot-layout a:focus-visible,.pilot-layout summary:focus-visible,
+.pilot-layout input:focus-visible,.pilot-layout select:focus-visible,.pilot-layout textarea:focus-visible{
+ outline:3px solid #8654c5;outline-offset:3px
+}
+.pilot-layout .efg-mobile-header{
+ background:rgba(255,251,249,.86);border-color:rgba(233,224,235,.75);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)
+}
+.pilot-layout .efg-mobile-monogram,.pilot-layout .brand-mark{
+ background:#191f29!important;color:#fff!important
+}
+.pilot-layout .efg-mobile-avatar,.pilot-layout .avatar{background:#efe6ff;color:#5c4189}
+.pilot-layout .pilot-hero,.pilot-layout .efg-coach-banner,.pilot-layout .efg-admin-banner{
+ background:linear-gradient(124deg,#fff1eb,#f6efff 60%,#edf5ff);
+ border-color:#f1e3ed;color:var(--pastel-ink);box-shadow:var(--pastel-shadow)
+}
+.pilot-layout :is(.btn,button.btn).block,.pilot-layout .btn:not(.light):not(.ghost){
+ background:#1c232d;color:#fff;border-color:#1c232d;
+ box-shadow:0 5px 16px rgba(28,35,45,.10)
+}
+.pilot-layout :is(.btn.light,.btn.ghost){background:#f9f4ff;color:#5d487a;border:1px solid #eadff7}
+.pilot-layout .btn:hover:not(:disabled){filter:brightness(.94)}
+.pilot-layout :is(input,select,textarea){
+ border-color:#e3dfe8;background:rgba(255,255,255,.98);color:var(--pastel-ink);
+ border-radius:13px;min-height:42px
+}
+.pilot-layout :is(.pilot-notice,.pilot-alert){border-radius:16px}
+.pilot-layout .pilot-pill{background:#f8f3ff;color:#6b4d90;border-color:#eadff7}
+.pilot-layout .efg-menu-card,.pilot-layout .efg-coach-tile,.pilot-layout .coach-hub-tile,
+.pilot-layout .admin-command-tile{
+ border:1px solid rgba(231,224,235,.85);box-shadow:var(--pastel-shadow);
+ border-radius:23px
+}
+.pilot-layout .efg-menu-mint,.pilot-layout .efg-menu-lilac{background:#f8ecff}
+.pilot-layout .efg-menu-blue{background:#edf4ff}
+.pilot-layout .efg-menu-peach{background:#fff0e8}
+.pilot-layout .efg-menu-cream{background:#fff7e8}
+.pilot-layout .efg-quick-more button,.pilot-layout .student-shortcuts button{
+ border-radius:16px;min-height:48px
+}
+.pilot-layout .student-shortcuts button:first-child{background:#f9ebff;color:#684c89;border-color:#f1e0ff}
+.pilot-layout .student-shortcuts button:nth-child(2){background:#edf5ff;color:#4b6d9f;border-color:#d9e8ff}
+.pilot-layout .student-shortcuts button:nth-child(3){background:#fff2e5;color:#94633d;border-color:#ffe1c7}
+.pilot-layout .efg-guide-student,.pilot-layout .coach-profile-accordion{
+ border-color:#e8dff0;background:rgba(255,255,255,.95)
+}
+.pilot-layout :is(.efg-payment-summary>div,.efg-payment-new){
+ background:#f8f1ff;border-color:#e6d9f6
+}
+.pilot-layout .efg-payment-summary strong{color:#665188}
+.pilot-layout .metric-card .meter{background:#ebe7ef}
+.pilot-layout .metric-card.metric-p .meter>div{background:var(--pastel-coral)}
+.pilot-layout .metric-card.metric-c .meter>div{background:var(--pastel-amber)}
+.pilot-layout .metric-card.metric-f .meter>div{background:var(--pastel-lilac)}
+.pilot-layout .efg-fit-art{background:#f7eef9}
+.pilot-layout .efg-fit-tag,.pilot-layout .efg-fit-count{color:#76549b}
+
+/* El tablero 'Mi día' resume los datos REALES del diario; nunca usa cifras demo. */
+.pilot-layout .efg-pastel-day{padding:18px 19px 16px;margin:16px 0 14px}
+.efg-pastel-day-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:15px}
+.efg-pastel-day-head strong{font-size:16px;letter-spacing:-.02em}
+.efg-pastel-day-head small{font-size:11px;color:var(--pastel-muted)}
+.efg-pastel-day-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:16px;align-items:center}
+.efg-pastel-ring{
+ width:100%;max-width:265px;aspect-ratio:1;position:relative;
+ border-radius:50%;padding:15px;margin:auto;
+ background:conic-gradient(var(--pastel-coral) 0 var(--ring-a),
+ var(--pastel-amber) var(--ring-a) var(--ring-b),
+ var(--pastel-lilac) var(--ring-b) var(--ring-c),
+ #e9e6ee var(--ring-c) 100%);
+}
+.efg-pastel-ring:before{content:"";display:block;position:absolute;inset:16px;background:#fff;border-radius:50%}
+.efg-pastel-ring-inner{position:absolute;inset:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px}
+.efg-pastel-ring-inner strong{font-size:clamp(22px,5vw,32px);letter-spacing:-.05em;line-height:1.1}
+.efg-pastel-ring-inner span{color:#747889;font-size:11px}
+.efg-pastel-ring-inner small{font-size:10px;color:#8f8295}
+.efg-pastel-macros{display:flex;flex-direction:column;gap:8px;min-width:0}
+.efg-pastel-macro{display:grid;grid-template-columns:29px minmax(0,1fr);gap:8px;align-items:center;min-width:0}
+.efg-pastel-macro-icon{width:29px;height:29px;border-radius:10px;display:grid;place-items:center;font-size:17px}
+.efg-pastel-macro-icon.p{background:#fff0f3;color:#ef6c8d}
+.efg-pastel-macro-icon.c{background:#fff5e7;color:#d9992c}
+.efg-pastel-macro-icon.f{background:#f6eaff;color:#8a56ce}
+.efg-pastel-macro-icon svg{width:23px;height:23px;display:block}
+.efg-pastel-macro-info{min-width:0}
+.efg-pastel-macro-info>span{font-size:10px;color:#606b7a;display:block}
+.efg-pastel-macro-info strong{font-size:13px;line-height:1.1}
+.efg-pastel-macro-info small{font-size:10px;color:#8b8591;margin-left:3px}
+.efg-pastel-meter{height:5px;border-radius:99px;background:#eeeaf0;overflow:hidden;margin-top:5px}
+.efg-pastel-meter>span{display:block;height:100%;border-radius:99px;background:var(--macro-color);width:var(--macro-progress)}
+.efg-pastel-day-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:15px 0}
+.efg-pastel-stat{padding:11px 8px;border:1px solid #f1eaf0;border-radius:15px;text-align:center;background:var(--tile-bg)}
+.efg-pastel-stat strong{font-size:17px;display:block;letter-spacing:-.035em}
+.efg-pastel-stat small{font-size:10px;color:#727080;display:block;line-height:1.25;margin-top:3px}
+.efg-pastel-day-note{font-size:10px;color:#757687;line-height:1.45;margin:7px 0 0}
+.efg-pastel-day .efg-pastel-register{display:block;width:100%;padding:15px 12px;background:#1c232d;
+ color:#fff;text-align:center;border:0;border-radius:999px;font-weight:800;font-size:14px;
+ min-height:48px;cursor:pointer}
+.efg-pastel-day .efg-pastel-register:focus-visible{outline:3px solid #8654c5;outline-offset:3px}
+.efg-pastel-day .efg-pastel-register:hover{background:#383744}
+.pilot-layout .efg-role-student .student-meal-card{box-shadow:none;border:1px solid #ece8ed;border-radius:17px}
+.pilot-layout .student-meal-card .pilot-pill{background:#faf4ff}
+.pilot-layout .student-meal-heading strong{color:#242733}
+
+/* Las acciones de permisos y alertas deben seguir explícitas y visibles. */
+.pilot-layout .pilot-consent{border-color:#e8e1eb;background:#fff}
+.pilot-layout .efg-consent-reminder{border-color:#e2d9f0;background:#faf5ff}
+.pilot-layout .efg-consent-reminder .btn{background:#201d2a;color:#fff}
+@media (max-width:720px){
+ .pilot-layout .pilot-nav{background:rgba(255,252,253,.97);border:1px solid #f0e9f3;border-bottom:0;
+ box-shadow:0 -7px 28px rgba(88,60,95,.095)}
+ .pilot-layout .pilot-nav button.navitem{font-size:11px}
+ .pilot-layout .pilot-main{padding-top:18px}
+ .pilot-layout .efg-pastel-day{padding:14px 13px}
+ .efg-pastel-day-grid{gap:10px}
+ .efg-pastel-ring{padding:10px}
+ .efg-pastel-ring:before{inset:13px}
+ .efg-pastel-ring-inner{inset:14px}
+ .efg-pastel-ring-inner strong{font-size:clamp(21px,6vw,29px)}
+ .efg-pastel-day-stats{gap:6px}
+}
+@media (max-width:370px){
+ .efg-pastel-ring-inner strong{font-size:20px}
+ .efg-pastel-day-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}
+ .efg-pastel-macro-icon{width:24px;height:25px}
+ .efg-pastel-macro{grid-template-columns:24px minmax(0,1fr);gap:5px}
+ .efg-pastel-macro-info strong{font-size:12px}
+ .efg-pastel-stat strong{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+ .pilot-layout .efg-pastel-day *{animation:none!important;transition:none!important}
+}

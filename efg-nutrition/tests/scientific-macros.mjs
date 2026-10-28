@@ -30,4 +30,6 @@ assert.ok(app.includes("ACTIVITY_LEVELS")&&app.includes("RECOMP_STRATEGIES"));
 assert.ok(app.includes('id="targetRecompMode"')&&app.includes('id="previewRecompMode"'));
 assert.ok(!app.includes('[1.7,"Alta"]')&&!app.includes('<option value="1.7">Alta</option>'));
 assert.ok(!app.includes("activity>=1.2&&activity<=1.75"));
+assert.ok(app.includes('<option value="">Seleccioná hombre o mujer</option>'),"Explicit sex is required before calculating coach proposals");
+assert.ok(app.includes("invalidateCoachDraft(e)"),"Changing inputs must invalidate stale proposal approval");
 console.log("PASS: sexo hombre/mujer, recomp 0/-5/-10%, top 1.50, P 2g/kg, G 0.9g/kg, carbos y validaciones.");

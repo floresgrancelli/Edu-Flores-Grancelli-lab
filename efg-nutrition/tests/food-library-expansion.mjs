@@ -1,4 +1,5 @@
 // Regression for the expanded food library. All fixtures are local and no user data is touched.
+import "./recipe-models.mjs"; // mandatory recipe arithmetic and provenance gate
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {EXPANDED_FOODS as auditedFoods,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT,VERIFIED_SOURCE_COUNT} from "../pilot/food-expansion.js";

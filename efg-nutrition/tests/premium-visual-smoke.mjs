@@ -190,6 +190,16 @@ try{
     const cornHint=await page.locator("#mealEditorHint").textContent();
     if(!cornHint.includes("FDC 169999"))
       pageReport.errors.push("Second audit batch corn source not visible to student");
+    await page.locator("#mealFoodSearch").fill("chocolate almendras");
+    await page.locator("#mealEditorFood").selectOption("chocolate_almendras");
+    const almondHint=await page.locator("#mealEditorHint").textContent();
+    if(!almondHint.includes("FDC 168754"))
+      pageReport.errors.push("Third audit batch chocolate almonds source missing");
+    await page.locator("#mealFoodSearch").fill("pochoclo");
+    await page.locator("#mealEditorFood").selectOption("palomitas_saladas");
+    const popcornHint=await page.locator("#mealEditorHint").textContent();
+    if(!popcornHint.includes("FDC 170247"))
+      pageReport.errors.push("Third audit batch popcorn source missing");
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();

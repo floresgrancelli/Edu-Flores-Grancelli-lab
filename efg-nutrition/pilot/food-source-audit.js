@@ -1,4 +1,4 @@
-// EFG Nutrition Pro / Fase 2: lotes 1 y 2 de cotejo documental 28/10/2026.
+// EFG Nutrition Pro / Fase 2: lotes 1 a 3 de cotejo documental 28/10/2026.
 // Cada entrada corresponde al TIPO DE ALIMENTO indicado, no a una marca argentina.
 // Datos por 100 g comestibles de USDA FoodData Central, SR Legacy (abril 2018).
 // El cotejo se realizó con reproducciones trazables por FDC ID de las entradas USDA.
@@ -18,7 +18,13 @@ const REFERENCES=[
  ["espinaca_hervida","Espinaca hervida, escurrida, sin sal ni aceite (referencia USDA)",168463,23,2.97,3.75,0.26,2.40],
  ["acelga_hervida","Acelga hervida, escurrida, sin sal ni aceite (referencia USDA)",170401,20,1.88,4.13,0.08,2.10],
  ["remolacha_hervida","Remolacha hervida y escurrida, sin aceite (referencia USDA)",169146,44,1.68,9.96,0.18,2.00],
- ["choclo_hervido","Choclo amarillo desgranado, hervido y escurrido, sin sal (referencia USDA)",169999,96,3.41,20.98,1.50,2.40]
+ ["choclo_hervido","Choclo amarillo desgranado, hervido y escurrido, sin sal (referencia USDA)",169999,96,3.41,20.98,1.50,2.40],
+ // Lote 3: golosinas, panificados y snacks de composición genérica documentada.
+ // Estas referencias NO describen una marca ni garantizan el gramaje de cada unidad.
+ ["chocolate_almendras","Chocolate con leche y almendras (referencia USDA)",168754,526,9.00,53.40,34.40,6.20],
+ ["galletitas_chocolate","Galletitas comerciales con chips de chocolate, con mayor grasa, harina no enriquecida (referencia USDA)",172820,481,5.40,66.80,22.60,2.50],
+ ["palomitas_saladas","Pochoclo blanco preparado con aceite y sal (referencia USDA)",170247,500,9.00,57.20,28.10,10.00],
+ ["caramelos_duros","Caramelos duros comunes azucarados (referencia USDA)",167990,394,0.00,98.00,0.20,0.00]
 ];
 export const VERIFIED_SOURCE_COUNT=REFERENCES.length;
 export const VERIFIED_FOODS=Object.freeze(Object.fromEntries(REFERENCES.map(([id,name,fdcId,k,p,c,f,fi])=>[

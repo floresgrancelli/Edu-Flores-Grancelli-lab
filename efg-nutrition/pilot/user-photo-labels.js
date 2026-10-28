@@ -115,6 +115,28 @@ export const USER_PHOTO_LABEL_FOODS=Object.freeze([
    sourceType:"generic_estimate",
    validationStatus:"generico_pendiente",
    source:"FOTO DEL USUARIO (28/10/2026): etiqueta manuscrita 'QUINOA POP', precio $1.300 por paquete; PESO NO INDICADO, SIN TABLA NUTRICIONAL ni ingredientes declarados. ESTIMACIÓN POR PRODUCTO SIMILAR, NO RÓTULO DE ESTA BOLSA: quinoa inflada Ceridés del fabricante Haricaman, https://www.haricaman.com/productos-cerides/inflados/quinoa-inflada.html (por 100 g: 369 kcal, proteínas 12 g, hidratos 72 g, grasas 2,5 g, fibra 4,7 g). La composición puede variar entre fabricantes, en particular si existe azúcar añadido, que NO puede descartarse con esta fotografía. Porción sugerida editable 20 g, NO indicada en bolsa. El precio $1.300 corresponde a la bolsa completa, de gramaje desconocido; no calcular precio por 100 g."
+ }),
+ // Entrada 5 — solicitud por texto del usuario, SIN foto de envase ni receta.
+ // Referencia USDA FDC SR Legacy 167552: "Snacks, popcorn, caramel-coated,
+ // without peanuts". Valores POR 100 G del alimento de referencia, no
+ // equivalen a toda variante de pochoclos dulces (caseros, de cine, industriales).
+ Object.freeze({
+   id:"pochoclos_dulces_acaramelados_genericos",
+   name:"Pochoclos dulces / acaramelados (estimación genérica)",
+   category:"dessert",
+   unit:"g",
+   productType:"Pochoclo dulce; referencia nutricional de pochoclo recubierto de caramelo sin maní",
+   servingGrams:30,
+   servingIsEstimated:true,
+   k:431/100,
+   p:3.8/100,
+   c:79.1/100,
+   f:12.8/100,
+   fi:5.2/100,
+   sugarPer100g:53.2,
+   sourceType:"generic_estimate",
+   validationStatus:"generico_pendiente",
+   source:"SOLICITUD POR TEXTO DEL USUARIO (28/10/2026), SIN ENVASE, PESO NI RECETA: 'POCHOCLOS DULCES'. ESTIMACIÓN CON ALIMENTO COMPARABLE: USDA FoodData Central SR Legacy FDC 167552 'Snacks, popcorn, caramel-coated, without peanuts' (100 g: 431 kcal, proteínas 3,8 g, hidratos totales 79,1 g, grasas 12,8 g, fibra 5,2 g, azúcares 53,2 g). Referencia consultable en https://fdc.nal.usda.gov/food-details/167552/nutrients y https://www.myfoodanalysis.com/food/caramel-popcorn-without-peanuts-167552 . Puede variar sustancialmente según azúcar, caramelo, aceite y preparación. No es tabla nutricional de un producto del usuario. 30 g es porción sugerida editable, NO tamaño declarado."
  })
 ]);
 export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
@@ -129,5 +151,8 @@ export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
  }),
  quinoa_inflada_pop_granel:Object.freeze({
    grams:20,label:"porción sugerida (20 g, NO indicada en envase)"
+ }),
+ pochoclos_dulces_acaramelados_genericos:Object.freeze({
+   grams:30,label:"porción sugerida de pochoclos dulces (30 g, estimación)"
  })
 });

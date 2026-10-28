@@ -12,6 +12,7 @@ export function createVersionNotice({
  const initialSignature=signature(document);
  const sourceUrl=new URL("./index.html",import.meta.url);
  let latest=null,dismissed=null,working=false,lastChecked=0,lastError=null;
+ let inFlight=null,finishFlight=null;
  const host=document.createElement("aside");
  host.id="efgVersionNotice";
  host.className="efg-version-notice";
@@ -32,8 +33,13 @@ export function createVersionNotice({
    '<button type="button" class="efg-version-update" data-version-action="update">Actualizar ahora</button></div>';
  }
  async function check({force=false,reopen=false}={}){
-  if(working)return false;
+  if(inFlight){
+   await inFlight;
+   if(reopen&&latest){dismissed=null;paint();}
+   return !!latest;
+  }
   if(!force&&document.hidden)return false;
+  inFlight=new Promise(resolve=>{finishFlight=resolve;});
   working=true;
   try{
    const url=new URL(sourceUrl);
@@ -52,7 +58,11 @@ export function createVersionNotice({
    if(reopen&&latest)dismissed=null;
    paint();return !!latest;
   }catch(err){lastError=String(err?.message||err);console.warn("EFG version check unavailable:",lastError);return false}
-  finally{working=false;}
+  finally{
+   working=false;
+   const finish=finishFlight;inFlight=null;finishFlight=null;
+   if(finish)finish();
+  }
  }
  function onAction(event){
   const button=event.target.closest("[data-version-action]");

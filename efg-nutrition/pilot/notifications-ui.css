@@ -1,0 +1,18 @@
+/* EFG Nutrition Pro — persistent inbox, visible in every tab, independent of re-renders. */
+.efg-notifications{position:fixed;right:16px;top:15px;z-index:9999;font:inherit;width:max-content;max-width:calc(100vw - 32px)}
+.efg-notifications[hidden]{display:none!important}
+.efg-notify-bell{position:relative;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:15px;border:1px solid rgba(30,90,74,.18);background:#fff;color:#173d35;box-shadow:0 6px 28px rgba(18,62,48,.16);font-size:23px;cursor:pointer;margin-left:auto}
+.efg-notify-count{position:absolute;top:-6px;right:-7px;min-width:21px;height:21px;line-height:21px;padding:0 5px;border-radius:12px;background:#cc494a;color:#fff;font-size:11px;font-weight:750;text-align:center}
+.efg-notify-popup{position:absolute;right:0;top:54px;width:min(365px,calc(100vw - 32px));max-height:min(65vh,560px);overflow-y:auto;overscroll-behavior:contain;border:1px solid #d7e5db;border-radius:19px;background:#fff;box-shadow:0 20px 65px rgba(16,54,46,.22);padding:7px}
+.efg-notify-title{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 13px 14px;border-bottom:1px solid #edf2ef;color:#143c34}
+.efg-notify-title button{background:transparent;border:0;font-size:19px;color:#57726c;padding:4px 8px;cursor:pointer}
+.efg-notify-item{display:block;width:100%;padding:12px;border:0;border-bottom:1px solid #edf2ef;text-align:left;cursor:pointer;color:#263b35;font:inherit;background:#fff;border-radius:8px}
+.efg-notify-item.unread{background:#f0faf5;box-shadow:inset 3px 0 0 #2b9971}
+.efg-notify-item:hover{background:#eaf4ed}
+.efg-notify-item-top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.efg-notify-item-top b{font-size:13px}
+.efg-notify-item-top small{white-space:nowrap;color:#70847d;font-size:11px}
+.efg-notify-item>span:last-child{display:block;color:#57726c;font-size:12px;line-height:1.45}
+.efg-notify-empty{margin:10px;padding:12px;font-size:13px;color:#648078}
+.efg-guide-description{margin:9px 0 12px;padding:11px 12px;border-radius:12px;background:#f0f8f3;color:#295a4a;font-size:13px;line-height:1.55}
+@media(max-width:760px){.efg-notifications{top:72px;right:12px}.efg-notify-bell{width:44px;height:44px}.efg-notify-popup{top:51px;max-height:60vh}}

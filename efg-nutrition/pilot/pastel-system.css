@@ -684,3 +684,10 @@ html,body{background:var(--pastel-bg)!important}
  .pilot-layout .efg-pastel-macro-icon{width:53px!important}
  .pilot-layout .efg-pastel-macro-info strong{font-size:12px}
 }
+
+/* QA: las clases históricas .p/.c/.f eran más específicas y ocultaban el anillo. */
+.pilot-layout .efg-pastel-macro-icon.p,
+.pilot-layout .efg-pastel-macro-icon.c,
+.pilot-layout .efg-pastel-macro-icon.f{
+ background:conic-gradient(var(--macro-color) var(--macro-progress),#E5CFEF var(--macro-progress) 100%)!important;
+}

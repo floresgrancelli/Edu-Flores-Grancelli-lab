@@ -92,6 +92,29 @@ export const USER_PHOTO_LABEL_FOODS=Object.freeze([
    sourceType:"generic_estimate",
    validationStatus:"generico_pendiente",
    source:"FOTO DEL USUARIO (28/10/2026): rótulo manuscrito 'NARANJA AZUCARADA', precio $2.500 por paquete, PESO NO INDICADO y SIN TABLA NUTRICIONAL. Visualmente parecen tiras de cáscara de naranja confitada recubiertas de azúcar; descripción aproximada, NO ingredientes verificados. ESTIMACIÓN POR PRODUCTO SIMILAR, NO RÓTULO DEL ENVASE: referencia suiza FSVO V7.1 para 'candied orange peel' en https://datafood.ch/en/food/candied-orange-peel/ (100 g: 306 kcal; proteínas 0,4 g, hidratos 74,3 g, grasas 0,3 g, fibra 2,3 g). Puede diferir considerablemente por humedad y cantidad de azúcar incorporada. Porción 25 g sugerida editable, NO declarada. El precio $2.500 es del paquete, NO costo por 100 g al desconocerse el peso."
+ }),
+ // Entrada 4 — foto de quinoa inflada a granel ("QUINOA POP" manuscrito),
+ // precio $1.300 por bolsa. SIN peso neto, ingredientes ni tabla nutricional.
+ // Se usa sólo como proxy la tabla de un fabricante de quinoa inflada
+ // (Ceridés/Haricaman), NO corresponde necesariamente a esta bolsa.
+ Object.freeze({
+   id:"quinoa_inflada_pop_granel",
+   name:"Quinoa inflada (quinoa pop) — a granel",
+   category:"carb",
+   unit:"g",
+   productType:"Quinoa inflada / quinoa pop a granel, bolsa sin etiqueta nutricional",
+   packagePriceARS:1300,
+   packageGrams:null,
+   servingGrams:20,
+   servingIsEstimated:true,
+   k:369/100,
+   p:12/100,
+   c:72/100,
+   f:2.5/100,
+   fi:4.7/100,
+   sourceType:"generic_estimate",
+   validationStatus:"generico_pendiente",
+   source:"FOTO DEL USUARIO (28/10/2026): etiqueta manuscrita 'QUINOA POP', precio $1.300 por paquete; PESO NO INDICADO, SIN TABLA NUTRICIONAL ni ingredientes declarados. ESTIMACIÓN POR PRODUCTO SIMILAR, NO RÓTULO DE ESTA BOLSA: quinoa inflada Ceridés del fabricante Haricaman, https://www.haricaman.com/productos-cerides/inflados/quinoa-inflada.html (por 100 g: 369 kcal, proteínas 12 g, hidratos 72 g, grasas 2,5 g, fibra 4,7 g). La composición puede variar entre fabricantes, en particular si existe azúcar añadido, que NO puede descartarse con esta fotografía. Porción sugerida editable 20 g, NO indicada en bolsa. El precio $1.300 corresponde a la bolsa completa, de gramaje desconocido; no calcular precio por 100 g."
  })
 ]);
 export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
@@ -103,5 +126,8 @@ export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
  }),
  naranja_azucarada_cascara_confitada_granel:Object.freeze({
    grams:25,label:"porción sugerida (25 g, NO indicada en envase)"
+ }),
+ quinoa_inflada_pop_granel:Object.freeze({
+   grams:20,label:"porción sugerida (20 g, NO indicada en envase)"
  })
 });

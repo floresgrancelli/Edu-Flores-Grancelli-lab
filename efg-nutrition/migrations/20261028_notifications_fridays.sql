@@ -4,7 +4,7 @@ create table if not exists public.efg_notifications (
  id uuid primary key default gen_random_uuid(),
  recipient_id uuid not null references auth.users(id) on delete cascade,
  actor_id uuid,
- kind text not null check (kind in ('guide','plan_update','weekly_report','weekly_ready','missing_diary','payment','payment_status')),
+ kind text not null check (kind in ('guide','plan_update','weekly_report','weekly_ready','missing_diary','payment','payment_status','message')),
  event_key text not null,
  title text not null check (char_length(title) between 1 and 140),
  body text not null default '' check (char_length(body) <= 600),
@@ -34,17 +34,23 @@ create or replace function public.efg_notify_food_guide() returns trigger
  language plpgsql security definer set search_path = ''
  as $$
 begin
- if new.guided_plan is not null and new.guided_plan_approved_at is not null
-    and (tg_op='INSERT' or new.guided_plan_approved_at is distinct from old.guided_plan_approved_at) then
+ if tg_op='INSERT' then
+  if new.guided_plan is null or new.guided_plan_approved_at is null then return new; end if;
+ elsif new.guided_plan_approved_at is not distinct from old.guided_plan_approved_at then
+  if new.approved_food_ids is distinct from old.approved_food_ids then
+   insert into public.efg_notifications(recipient_id,actor_id,kind,event_key,title,body,target_tab)
+   values(new.student_id,new.coach_id,'plan_update','foods:'||new.updated_at::text,
+     'Cambios en tu alimentación','Tu coach actualizó las opciones de alimentos de tu plan.','home')
+   on conflict(recipient_id,event_key) do nothing;
+  end if;
+  return new;
+ end if;
+ if new.guided_plan is not null and new.guided_plan_approved_at is not null then
   insert into public.efg_notifications(recipient_id,actor_id,kind,event_key,title,body,target_tab)
    values(new.student_id,new.coach_id,'guide','guide:'||new.guided_plan_approved_at::text,
      'Nueva guía de alimentación','Tu coach aprobó una guía alimentaria. Podés verla en Mi día.','home')
    on conflict(recipient_id,event_key) do nothing;
- elsif tg_op='UPDATE' and new.approved_food_ids is distinct from old.approved_food_ids then
-  insert into public.efg_notifications(recipient_id,actor_id,kind,event_key,title,body,target_tab)
-   values(new.student_id,new.coach_id,'plan_update','foods:'||new.updated_at::text,
-     'Cambios en tu alimentación','Tu coach actualizó las opciones de alimentos de tu plan.','home')
-   on conflict(recipient_id,event_key) do nothing;
+
  end if;
  return new;
 end $$;

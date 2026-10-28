@@ -25,7 +25,8 @@ for(const item of EXPANDED_FOODS){
   assert.ok(item.servingGrams>=3&&item.servingGrams<=400,"Check realistic unit size "+item.id);
  }
 }
-const find=id=>EXTRA_FOODS.find(f=>f.id===id);
+const find=id=>id==="pumpkin"?{id:"pumpkin",name:"Calabaza cocida"}:EXTRA_FOODS.find(f=>f.id===id);
+assert.match(pilot,/id:"pumpkin",name:"Calabaza cocida"/,"Main catalogue must still contain the existing pumpkin");
 for(const [query,id] of [
  ["zapallo","pumpkin"],
  ["zapallo","zapallo_anco_hervido"],

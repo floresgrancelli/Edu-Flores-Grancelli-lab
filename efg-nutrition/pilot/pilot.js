@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-phase2src4";
+import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
@@ -58,6 +59,9 @@ const foods=[
  {id:"pumpkin",name:"Calabaza cocida",unit:"g",k:.34,p:.01,c:.08,f:.001,fi:.01,source:"Tabla genérica"},
  {id:"rocket",name:"Rúcula",unit:"g",k:.25,p:.026,c:.037,f:.007,fi:.016,source:"Tabla genérica"}
 ].concat(EXTRA_FOODS);
+// Solo cambia modelos nutricionales de 4 tartas en memoria; nunca muta diarios guardados.
+// No se confunde una preparación supuesta con un dato analítico o etiqueta.
+applyRecipeModels(foods);
 // Origen visible: NO atribuir análisis USDA a los promedios EFG ni tratar un rótulo como una medición propia.
 for(const food of foods){
  food.validationStatus ||= food.id==="cake"?"receta_estimado":food.sourceId?"referencia_pendiente_confirmacion":"generico_pendiente";

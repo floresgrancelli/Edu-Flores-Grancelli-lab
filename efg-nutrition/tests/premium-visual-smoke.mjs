@@ -223,8 +223,26 @@ try{
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();
-    if(!recipeHint.includes("Estimación genérica"))
-      pageReport.errors.push("Variable tuna pie must remain identified as an estimate");
+    if(!recipeHint.includes("Receta o preparación estimada")||
+       !recipeHint.includes("NO VERIFICADO POR PESAJE")||
+       !recipeHint.includes("Peso final al horno SUPUESTO")||
+       !recipeHint.includes("Atún al natural escurrido 320 g"))
+      pageReport.errors.push("Tuna pie must disclose ingredients, yield and recipe uncertainty");
+    await page.locator("#mealFoodSearch").fill("tarta de atun sin tapa");
+    await page.locator("#mealEditorFood").selectOption("tarta_atun_light");
+    const tunaNoTop=await page.locator("#mealEditorHint").textContent();
+    if(!tunaNoTop.includes("Una sola tapa inferior")||!tunaNoTop.includes("930 g"))
+      pageReport.errors.push("Open tuna pie model is not transparent");
+    await page.locator("#mealFoodSearch").fill("tarta verdura espinaca");
+    await page.locator("#mealEditorFood").selectOption("tarta_verdura_espinaca");
+    const spinachPie=await page.locator("#mealEditorHint").textContent();
+    if(!spinachPie.includes("Espinaca cocida 300 g")||!spinachPie.includes("Ricota magra 180 g"))
+      pageReport.errors.push("Spinach pie model ingredient trace is unavailable");
+    await page.locator("#mealFoodSearch").fill("tarta jyq");
+    await page.locator("#mealEditorFood").selectOption("tarta_jamon_queso");
+    const hamPie=await page.locator("#mealEditorHint").textContent();
+    if(!hamPie.includes("Jamón cocido 260 g")||!hamPie.includes("Mozzarella 260 g"))
+      pageReport.errors.push("Ham-cheese pie model ingredient trace is unavailable");
     await page.locator('[data-act="closeMeal"]').click();
    }
    if(role==="student"&&dest==="recipes"){

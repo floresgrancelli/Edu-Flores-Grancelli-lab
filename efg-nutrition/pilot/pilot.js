@@ -1567,7 +1567,7 @@ function adminHomeView(){
  '<section class="efg-admin-banner"><span class="eyebrow">EFG NUTRITION PRO · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos habilitados</span></div></div>'+
  '<section class="efg-menu-grid">'+[
- ["home","🍽️","Mi alimentación","mint"],["testCoach","👥","Coach de prueba","blue"],
+ ["home","🍽️","MI DÍA","mint"],["testCoach","👥","Coach de prueba","blue"],
  ["reports","📈","Informes","peach"],["adminManage","⚙️","Organizaciones","lilac"],
  ["payments","💳","Pagos y licencias","cream"],["adminMore","☷","Más herramientas","mint"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+

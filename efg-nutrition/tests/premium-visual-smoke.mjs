@@ -95,10 +95,10 @@ try{
    await render();
   },role);
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachTools","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){
    if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
-   else if(dest==="recipes")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="recipes";await v.render();});
+   else if(dest==="recipes"||dest==="coachTools")await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
@@ -114,6 +114,16 @@ try{
    pageReport.pages.push({dest,...metrics});
    if(metrics.documentWidth>width+2)pageReport.errors.push(dest+": horizontal overflow "+metrics.documentWidth+"/"+width);
    if(metrics.nav.some(x=>x.height<44))pageReport.errors.push(dest+": short nav touch target");
+   if(role==="coach"&&dest==="coachTools"){
+     if((await page.locator("#previewRecompMode option").count())!==3)pageReport.errors.push("Recomposition strategies not available to coaches");
+     if((await page.locator('#previewActivity option[value="1.7"]').count())!==0)pageReport.errors.push("Retired 1.70 activity option is still shown");
+     if((await page.locator('#previewActivity option').count())!==3)pageReport.errors.push("Expected three activity levels");
+     await page.locator("#previewSex").selectOption("female");
+     await page.locator("#previewActivity").selectOption("1.5");
+     await page.locator("#previewRecompMode").selectOption("deficit10");
+     await page.locator('button[data-act="previewMacros"]').click();
+     if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
+   }
    if(role==="student"&&dest==="recipes"){
      if((await page.locator(".efg-fit-card").count())!==12)pageReport.errors.push("Fit recipe library should show 12 cards");
      if(!(await page.getByText("Budín de avena y manzana de Edu",{exact:true}).count()))pageReport.errors.push("Edu budin missing");

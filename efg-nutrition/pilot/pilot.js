@@ -566,10 +566,10 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?[["home","⌂","Mi día"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
+  ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
   ?[["coach","⌂","Inicio"],["coachStudents","♧","Alumnos"],["reports","▥","Informes"],["payments","▤","Pagos"]]
-  :[["admin","⌂","Inicio"],["home","◷","Mi día"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
+  :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><span class="brand-mark">E<span>+</span></span><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
@@ -783,7 +783,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
-  return rootText("Mi día","Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
+  return rootText("MI DÍA","Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
  pastelDaySummary(tot,goal,d,mealSlots)+
  '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">HOY · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+

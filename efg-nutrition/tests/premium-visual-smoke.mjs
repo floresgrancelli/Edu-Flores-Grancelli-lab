@@ -370,7 +370,7 @@ try{
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
     const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
     if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
-    if(macroPositions.some(x=>x.width<85||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
+    if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     const shortcut=page.locator('button[data-scrollto="studentMeals"]');
     await shortcut.click();

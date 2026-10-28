@@ -36,7 +36,7 @@ const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],[
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
 ];
-const sbStub='export function createClient(){const b=()=>{const q={select(){return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
+const sbStub='export function createClient(){const b=()=>{const q={saved:null,select(){return q},upsert(value){q.saved=value;return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:q.saved||null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
 try{
  for(const [role,width] of scenarios){
   const context=await browser.newContext({viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
@@ -136,6 +136,35 @@ try{
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   if(role==="student"&&width===390&&dest==="planner"){
+     // Repro de captura real: buscar Sandía en "extra opcional 1".
+     // El buscador debe mostrar la acción SIN cerrar el teclado Safari.
+     const key="merienda|vegetable";
+     const search=page.locator('[data-plansearch="'+key+'"]');
+     const row=page.locator('[data-plancontrols="'+key+'"]');
+     if(await search.count()!==1){pageReport.errors.push("Extra 1 search is missing");}
+     else{
+       await search.fill("sandia");
+       const chosen=await page.locator('[data-planselect="'+key+'"]').inputValue();
+       const btn=row.locator('[data-planadd="'+key+'"]');
+       const qty=row.locator('input[id="planQty_'+key+'"]');
+       if(chosen!=="watermelon")pageReport.errors.push("Sandía selected from search incorrectly: "+chosen);
+       if(await btn.count()!==1||!(await btn.isVisible()))pageReport.errors.push("Sandía search must expose AGREGAR AL REGISTRO button immediately");
+       if(await qty.count()!==1)pageReport.errors.push("Sandía search must expose editable grams");
+       const focused=await search.evaluate(el=>document.activeElement===el);
+       if(!focused)pageReport.errors.push("Live search lost focus in iPhone-sized viewport");
+       if(await qty.count()===1&&await btn.count()===1){
+         await qty.fill("100");
+         await btn.click();
+         await page.waitForTimeout(180);
+         const saved=await page.evaluate(()=>{
+           const meal=window.__EFG_VISUAL_QA__.state.diary?.meals?.merienda||[];
+           return meal.filter(x=>x.id==="watermelon").map(x=>x.qty);
+         });
+         if(!saved.includes(100))pageReport.errors.push("AGREGAR AL REGISTRO did not save 100g Sandía to merienda in isolated fixture: "+saved);
+       }
+     }
+   }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
        const el=document.querySelector(selector);

@@ -14,6 +14,7 @@ import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarize
 import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
 import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg2";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
+import {createVersionNotice} from "./version-notice.js?v=20261028-version1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -1865,6 +1866,8 @@ async function refreshVisibleWorkspace(){
    state.pendingGoalRevision=coachEdits.revision;
   }
   await inbox.refresh();
+  // A pull gesture also checks if a NEW code release was published.
+  await versionNotice.check({force:true});
   if(state.tab==="messages"){
    // Leave the message composer mounted to avoid dropping the keyboard or draft.
    await messages.refresh();
@@ -2186,6 +2189,26 @@ function handleAuthStateChange(event,session){
   state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
  }
 }
+// Never auto-reload after a release. Only warn the user, especially when editing.
+let userHasUnconfirmedEdits=false;
+const meaningfulField=el=>{
+ if(!el?.matches?.("input,textarea,select,[contenteditable]"))return false;
+ if(el.matches('input[type="search"],input[type="password"],input[type="email"]'))return false;
+ if(el.id&&/search|filter|login|otp/i.test(el.id))return false;
+ return !!el.closest(".pilot-main,#efgMessagesContent");
+};
+root.addEventListener("input",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
+root.addEventListener("change",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
+document.addEventListener("input",e=>{if(e.target?.id==="efgMessageText")userHasUnconfirmedEdits=true;},{capture:true});
+const versionNotice=createVersionNotice({
+ currentVersion:"20261028-version1",
+ canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
+ hasUnsavedChanges:()=>userHasUnconfirmedEdits||
+  !!state.coachGuidedDraft||!!state.pendingGoal||!!state.pendingGoalRevision||
+  Object.keys(state.plannerDraftGrams||{}).length>0||
+  !!document.getElementById("efgMessageText")?.value?.trim()||
+  !!document.querySelector('input[type="file"]')?.files?.length
+});
 const pullRefresh=createPullToRefresh({
  canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,
  refresh:refreshVisibleWorkspace

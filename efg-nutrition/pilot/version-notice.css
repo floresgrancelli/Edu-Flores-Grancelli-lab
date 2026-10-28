@@ -1,0 +1,19 @@
+/* Premium, compact update notice independent of screen re-renders. */
+.efg-version-notice{position:fixed;z-index:15000;bottom:calc(88px + env(safe-area-inset-bottom,0px));
+ left:50%;transform:translateX(-50%);width:min(450px,calc(100vw - 28px));box-sizing:border-box;
+ display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+ background:#fff;border:1px solid #cfe6da;border-radius:20px;padding:15px;
+ box-shadow:0 14px 55px rgba(19,60,47,.21);color:#1d4237;
+ font-family:inherit}
+.efg-version-notice[hidden]{display:none!important}
+.efg-version-icon{font-size:25px;color:#299b74;width:30px;text-align:center}
+.efg-version-copy{flex:1;min-width:185px}
+.efg-version-copy strong{display:block;font-size:15px;line-height:1.35}
+.efg-version-copy p{margin:4px 0 0;color:#637d71;font-size:12px;line-height:1.4}
+.efg-version-actions{display:flex;gap:8px;width:100%;justify-content:flex-end}
+.efg-version-actions button{font:inherit;font-size:13px;font-weight:700;border-radius:11px;min-height:40px;padding:10px 14px;cursor:pointer}
+.efg-version-later{background:#f1f5f3;border:1px solid #d7e5dd;color:#3d6153}
+.efg-version-update{background:#247c5d;border:1px solid #247c5d;color:#fff}
+.efg-version-actions button:focus-visible{outline:3px solid #a6dcc9;outline-offset:2px}
+@media(min-width:850px){.efg-version-notice{bottom:24px}}
+@media(prefers-reduced-motion:reduce){.efg-version-notice *{animation:none!important;transition:none!important}}

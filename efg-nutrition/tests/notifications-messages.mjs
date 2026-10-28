@@ -8,6 +8,7 @@ const notificationSQL=read("efg-nutrition/migrations/20261028_notifications_frid
 const chatSQL=read("efg-nutrition/migrations/20261028_private_messages.sql");
 const chatRLSPatch=read("efg-nutrition/migrations/20261028_student_message_rls_fix.sql");
 const html=read("efg-nutrition/pilot/index.html");
+const versions=read("efg-nutrition/pilot/version-notice.js");
 for(const s of [app,inbox,messages])assert.doesNotThrow(()=>new Function(s.replace(/^import .*;$/gm,"").replace(/^export /gm,"")),"JS must parse");
 for(const needle of ['notifications:notificationsView','messages:messagesView','function notificationsView()','function messagesView()','createNotificationInbox','createMessagesCenter','describeGuidedMeal','data-guidedeviations'])assert.ok(app.includes(needle),"Missing UI feature "+needle);
 for(const f of ["notifications-ui.js","messages-ui.js"])assert.ok(app.includes(f),"Missing module import "+f);
@@ -27,5 +28,15 @@ assert.ok(!/grant\s+insert\s+on\s+public\.efg_notifications\s+to\s+authenticated
 assert.match(notificationSQL,/\* \* 5'/,"Reports must be scheduled on Fridays");
 assert.match(notificationSQL,/on conflict\(recipient_id,event_key\) do nothing/i,"Notifications must be deduplicated");
 assert.match(app,/function weeklyReportEnd\(\)/);
+assert.doesNotThrow(()=>new Function(versions.replace(/^export /gm,"").replace(/import\.meta\.url/g,'"https://example.test/pilot/version-notice.js"')),"Version notice JS parses");
+assert.match(html,/<meta name="efg-build" content="[^"]+">/,"Build identity must be embedded in deployed HTML");
+assert.match(html,/version-notice\.css/,"Release banner CSS must load");
+assert.match(app,/version-notice\.js/,"Version checker must be imported");
+assert.match(app,/hasUnsavedChanges/,"Updating must check unsaved user input");
+assert.match(versions,/cache:"no-store"/,"Release comparison must bypass HTML cache");
+assert.match(versions,/data-version-action="update"/,"Update must require a user click");
+assert.match(versions,/data-version-action="later"/,"User can postpone a release");
+assert.match(versions,/window\.confirm\(/,"Version reload must warn about unsaved edits");
+assert.match(versions,/window\.location\.reload\(\)/,"Update button reloads document only when chosen");
 console.log("PASS: inbox + messages UI, no-refresh refresh, SQL RLS guards, Friday scheduling, dedicated tabs.");
 console.log("LIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific send/read, Friday cron, two devices.");

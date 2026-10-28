@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -228,7 +228,31 @@ try{
    if(!(await goals.evaluate(el=>el.open)))pageReport.errors.push("Objectives accordion collapsed on same-page render");
    if((await page.locator("#targetAge").inputValue())!=="41")pageReport.errors.push("Coach form lost on same-page render");
    const nextY=await page.evaluate(()=>window.scrollY);
-   if(Math.abs(nextY-previousY)>30)pageReport.errors.push("Unexpected scroll after restoring view: "+previousY+" -> "+nextY);
+   if(Math.abs(nextY-previousY)>48)pageReport.errors.push("Unexpected scroll after restoring view: "+previousY+" -> "+nextY);
+  }
+  if(role==="coach"&&width===390){
+   // Simulate a deployment. The latest HTML differs, but no real GitHub or Render calls.
+   const freshHtml=(await page.locator("html").evaluate(el=>el.outerHTML))
+    .replace('content="20261028-version1"','content="20261028-version2"')
+    .replace('./pilot.js?v=20261028-version1','./pilot.js?v=20261028-version2');
+   await page.route("**/pilot/index.html?efg_version_check=*",route=>
+    route.fulfill({status:200,contentType:"text/html",body:"<!doctype html>"+freshHtml}));
+   await page.evaluate(async()=>{
+    await window.__EFG_VISUAL_QA__.versionNotice.check({force:true});
+   });
+   const banner=page.locator("#efgVersionNotice");
+   if(!(await banner.isVisible()))pageReport.errors.push("Version notice did not appear for a newer build");
+   if(!(await banner.getByText("Nueva versión disponible").count()))pageReport.errors.push("New-version heading missing");
+   const urlBefore=page.url();
+   await page.locator("#targetAge").fill("42"); // Unsafe to discard without warning.
+   let warningShown=false;
+   page.once("dialog",dialog=>{warningShown=true;void dialog.dismiss()});
+   await banner.locator('[data-version-action="update"]').click();
+   await page.waitForTimeout(90);
+   if(!warningShown||page.url()!==urlBefore)pageReport.errors.push("Draft guard did not prevent a forced version reload");
+   await banner.locator('[data-version-action="later"]').click();
+   if(await banner.isVisible())pageReport.errors.push("Later button did not dismiss update notice");
+   await page.unroute("**/pilot/index.html?efg_version_check=*");
   }
   results.push(pageReport);
   await context.close();

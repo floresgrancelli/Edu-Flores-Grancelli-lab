@@ -1,11 +1,12 @@
 // Regression for the expanded food library. All fixtures are local and no user data is touched.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {EXPANDED_FOODS as auditedFoods,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT,VERIFIED_SOURCE_COUNT} from "../pilot/food-expansion.js";
+import {VERIFIED_FOODS} from "../pilot/food-source-audit.js";
 const read=p=>readFileSync("efg-nutrition/pilot/"+p,"utf8");
 const expansion=read("food-expansion.js"),catalog=read("food-catalog.js"),app=read("pilot.js"),html=read("index.html");
-assert.doesNotThrow(()=>new Function(expansion.replace(/^export /gm,"")),"Expansion JS syntax must parse");
-const exports=new Function(expansion.replace(/^export /gm,"")+"\nreturn {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT};")();
-const {EXPANDED_FOODS:foods,EXPANDED_PORTIONS:portions,EXPANDED_ALIASES:aliases,EXPANDED_COUNT:count}=exports;
+const foods=auditedFoods,portions=EXPANDED_PORTIONS,aliases=EXPANDED_ALIASES,count=EXPANDED_COUNT;
+assert.equal(VERIFIED_SOURCE_COUNT,8,"First source-audit batch is 8 foods");
 assert.equal(count,foods.length);
 assert.ok(count>=130,"Expanded list should have at least 130 options");
 const ids=foods.map(f=>f.id);
@@ -16,9 +17,16 @@ for(const f of foods){
  assert.ok(f.name&&["prepared","bakery","dessert","vegetable","protein"].includes(f.category),"Food category/name valid: "+f.id);
  for(const n of ["k","p","c","f","fi"])assert.ok(Number.isFinite(f[n])&&f[n]>=0,"Nutrition must be nonnegative finite: "+f.id+" "+n);
  assert.ok(f.k>0&&f.k<9,"Gross per-gram calories plausibly bounded: "+f.id);
- assert.equal(f.sourceType,"generic_estimate","Never mislabel generic compositions as USDA verified");
- assert.equal(f.validationStatus,"generico_pendiente");
- assert.match(f.source,/Estimación/,"Explain generic uncertainty");
+ if(VERIFIED_FOODS[f.id]){
+  assert.equal(f.sourceType,"usda_fdc","Cotejada debe citar USDA: "+f.id);
+  assert.equal(f.validationStatus,"tabla_referenciada");
+  assert.equal(f.sourceId,VERIFIED_FOODS[f.id].sourceId);
+  assert.match(f.source,/FDC [0-9]+/);
+ }else{
+  assert.equal(f.sourceType,"generic_estimate","Unverified dish must stay an estimate: "+f.id);
+  assert.equal(f.validationStatus,"generico_pendiente");
+  assert.match(f.source,/Estimación/,"Explain generic uncertainty");
+ }
 }
 for(const id of ["zapallo_anco_hervido","zapallo_cabutia_horno","tarta_atun_horno","tarta_verdura_acelga","sushi_maki_salmon","sushi_nigiri_salmon","pizza_jamon","helado_chocolate","chocolate_leche","gomitas_frutales","chocotorta","brownie_chocolate","flan_huevo_caramelo"]){
  assert.ok(ids.includes(id),"Missing key new food "+id);
@@ -39,6 +47,26 @@ assert.ok(search("pizza").length>=8);
 assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
-assert.match(html,/20261028-catalogue1/,"Force iPhone Safari asset update");
+assert.match(html,/20261028-phase2src1/,"Force iPhone Safari asset update");
+const expected={
+ zapallo_anco_horno:[169296,40,.90,10.5,.09,3.2],
+ helado_crema_americana:[167575,207,3.5,23.6,11,.7],
+ helado_chocolate:[168809,216,3.8,28.2,11,1.2],
+ chocolate_leche:[167587,535,7.65,59.4,29.66,3.4],
+ chocolate_amargo_70:[170273,598,7.79,45.9,42.6,10.9],
+ chocolate_mani:[168001,519,13.1,49.7,33.5,4.7],
+ chocolate_blanco:[167571,539,5.87,59.2,32.1,.2],
+ malvaviscos:[167995,318,1.8,81.3,.2,.1]
+};
+assert.equal(Object.keys(expected).length,VERIFIED_SOURCE_COUNT);
+for(const [id,[fdc,k,p,c,f,fi]]of Object.entries(expected)){
+ const item=foods.find(food=>food.id===id);
+ assert.ok(item,"Audited food missing "+id);
+ assert.equal(item.sourceId,String(fdc));
+ for(const [key,value]of Object.entries({k,p,c,f,fi}))
+  assert.ok(Math.abs(item[key]*100-value)<.00001,"Expected USDA value per 100g "+id+"/"+key+"="+value);
+}
+assert.equal(foods.filter(food=>food.validationStatus==="generico_pendiente").length,count-VERIFIED_SOURCE_COUNT);
+assert.ok(foods.find(f=>f.id==="sushi_maki_salmon").source.includes("Estimación"),"Recipe-based sushi remains estimated");
 console.log("PASS:",count,"new items, no identifier collisions, numeric macros, 7 portion types, searchable aliases, catalog and Safari integration.");
-console.log("QA note: prepared dishes are generic estimates; manufacturer labels and weighed recipes remain required for exact entries.");
+console.log("Auditoría Fase 2: "+VERIFIED_SOURCE_COUNT+" cotejadas USDA SR Legacy, "+(count-VERIFIED_SOURCE_COUNT)+" estimaciones sin fingir validación individual.");

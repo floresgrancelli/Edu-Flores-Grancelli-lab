@@ -5,7 +5,7 @@ import {EXTRA_FOODS,FOOD_UNIT_PORTIONS,foodSearchText} from "../pilot/food-catal
 import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "../pilot/user-photo-labels.js";
 
 assert.equal(new Set(EXTRA_FOODS.map(f=>f.id)).size,EXTRA_FOODS.length,"No duplicate food IDs");
-assert.equal(USER_PHOTO_LABEL_FOODS.length,3,"Chocolate photographic label plus two separate, clearly estimated products from photos");
+assert.equal(USER_PHOTO_LABEL_FOODS.length,4,"Four photographed products: only chocolate has own nutrition label, others use proxies");
 const chocolate=EXTRA_FOODS.find(x=>x.id==="colonial_chocolate_organico_80_cacao");
 assert.ok(chocolate,"Photo-labeled product must be in normal food search catalogue");
 assert.equal(chocolate.brand,"Chocolate Colonial");
@@ -83,4 +83,26 @@ for(const [key,expected] of Object.entries({k:306,p:.4,c:74.3,f:.3,fi:2.3})){
 assert.ok(foodSearchText(orange).toLowerCase().includes("naranja confitada"));
 assert.ok(foodSearchText(orange).toLowerCase().includes("naranja azucarada"));
 assert.ok(foodSearchText(orange).toLowerCase().includes("cascaritas"));
-console.log("PASS: Colonial chocolate from photographed label; four-ingredient mix and sugared orange from auditable estimates, without invented product weights.");
+const quinoa=EXTRA_FOODS.find(f=>f.id==="quinoa_inflada_pop_granel");
+assert.ok(quinoa,"Quinoa pop must be searchable in catalogue");
+assert.equal(quinoa.category,"carb");
+assert.match(quinoa.name,/Quinoa inflada/);
+assert.equal(quinoa.packagePriceARS,1300);
+assert.equal(quinoa.packageGrams,null,"Quinoa pop bag has NO NET WEIGHT printed");
+assert.equal(quinoa.servingGrams,20,"Example only, editable");
+assert.equal(quinoa.servingIsEstimated,true);
+assert.equal(FOOD_UNIT_PORTIONS[quinoa.id].grams,20);
+assert.equal(quinoa.sourceType,"generic_estimate","Never represent another manufacturer's label as this bag's label");
+assert.equal(quinoa.validationStatus,"generico_pendiente");
+assert.match(quinoa.source,/PESO NO INDICADO/);
+assert.match(quinoa.source,/SIN TABLA NUTRICIONAL/);
+assert.match(quinoa.source,/NO RÓTULO DE ESTA BOLSA/);
+assert.match(quinoa.source,/haricaman\.com/);
+assert.match(quinoa.source,/azúcar añadido/);
+for(const [key,expected] of Object.entries({k:369,p:12,c:72,f:2.5,fi:4.7})){
+ close(quinoa[key]*100,expected,"Quinoa puff proxy "+key+" per 100g");
+}
+assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinoa pop"));
+assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinoa inflada"));
+assert.ok(foodSearchText(quinoa).toLowerCase().includes("quinua inflada"));
+console.log("PASS: Four photo items; Colonial chocolate from its own label, mix/orange/quinoa from explicitly marked proxies; no invented bag weight.");

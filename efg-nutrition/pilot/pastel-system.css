@@ -212,3 +212,74 @@ html,body{background:#fff9f6}
 .pilot-layout .pilot-consent,.pilot-layout .efg-consent-reminder{color:#463e56}
 .pilot-layout .pilot-consent .btn{background:#1c232d;color:#fff}
 .pilot-layout .coach-inbox,.pilot-layout .efg-payment-inbox{background:#fff}
+
+
+/* Fase 3 — propuesta bicolor LAVANDA + ROSA EMPOLVADO, sin superficies blancas.
+   Ensayo visual del PR #27, NO para producción sin QA y aprobación humana. */
+:root{
+ --pastel-bg:#E9E0F3; /* fondo lavanda empolvado */
+ --pastel-surface:#F3E0E9; /* tarjetas rosa empolvado */
+ --pastel-panel-alt:#F1E7F8; /* relieve lavanda */
+ --pastel-panel-soft:#F7E9F0; /* rosa secundario */
+ --pastel-line:#D8C8DE;
+ --pastel-shadow:0 9px 26px rgba(82,53,99,.075);
+}
+html,body{background:var(--pastel-bg)!important}
+.pilot-layout{
+ --efg-bg:var(--pastel-bg);--efg-line:var(--pastel-line);
+ background:radial-gradient(ellipse 560px 460px at 80% 10%,rgba(249,218,232,.62),transparent 86%),
+ radial-gradient(ellipse 520px 490px at 5% 91%,rgba(216,199,236,.48),transparent 90%),var(--pastel-bg)!important;
+}
+.pilot-layout .pilot-main{background:transparent!important}
+.pilot-layout :is(.card,.pilot-record,.meal-day-section,.efg-fit-card,
+ .efg-content-card,.efg-guide-student,.coach-profile-accordion,
+ .efg-payment-inbox,.coach-inbox,.efg-quick-add[open],.efg-pastel-guide,
+ .pilot-consent,.efg-pastel-day,.student-meal-card){
+ background:var(--pastel-surface)!important;
+ border-color:var(--pastel-line)!important;
+}
+.pilot-layout :is(.efg-mobile-header,.pilot-nav){
+ background:rgba(241,231,248,.96)!important;
+ border-color:var(--pastel-line)!important;
+}
+.pilot-layout :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile,
+ .efg-payment-summary>div,.efg-payment-new,.student-meal-details,.meal-actions){
+ background:var(--pastel-panel-alt)!important;
+ border-color:#DDD0E7!important;
+}
+.pilot-layout :is(.pilot-hero,.efg-coach-banner,.efg-admin-banner,.efg-pastel-motivation){
+ background:linear-gradient(135deg,#EEDBEB 0%,#E9DDF2 61%,#F3DBE7 100%)!important;
+ border-color:#D9C7E1!important;
+}
+.pilot-layout :is(input,select,textarea,.field input,.field select,.field textarea){
+ background:var(--pastel-panel-alt)!important;
+ border-color:#CBBBD8!important;
+ color:var(--pastel-ink)!important;
+}
+.pilot-layout :is(.pilot-notice,.pilot-alert,.pilot-plan-empty,.efg-consent-reminder){
+ background:var(--pastel-panel-soft)!important;
+ border-color:#D9C7DF!important;
+ color:#44384F;
+}
+.pilot-layout :is(.efg-quick-add-grid button,.student-shortcuts button,
+ .efg-quick-more button,.efg-menu-card){
+ border-color:#D8C8DE!important;
+}
+.pilot-layout .efg-pastel-ring:before{
+ background:var(--pastel-surface)!important
+}
+.pilot-layout .efg-pastel-macro-icon.p{background:#F4D5DF!important}
+.pilot-layout .efg-pastel-macro-icon.c{background:#F6E1C3!important}
+.pilot-layout .efg-pastel-macro-icon.f{background:#E9D7F6!important}
+.pilot-layout .efg-pastel-stat[style*="--tile-bg"]{
+ background:var(--pastel-panel-alt)!important;border-color:#DCCCE4!important
+}
+.pilot-layout .efg-pastel-guide>summary{color:#544478}
+.pilot-layout :is(.btn.light,.btn.ghost){
+ background:var(--pastel-panel-alt)!important;border-color:#D8C8E5!important;color:#523D70!important
+}
+/* Color blanco reservado a iconografía/texto sobre botones oscuros para contraste. */
+@media(max-width:720px){
+ .pilot-layout .pilot-nav{background:rgba(241,231,248,.98)!important}
+ .pilot-layout .efg-mobile-header{background:rgba(241,231,248,.94)!important}
+}

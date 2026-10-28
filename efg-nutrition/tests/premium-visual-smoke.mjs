@@ -290,9 +290,12 @@ try{
    if(!(await manualCheck.count()))pageReport.errors.push("Manual version checker missing from Coach More");
    else{
     await manualCheck.click();
+    await page.waitForFunction(()=>/nueva versión|Estás al día|No se pudo comprobar|La comprobación sigue/.test(
+     document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
     const label=await page.locator("#efgBuildStatus").textContent();
-    if(!label.includes("nueva versión")||!(await banner.isVisible()))
-     pageReport.errors.push("User-initiated check failed to reopen a postponed release");
+    const visible=await banner.isVisible();
+    if(!label.includes("nueva versión")||!visible)
+     pageReport.errors.push("User-initiated check failed to reopen a postponed release: label="+label+", visible="+visible);
    }
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }

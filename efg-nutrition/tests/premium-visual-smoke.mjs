@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -166,6 +166,36 @@ try{
    if(width===390 || width===360){
      await page.screenshot({path:join(outDir,role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
+  }
+  // Real iPhone regression: silent auth must not close the coach's objectives accordion.
+  if(role==="coach"&&width===390){
+   await page.evaluate(async()=>{
+    const x=window.__EFG_VISUAL_QA__;
+    x.state.tab="coachStudents";x.state.selectedStudent="demo-student-a";
+    x.state.consent={accepted:true};
+    x.state.coachGoals=[{id:"goal-demo",kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,start_on:"2026-10-01"}];
+    x.state.coachFoodPlan=null;await x.render();
+   });
+   const goals=page.locator("#coachStudentGoals");
+   await page.locator("details#coachStudentGoals > summary").click();
+   await page.locator("#targetAge").fill("41");
+   await page.evaluate(()=>window.scrollTo(0,1500));
+   const previousY=await page.evaluate(()=>window.scrollY);
+   await page.evaluate(async()=>{
+    const x=window.__EFG_VISUAL_QA__;
+    x.handleAuthStateChange("SIGNED_IN",{user:{id:"demo-coach",email:"demo@example.invalid"}});
+    x.handleAuthStateChange("TOKEN_REFRESHED",{user:{id:"demo-coach",email:"demo@example.invalid"}});
+    await Promise.resolve();
+   });
+   await page.waitForTimeout(60);
+   if(!(await goals.evaluate(el=>el.open)))pageReport.errors.push("Objectives accordion collapsed after silent auth");
+   if((await page.locator("#targetAge").inputValue())!=="41")pageReport.errors.push("Coach form lost after silent auth");
+   await page.evaluate(async()=>window.__EFG_VISUAL_QA__.render()); // Real same-screen redraw.
+   await page.waitForTimeout(80);
+   if(!(await goals.evaluate(el=>el.open)))pageReport.errors.push("Objectives accordion collapsed on same-page render");
+   if((await page.locator("#targetAge").inputValue())!=="41")pageReport.errors.push("Coach form lost on same-page render");
+   const nextY=await page.evaluate(()=>window.scrollY);
+   if(Math.abs(nextY-previousY)>30)pageReport.errors.push("Unexpected scroll after restoring view: "+previousY+" -> "+nextY);
   }
   results.push(pageReport);
   await context.close();

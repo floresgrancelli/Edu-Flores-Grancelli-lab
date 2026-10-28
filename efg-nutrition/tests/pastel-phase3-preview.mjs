@@ -43,8 +43,9 @@ assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses
 assert.ok(css.includes("text-transform:uppercase"),"CSS applies uppercase titles and buttons");
 assert.ok(css.includes(".efg-coach-stat-grid>div"),"Coach and admin stat panels have pastel surfaces");
 assert.ok(css.includes("--pastel-bg:#D9C5E9"),"Deepened lavender canvas");
-assert.ok(app.includes('class="brand-mark" aria-hidden="true">EFG'),"Brand monogram should be EFG, not E+");
-assert.ok(app.includes('class="efg-mobile-monogram" aria-hidden="true">EFG'),"Mobile brand monogram should be EFG");
+assert.ok(!app.includes('class="brand-mark"'),"No decorative logo box in desktop header");
+assert.ok(!app.includes('class="efg-mobile-monogram"'),"No decorative logo box in mobile header");
+assert.ok(app.includes('class="efg-mobile-brand-text"'),"Keep the full EFG Nutrition name");
 assert.ok(css.includes("--pastel-surface:#FAECF2"),"Dusty rose cards");
 assert.ok(html.includes('name="theme-color" content="#D9C5E9"'),"iPhone theme-color matches canvas");
 assert.ok(html.lastIndexOf("pastel-system.css")>html.lastIndexOf("premium-system.css"),"Preview stylesheet loaded last");

@@ -32,9 +32,9 @@ const engine=process.env.EFG_QA_ENGINE==="webkit"?"webkit":"chromium";
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
 const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
- ["student",360],["student",375],["student",390],["student",430],
- ["coach",360],["coach",390],["coach",412],
- ["admin",360],["admin",390],["admin",412]
+ ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
+ ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
+ ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
 ];
 const sbStub='export function createClient(){const b=()=>{const q={select(){return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
 try{
@@ -147,6 +147,21 @@ try{
    if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
    if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
    if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
+   const typography=await page.evaluate(()=>{
+     const styleOf=selector=>{
+       const el=[...document.querySelectorAll(selector)].find(x=>x.getClientRects().length>0);
+       return el?{text:(el.textContent||"").trim().slice(0,60),transform:getComputedStyle(el).textTransform}:null;
+     };
+     const stats=[...document.querySelectorAll(".efg-coach-stat-grid > div")]
+       .filter(x=>x.getClientRects().length>0).map(el=>getComputedStyle(el).backgroundColor);
+     return {heading:styleOf(".pilot-layout .pilot-title,.pilot-layout h2"),
+       button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
+   });
+   for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
+     if(sample&&sample.transform!=="uppercase")pageReport.errors.push(kind+" must render uppercase: "+sample.text);
+   }
+   if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))
+     pageReport.errors.push("Coach/admin KPI stat backgrounds cannot be white");
    const actionAudit=await page.evaluate(()=>{
      const rgb=s=>{const n=(s.match(/[0-9.]+/g)||[]).slice(0,3).map(Number);return n.length===3?n:null;};
      const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
@@ -335,7 +350,7 @@ try{
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));
     if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
-   if(width===390 || width===360){
+   if(width===390 || width===360 || ((width===320||width===768||width===1280)&&dest===destinations[0])){
      await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }

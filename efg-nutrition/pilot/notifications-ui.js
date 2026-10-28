@@ -7,13 +7,18 @@ export function createNotificationInbox({sb,getUserId,navigate}){
  host.id="efgNotifications";host.className="efg-notifications";
  host.setAttribute("aria-label","Notificaciones de EFG");
  document.body.append(host);
+ function listMarkup(){
+  return records.length?records.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'"><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR")+'</small></span><span>'+esc(n.body)+'</span></button>').join(""):'<p class="efg-notify-empty">Todavía no hay avisos.</p>';
+ }
  function paint(){
   const count=records.filter(n=>!n.is_read).length;
+  const full=document.getElementById("efgInboxFull");
+  if(full)full.innerHTML=available?'<div class="efg-inbox-full-meta">'+count+' pendientes · '+records.length+' recientes</div>'+listMarkup():'<p class="pilot-hint">Las notificaciones estarán disponibles después de activar la actualización del sistema.</p>';
   host.hidden=!getUserId()||!available;
   if(host.hidden)return;
   host.innerHTML='<button type="button" class="efg-notify-bell" data-efg-action="toggle" aria-label="Notificaciones'+(count?', '+count+' sin leer':'')+'" aria-expanded="'+open+'">🔔'+(count?'<span class="efg-notify-count">'+(count>99?'99+':count)+'</span>':'')+'</button>'+
     (open?'<section class="efg-notify-popup" role="region" aria-label="Bandeja de notificaciones"><div class="efg-notify-title"><strong>Notificaciones</strong><button type="button" data-efg-action="toggle" aria-label="Cerrar">✕</button></div>'+
-    (records.length?records.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'"><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR")+'</small></span><span>'+esc(n.body)+'</span></button>').join(""):'<p class="efg-notify-empty">Todavía no hay avisos.</p>')+'</section>':'');
+    listMarkup()+'</section>':'');
  }
  async function refresh(){
   const userId=getUserId();
@@ -34,7 +39,8 @@ export function createNotificationInbox({sb,getUserId,navigate}){
    available=false;paint();
   }finally{inFlight=false;}
  }
- host.addEventListener("click",async event=>{
+ document.addEventListener("click",async event=>{
+  if(!event.target.closest("#efgNotifications, #efgInboxFull"))return;
   const button=event.target.closest("button");if(!button)return;
   if(button.dataset.efgAction==="toggle"){open=!open;paint();return;}
   const n=records.find(x=>x.id===button.dataset.efgId);if(!n)return;
@@ -53,5 +59,5 @@ export function createNotificationInbox({sb,getUserId,navigate}){
  window.addEventListener("focus",()=>refresh());
  setInterval(()=>{if(!document.hidden&&getUserId())refresh();},25000);
  paint();
- return {refresh};
+ return {refresh,repaint:paint};
 }

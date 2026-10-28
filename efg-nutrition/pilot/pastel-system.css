@@ -398,3 +398,59 @@ html,body{background:var(--pastel-bg)!important}
   transition:none!important;transform:none!important;
  }
 }
+
+
+/* Fase 3 — Lenguaje tipográfico aprobado: títulos, acciones y accesos en mayúsculas.
+   Sólo aplica a textos de UI, no a alimentos, cifras, formularios ni explicaciones.
+   Espaciado discreto para mantener claridad y tamaños táctiles. */
+.pilot-layout :is(h1,h2,h3,h4,.pilot-title,.section-head>strong,.efg-pastel-day-head>strong,
+ .pilot-logo,.efg-mobile-brand-text strong,.nav-label,.efg-menu-card strong){
+ text-transform:uppercase;
+ letter-spacing:.022em;
+}
+.pilot-layout :is(button,.btn,[role="button"]){
+ text-transform:uppercase;
+ letter-spacing:.024em;
+}
+.pilot-layout :is(.efg-quick-add,.efg-pastel-guide,.efg-optional-panel)>summary{
+ text-transform:uppercase;
+ letter-spacing:.018em;
+}
+/* Etiquetas de macros y comidas sin truncamiento. Los nombres de comidas,
+   alimentos y campos descriptivos siguen legibles en tamaño de oración. */
+.pilot-layout :is(.efg-menu-card strong,.pilot-nav .nav-label,.efg-coach-banner h2,
+ .efg-admin-banner h2,.pilot-hero h2){
+ overflow-wrap:break-word;
+ hyphens:auto;
+}
+.pilot-layout .pilot-nav .nav-label{
+ font-size:clamp(9px,2.6vw,12px);
+ letter-spacing:.025em;
+ white-space:normal;
+}
+.pilot-layout .efg-menu-card strong{line-height:1.22}
+.pilot-layout button:focus-visible{
+ outline:3px solid #684393;
+ outline-offset:3px;
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,.efg-menu-card,
+ .efg-pastel-register,.efg-quick-add-grid button){
+ min-height:44px;
+}
+/* Indicadores del coach y administrador: sin blanco, aun sobre fondo rosa. */
+.pilot-layout .efg-coach-stat-grid>div{
+ background:var(--pastel-panel-alt)!important;
+ border:1px solid #DAC8E8!important;
+ color:var(--pastel-ink)!important;
+ box-shadow:0 4px 14px rgba(85,58,95,.06);
+}
+.pilot-layout .efg-coach-stat-grid>div:nth-child(2){background:var(--pastel-panel-soft)!important}
+.pilot-layout .efg-coach-stat-grid>div:nth-child(3){background:#E8D5F1!important}
+.pilot-layout .efg-coach-stat-grid strong{color:#332642!important}
+.pilot-layout .efg-coach-stat-grid span{color:#51465A!important}
+@media(max-width:400px){
+ .pilot-layout .efg-menu-card strong{font-size:clamp(11px,3.3vw,15px)}
+ .pilot-layout .efg-coach-banner h2,.pilot-layout .efg-admin-banner h2{
+  font-size:clamp(18px,5.4vw,24px);line-height:1.2;
+ }
+}

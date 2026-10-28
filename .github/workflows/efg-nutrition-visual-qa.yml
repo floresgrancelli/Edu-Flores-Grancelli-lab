@@ -2,7 +2,7 @@ name: EFG Nutrition Visual QA (isolated fixture)
 
 on:
   push:
-    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027, efg-nutrition-scientific-macros-20261027]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
@@ -26,6 +26,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
+          node efg-nutrition/tests/scientific-macros.mjs
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs

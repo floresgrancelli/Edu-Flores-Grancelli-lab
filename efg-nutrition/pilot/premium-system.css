@@ -485,3 +485,12 @@
 .efg-fit-photo-label{position:absolute;top:12px;left:12px;background:#fafff0e8;color:#275347;border-radius:18px;padding:7px 11px;font-weight:800;font-size:10px;line-height:1.1;box-shadow:0 2px 8px #112d2217}
 .efg-fit-photo-credit{position:absolute;bottom:0;left:0;right:0;display:block;max-width:100%;padding:20px 12px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff!important;font-size:10px;font-weight:700;line-height:1.3;text-decoration:none;text-shadow:0 1px 4px #1119;background:linear-gradient(transparent,#11251cc4)}
 .efg-fit-photo-credit:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+
+/* 2026-10 EFG scientific macros — professional alerts and responsive controls */
+.efg-macro-guidance{max-width:74ch;line-height:1.55;margin:4px 0 8px}
+.efg-macro-warnings{border-radius:16px;padding:14px 16px;border:1px solid #e5dcb7;background:#fbf9ee;color:#625b3a;margin:15px 0 9px;font-size:13px;line-height:1.5}
+.efg-macro-warnings strong{display:block;font-size:13px;margin-bottom:5px}
+.efg-macro-warnings ul{margin:4px 0 0;padding-left:18px}
+.efg-macro-warnings li+li{margin-top:4px}
+#previewRecompMode,#targetRecompMode{max-width:100%}
+@media(max-width:720px){.efg-macro-warnings{padding:12px 13px}.efg-macro-guidance{font-size:12px}}

@@ -34,6 +34,7 @@ jobs:
           node --check efg-nutrition/pilot/guided-day.js
           node --check efg-nutrition/pilot/food-catalog.js
           node --check efg-nutrition/pilot/food-expansion.js
+          node --check efg-nutrition/pilot/food-source-audit.js
           node --check efg-nutrition/pilot/notifications-ui.js
           node --check efg-nutrition/pilot/messages-ui.js
           node --check efg-nutrition/pilot/progress-charts.js

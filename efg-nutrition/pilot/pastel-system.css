@@ -487,3 +487,18 @@ html,body{background:var(--pastel-bg)!important}
  text-transform:uppercase;
  letter-spacing:.025em;
 }
+
+
+/* Últimos restos de blanco/verde heredados: sólo apariencia, no permisos. */
+.pilot-layout .pilot-logout{
+ background:var(--pastel-panel-soft)!important;
+ border:1px solid #D6C5E1!important;
+ color:#543C69!important;
+}
+.pilot-layout .pilot-nav button.navitem.active:before{
+ background:var(--pastel-lilac)!important;
+}
+.pilot-layout .efg-student-compact .avatar{
+ background:#E9D7F6!important;
+ color:#59427E!important;
+}

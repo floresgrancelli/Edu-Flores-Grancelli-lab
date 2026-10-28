@@ -2,7 +2,7 @@
 // Never equate this sample menu with the meals actually consumed.
 export const GUIDE_MEALS=Object.freeze([
  {slot:"desayuno",label:"Desayuno",items:[["egg",110],["bread",35],["cheese",35],["milk_skim",230]]},
- {slot:"media_manana",label:"Media mañana",items:[["yogurt",180],["apple",130]]},
+ {slot:"media_manana",label:"Media mañana",items:[["yogurt",200],["apple",130],["oats_raw",30]]},
  {slot:"almuerzo",label:"Almuerzo",items:[["chicken",175],["brownrice",185],["pumpkin",200],["oil",5]]},
  {slot:"merienda",label:"Merienda",items:[["bread",35],["cheese",35],["mandarin",140]]},
  {slot:"cena",label:"Cena",items:[["fish_hake",200],["potato",230],["rocket",75],["oil",5]]}
@@ -37,7 +37,7 @@ export function describeGuidedMeal(meal){
  if(meal?.slot==="desayuno"&&has("egg","bread","cheese","milk_skim"))
   return "Huevos revueltos o a la plancha con rocío vegetal, tostada integral con Port Salut light y café con leche descremada.";
  if(meal?.slot==="media_manana"&&has("yogurt","apple"))
-  return "Yogur descremado con manzana"+(ids.has("whey_powder")?" y proteína whey opcional.":".");
+  return "Yogur descremado con manzana"+(ids.has("oats_raw")?", avena":"")+(ids.has("whey_powder")?" y proteína whey opcional.":".");
  if(meal?.slot==="almuerzo"&&has("chicken","brownrice","pumpkin"))
   return "Pollo a la plancha con arroz integral cocido y calabaza. Condimentar con el aceite indicado.";
  if(meal?.slot==="merienda"&&has("bread","cheese","mandarin"))
@@ -52,11 +52,16 @@ const sum=(items)=>items.reduce((acc,item)=>{for(const k of NUTRIENTS)acc[k]+=(N
 // Practical defaults for the example, not universal or clinical limits.
 const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  id==="egg"?[55,165,55]:
- /^(chicken|beef|pork|fish_hake|fish_salmon|turkey_breast_cooked)$/.test(id)?[140,310,10]:
- /^(milk_skim|milk|milk_whole|milk_lactosefree)$/.test(id)?[150,350,10]:
- /^yogurt/.test(id)?[120,300,10]:
- /^(bread|bread_white|bread_rye)$/.test(id)?[20,75,5]:
- /^(cheese|ricotta_light|cottage_cheese)$/.test(id)?[20,85,5]:
+ /^(chicken|beef|pork|fish_hake|fish_salmon|turkey_breast_cooked)$/.test(id)?[160,300,10]:
+ /^(milk_skim|milk|milk_whole|milk_lactosefree)$/.test(id)?[180,350,10]:
+ /^yogurt/.test(id)?[150,300,10]:
+ /^(bread|bread_white|bread_rye)$/.test(id)?[20,50,5]:
+ /^(cheese|ricotta_light|cottage_cheese)$/.test(id)?[20,55,5]:
+ /^(apple|mandarin|banana|pear|orange)$/.test(id)?[80,220,10]:
+ id==="pumpkin"?[140,300,10]:
+ id==="rocket"?[40,160,5]:
+ /^(brownrice|rice|yamani_rice_cooked)$/.test(id)?[100,340,10]:
+ /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
 export const guidedPortionBounds=id=>bounds(id).slice(0,2);
 function source(food,qty){return {id:food.id,name:food.name,unit:food.unit||"g",qty,
@@ -73,7 +78,14 @@ export function guideDeviation(plan,goal){
 }
 function score(plan,goal){
  const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3};
- return Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
+ const macro=Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
+ // Encourage a plausible five-meal distribution rather than sending huge fruit portions to snacks.
+ const ratios={desayuno:.22,media_manana:.13,almuerzo:.29,merienda:.14,cena:.22};
+ const split=guideTotals(plan).perMeal.reduce((n,m)=>{
+  const expected=(ratios[m.slot]||.2)*Number(goal.kcal);
+  return n+Math.pow((m.totals.k-expected)/expected,2);
+ },0);
+ return macro+0.14*split;
 }
 function ensureGuideGoal(goal){
  const vals=[goal?.kcal,goal?.protein_g,goal?.carb_g,goal?.fat_g].map(Number);

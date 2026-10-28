@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS} from "./food-catalog.js?v=20261027-seafood-medallions-v1";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-wide1";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
@@ -870,7 +870,7 @@ function filterPlannerFoods(input){
  const available=allPlannerFoods(foods,allowedFoods()); // Buscar sobre todo el catálogo.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
-  const name=plannerNormalizeQuery(f.name+" "+aliases);
+  const name=plannerNormalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
  });
  const hasQuery=words.length>0;
@@ -1011,7 +1011,7 @@ function openMealDialog(slot){
  state.activeMeal=slot;state.lastEditedMeal=slot;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
- '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: manzana, huevo, arroz…" autocomplete="off"></div>'+
+ '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
  '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
@@ -1028,7 +1028,7 @@ function filterMealFoods(){
  const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
  const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
-  const name=normalizeQuery(f.name+" "+aliases);
+  const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
  });
  selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
@@ -1096,7 +1096,7 @@ function coachFoodChoices(p,consent){
   if(!items.length)return "";
   return '<details class="coach-food-group" data-foodgroup="'+id+'" '+(index===0?'open':'')+'><summary><span>'+escapeHTML(title)+'</span><small>'+items.length+' opciones</small></summary>'+
   '<div class="coach-food-bulk"><button type="button" class="btn small light" data-foodbulk="'+id+'" data-foodchecked="yes">Marcar categoría</button><button type="button" class="btn small ghost" data-foodbulk="'+id+'" data-foodchecked="no">Desmarcar</button></div>'+
-  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(f.name.toLocaleLowerCase("es-AR"))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div></details>';
+  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(plannerNormalizeQuery(foodSearchText(f)))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div></details>';
  }).join("");
  return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3>'+
  '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
@@ -1106,7 +1106,7 @@ function coachFoodChoices(p,consent){
 function filterCoachFoodLibrary(){
  const input=document.getElementById("coachFoodSearch");
  if(!input)return;
- const term=input.value.trim().toLocaleLowerCase("es-AR");
+ const term=plannerNormalizeQuery(input.value.trim());
  for(const group of root.querySelectorAll(".coach-food-group")){
   let visible=0;
   for(const label of group.querySelectorAll("label[data-foodname]")){

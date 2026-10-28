@@ -157,6 +157,26 @@ try{
      await page.locator('button[data-act="previewMacros"]').click();
      if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
    }
+   if(role==="student"&&width===390&&dest==="home"){
+    // Regression for the food-catalog expansion on mobile without live Supabase writes.
+    await page.locator(".efg-quick-add > summary").click();
+    await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
+    await page.locator("#mealFoodSearch").fill("sushi");
+    const sushi=await page.locator("#mealEditorFood option").allTextContents();
+    if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
+    await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
+    const unit=page.locator("#mealEntryMode");
+    if((await unit.inputValue())!=="units")pageReport.errors.push("Sushi is not defaulting to unit/piece");
+    const hint=await page.locator("#mealEditorHint").textContent();
+    if(!hint.includes("pieza")||!hint.includes("28 g"))pageReport.errors.push("Sushi piece grams are not disclosed");
+    await page.locator("#mealFoodSearch").fill("zapallo");
+    const squash=await page.locator("#mealEditorFood option").allTextContents();
+    if(!squash.some(t=>t.includes("Zapallo anco")))pageReport.errors.push("Zapallo synonyms not searchable");
+    await page.locator("#mealFoodSearch").fill("gomitas");
+    const sweets=await page.locator("#mealEditorFood option").allTextContents();
+    if(!sweets.some(t=>t.includes("Gomitas")))pageReport.errors.push("Gummy candy foods missing");
+    await page.locator('[data-act="closeMeal"]').click();
+   }
    if(role==="student"&&dest==="recipes"){
      if((await page.locator(".efg-fit-card").count())!==12)pageReport.errors.push("Fit recipe library should show 12 cards");
      if(!(await page.getByText("Budín de avena y manzana de Edu",{exact:true}).count()))pageReport.errors.push("Edu budin missing");
@@ -233,8 +253,8 @@ try{
   if(role==="coach"&&width===390){
    // Simulate a deployment. The latest HTML differs, but no real GitHub or Render calls.
    const freshHtml=(await page.locator("html").evaluate(el=>el.outerHTML))
-    .replace('content="20261028-version1"','content="20261028-version2"')
-    .replace('./pilot.js?v=20261028-version1','./pilot.js?v=20261028-version2');
+    .replace(/(<meta name="efg-build" content=")[^"]+(")/,'$1QA-new-build$2')
+    .replace(/\.\/pilot\.js\?v=[^"']+/,'./pilot.js?v=QA-new-build');
    await page.route("**/pilot/index.html?efg_version_check=*",route=>
     route.fulfill({status:200,contentType:"text/html",body:"<!doctype html>"+freshHtml}));
    await page.evaluate(async()=>{

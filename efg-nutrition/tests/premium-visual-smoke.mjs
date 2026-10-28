@@ -147,6 +147,26 @@ try{
    if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
    if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
    if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
+   const actionAudit=await page.evaluate(()=>{
+     const rgb=s=>{const n=(s.match(/[\\d.]+/g)||[]).slice(0,3).map(Number);return n.length===3?n:null;};
+     const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
+     const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
+     const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};
+     const selector=".efg-pastel-register,.student-shortcuts button,.efg-quick-more button,.efg-menu-card,.efg-quick-add-grid button";
+     return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
+       .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
+         return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
+           color:cs.color,background:cs.backgroundColor,height:el.getBoundingClientRect().height,
+           ratio:fg&&bg?contrast(fg,bg):0};});
+   });
+   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)"]);
+   for(const action of actionAudit){
+     if(!vivid.has(action.background))pageReport.errors.push("Quick action has non-vivid color: "+action.text+" "+action.background);
+     if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
+     if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
+   }
+   if(role==="student"&&dest==="home"&&actionAudit.filter(x=>x.text.includes("Registrar alimento")).length!==1)
+     pageReport.errors.push("Main Register CTA needs vivid coral and accessible size");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));

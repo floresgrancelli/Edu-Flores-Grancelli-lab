@@ -442,3 +442,10 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .efg-guide-note textarea{display:block;width:100%;margin-top:7px;border-radius:8px;border:1px solid #cbded2;padding:10px}
 .efg-guide-student details{margin:12px 0}.efg-guide-student summary{color:#235b41;font-weight:800;cursor:pointer}
 @media(max-width:650px){.efg-guide-grid{grid-template-columns:1fr}.efg-guide-shell,.efg-guide-student,.efg-guide-baseline{padding:13px}}
+
+.efg-guide-food-name{flex:1;min-width:0}
+.efg-guide-select-label{display:block;font-size:.75rem;color:#426d55;font-weight:700}
+.efg-guide-select-label select{display:block;width:100%;max-width:270px;margin:5px 0 3px;padding:7px 8px;border:1px solid #cde2d2;background:white;border-radius:9px;color:#184a35;font-size:.85rem}
+.efg-guide-food{align-items:flex-start}
+.efg-guide-food>label{white-space:nowrap;font-size:.77rem}
+.efg-guide-food>label input{background:#fff}

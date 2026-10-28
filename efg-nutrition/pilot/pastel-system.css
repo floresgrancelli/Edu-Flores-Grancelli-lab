@@ -132,7 +132,7 @@ html,body{background:#fff9f6}
  min-height:48px;cursor:pointer}
 .efg-pastel-day .efg-pastel-register:focus-visible{outline:3px solid #8654c5;outline-offset:3px}
 .efg-pastel-day .efg-pastel-register:hover{background:#383744}
-.pilot-layout .efg-role-student .student-meal-card{box-shadow:none;border:1px solid #ece8ed;border-radius:17px}
+.pilot-layout.efg-role-student .student-meal-card{box-shadow:none;border:1px solid #ece8ed;border-radius:17px}
 .pilot-layout .student-meal-card .pilot-pill{background:#faf4ff}
 .pilot-layout .student-meal-heading strong{color:#242733}
 
@@ -163,4 +163,23 @@ html,body{background:#fff9f6}
 }
 @media (prefers-reduced-motion:reduce){
  .pilot-layout .efg-pastel-day *{animation:none!important;transition:none!important}
+}
+
+/* Señales secundarias discretas para que el anillo siga siendo protagonista. */
+.pilot-layout .efg-pastel-motivation{padding:15px 18px;margin:12px 0 16px}
+.pilot-layout .efg-pastel-motivation .eyebrow{font-size:10px;color:#8c7095}
+.pilot-layout .efg-pastel-motivation h2{font-size:17px;line-height:1.3;margin:6px 0;color:#272735}
+.pilot-layout .efg-pastel-motivation p{font-size:12px;line-height:1.5;color:#686879;margin:4px 0 12px}
+.pilot-layout .efg-pastel-motivation .btn{min-height:40px;font-size:12px}
+.pilot-layout .efg-pastel-guide{background:#fff;border:1px solid #eee2f3;
+ border-radius:18px;margin:10px 0;padding:0 13px;box-shadow:var(--pastel-shadow)}
+.pilot-layout .efg-pastel-guide>summary{cursor:pointer;font-weight:750;font-size:13px;
+ padding:16px 4px;min-height:48px;color:#544478}
+.pilot-layout .efg-pastel-guide .efg-guide-student{margin:0 0 12px;box-shadow:none}
+.pilot-layout .student-meal-card[open]{background:#fffafd}
+.pilot-layout .student-meal-heading{color:#242733}
+.pilot-layout .student-daily-layout .card>.section-head{margin-bottom:8px}
+@media(max-width:720px){
+ .pilot-layout .efg-pastel-motivation{padding:13px 15px}
+ .pilot-layout .efg-pastel-motivation h2{font-size:15px}
 }

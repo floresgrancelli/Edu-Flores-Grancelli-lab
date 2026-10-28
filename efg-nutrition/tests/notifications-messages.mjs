@@ -43,7 +43,7 @@ assert.match(app,/versionCheckCard\(\)/,"Update check accessible to user");
 assert.match(app,/void versionNotice\.check\(\{force:true\}\);\s*const user=await sb\.auth\.getUser\(\)/,"Version check must start before long backend sync");
 assert.match(versions,/getStatus:\(\)=>/,"Version checker exposes checked, error and release status");
 assert.match(versions,/if\(reopen&&latest\)dismissed=null/,"Explicit recheck opens a postponed release");
-assert.match(html,/20261028-diag1/,"Release detector diagnostics must invalidate Safari cache");
+assert.match(html,/20261028-nutrition-audit2/,"Release must invalidate Safari cache");
 
 console.log("PASS: inbox + messages UI, no-refresh refresh, SQL RLS guards, Friday scheduling, dedicated tabs.");
 console.log("LIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific send/read, Friday cron, two devices.");

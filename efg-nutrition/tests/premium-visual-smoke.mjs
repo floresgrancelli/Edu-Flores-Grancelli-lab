@@ -160,7 +160,7 @@ try{
    if(role==="student"&&width===390&&dest==="home"){
     // Regression for the food-catalog expansion on mobile without live Supabase writes.
     await page.locator(".efg-quick-add > summary").click();
-    await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').click();
+    await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.includes("Maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");

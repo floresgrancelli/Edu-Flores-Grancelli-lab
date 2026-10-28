@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {GUIDE_MEALS,generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "../pilot/guided-day.js";
+import {GUIDE_MEALS,generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal,guidedPortionBounds} from "../pilot/guided-day.js";
 const data={
 egg:[1.48,.124,.0096,.0996],bread:[2.47,.13,.41,.042],milk_skim:[.35,.034,.05,.001],banana:[.89,.011,.23,.003],
 yogurt:[.50,.042,.081,.0009],apple:[.52,.003,.138,.002],chicken:[1.65,.31,0,.036],brownrice:[1.23,.027,.256,.01],
@@ -7,6 +7,17 @@ pumpkin:[.34,.01,.08,.001],oil:[8.84,0,0,1],cheese:[2.17,.27,.017,.12],mandarin:
 fish_hake:[.82,.178,0,.007],potato:[.86,.0171,.2001,.001],rocket:[.25,.026,.037,.007],whey_powder:[3.9,.83,.07,.025],rice:[1.29,.0267,.2799,.0028],bread_white:[2.65,.09,.49,.032]
 };
 data.oats_raw=[3.89,.169,.663,.069];data.coffee_black=[.001,0,0,0];
+Object.assign(data,{
+ egg_white:[.55,.107,.0236,0],
+ ham_cooked:[1.25,.18,.02,.05],
+ turkey_breast_cooked:[1.35,.29,0,.017],
+ yogurt_greek_light:[.58,.10,.04,.004],
+ yogurt_high_protein:[.69,.10,.05,.01],
+ cottage_cheese:[.95,.11,.034,.043],
+ ricotta_light:[1.3,.11,.04,.08],
+ tofu_firm:[1.19,.12,.02,.07],
+ tempeh:[2.15,.19,.09,.11]
+});
 const catalog=Object.entries(data).map(([id,[k,p,c,f]])=>({id,name:id,unit:id==="milk_skim"?"ml":"g",k,p,c,f,fi:0}));
 const goal={kcal:2250,protein_g:155,carb_g:250,fat_g:70};
 for(const includeWhey of [false,true]){
@@ -40,6 +51,24 @@ assert.match(baseline.warning,/no el consumo habitual/);
 console.log("PASS: five-meal educational guide, bounded portions, optional whey, assessment, sample intake, no auto-prescribing.");
 
 const original=generateGuidedDay(catalog,goal);
+const exampleEgg=original.meals[0].items.find(x=>x.id==="egg");
+assert.equal(exampleEgg.qty,110,"Default breakfast must remain two eggs, not three");
+assert.ok(guidedFoodAlternatives("egg",catalog).includes("ham_cooked"),"Ham replacement must be offered");
+for(const alternative of ["egg_white","ham_cooked","turkey_breast_cooked","yogurt_greek_light","yogurt_high_protein","cottage_cheese","ricotta_light","tofu_firm","tempeh","whey_powder"]){
+ const choice=swapGuidedFood(original,"desayuno",0,alternative,catalog);
+ const result=rebalanceGuidedDay(choice,goal);
+ assert.equal(result.meals[0].items[0].id,alternative,"Must retain coach choice");
+ assert.ok(result.meals[0].items[0].locked,"Coach food replacement must stay locked");
+ assert.equal(result.meals[0].items[0].qty,choice.meals[0].items[0].qty,"Rebalancing cannot overwrite coach protein choice");
+ assert.ok(guidedPortionBounds(alternative)[0]<=result.meals[0].items[0].qty,"No too-small breakfast portion");
+ assert.doesNotMatch(describeGuidedMeal(result.meals[0]),/huevos revueltos/i,"Description must not retain eggs after replacement");
+ assert.doesNotThrow(()=>validateGuidedDay(result,goal),"Protein swap must produce valid guide: "+alternative);
+}
+const hamDay=swapGuidedFood(original,"desayuno",0,"ham_cooked",catalog);
+assert.match(describeGuidedMeal(hamDay.meals[0]),/jamón cocido/);
+assert.match(describeGuidedMeal(hamDay.meals[0]),/café con leche/);
+assert.ok(hamDay.meals[0].items[0].qty>=35&&hamDay.meals[0].items[0].qty<=150);
+
 assert.ok(guidedFoodAlternatives("brownrice",catalog).includes("rice"),"Rice alternative should exist");
 const swapped=swapGuidedFood(original,"almuerzo",1,"rice",catalog);
 assert.equal(original.meals[2].items[1].id,"brownrice","Swaps cannot mutate original");

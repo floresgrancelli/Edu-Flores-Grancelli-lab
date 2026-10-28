@@ -6,6 +6,7 @@ import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
+import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -1146,29 +1147,19 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
 }
 
-function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.8){
- if(!(age>=18&&age<=90&&height>=120&&height<=220&&weight>=35&&weight<=300&&activity>=1.2&&activity<=1.75))throw new Error("Completá edad, altura, peso y actividad de un adulto.");
- if(!["male","female"].includes(sex)||!["mifflin","tenhaaf"].includes(model)||!["fat_loss","recomp","muscle_gain"].includes(goal))throw new Error("Seleccioná una ecuación, sexo de cálculo y objetivo válidos.");
- const proteinFactor=proteinPerKg===null?(goal==="fat_loss"?2:1.8):Number(proteinPerKg);
- const fatFactor=Number(fatPerKg);
- if(!Number.isFinite(proteinFactor)||proteinFactor<1.6||proteinFactor>2.2||!Number.isFinite(fatFactor)||fatFactor<.6||fatFactor>1.0)throw new Error("Usá de 1,6 a 2,2 g/kg de proteína y de 0,6 a 1,0 g/kg de grasas como opciones iniciales; revisá con un profesional.");
- const mifflin=10*weight+6.25*height-5*age+(sex==="male"?5:-161);
- const tenHaaf=29.279+11.936*weight+587.728*(height/100)-8.129*age+(sex==="male"?191.027:0);
- const rmr=model==="tenhaaf"?tenHaaf:mifflin;
- const maintenance=Math.round(rmr*activity);
- const coef={fat_loss:.90,recomp:1,muscle_gain:1.07}[goal];
- const kcal=Math.round(maintenance*coef/10)*10;
- const protein=Math.round(weight*proteinFactor);
- const fat=Math.round(weight*fatFactor);
- const carbs=Math.round((kcal-protein*4-fat*9)/4);
- if(kcal<1400||carbs<0)throw new Error("El resultado necesita valoración individual: las calorías no permiten distribuir los macros seleccionados.");
- return {goal,kcal,protein,carbs,fat,fiber:Math.round(kcal*.014),maintenance,rmr,model,proteinFactor,fatFactor,activity};
+function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
+ return estimateMacros({age,height,weight,activity,sex,goal,model,proteinPerKg,fatPerKg,recompMode});
 }
+const activityOptions=(selected=1.5)=>ACTIVITY_LEVELS.map(x=>'<option value="'+x.value+'" '+(Number(selected)===x.value?"selected":"")+'>'+escapeHTML(x.label)+'</option>').join("");
+const recompOptions=(selected="deficit05")=>RECOMP_STRATEGIES.map(x=>'<option value="'+x.id+'" '+(x.id===selected?"selected":"")+'>'+escapeHTML(x.label)+'</option>').join("");
+const scienceWarnings=r=>r.warnings.length?'<div class="efg-macro-warnings" role="note"><strong>Revisá antes de aprobar:</strong><ul>'+r.warnings.map(w=>'<li>'+escapeHTML(w)+'</li>').join("")+'</ul></div>':"";
+const activityHint='<p class="pilot-hint efg-macro-guidance">El gasto depende del movimiento durante toda la jornada: caminatas, trabajo y entrenamiento. No selecciones actividad solo por cantidad de sesiones. Verificá tendencia de peso y rendimiento durante 2–3 semanas.</p>';
+const recompHint='<p class="pilot-hint efg-macro-guidance">Solo se aplica a recomposición. Mantenimiento (0%), déficit suave (−5%) o moderado (−10%). Son estimaciones, no garantías de resultados.</p>';
 const equationOptions=(model="mifflin")=>'<option value="mifflin" '+(model==="mifflin"?'selected':'')+'>Mifflin–St Jeor · población general</option><option value="tenhaaf" '+(model==="tenhaaf"?'selected':'')+'>Ten Haaf · perfil deportivo entrenado</option>';
 const proteinOptions=(p="auto")=>[['auto','Automático · según objetivo'],['1.6','1,6 g/kg'],['1.8','1,8 g/kg'],['2.0','2,0 g/kg'],['2.2','2,2 g/kg']].map(([v,l])=>'<option value="'+v+'" '+(String(p)===v?'selected':'')+'>'+l+'</option>').join('');
-const fatOptions=(f=".8")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/kg'],['1','1,0 g/kg']].map(([v,l])=>'<option value="'+v+'" '+(Number(f)===Number(v)?'selected':'')+'>'+l+'</option>').join('');
+const fatOptions=(f=".9")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/kg'],['1','1,0 g/kg']].map(([v,l])=>'<option value="'+v+'" '+(Number(f)===Number(v)?'selected':'')+'>'+l+'</option>').join('');
 function macroPlayground(){
- const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.8};
+ const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.9,recompMode:"deficit05"};
  const fields=[["previewAge","Edad",i.age,18,90],["previewHeight","Altura (cm)",i.height,120,220],["previewWeight","Peso (kg)",i.weight,35,300]];
  const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label>'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
  '<div class="field-row"><div class="field"><label>Ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+

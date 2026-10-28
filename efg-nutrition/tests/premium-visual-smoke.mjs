@@ -270,6 +270,22 @@ try{
      await page.locator('[data-progress-range="7"]').click();
    }
    if(role==="student"&&dest==="home"){
+    const ring=page.locator(".efg-pastel-ring");
+    if((await ring.count())!==1)pageReport.errors.push("Phase 3 ring missing");
+    else{
+     const ringLabel=await ring.getAttribute("aria-label")||"";
+     if(!ringLabel.includes("560")||!ringLabel.includes("2.100"))pageReport.errors.push("Ring does not reflect REAL diary: "+ringLabel);
+     const rendered=await page.locator(".efg-pastel-day").innerText();
+     if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
+     if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");
+     if(rendered.includes("6.200")||rendered.includes("1,5 L"))pageReport.errors.push("Fake health metrics detected");
+     const openButton=page.locator(".efg-pastel-register");
+     await openButton.click();
+     if(!(await page.locator("#studentQuickAdd").evaluate(x=>x.open)))pageReport.errors.push("Register button failed to open existing selector");
+     await page.locator("#studentQuickAdd").evaluate(x=>x.open=false);
+    }
+   }
+   if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
     const macroPositions=await page.locator(".efg-student-macros > .metric-card").evaluateAll(cards=>cards.map(x=>({x:x.getBoundingClientRect().x,y:x.getBoundingClientRect().y,width:x.getBoundingClientRect().width})));

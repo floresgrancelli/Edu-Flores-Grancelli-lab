@@ -67,6 +67,31 @@ export const USER_PHOTO_LABEL_FOODS=Object.freeze([
    sourceType:"generic_estimate",
    validationStatus:"generico_pendiente",
    source:"COMPOSICIÓN CONFIRMADA EN FOTO DEL FRASCO: NUECES, ALMENDRAS, AVELLANAS Y CASTAÑAS DE CAJÚ. No incluye maní en la lista indicada. PROPORCIONES NO INFORMADAS: estimación nutricional usando 25% EN PESO DE CADA INGREDIENTE, con valores genéricos de la biblioteca EFG. Por 100 g de mezcla supuesta: 647 kcal, proteínas 17,25 g, hidratos 20,75 g, grasas 55 g, fibra 8,2 g. NO es un valor analítico ni un etiquetado nutricional de esta mezcla a granel. Si cambian las proporciones, cambian sus macros. Porción sugerida 25 g editable; no figura un tamaño de porción en el frasco."
+ }),
+ // Entrada 3 — foto de naranja azucarada a granel (tiras de cáscara de
+ // naranja confitada aparentemente cubiertas de azúcar).
+ // La foto sólo muestra el nombre y el precio ($2.500), NO peso ni rótulo.
+ // Proxy nutricional de una cáscara de naranja confitada comparable en la
+ // base suiza FSVO V7.1, documentada en https://datafood.ch/en/food/candied-orange-peel/
+ // La cantidad extra de azúcar y humedad de ESTE producto pueden variar mucho.
+ Object.freeze({
+   id:"naranja_azucarada_cascara_confitada_granel",
+   name:"Naranja azucarada — cáscara de naranja confitada en tiras (a granel)",
+   category:"dessert",
+   unit:"g",
+   productType:"Naranja azucarada a granel, probablemente cáscara confitada en tiras",
+   packagePriceARS:2500,
+   packageGrams:null,
+   servingGrams:25,
+   servingIsEstimated:true,
+   k:306/100,
+   p:0.4/100,
+   c:74.3/100,
+   f:0.3/100,
+   fi:2.3/100,
+   sourceType:"generic_estimate",
+   validationStatus:"generico_pendiente",
+   source:"FOTO DEL USUARIO (28/10/2026): rótulo manuscrito 'NARANJA AZUCARADA', precio $2.500 por paquete, PESO NO INDICADO y SIN TABLA NUTRICIONAL. Visualmente parecen tiras de cáscara de naranja confitada recubiertas de azúcar; descripción aproximada, NO ingredientes verificados. ESTIMACIÓN POR PRODUCTO SIMILAR, NO RÓTULO DEL ENVASE: referencia suiza FSVO V7.1 para 'candied orange peel' en https://datafood.ch/en/food/candied-orange-peel/ (100 g: 306 kcal; proteínas 0,4 g, hidratos 74,3 g, grasas 0,3 g, fibra 2,3 g). Puede diferir considerablemente por humedad y cantidad de azúcar incorporada. Porción 25 g sugerida editable, NO declarada. El precio $2.500 es del paquete, NO costo por 100 g al desconocerse el peso."
  })
 ]);
 export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
@@ -75,5 +100,8 @@ export const USER_PHOTO_LABEL_PORTIONS=Object.freeze({
  }),
  mi_mix_nueces_almendras_avellanas_caju:Object.freeze({
    grams:25,label:"porción sugerida de mix (estimación, 25 g)"
+ }),
+ naranja_azucarada_cascara_confitada_granel:Object.freeze({
+   grams:25,label:"porción sugerida (25 g, NO indicada en envase)"
  })
 });

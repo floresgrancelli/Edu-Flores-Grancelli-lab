@@ -479,3 +479,11 @@ html,body{background:var(--pastel-bg)!important}
  width:100%;
  max-width:none;
 }
+
+
+/* Último ajuste tipográfico: cada comida es un encabezado corto, no un dato de usuario. */
+.pilot-layout .student-meal-heading strong,
+.pilot-layout .efg-pastel-macro-info>span{
+ text-transform:uppercase;
+ letter-spacing:.025em;
+}

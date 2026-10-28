@@ -16,15 +16,16 @@ ALTER TABLE public.efg_food_plans
    AND guided_plan_approved_at IS NOT NULL
   )
  );
--- A goal ID must belong to the same student's approved-goal history.
+-- A goal ID must belong to this student's approved-goal history, and the caller must be the coach.
 CREATE OR REPLACE FUNCTION efg_private.verify_guide_goal()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
 AS $$
 BEGIN
- IF NEW.guided_plan IS NOT NULL AND NOT EXISTS (
+ IF NEW.guided_plan IS NOT NULL AND (
+   auth.uid() IS NULL OR NEW.coach_id IS DISTINCT FROM auth.uid() OR NOT EXISTS (
    SELECT 1 FROM public.efg_goals g WHERE g.id=NEW.guided_goal_id
      AND g.student_id=NEW.student_id AND g.approved_by=NEW.coach_id
- ) THEN RAISE EXCEPTION 'Guide goal must belong to this student and coach'; END IF;
+ )) THEN RAISE EXCEPTION 'Guide goal must belong to this student and coach'; END IF;
  RETURN NEW;
 END;
 $$;

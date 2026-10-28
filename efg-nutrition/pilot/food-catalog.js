@@ -1,4 +1,4 @@
-import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=20261028-phase2src1";
+import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=20261028-phase2src2";
 // EFG Nutrition - biblioteca genérica inicial, no equivalente a un etiquetado de marca.
 // Macros aproximados por 100 g de alimento comestible (o 100 ml de líquidos).
 // No se deben utilizar como prescripción ni sustituir la evaluación profesional.

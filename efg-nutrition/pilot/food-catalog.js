@@ -163,6 +163,7 @@ export const FOOD_SEARCH_ALIASES=Object.freeze({
  mi_mix_nueces_almendras_avellanas_caju:["mi mix","mix de frutos secos","mix de frutas secas","nueces almendras avellanas caju","castañas de cajú","nueces sin mani"],
  naranja_azucarada_cascara_confitada_granel:["naranja azucarada","naranja confitada","cascara de naranja confitada","cascaritas de naranja azucaradas","naranja abrillantada","naranja escarchada"],
  quinoa_inflada_pop_granel:["quinoa pop","quinoa inflada","quinoa expandida","quinoa soplada","quinua inflada","quinoa puff","quinua pop"],
+ pochoclos_dulces_acaramelados_genericos:["pochoclos dulces","pochoclo dulce","pochoclos acaramelados","pochoclos caramelizados","palomitas dulces","popcorn caramel","popcorn dulce","maiz inflado dulce"],
  ...EXPANDED_ALIASES
 });
 export function foodSearchText(food){

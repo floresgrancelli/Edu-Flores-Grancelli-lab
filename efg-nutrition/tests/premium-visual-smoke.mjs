@@ -159,6 +159,7 @@ try{
    }
    if(role==="student"&&width===390&&dest==="home"){
     // Regression for the food-catalog expansion on mobile without live Supabase writes.
+    await page.locator(".efg-quick-add > summary").click();
     await page.locator('[data-setmeal="almuerzo"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();

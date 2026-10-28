@@ -160,6 +160,7 @@ Object.assign(FOOD_UNIT_PORTIONS,{
 export const FOOD_SEARCH_ALIASES=Object.freeze({
  pumpkin:["zapallo","calabaza","zapallo anco","anco hervido"],
  colonial_chocolate_organico_80_cacao:["colonial","chocolate 80%","chocolate organico","chocolate amargo","chocolate organico colonial"],
+ mi_mix_nueces_almendras_avellanas_caju:["mi mix","mix de frutos secos","mix de frutas secas","nueces almendras avellanas caju","castañas de cajú","nueces sin mani"],
  ...EXPANDED_ALIASES
 });
 export function foodSearchText(food){

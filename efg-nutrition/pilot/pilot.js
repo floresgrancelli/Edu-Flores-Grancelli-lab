@@ -1,7 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-phase2src4";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-regional2";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
+import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
@@ -62,6 +63,7 @@ const foods=[
 // Solo cambia modelos nutricionales de 4 tartas en memoria; nunca muta diarios guardados.
 // No se confunde una preparación supuesta con un dato analítico o etiqueta.
 applyRecipeModels(foods);
+applyRegionalCompositeModels(foods);
 // Origen visible: NO atribuir análisis USDA a los promedios EFG ni tratar un rótulo como una medición propia.
 for(const food of foods){
  food.validationStatus ||= food.id==="cake"?"receta_estimado":food.sourceId?"referencia_pendiente_confirmacion":"generico_pendiente";
@@ -73,6 +75,7 @@ const FOOD_PROVENANCE_LABELS={
  tabla_parcial_fibra_pendiente:"Referencia USDA parcial: fibra todavía estimada",
  tabla_convertida_densidad:"USDA convertido de gramos a mililitros; densidad estimada",
  rotulo_fotografiado:"Datos de etiqueta comercial fotografiada",
+ rotulo_web_fabricante:"Tabla nutricional web del fabricante; contrastar envase vigente",
  receta_estimado:"Receta o preparación estimada",
  referencia_pendiente_confirmacion:"Referencia documental pendiente de cotejo oficial"
 };

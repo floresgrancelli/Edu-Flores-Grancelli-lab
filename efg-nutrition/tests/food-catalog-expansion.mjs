@@ -64,7 +64,7 @@ for(const [id,grams] of [["sushi_maki_salmon",28],["sushi_nigiri_salmon",35],["p
  assert.ok(f.k*grams>=.01);
 }
 assert.ok(pilot.includes("foodSearchText(f)"),"Student/coach/planner must use shared synonyms");
-assert.ok(index.includes("20261028-diag1"),"Release version must be cache-busted for iPhone");
-assert.equal(VERIFIED_SOURCE_COUNT,8);
+assert.ok(index.includes("20261028-nutrition-audit2"),"Release version must be cache-busted for iPhone");
+assert.equal(VERIFIED_SOURCE_COUNT,12);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));
 console.log("PASS expanded catalogue: "+EXPANDED_COUNT+" new foods, "+EXTRA_FOODS.length+" existing extension foods, units, source flags, synonyms and numeric macros");

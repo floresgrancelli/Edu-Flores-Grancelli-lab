@@ -289,9 +289,10 @@ try{
    if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
-    const macroPositions=await page.locator(".efg-student-macros > .metric-card").evaluateAll(cards=>cards.map(x=>({x:x.getBoundingClientRect().x,y:x.getBoundingClientRect().y,width:x.getBoundingClientRect().width})));
-    if(macroPositions.length!==3 || Math.max(...macroPositions.map(x=>x.y))-Math.min(...macroPositions.map(x=>x.y))>5)pageReport.errors.push("The three macro cards must occupy the same row");
-    if(macroPositions.some(x=>x.width<75))pageReport.errors.push("Macro card too narrow for legible quantities");
+    const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
+    if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
+    if(macroPositions.some(x=>x.width<85||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
+    if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     const shortcut=page.locator('button[data-scrollto="studentMeals"]');
     await shortcut.click();
     const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);

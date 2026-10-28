@@ -175,6 +175,16 @@ try{
     await page.locator("#mealFoodSearch").fill("gomitas");
     const sweets=await page.locator("#mealEditorFood option").allTextContents();
     if(!sweets.some(t=>t.includes("Gomitas")))pageReport.errors.push("Gummy candy foods missing");
+    await page.locator("#mealFoodSearch").fill("helado chocolate");
+    await page.locator("#mealEditorFood").selectOption("helado_chocolate");
+    const verifiedHint=await page.locator("#mealEditorHint").textContent();
+    if(!verifiedHint.includes("USDA")||!verifiedHint.includes("FDC 168809"))
+      pageReport.errors.push("Audited chocolate ice cream has no source trace on student mobile");
+    await page.locator("#mealFoodSearch").fill("tarta atun");
+    await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
+    const recipeHint=await page.locator("#mealEditorHint").textContent();
+    if(!recipeHint.includes("Estimación genérica"))
+      pageReport.errors.push("Variable tuna pie must remain identified as an estimate");
     await page.locator('[data-act="closeMeal"]').click();
    }
    if(role==="student"&&dest==="recipes"){

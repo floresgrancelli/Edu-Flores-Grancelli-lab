@@ -1,3 +1,4 @@
+import {VERIFIED_FOODS,VERIFIED_SOURCE_COUNT} from "./food-source-audit.js?v=20261028-phase2src1";
 // EFG Nutrition Pro | 2026-10-28 | ampliación regional y alimentos de disfrute.
 // Macros POR 100 g de porción comestible. Son ESTIMACIONES GENÉRICAS
 // orientativas, NO valores analíticos individuales, etiquetas verificadas ni
@@ -11,8 +12,11 @@ export const EXPANDED_FOODS=ROWS.map(([id,name,category,p,c,f,fi,grams,label])=>
  p:p/100,c:c/100,f:f/100,fi:fi/100,
  sourceType:"generic_estimate",validationStatus:"generico_pendiente",
  source:"Estimación de composición tipo por 100 g: receta o producto genérico, NO corresponde a una etiqueta verificada. La masa, relleno, aceite, azúcar y tamaño de porción cambian los macros. Ajustar gramos reales o usar tabla/rotulado del producto concreto. Pendiente de cotejar alimento por alimento con USDA FoodData Central, Argenfoods, receta pesada o etiqueta del producto concreto.",
- ...(grams?{servingGrams:grams}: {})
+ ...(grams?{servingGrams:grams}: {}),
+ ...VERIFIED_FOODS[id]
 }));
 export const EXPANDED_PORTIONS=Object.fromEntries(ROWS.filter(r=>r[7]>0).map(r=>[r[0],{grams:r[7],label:r[8]}]));
 export const EXPANDED_ALIASES=Object.fromEntries(ROWS.filter(r=>r[9].length).map(r=>[r[0],r[9]]));
 export const EXPANDED_COUNT=ROWS.length;
+export {VERIFIED_SOURCE_COUNT};
+

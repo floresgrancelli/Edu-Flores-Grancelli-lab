@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {EXTRA_FOODS,FOOD_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText,EXPANDED_COUNT} from "../pilot/food-catalog.js";
-import {EXPANDED_FOODS,EXPANDED_ALIASES} from "../pilot/food-expansion.js";
+import {EXPANDED_FOODS,EXPANDED_ALIASES,VERIFIED_SOURCE_COUNT} from "../pilot/food-expansion.js";
+import {VERIFIED_FOODS} from "../pilot/food-source-audit.js";
 const pilot=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
 const index=readFileSync("efg-nutrition/pilot/index.html","utf8");
 const normalize=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -17,9 +18,16 @@ for(const item of EXPANDED_FOODS){
   assert.ok(Number.isFinite(item[k])&&item[k]>=0,"Invalid nutrient "+k+" "+item.id);
  }
  assert.ok(item.k>0,"No calorie-free invented food: "+item.id);
- assert.equal(item.sourceType,"generic_estimate","Estimates must never impersonate analysed samples: "+item.id);
- assert.equal(item.validationStatus,"generico_pendiente","No fabricated verified FDC ID: "+item.id);
- assert.match(item.source,/Estimación/);
+ if(VERIFIED_FOODS[item.id]){
+  assert.equal(item.sourceType,"usda_fdc","Only identifiable USDA entries may use USDA provenance: "+item.id);
+  assert.equal(item.validationStatus,"tabla_referenciada");
+  assert.equal(item.sourceId,VERIFIED_FOODS[item.id].sourceId);
+  assert.match(item.source,/FDC \d+/);
+ }else{
+  assert.equal(item.sourceType,"generic_estimate","Estimates must never impersonate analysed samples: "+item.id);
+  assert.equal(item.validationStatus,"generico_pendiente","No fabricated verified FDC ID: "+item.id);
+  assert.match(item.source,/Estimación/);
+ }
  if(item.servingGrams){
   assert.equal(FOOD_UNIT_PORTIONS[item.id]?.grams,item.servingGrams,"Unit serving weight mismatch: "+item.id);
   assert.ok(item.servingGrams>=3&&item.servingGrams<=400,"Check realistic unit size "+item.id);
@@ -56,6 +64,7 @@ for(const [id,grams] of [["sushi_maki_salmon",28],["sushi_nigiri_salmon",35],["p
  assert.ok(f.k*grams>=.01);
 }
 assert.ok(pilot.includes("foodSearchText(f)"),"Student/coach/planner must use shared synonyms");
-assert.ok(index.includes("20261028-catalogue1"),"Release version must be cache-busted for iPhone");
+assert.ok(index.includes("20261028-phase2src1"),"Release version must be cache-busted for iPhone");
+assert.equal(VERIFIED_SOURCE_COUNT,8);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));
 console.log("PASS expanded catalogue: "+EXPANDED_COUNT+" new foods, "+EXTRA_FOODS.length+" existing extension foods, units, source flags, synonyms and numeric macros");

@@ -2,7 +2,7 @@
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { chromium } from "playwright";
+import { chromium,webkit } from "playwright";
 import assert from "node:assert/strict";
 
 const rootDir=process.cwd();
@@ -28,9 +28,10 @@ const server=createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(0,"127.0.0.1",r));
 const port=server.address().port;
-const browser=await chromium.launch({headless:true});
+const engine=process.env.EFG_QA_ENGINE==="webkit"?"webkit":"chromium";
+const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=[
+const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",360],["student",375],["student",390],["student",430],
  ["coach",360],["coach",390],["coach",412],
  ["admin",360],["admin",390],["admin",412]
@@ -54,7 +55,7 @@ try{
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
   await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__);
-  if(role==="coach"&&width===390){
+  if(role==="coach"&&width===390&&engine==="chromium"){
    // Isolated iPhone-width touch regression before the fixture signs in.
    const gesture=await page.evaluate(async()=>{
     const {createPullToRefresh}=await import("./pull-refresh.js?v=20261028-pull1");
@@ -301,7 +302,7 @@ try{
     if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
    if(width===390 || width===360){
-     await page.screenshot({path:join(outDir,role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
+     await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
@@ -378,8 +379,8 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report.json"),JSON.stringify(report,null,2));
+writeFileSync(join(outDir,"report-"+engine+".json"),JSON.stringify(report,null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
-console.log(JSON.stringify({passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
+console.log(JSON.stringify({engine,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;

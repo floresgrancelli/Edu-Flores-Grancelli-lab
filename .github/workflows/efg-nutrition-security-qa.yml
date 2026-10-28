@@ -22,4 +22,5 @@ jobs:
       - name: Validate static security contract
         run: node efg-nutrition/tests/security-guardrails.mjs
       - name: Declare coverage limitations
-        run: echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."
+        run: |
+          echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

@@ -160,7 +160,9 @@ try{
    }
    if(role==="student"&&width===390&&dest==="home"){
     // Regression for the food-catalog expansion on mobile without live Supabase writes.
-    await page.locator(".efg-quick-add > summary").click();
+    // El botón principal abre el mismo selector anterior, manteniendo la prueba de catálogo.
+    await page.locator(".efg-pastel-register").click();
+    if(!(await page.locator("#studentQuickAdd").evaluate(el=>el.open)))pageReport.errors.push("Quick-add panel did not open");
     await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();

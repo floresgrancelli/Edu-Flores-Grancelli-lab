@@ -10,6 +10,8 @@ export const GUIDE_MEALS=Object.freeze([
 // Contextual equivalences; both white and whole-grain versions can fit all goals.
 // Only the coach chooses these alternatives; the system never bans foods by goal.
 export const GUIDE_SWAP_SETS=Object.freeze([
+ // Options suited to breakfast; ham is optional and not a default daily recommendation.
+ ["egg","egg_white","ham_cooked","turkey_breast_cooked","yogurt_greek_light","yogurt_high_protein","cottage_cheese","ricotta_light","tofu_firm","tempeh","whey_powder"],
  ["brownrice","rice","yamani_rice_cooked"],
  ["bread","bread_white","bread_rye"],
  ["chicken","pork","beef","fish_hake","turkey_breast_cooked"],
@@ -30,12 +32,41 @@ export function guidedFoodAlternatives(id,catalog){
  const ids=[id,...relevant.flatMap(group=>group)];
  return [...new Set(ids)].filter(x=>allowed.has(x));
 }
-// Description always reflects the actual ingredients; alternate foods use a neutral fallback.
+// Meal descriptions follow the food choices the coach has actually made.
 export function describeGuidedMeal(meal){
- const ids=new Set((meal?.items||[]).map(f=>f.id));
+ const items=meal?.items||[],ids=new Set(items.map(x=>x.id));
  const has=(...xs)=>xs.every(x=>ids.has(x));
- if(meal?.slot==="desayuno"&&has("egg","bread","cheese","milk_skim"))
-  return "Huevos revueltos o a la plancha con rocío vegetal, tostada integral con Port Salut light y café con leche descremada.";
+ if(meal?.slot==="desayuno"){
+  const proteins={
+   egg:"huevos revueltos o a la plancha con rocío vegetal",
+   egg_white:"claras revueltas con rocío vegetal",
+   ham_cooked:"jamón cocido",
+   turkey_breast_cooked:"pechuga de pavo cocida",
+   yogurt_greek_light:"yogur griego natural 0%",
+   yogurt_high_protein:"yogur natural proteico",
+   cottage_cheese:"queso cottage",
+   ricotta_light:"ricota magra",
+   tofu_firm:"tofu firme a la plancha",
+   tempeh:"tempeh a la plancha",
+   whey_powder:"batido de proteína whey"
+  };
+  const breads={bread:"tostada integral",bread_white:"tostada de pan blanco",bread_rye:"tostada de pan de centeno"};
+  const toppings={cheese:"Port Salut light",cottage_cheese:"queso cottage",ricotta_light:"ricota magra"};
+  const main=items.find(x=>proteins[x.id]),bread=items.find(x=>breads[x.id]);
+  const topping=items.find(x=>toppings[x.id]&&x!==main);
+  const milk=items.find(x=>["milk_skim","milk_whole","milk_lactosefree"].includes(x.id));
+  const parts=[];
+  if(main&&bread&&["ham_cooked","turkey_breast_cooked","cottage_cheese","ricotta_light","tofu_firm","tempeh"].includes(main.id))
+   parts.push(breads[bread.id]+" con "+proteins[main.id]+(topping?" y "+toppings[topping.id]:""));
+  else{
+   if(main)parts.push(proteins[main.id]);
+   if(bread)parts.push(breads[bread.id]+(topping?" con "+toppings[topping.id]:""));
+  }
+  if(ids.has("coffee_black")&&milk)parts.push("café con "+(milk.id==="milk_skim"?"leche descremada":milk.id==="milk_whole"?"leche entera":"leche sin lactosa"));
+  else if(ids.has("coffee_black"))parts.push("café solo");
+  else if(milk)parts.push(milk.name||"leche");
+  return (parts.length?parts.join(", "):"Preparación según los ingredientes seleccionados")+".";
+ }
  if(meal?.slot==="media_manana"&&has("yogurt","apple"))
   return "Yogur descremado con manzana"+(ids.has("oats_raw")?", avena":"")+(ids.has("whey_powder")?" y proteína whey opcional.":".");
  if(meal?.slot==="almuerzo"&&has("chicken","brownrice","pumpkin"))
@@ -44,7 +75,7 @@ export function describeGuidedMeal(meal){
   return "Tostada integral con Port Salut light y mandarina.";
  if(meal?.slot==="cena"&&has("fish_hake","potato","rocket"))
   return "Merluza al horno con papa hervida y ensalada de rúcula; aceite indicado para condimentar.";
- return "Preparación sugerida con "+(meal?.items||[]).map(f=>String(f.name||f.id).split(" (")[0]).join(", ")+". Adaptar al gusto y la preparación.";
+ return "Preparación sugerida con "+items.map(f=>String(f.name||f.id).split(" (")[0]).join(", ")+". Adaptar al gusto y la preparación.";
 }
 const NUTRIENTS=["k","p","c","f","fi"];
 const valid=x=>typeof x==="number"&&Number.isFinite(x);
@@ -52,6 +83,12 @@ const sum=(items)=>items.reduce((acc,item)=>{for(const k of NUTRIENTS)acc[k]+=(N
 // Practical defaults for the example, not universal or clinical limits.
 const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  id==="egg"?[55,165,55]:
+ id==="egg_white"?[70,280,10]:
+ id==="ham_cooked"?[35,150,5]:
+ id==="turkey_breast_cooked"?[40,160,5]:
+ id==="tofu_firm"?[80,250,10]:
+ id==="tempeh"?[60,180,10]:
+ /^(cottage_cheese|ricotta_light)$/.test(id)?[40,220,5]:
  id==="coffee_black"?[30,80,10]:
  /^(chicken|beef|pork|fish_hake|fish_salmon|turkey_breast_cooked)$/.test(id)?[160,300,10]:
  /^(milk_skim|milk|milk_whole|milk_lactosefree)$/.test(id)?[180,350,10]:
@@ -100,6 +137,8 @@ export function generateGuidedDay(catalog,goal,{includeWhey=false}={}){
   items:m.items.filter(([id])=>foods.has(id)).map(([id,qty])=>source(foods.get(id),qty))
  }));
  if(includeWhey&&foods.has("whey_powder"))meals[1].items.push(source(foods.get("whey_powder"),30));
+ // Default: two eggs (~110 g) rather than optimizing to three.
+ const egg=meals[0].items.find(f=>f.id==="egg");if(egg)egg.locked=true;
  if(meals.some(m=>m.items.length<2))throw new Error("El catálogo necesita más alimentos básicos antes de generar el menú.");
  const plan={version:1,kind:"five_meal_example",meals,supplementNote:"",createdFrom:"coach_approved_goal"};
  return rebalanceGuidedDay(plan,goal);
@@ -141,7 +180,10 @@ export function swapGuidedFood(existing,slot,index,newFoodId,catalog){
  const replacement=(catalog||[]).find(x=>x.id===newFoodId);
  if(!replacement)throw new Error("Falta la ficha de ese alimento.");
  const [min,max]=guidedPortionBounds(newFoodId);
- meal.items[index]={...source(replacement,Math.min(max,Math.max(min,old.qty))),locked:true};
+ const breakfastProtein=GUIDE_SWAP_SETS[0];
+ const equivalent=slot==="desayuno"&&breakfastProtein.includes(old.id)&&breakfastProtein.includes(newFoodId)&&old.p>0&&replacement.p>0
+  ?Math.round((old.qty*old.p/replacement.p)/5)*5:old.qty;
+ meal.items[index]={...source(replacement,Math.min(max,Math.max(min,equivalent))),locked:true};
  return plan;
 }
 export function validateGuidedDay(plan,goal){

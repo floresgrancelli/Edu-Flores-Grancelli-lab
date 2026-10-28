@@ -50,6 +50,8 @@ jobs:
         run: node efg-nutrition/tests/food-library-expansion.mjs
       - name: Verify 9 regional recipe models and 6 manufacturer nutrition labels
         run: node efg-nutrition/tests/regional-catalog-phase2.mjs
+      - name: Validate phase 3 pastel preview contracts (no live data)
+        run: node efg-nutrition/tests/pastel-phase3-preview.mjs
       - name: Verify scientific macro engine for men and women
         run: node efg-nutrition/tests/scientific-macros.mjs
       - name: Verify guided five-meal day and baseline

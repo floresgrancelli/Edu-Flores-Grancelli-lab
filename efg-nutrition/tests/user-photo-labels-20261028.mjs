@@ -5,7 +5,7 @@ import {EXTRA_FOODS,FOOD_UNIT_PORTIONS,foodSearchText} from "../pilot/food-catal
 import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "../pilot/user-photo-labels.js";
 
 assert.equal(new Set(EXTRA_FOODS.map(f=>f.id)).size,EXTRA_FOODS.length,"No duplicate food IDs");
-assert.equal(USER_PHOTO_LABEL_FOODS.length,1,"Only the pictured chocolate is fully quantified; do not fabricate the mix");
+assert.equal(USER_PHOTO_LABEL_FOODS.length,2,"Chocolate photographed label and separately identified four-ingredient mix");
 const chocolate=EXTRA_FOODS.find(x=>x.id==="colonial_chocolate_organico_80_cacao");
 assert.ok(chocolate,"Photo-labeled product must be in normal food search catalogue");
 assert.equal(chocolate.brand,"Chocolate Colonial");
@@ -38,5 +38,26 @@ assert.equal(chocolate.servingsPerPackage,4);
 assert.equal(FOOD_UNIT_PORTIONS[chocolate.id].grams,25);
 assert.equal(USER_PHOTO_LABEL_PORTIONS[chocolate.id].grams,25);
 assert.match(chocolate.source,/redondeo/);
-assert.ok(!USER_PHOTO_LABEL_FOODS.some(f=>/mix/i.test(f.name)),"No nutritional assumptions about user mix");
-console.log("PASS: Chocolate Colonial 80% cacao; photograph label, portion 25g, 100g nutrients, accurate rounding and source; no mix fabricated.");
+const mix=EXTRA_FOODS.find(f=>f.id==="mi_mix_nueces_almendras_avellanas_caju");
+assert.ok(mix,"The user's mix must be searchable as a separate food");
+assert.deepEqual(mix.ingredients,["Nueces","Almendras","Avellanas","Castañas de cajú"],"Exact 4 ingredients visible");
+assert.ok(mix.name.includes("nueces, almendras, avellanas y castañas de cajú"),"Ingredients must be explicit, not only metadata");
+assert.equal(mix.category,"fat");
+assert.equal(mix.sourceType,"generic_estimate","Unlike chocolate, no product label values");
+assert.equal(mix.validationStatus,"generico_pendiente");
+assert.ok(mix.source.includes("PROPORCIONES NO INFORMADAS"));
+assert.ok(mix.source.includes("25% EN PESO DE CADA INGREDIENTE"));
+assert.ok(mix.source.includes("NO es un valor analítico"));
+assert.ok(!mix.ingredients.some(v=>v.toLowerCase()==="maní"),"No peanut ingredient declared");
+for(const [key,value] of Object.entries({k:647,p:17.25,c:20.75,f:55,fi:8.2})){
+ close(mix[key]*100,value,"Equal-weight ESTIMATE only: "+key);
+}
+assert.equal(mix.servingGrams,25);
+assert.equal(mix.servingIsEstimated,true,"25g portion is not manufacturer declared");
+assert.equal(USER_PHOTO_LABEL_PORTIONS[mix.id].grams,25);
+assert.ok(foodSearchText(mix).toLowerCase().includes("mix de frutos secos"));
+assert.ok(foodSearchText(mix).toLowerCase().includes("avellanas"));
+assert.ok(foodSearchText(mix).toLowerCase().includes("cajú"));
+assert.ok(foodSearchText(mix).toLowerCase().includes("mi mix"));
+assert.equal(mix.k*25,161.75,"25g estimate from equal-quarter assumption");
+console.log("PASS: Chocolate Colonial 80% cacao photographic label; Mi mix with four explicit ingredients and clearly illustrative equal-quarter nutrition, no invented label proportions.");

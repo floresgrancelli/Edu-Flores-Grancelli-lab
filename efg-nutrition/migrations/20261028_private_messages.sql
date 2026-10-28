@@ -32,7 +32,7 @@ create policy "efg messages party write" on public.efg_messages for insert to au
   join public.efg_organizations o on o.id=p.organization_id
   join public.efg_consents c on c.student_id=p.user_id and c.organization_id=o.id
   join public.efg_profiles coach on coach.user_id=o.coach_id
-  where p.user_id=student_id and p.active and p.role='student' and
+  where p.user_id=efg_messages.student_id and p.active and p.role='student' and
         c.accepted and o.coach_id=efg_messages.coach_id and
         o.status in ('trial','active','grace') and coach.active and
         (coach.role='coach' or (coach.role='admin' and o.is_test))

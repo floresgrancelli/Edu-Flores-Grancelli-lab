@@ -7,6 +7,29 @@ export const GUIDE_MEALS=Object.freeze([
  {slot:"merienda",label:"Merienda",items:[["bread",65],["cheese",45],["mandarin",140]]},
  {slot:"cena",label:"Cena",items:[["fish_hake",190],["potato",240],["rocket",100],["oil",10]]}
 ]);
+// Contextual equivalences; both white and whole-grain versions can fit all goals.
+// Only the coach chooses these alternatives; the system never bans foods by goal.
+export const GUIDE_SWAP_SETS=Object.freeze([
+ ["brownrice","rice","yamani_rice_cooked"],
+ ["bread","bread_white","bread_rye"],
+ ["chicken","pork","beef","fish_hake","turkey_breast_cooked"],
+ ["fish_hake","fish_salmon","chicken","pork"],
+ ["potato","sweetpotato","brownrice","rice"],
+ ["yogurt","yogurt_greek_light","yogurt_high_protein"],
+ ["milk_skim","milk_whole","milk_lactosefree"],
+ ["cheese","ricotta_light","cottage_cheese"],
+ ["pumpkin","zucchini","broccoli_cooked"],
+ ["rocket","lettuce","spinach_cooked"],
+ ["banana","apple","pear","mandarin"],
+ ["apple","pear","mandarin","banana"],
+ ["mandarin","orange","apple","pear"]
+]);
+export function guidedFoodAlternatives(id,catalog){
+ const allowed=new Set((catalog||[]).map(f=>f.id));
+ const relevant=GUIDE_SWAP_SETS.filter(group=>group.includes(id));
+ const ids=[id,...relevant.flatMap(group=>group)];
+ return [...new Set(ids)].filter(x=>allowed.has(x));
+}
 const NUTRIENTS=["k","p","c","f","fi"];
 const valid=x=>typeof x==="number"&&Number.isFinite(x);
 const sum=(items)=>items.reduce((acc,item)=>{for(const k of NUTRIENTS)acc[k]+=(Number(item[k])||0)*Number(item.qty||0);return acc;},{k:0,p:0,c:0,f:0,fi:0});
@@ -15,6 +38,7 @@ const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,18,1]:
  /^(milk_skim|milk|yogurt)$/.test(id)?[80,350,10]:
  /^(bread|cheese)$/.test(id)?[20,180,5]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
+export const guidedPortionBounds=id=>bounds(id).slice(0,2);
 function source(food,qty){return {id:food.id,name:food.name,unit:food.unit||"g",qty,
  sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
  ...Object.fromEntries(NUTRIENTS.map(k=>[k,Number(food[k])||0]))};}
@@ -45,9 +69,20 @@ export function generateGuidedDay(catalog,goal,{includeWhey=false}={}){
  if(includeWhey&&foods.has("whey_powder"))meals[1].items.push(source(foods.get("whey_powder"),30));
  if(meals.some(m=>m.items.length<2))throw new Error("El catálogo necesita más alimentos básicos antes de generar el menú.");
  const plan={version:1,kind:"five_meal_example",meals,supplementNote:"",createdFrom:"coach_approved_goal"};
- // Bounded coordinate descent: minimizes differences while keeping recognizable portions.
- // No artificial micro-portions, no cooking oil additions beyond per-meal bounds.
- for(let iteration=0;iteration<160;iteration++){
+ return rebalanceGuidedDay(plan,goal);
+}
+export function rebalanceGuidedDay(existing,goal){
+ ensureGuideGoal(goal);
+ if(!existing?.meals||existing.meals.length!==5)throw new Error("Guía incompleta.");
+ const plan=structuredClone(existing);
+ // Optimizes QUANTITIES, not food identities. Same repertoire can serve different goals.
+ // All suggested portions are bounded to keep meals practical.
+ for(const m of plan.meals)for(const item of m.items){
+  const [min,max]=guidedPortionBounds(item.id);
+  item.qty=Math.min(max,Math.max(min,Number(item.qty)||min));
+ }
+ // Bounded coordinate descent: kcal + protein + carbs + fats; no artificial micro-portions.
+ for(let iteration=0;iteration<240;iteration++){
   const current=score(plan,goal);let best=null,bestScore=current;
   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
    const item=plan.meals[mi].items[ii], [min,max,step]=bounds(item.id),original=item.qty;
@@ -64,6 +99,17 @@ export function generateGuidedDay(catalog,goal,{includeWhey=false}={}){
  }
  return plan;
 }
+export function swapGuidedFood(existing,slot,index,newFoodId,catalog){
+ const plan=structuredClone(existing),meal=plan?.meals?.find(x=>x.slot===slot);
+ if(!meal||!Number.isInteger(index)||index<0||index>=meal.items.length)throw new Error("Comida inválida.");
+ const old=meal.items[index],permitted=guidedFoodAlternatives(old.id,catalog);
+ if(!permitted.includes(newFoodId))throw new Error("Esa alternativa no corresponde a este alimento.");
+ const replacement=(catalog||[]).find(x=>x.id===newFoodId);
+ if(!replacement)throw new Error("Falta la ficha de ese alimento.");
+ const [min,max]=guidedPortionBounds(newFoodId);
+ meal.items[index]=source(replacement,Math.min(max,Math.max(min,old.qty)));
+ return plan;
+}
 export function validateGuidedDay(plan,goal){
  ensureGuideGoal(goal);
  if(plan?.version!==1||plan?.kind!=="five_meal_example"||!Array.isArray(plan.meals)||plan.meals.length!==5)throw new Error("El ejemplo debe tener exactamente cinco comidas.");
@@ -72,7 +118,7 @@ export function validateGuidedDay(plan,goal){
   if(!GUIDE_MEALS.some(x=>x.slot===meal.slot)||slots.has(meal.slot)||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw new Error("Revisá las comidas del ejemplo.");
   slots.add(meal.slot);
   for(const food of meal.items){
-   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<=0||food.qty>700||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
+   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<guidedPortionBounds(food.id)[0]||food.qty>guidedPortionBounds(food.id)[1]||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
   }
  }
  if(typeof plan.supplementNote!=="string"||plan.supplementNote.length>300)throw new Error("La nota de suplementos es demasiado larga.");

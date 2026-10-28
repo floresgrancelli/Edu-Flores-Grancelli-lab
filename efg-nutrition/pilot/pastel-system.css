@@ -568,3 +568,119 @@ html,body{background:var(--pastel-bg)!important}
 .pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card :is(.efg-menu-arrow,strong){
  color:inherit!important
 }
+
+
+/* Fase 3 — acabados finales de MI DÍA, referencia visual aprobada.
+   Serotonina auténtica, miniaturas macro con avances REALES, estética lavanda/rosa. */
+.pilot-layout .efg-serotonin-symbol{
+ display:block; flex:0 0 auto; object-fit:contain; object-position:center;
+ width:58px;height:34px;max-width:none;
+ background:none!important;border:0!important;filter:none!important;
+ opacity:.92;
+}
+.pilot-layout .pilot-logo{gap:7px}
+.pilot-layout .pilot-logo .efg-serotonin-symbol{width:64px;height:37px}
+.pilot-layout .efg-mobile-brand{gap:6px}
+.pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:50px;height:30px}
+.pilot-layout .efg-mobile-brand-text strong{
+ color:#291d45!important;font-weight:850!important;letter-spacing:.018em!important;
+ font-size:clamp(12px,3.6vw,16px)!important
+}
+.pilot-layout .efg-mobile-brand-text small{
+ color:#735b89!important;font-size:9px!important
+}
+.pilot-layout .efg-mobile-header{min-height:65px}
+.pilot-layout .efg-pastel-day{
+ background:linear-gradient(150deg,#D6B8E9 0%,#E6CAF0 39%,#F9E2EF 100%)!important;
+ border:1px solid #CAB2DE!important;
+ box-shadow:0 14px 38px rgba(95,55,126,.10)!important;
+}
+.pilot-layout .efg-pastel-day-head strong{font-size:clamp(15px,3.5vw,18px)}
+.pilot-layout .efg-pastel-day-grid{
+ display:grid;
+ grid-template-columns:minmax(120px, .85fr) minmax(0,1.45fr);
+ gap:12px;
+ align-items:center;
+}
+.pilot-layout .efg-pastel-ring{
+ max-width:205px;
+ min-width:0;
+ width:100%;
+ background:conic-gradient(#724AC7 0 var(--ring-a),#BA67EB var(--ring-a) var(--ring-b),#F779AD var(--ring-b) var(--ring-c),#DBCFEC var(--ring-c) 100%);
+ box-shadow:0 4px 16px rgba(119,75,156,.14)
+}
+.pilot-layout .efg-pastel-ring:before{
+ background:#EFE0F5!important;
+}
+.pilot-layout .efg-pastel-macros{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:9px;
+ align-items:start;
+ width:100%;
+}
+.pilot-layout .efg-pastel-macro{
+ display:flex;flex-direction:column;align-items:center;
+ min-width:0;gap:7px;text-align:center;
+}
+.pilot-layout .efg-pastel-macro-icon{
+ width:clamp(52px,7vw,84px)!important;
+ height:auto!important;
+ aspect-ratio:1;border-radius:50%!important;
+ display:grid;place-items:center;
+ position:relative;
+ padding:9px;
+ background:conic-gradient(var(--macro-color) var(--macro-progress),rgba(239,220,246,.92) var(--macro-progress) 100%)!important;
+ box-shadow:0 3px 10px rgba(76,43,104,.08);
+}
+.pilot-layout .efg-pastel-macro-icon:before{
+ content:"";position:absolute;inset:8px;border-radius:50%;
+ background:#F8E9F3;z-index:0
+}
+.pilot-layout .efg-pastel-macro-glyph{
+ position:relative;z-index:1;display:grid;place-items:center;
+ font-size:clamp(15px,2.8vw,25px);
+ width:100%;height:100%;
+}
+.pilot-layout .efg-pastel-macro-glyph svg{width:25px;height:25px;max-width:70%;max-height:70%}
+.pilot-layout .efg-pastel-macro-info{
+ display:flex;flex-direction:column;gap:3px;width:100%;min-width:0;
+}
+.pilot-layout .efg-pastel-macro-info>span{
+ font-size:clamp(9px,1vw,12px);line-height:1.15;font-weight:800;overflow-wrap:anywhere;
+}
+.pilot-layout .efg-pastel-macro-info strong{font-size:clamp(12px,2vw,19px);font-weight:850}
+.pilot-layout .efg-pastel-macro-info small{font-size:clamp(9px,1.1vw,11px)}
+.pilot-layout .efg-pastel-meter{height:4px;max-width:95px;width:100%;margin:3px auto 0}
+.pilot-layout .efg-pastel-day-stats{margin-top:18px}
+.pilot-layout .efg-pastel-register{
+ border-radius:99px!important;
+ letter-spacing:.045em;
+}
+.pilot-layout .student-meal-card .student-meal-heading{
+ min-height:64px;
+ padding:12px 13px;
+ background:#FAECF2;
+ border-radius:15px;
+}
+.pilot-layout .student-meal-card .student-meal-heading strong{
+ font-weight:850;letter-spacing:.022em
+}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:48px;height:28px}
+ .pilot-layout .efg-pastel-day-grid{grid-template-columns:1fr;gap:18px}
+ .pilot-layout .efg-pastel-ring{width:clamp(143px,42vw,175px);margin:auto}
+ .pilot-layout .efg-pastel-macros{gap:11px}
+ .pilot-layout .efg-pastel-macro-icon{width:clamp(59px,18vw,76px)!important}
+ .pilot-layout .efg-pastel-macro-info>span{font-size:10px}
+ .pilot-layout .efg-pastel-macro-info strong{font-size:15px}
+ .pilot-layout .efg-pastel-day-head{align-items:center;gap:6px;flex-wrap:wrap}
+ .pilot-layout .efg-pastel-day-head small{font-size:10px}
+}
+@media(max-width:355px){
+ .pilot-layout .efg-mobile-brand .efg-serotonin-symbol{width:38px;height:23px}
+ .pilot-layout .efg-mobile-brand-text strong{font-size:11px!important}
+ .pilot-layout .efg-pastel-macros{gap:5px}
+ .pilot-layout .efg-pastel-macro-icon{width:53px!important}
+ .pilot-layout .efg-pastel-macro-info strong{font-size:12px}
+}

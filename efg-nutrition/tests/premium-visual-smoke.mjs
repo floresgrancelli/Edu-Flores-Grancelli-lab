@@ -143,7 +143,7 @@ try{
      };
      return {body:sample("body"),card:sample(".pilot-layout .card"),nav:sample(".pilot-layout .pilot-nav"),header:sample(".pilot-layout .efg-mobile-header")};
    });
-   const isWhite=s=>/rgba?\\(\\s*255[, ]+255[, ]+255\\b/.test(s||"");
+   const isWhite=s=>(s||"").startsWith("rgb(255, 255, 255)")||(s||"").startsWith("rgba(255, 255, 255,");
    if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
    if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
    if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");

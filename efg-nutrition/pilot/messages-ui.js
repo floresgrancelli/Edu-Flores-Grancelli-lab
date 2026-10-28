@@ -27,11 +27,26 @@ export function createMessagesCenter({sb,context,afterSend}){
    '<form class="efg-message-compose" id="efgMessageForm"><textarea id="efgMessageText" required maxlength="2000" placeholder="Escribí tu mensaje…" aria-label="Escribir mensaje">'+esc(formDraft)+'</textarea><button type="submit" '+(loading?'disabled':'')+'>Enviar</button></form>'+
    '<p class="pilot-hint">Solo vos y tu coach o alumno vinculado pueden consultar estos mensajes. No uses este chat para emergencias.</p></div></section>';
  }
- function show(){
+ function show({force=false}={}){
   const host=document.getElementById("efgMessagesContent");if(!host)return;
-  host.innerHTML=html();const history=host.querySelector(".efg-message-history");if(history)history.scrollTop=history.scrollHeight;
+  // A background sync must never replace the focused message composer.
+  // Refresh just the conversation bubbles while preserving the draft and keyboard.
+  const composer=host.querySelector("#efgMessageText");
+  if(!force&&composer&&composer===document.activeElement){
+   const oldHistory=host.querySelector(".efg-message-history");
+   const wrapper=document.createElement("div");wrapper.innerHTML=html();
+   const newer=wrapper.querySelector(".efg-message-history");
+   if(oldHistory&&newer){
+    const atBottom=oldHistory.scrollHeight-oldHistory.scrollTop-oldHistory.clientHeight<50;
+    oldHistory.innerHTML=newer.innerHTML;
+    if(atBottom)oldHistory.scrollTop=oldHistory.scrollHeight;
+    return;
+   }
+  }
+  host.innerHTML=html();
+  const history=host.querySelector(".efg-message-history");if(history)history.scrollTop=history.scrollHeight;
  }
- async function load(){
+ async function load(force=false){
   const pair=current();if(!pair){loaded=[];show();return;}
   if(loading)return;
   loading=true;
@@ -45,8 +60,8 @@ export function createMessagesCenter({sb,context,afterSend}){
     const {error:readError}=await sb.from("efg_messages").update({read_at:new Date().toISOString()}).in("id",unread);
     if(readError)console.warn("Message receipt",readError.message);
    }
-  }catch(err){console.warn("Messages not available:",err.message);loaded=[]}
-  finally{loading=false;show();}
+  }catch(err){console.warn("Messages not available:",err.message);throw err}
+  finally{loading=false;show({force});}
  }
  async function send(text){
   const pair=current(),c=context();
@@ -55,12 +70,12 @@ export function createMessagesCenter({sb,context,afterSend}){
   if(body.length<1||body.length>2000)throw Error("Ingresá un mensaje de hasta 2000 caracteres.");
   const {error}=await sb.from("efg_messages").insert({student_id:pair.student,coach_id:pair.coach,sender_id:c.userId,body});
   if(error)throw error;
-  formDraft="";await load();afterSend?.();
+  formDraft="";await load(true);afterSend?.();
  }
  document.addEventListener("click",event=>{
   const btn=event.target.closest("[data-msgstudent]");
   if(!btn||!document.getElementById("efgMessagesContent"))return;
-  activeStudent=btn.dataset.msgstudent;loaded=[];formDraft="";show();load();
+  activeStudent=btn.dataset.msgstudent;loaded=[];formDraft="";show({force:true});load().catch(console.warn);
  });
  document.addEventListener("submit",event=>{
   if(event.target?.id!=="efgMessageForm")return;
@@ -70,7 +85,7 @@ export function createMessagesCenter({sb,context,afterSend}){
  document.addEventListener("input",event=>{
   if(event.target?.id==="efgMessageText")formDraft=event.target.value;
  });
- document.addEventListener("visibilitychange",()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load()});
- setInterval(()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load()},25000);
- return {mount:()=>{show();load()},selectStudent:id=>{activeStudent=id;loaded=[];show();load()},refresh:load};
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn)});
+ setInterval(()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn)},25000);
+ return {mount:()=>{show({force:true});load().catch(console.warn)},selectStudent:id=>{activeStudent=id;loaded=[];show({force:true});load().catch(console.warn)},refresh:load};
 }

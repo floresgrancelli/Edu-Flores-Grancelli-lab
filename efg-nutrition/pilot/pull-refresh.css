@@ -1,0 +1,15 @@
+/* App-owned refresh indicator, below the iPhone safe area; no page reload. */
+html,body{overscroll-behavior-y:contain}
+.efg-pull-refresh{--efg-pull-progress:0;position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 7px);
+ z-index:11000;display:flex;align-items:center;justify-content:center;gap:10px;
+ max-width:calc(100vw - 28px);padding:11px 16px;
+ background:rgba(255,255,255,.98);border:1px solid #d8e7df;border-radius:999px;
+ box-shadow:0 8px 25px rgba(22,80,58,.15);color:#226a55;font:600 13px/1.2 system-ui,-apple-system,sans-serif;
+ opacity:0;pointer-events:none;transform:translate(-50%,-68px);transition:opacity 140ms ease,transform 160ms ease;white-space:nowrap}
+.efg-pull-refresh.is-visible{opacity:1}
+.efg-pull-refresh.is-success{background:#eaf9f1;color:#176b4c}
+.efg-pull-refresh.is-error{background:#fff5ee;color:#8c5a20}
+.efg-pull-symbol{display:inline-block;font-size:21px;line-height:1;transform:rotate(calc(var(--efg-pull-progress)*160deg))}
+.efg-pull-refresh.is-loading .efg-pull-symbol{animation:efg-pull-spin 800ms linear infinite}
+@keyframes efg-pull-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.efg-pull-refresh,.efg-pull-symbol{transition:none;animation:none!important}}

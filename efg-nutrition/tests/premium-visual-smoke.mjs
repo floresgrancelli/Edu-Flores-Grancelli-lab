@@ -163,7 +163,7 @@ try{
     await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
-    if(!sushi.some(t=>t.includes("Maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
+    if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
     const unit=page.locator("#mealEntryMode");
     if((await unit.inputValue())!=="units")pageReport.errors.push("Sushi is not defaulting to unit/piece");

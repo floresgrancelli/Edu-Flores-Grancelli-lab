@@ -200,6 +200,26 @@ try{
     const popcornHint=await page.locator("#mealEditorHint").textContent();
     if(!popcornHint.includes("FDC 170247"))
       pageReport.errors.push("Third audit batch popcorn source missing");
+    await page.locator("#mealFoodSearch").fill("helado frutilla");
+    await page.locator("#mealEditorFood").selectOption("helado_frutilla_crema");
+    const strawberryHint=await page.locator("#mealEditorHint").textContent();
+    if(!strawberryHint.includes("FDC 168810"))
+      pageReport.errors.push("Fourth audit batch strawberry ice cream source missing");
+    await page.locator("#mealFoodSearch").fill("donut");
+    await page.locator("#mealEditorFood").selectOption("factura_donut");
+    const donutHint=await page.locator("#mealEditorHint").textContent();
+    if(!donutHint.includes("FDC 172758"))
+      pageReport.errors.push("Fourth audit batch donut source missing");
+    await page.locator("#mealFoodSearch").fill("lemon pie");
+    await page.locator("#mealEditorFood").selectOption("lemon_pie");
+    const lemonHint=await page.locator("#mealEditorHint").textContent();
+    if(!lemonHint.includes("FDC 172785"))
+      pageReport.errors.push("Fourth audit batch lemon pie source missing");
+    await page.locator("#mealFoodSearch").fill("galletitas rellenas");
+    await page.locator("#mealEditorFood").selectOption("galletitas_rellenas");
+    const cookieHint=await page.locator("#mealEditorHint").textContent();
+    if(!cookieHint.includes("FDC 172718"))
+      pageReport.errors.push("Fourth audit batch sandwich cookies source missing");
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();

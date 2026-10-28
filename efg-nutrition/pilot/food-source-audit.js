@@ -1,4 +1,4 @@
-// EFG Nutrition Pro / Fase 2: lotes 1 a 3 de cotejo documental 28/10/2026.
+// EFG Nutrition Pro / Fase 2: lotes 1 a 4 de cotejo documental 28/10/2026.
 // Cada entrada corresponde al TIPO DE ALIMENTO indicado, no a una marca argentina.
 // Datos por 100 g comestibles de USDA FoodData Central, SR Legacy (abril 2018).
 // El cotejo se realizó con reproducciones trazables por FDC ID de las entradas USDA.
@@ -24,7 +24,13 @@ const REFERENCES=[
  ["chocolate_almendras","Chocolate con leche y almendras (referencia USDA)",168754,526,9.00,53.40,34.40,6.20],
  ["galletitas_chocolate","Galletitas comerciales con chips de chocolate, con mayor grasa, harina no enriquecida (referencia USDA)",172820,481,5.40,66.80,22.60,2.50],
  ["palomitas_saladas","Pochoclo blanco preparado con aceite y sal (referencia USDA)",170247,500,9.00,57.20,28.10,10.00],
- ["caramelos_duros","Caramelos duros comunes azucarados (referencia USDA)",167990,394,0.00,98.00,0.20,0.00]
+ ["caramelos_duros","Caramelos duros comunes azucarados (referencia USDA)",167990,394,0.00,98.00,0.20,0.00],
+ // Lote 4: descripciones comerciales genéricas concordantes con registros SR Legacy.
+ // Los ingredientes y tamaños difieren entre fabricantes y recetas argentinas.
+ ["helado_frutilla_crema","Helado de frutilla a la crema clásico (referencia USDA)",168810,192,3.20,27.60,8.40,0.90],
+ ["galletitas_rellenas","Galletitas sándwich de chocolate rellenas de crema, comunes (referencia USDA)",172718,464,5.21,71.00,19.10,2.90],
+ ["factura_donut","Donut de levadura glaseado, masa enriquecida (referencia USDA)",172758,421,6.14,47.90,22.70,2.10],
+ ["lemon_pie","Lemon pie con merengue, preparación comercial (referencia USDA)",172785,268,1.50,47.20,8.70,1.20]
 ];
 export const VERIFIED_SOURCE_COUNT=REFERENCES.length;
 export const VERIFIED_FOODS=Object.freeze(Object.fromEntries(REFERENCES.map(([id,name,fdcId,k,p,c,f,fi])=>[

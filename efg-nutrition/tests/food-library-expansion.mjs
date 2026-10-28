@@ -6,7 +6,7 @@ import {VERIFIED_FOODS} from "../pilot/food-source-audit.js";
 const read=p=>readFileSync("efg-nutrition/pilot/"+p,"utf8");
 const expansion=read("food-expansion.js"),catalog=read("food-catalog.js"),app=read("pilot.js"),html=read("index.html");
 const foods=auditedFoods,portions=EXPANDED_PORTIONS,aliases=EXPANDED_ALIASES,count=EXPANDED_COUNT;
-assert.equal(VERIFIED_SOURCE_COUNT,16,"Three batches include 16 reference foods");
+assert.equal(VERIFIED_SOURCE_COUNT,20,"Four batches include 20 reference foods");
 assert.equal(count,foods.length);
 assert.ok(count>=130,"Expanded list should have at least 130 options");
 const ids=foods.map(f=>f.id);
@@ -47,7 +47,7 @@ assert.ok(search("pizza").length>=8);
 assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
-assert.match(html,/20261028-nutrition-audit3/,"Force iPhone Safari asset update");
+assert.match(html,/20261028-nutrition-audit4/,"Force iPhone Safari asset update");
 const expected={
  zapallo_anco_horno:[169296,40,.90,10.5,.09,3.2],
  helado_crema_americana:[167575,207,3.5,23.6,11,.7],
@@ -64,7 +64,11 @@ const expected={
  chocolate_almendras:[168754,526,9,53.4,34.4,6.2],
  galletitas_chocolate:[172820,481,5.4,66.8,22.6,2.5],
  palomitas_saladas:[170247,500,9,57.2,28.1,10],
- caramelos_duros:[167990,394,0,98,.2,0]
+ caramelos_duros:[167990,394,0,98,.2,0],
+ helado_frutilla_crema:[168810,192,3.2,27.6,8.4,.9],
+ galletitas_rellenas:[172718,464,5.21,71,19.1,2.9],
+ factura_donut:[172758,421,6.14,47.9,22.7,2.1],
+ lemon_pie:[172785,268,1.5,47.2,8.7,1.2]
 };
 assert.equal(Object.keys(expected).length,VERIFIED_SOURCE_COUNT);
 for(const [id,[fdc,k,p,c,f,fi]]of Object.entries(expected)){
@@ -77,4 +81,4 @@ for(const [id,[fdc,k,p,c,f,fi]]of Object.entries(expected)){
 assert.equal(foods.filter(food=>food.validationStatus==="generico_pendiente").length,count-VERIFIED_SOURCE_COUNT);
 assert.ok(foods.find(f=>f.id==="sushi_maki_salmon").source.includes("Estimación"),"Recipe-based sushi remains estimated");
 console.log("PASS:",count,"new items, no identifier collisions, numeric macros, 7 portion types, searchable aliases, catalog and Safari integration.");
-console.log("Auditoría Fase 2: "+VERIFIED_SOURCE_COUNT+" cotejadas USDA SR Legacy, "+(count-VERIFIED_SOURCE_COUNT)+" estimaciones sin fingir validación individual. lote 3 con chocolate, galletitas, pochoclo y caramelos.");
+console.log("Auditoría Fase 2: "+VERIFIED_SOURCE_COUNT+" cotejadas USDA SR Legacy, "+(count-VERIFIED_SOURCE_COUNT)+" estimaciones sin fingir validación individual. lote 4 con helado de frutilla, galletitas rellenas, donut y lemon pie.");

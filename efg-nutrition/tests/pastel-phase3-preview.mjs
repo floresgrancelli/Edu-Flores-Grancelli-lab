@@ -37,6 +37,10 @@ assert.ok(css.includes("--pastel-lilac")&&css.includes("--pastel-coral")&&css.in
 assert.ok(css.includes(".efg-role-coach")||css.includes(".efg-coach-banner"),"Coach included");
 assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
+assert.ok(app.includes('return rootText("MI DÍA"'),"Main daily heading is uppercase");
+assert.ok(app.includes('["home","⌂","MI DÍA"]'),"Student navigation label uppercase");
+assert.ok(css.includes("text-transform:uppercase"),"CSS applies uppercase titles and buttons");
+assert.ok(css.includes(".efg-coach-stat-grid>div"),"Coach and admin stat panels have pastel surfaces");
 assert.ok(css.includes("--pastel-bg:#E9E0F3"),"Lavender canvas");
 assert.ok(css.includes("--pastel-surface:#F3E0E9"),"Dusty rose cards");
 assert.ok(html.includes('name="theme-color" content="#E9E0F3"'),"iPhone theme-color matches canvas");

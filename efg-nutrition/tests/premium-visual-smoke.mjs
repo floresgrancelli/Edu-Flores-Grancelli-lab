@@ -174,7 +174,7 @@ try{
            color:cs.color,background:cs.backgroundColor,height:el.getBoundingClientRect().height,
            ratio:fg&&bg?contrast(fg,bg):0};});
    });
-   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)"]);
+   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)","rgb(227, 138, 203)","rgb(107, 203, 223)"]);
    for(const action of actionAudit){
      if(!vivid.has(action.background))pageReport.errors.push("Quick action has non-vivid color: "+action.text+" "+action.background);
      if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
@@ -182,6 +182,16 @@ try{
    }
    if(role==="student"&&dest==="home"&&actionAudit.filter(x=>x.text.includes("Registrar alimento")).length!==1)
      pageReport.errors.push("Main Register CTA needs vivid coral and accessible size");
+   if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
+     const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
+     const menuColors=await page.locator(menuSelector).evaluateAll(els=>
+       els.filter(el=>el.getClientRects().length>0).slice(0,6)
+         .map(el=>getComputedStyle(el).backgroundColor));
+     if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
+     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
+   }
+   const brandBadge=await page.locator(".efg-mobile-monogram").first().textContent();
+   if((brandBadge||"").trim()!=="EFG")pageReport.errors.push("The mobile emblem must say EFG, not E+");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));

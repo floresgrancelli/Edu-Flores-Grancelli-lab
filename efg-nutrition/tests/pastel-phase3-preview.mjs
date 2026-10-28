@@ -42,9 +42,11 @@ assert.ok(app.includes('["home","⌂","MI DÍA"]'),"Student navigation label upp
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");
 assert.ok(css.includes("text-transform:uppercase"),"CSS applies uppercase titles and buttons");
 assert.ok(css.includes(".efg-coach-stat-grid>div"),"Coach and admin stat panels have pastel surfaces");
-assert.ok(css.includes("--pastel-bg:#E9E0F3"),"Lavender canvas");
-assert.ok(css.includes("--pastel-surface:#F3E0E9"),"Dusty rose cards");
-assert.ok(html.includes('name="theme-color" content="#E9E0F3"'),"iPhone theme-color matches canvas");
+assert.ok(css.includes("--pastel-bg:#D9C5E9"),"Deepened lavender canvas");
+assert.ok(app.includes('class="brand-mark" aria-hidden="true">EFG'),"Brand monogram should be EFG, not E+");
+assert.ok(app.includes('class="efg-mobile-monogram" aria-hidden="true">EFG'),"Mobile brand monogram should be EFG");
+assert.ok(css.includes("--pastel-surface:#FAECF2"),"Dusty rose cards");
+assert.ok(html.includes('name="theme-color" content="#D9C5E9"'),"iPhone theme-color matches canvas");
 assert.ok(html.lastIndexOf("pastel-system.css")>html.lastIndexOf("premium-system.css"),"Preview stylesheet loaded last");
 assert.match(app,/pastelDaySummary\(tot,goal,d,mealSlots\)/);
 assert.ok(app.includes("el.dataset.openquickadd"),"handler installed");

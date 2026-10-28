@@ -283,3 +283,114 @@ html,body{background:var(--pastel-bg)!important}
  .pilot-layout .pilot-nav{background:rgba(241,231,248,.98)!important}
  .pilot-layout .efg-mobile-header{background:rgba(241,231,248,.94)!important}
 }
+
+
+/* Fase 3 — Accesos de color VIVO sobre superficies lavanda/rosa.
+   Contraste calculado vs #1C232D: coral 6.02:1, ámbar 8.67:1,
+   lila 4.85:1 y azul 7.56:1. Mantener texto/iconos oscuros.
+   No recolorear acciones destructivas, estados de error ni controles deshabilitados. */
+:root{
+ --efg-action-coral:#F67796;
+ --efg-action-amber:#F7B34C;
+ --efg-action-violet:#A876E9;
+ --efg-action-blue:#75BAF0;
+ --efg-action-text:#1C232D;
+}
+.pilot-layout .efg-pastel-day .efg-pastel-register{
+ background:var(--efg-action-coral)!important;
+ color:var(--efg-action-text)!important;
+ box-shadow:0 8px 20px rgba(183,65,109,.18)!important;
+ font-weight:800;
+}
+.pilot-layout .student-shortcuts button{
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.22)!important;
+ font-weight:750;
+ box-shadow:0 3px 10px rgba(65,43,89,.08);
+}
+.pilot-layout .student-shortcuts button:nth-child(1){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(2){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(3){
+ background:var(--efg-action-blue)!important;
+}
+/* Menús de herramientas — mismo código cromático en los tres roles. */
+.pilot-layout .efg-menu-card.efg-menu-mint,
+.pilot-layout .efg-menu-card.efg-menu-peach{
+ background:var(--efg-action-coral)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-blue{
+ background:var(--efg-action-blue)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-lilac{
+ background:var(--efg-action-violet)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card.efg-menu-cream{
+ background:var(--efg-action-amber)!important;
+ color:var(--efg-action-text)!important;
+ border-color:rgba(65,43,89,.24)!important;
+}
+.pilot-layout .efg-menu-card :is(strong,.efg-menu-emoji,.efg-menu-arrow){
+ color:inherit!important;
+}
+/* Recetas y seguimiento: tres accesos diferenciables más allá del texto. */
+.pilot-layout .efg-quick-more .btn.light{
+ color:var(--efg-action-text)!important;
+ border:1px solid rgba(65,43,89,.24)!important;
+ font-weight:750;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(1){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(2){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .efg-quick-more .btn.light:nth-child(3){
+ background:var(--efg-action-blue)!important;
+}
+/* Selector rápido: categorías alternadas, sin alterar sus acciones. */
+.pilot-layout .efg-quick-add-grid button{
+ color:var(--efg-action-text)!important;
+ border:1px solid rgba(65,43,89,.23)!important;
+ font-weight:700;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+1){
+ background:var(--efg-action-coral)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+2){
+ background:var(--efg-action-amber)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n+3){
+ background:var(--efg-action-violet)!important;
+}
+.pilot-layout .efg-quick-add-grid button:nth-child(4n){
+ background:var(--efg-action-blue)!important;
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):not(:disabled):hover{
+ filter:brightness(.96);
+ transform:translateY(-1px);
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):active{
+ transform:translateY(0);
+}
+.pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register):disabled{
+ opacity:.45;filter:none;transform:none;cursor:not-allowed;
+}
+@media(prefers-reduced-motion:reduce){
+ .pilot-layout :is(.student-shortcuts button,.efg-quick-more button,
+ .efg-menu-card,.efg-quick-add-grid button,.efg-pastel-register){
+  transition:none!important;transform:none!important;
+ }
+}

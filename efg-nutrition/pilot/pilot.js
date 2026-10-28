@@ -10,7 +10,9 @@ import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.j
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
-import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay} from "./guided-day.js?v=20261028-guide2";
+import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide3";
+import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
+import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -324,11 +326,17 @@ function weeklyStudentPanel(){
 }
 function weeklyReportEnd(){
  const d=new Date(today()+"T12:00:00Z");
- d.setUTCDate(d.getUTCDate()+(7-d.getUTCDay())%7);
+ d.setUTCDate(d.getUTCDate()-(d.getUTCDay()-5+7)%7); // Latest Friday, never a future one.
  return d.toISOString().slice(0,10);
 }
+function weeklyReportWindow(){
+ const friday=new Date(weeklyReportEnd()+"T12:00:00Z");
+ const from=new Date(friday),to=new Date(friday);
+ from.setUTCDate(from.getUTCDate()-7);to.setUTCDate(to.getUTCDate()-1);
+ return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
+}
 async function publishWeeklyReport(){
- if(state.profile?.role!=="coach")throw Error("Solo un entrenador puede publicar informes.");
+ if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
  const reportText=document.getElementById("weeklyCoachDraftText")?.value?.trim();
@@ -340,6 +348,33 @@ async function publishWeeklyReport(){
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null};
+const inbox=createNotificationInbox({sb,
+ getUserId:()=>state.profile?state.session?.user?.id:null,
+ navigate:async n=>{
+  const coachMode=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
+  const targets=new Set(["home","reports","coachStudents","summaries","payments","messages"]);
+  let target=targets.has(n.target_tab)?n.target_tab:"notifications";
+  if(!coachMode&&["reports","coachStudents"].includes(target))target="home";
+  if(coachMode&&n.target_student&&["reports","coachStudents","messages"].includes(target)){
+   const p=(state.roster||[]).find(p=>p.user_id===n.target_student&&p.active);
+   if(p&&target!=="messages")await loadStudentDetail(p.user_id);
+   if(p&&target==="messages")messages.selectStudent(p.user_id);
+  }
+  state.tab=target;
+  await render();
+  if(target==="reports")document.getElementById("coachReportWeek")?.scrollIntoView({block:"start"});
+  if(target==="coachStudents")document.getElementById("studentFollowPanel")?.scrollIntoView({block:"start"});
+  if(target==="home")document.querySelector(".efg-guide-student")?.scrollIntoView({block:"start"});
+ }
+});
+const messages=createMessagesCenter({sb,
+ context:()=>({
+  userId:state.profile?state.session?.user?.id:null,role:state.profile?.role,
+  testCoach:!!state.org?.is_test,orgCoachId:state.org?.coach_id,
+  roster:state.roster,consented:coachRosterConsent
+ }),
+ afterSend:()=>inbox.refresh()
+});
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -640,7 +675,7 @@ function premiumMenuView(title,description,entries){
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
- ["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+ ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
@@ -683,6 +718,14 @@ function studentSupplementsView(){
  return rootText("Suplementos","Registrá tus suplementos del día independientemente de las comidas.")+
  '<section class="card efg-content-card">'+supplementsPanel(activeDiary())+'</section>';
 }
+function notificationsView(){
+ return rootText("🔔 Mis notificaciones","Todos tus avisos en un solo lugar. La campanita también está disponible en cualquier pantalla.")+
+  '<section class="card efg-inbox-full" id="efgInboxFull"><p class="pilot-hint">Consultando tus avisos…</p></section>';
+}
+function messagesView(){
+ return rootText("💬 Mensajes","Conversaciones privadas entre el coach y el alumno, con historial y respuestas.")+
+  '<section class="card" id="efgMessagesContent"><p class="pilot-hint">Consultando conversación…</p></section>';
+}
 function studentSummariesView(){
  return rootText("Mis informes","Los resúmenes semanales que revisó y compartió tu coach.")+
  (weeklyStudentPanel()||'<section class="card"><p class="pilot-hint">Este espacio está disponible para alumnos.</p></section>');
@@ -698,7 +741,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Gestionar organizaciones","lilac"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Gestionar organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes de prueba","mint"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
 }
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
@@ -1191,7 +1234,7 @@ function coachHomeView(){
  '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
-  ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
+  ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
  '<section class="card efg-content-card"><div class="section-head"><h2>Mis alumnos</h2><button type="button" class="btn small light" data-tab="coachStudents">Ver todos</button></div>'+
  (roster.length?roster.slice(0,5).map(p=>'<div class="efg-student-compact"><span class="coach-roster-avatar">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+(coachRosterConsent[p.user_id]===true?'Seguimiento autorizado':'Autorización pendiente')+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Abrir</button></div>').join(""):'<div class="empty">Todavía no hay alumnos activos. Podés invitarlos desde Mis alumnos.</div>')+
@@ -1269,12 +1312,12 @@ function weeklyAdherenceSummary(){
 }
 function weeklyDraftText(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
- const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
- const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff).sort((a,b)=>a.date.localeCompare(b.date));
- if(!week.length)return "Sin registros alimentarios suficientes en los últimos 7 días. No corresponde emitir conclusiones.";
+ const window=weeklyReportWindow();
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!week.length)return "Semana del "+window.from+" al "+window.to+": sin registros alimentarios suficientes. No corresponde emitir conclusiones.";
  const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
  const goal=state.coachGoals[0]||null;
- const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
+ const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Período: "+window.from+" a "+window.to+" (se presenta el viernes "+window.friday+").","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
  if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
  if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
  const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
@@ -1288,9 +1331,9 @@ function weeklyDraftText(){
 }
 function weeklyCoachDraft(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
- const cutoff=Date.parse(today()+"T12:00:00Z")-6*86400000;
- const week=(report.days||[]).filter(d=>d.hasData&&Date.parse(d.date+"T12:00:00Z")>=cutoff);
- return '<section class="card"><h2>🌱 Tu evolución semanal</h2>'+
+ const window=weeklyReportWindow();
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to);
+ return '<section class="card" id="coachReportWeek"><h2>🌱 Informe del viernes '+window.friday+'</h2><p class="pilot-hint">Período evaluado: '+window.from+' a '+window.to+'. El borrador se construye con registros reales guardados, y debe ser revisado antes de compartir.</p>'+
  '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
  '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
  '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
@@ -1386,7 +1429,8 @@ function guidedDayContents(plan,goal,editable=false){
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
   const mt=totals.perMeal.find(r=>r.slot===meal.slot)?.totals;
-  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span>'+num(mt.k)+' kcal</span></div>'+
+  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span></div>'+
+   '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
   meal.items.map((f,i)=>{
   const alt=editable?guidedFoodAlternatives(f.id,foods):[];
   const [min,max]=guidedPortionBounds(f.id);
@@ -1395,10 +1439,10 @@ function guidedDayContents(plan,goal,editable=false){
   (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>':
    '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
  }).join("")+
-  '<small>'+guideNumbers(mt)+'</small></article>';
+  '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
- return '<div class="efg-guide-summary"><b>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
- '<small>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small></div>'+
+ return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
+ '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small></div>'+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
@@ -1411,7 +1455,7 @@ function coachGuidedSection(){
  '<p class="pilot-hint">El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.</p>'+
  (!goal?'<div class="pilot-notice">Primero aprobá el objetivo nutricional de este alumno.</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
- '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?'Regenerar':'Generar')+' cinco comidas</button></div>'+
+ '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Ajustar porciones a la meta</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
  '<p class="pilot-hint">Guía aprobada y disponible para el alumno. Para editarla, generá otra versión.</p>'):
@@ -1445,7 +1489,23 @@ function readGuidedEditor(){
  draft.supplementNote=String(document.getElementById("guideSupplementNote")?.value||"").trim();
  return draft;
 }
-function showGuidedEditor(){const node=document.getElementById("coachGuidedSlot");if(node)node.outerHTML=coachGuidedSection();}
+function updateGuidedTotalsUI(){
+ const plan=state.coachGuidedDraft,goal=state.coachGoals[0];if(!plan||!goal)return;
+ const sums=guideTotals(plan),dev=guideDeviation(plan,goal);
+ const all=document.querySelector("[data-guideoverall]");if(all)all.textContent="Menú modelo: "+guideNumbers(sums.totals);
+ const deviations=document.querySelector("[data-guidedeviations]");
+ if(deviations)deviations.textContent="Desvíos: "+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(dev[k].percent>0?"+":"")+num(dev[k].percent,1)+"%").join(" · ");
+ for(const m of sums.perMeal){
+  const k=document.querySelector('[data-guidemealmetric="'+m.slot+'"]');if(k)k.textContent=num(m.totals.k)+" kcal";
+  const t=document.querySelector('[data-guidemealnumbers="'+m.slot+'"]');if(t)t.textContent=guideNumbers(m.totals);
+ }
+}
+function showGuidedEditor(){
+ const node=document.getElementById("coachGuidedSlot");if(!node)return;
+ const y=window.scrollY;
+ node.outerHTML=coachGuidedSection();
+ window.scrollTo({top:y,behavior:"instant"});
+}
 async function approveGuidedDay(){
  const student=state.selectedStudent,goal=state.coachGoals[0],draft=readGuidedEditor();
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session.user.id))||!state.consent?.accepted||!student||!goal)throw new Error("No tenés permiso para enviar esta guía.");
@@ -1535,8 +1595,10 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
+ if(state.tab==="notifications")inbox.repaint();
+ if(state.tab==="messages")messages.mount();
  if(state.tab==="planner")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();
 }
@@ -1729,6 +1791,7 @@ async function refresh(){
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
+  await inbox.refresh();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
    // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
    const acceptedNotice=sessionStorage.getItem("efgNutritionCoachConsent:"+id)==="yes";
@@ -1909,7 +1972,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
  if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;return loginView();}
+ if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
@@ -1958,7 +2021,8 @@ if(el.dataset.foodbulk){
  if(action==="makeGuidedDay"){
   const goal=state.coachGoals[0];
   if(!goal||!state.selectedStudent||!state.consent?.accepted)throw new Error("Primero aprobá la meta del alumno.");
-  state.coachGuidedDraft=generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
+  state.coachGuidedDraft=(!state.coachGuidedDraft&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
+     structuredClone(state.coachFoodPlan.guided_plan):generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
   showGuidedEditor();notify("Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
@@ -1998,11 +2062,22 @@ setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
 root.addEventListener("change",e=>{invalidateCoachDraft(e);if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
- state.coachGuidedDraft=swapGuidedFood(draft,slot,Number(index),e.target.value,foods);
+ state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();
- notify("Alimento cambiado. Revisá los macros y usá Ajustar porciones a la meta.");return;
+ notify("Alternativa cambiada y demás porciones recalculadas sin alterar tus decisiones.");return;
+}if(e.target.dataset.guideqty){
+ const draft=readGuidedEditor();
+ state.coachGuidedDraft=rebalanceGuidedDay(draft,state.coachGoals[0]);
+ showGuidedEditor();
+ notify("Porciones ajustadas automáticamente; se respetó tu elección.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
+root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
+  const [slot,index]=e.target.dataset.guideqty.split(":");
+  const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
+  const qty=Number(e.target.value);
+  if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
+ }
+ if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
  const key=e.target.id.slice("planQty_".length);
  const select=[...root.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===key);
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};

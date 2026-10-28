@@ -32,11 +32,15 @@ jobs:
           node --check efg-nutrition/tests/premium-ui-smoke.mjs
           node --check efg-nutrition/pilot/macro-engine.js
           node --check efg-nutrition/pilot/guided-day.js
+          node --check efg-nutrition/pilot/notifications-ui.js
+          node --check efg-nutrition/pilot/messages-ui.js
           node --check efg-nutrition/pilot/progress-charts.js
           node --check efg-nutrition/pilot/fit-recipes.js
           node --check efg-nutrition/pilot/fit-recipe-illustrations.js
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: Check Friday, notifications, messages and per-user security contracts
+        run: node efg-nutrition/tests/notifications-messages.mjs
       - name: Verify scientific macro engine for men and women
         run: node efg-nutrition/tests/scientific-macros.mjs
       - name: Verify guided five-meal day and baseline

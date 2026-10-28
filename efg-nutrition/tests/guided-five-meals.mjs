@@ -1,17 +1,23 @@
 import assert from "node:assert/strict";
-import {GUIDE_MEALS,generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,swapGuidedFood,rebalanceGuidedDay} from "../pilot/guided-day.js";
+import {GUIDE_MEALS,generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "../pilot/guided-day.js";
 const data={
 egg:[1.48,.124,.0096,.0996],bread:[2.47,.13,.41,.042],milk_skim:[.35,.034,.05,.001],banana:[.89,.011,.23,.003],
 yogurt:[.50,.042,.081,.0009],apple:[.52,.003,.138,.002],chicken:[1.65,.31,0,.036],brownrice:[1.23,.027,.256,.01],
 pumpkin:[.34,.01,.08,.001],oil:[8.84,0,0,1],cheese:[2.17,.27,.017,.12],mandarin:[.53,.008,.133,.003],
 fish_hake:[.82,.178,0,.007],potato:[.86,.0171,.2001,.001],rocket:[.25,.026,.037,.007],whey_powder:[3.9,.83,.07,.025],rice:[1.29,.0267,.2799,.0028],bread_white:[2.65,.09,.49,.032]
 };
+data.oats_raw=[3.89,.169,.663,.069];data.coffee_black=[.001,0,0,0];
 const catalog=Object.entries(data).map(([id,[k,p,c,f]])=>({id,name:id,unit:id==="milk_skim"?"ml":"g",k,p,c,f,fi:0}));
 const goal={kcal:2250,protein_g:155,carb_g:250,fat_g:70};
 for(const includeWhey of [false,true]){
  const plan=generateGuidedDay(catalog,goal,{includeWhey});
  assert.deepEqual(plan.meals.map(x=>x.slot),GUIDE_MEALS.map(x=>x.slot));
  assert.equal(plan.meals.length,5);
+ assert.match(describeGuidedMeal(plan.meals[0]),/revueltos|plancha/);
+ assert.ok(plan.meals[0].items.some(x=>x.id==="coffee_black"),"Coffee with milk must list both ingredients");
+ assert.ok(plan.meals[0].items.find(x=>x.id==="bread").qty<=50,"Do not propose excessive breakfast bread");
+ assert.ok(plan.meals[2].items.find(x=>x.id==="chicken").qty>=160,"No tiny lunch protein portions");
+ assert.ok(plan.meals.flatMap(x=>x.items).filter(x=>["apple","mandarin"].includes(x.id)).every(x=>x.qty<=220),"Fruit portions stay reasonable");
  const all=plan.meals.flatMap(x=>x.items);
  assert.equal(all.some(x=>x.id==="whey_powder"),includeWhey);
  assert.ok(all.every(x=>x.qty>0&&x.qty<701));
@@ -41,6 +47,10 @@ assert.equal(swapped.meals[2].items[1].id,"rice");
 assert.notEqual(swapped.meals[2].items[1].k,original.meals[2].items[1].k,"Swaps must load correct nutrient source");
 assert.throws(()=>swapGuidedFood(original,"almuerzo",1,"oil",catalog));
 assert.throws(()=>swapGuidedFood(original,"almuerzo",1,"fake",catalog));
+const adjusted=structuredClone(swapped);
+adjusted.meals[2].items[1].qty=200;adjusted.meals[2].items[1].locked=true;
+const protectedEdit=rebalanceGuidedDay(adjusted,goal);
+assert.equal(protectedEdit.meals[2].items[1].qty,200,"Coach-entered portion must survive automatic rebalancing");
 const balanced=rebalanceGuidedDay(swapped,goal);
 assert.equal(balanced.meals[2].items[1].id,"rice","Rebalancing preserves chosen foods");
 assert.doesNotThrow(()=>validateGuidedDay(balanced,goal));

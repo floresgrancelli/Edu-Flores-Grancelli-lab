@@ -44,6 +44,8 @@ jobs:
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
+      - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)
+        run: node efg-nutrition/tests/ux-sprint1.mjs
       - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
         run: node efg-nutrition/tests/food-catalog-expansion.mjs
       - name: Validate expanded Argentine foods, sushi, pizza and sweets

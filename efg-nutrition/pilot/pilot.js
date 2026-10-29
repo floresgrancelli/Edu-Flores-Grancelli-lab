@@ -16,6 +16,7 @@ import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
@@ -358,7 +359,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -448,20 +449,35 @@ function getHabitualList(slot){
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
+const habitualEntryKey=(item,index)=>String(item.id||"local-"+index);
 function habitualPickerHTML(slot){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
+ const requested=state.habitualSelection[slot]||"";
+ const selectedIndex=list.findIndex((item,i)=>habitualEntryKey(item,i)===requested);
+ const choice=selectedIndex>=0?selectedIndex:list.length===1?0:-1;
+ const selected=choice<0?null:list[choice];
+ const selectedKey=selected?habitualEntryKey(selected,choice):"";
+ state.habitualSelection[slot]=selectedKey;
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
- '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" selected>Elegí una de tus '+list.length+' comidas habituales</option>'+
- list.map(x=>'<option value="'+escapeHTML(x.id||'')+'">'+escapeHTML(x.name)+'</option>').join('')+'</select>'+
+ '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
+ list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item))+'</option>').join('')+'</select>'+
+ '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
- '<small>Elegí una alternativa guardada para este horario. Se registrará únicamente al tocar «Registrar habitual».</small></div>';
+ '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
+}
+function updateHabitualPreview(slot){
+ const id=document.getElementById('habitualChoice_'+slot)?.value||"";
+ state.habitualSelection[slot]=id;
+ const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
+ const host=document.getElementById('habitualPreview_'+slot);
+ if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
 }
 function chosenHabitual(slot){
  const id=document.getElementById('habitualChoice_'+slot)?.value;
  if(!id)throw Error('Primero elegí una comida habitual de la lista.');
- const item=getHabitualList(slot).find(x=>String(x.id)===String(id));
+ const item=getHabitualList(slot).find((x,index)=>habitualEntryKey(x,index)===String(id));
  if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
  return item;
 }
@@ -474,6 +490,7 @@ async function deleteChosenHabitual(slot){
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
+ state.habitualSelection[slot]="";
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
 }
 async function applyChosenHabitual(slot){
@@ -499,6 +516,7 @@ async function habitualAction(slot,action){
   const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
   if(error)throw error;
   cloudHabituales.push(data);
+  state.habitualSelection[slot]=String(data.id);
   notify("Guardaste «"+clean+"» en tu cuenta.");return render();
  }
  const favorites=getHabitualList(slot);
@@ -566,17 +584,39 @@ async function createPersonalRecipe(){
  cloudRecipes.push(data);
  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
-async function registerPersonalRecipe(){
+let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
+function closeRecipeRegistration(){
+ document.getElementById("efgRecipeRegisterOverlay")?.remove();
+ if(recipeDialogReturnFocus?.isConnected)recipeDialogReturnFocus.focus({preventScroll:true});
+ recipeDialogReturnFocus=null;
+}
+function registerPersonalRecipe(){
  const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
- const choice=prompt("Elegí la receta a registrar:\n"+saved.map((r,i)=>(i+1)+". "+r.name+" · "+num(r.totals.k/r.portions)+" kcal/porción").join("\n"),"1");
- if(choice===null)return;const selected=saved[Number(choice)-1];if(!selected)throw Error("Número de receta inválido.");
- const meal=prompt("Elegí la comida:\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"5");
- if(meal===null)return;const slot=mealSlots[Number(meal)-1]?.[0];if(!slot)throw Error("Comida inválida.");
- const qtyText=prompt("¿Cuántas porciones comiste?","1");if(qtyText===null)return;
- const qty=Number(qtyText.replace(",","."));if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Número de porciones inválido.");
- const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
- for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
- const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;await saveDiary();notify("Receta registrada y macros recalculados.");
+ closeRecipeRegistration();
+ recipeDialogReturnFocus=document.activeElement;
+ root.insertAdjacentHTML("beforeend",'<div class="efg-recipe-register-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle">'+
+ '<div class="between"><h2 id="efgRecipeRegisterTitle">Registrar receta propia</h2><button type="button" class="btn small ghost" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">✕</button></div>'+
+ '<p class="pilot-hint">Elegí la preparación, el horario y las porciones realmente consumidas. Nada se registrará hasta que confirmes.</p>'+
+ '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterSlot">Horario de comida</label><select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+escapeHTML(m[0])+'">'+escapeHTML(m[1])+'</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterQty">Porciones consumidas</label><input type="number" id="efgRecipeRegisterQty" value="1" min="0.1" max="20" step="any" inputmode="decimal"></div>'+
+ '<div class="efg-recipe-register-actions"><button type="button" class="btn light" data-act="closeRecipeRegistration">Cancelar</button><button type="button" class="btn" data-act="confirmRecipeRegistration">Registrar y recalcular</button></div></section></div>');
+ document.getElementById("efgRecipeRegisterId")?.focus({preventScroll:true});
+}
+async function confirmRecipeRegistration(){
+ if(recipeRegistrationBusy)return;
+ const selected=myRecipes().find(r=>r.id===document.getElementById("efgRecipeRegisterId")?.value);
+ const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
+ const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
+ if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
+ recipeRegistrationBusy=true;
+ try{
+  const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+  for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
+  const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;
+  await saveDiary();
+  closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+ }finally{recipeRegistrationBusy=false;}
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
@@ -657,9 +697,9 @@ async function completeWelcome(){
 }
 function loginView(message=""){
  const verification=!!state.otpEmail;
- const title=verification?"Ingresá el código que recibiste":"Ingresá a tu espacio privado.";
+ const title=verification?"Revisá tu correo":"Ingresá a tu espacio privado.";
  const details=verification
-  ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
+  ?"Si tu cuenta está habilitada, recibirás un código de verificación en <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
   ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Al ingresar con este código, autorizás a tu coach asignado a consultar tus registros nutricionales, peso, actividad y suplementos para tu seguimiento. Podrás revocar el acceso desde la app. El código verifica tu identidad; ingresarlo confirma esta autorización.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
@@ -684,8 +724,10 @@ async function requestOtp(email){
   loginView("Si tu correo está habilitado, recibirás un código numérico de acceso. Puede tardar unos instantes; revisá Spam si es necesario.");
  }catch(err){
   state.loggingIn=false;
-  fail(err);
-  loginView(err.message);
+  // Do not reveal provider messages that could expose email/account existence.
+  console.warn("EFG OTP request",err?.code||"failed");
+  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
+  loginView(connection?"No pudimos conectar con el servicio. Revisá tu conexión y volvé a intentarlo.":"No pudimos solicitar el código en este momento. Intentá nuevamente en unos instantes.");
  }
 }
 async function confirmOtp(token){
@@ -693,9 +735,11 @@ async function confirmOtp(token){
  const code=String(token||"").trim();
  if(!email||!/^\d{6,10}$/.test(code))throw new Error("El código debe tener entre 6 y 10 dígitos numéricos.");
  state.loggingIn=true;
+ let verified=false;
  try{
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
   if(error)throw error;
+  verified=true;
   const who=(await sb.auth.getUser()).data?.user;
   if(who?.id)sessionStorage.setItem("efgNutritionCoachConsent:"+who.id,"yes");
   state.otpEmail=null;
@@ -703,8 +747,10 @@ async function confirmOtp(token){
   await refresh();
  }catch(err){
   state.loggingIn=false;
-  fail(err);
-  loginView("El código es incorrecto o venció. Revisá el correo o solicitá otro.");
+  console.warn("EFG OTP verification",err?.code||"failed");
+  if(verified){sessionConnectionRetry();return;}
+  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
+  loginView(connection?"No pudimos verificar tu código por un problema de conexión. Volvé a intentarlo.":"El código es incorrecto o venció. Revisá el correo o solicitá otro.");
  }
 }
 function sessionConnectionRetry(){
@@ -1203,19 +1249,28 @@ async function addPlannedFood(key){
  state.plannerDraftGrams={};
  await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
 }
+let mealDialogReturnFocus=null;
+function closeMealDialog(){
+ const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
+ state.activeMeal=null;
+ if(mealDialogReturnFocus?.isConnected)mealDialogReturnFocus.focus({preventScroll:true});
+ mealDialogReturnFocus=null;
+}
 function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
  const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  state.activeMeal=slot;state.lastEditedMeal=slot;
+ mealDialogReturnFocus=document.activeElement;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
- '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
+ '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
  '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
+ document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -1407,14 +1462,14 @@ const fatOptions=(f=".9")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/
 function macroPlayground(){
  const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.9,recompMode:"deficit05"};
  const fields=[["previewAge","Edad",i.age,18,90],["previewHeight","Altura (cm)",i.height,120,220],["previewWeight","Peso (kg)",i.weight,35,300]];
- const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label>'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
- '<div class="field-row"><div class="field"><label>Ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
- '<div class="field"><label>Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
- '<div class="field-row"><div class="field"><label>Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
- '<div class="field"><label>Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
- '<div class="field"><label>Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
+ const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label for="'+q[0]+'">'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
+ '<div class="field-row"><div class="field"><label for="previewSex">Sexo utilizado por la ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
+ '<div class="field"><label for="previewActivity">Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
+ '<div class="field-row"><div class="field"><label for="previewModel">Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
+ '<div class="field"><label for="previewProtein">Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
+ '<div class="field"><label for="previewFat">Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. Ten Haaf es alternativa para deportistas entrenados, no una garantía de precisión. Proteína automática: 2,0 g/kg para recomposición y descenso, 1,8 g/kg para aumento muscular; grasas iniciales de 0,9 g/kg, ambas ajustables.</p>'+
- '<div class="field"><label>Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
+ '<div class="field"><label for="previewRecompMode">Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
  '<button class="btn" data-act="previewMacros">Calcular los 3 objetivos</button></div>';
  let cards="";
  if(state.macroPreview){
@@ -2034,7 +2089,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
+  if(switchingUser){state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
@@ -2245,7 +2300,9 @@ if(el.dataset.foodbulk){
  }
  if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
- if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
+ if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
+ if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
+ if(el.dataset.act==="closeRecipeRegistration"){closeRecipeRegistration();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
@@ -2314,7 +2371,7 @@ if(el.dataset.foodbulk){
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
+ if(action==="logout"){await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
@@ -2336,7 +2393,7 @@ if(el.dataset.foodbulk){
   else window.prompt("Copiá el informe:",content);
   return;
  }
- if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
+ if(action==="closeMeal"){closeMealDialog();return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
@@ -2422,7 +2479,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
-root.addEventListener("change",e=>{invalidateCoachDraft(e);if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
+root.addEventListener("change",e=>{invalidateCoachDraft(e);if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
  state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();
@@ -2446,6 +2503,17 @@ root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
+document.addEventListener("keydown",event=>{
+ const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
+ if(!dialog)return;
+ if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
+ if(event.key!=="Tab")return;
+ const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
+ if(!items.length)return;
+ const first=items[0],last=items[items.length-1];
+ if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}
+});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

@@ -662,3 +662,56 @@ body .pilot-layout .efg-habitual-picker small,body .pilot-layout .efg-no-habitua
  font-size:12px;color:#556176!important;line-height:1.5;
 }
 body .pilot-layout .efg-no-habitual{background:#f1ede8;padding:10px 14px;border-radius:12px}
+
+/* UX Sprint 1: accessible own-recipe registration, mobile-first and Luxury Night. */
+.efg-recipe-register-overlay{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));background:#101b2ed9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.efg-recipe-register-card{width:min(100%,500px);max-height:90dvh;overflow-y:auto;padding:clamp(18px,4vw,28px);border:1px solid #b99c6c;border-radius:24px;background:linear-gradient(142deg,#f4eee5,#e1dcda 72%,#d4d1d2);box-shadow:0 24px 70px #09192b80,inset 0 1px #fff8ed;color:#243750}
+.efg-recipe-register-card h2{margin:0;font:700 clamp(22px,4vw,28px)/1.2 "Iowan Old Style",Georgia,serif;color:#1c3049}
+.efg-recipe-register-card .field{margin:16px 0}
+.efg-recipe-register-card .field label{display:block;font-weight:750;margin-bottom:6px;color:#25394f}
+.efg-recipe-register-card select,.efg-recipe-register-card input{display:block;box-sizing:border-box;width:100%;min-height:48px;padding:10px 13px;border:1px solid #a99e8e;border-radius:13px;background:#faf7f0;color:#172c45;font-size:16px}
+.efg-recipe-register-card select:focus-visible,.efg-recipe-register-card input:focus-visible,.efg-recipe-register-card button:focus-visible{outline:3px solid #b28d4e;outline-offset:2px}
+.efg-recipe-register-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;flex-wrap:wrap}
+.efg-recipe-register-actions button{min-height:46px}
+@media(max-width:420px){.efg-recipe-register-actions button{flex:1 1 130px}}
+
+/* Habituales: always preview the exact saved menu before registration. */
+body .pilot-layout .efg-habitual-preview-host{min-width:0;width:100%}
+body .pilot-layout .efg-habitual-preview{
+ margin:3px 0 5px;padding:13px 14px 12px;border-radius:15px;
+ background:linear-gradient(155deg,#fcfaf5,#eae9e8);
+ border:1px solid #c8bba6;box-shadow:inset 0 1px 0 #ffffff,0 3px 9px #192d4312;
+ color:#263a50;overflow-wrap:anywhere;
+}
+body .pilot-layout .efg-habitual-preview-empty{font-size:13px;color:#56697a;line-height:1.55}
+body .pilot-layout .efg-habitual-preview-heading{
+ display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:7px;
+ margin-bottom:9px;
+}
+body .pilot-layout .efg-habitual-preview-heading strong{font-size:15px;font-weight:850;color:#1a3348}
+body .pilot-layout .efg-habitual-preview-heading span{
+ color:#385b60;background:#e0ece9;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:750;
+}
+body .pilot-layout .efg-habitual-preview-foods{
+ list-style:none;margin:0;padding:0;display:grid;gap:0;max-height:265px;overflow-y:auto;
+ scrollbar-width:thin;
+}
+body .pilot-layout .efg-habitual-preview-foods li{
+ display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+ padding:9px 1px;border-bottom:1px solid #d8d7d3;font-size:13px;line-height:1.4;
+}
+body .pilot-layout .efg-habitual-preview-foods li:last-child{border-bottom:0}
+body .pilot-layout .efg-habitual-food-name{font-weight:650;color:#294656;min-width:0;flex:1}
+body .pilot-layout .efg-habitual-food-qty{flex-shrink:0;color:#3a5b59;font-weight:750;white-space:nowrap}
+body .pilot-layout .efg-habitual-preview-macros{
+ margin:10px 0 4px!important;padding:8px 10px;border-radius:10px;
+ background:#e0e8e1;color:#264b47;font-size:12px;line-height:1.5;font-weight:800;
+}
+body .pilot-layout .efg-habitual-preview-note{
+ font-size:11px!important;margin:7px 0 0!important;color:#68717c!important;line-height:1.5;
+}
+@media(max-width:420px){
+ body .pilot-layout .efg-habitual-preview{padding:11px}
+ body .pilot-layout .efg-habitual-preview-foods li{font-size:12px;gap:7px}
+ body .pilot-layout .efg-habitual-food-qty{font-size:12px}
+}

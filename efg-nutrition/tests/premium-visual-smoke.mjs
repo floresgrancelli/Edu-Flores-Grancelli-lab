@@ -441,6 +441,24 @@ try{
      await page.locator('button[data-act="previewMacros"]').click();
      if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
    }
+   if(role==="student"&&width===1280&&dest==="home"){
+    // Reproduce MacBook video: typing in the main meal must show a visible list
+    // and choosing an item must update the real native food selector.
+    await page.evaluate(()=>window.__EFG_VISUAL_QA__.openMealDialog("almuerzo"));
+    await page.locator("#mealFoodSearch").fill("lech");
+    const suggestions=page.locator("#mealFoodSuggestions [data-mealsuggestion]");
+    if(!(await suggestions.count()))pageReport.errors.push("MacBook: food search has no visible matches while typing lech");
+    else{
+      const first=suggestions.first(),id=await first.getAttribute("data-mealsuggestion");
+      if(!(await first.isVisible()))pageReport.errors.push("MacBook: food results hidden while typing");
+      await first.click();
+      if(await page.locator("#mealEditorFood").inputValue()!==id)
+        pageReport.errors.push("MacBook: suggestion click did not select catalog food");
+      if(!(await page.locator("#mealEditorHint").innerText()).includes("kcal"))
+        pageReport.errors.push("MacBook: suggestion did not update meal nutrients");
+    }
+    await page.locator('[data-act="closeMeal"]').click();
+   }
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
     const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));

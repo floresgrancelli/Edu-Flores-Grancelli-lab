@@ -358,7 +358,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null};
+const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -758,8 +758,71 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
 }
+/* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
+   de una fila RLS creada/aprobada por el coach; sin tabla, permiso = NO. */
+function currentWeekMonday(){
+ const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));
+ return d.toISOString().slice(0,10);
+}
+function weeklyScoreForCoach(){
+ return calculateWeeklyConsistency({today:today(),logs:state.coachProgressLogs||[],
+   goals:state.coachGoals||[],totalOf:dailyTotals,goalForDate});
+}
+async function loadSundayPermission(studentId){
+ state.rewardApproval=null;state.rewardFeatureReady=false;
+ if(!studentId||!state.session?.user?.id)return;
+ if(state.profile.role!=="student"&&(!state.selectedStudent||!state.consent?.accepted))return;
+ const {data,error}=await sb.from("efg_sunday_rewards")
+   .select("student_id,week_monday,coach_id,approved,approved_at")
+   .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle();
+ if(error){
+  // La migración todavía puede estar pendiente: nunca atribuir una
+  // autorización sin prueba persistida, y nunca bloquear el diario.
+  console.warn("Permiso dominical no disponible; no se concede autorización.",error.code);
+  return;
+ }
+ state.rewardFeatureReady=true;state.rewardApproval=data||null;
+}
+function coachRewardPanel(){
+ if(!state.selectedStudent||!state.consent?.accepted)return "";
+ const score=weeklyScoreForCoach();
+ const eligible=score.acceptable===6&&score.evaluated===6;
+ const approved=state.rewardFeatureReady&&state.rewardApproval?.approved===true &&
+    state.rewardApproval?.coach_id===state.session?.user?.id &&
+    state.rewardApproval?.week_monday===score.monday && !!state.rewardApproval?.approved_at;
+ return '<section class="efg-coach-reward card" aria-labelledby="coachRewardTitle">'+
+ '<h3 id="coachRewardTitle">✦ COMIDA LIBRE DOMINICAL</h3>'+
+ '<p class="pilot-hint">Permiso individual y explícito. Solo disponible con 6/6 días cumplidos y consentimiento activo. No registra ni altera comidas.</p>'+
+ '<strong>'+score.acceptable+'/6 DÍAS CUMPLIDOS</strong>'+
+ (!eligible?'<p class="pilot-hint">La opción se habilita después de completar los seis días de lunes a sábado. No se adelantan premios.</p>':
+  !state.rewardFeatureReady?'<p class="pilot-alert">La autorización persistente todavía no está habilitada. No se puede conceder permiso desde esta versión.</p>':
+  '<div class="efg-reward-coach-controls"><span class="pilot-pill">'+(approved?'Autorizada por vos':'Sin autorización')+'</span>'+
+  '<button type="button" class="btn small '+(approved?'ghost':'light')+'" data-reward-approval="'+(approved?'no':'yes')+'">'+
+  (approved?'REVOCAR AUTORIZACIÓN':'AUTORIZAR COMIDA LIBRE EL DOMINGO')+'</button></div>')+
+ '</section>';
+}
+async function updateSundayPermission(approve){
+ const p=state.profile,student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
+ const isCoach=p?.role==="coach"||(p?.role==="admin"&&state.org?.is_test===true&&state.org?.coach_id===state.session?.user?.id);
+ if(!isCoach||!student||!state.consent?.accepted||!state.rewardFeatureReady)
+  throw Error("No hay permiso de coach disponible para este alumno.");
+ const score=weeklyScoreForCoach();
+ if(score.acceptable!==6||score.evaluated!==6)throw Error("Todavía no completó los seis días válidos.");
+ if(!window.confirm(approve?
+  "¿Autorizás expresamente una comida libre este domingo para este alumno?":
+  "¿Revocás la autorización de comida libre de este domingo?"))return;
+ const row={student_id:student.user_id,week_monday:score.monday,
+  coach_id:state.session.user.id,approved:approve,approved_at:approve?new Date().toISOString():null,
+  updated_at:new Date().toISOString()};
+ const {data,error}=await sb.from("efg_sunday_rewards")
+   .upsert(row,{onConflict:"student_id,week_monday"})
+   .select("student_id,week_monday,coach_id,approved,approved_at").single();
+ if(error)throw error;state.rewardApproval=data;
+ await render();notify(approve?"Autorización individual guardada.":"Autorización revocada.");
+}
+
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
@@ -767,7 +830,7 @@ function homeView(){
   ?weeklyConsistencyPanel(calculateWeeklyConsistency({
     today:today(),logs:[...(state.progressLogs||[]),...(state.diary?[state.diary]:[])],
     goals:state.goals,totalOf:dailyTotals,goalForDate
-   })):"";
+   }),{opened:state.rewardOpened===true,verified:state.rewardFeatureReady===true,approved:state.rewardFeatureReady===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
@@ -790,9 +853,10 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
   return rootText("MI DÍA","Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
+ '<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+
  pastelDaySummary(tot,goal,d,mealSlots)+
  weeklyPanel+
- '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">HOY · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
+ '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
@@ -1288,7 +1352,7 @@ function coachHomeView(){
  const roster=(state.roster||[]).filter(p=>p.active);
  const pending=(test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
- return rootText(test?"Mi laboratorio de coach":"Hola, "+state.profile.nickname,"Alumnos, seguimiento e informes: lo importante está a un toque.")+
+ return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Alumnos, seguimiento e informes: lo importante está a un toque.")+
  '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
@@ -1589,6 +1653,7 @@ function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
  return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ coachRewardPanel()+
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
@@ -1603,7 +1668,7 @@ function studentDetailView(p,consent){
 
 function adminHomeView(){
  const orgs=state.orgs||[];
- return rootText("Hola, "+state.profile.nickname,"Tu centro de control EFG. Todos los espacios, en un único lugar.")+
+ return rootText("HOLA, "+escapeHTML(state.profile.nickname),"Tu centro de control EFG. Todos los espacios, en un único lugar.")+
  '<section class="efg-admin-banner"><span class="eyebrow">EFG NUTRITION PRO · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos habilitados</span></div></div>'+
  '<section class="efg-menu-grid">'+[
@@ -1844,6 +1909,7 @@ async function loadStudentDetail(studentId){
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
+ state.rewardApproval=null;state.rewardFeatureReady=false;
  state.coachFoodPlan=null;
  if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
  const results=await Promise.all([
@@ -1856,6 +1922,7 @@ async function loadStudentDetail(studentId){
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
+ await loadSundayPermission(studentId);
 }
 async function refresh(){
  if(state.loading)return;
@@ -1873,7 +1940,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.selectedStudent=null;state.tab="home";}
+  if(switchingUser){state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
@@ -1885,6 +1952,7 @@ async function refresh(){
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
+  if(state.profile.role==="student")await loadSundayPermission(id);
   await inbox.refresh();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
    // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
@@ -1988,6 +2056,8 @@ async function showProof(path){
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
  if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
+ if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
+ if(el.dataset.rewardApproval){await updateSundayPermission(el.dataset.rewardApproval==="yes");return;}
  if(el.dataset.fitfilter){state.fitFilter=el.dataset.fitfilter;await render();document.querySelector(".efg-fit-library")?.scrollIntoView({block:"start"});return;}
  if(el.dataset.fitrecipe){return registerFitRecipe(el.dataset.fitrecipe);}
  if(el.dataset.copyalias){const alias=state.org?.payment_alias;if(!alias)throw new Error("Tu coach todavía no configuró un alias.");if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(alias);notify("Alias copiado.");}else window.prompt("Copiá el alias:",alias);return;}

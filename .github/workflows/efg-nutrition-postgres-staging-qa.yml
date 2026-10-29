@@ -6,6 +6,7 @@ on:
     paths:
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
+      - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/sql/**'
       - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
   workflow_dispatch:
@@ -56,9 +57,12 @@ jobs:
           fi
           echo "Ephemeral PostgreSQL 17 verified; all data and claims below are synthetic."
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql
           echo "PASS: ephemeral PostgreSQL 17 syntax and synthetic transaction scenarios."
       - name: State the limits

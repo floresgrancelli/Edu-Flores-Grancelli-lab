@@ -47,3 +47,13 @@ assert.match(html,/20261028-phase3-pastel-preview1/,"Release must invalidate Saf
 
 console.log("PASS: inbox + messages UI, no-refresh refresh, SQL RLS guards, Friday scheduling, dedicated tabs.");
 console.log("LIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific send/read, Friday cron, two devices.");
+
+
+assert.ok(messages.includes('id="efgChatSearch"'),"Contact search required");
+assert.ok(messages.includes('data-chat-filter="unread"'),"Unread filter required");
+assert.ok(messages.includes('data-chat-contact'),"Contact opens chat");
+assert.ok(messages.includes('data-chat-back="1"'),"Mobile back to list");
+assert.ok(messages.includes('consented?.[x.user_id]'),"Only consented students in coach inbox");
+assert.ok(messages.includes('.in("student_id",people.map'),"Coach inbox filtered to permitted students");
+assert.ok(inbox.includes('efg-notify-bell-svg'),"Vector notification bell required");
+assert.ok(read("efg-nutrition/pilot/notifications-ui.css").includes("background:transparent!important"),"Bell must float without tile");

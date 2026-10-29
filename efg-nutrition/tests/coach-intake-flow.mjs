@@ -98,6 +98,7 @@ assert.equal(writeCount,3);
 assert.equal(submitted[2].shared_at,null,"Revocation must clear share permission");
 assert.equal(state.studentIntake.shared_at,null);
 assert.equal(renders,3);
+state.consent=null; // Test subsequent publish denial without follow-up consent.
 
 // Reject invalid fields before writing. This is UX validation, not a substitute for RLS.
 fields.efgIntakeAge.value="17";

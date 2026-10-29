@@ -3,6 +3,7 @@ import {readFileSync} from "node:fs";
 import {EXTRA_FOODS,FOOD_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText,EXPANDED_COUNT} from "../pilot/food-catalog.js";
 import {EXPANDED_FOODS,EXPANDED_ALIASES,VERIFIED_SOURCE_COUNT} from "../pilot/food-expansion.js";
 import {VERIFIED_FOODS} from "../pilot/food-source-audit.js";
+import {PLANT_BAKERY_FOODS,PLANT_BAKERY_COUNT,PLANT_BAKERY_PORTIONS} from "../pilot/food-plant-bakery-phase3.js";
 const pilot=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
 const index=readFileSync("efg-nutrition/pilot/index.html","utf8");
 const normalize=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -69,3 +70,42 @@ assert.ok(index.includes("luxury-theme.css?v=20261029-coach-commercial-r2"),"Lux
 assert.equal(VERIFIED_SOURCE_COUNT,20);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));
 console.log("PASS expanded catalogue: "+EXPANDED_COUNT+" new foods, "+EXTRA_FOODS.length+" existing extension foods, units, source flags, synonyms and numeric macros");
+
+// Phase 3 catalog: bakery + proteins without duplicating the existing tofu,
+// tempeh, seitan, legumes or the gummy candies that were already available.
+assert.equal(PLANT_BAKERY_COUNT,16);
+assert.equal(PLANT_BAKERY_FOODS.length,16);
+assert.equal(new Set(PLANT_BAKERY_FOODS.map(f=>f.id)).size,16);
+assert.ok(PLANT_BAKERY_FOODS.every(f=>EXTRA_FOODS.some(entry=>entry.id===f.id)));
+assert.ok(PLANT_BAKERY_FOODS.every(f=>f.sourceType==="generic_estimate"&&f.validationStatus==="generico_pendiente"));
+assert.ok(PLANT_BAKERY_FOODS.every(f=>/NO representa una marca/.test(f.source)&&!f.sourceId));
+assert.ok(PLANT_BAKERY_FOODS.every(f=>["bakery","prepared","legumes","plant"].includes(f.category)));
+assert.ok(PLANT_BAKERY_FOODS.every(f=>["k","p","c","f","fi"].every(k=>Number.isFinite(f[k])&&f[k]>=0)));
+for(const f of PLANT_BAKERY_FOODS){
+ assert.ok(f.k>0&&f.k<8,"Plausible per-gram energy range: "+f.id);
+ assert.equal(FOOD_UNIT_PORTIONS[f.id]?.grams,PLANT_BAKERY_PORTIONS[f.id]?.grams);
+ const derived=(f.p*4+f.c*4+f.f*9);
+ assert.ok(Math.abs(f.k-derived)<.01,"Consistent calorie estimate: "+f.id);
+}
+for(const [query,id] of [
+ ["pan comun de panaderia","pan_frances"],["pan mignon","pan_mignon_panaderia"],
+ ["pan de campo","pan_campo_panaderia"],["ositos","gomitas_frutales"],
+ ["gomitas acidas","gomitas_acidas"],["golosinas","gomitas_frutales"],
+ ["tofu ahumado","tofu_ahumado_generic"],["lentejas rojas","lentils_red_cooked"],
+ ["porotos mung","mung_beans_cooked"],["hamburguesa vegana soja","soy_tvp_burger_home"],
+ ["albondigas veganas","soy_tvp_meatballs_home"],["tortilla vegana","chickpea_omelette_home"],
+ ["pasta legumbres","lentil_pasta_dry_generic"],["yogur vegano","soy_yogurt_plain_generic"]
+]){
+ const food=find(id);
+ assert.ok(food,"Missing catalog record "+id);
+ const hay=normalize(foodSearchText(food));
+ assert.ok(query.split(" ").every(word=>hay.includes(normalize(word))),"Search "+query+" failed for "+id);
+}
+assert.ok(FOOD_CATEGORIES.some(([id,label])=>id==="candy"&&/Golosinas/.test(label)),"Golosinas needs its own visible category");
+for(const id of ["gomitas_frutales","gomitas_acidas","caramelos_duros","chupetin_dulce","malvaviscos","pastillas_menta"]){
+ assert.equal(find(id)?.category,"candy","Candy must appear under Golosinas: "+id);
+}
+assert.equal(EXTRA_FOODS.filter(f=>f.id==="gomitas_frutales").length,1);
+assert.equal(EXTRA_FOODS.filter(f=>f.id==="pan_frances").length,1);
+assert.equal(EXTRA_FOODS.filter(f=>f.id==="tofu_firm").length,1);
+console.log("PASS phase 3: 16 new regional/plant foods, transparent estimates, pan común & gomitas synonyms and no duplicate IDs.");

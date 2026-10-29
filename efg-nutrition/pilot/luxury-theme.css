@@ -662,3 +662,15 @@ body .pilot-layout .efg-habitual-picker small,body .pilot-layout .efg-no-habitua
  font-size:12px;color:#556176!important;line-height:1.5;
 }
 body .pilot-layout .efg-no-habitual{background:#f1ede8;padding:10px 14px;border-radius:12px}
+
+/* UX Sprint 1: accessible own-recipe registration, mobile-first and Luxury Night. */
+.efg-recipe-register-overlay{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));background:#101b2ed9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.efg-recipe-register-card{width:min(100%,500px);max-height:90dvh;overflow-y:auto;padding:clamp(18px,4vw,28px);border:1px solid #b99c6c;border-radius:24px;background:linear-gradient(142deg,#f4eee5,#e1dcda 72%,#d4d1d2);box-shadow:0 24px 70px #09192b80,inset 0 1px #fff8ed;color:#243750}
+.efg-recipe-register-card h2{margin:0;font:700 clamp(22px,4vw,28px)/1.2 "Iowan Old Style",Georgia,serif;color:#1c3049}
+.efg-recipe-register-card .field{margin:16px 0}
+.efg-recipe-register-card .field label{display:block;font-weight:750;margin-bottom:6px;color:#25394f}
+.efg-recipe-register-card select,.efg-recipe-register-card input{display:block;box-sizing:border-box;width:100%;min-height:48px;padding:10px 13px;border:1px solid #a99e8e;border-radius:13px;background:#faf7f0;color:#172c45;font-size:16px}
+.efg-recipe-register-card select:focus-visible,.efg-recipe-register-card input:focus-visible,.efg-recipe-register-card button:focus-visible{outline:3px solid #b28d4e;outline-offset:2px}
+.efg-recipe-register-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;flex-wrap:wrap}
+.efg-recipe-register-actions button{min-height:46px}
+@media(max-width:420px){.efg-recipe-register-actions button{flex:1 1 130px}}

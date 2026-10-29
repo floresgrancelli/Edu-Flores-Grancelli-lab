@@ -1283,8 +1283,8 @@ function openMealDialog(slot,initialGroup="protein"){
  const guidedPanel=guided?'<section class="efg-meal-guidance" aria-label="Armá tu comida por partes">'+
   '<p class="pilot-hint">Elegí qué comiste. Podés agregar más de un alimento por sección o usar un plato preparado. Omitir es opcional: no obliga a consumir ese grupo.</p>'+
   '<div class="efg-meal-guidance-grid">'+GUIDED_MEAL_GROUPS.map(g=>
-   '<div class="efg-meal-guidance-choice"><button type="button" data-mealgroup="'+g.id+'" aria-pressed="'+(g.id===activeGuidedMealGroup)+'" class="efg-guidance-tab'+(g.id===activeGuidedMealGroup?' selected':'')+'">'+escapeHTML(g.title)+'</button>'+
-   ((g.id==="protein"||g.id==="carb")?'<button type="button" class="efg-guidance-omit" data-mealomit="'+g.id+'" aria-pressed="'+marks[g.id]+'">'+(marks[g.id]?'✓ Omitido':'Omitir')+'</button>':'')+
+   '<div class="efg-meal-guidance-choice"><button type="button" data-act="guidedMealGroup" data-mealgroup="'+g.id+'" aria-pressed="'+(g.id===activeGuidedMealGroup)+'" class="efg-guidance-tab'+(g.id===activeGuidedMealGroup?' selected':'')+'">'+escapeHTML(g.title)+'</button>'+
+   ((g.id==="protein"||g.id==="carb")?'<button type="button" class="efg-guidance-omit" data-act="guidedMealOmit" data-mealomit="'+g.id+'" aria-pressed="'+marks[g.id]+'">'+(marks[g.id]?'✓ Omitido':'Omitir')+'</button>':'')+
    '</div>').join("")+'</div>'+
   '<p class="efg-meal-guidance-hint" id="mealGuidanceHint" aria-live="polite">'+escapeHTML(GUIDED_MEAL_GROUPS.find(g=>g.id===activeGuidedMealGroup).hint)+'</p>'+
   '<p class="efg-meal-guidance-fat">Grasas registradas en esta comida: <strong>'+num(current.f,1)+' g</strong>. Se calculan solas con todo lo que elegís.</p>'+

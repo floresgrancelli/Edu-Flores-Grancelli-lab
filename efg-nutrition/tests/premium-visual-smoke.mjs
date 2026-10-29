@@ -112,7 +112,7 @@ try{
    state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
    state.coachGoals=state.goals;
 
-   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
+   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,updated_at:goalStart.toISOString()};
    state.consent={accepted:true};
    state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS",coach_id:role==="admin"?"demo-admin":"demo-coach"};
    state.orgs=[
@@ -125,19 +125,25 @@ try{
      {user_id:"demo-student-b",nickname:"Camila Pérez",email:"alumno.b@example.invalid",role:"student",active:true},
      {user_id:"demo-student-c",nickname:"Lucas Díaz",email:"alumno.c@example.invalid",role:"student",active:false}
    ];
-   state.invitations=[];state.testInvitations=[];state.payments=[];
+   state.invitations=[];state.testInvitations=[];state.payments=[];state.platformAlias="EFG.ALIAS.DEMO";
    state.weights=[];state.activities=[];state.selectedStudent=null;
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachTools","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","home","studentMore","coachTools","coachStudents","reports","payments","recipes"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){
    if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
-   else if(dest==="recipes"||dest==="coachTools")await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
+   else if(dest==="recipes"||dest==="coachTools"||(role==="coach"&&dest==="reports"))await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   if(role==="coach"){
+     const content=await page.locator(".pilot-main").innerText();
+     if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
+     if(dest==="studentMore"&&(!content.includes("Mi planificador")||!content.includes("Mis suplementos")))pageReport.errors.push("Coach MI ESPACIO incomplete");
+     if(dest==="payments"&&(!content.includes("COBRAR A MIS ALUMNOS")||!content.includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing");
+   }
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".
      // El buscador debe mostrar la acción SIN cerrar el teclado Safari.

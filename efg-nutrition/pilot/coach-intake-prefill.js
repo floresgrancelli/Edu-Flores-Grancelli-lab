@@ -36,7 +36,11 @@ export function createCoachCalculatorPrefill({intake,studentId,coachAuthorized=f
  const eligibleForGeneralExample=pattern==="omnivore";
  if(!eligibleForGeneralExample)warnings.push(
   "La guía genérica de cinco comidas contiene alimentos animales y no se genera para este patrón sin un motor dietético revisado.");
- else warnings.push("La ficha general no certifica ausencia de alergias o restricciones: la guía será solo un ejemplo para revisar, nunca un menú declarado seguro.");
+ else {
+  warnings.push("La ficha general no certifica ausencia de alergias o restricciones: la guía será solo un ejemplo para revisar, nunca un menú declarado seguro.");
+  if(String(intake.preferred_foods||"").trim()||String(intake.disliked_foods||"").trim()||String(intake.meal_routine||"").trim())
+   warnings.push("La propuesta automática inicial aún NO incorpora alimentos preferidos, alimentos evitados por gusto ni horarios: el coach debe adaptarla antes de aprobarla.");
+ }
  const context={
   studentId,sourceUpdatedAt:typeof intake.updated_at==="string"&&Number.isFinite(Date.parse(intake.updated_at))?intake.updated_at:null,fields,objective:intake.objective||null,pattern,
   preferredFoods:String(intake.preferred_foods||"").slice(0,400),

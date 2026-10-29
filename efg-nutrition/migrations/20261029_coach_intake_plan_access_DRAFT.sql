@@ -147,7 +147,7 @@ end $$;
 -- invalidate the old timestamp at the database layer. Existing unaffected guides and
 -- legacy student access rows stay intact. Test against genuine JWTs in staging.
 create function efg_private.invalidate_stale_guided_approval()
-returns trigger language plpgsql set search_path='' as $
+returns trigger language plpgsql set search_path='' as $$
 begin
  if (new.guided_plan is distinct from old.guided_plan
      or new.guided_goal_id is distinct from old.guided_goal_id)
@@ -155,7 +155,7 @@ begin
    new.guided_plan_approved_at := null;
  end if;
  return new;
-end $;
+end $$;
 create trigger efg_guard_guided_approval_update
 before update of guided_plan,guided_goal_id,guided_plan_approved_at
 on public.efg_food_plans

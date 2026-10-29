@@ -80,3 +80,13 @@
 @media(max-width:810px){.coach-intake-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-intake-steps ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:500px){.coach-intake-person{flex-wrap:wrap}.coach-intake-actions{width:100%;padding-left:58px}.coach-intake-actions button{flex:1 1 auto}.coach-intake-summary{gap:7px}.coach-intake-steps ol{gap:8px}.coach-intake-intro{padding:18px}}
 @media(max-width:350px){.coach-intake-steps ol{grid-template-columns:1fr}.coach-intake-actions{padding-left:0}}
+
+/* Student onboarding is visible only for server-confirmed pending plans. */
+.efg-student-intake-card .pilot-form{display:grid;gap:14px}
+.efg-student-intake-card input,.efg-student-intake-card select,.efg-student-intake-card textarea{min-height:45px;max-width:100%;font-size:16px}
+.efg-intake-share-label{display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid #c7b99c;border-radius:16px;background:linear-gradient(120deg,#f3f0e9,#e8eff0);color:#284459;font-weight:650;line-height:1.5}
+.efg-intake-share-label input{flex:0 0 auto;width:20px;height:20px;min-height:20px;margin:2px 0 0;accent-color:#766e53}
+.efg-intake-share-label:focus-within{outline:3px solid #ba9b6b;outline-offset:3px}
+.coach-intake-shared{margin:14px 0;border:1px solid #d6d8c9;background:#f8f8f4}
+.coach-intake-shared p{overflow-wrap:anywhere}
+@media(max-width:560px){.efg-student-intake-card .field-row{grid-template-columns:1fr}}

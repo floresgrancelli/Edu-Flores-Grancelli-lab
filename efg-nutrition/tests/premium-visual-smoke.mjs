@@ -112,7 +112,7 @@ try{
    state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
    state.coachGoals=state.goals;
 
-   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
+   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,updated_at:goalStart.toISOString()};
    state.consent={accepted:true};
    state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS",coach_id:role==="admin"?"demo-admin":"demo-coach"};
    state.orgs=[
@@ -131,10 +131,10 @@ try{
    await render();
   },role);
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachTools","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","home","coachStudents","coachMore","planner","recipes","weight","reports","payments","coachTools"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){
    if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
-   else if(dest==="recipes"||dest==="coachTools")await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
+   else if(["recipes","coachTools","planner","weight","reports","payments"].includes(dest))await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
@@ -213,7 +213,16 @@ try{
        pageReport.errors.push("Luxury action has no material gradient: "+action.text);
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
    }
-   if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
+   
+   if(role==="coach"&&dest==="home"){
+     if(!(await page.locator(".efg-weekly-streak").count()))pageReport.errors.push("Coach personal weekly charts are missing");
+     if(!(await page.locator("#selfK").count()))pageReport.errors.push("Coach own goals editor missing");
+     if(!(await page.locator(".student-meal-card").count()))pageReport.errors.push("Coach personal meal register missing");
+     if(!(await page.locator('.pilot-nav button[data-tab="home"]').count()))pageReport.errors.push("Coach lacks MI DÍA direct navigation");
+   }
+   if(role==="coach"&&dest==="coachMore"&&!(await page.locator('.efg-menu-card[data-tab="payments"]').count()))
+     pageReport.errors.push("Coach extra tools must include payments and personal wellness");
+if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
      pageReport.errors.push("Duplicate register CTA should not be visible above the meal cards");
    if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
      const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";

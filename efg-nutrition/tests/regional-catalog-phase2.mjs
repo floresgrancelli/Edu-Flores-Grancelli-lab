@@ -75,5 +75,5 @@ const pilot=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
 const html=readFileSync("efg-nutrition/pilot/index.html","utf8");
 assert.match(pilot,/applyRecipeModels\(foods\);\s*applyRegionalCompositeModels\(foods\)/);
 assert.match(pilot,/rotulo_web_fabricante:/);
-assert.match(html,/20261028-regional2/);
+assert.match(html,/202610(?:28-regional2|29-seats-visible)/);
 console.log("PASS Fase 2: 4 pizzas + 5 sushi en recetas estimadas auditables; 6 etiquetas argentinas, porciones y gramajes correctos; 20 fuentes USDA y otros registros sin alterar.");

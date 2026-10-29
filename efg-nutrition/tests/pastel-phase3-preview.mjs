@@ -43,6 +43,14 @@ assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses
 assert.match(app,/\["adminManage","⚙️","Organizaciones","lilac"\]/,"Admin management entry uses a single legible word");
 assert.match(app,/\["messages","💬","Mensajería interna","mint"\]/,"Admin messaging has a real-product label");
 assert.doesNotMatch(app,/Gestionar organizaciones|Mensajes de prueba/,"Retire misleading or broken labels in admin shortcuts");
+
+assert.doesNotMatch(app,/5 cupos gratuitos de prueba/,"Test seat limit must not be hard-coded");
+assert.match(app,/seats=Number\(org\?\.seat_limit\)\|\|0/,"Seat limit comes from actual organization config");
+assert.match(app,/available=Math\.max\(0,seats-used\)/,"Available seats subtract active members and pending invitations");
+assert.match(app,/data-testseats="1"/,"Admin can update test capacity using existing admin-only RPC");
+assert.match(app,/data-act="inviteStudent".*used>=seats/,"Invite is disabled only when the real limit is reached");
+assert.match(luxury,/\.efg-seats-panel/,"Premium seat capacity panel retains Luxury aesthetic");
+
 assert.ok(css.includes("text-transform:uppercase"),"CSS applies uppercase titles and buttons");
 assert.ok(css.includes(".efg-coach-stat-grid>div"),"Coach and admin stat panels have pastel surfaces");
 assert.ok(css.includes("--pastel-bg:#D9C5E9"),"Deepened lavender canvas");

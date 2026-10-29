@@ -560,3 +560,36 @@ body .pilot-loader .spin{border-top-color:#b59058!important}
  body .pilot-login-art h1{font-size:clamp(29px,7vw,39px)}
  body .efg-onboard-sheet{box-shadow:none!important;border:0!important}
 }
+
+/* Panel de cupos: sólo datos administrativos, sin acceso a diarios privados. */
+body .pilot-layout .efg-seats-panel{
+ padding:18px 20px!important;margin:15px 0!important;
+ background:radial-gradient(circle at 8% 5%,#ffffff99,transparent 54%),
+ linear-gradient(135deg,#f2ece2,#d9dce0)!important;
+ border:1px solid #bea981!important;border-radius:19px!important;
+ box-shadow:inset 0 1px 0 #fff,0 9px 23px #15283c23!important;
+ color:#1c2c41!important;
+}
+body .pilot-layout .efg-seats-panel .section-head{align-items:center;gap:10px;flex-wrap:wrap}
+body .pilot-layout .efg-seats-panel h2{font-family:"Iowan Old Style",Georgia,serif!important;font-size:clamp(17px,4vw,22px);color:#1b304a!important}
+body .pilot-layout .efg-seats-panel p{color:#41536a!important;font-size:13px}
+body .pilot-layout .efg-seats-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:8px;margin:14px 0 11px;
+}
+body .pilot-layout .efg-seats-grid>div{
+ display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;
+ min-width:0;min-height:82px;padding:11px 5px;border-radius:13px;
+ border:1px solid #c0b5a4;
+ background:linear-gradient(155deg,#f7f1e7,#d7d6d5);
+ box-shadow:inset 0 1px 0 #fff9f2,0 4px 10px #1c2c4221;
+}
+body .pilot-layout .efg-seats-grid strong{font-size:clamp(23px,6vw,32px);font-variant-numeric:tabular-nums;color:#1a2d46;line-height:1}
+body .pilot-layout .efg-seats-grid>div:last-child strong{color:#866133}
+body .pilot-layout .efg-seats-grid span{font-size:clamp(10px,2.7vw,12px);font-weight:700;color:#556174;line-height:1.25;text-align:center}
+body .pilot-layout .efg-seats-caption{
+ margin:7px 0 20px;padding:9px 14px;border-radius:12px;
+ color:#283c53;background:linear-gradient(135deg,#f4eee4,#dddbd7);
+ border:1px solid #c4b8a5;font-size:13px;font-weight:700;
+}
+@media(max-width:370px){body .pilot-layout .efg-seats-panel{padding:12px!important}}

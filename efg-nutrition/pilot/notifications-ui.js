@@ -16,7 +16,7 @@ export function createNotificationInbox({sb,getUserId,navigate}){
   if(full)full.innerHTML=available?'<div class="efg-inbox-full-meta">'+count+' pendientes · '+records.length+' recientes</div>'+listMarkup():'<p class="pilot-hint">Las notificaciones estarán disponibles después de activar la actualización del sistema.</p>';
   host.hidden=!getUserId()||!available;
   if(host.hidden)return;
-  host.innerHTML='<button type="button" class="efg-notify-bell" data-efg-action="toggle" aria-label="Notificaciones'+(count?', '+count+' sin leer':'')+'" aria-expanded="'+open+'">🔔'+(count?'<span class="efg-notify-count">'+(count>99?'99+':count)+'</span>':'')+'</button>'+
+  host.innerHTML='<button type="button" class="efg-notify-bell" data-efg-action="toggle" aria-label="Notificaciones'+(count?', '+count+' sin leer':'')+'" aria-expanded="'+open+'"><svg class="efg-notify-bell-svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>'+(count?'<span class="efg-notify-count">'+(count>99?'99+':count)+'</span>':'')+'</button>'+
     (open?'<section class="efg-notify-popup" role="region" aria-label="Bandeja de notificaciones"><div class="efg-notify-title"><strong>Notificaciones</strong><button type="button" data-efg-action="toggle" aria-label="Cerrar">✕</button></div>'+
     listMarkup()+'</section>':'');
  }

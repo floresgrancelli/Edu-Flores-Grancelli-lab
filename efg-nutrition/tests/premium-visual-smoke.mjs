@@ -199,7 +199,7 @@ try{
      const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
      const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
      const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};
-     const selector=".efg-pastel-register,.student-shortcuts button,.efg-quick-more button,.efg-menu-card,.efg-quick-add-grid button";
+     const selector=".student-shortcuts button,.efg-quick-more button,.efg-menu-card";
      return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
        .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
          return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
@@ -272,11 +272,10 @@ try{
      if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
    }
    if(role==="student"&&width===390&&dest==="home"){
-    // Regression for the food-catalog expansion on mobile without live Supabase writes.
-    // El botón principal abre el mismo selector anterior, manteniendo la prueba de catálogo.
-    await page.locator(".efg-pastel-register").click();
-    if(!(await page.locator("#studentQuickAdd").evaluate(el=>el.open)))pageReport.errors.push("Quick-add panel did not open");
-    await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
+    // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
+    const lunch=page.locator(".student-meal-card").nth(2);
+    await lunch.locator("summary").click();
+    await lunch.locator('[data-setmeal="almuerzo"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
@@ -395,15 +394,15 @@ try{
      if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
      if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");
      if(rendered.includes("6.200")||rendered.includes("1,5 L"))pageReport.errors.push("Fake health metrics detected");
-     const openButton=page.locator(".efg-pastel-register");
-     await openButton.click();
-     if(!(await page.locator("#studentQuickAdd").evaluate(x=>x.open)))pageReport.errors.push("Register button failed to open existing selector");
-     await page.locator("#studentQuickAdd").evaluate(x=>x.open=false);
+     if(await page.locator(".efg-pastel-register,#studentQuickAdd").count())
+       pageReport.errors.push("Redundant register button or colored picker still visible");
     }
    }
    if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
+    if(await page.locator('.student-meal-card [data-setmeal]').count()!==6)
+      pageReport.errors.push("Each meal needs its own Add food button");
     const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
     if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");

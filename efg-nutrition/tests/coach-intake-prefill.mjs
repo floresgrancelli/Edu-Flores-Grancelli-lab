@@ -15,6 +15,7 @@ assert.equal(x.sourceUpdatedAt,"2026-10-29T15:01:00Z","Bind prefill to a particu
 assert.equal(x.eligibleForGeneralExample,true);
 assert.ok(x.warnings.some(w=>w.includes("parámetro fisiológico")));
 assert.ok(x.warnings.some(w=>w.includes("alergias")));
+assert.ok(x.warnings.some(w=>w.includes("NO incorpora alimentos preferidos")),"The generic preview must not claim personalization that is not implemented");
 assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_A",consent:true}),true);
 assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_B",consent:true}),false);
 assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_A",consent:false}),false);

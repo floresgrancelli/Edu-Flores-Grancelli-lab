@@ -28,9 +28,7 @@ using (student_id=(select auth.uid()));
 create policy "sunday_reward_coach_read"
 on public.efg_sunday_rewards for select to authenticated
 using (
- and extract(isodow from (now() at time zone 'America/Argentina/Buenos_Aires'))=7
- and week_monday=((now() at time zone 'America/Argentina/Buenos_Aires')::date - 6)
- and coach_id=(select auth.uid()) and exists (
+ and and coach_id=(select auth.uid()) and exists (
   select 1 from public.efg_profiles p
   join public.efg_organizations o on o.id=p.organization_id
   join public.efg_consents c on c.student_id=p.user_id and c.organization_id=o.id
@@ -58,7 +56,9 @@ with check (
 create policy "sunday_reward_coach_update"
 on public.efg_sunday_rewards for update to authenticated
 using (
- coach_id=(select auth.uid()) and exists (
+ extract(isodow from (now() at time zone 'America/Argentina/Buenos_Aires'))=7
+ and week_monday=((now() at time zone 'America/Argentina/Buenos_Aires')::date - 6)
+ and coach_id=(select auth.uid()) and exists (
   select 1 from public.efg_profiles p
   join public.efg_organizations o on o.id=p.organization_id
   join public.efg_consents c on c.student_id=p.user_id and c.organization_id=o.id
@@ -69,7 +69,9 @@ using (
  )
 )
 with check (
- coach_id=(select auth.uid()) and exists (
+ extract(isodow from (now() at time zone 'America/Argentina/Buenos_Aires'))=7
+ and week_monday=((now() at time zone 'America/Argentina/Buenos_Aires')::date - 6)
+ and coach_id=(select auth.uid()) and exists (
   select 1 from public.efg_profiles p
   join public.efg_organizations o on o.id=p.organization_id
   join public.efg_consents c on c.student_id=p.user_id and c.organization_id=o.id

@@ -67,3 +67,8 @@
  .efg-chat-contact-copy strong{font-size:15px}
 }
 @media(max-width:360px){.efg-chat-list-head h2{font-size:26px}.efg-chat-avatar{flex-basis:42px;width:42px;height:42px}.efg-chat-contact{gap:9px}}
+
+/* UX Sprint 1: older history is opt-in and must remain reachable by touch/keyboard. */
+.efg-chat-load-more{align-self:center;min-height:44px;padding:9px 18px;border:1px solid #a99574;border-radius:999px;background:linear-gradient(130deg,#f1e6d2,#d6c3a5);color:#20344c;font-size:13px;font-weight:700;cursor:pointer}
+.efg-chat-load-more:focus-visible{outline:3px solid #a17b42;outline-offset:2px}
+.efg-chat-load-more:disabled{opacity:.6;cursor:wait}

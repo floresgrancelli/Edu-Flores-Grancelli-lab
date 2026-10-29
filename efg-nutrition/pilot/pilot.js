@@ -18,7 +18,7 @@ import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarize
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
-import {createCoachIntakeFlow} from "./coach-intake-flow.js?v=20261029-intake1";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
@@ -2624,6 +2624,13 @@ window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;state.coachIntakeGuidePreview=null;document.getElementById("coachIntakeGeneratedGuide")?.remove();const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
 root.addEventListener("change",e=>{invalidateCoachDraft(e);
+  if(e.target.id==="efgIntakeShare"){
+   const btn=document.getElementById("efgIntakeSubmitButton");
+   if(btn)btn.textContent=intakeSaveButtonLabel({
+    wasShared:!!state.studentIntake?.shared_at,willShare:!!e.target.checked
+   });
+   return;
+  }
  if(e.target.id==="efgIntakeShare"){
   const button=document.getElementById("efgIntakeSubmitButton");
   if(button)button.textContent=e.target.checked?"Enviar mi ficha a mi coach":

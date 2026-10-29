@@ -168,10 +168,10 @@ begin
     end if;
     v_value := (v_goal->>v_key)::numeric;
     if v_value != pg_catalog.trunc(v_value)
-      or v_value<case when v_key='kcal' then 1200 else 0 end
-      or v_value>case v_key
+      or v_value<(case when v_key='kcal' then 1200 else 0 end)
+      or v_value>(case v_key
         when 'kcal' then 10000 when 'carb_g' then 2000
-        when 'fiber_g' then 150 else 1000 end then
+        when 'fiber_g' then 150 else 1000 end) then
       raise exception 'Goal field invalid or out of range: %',v_key;
     end if;
   end loop;

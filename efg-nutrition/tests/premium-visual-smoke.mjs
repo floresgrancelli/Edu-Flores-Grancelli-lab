@@ -370,8 +370,8 @@ try{
    }
    if(role==="student"&&dest==="home"){
      const bars=page.locator(".efg-weekly-streak .efg-streak-track");
-     if(await bars.count()!==2)pageReport.errors.push("Need exactly two weekly tolerance bars");
-     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==12)pageReport.errors.push("Two tracks must show Monday-Saturday only");
+     if(await bars.count()!==1)pageReport.errors.push("Need exactly one ±5% weekly bar");
+     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==6)pageReport.errors.push("One ±5% track must show Monday-Saturday only");
      if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
        const styles=getComputedStyle(el);

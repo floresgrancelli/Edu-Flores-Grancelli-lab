@@ -62,6 +62,7 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/release-communications.js
           node efg-nutrition/tests/release-communications-draft.mjs
+          node efg-nutrition/tests/release-flow.mjs
       - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
         run: node efg-nutrition/tests/food-catalog-expansion.mjs
       - name: Validate expanded Argentine foods, sushi, pizza and sweets

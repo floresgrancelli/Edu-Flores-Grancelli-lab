@@ -21,6 +21,7 @@ import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -362,7 +363,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -392,6 +393,7 @@ const messages=createMessagesCenter({sb,
 });
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
+const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED});
 const studentPlanPending=()=>coachIntakeFlow.pending();
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -1821,6 +1823,8 @@ async function approveGuidedDay(){
  const student=state.selectedStudent,goal=state.coachGoals[0],draft=readGuidedEditor();
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session.user.id))||!state.consent?.accepted||!student||!goal)throw new Error("No tenés permiso para enviar esta guía.");
  validateGuidedDay(draft,goal);
+ // Never edit a published guide directly after the transactional access schema exists.
+ await assertCoachGoalWriteSafe(sb,{studentId:student,fromSharedIntake:!!state.coachIntakeForms?.[student]?.shared_at});
  const latest=await sb.from("efg_goals").select("id").eq("student_id",student).order("approved_at",{ascending:false}).limit(1).single();
  if(latest.error)throw latest.error;
  if(latest.data.id!==goal.id)throw new Error("La meta cambió: recargá la ficha antes de generar la guía.");
@@ -2152,7 +2156,7 @@ async function loadRoleData(){
 async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  state.selectedStudent=studentId;
- state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;
+ state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
@@ -2171,6 +2175,8 @@ async function loadStudentDetail(studentId){
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
+ if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at)
+  state.coachPlanDraftRecord=await coachDraftClient.load(studentId);
  await loadSundayPermission(studentId);
 }
 async function refresh(){

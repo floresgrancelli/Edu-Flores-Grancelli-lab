@@ -212,8 +212,8 @@ try{
      if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
    }
-   if(role==="student"&&dest==="home"&&actionAudit.filter(x=>x.text.includes("Registrar alimento")).length!==1)
-     pageReport.errors.push("Main Register CTA needs vivid coral and accessible size");
+   if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
+     pageReport.errors.push("Duplicate register CTA should not be visible above the meal cards");
    if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
      const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
      const menuColors=await page.locator(menuSelector).evaluateAll(els=>

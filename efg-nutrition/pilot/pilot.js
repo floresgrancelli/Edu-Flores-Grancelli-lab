@@ -1728,8 +1728,9 @@ function readGuidedEditor(){
  const draft=state.coachGuidedDraft;if(!draft)throw new Error("Primero generá un borrador.");
  for(const el of document.querySelectorAll("[data-guideqty]")){
   const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)],qty=Number(el.value);
-  if(!food||!Number.isFinite(qty)||qty<guidedPortionBounds(food.id)[0]||qty>guidedPortionBounds(food.id)[1])throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
-  food.qty=qty;
+  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<guidedPortionBounds(food.id)[0]||qty>guidedPortionBounds(food.id)[1])throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
+  // Respect the coach's manual choice even if a browser skips an intermediate input event.
+  if(food.qty!==qty){food.qty=qty;food.locked=true;}
  }
  draft.supplementNote=String(document.getElementById("guideSupplementNote")?.value||"").trim();
  return draft;

@@ -21,8 +21,8 @@ import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
-import {assessCoachDraftPublication} from "./coach-draft-review.js?v=20261029-review50";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "./coach-draft-review.js?v=20261029-review51";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -1780,32 +1780,48 @@ async function saveCoachAtomicDraft(){
  const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!intake?.shared_at||!state.consent?.accepted)
   throw Error("El circuito seguro de borradores todavía no está habilitado.");
+ const sessionUserId=state.session?.user?.id,previousDraft=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
  if(!goal||!guide)throw Error("Prepará primero el objetivo y las cinco comidas.");
  validateGuidedDay(guide,goal);
+ // Capture exactly what was submitted BEFORE network waits: later edits cannot
+ // silently become the "saved" version through a shared mutable goal object.
+ const snapshot=validateCoachPlanProposal(goal,guide);
  const r=await coachDraftClient.save({
-  studentId,sourceUpdatedAt:intake.updated_at,goal,guide,
-  expectedRevision:state.coachPlanDraftRecord?.draft_revision??null
+  studentId,sourceUpdatedAt:intake.updated_at,goal:snapshot.goal,guide:snapshot.guide,
+  expectedRevision:previousDraft?.draft_revision??null
  });
- state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),student_id:studentId,status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt,goal_proposal:goal,guide_proposal:structuredClone(guide)};
+ const serverDraft=await coachDraftClient.load(studentId);
+ const verified=verifyCoachDraftReadback({
+  studentId,intake,savedDraft:serverDraft,expectedRevision:r.revision,
+  goal:snapshot.goal,guide:snapshot.guide
+ });
+ if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
+ state.coachPlanDraftRecord=verified;
  state.coachPlanPublishRequestId=null;
  await render();
- notify("Borrador privado guardado. El alumno conserva su plan vigente.");
+ notify("Borrador privado confirmado en el servidor. El alumno conserva su plan vigente.");
 }
 async function publishCoachAtomicDraft(){
  const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
     draft.status!=="draft"||!Number.isSafeInteger(draft.draft_revision))
   throw Error("No hay un borrador seguro disponible para publicar.");
+ const sessionUserId=state.session?.user?.id,previousDraft=draft;
  const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
  const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide});
  if(!review.ready)throw Error(review.reason);
  if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
+ if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
+  throw Error("Cambió la ficha o el alumno seleccionado; volvé a revisar antes de publicar.");
  state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||crypto.randomUUID();
  await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
   requestId:state.coachPlanPublishRequestId,confirmed:true});
+ // The server may have committed even if navigation occurred meanwhile.
+ // Never overwrite the currently visible student's workspace or request UUID.
+ if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
  state.coachPlanPublishRequestId=null;
  await loadStudentDetail(studentId);await render();
  notify("Meta y guía publicadas conjuntamente por el servidor.");

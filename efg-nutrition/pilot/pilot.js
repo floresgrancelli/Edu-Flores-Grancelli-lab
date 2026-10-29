@@ -358,7 +358,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -588,6 +588,7 @@ function efgNavIcon(tab){
  weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
  studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
  coach:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 15l3-3 3 2 4-5M7 18h10"/>',
+ coachIntake:'<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>',
  coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
  reports:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
  payments:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h5"/>',
@@ -606,7 +607,7 @@ function frame(content){
  const menu=role==="student"
   ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
-  ?[["coach","⌂","Inicio"],["home","◷","MI DÍA"],["coachStudents","♧","Alumnos"],["studentMore","☷","MI ESPACIO"],["payments","▤","Pagos"]]
+  ?[["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["studentMore","☷","MI ESPACIO"],["payments","▤","Pagos"]]
   :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
@@ -1434,16 +1435,45 @@ function coachHomeView(){
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
  const testOrgSeats=Number(state.org?.seat_limit)||0;
  const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);
- return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Alumnos, seguimiento e informes: lo importante está a un toque.")+
+ return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Ingresos nuevos, planes por preparar y seguimiento: cada cosa en su lugar.")+
  '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
-  ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
+  ["coachIntake","📋","Nuevos ingresos","peach"],["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
  '<section class="card efg-content-card"><div class="section-head"><h2>Mis alumnos</h2><button type="button" class="btn small light" data-tab="coachStudents">Ver todos</button></div>'+
  (roster.length?roster.slice(0,5).map(p=>'<div class="efg-student-compact"><span class="coach-roster-avatar">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+(coachRosterConsent[p.user_id]===true?'Seguimiento autorizado':'Autorización pendiente')+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Abrir</button></div>').join(""):'<div class="empty">Todavía no hay alumnos activos. Podés invitarlos desde Mis alumnos.</div>')+
  '</section>';
+}
+function coachIntakeView(){
+ const canView=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
+ if(!canView)return rootText("Nuevos ingresos","Este espacio corresponde a entrenadores habilitados.");
+ const active=(state.roster||[]).filter(p=>p.active);
+ const pending=(state.profile.role==="admin"&&state.org?.is_test?state.testInvitations:state.invitations||[])
+  .filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
+ const waitingConsent=active.filter(p=>coachRosterConsent[p.user_id]!==true);
+ const waitingPlan=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&!state.coachIntakeGoals[p.user_id]);
+ const existingGoal=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&state.coachIntakeGoals[p.user_id]);
+ const remaining=active.filter(p=>coachRosterConsent[p.user_id]===true&&!state.coachIntakeVerified);
+ const invitationCard=i=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">✉</span><div><strong>'+escapeHTML(i.nickname)+'</strong><small>Invitación enviada · todavía no ingresó</small></div><span class="efg-intake-status">Pendiente</span></div>';
+ const profileCard=(p,stage)=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+stage+'</small></div><div class="coach-intake-actions"><button type="button" class="btn small light" data-student="'+p.user_id+'">Ver alumno</button><button type="button" class="btn small ghost" data-intake-message="'+p.user_id+'">Mensaje</button></div></div>';
+ const section=(title,description,entries,renderer,empty)=>'<section class="card coach-intake-group"><div class="section-head"><h2>'+title+'</h2><span class="pilot-pill">'+entries.length+'</span></div><p class="pilot-hint">'+description+'</p>'+(entries.length?entries.map(renderer).join(""):'<p class="efg-intake-empty">'+empty+'</p>')+'</section>';
+ return rootText("NUEVOS INGRESOS","De la invitación a la planificación: identificá rápidamente qué necesita cada alumno.")+
+ '<section class="coach-intake-intro"><div class="eyebrow">EFG NUTRITION · CON COACH</div><h2>Bienvenidas, fichas y planes en un solo lugar.</h2><p>Esta primera vista organiza alumnos e invitaciones existentes. La ficha inicial y el desbloqueo del plan se habilitarán después de completar sus controles de seguridad.</p></section>'+
+ '<div class="coach-intake-summary">'+
+  '<div><strong>'+pending.length+'</strong><span>Invitaciones pendientes</span></div>'+
+  '<div><strong>'+waitingConsent.length+'</strong><span>Esperando autorización</span></div>'+
+  '<div><strong>'+(state.coachIntakeVerified?waitingPlan.length:"—")+'</strong><span>Sin objetivo configurado</span></div>'+
+  '<div><strong>'+(state.coachIntakeVerified?existingGoal.length:"—")+'</strong><span>Con objetivo existente</span></div>'+
+ '</div>'+
+ '<section class="card coach-intake-steps"><h2>El camino de un nuevo alumno</h2><ol><li><strong>Ingreso y autorización</strong><small>El alumno acepta su acceso y sus permisos de privacidad.</small></li><li><strong>Ficha inicial</strong><small>Completa sus datos voluntarios y decide qué compartir con el coach. Próxima implementación.</small></li><li><strong>Preparación del plan</strong><small>El entrenador revisa la información y prepara sus objetivos y su propuesta.</small></li><li><strong>Publicación y activación</strong><small>El plan se publica expresamente y se habilitan las herramientas nutricionales. Próxima implementación.</small></li></ol></section>'+
+ section("01 · Invitaciones por aceptar","Todavía no ingresaron a EFG Nutrition.",pending,invitationCard,"No hay invitaciones pendientes.")+
+ section("02 · Esperando autorización","El coach todavía no cuenta con permiso para consultar el seguimiento del alumno.",waitingConsent,p=>profileCard(p,"Acceso confirmado · autorización pendiente"),"Todos los alumnos activos autorizaron o todavía no hay alumnos.")+
+ section("03 · Plan por preparar","Alumnos autorizados sin objetivos almacenados. La ficha inicial aún requiere su implementación.",waitingPlan,p=>profileCard(p,"Seguimiento autorizado · sin objetivo cargado"),"No hay alumnos en esta etapa.")+
+ section("04 · Objetivos existentes","Un objetivo guardado no significa que el plan se haya publicado: la activación explícita se implementará después.",existingGoal,p=>profileCard(p,"Objetivo configurado · publicación aún no verificable"),"No se encontraron objetivos en este grupo.")+
+ (remaining.length?'<section class="card coach-intake-group"><h2>Estado temporalmente no disponible</h2><p class="pilot-hint">No fue posible comprobar algunos objetivos. No se muestran estados inventados.</p>'+remaining.map(p=>profileCard(p,"Estado del objetivo sin verificar")).join("")+'</section>':"")+
+ '<section class="card coach-intake-privacy"><h2>Privacidad y próximos pasos</h2><p>Las futuras fichas deben ser compartidas voluntariamente. Sin consentimiento, el entrenador no debe acceder a datos sensibles. El bloqueo nutricional de alumnos nuevos también deberá aplicarse en el servidor, nunca únicamente ocultando botones.</p><button class="btn light" data-tab="coachStudents">Administrar mis alumnos e invitaciones</button></section>';
 }
 function coachToolsView(){
  return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground()+versionCheckCard();
@@ -1846,7 +1876,7 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -1956,6 +1986,18 @@ async function loadOrgAndPayments(){
  if(bill.error)throw bill.error;
  state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;state.platformAliases=[state.platformAlias,...(bill.data?.additional_aliases||[])].filter(Boolean);
 }
+async function loadCoachIntakeGoals(){
+ state.coachIntakeGoals={};state.coachIntakeVerified=false;
+ const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id);
+ if(!ids.length){state.coachIntakeVerified=true;return;}
+ try{
+  // Only consented students. Database RLS remains authoritative for each row.
+  const {data,error}=await sb.from("efg_goals").select("student_id,id").in("student_id",ids).limit(500);
+  if(error)throw error;
+  for(const goal of data||[])state.coachIntakeGoals[goal.student_id]=true;
+  state.coachIntakeVerified=true;
+ }catch(error){console.warn("EFG intake goal summary unavailable:",error.message);}
+}
 async function loadCoachRosterConsent(){
  // One source of truth for real coaches AND the admin's test-coach workspace.
  // Read only; never infer consent from enrollment or modify a student's decision.
@@ -1977,6 +2019,7 @@ async function loadRoleData(){
    if(students.error||pending.error)throw students.error||pending.error;
    state.roster=students.data||[];state.testInvitations=pending.data||[];
    await loadCoachRosterConsent();
+   await loadCoachIntakeGoals();
    if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
   }
  }
@@ -1987,6 +2030,7 @@ async function loadRoleData(){
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
   await loadCoachRosterConsent();
+  await loadCoachIntakeGoals();
 
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }
@@ -2186,7 +2230,12 @@ async function mainClick(event){
   window.scrollTo(0,0);
   return;
 }
- if(el.dataset.studentstatus){
+ if(el.dataset.intakeMessage){
+ const p=(state.roster||[]).find(p=>p.user_id===el.dataset.intakeMessage&&p.active);
+ if(!p)throw new Error("Ese alumno no está en tu lista de ingresos.");
+ messages.selectStudent(p.user_id);state.tab="messages";await render();return;
+}
+if(el.dataset.studentstatus){
  const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
  if(!student)throw new Error("Ese alumno no pertenece a tus cupos.");
  const next=!student.active;

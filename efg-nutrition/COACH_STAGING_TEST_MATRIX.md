@@ -36,11 +36,11 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
 | ID | Acción con token real de staging | Resultado esperado |
 |---|---|---|
 | ST-01 | Alta por invitación A1 → OTP válido → efg_claim_invitation | Perfil nuevo y `plan_access.pending` en una transacción; una sola fila por alumno |
-| ST-02 | A0 ya existente antes de migrar | `published`; diarios, pesos, recetas, hábitos y gráficos sin alteración |
+| ST-02 | A0 ya existente antes de migrar | `published`; diarios, pesos, recetas, hábitos y gráficos sin alteración; forzar perfil huérfano en staging debe abortar migración y revertir toda la transacción |
 | ST-03 | A1 intenta escribir diario/peso/actividad/habitual/receta por REST | INSERT/UPDATE/DELETE denegados **en servidor**, aunque altere la UI |
 | ST-04 | A1 lee y guarda ficha sin compartir | Solo A1 tiene lectura; Coach A y B no reciben texto; `shared_at=NULL` |
 | ST-05 | A1 marca compartir explícitamente | Coach A ve ficha; Coach B, admin no autorizado y anónimo no la ven |
-| ST-06 | A1 revoca `shared_at` o consentimiento de vinculación | Coach A pierde lectura inmediatamente, incluidas consultas REST nuevas |
+| ST-06 | A1 revoca `shared_at` o consentimiento de vinculación | Coach A pierde lectura en nuevas consultas REST; después de plan publicado A1 puede revisar y revocar su ficha sin bloquear MI DÍA |
 | ST-07 | Coach B intenta publicar plan de A1 con RPC y objetivo inventado | Denegado; ni cambio de estado ni notificación |
 | ST-08 | Coach A intenta publicar sin objetivo o guía aprobada | Denegado, `pending` preservado |
 | ST-09 | Coach A publica con objetivo más reciente y guía correcta | Una transición `pending→published`, notificación genérica, registro permitido |
@@ -49,14 +49,14 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
 | ST-12 | Coach A pierde licencia, vínculo o consentimiento; nuevo intento RPC | Denegado, sin desbloqueo |
 | ST-13 | A1 deja sesión abierta al publicarse plan | Reconsulta consistente de status; sin cache permanente bloqueante |
 | ST-14 | Caída de red al guardar ficha/publicar | No hay estado ficticio ni notificación de éxito; reintento idempotente |
-| ST-15 | Editar/retirar consentimiento con coach conectado | El cache de coach deja de mostrar ficha al refrescar, sin nuevos accesos |
+| ST-15 | Editar/retirar consentimiento o borrar ficha con coach conectado | Al reabrir el alumno, el coach limpia cache y relee RLS; verificar que no reaparezca ficha eliminada; una vista ya abierta requiere actualización |
 | ST-16 | Registro desde admin o coach personal de su propia comida | No es bloqueado por error por el gate previsto para alumnos |
 | ST-17 | A1 intenta RPC de escritura alternativa, vistas o endpoints no contemplados | Mismo rechazo; no existe bypass del estado pending |
 | ST-18 | Invitar dos veces / eventos concurrentes de alta y publicación | Sin duplicados, inconsistencias ni bloqueo accidental de históricos |
 | ST-19 | Interrupción a mitad de migración y recuperación desde backup | Esquema, usuarios históricos y registros restaurados; evidencia auditada |
 | ST-20 | Accesibilidad/visual en 320/360/390/430/768/1280 y WebKit | Textos, contraste, modales, foco, teclado móvil sin pérdida de datos |
 | ST-21 | Términos y privacidad preacceso futuros | Aceptación versionada, no premarcada, separada del permiso de salud; negativa impide acceso funcional |
-| ST-22 | Ficha voluntaria: campos vacíos, valores inválidos y revocación | Validación servidor/cliente, ninguna condición médica deducida |
+| ST-22 | Ficha voluntaria: campos vacíos, inválidos, revocación, borrado | Confirmación expresa, RLS DELETE solo propietario, no modifica cuenta/plan/diarios y permite recrear ficha privada |
 | ST-23 | Plan guía visual y 5 comidas | Datos coherentes, comprobación de estructura **no solo JSON no nulo** |
 
 ## Hallazgos de revisión preliminar read-only (29/10)
@@ -77,10 +77,20 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
   esperados. **Todavía falta probar en staging la vigencia real de la aprobación,
   coherencia de cantidades y el flujo completo con JWT**. La función existente
   `verify_guide_goal()` verifica vínculo alumno/coach/objetivo, no contenido.
-- El backfill histórico incluye únicamente alumnos de organizaciones con coach
-  asignado. Comprobar cobertura total; abortar si hubiera excepciones.
-- El DRAFT no concede borrado de ficha por alumno: revocación de compartir sí,
-  supresión a petición y política de retención requieren diseño antes de liberar.
+- Consulta agregada read-only sobre producción el 29/10: 3 perfiles de alumnos,
+  0 sin organización y 0 sin coach asignado. No se consultó ningún dato de salud.
+  Se añadió `LOCK TABLE efg_profiles IN SHARE ROW EXCLUSIVE MODE` solo a la
+  migración DRAFT para impedir altas concurrentes durante backfill/creación de trigger,
+  y un bloque `DO` que **lanza error y revierte íntegramente** si alguna cuenta histórica
+  queda sin fila `published`. Medir tiempo de bloqueo y simular errores en staging;
+  esta verificación puntual NO garantiza cobertura el día de desplegar.
+- El DRAFT ahora incluye permiso SQL `DELETE` de `efg_student_intakes` con RLS
+  restringida a su alumno propietario, y botón `Eliminar solamente mi ficha inicial`
+  con confirmación, independiente del consentimiento de seguimiento y del plan.
+  Test fixture comprueba cancelación, borrado y conservación de estado publicado.
+  Reabrir el perfil desde el coach vuelve a consultar la ficha y elimina el cache
+  previo si se revocó el acceso o el registro fue borrado. Faltan pruebas con JWT
+  de distintas organizaciones, retención de copias de respaldo y revisión jurídica.
 - Supabase Advisors mostró avisos sobre RPC `SECURITY DEFINER` accesibles para
   `authenticated`, además de protección de contraseñas. Los avisos no implican
   vulnerabilidad demostrada: evaluar identidad/rol en cada función pertinente.

@@ -2,7 +2,7 @@
 // RLS on efg_messages is the source of truth; this UI NEVER grants chat access.
 export function createMessagesCenter({sb,context,afterSend}){
  let selectedStudent=null,threadOpen=false,thread=[],overview=[],filter="",listMode="all";
- let busy=false,refreshing=false,loadingOlder=false,threadHasMore=false,formDraft="",epoch=0,knownUser=null;
+ let busy=false,refreshing=false,pendingLoad=false,loadingOlder=false,threadHasMore=false,formDraft="",epoch=0,knownUser=null;
  const drafts=new Map();
  const PAGE_SIZE=200;
  const messageOrder=(a,b)=>String(a.created_at).localeCompare(String(b.created_at))||String(a.id).localeCompare(String(b.id));
@@ -141,7 +141,7 @@ export function createMessagesCenter({sb,context,afterSend}){
  }
  async function load(force=false){
   resetIfChanged();const x=pair(),key=epoch;
-  if(refreshing)return;
+  if(refreshing){pendingLoad=true;return;}
   refreshing=true;
   try{
    if(x&&threadOpen){
@@ -158,7 +158,10 @@ export function createMessagesCenter({sb,context,afterSend}){
     if(!thread.length||thread.length===incoming.length)threadHasMore=incoming.length===PAGE_SIZE;
    }
    await refreshOverview();
-  }finally{refreshing=false;paint({force});}
+  }finally{
+   refreshing=false;paint({force});
+   if(pendingLoad){pendingLoad=false;queueMicrotask(()=>load(force).catch(console.warn));}
+  }
  }
  async function loadOlder(){
   resetIfChanged();const x=pair(),oldest=thread[0],key=epoch;

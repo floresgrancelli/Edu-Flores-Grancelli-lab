@@ -3,6 +3,11 @@
 -- Historical students must remain enabled; new students start pending.
 begin;
 
+-- Migration-time safety: hold new profile inserts until both legacy backfill and
+-- new-student trigger are committed. This can briefly block onboarding; staging
+-- must measure lock time and production would require an approved maintenance window.
+lock table public.efg_profiles in share row exclusive mode;
+
 create table public.efg_student_plan_access (
  student_id uuid primary key references public.efg_profiles(user_id) on delete cascade,
  organization_id uuid not null references public.efg_organizations(id),
@@ -25,6 +30,24 @@ select p.user_id,p.organization_id,o.coach_id,
 from public.efg_profiles p join public.efg_organizations o on o.id=p.organization_id
 where p.role='student' and o.coach_id is not null
 on conflict(student_id) do nothing;
+
+-- Abort atomically rather than silently locking any historic account whose
+-- organization/coach linkage was missing or changed. No existing user data is edited.
+do $
+declare v_uncovered bigint;
+begin
+ select count(*) into v_uncovered
+ from public.efg_profiles p
+ left join public.efg_student_plan_access a on a.student_id=p.user_id
+ where p.role='student'
+   and (a.student_id is null
+     or a.organization_id is distinct from p.organization_id
+     or a.status is distinct from 'published');
+ if v_uncovered>0 then
+  raise exception 'Legacy student access backfill incomplete: % account(s); migration rolled back',v_uncovered;
+ end if;
+end $;
+
 -- Legacy published accounts may lack a goal. Allow that exception only in the historical cohort
 -- until a coach explicitly replaces the legacy plan. Enforce the event for all future publications.
 alter table public.efg_student_plan_access drop constraint efg_access_published_consistent;
@@ -65,7 +88,7 @@ alter table public.efg_student_intakes enable row level security;
 revoke all on public.efg_student_plan_access from public,anon,authenticated;
 revoke all on public.efg_student_intakes from public,anon,authenticated;
 grant select on public.efg_student_plan_access to authenticated;
-grant select,insert,update on public.efg_student_intakes to authenticated;
+grant select,insert,update,delete on public.efg_student_intakes to authenticated;
 
 create policy access_student_read on public.efg_student_plan_access
  for select to authenticated using(student_id=(select auth.uid()));
@@ -85,6 +108,14 @@ create policy intake_student_update on public.efg_student_intakes
  with check(student_id=(select auth.uid()) and exists(
  select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
  and p.role='student' and p.active and p.organization_id=organization_id));
+
+-- Owner-only erasure of the optional intake. Does not touch nutrition logs,
+-- plans, coach consents, account, or any other student record.
+create policy intake_student_delete on public.efg_student_intakes
+ for delete to authenticated using(
+  student_id=(select auth.uid()) and exists(
+   select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
+   and p.role='student' and p.active and p.organization_id=organization_id));
 
 create function efg_private.student_nutrition_enabled(p_student uuid) returns boolean
 language sql stable security definer set search_path='' as $$

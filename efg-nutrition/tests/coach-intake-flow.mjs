@@ -191,6 +191,16 @@ schemaMissing=true;await flow.loadStudent();
 assert.equal(state.planAccessSupported,false);
 assert.equal(flow.pending(),false);
 assert.match(app,/if\(studentPlanPending\(\)\&\&!\["intake","messages","privacy","notifications"\]/);
+assert.match(app,/data-act="balanceGuidedDay">Recalcular con nuevos pesos y\/o ingredientes/,
+ "The coach needs a clearly named explicit recalculation control");
+assert.match(app,/if\(e.target.dataset.guideswap\)[\s\S]*?rebalanceGuidedDay\(swapGuidedFood/,
+ "Changing a food should automatically rebalance the other adjustable portions");
+assert.match(app,/if\(e.target.dataset.guideqty\)[\s\S]*?rebalanceGuidedDay\(draft,state.coachGoals\[0\]\)/,
+ "Changing grams should automatically rebalance the other adjustable portions");
+assert.match(app,/function guidedTargetFeedback\(deviations\)/,
+ "Show how close the guide got to the approved target; never imply exact matching");
+assert.match(app,/data-guidetargetstatus role="status"/,
+ "A visible and accessible guide-target progress status is required");
 assert.match(app,/data-act="publishCoachStudentPlan"/);
 assert.match(app,/coachIntakeFlow\.loadCoach/);
 assert.match(app,/coachIntakeFlow\.loadStudent/);

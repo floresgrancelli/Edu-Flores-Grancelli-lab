@@ -46,7 +46,7 @@ begin
  if v_uncovered>0 then
   raise exception 'Legacy student access backfill incomplete: % account(s); migration rolled back',v_uncovered;
  end if;
-end $;
+end $$;
 
 -- Legacy published accounts may lack a goal. Allow that exception only in the historical cohort
 -- until a coach explicitly replaces the legacy plan. Enforce the event for all future publications.

@@ -43,7 +43,8 @@ export function pastelDaySummary(tot,goal,diary,mealSlots){
    '<div class="efg-pastel-stat" style="--tile-bg:#f5eeff"><strong>'+mealCount+'</strong><small>comidas registradas</small></div>'+
    '<div class="efg-pastel-stat" style="--tile-bg:#edf4ff"><strong>'+fmt(tot?.fi,1)+' g</strong><small>fibra registrada</small></div>'+
   '</div>'+
-  '<button type="button" class="efg-pastel-register" data-openquickadd="studentQuickAdd">＋ Registrar alimento</button>'+
+  // El registro se realiza directamente en cada tarjeta de «Mis comidas de hoy».
+
   '<p class="efg-pastel-day-note">'+(hasGoal?"El anillo indica el avance calórico; los colores son decorativos. Las barras comparan cada macro con su objetivo.":"Sin objetivo aprobado, podés registrar alimentos sin porcentajes inventados.")+'</p>'+
  '</section>';
 }

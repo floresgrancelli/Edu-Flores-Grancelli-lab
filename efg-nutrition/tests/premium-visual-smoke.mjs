@@ -100,13 +100,15 @@ try{
      media_manana:[{id:"yogurt",name:"Yogur natural",qty:170,unit:"g",k:85,p:7,c:14,f:0,fi:0}],
      almuerzo:[{id:"chicken",name:"Pechuga de pollo",qty:180,unit:"g",k:297,p:55,c:0,f:6,fi:0}],
      media_tarde:[],merienda:[],cena:[]},sports:[],skipped:{},totals:{}};
-   state.goals=[{kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28}];
+   const goalStart=new Date(day+"T12:00:00Z");goalStart.setUTCDate(goalStart.getUTCDate()-90);
+   state.goals=[{start_on:goalStart.toISOString().slice(0,10),kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28}];
    const demoLogs=Array.from({length:7},(_,i)=>{
      const dt=new Date(day+"T12:00:00Z");dt.setUTCDate(dt.getUTCDate()-i);
      return {log_day:dt.toISOString().slice(0,10),meals:{
        desayuno:[{k:330,p:23,c:32,f:12,fi:3}],media_manana:[],almuerzo:[{k:670,p:48,c:75,f:18,fi:7}],
        media_tarde:[],merienda:[{k:220,p:18,c:22,f:7,fi:2}],cena:[{k:520,p:42,c:55,f:15,fi:6}]},sports:[],skipped:{}};
    });
+   if(role==="student")demoLogs.forEach((log,i)=>{if(i>0&&i<3)log.meals.cena.push({k:i===1?360:200,p:19,c:35,f:6,fi:0});});
    state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
    state.coachGoals=state.goals;
 
@@ -174,9 +176,9 @@ try{
      return {body:sample("body"),card:sample(".pilot-layout .card"),nav:sample(".pilot-layout .pilot-nav"),header:sample(".pilot-layout .efg-mobile-header")};
    });
    const isWhite=s=>(s||"").startsWith("rgb(255, 255, 255)")||(s||"").startsWith("rgba(255, 255, 255,");
-   if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
-   if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
-   if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
+   if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have stone luxury background, not white");
+   if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards cannot revert to flat white");
+   if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation cannot revert to flat white");
    const typography=await page.evaluate(()=>{
      const styleOf=selector=>{
        const el=[...document.querySelectorAll(selector)].find(x=>x.getClientRects().length>0);
@@ -197,28 +199,29 @@ try{
      const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
      const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
      const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};
-     const selector=".efg-pastel-register,.student-shortcuts button,.efg-quick-more button,.efg-menu-card,.efg-quick-add-grid button";
+     const selector=".student-shortcuts button,.efg-quick-more button,.efg-menu-card";
      return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
        .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
          return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
-           color:cs.color,background:cs.backgroundColor,height:el.getBoundingClientRect().height,
+           color:cs.color,background:cs.backgroundColor,gradient:cs.backgroundImage,height:el.getBoundingClientRect().height,
            ratio:fg&&bg?contrast(fg,bg):0};});
    });
-   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)","rgb(227, 138, 203)","rgb(107, 203, 223)"]);
+   // Los accesos usan materiales / gradientes luxury. Solo los graficos
+   // (circulos de macros, barras de progreso) usan colores vivos semanticos.
    for(const action of actionAudit){
-     if(!vivid.has(action.background))pageReport.errors.push("Quick action has non-vivid color: "+action.text+" "+action.background);
-     if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
+     if(!action.gradient||!action.gradient.includes("gradient"))
+       pageReport.errors.push("Luxury action has no material gradient: "+action.text);
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
    }
-   if(role==="student"&&dest==="home"&&actionAudit.filter(x=>x.text.includes("Registrar alimento")).length!==1)
-     pageReport.errors.push("Main Register CTA needs vivid coral and accessible size");
+   if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
+     pageReport.errors.push("Duplicate register CTA should not be visible above the meal cards");
    if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
      const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
      const menuColors=await page.locator(menuSelector).evaluateAll(els=>
        els.filter(el=>el.getClientRects().length>0).slice(0,6)
-         .map(el=>getComputedStyle(el).backgroundColor));
-     if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
-     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
+         .map(el=>getComputedStyle(el).backgroundImage));
+     if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
+     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
    if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");
@@ -232,6 +235,10 @@ try{
      if(!b.src.includes("serotonina-acuarela.avif"))pageReport.errors.push("Wrong serotonin logo asset");
    }
    if(role==="student"&&dest==="home"){
+     const bars=page.locator(".efg-weekly-streak .efg-streak-track");
+     if(await bars.count()!==2)pageReport.errors.push("Need exactly two weekly tolerance bars");
+     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==12)pageReport.errors.push("Two tracks must show Monday-Saturday only");
+     if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
        const styles=getComputedStyle(el);
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
@@ -266,11 +273,10 @@ try{
      if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
    }
    if(role==="student"&&width===390&&dest==="home"){
-    // Regression for the food-catalog expansion on mobile without live Supabase writes.
-    // El botón principal abre el mismo selector anterior, manteniendo la prueba de catálogo.
-    await page.locator(".efg-pastel-register").click();
-    if(!(await page.locator("#studentQuickAdd").evaluate(el=>el.open)))pageReport.errors.push("Quick-add panel did not open");
-    await page.locator('.efg-quick-add [data-setmeal="almuerzo"]').first().click();
+    // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
+    const lunch=page.locator(".student-meal-card").nth(2);
+    await lunch.locator("summary").click();
+    await lunch.locator('[data-setmeal="almuerzo"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
@@ -389,15 +395,15 @@ try{
      if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
      if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");
      if(rendered.includes("6.200")||rendered.includes("1,5 L"))pageReport.errors.push("Fake health metrics detected");
-     const openButton=page.locator(".efg-pastel-register");
-     await openButton.click();
-     if(!(await page.locator("#studentQuickAdd").evaluate(x=>x.open)))pageReport.errors.push("Register button failed to open existing selector");
-     await page.locator("#studentQuickAdd").evaluate(x=>x.open=false);
+     if(await page.locator(".efg-pastel-register,#studentQuickAdd").count())
+       pageReport.errors.push("Redundant register button or colored picker still visible");
     }
    }
    if(role==="student"&&dest==="home"){
     const mealCount=await page.locator(".student-meal-card").count();
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
+    if(await page.locator('.student-meal-card [data-setmeal]').count()!==6)
+      pageReport.errors.push("Each meal needs its own Add food button");
     const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
     if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
@@ -414,6 +420,35 @@ try{
    if(width===390 || width===360 || ((width===320||width===768||width===1280)&&dest===destinations[0])){
      await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
+  }
+  // Global Luxury includes FIRST-LOGIN, onboarding and OTP; do not treat
+  // dashboard-only screenshots as proof that the whole app is themed.
+  if(role==="student"&&width===390){
+    await page.evaluate(async()=>{
+      const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=true;await x.render();
+    });
+    const welcome=page.locator(".efg-onboard");
+    if(!(await welcome.isVisible()))pageReport.errors.push("Luxury onboarding missing");
+    const welcomeBrand=page.locator(".efg-onboard-serotonin");
+    if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
+      pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
+    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
+    if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
+    await page.screenshot({path:join(outDir,engine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
+    await page.evaluate(async()=>{
+      const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();
+    });
+    const login=page.locator(".pilot-login");
+    if(!(await login.isVisible()))pageReport.errors.push("Luxury login missing");
+    const loginMark=page.locator(".efg-login-brandmark");
+    if((await loginMark.count())!==1||(await loginMark.evaluate(el=>el.naturalWidth))<60)
+      pageReport.errors.push("Serotonin logo missing from private sign-in");
+    const loginMaterial=await page.locator(".pilot-login-art").evaluate(el=>getComputedStyle(el).backgroundImage);
+    if(!loginMaterial.includes("gradient"))pageReport.errors.push("Sign-in lacks luxury texture");
+    if((await page.locator("#loginEmail").count())!==1)pageReport.errors.push("Email OTP form lost");
+    const loginWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+    if(loginWidth>390+2)pageReport.errors.push("Login horizontal overflow "+loginWidth);
+    await page.screenshot({path:join(outDir,engine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
   }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
   if(role==="coach"&&width===390){

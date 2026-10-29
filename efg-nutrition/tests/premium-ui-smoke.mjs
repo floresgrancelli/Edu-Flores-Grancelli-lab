@@ -13,15 +13,18 @@ includesAll(js,[
  "function coachHomeView()","function adminHomeView()",
  "function studentPlannerView()","function studentRecipesView()",
  "function studentSupplementsView()","function studentPrivacyView()",
- "efg-quick-add-grid","efg-consent-reminder",
+ "efg-consent-reminder",
  "data-coachsection","coach-profile-accordion",
  '["home","⌂","MI DÍA"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
 ]);
-includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","efg-quick-add-grid","coach-profile-accordion"]);
+includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","coach-profile-accordion"]);
 includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-scrollto=\"studentMeals\"",'aria-current="page"',"if(el.dataset.scrollto)"]);
 includesAll(css,[".efg-mobile-header","efg-mobile-avatar","efg-student-macros","meal-remove-item","safe-area-inset-top"]);
 assert.match(js,/data-scrollto="studentMeals"/,"The meals shortcut must scroll to the actual meal section");
 assert.match(js,/id="studentMeals"/,"The meals destination must exist");
+assert.doesNotMatch(js,/studentQuickAdd|efg-quick-add-grid/,"Do not render a duplicate six-color meal picker");
+assert.match(js,/class="pilot-record meal-day-section student-meal-card"/,"Retain meal card accordions");
+assert.match(js,/\+ Añadir alimento/,"Every meal must keep direct Add food control");
 assert.match(css,/\.pilot-layout \.meal-remove-item\{min-width:44px;height:44px/,"Meal delete targets must be at least 44px");
 
 // Regression: the admin's test-coach roster must load the same persisted consent state as a coach.

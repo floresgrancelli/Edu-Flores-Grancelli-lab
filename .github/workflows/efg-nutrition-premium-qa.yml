@@ -54,6 +54,8 @@ jobs:
         run: node efg-nutrition/tests/user-photo-labels-20261028.mjs
       - name: Validate phase 3 pastel preview contracts (no live data)
         run: node efg-nutrition/tests/pastel-phase3-preview.mjs
+      - name: Check two weekly tolerance bars and discretionary Sunday
+        run: node efg-nutrition/tests/weekly-consistency.mjs
       - name: Verify scientific macro engine for men and women
         run: node efg-nutrition/tests/scientific-macros.mjs
       - name: Verify guided five-meal day and baseline

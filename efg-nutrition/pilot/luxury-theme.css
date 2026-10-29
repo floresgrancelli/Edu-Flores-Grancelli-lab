@@ -1,0 +1,562 @@
+/* EFG Nutrition Pro · Tema QUIET LUXURY 2026 · SOLO PREVISUALIZACION PR #29.
+   Inspirado en propuesta visual n.º 1 del ultimo par: azul noche, grafito,
+   gris perla, champagne y dorado. Acabados satinados/relieve con CSS ligero.
+   NO modifica datos, permisos, funcionalidad ni colores semanticos de graficos.
+   Los circulos y barras conservan coral/ambar/violeta/azul intensos. */
+:root{
+  --lux-night:#142439;--lux-graphite:#292e36;--lux-burgundy:#4b2938;
+  --lux-slate:#cbd0d6;--lux-ivory:#eee9e1;--lux-champagne:#e0ccac;
+  --lux-gold:#b08b4e;--lux-ink:#182435;--lux-muted:#536073;
+  --lux-line:#c7beb4;--lux-outline:#a07837;
+  --pastel-ink:var(--lux-ink);--pastel-muted:var(--lux-muted);
+  --pastel-bg:#dcd8d2;--pastel-surface:#efeae3;--pastel-panel-alt:#d9dbe0;
+  --pastel-panel-soft:#e6dcd4;--pastel-line:#c8c0b7;
+  --pastel-shadow:0 9px 23px rgba(20,30,44,.14),inset 0 1px 0 rgba(255,255,255,.7);
+}
+html,body{background:#dcd8d2!important}
+.pilot-layout{
+  --efg-bg:#dcd8d2;--efg-line:#c8c0b7;
+  --efg-ink:var(--lux-ink);--efg-subtle:var(--lux-muted);
+  color:var(--lux-ink);
+  background:radial-gradient(ellipse 460px 430px at 92% 4%,rgba(255,250,240,.70),transparent 90%),
+             radial-gradient(ellipse 490px 510px at 0% 94%,rgba(143,152,169,.25),transparent 88%),
+             linear-gradient(140deg,#e7e1d9,#d2d3d5 95%)!important;
+  font-family:"Avenir Next",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.pilot-layout .pilot-main{color:var(--lux-ink)!important;background:transparent!important}
+.pilot-layout :is(.pilot-title,.pilot-hero h1,.efg-coach-banner h2,.efg-admin-banner h2){
+  font-family:"Iowan Old Style",Baskerville,"Palatino Linotype",Georgia,serif!important;
+  font-weight:650!important;letter-spacing:-.035em!important;color:#17243a!important;
+  text-wrap:balance;
+}
+.pilot-layout :is(.pilot-lead,.pilot-hint){color:#5a6370!important}
+.pilot-layout :is(.eyebrow,.pilot-tag){letter-spacing:.095em}
+.pilot-layout :is(.pilot-hero,.efg-admin-banner,.efg-coach-banner,.efg-pastel-motivation){
+  background:linear-gradient(135deg,#f3ede6 0%,#dfdad6 58%,#d7dce1 100%)!important;
+  box-shadow:0 12px 27px rgba(23,32,45,.12),inset 0 1px 0 #faf6f0!important;
+  border:1px solid #c5bfb9!important;
+}
+.pilot-layout :is(.card,.pilot-record,.meal-day-section,.efg-fit-card,.efg-content-card,
+ .efg-guide-student,.coach-profile-accordion,.efg-payment-inbox,.coach-inbox,
+ .efg-quick-add[open],.efg-pastel-guide,.pilot-consent,.student-meal-card,
+ .efg-progress-panel,.efg-planner-stage){
+  background:linear-gradient(152deg,#f4f0e9 0%,#e5e2df 100%)!important;
+  border:1px solid #c8c1ba!important;
+  box-shadow:0 7px 18px rgba(28,35,46,.075),inset 0 1px 0 rgba(255,255,255,.85)!important;
+  color:#1d2938;
+}
+.pilot-layout :is(.efg-mobile-header,.pilot-nav){
+  background:rgba(237,232,225,.96)!important;
+  border-color:#c8beb1!important;
+  box-shadow:0 3px 16px rgba(21,34,48,.13)!important;
+}
+.pilot-layout .pilot-nav button.navitem{color:#555f6e!important}
+.pilot-layout .pilot-nav button.navitem.active,.pilot-layout .pilot-nav button.navitem:hover{
+  color:#14263e!important;background:linear-gradient(145deg,#f0e6d8,#d9c7aa)!important;
+  border-radius:17px;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 3px 9px #16253c18;
+}
+.pilot-layout .pilot-nav button.navitem.active:before{background:#b38c4e!important}
+.pilot-layout .pilot-nav .nav-icon{color:inherit!important}
+.pilot-layout .efg-mobile-brand-text strong{color:#1c2940!important}
+.pilot-layout .efg-mobile-brand-text small{color:#5e6570!important}
+.pilot-layout :is(input,select,textarea,.field input,.field select,.field textarea){
+  background:#f4eee7!important;color:#192436!important;border:1px solid #bcb4ac!important;
+}
+.pilot-layout :is(.pilot-pill,.pilot-role-badge,.efg-fit-tag){
+  background:#e4ded6!important;color:#34445b!important;border-color:#c7b9a5!important;
+}
+.pilot-layout :is(.pilot-notice,.pilot-alert,.efg-consent-reminder){
+  background:#ebe5dc!important;border-color:#cabbab!important;color:#334051!important
+}
+.pilot-layout :is(.btn,button.btn).block,.pilot-layout .btn:not(.light):not(.ghost){
+  background:linear-gradient(145deg,#35445a,#17283d)!important;color:#f8f1e7!important;
+  border:1px solid #17263a!important;
+  box-shadow:inset 0 1px 0 #ffffff39,inset 0 -2px 2px #030b1c42,0 5px 13px #14233340!important;
+}
+.pilot-layout :is(.btn.light,.btn.ghost){
+  background:linear-gradient(150deg,#f2ece3,#dad1c3)!important;
+  color:#1d314b!important;border:1px solid #bfb3a5!important;
+  box-shadow:inset 0 1px 0 #ffffffd9,0 3px 8px #22314b17!important;
+}
+.pilot-layout button:focus-visible,.pilot-layout a:focus-visible,.pilot-layout input:focus-visible,
+.pilot-layout select:focus-visible,.pilot-layout textarea:focus-visible,
+.pilot-layout summary:focus-visible{outline:3px solid #a87730!important;outline-offset:3px}
+.pilot-layout .student-shortcuts button,.pilot-layout .efg-quick-more button{
+  background:linear-gradient(145deg,#efebe4,#cfd4d8)!important;color:#18283d!important;
+  border:1px solid #aeb2b7!important;border-radius:16px!important;
+  box-shadow:inset 0 2px 1px #ffffffc7,inset 0 -2px 2px #49546928,0 6px 13px #1b2a4033!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(2),.pilot-layout .efg-quick-more button:nth-child(2){
+  background:linear-gradient(150deg,#304660,#15263a)!important;color:#fff7eb!important;
+  border-color:#0f2033!important;
+}
+.pilot-layout .student-shortcuts button:nth-child(3),.pilot-layout .efg-quick-more button:nth-child(3){
+  background:linear-gradient(150deg,#ede0ca,#c9b38e)!important;color:#1e2a39!important;
+}
+/* Raised tiles: two metal finishes plus night blue and charcoal.
+   Fine crosshatch and satin highlights simulate light texture without bitmaps. */
+.pilot-layout :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile){
+  position:relative;overflow:hidden;
+  color:#1b2a3c!important;
+  background:radial-gradient(circle at 14% 9%,#ffffff98,transparent 47%),
+             repeating-linear-gradient(112deg,#ffffff09 0 1px,transparent 1px 4px),
+             linear-gradient(145deg,#f5f0e7,#cfd0d4)!important;
+  border:1px solid #aeb4bd!important;border-radius:23px!important;
+  box-shadow:inset 0 2px 1px #ffffffdc,inset 0 -2px 3px #66718245,0 8px 17px #18283d35!important;
+}
+.pilot-layout :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile)
+ :is(strong,.efg-menu-arrow,.efg-menu-emoji){color:inherit!important}
+.pilot-layout .efg-menu-card strong{
+  font-family:"Avenir Next",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-weight:700!important;letter-spacing:.055em!important;
+  overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;
+}
+.pilot-layout .efg-menu-card .efg-menu-emoji{filter:drop-shadow(0 2px 1px rgba(0,0,0,.12))}
+.pilot-layout :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile):active{
+  transform:translateY(1px) scale(.991);
+  box-shadow:inset 0 3px 6px #00000035,0 2px 6px #16263a27!important;
+}
+/* Alternancia de materiales, no tonos saturados infantilizados. */
+.pilot-layout :is(.efg-menu-grid,.efg-coach-tiles,.student-shortcuts-grid)>.efg-menu-card:nth-child(4n+1),
+.pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(4n+1){
+  color:#f8f4ec!important;
+  background:radial-gradient(circle at 10% 0%,#ffffff25,transparent 60%),
+             repeating-linear-gradient(110deg,#ffffff06 0 1px,transparent 1px 5px),
+             linear-gradient(145deg,#293f59,#102135)!important;
+  border-color:#14253a!important;box-shadow:inset 0 1px 1px #ffffff65,inset 0 -2px 2px #060d1f7d,0 9px 18px #13253d55!important;
+}
+.pilot-layout :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(4n+3){
+  color:#f6f2e9!important;
+  background:radial-gradient(circle at 13% 7%,#ffffff24,transparent 61%),
+             repeating-linear-gradient(112deg,#ffffff06 0 1px,transparent 1px 5px),
+             linear-gradient(147deg,#474850,#222831)!important;
+  border-color:#283039!important;
+}
+.pilot-layout :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(4n+4){
+  background:radial-gradient(circle at 14% 3%,#ffffffa4,transparent 57%),
+             repeating-linear-gradient(111deg,#ffffff0b 0 1px,transparent 1px 4px),
+             linear-gradient(150deg,#e7e7e9,#bfc8d1)!important;
+  color:#17273b!important;border-color:#a5b1bc!important;
+}
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(10),
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(6){
+  background:radial-gradient(circle at 6% 7%,#ffffff22,transparent 55%),
+             repeating-linear-gradient(109deg,#ffffff08 0 1px,transparent 1px 5px),
+             linear-gradient(145deg,#5a3545,#311e2d)!important;
+  color:#fbf1eb!important;border-color:#3d2536!important;
+}
+.pilot-layout .efg-menu-grid>.efg-menu-card{min-height:150px}
+.pilot-layout :is(.efg-menu-card,.coach-hub-tile,.admin-command-tile) :is(.efg-menu-arrow,svg){filter:drop-shadow(0 1px 0 #ffffff2b)}
+/* Metrics and plots stay VIVID and legible: do NOT desaturate rings, bars or colors.
+   Preserve --macro-color (protein coral, carbohydrates amber, fats violet),
+   current real-value ring calculations and chart scales. */
+.pilot-layout .efg-pastel-day{
+  background:linear-gradient(145deg,#e9e1da,#d8d7dc)!important;
+  border-color:#bcb6b4!important;
+  box-shadow:0 13px 27px #15263b25,inset 0 1px 0 #fff9f0!important;
+}
+.pilot-layout .efg-pastel-ring{
+  box-shadow:0 6px 15px #24334c28,0 0 0 4px #ffffff55!important;
+  /* Existing vivid conic gradient explicitly retained. */
+}
+.pilot-layout .efg-pastel-ring:before{background:#efeae7!important}
+.pilot-layout .efg-pastel-macro-icon.p,.pilot-layout .efg-pastel-macro-icon.c,
+.pilot-layout .efg-pastel-macro-icon.f{
+  /* Do not override background/conic-gradient; only add tactile depth. */
+  box-shadow:inset 0 1px 0 #ffffff88,0 5px 11px #2a36502b!important;
+}
+.pilot-layout .efg-pastel-macro-icon:before{background:#f2edf0!important}
+.pilot-layout .efg-pastel-stat{background:#e8e1d9!important;border-color:#c9c1b9!important}
+.pilot-layout .efg-pastel-meter{background:#bdb9c5!important}
+.pilot-layout .efg-pastel-meter>span{background:var(--macro-color)!important}
+.pilot-layout .efg-weekly-streak .efg-streak-track{box-shadow:inset 0 2px 4px #0d1e351f}
+.pilot-layout :is(.student-meal-card,.efg-progress-panel,.coach-profile-accordion)[open]{
+  box-shadow:0 11px 23px #14253b2b,inset 0 1px 0 #fff!important;
+}
+@media(max-width:720px){
+  .pilot-layout .efg-menu-grid>.efg-menu-card{min-height:126px}
+  .pilot-layout .efg-menu-card strong{font-size:clamp(11px,3.4vw,14px)!important;line-height:1.3!important}
+  .pilot-layout .pilot-title{line-height:1.12!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pilot-layout :is(.efg-menu-card,.btn,button){animation:none!important;transition:none!important}
+}
+@media(hover:hover) and (pointer:fine){
+ .pilot-layout :is(.efg-menu-card,.coach-hub-tile,.admin-command-tile):hover{
+   transform:translateY(-2px);
+   box-shadow:inset 0 1px 0 #fff7e1a0,0 13px 24px #14253b50!important
+ }
+}
+
+/* Primera fila de seis accesos distintos por rol: seis acabados, no colores repetidos. */
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(5),
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(5){
+ color:#20283a!important;
+ background:radial-gradient(circle at 12% 5%,#ffffffb0,transparent 52%),
+            repeating-linear-gradient(114deg,#ffffff0c 0 1px,transparent 1px 5px),
+            linear-gradient(144deg,#e8dcc7,#c5b18b)!important;
+ border-color:#b3a17e!important;
+}
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(6),
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(6){
+ color:#f9efe9!important;
+ background:radial-gradient(circle at 13% 7%,#ffffff2b,transparent 60%),
+            repeating-linear-gradient(110deg,#ffffff06 0 1px,transparent 1px 6px),
+            linear-gradient(146deg,#644052,#362334)!important;
+ border-color:#45283a!important;
+}
+
+/* QA visual corrigió cascada heredada: los colores pastel con !important
+   sobreescribían seis tarjetas y dejaban background-image:none. */
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(n){
+ --lux-card-color:#1b2a3c;
+ --lux-card-bg:radial-gradient(circle at 16% 0%,#ffffffb3,transparent 56%),
+    repeating-linear-gradient(112deg,#ffffff12 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#f2eee8,#c8cbd0);
+ color:var(--lux-card-color)!important;
+ background:var(--lux-card-bg)!important;
+ border-color:#aeb4bd!important;
+ box-shadow:inset 0 2px 1px #ffffffb7,inset 0 -2px 3px #17253a2b,0 8px 16px #1b2a4038!important;
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+1){
+ --lux-card-color:#f8f1e6;
+ --lux-card-bg:radial-gradient(circle at 8% 0%,#ffffff30,transparent 58%),
+    repeating-linear-gradient(112deg,#ffffff09 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#344962,#13253b);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+2){
+ --lux-card-color:#17273a;
+ --lux-card-bg:radial-gradient(circle at 8% 0%,#ffffffb3,transparent 57%),
+    repeating-linear-gradient(109deg,#ffffff15 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#eee6db,#d1c3b2);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+3){
+ --lux-card-color:#fbf4e8;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffff24,transparent 57%),
+    repeating-linear-gradient(110deg,#ffffff08 0 1px,transparent 1px 5px),
+    linear-gradient(146deg,#505058,#232b33);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+4){
+ --lux-card-color:#17273a;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffffb6,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff14 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#e7e9eb,#bac6d3);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+5){
+ --lux-card-color:#182b3f;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffffb2,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff14 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#e9d9bd,#c2aa84);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n){
+ --lux-card-color:#faf1e9;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffff25,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff0d 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#684352,#362534);
+}
+body .pilot-layout .student-shortcuts button:nth-child(n),
+body .pilot-layout .efg-quick-more button:nth-child(n){
+ background:radial-gradient(circle at 12% 0%,#ffffff9c,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0d 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#f1ede6,#c5cbd2)!important;
+ color:#14283e!important;
+}
+body .pilot-layout .student-shortcuts button:nth-child(2),
+body .pilot-layout .efg-quick-more button:nth-child(2){
+ background:radial-gradient(circle at 8% 0%,#ffffff2f,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0b 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#405776,#172a43)!important;
+ color:#f9f4ef!important;
+}
+body .pilot-layout .student-shortcuts button:nth-child(3),
+body .pilot-layout .efg-quick-more button:nth-child(3){
+ background:radial-gradient(circle at 8% 0%,#ffffffb0,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff14 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#ead9bc,#c6ae86)!important;
+ color:#1b2a3c!important;
+}
+body .pilot-layout .efg-menu-card :is(.efg-menu-arrow,strong,.efg-menu-emoji){color:inherit!important}
+
+/* PRO-40: saludos distinguidos y mensaje del día protagonista en los tres roles. */
+.pilot-layout .efg-personal-hello{
+ display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 17px;
+ padding:15px 19px;border:1px solid #b3a28c;border-radius:18px;
+ background:radial-gradient(circle at 7% 4%,#ffffff9c,transparent 55%),
+ linear-gradient(120deg,#e8dfd4,#c9cdd1);
+ box-shadow:inset 0 1px 0 #fff,0 8px 19px #19284124;
+}
+.pilot-layout .efg-personal-hello span{
+ color:#9b773f;font-weight:850;letter-spacing:.18em;font-size:11px;
+}
+.pilot-layout .efg-personal-hello strong{
+ font-family:"Iowan Old Style",Baskerville,Georgia,serif;
+ color:#1d2d43;font-size:clamp(21px,4vw,31px);font-weight:680;
+ line-height:1.15;overflow-wrap:anywhere;
+}
+.pilot-layout .efg-pastel-motivation{
+ background:linear-gradient(135deg,#293d55,#17283b 66%,#3c3e49)!important;
+ border:1px solid #a48b5d!important;
+ box-shadow:inset 0 1px 0 #ffffff58,0 12px 22px #17243546!important;
+ color:#faf2e6!important;
+}
+.pilot-layout .efg-pastel-motivation .eyebrow,
+.pilot-layout .efg-pastel-motivation h2,
+.pilot-layout .efg-pastel-motivation p{color:#f5eee5!important}
+.pilot-layout .efg-pastel-motivation .eyebrow{
+ display:block!important;color:#e9c47a!important;letter-spacing:.12em;
+ font-size:clamp(11px,2.9vw,13px)!important;font-weight:850;
+}
+.pilot-layout .efg-pastel-motivation h2{
+ font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-size:clamp(19px,4.4vw,27px)!important;font-weight:650!important;
+}
+.pilot-layout .efg-pastel-motivation p{color:#d9dce1!important;font-size:13px}
+.pilot-layout .efg-pastel-motivation .btn.light{
+ background:linear-gradient(140deg,#ebd9b8,#c0a06c)!important;
+ color:#18273d!important;border:1px solid #b69664!important;
+}
+/* Dos franjas motivacionales brillantes sobre superficie premium neutral. */
+.pilot-layout .efg-weekly-streak{
+ background:linear-gradient(148deg,#ebe6df,#d7d8dd)!important;
+ border:1px solid #b8b2ae!important;
+ box-shadow:inset 0 1px 0 #ffffffa8,0 11px 24px #22344d25!important;
+ color:#182638;
+}
+.pilot-layout .efg-weekly-streak-title h2{color:#1e2c42!important}
+.pilot-layout .efg-weekly-streak-title p{color:#596475}
+.pilot-layout .efg-weekly-streak .efg-streak-track{
+ background:linear-gradient(150deg,#f3eee8,#e7e1dc)!important;
+ border:1px solid #c7bcb0!important;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-acceptable{
+ background:linear-gradient(145deg,#f1e9e8,#e6dcdf)!important;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-trackhead strong{color:#1c293b}
+.pilot-layout .efg-weekly-streak .efg-streak-trackhead small{color:#4c5870}
+.pilot-layout .efg-weekly-streak .efg-streak-day.is-earned .efg-streak-dot{
+ background:var(--track-color)!important;color:#fff!important;
+ box-shadow:0 4px 11px #17283d24;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-ideal{--track-color:#8b53ee;--track-light:#e6dafb}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-acceptable{--track-color:#ef538a;--track-light:#fad4e2}
+.pilot-layout .efg-weekly-streak-sunday{background:#e4ddd3;color:#3c4654}
+.pilot-layout .efg-weekly-streak-today,.pilot-layout .efg-weekly-streak-note{color:#4e5867}
+.pilot-layout .efg-weekly-streak-science{border-top-color:#b7ad9e}
+.pilot-layout .efg-weekly-streak-science :is(summary,p,small){color:#35465c}
+.pilot-layout .efg-weekly-streak-science a{color:#1c4b80}
+/* CTA de premio explícito, no concede permiso por sí solo. */
+.pilot-layout .efg-reward-container{
+ margin:17px 0 4px;padding:14px;border-radius:17px;
+ border:1px solid #b39c72;background:linear-gradient(145deg,#f3ece2,#ded5c9);
+ box-shadow:inset 0 1px 0 #ffffffb3,0 8px 17px #2333481d;
+}
+.efg-reward-intro{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:9px;row-gap:3px}
+.efg-reward-intro>span{grid-row:span 2;color:#aa863e;font-size:30px}
+.efg-reward-intro strong{font-size:13px;color:#20334c;letter-spacing:.07em}
+.efg-reward-intro small{color:#516074;font-size:11px}
+.pilot-layout .efg-reward-open{
+ display:block;width:100%;margin-top:12px;min-height:48px;
+ background:linear-gradient(135deg,#edd29b,#b78a43)!important;
+ color:#17283e!important;border:1px solid #997039!important;
+ box-shadow:inset 0 2px 1px #fffae2a0,inset 0 -3px 4px #4f300944,0 6px 13px #1d324c30!important;
+}
+.pilot-layout .efg-reward-open[aria-expanded=true]{box-shadow:inset 0 2px 6px #46320b58!important}
+.pilot-layout .efg-reward-reveal{
+ margin-top:12px;padding:14px 15px;border-radius:13px;border:1px solid #c5b192;
+ background:#eee6d8;color:#27364a;line-height:1.55;
+}
+.pilot-layout .efg-reward-reveal strong{font-family:"Iowan Old Style",Georgia,serif;font-size:20px;color:#22364f}
+.pilot-layout .efg-reward-reveal p{font-size:12px;margin:6px 0 0}
+.pilot-layout .efg-coach-reward{margin:15px 0;padding:17px}
+.pilot-layout .efg-coach-reward h3{font-size:16px;letter-spacing:.05em;color:#1b2a40}
+.pilot-layout .efg-reward-coach-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:11px}
+.pilot-layout .efg-reward-coach-controls .btn{min-height:44px}
+@media(max-width:360px){
+ .pilot-layout .efg-personal-hello{padding:12px}
+ .pilot-layout .efg-personal-hello strong{font-size:19px}
+}
+
+/* Última regresión visual: .efg-quick-more .btn.light heredaba background
+   pastel !important y tapaba nuestros materiales en tres accesos. */
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(n){
+ background:radial-gradient(circle at 12% 0%,#ffffff9c,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0d 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#f1ede6,#c5cbd2)!important;
+ color:#14283e!important;border:1px solid #b6b9bb!important;
+ box-shadow:inset 0 2px 1px #ffffffc9,inset 0 -2px 3px #62708032,0 6px 14px #192e4733!important;
+}
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(2){
+ background:radial-gradient(circle at 8% 0%,#ffffff2f,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0b 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#405776,#172a43)!important;
+ color:#f9f4ef!important;border-color:#14263c!important;
+}
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(3){
+ background:radial-gradient(circle at 8% 0%,#ffffffb0,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff14 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#ead9bc,#c6ae86)!important;
+ color:#1b2a3c!important;border-color:#b29b77!important;
+}
+
+/* Menús profesionales: iconos vectoriales cobre/dorado en disco satinado;
+   sin emojis que dependan del sistema operativo. */
+body .pilot-layout .efg-menu-card .efg-menu-emoji{
+ display:grid;place-items:center;
+ width:43px;height:43px;flex:0 0 43px;
+ border-radius:50%;
+ background:radial-gradient(circle at 35% 24%,#fff5dbb0,transparent 58%),
+ linear-gradient(145deg,#d0b98e3d,#ba95594d)!important;
+ border:1px solid #cbab7955;
+ box-shadow:inset 0 1px 1px #ffffff8c,0 3px 7px #0b1b3022;
+ color:#986e36!important;
+ filter:none!important;
+}
+body .pilot-layout .efg-menu-card .efg-lux-menu-icon{
+ width:25px;height:25px;stroke:#9f783e!important;
+ filter:drop-shadow(0 1px 0 #fff5db);
+}
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+1) .efg-lux-menu-icon,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+3) .efg-lux-menu-icon,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+1) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+3) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n) .efg-lux-menu-icon{
+ stroke:#e9c181!important;filter:drop-shadow(0 1px 0 #090e1c);
+}
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+1) .efg-menu-emoji,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+3) .efg-menu-emoji,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+1) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+3) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n) .efg-menu-emoji{
+ background:radial-gradient(circle at 35% 20%,#ffffff50,transparent 58%),
+ linear-gradient(150deg,#b6a07d39,#2b37472a)!important;
+ border-color:#e3ca9344;
+}
+@media(max-width:370px){
+ body .pilot-layout .efg-menu-card .efg-menu-emoji{width:39px;height:39px;flex-basis:39px}
+ body .pilot-layout .efg-menu-card .efg-lux-menu-icon{width:23px;height:23px}
+}
+
+/* Los KPI coach/admin aún heredaban lavandas/rosas planos del sistema anterior. */
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(n){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#ece8e2,#cdd1d7)!important;
+ border:1px solid #adb3bb!important;border-radius:17px!important;
+ box-shadow:inset 0 1px 0 #ffffffa6,0 5px 12px #26375026!important;
+}
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(2){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#eee5d9,#d3c4b1)!important;
+ border-color:#b8aa95!important;
+}
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(3){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#e4e7e8,#bbc3cd)!important;
+ border-color:#a8b1bd!important;
+}
+body .pilot-layout .efg-coach-stat-grid strong{color:#1a2b44!important}
+body .pilot-layout .efg-coach-stat-grid span{color:#536073!important}
+
+/* Alcance global incluye LOGIN, autorización y primera bienvenida.
+   Sin tocar OTP, funcionamiento del login ni datos. */
+body .pilot-login{background:linear-gradient(125deg,#d8d7d4,#e9e4db);color:#1b2b3e}
+body .pilot-login-art{
+ background:radial-gradient(circle at 15% 9%,#ffffff2b,transparent 50%),
+ repeating-linear-gradient(112deg,#ffffff0b 0 1px,transparent 1px 6px),
+ linear-gradient(145deg,#263a54,#101e30)!important;
+ padding:clamp(24px,6vw,66px);
+}
+body .pilot-login-art h1{
+ color:#f5e8cf!important;font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-weight:600;letter-spacing:-.04em;line-height:1.08;
+}
+body .pilot-login-art p{color:#d5dbe0!important}
+body .pilot-login-art .eyebrow{
+ color:#e0bf86!important;font-size:11px;letter-spacing:.16em;font-weight:800;
+}
+body .pilot-login-art .efg-login-brandmark{
+ display:block;object-fit:contain;width:clamp(66px,12vw,100px);height:auto;
+ margin:0 0 23px;filter:drop-shadow(0 3px 8px #00000025);
+}
+body .pilot-login-form{
+ background:radial-gradient(ellipse at 90% 10%,#f9eee2a0,transparent 69%),
+ linear-gradient(147deg,#dfddd9,#eee8df)!important;
+}
+body .pilot-login-card{
+ background:radial-gradient(circle at 11% 0%,#ffffffa2,transparent 55%),
+ linear-gradient(143deg,#f4f0e9,#d9d7d4)!important;
+ border:1px solid #c5b8aa;border-radius:24px;
+ box-shadow:inset 0 1px 0 #fff,0 13px 35px #19273b24;
+ padding:clamp(19px,4vw,30px);
+}
+body .pilot-login-card .eyebrow{color:#8c6935!important;letter-spacing:.1em}
+body .pilot-login-card h2{
+ font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-weight:650;color:#17263b!important;
+}
+body .pilot-login-card :is(p,.pilot-footnote){color:#4e5a69}
+body .pilot-login-card :is(input,select,textarea){
+ background:#f7f2eb!important;border:1px solid #b9aea2!important;color:#1d2b40!important;
+ min-height:48px;
+}
+body .pilot-login-card :is(.btn,button.btn){
+ background:linear-gradient(145deg,#354860,#14263e)!important;color:#f8f1e7!important;
+ border:1px solid #182a42!important;
+ box-shadow:inset 0 1px 0 #ffffff59,0 6px 14px #13253c30!important;
+ min-height:44px;
+}
+body .pilot-login-card :is(.btn.light,.btn.ghost){
+ background:linear-gradient(145deg,#f0e7d8,#d7c5aa)!important;color:#1d2c3f!important;
+ border-color:#c2ad8c!important;
+}
+body .pilot-login-card .pilot-otp-input{
+ font-variant-numeric:tabular-nums;color:#1d2b40!important;
+}
+body .efg-onboard{
+ background:radial-gradient(ellipse at 85% 3%,#f8efe2,transparent 68%),
+ linear-gradient(145deg,#dcd8d0,#bfc6cd)!important;
+}
+body .efg-onboard-sheet{
+ background:#ece6dc!important;
+ box-shadow:0 19px 49px #1b2b4233!important;
+ border:1px solid #b9ad9d!important;
+}
+body .efg-onboard-brand{background:linear-gradient(135deg,#f0ebe3,#dfe1e1)!important}
+body .efg-onboard-brand strong{
+ color:#20334d!important;font-family:"Iowan Old Style",Baskerville,Georgia,serif!important
+}
+body .efg-onboard-brand small{color:#8b6c42!important}
+body .efg-onboard-serotonin{object-fit:contain;width:70px;height:42px;margin:0 auto 8px}
+body .efg-onboard-copy{
+ background:radial-gradient(ellipse at 84% 2%,#fff6eaa6,transparent 61%),
+ linear-gradient(145deg,#f1ece4,#d8d9dc)!important;
+}
+body .efg-onboard-copy h1{
+ color:#20314a!important;font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-weight:650;
+}
+body .efg-onboard-copy h1 em{color:#9b743b!important}
+body .efg-onboard-copy p{color:#556071!important}
+body .efg-onboard-cta{
+ background:linear-gradient(150deg,#3b4d62,#14243a)!important;color:#fff2dd!important;
+ border:1px solid #9f814e!important;
+ box-shadow:inset 0 1px 0 #ffffff59,0 7px 16px #1a2d4240!important;
+}
+body .efg-onboard-cta:not(:disabled):hover{filter:brightness(1.1)}
+body .efg-onboard-motto,body .efg-onboard-motto b{color:#42526b!important}
+body .pilot-loader.pilot-loader-wellness{
+ background:linear-gradient(147deg,#eee8df,#cfd4d9)!important;
+ color:#1c2d44!important;
+}
+body .pilot-loader-wordmark{color:#21364d!important}
+body .pilot-loader-message{color:#1e2f45!important;font-family:"Iowan Old Style",Georgia,serif!important}
+body .pilot-loader-message em{color:#9b773f!important}
+body .pilot-loader-signature,body .pilot-loader-subtitle{color:#526075!important}
+body .pilot-loader .spin{border-top-color:#b59058!important}
+@media(max-width:720px){
+ body .pilot-login-card{padding:19px 16px;margin:5px auto}
+ body .pilot-login-art{padding:24px}
+ body .pilot-login-art h1{font-size:clamp(29px,7vw,39px)}
+ body .efg-onboard-sheet{box-shadow:none!important;border:0!important}
+}

@@ -1,6 +1,7 @@
 import {ARGENTINE_LABEL_FOODS,ARGENTINE_LABEL_PORTIONS} from "./argentine-manufacturer-labels.js?v=20261028-ar-labels1";
 import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "./user-photo-labels.js?v=20261028-choco1";
 import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=20261028-phase2src4";
+import {PLANT_BAKERY_FOODS,PLANT_BAKERY_PORTIONS,PLANT_BAKERY_ALIASES,PLANT_BAKERY_COUNT} from "./food-plant-bakery-phase3.js?v=20261029-plant1";
 // EFG Nutrition - biblioteca genérica inicial, no equivalente a un etiquetado de marca.
 // Macros aproximados por 100 g de alimento comestible (o 100 ml de líquidos).
 // No se deben utilizar como prescripción ni sustituir la evaluación profesional.
@@ -136,12 +137,13 @@ export const EXTRA_FOODS=RAW_FOODS.concat(REGIONAL_FOODS,EXPANSION_FOODS).map(([
  p:p/100,c:c/100,f:f/100,fi:fi/100,
  sourceType:"generic_estimate",validationStatus:"generico_pendiente",
  source:EXPANSION_FOODS.some(x=>x[0]===id)?"Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.":REGIONAL_FOODS.some(x=>x[0]===id)?"Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.":id==="mixed_nuts"?"Estimación: partes iguales de maní, nueces, almendras y cajú, sin azúcar añadida. Revisar composición real.":category==="drink"?"Infusión sin azúcar; café con leche y similares requieren personalizar cantidad y tipo de leche.":"Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta"
-})).map(food=>({...food,...(USDA_FDC_OVERRIDES[food.id]||{}),...(food.id==="huevo_frito"?FRIED_EGG_WITH_OIL:{})})).concat(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS);
+})).map(food=>({...food,...(USDA_FDC_OVERRIDES[food.id]||{}),...(food.id==="huevo_frito"?FRIED_EGG_WITH_OIL:{})})).concat(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS,PLANT_BAKERY_FOODS);
 
 // Porciones caseras estimadas. En el registro se guardan gramos equivalentes; no representan mediciones exactas.
 export const FOOD_UNIT_PORTIONS={"egg":{"grams":50,"label":"huevo mediano"},"egg_boiled":{"grams":50,"label":"huevo mediano"},"egg_white":{"grams":34,"label":"clara"},"apple":{"grams":150,"label":"manzana mediana"},"banana":{"grams":120,"label":"banana mediana sin cáscara"},"mandarin":{"grams":90,"label":"mandarina mediana"},"orange":{"grams":130,"label":"naranja mediana"},"pear":{"grams":160,"label":"pera mediana"},"kiwi":{"grams":80,"label":"kiwi mediano"},"strawberry":{"grams":15,"label":"frutilla mediana"},"peach":{"grams":150,"label":"durazno mediano"},"plum":{"grams":65,"label":"ciruela mediana"},"grapefruit":{"grams":230,"label":"pomelo mediano"},"lemon":{"grams":60,"label":"limón mediano"},"mango":{"grams":200,"label":"mango mediano (pulpa)"},"bread":{"grams":30,"label":"rebanada"},"bread_white":{"grams":30,"label":"rebanada"},"bread_rye":{"grams":30,"label":"rebanada"},"toast_whole":{"grams":12,"label":"tostada"},"rice_cakes":{"grams":9,"label":"galleta"},"tortilla_wheat":{"grams":45,"label":"tortilla"},"cheese":{"grams":25,"label":"feta"},"ham_cooked":{"grams":25,"label":"feta"},"mozzarella":{"grams":25,"label":"feta"},"walnuts":{"grams":5,"label":"nuez sin cáscara"},"almonds":{"grams":1.2,"label":"almendra"},"cashews":{"grams":1.5,"label":"castaña de cajú"},"olives":{"grams":4,"label":"aceituna"},"dates":{"grams":8,"label":"dátil sin carozo"},"cake":{"grams":82.5,"label":"porción de budín"},"whey_powder":{"grams":30,"label":"scoop de whey (30 g)"},"medialuna_butter":{"grams":45,"label":"medialuna"},"medialuna_fat":{"grams":45,"label":"medialuna"},"chipa":{"grams":35,"label":"chipá"},"alfajor_chocolate":{"grams":60,"label":"alfajor"},"alfajor_maicena":{"grams":60,"label":"alfajor"},"tostado_ham_cheese":{"grams":125,"label":"tostado"},"sandwich_miga_ham_cheese":{"grams":70,"label":"sándwich de miga"},"chorizo_cooked":{"grams":90,"label":"chorizo sin pan"},"morcilla_cooked":{"grams":90,"label":"morcilla"},"barrita_cereal":{"grams":25,"label":"barrita"},"pan_frances":{"grams":50,"label":"porción de pan"},"pan_lactal":{"grams":30,"label":"rebanada"},"pan_lactal_integral":{"grams":30,"label":"rebanada"},"huevo_frito":{"grams":50,"label":"huevo frito"},"huevo_frito_fritolim":{"grams":50,"label":"huevo con rocío vegetal mínimo"},"milanesa_chicken_baked":{"grams":150,"label":"milanesa mediana al horno"},"milanesa_beef_baked":{"grams":150,"label":"milanesa mediana al horno"},"milanesa_chicken_fried":{"grams":150,"label":"milanesa mediana frita"},"milanesa_beef_fried":{"grams":150,"label":"milanesa mediana frita"},"empanada_beef_baked":{"grams":90,"label":"empanada mediana"},"empanada_chicken_baked":{"grams":90,"label":"empanada mediana"},"empanada_ham_cheese":{"grams":90,"label":"empanada mediana"},"empanada_caprese":{"grams":90,"label":"empanada mediana"},"empanada_vegetable":{"grams":90,"label":"empanada mediana"},"empanada_corn":{"grams":90,"label":"empanada mediana"},"pizza_muzzarella":{"grams":130,"label":"porción de pizza"},"pizza_napolitana":{"grams":130,"label":"porción de pizza"},"pizza_fugazzeta":{"grams":130,"label":"porción de pizza"},"faina":{"grams":100,"label":"porción de fainá"},"tarta_spinach":{"grams":170,"label":"porción de tarta"},"tarta_chicken":{"grams":170,"label":"porción de tarta"},"tarta_ham_cheese":{"grams":170,"label":"porción de tarta"},"tarta_vegetable":{"grams":170,"label":"porción de tarta"},"tarta_pumpkin":{"grams":170,"label":"porción de tarta"},"mixed_nuts":{"grams":30,"label":"porción de mezcla de frutos secos"},"peanuts":{"grams":30,"label":"puñado chico de maní sin cáscara"},"pistachios":{"grams":30,"label":"puñado chico de pistachos sin cáscara"},"egg_quail":{"grams":9,"label":"huevo de codorniz sin cáscara"},"bread_glutenfree":{"grams":30,"label":"rebanada de pan sin gluten"},"toast_glutenfree":{"grams":12,"label":"tostada sin gluten"},"protein_bar_generic":{"grams":50,"label":"barra proteica genérica"},"hazelnuts":{"grams":1.4,"label":"avellana"},"pecans":{"grams":3,"label":"nuez pecán sin cáscara"},"brazil_nuts":{"grams":5,"label":"castaña de Brasil"},"scrambled_eggs":{"grams":100,"label":"porción de huevos revueltos"},"milanesa_soy_gobinda":{"grams":125,"label":"milanesa"},"fruit_salad_basic":{"grams":200,"label":"bol de ensalada de frutas"}};
 
 Object.assign(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS);
+Object.assign(FOOD_UNIT_PORTIONS,PLANT_BAKERY_PORTIONS);
 Object.assign(FOOD_UNIT_PORTIONS,ARGENTINE_LABEL_PORTIONS);
 Object.assign(FOOD_UNIT_PORTIONS,USER_PHOTO_LABEL_PORTIONS);
 Object.assign(FOOD_UNIT_PORTIONS,{
@@ -159,14 +161,20 @@ Object.assign(FOOD_UNIT_PORTIONS,{
 // Sinónimos regionales compartidos por alumno, coach y planificador.
 export const FOOD_SEARCH_ALIASES=Object.freeze({
  pumpkin:["zapallo","calabaza","zapallo anco","anco hervido"],
+ // Regional search should find the existing bread and sweets under colloquial names.
+ pan_frances:["pan comun","pan común","pan de panaderia","pan de panadería","pan flauta","flauta","pan frances","pan francés","pan blanco de panaderia","pancito"],
+ bread_white:["pan blanco","pan comun de molde","pan de miga"],
+ gomitas_frutales:["gomitas","gomitas dulces","gomitas frutales","ositos","golosinas","caramelos blandos"],
+ gomitas_acidas:["gomitas acidas","gomitas ácidas","golosinas ácidas","caramelos ácidos","gomitas sour"],
  colonial_chocolate_organico_80_cacao:["colonial","chocolate 80%","chocolate organico","chocolate amargo","chocolate organico colonial"],
  mi_mix_nueces_almendras_avellanas_caju:["mi mix","mix de frutos secos","mix de frutas secas","nueces almendras avellanas caju","castañas de cajú","nueces sin mani"],
  naranja_azucarada_cascara_confitada_granel:["naranja azucarada","naranja confitada","cascara de naranja confitada","cascaritas de naranja azucaradas","naranja abrillantada","naranja escarchada"],
  quinoa_inflada_pop_granel:["quinoa pop","quinoa inflada","quinoa expandida","quinoa soplada","quinua inflada","quinoa puff","quinua pop"],
  pochoclos_dulces_acaramelados_genericos:["pochoclos dulces","pochoclo dulce","pochoclos acaramelados","pochoclos caramelizados","palomitas dulces","popcorn caramel","popcorn dulce","maiz inflado dulce"],
- ...EXPANDED_ALIASES
+ ...EXPANDED_ALIASES,
+ ...PLANT_BAKERY_ALIASES
 });
 export function foodSearchText(food){
  return [food.name,food.brand||"",food.productType||"",...(FOOD_SEARCH_ALIASES[food.id]||[])].join(" ");
 }
-export {EXPANDED_COUNT};
+export {EXPANDED_COUNT,PLANT_BAKERY_COUNT};

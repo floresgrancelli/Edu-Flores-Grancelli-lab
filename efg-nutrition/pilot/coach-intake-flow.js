@@ -31,6 +31,25 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(!a.error)for(const v of a.data||[])state.coachIntakeForms[v.student_id]=v;
   if(!b.error)for(const v of b.data||[])state.coachIntakeAccess[v.student_id]=v;
  }
+ // Reload before opening a coach's student detail: permission may have been revoked
+ // or the optional intake deleted in another session since the roster last loaded.
+ async function refreshCoachDetail(studentId,consented){
+  if(!studentId)return;
+  delete state.coachIntakeForms[studentId];
+  delete state.coachIntakeAccess[studentId];
+  if(!consented)return;
+  const [a,b]=await Promise.all([
+   sb.from("efg_student_intakes")
+    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,notes,shared_at")
+    .eq("student_id",studentId).not("shared_at","is",null).maybeSingle(),
+   sb.from("efg_student_plan_access")
+    .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
+  ]);
+  if(a.error&&!missing(a.error))throw a.error;
+  if(b.error&&!missing(b.error))throw b.error;
+  if(!a.error&&a.data?.shared_at)state.coachIntakeForms[studentId]=a.data;
+  if(!b.error&&b.data)state.coachIntakeAccess[studentId]=b.data;
+ }
  const opt=(id,label,value,selected)=>'<option value="'+id+'" '+(id===selected?'selected':'')+'>'+label+'</option>';
  function view(){
   const v=state.studentIntake||{},shared=!!v.shared_at;
@@ -103,5 +122,5 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   await refresh();
   notify("Plan publicado. El alumno ya puede utilizar las herramientas nutricionales.");
  }
- return {pending,loadStudent,loadCoach,view,save,deleteOwn,details,publish};
+ return {pending,loadStudent,loadCoach,refreshCoachDetail,view,save,deleteOwn,details,publish};
 }

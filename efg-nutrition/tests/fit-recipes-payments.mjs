@@ -54,7 +54,7 @@ assert.ok(app.includes('["coach","⌂","Inicio"],["home","◷","MI DÍA"]'),"Coa
 assert.ok(app.includes('state.profile.role==="coach"||state.profile.role==="admin"'),"Professional personal goal eligibility");
 assert.ok(app.includes('if(!["student","coach","admin"].includes(state.profile?.role))'),"Fit recipes register in professional private diary");
 assert.ok(app.includes('commercialReady=isTest||["active","grace"].includes(org?.status)'),"Commercial invitation requires admin activation");
-assert.ok(app.includes('["trial","suspended"].includes(org.status)'),"Trial coach explicitly activatable by admin");
+assert.ok(app.includes('efg_activate_paid_coach'),"Commercial coach activation requires approved payment and admin RPC");
 const licenseMigration=readFileSync("efg-nutrition/migrations/20261029_coach_license_activates_invites.sql","utf8");
 assert.match(licenseMigration,/efg_invite_student/);
 assert.match(licenseMigration,/efg_set_student_active/);

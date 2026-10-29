@@ -73,7 +73,7 @@ jobs:
         run: node efg-nutrition/tests/coach-plan-draft-staging-contract.mjs
       - name: Verify staging-only atomic Coach publication contract (NO database connection)
         run: node efg-nutrition/tests/coach-plan-atomic-publish-contract.mjs
-      - name: Verify server-owned food evidence and legal policy contract (STATIC; NO database)
+      - name: NUT-57 integrated one-transaction STAGING preview, mandatory ROLLBACK (STATIC ONLY)\n        run: |\n          node --check efg-nutrition/tests/nut57-staging-bundle.mjs\n          node --check efg-nutrition/tests/nut57-staging-bundle-contract.mjs\n          node efg-nutrition/tests/nut57-staging-bundle-contract.mjs\n      - name: Verify server-owned food evidence and legal policy contract (STATIC; NO database)
         run: node efg-nutrition/tests/coach-publication-evidence-policy-contract.mjs
       - name: Verify legal onboarding draft (isolated; NO production legal gate)
         run: |

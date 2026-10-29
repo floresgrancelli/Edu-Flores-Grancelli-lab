@@ -12,7 +12,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const a=await sb.from("efg_student_plan_access").select("status,published_at,published_goal_id").eq("student_id",id).maybeSingle();
   if(a.error){if(missing(a.error))return;throw a.error;}
   state.planAccessSupported=true;state.planAccess=a.data||{status:"pending"};
-  if(pending()){
+  // Privacy rights continue after publication: retain access to the intake and revoke sharing at any time.
+  {
    const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,notes,shared_at").eq("student_id",id).maybeSingle();
    if(f.error)throw f.error;
    state.studentIntake=f.data||null;
@@ -34,8 +35,10 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  function view(){
   const v=state.studentIntake||{},shared=!!v.shared_at;
   const field=(id,label,value,min,max,step)=>'<div class="field"><label for="'+id+'">'+label+' (opcional)</label><input type="number" inputmode="decimal" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+escapeHTML(value??"")+'"></div>';
-  return rootText("MI INGRESO","Mientras tu coach prepara tu plan, podés conversar con él y completar tu ficha.")+
-  '<section class="coach-intake-intro"><div class="eyebrow">BIENVENIDO · EFG NUTRITION CON COACH</div><h2>Estamos preparando tu plan.</h2><p>Al publicarlo tu coach, se habilitarán las herramientas nutricionales. Por ahora tenés la mensajería, la privacidad y tu ficha voluntaria.</p></section>'+
+  const ready=!pending();
+  return rootText(ready?"MI FICHA INICIAL":"MI INGRESO",ready?"Consultá, corregí o retirale el acceso a tu coach cuando quieras.":"Mientras tu coach prepara tu plan, podés conversar con él y completar tu ficha.")+
+  (ready?'<section class="coach-intake-intro"><div class="eyebrow">MI FICHA · EFG NUTRITION CON COACH</div><h2>Mi ficha y mis permisos</h2><p>Tu plan ya está disponible. Esta ficha es independiente: podés actualizarla o dejar de compartirla sin perder el acceso a MI DÍA.</p></section>':
+   '<section class="coach-intake-intro"><div class="eyebrow">BIENVENIDO · EFG NUTRITION CON COACH</div><h2>Estamos preparando tu plan.</h2><p>Al publicarlo tu coach, se habilitarán las herramientas nutricionales. Por ahora tenés la mensajería, la privacidad y tu ficha voluntaria.</p></section>')+
   '<section class="card"><h2>Mi ficha inicial</h2><p class="pilot-hint">Todos los datos son opcionales y autodeclarados. Podés guardar sin compartir, o autorizar expresamente que el coach la vea.</p>'+
   '<form id="efgStudentIntakeForm" class="pilot-form">'+
   '<div class="field"><label for="efgIntakeObjective">Mi objetivo (opcional)</label><select id="efgIntakeObjective">'+opt("","Elegir objetivo","",v.objective||"")+Object.entries(names).map(([k,l])=>opt(k,l,k,v.objective)).join("")+'</select></div>'+
@@ -46,10 +49,11 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   '<p class="pilot-hint">Este permiso es distinto del seguimiento nutricional. Para que el coach lea la ficha, ambos deben estar activos.</p>'+
   '<button class="btn block" type="submit">Guardar mi ficha</button></form>'+
   '<div role="status" class="pilot-notice">'+(shared?'Ficha compartida con tu coach si autorizaste su seguimiento.':'Ficha privada. Todavía no la compartiste.')+'</div></section>'+
-  '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>';
+  (ready?'<section class="card"><h2>Tu plan sigue disponible</h2><p>Modificar o retirar el permiso para compartir esta ficha no borra tus registros ni despublica tu plan. El seguimiento del coach requiere por separado tu consentimiento vigente.</p><div class="pilot-toolbar"><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-tab="home">Volver a MI DÍA</button></div></section>':
+   '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
  }
  async function save(){
-  if(!pending())throw Error("No hay un ingreso pendiente activo.");
+  if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)throw Error("Tu ficha no está disponible en esta sesión.");
   const get=id=>document.getElementById(id),value=id=>get(id)?.value?.trim()||"";
   const numeric=(id,min,max,integer=false)=>{
    const v=value(id);if(!v)return null;

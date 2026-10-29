@@ -39,6 +39,10 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
  function atTop(){return (window.scrollY||document.documentElement.scrollTop||0)<=2;}
  function start(e){
   if(busy||!canRefresh()||e.touches.length!==1||!atTop()||isEditable(e.target)||hasNestedScroll(e.target)||document.querySelector("dialog[open]"))return;
+  // Android Chrome: do not intercept downward gestures begun over the dashboard.
+  // Pull-to-refresh is reserved for the very top edge; the rest is native scrolling.
+  const topEdge=Math.min(110,Math.round(window.innerHeight*.18));
+  if(e.touches[0].clientY>topEdge)return;
   clearDelayed();
   x0=e.touches[0].clientX;y0=e.touches[0].clientY;
   distance=0;tracking=true;claimed=false;

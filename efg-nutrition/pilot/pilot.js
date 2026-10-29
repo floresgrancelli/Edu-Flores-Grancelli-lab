@@ -1294,7 +1294,7 @@ function openMealDialog(slot,initialGroup="protein"){
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  guidedPanel+
- '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
+ '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
  '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
@@ -1302,6 +1302,32 @@ function openMealDialog(slot,initialGroup="protein"){
  (guided?'<div class="efg-guided-save-actions"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button>')+'</div></div></div>';
  updateMealEntryMode(true);
  document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
+}
+function hideMealSearchSuggestions(){
+ const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
+ if(panel){panel.hidden=true;panel.innerHTML="";}
+ if(input)input.setAttribute("aria-expanded","false");
+}
+function renderMealSearchSuggestions(items,term){
+ const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
+ if(!panel||!input)return;
+ if(!term){hideMealSearchSuggestions();return;}
+ const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
+ const rank=f=>{const name=normalize(f.name);return name===term?0:name.startsWith(term)?1:name.includes(" "+term)?2:3;};
+ const ranked=items.slice().sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,"es-AR")).slice(0,8);
+ panel.innerHTML=ranked.length?
+  '<p class="efg-meal-search-count">'+items.length+' coincidencia'+(items.length===1?'':'s')+' · Elegí el alimento para continuar</p>'+
+  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML(f.name)+'</span><small>Elegir</small></button>').join(""):
+  '<p class="efg-meal-search-count" role="status">No encontramos alimentos con ese nombre. Probá otra palabra o revisá el catálogo habilitado.</p>';
+ panel.hidden=false;input.setAttribute("aria-expanded","true");
+}
+function pickMealSearchSuggestion(foodId){
+ const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
+ const food=foods.find(f=>f.id===foodId);
+ if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
+ selector.value=food.id;search.value=food.name;
+ hideMealSearchSuggestions();updateMealEntryMode(true);
+ search.focus({preventScroll:true});
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -1321,6 +1347,7 @@ function filterMealFoods(){
  selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  else selector.value="";
+ renderMealSearchSuggestions(filtered,term);
  // No autoseleccionar la primera opción: iOS no emite "change" si el
  // usuario elige un valor que el select ya consideraba seleccionado.
  updateMealEntryMode(true);
@@ -2605,7 +2632,8 @@ if(el.dataset.foodbulk){
   const {error}=await sb.rpc("efg_activate_paid_coach",{p_org:org.id});
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
- const action=el.dataset.act;if(!action)return;
+ if(el.dataset.mealsuggestion){pickMealSearchSuggestion(el.dataset.mealsuggestion);return;}
+  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
@@ -2836,6 +2864,14 @@ root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const sel
 document.addEventListener("keydown",event=>{
  const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
  if(!dialog)return;
+  const suggestions=document.getElementById("mealFoodSuggestions"),search=document.getElementById("mealFoodSearch");
+  if(dialog.classList.contains("meal-popup")&&suggestions&&!suggestions.hidden){
+   const choices=[...suggestions.querySelectorAll("[data-mealsuggestion]")],index=choices.indexOf(document.activeElement);
+   if(event.key==="Escape"){event.preventDefault();hideMealSearchSuggestions();search?.focus({preventScroll:true});return;}
+   if(event.key==="ArrowDown"&&(event.target===search||index>=0)){event.preventDefault();choices[Math.min(index+1,choices.length-1)]?.focus({preventScroll:true});return;}
+   if(event.key==="ArrowUp"&&index>=0){event.preventDefault();(index===0?search:choices[index-1])?.focus({preventScroll:true});return;}
+   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();pickMealSearchSuggestion(choices[0].dataset.mealsuggestion);return;}
+  }
  if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
  if(event.key!=="Tab")return;
  const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);

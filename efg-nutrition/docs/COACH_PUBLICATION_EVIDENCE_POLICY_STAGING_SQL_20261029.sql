@@ -262,7 +262,7 @@ begin
     end loop;
   end loop;
   return true;
-end
+end;
 $efg_food_policy$;
 
 revoke all on function efg_private.coach_publication_policy_valid(

@@ -131,3 +131,26 @@ No mantener reglas de dieta diferentes por modalidad. Separar en cambio:
   solicitar evaluación profesional para situaciones clínicas.
 **No implementado aún:** reglas clínicas automáticas, perfiles de salud y rutas
 Autogestión en producción. El documento es una especificación común a ambas.
+
+## UX aprobado: señales de compatibilidad en alimentos (29/10/2026)
+Las tres vistas —Coach, Alumno con Coach y Nutrition Personal— reutilizarán
+el mismo resultado de compatibilidad al buscar alimentos, seleccionar
+porciones, consultar habituales/recetas, sustituir alimentos y registrar.
+**Semáforo:** VERDE «Compatible verificado»; AMARILLO «Verificar datos»;
+ROJO «No compatible con tu restricción/plan». Además, distintivo independiente
+AZUL/VIOLETA «Incluido en mi plan», sin anular advertencias.
+No ocultar el resto del catálogo; un usuario puede registrar con veracidad
+un alimento rojo, acompañado por información contextual no culpabilizante.
+Color + ícono + texto y explicación del motivo/fuente.
+
+Los alimentos genéricos de esta fase NO pueden obtener VERDE de forma
+automática para celiaquía o alergias: no hay composición industrial
+específica, trazas, elaboración ni registro vigentes verificados. Para
+alimentos industriales declarados sin gluten, verificar la presencia del
+símbolo oficial y estado «Vigente» en ANMAT LIALG:
+https://listadoalg.anmat.gob.ar/HomeGu
+Para preferencias veganas, verificar ingredientes y aditivos; para keto,
+revisar la porción y el presupuesto de hidratos. No hay «prohibidos»
+universales en diabetes solo por pertenecer a una categoría.
+
+Diseño aceptado por el propietario; **no implementado en la app pública**.

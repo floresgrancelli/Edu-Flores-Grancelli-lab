@@ -28,7 +28,7 @@ export function createMessagesCenter({sb,context,afterSend}){
   const c=context(),key=c.userId+"|"+c.role+"|"+(c.testCoach?"test":"");
   if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";drafts.clear();threadHasMore=false;filter="";listMode="all";epoch++;}
   const ids=new Set(contacts().map(x=>x.student));
-  if(selectedStudent&&!ids.has(selectedStudent)){selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;drafts.delete(selectedStudent);epoch++;}
+  if(selectedStudent&&!ids.has(selectedStudent)){drafts.delete(selectedStudent);selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;epoch++;}
  }
  function previews(){
   const latest=new Map(),unread=new Map(),self=context().userId;
@@ -86,6 +86,23 @@ export function createMessagesCenter({sb,context,afterSend}){
   const focused=host.contains(document.activeElement)?document.activeElement:null;
   const focusId=focused?.id||null;
   const selection=focusId&&typeof focused.selectionStart==="number"?[focused.selectionStart,focused.selectionEnd]:null;
+  // Preserve active text controls in place: repainting them closes some iOS keyboards.
+  if(!force&&(focusId==="efgMessageText"||focusId==="efgChatSearch")){
+   const list=host.querySelector(".efg-chat-contacts");
+   if(list)list.innerHTML=cardsHTML();
+   const oldHistory=host.querySelector(".efg-message-history");
+   if(oldHistory){
+    const tmp=document.createElement("div");tmp.innerHTML=threadHTML();
+    const next=tmp.querySelector(".efg-message-history");
+    if(next){
+     const atBottom=oldHistory.scrollHeight-oldHistory.scrollTop-oldHistory.clientHeight<65;
+     const top=oldHistory.scrollTop,previousHeight=oldHistory.scrollHeight;
+     oldHistory.innerHTML=next.innerHTML;
+     oldHistory.scrollTop=prepend?top+oldHistory.scrollHeight-previousHeight:atBottom?oldHistory.scrollHeight:top;
+    }
+   }
+   return;
+  }
   // Refreshes should not close the mobile keyboard, reset a search, or jump while reading history.
   host.innerHTML='<section class="efg-chat-layout'+(threadOpen?" show-thread":"")+'">'+
     '<aside class="efg-chat-list">'+headerHTML()+'<div class="efg-chat-contacts" aria-label="Conversaciones">'+cardsHTML()+'</div></aside>'+

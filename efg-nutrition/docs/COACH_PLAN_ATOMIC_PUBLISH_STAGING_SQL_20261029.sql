@@ -176,11 +176,11 @@ begin
     end if;
   end loop;
 
-  select count(*),count(distinct meal->>'slot'),
-    count(*) filter(where meal->>'slot' not in
+  select count(*),count(distinct m.meal->>'slot'),
+    count(*) filter(where m.meal->>'slot' not in
       ('desayuno','media_manana','almuerzo','merienda','cena'))
     into v_slots,v_distinct_slots,v_bad_slots
-  from pg_catalog.jsonb_array_elements(v_guide->'meals') meal;
+  from pg_catalog.jsonb_array_elements(v_guide->'meals') as m(meal);
   if v_slots<>5 or v_distinct_slots<>5 or v_bad_slots<>0 then
     raise exception 'Five distinct supported meal slots required';
   end if;
@@ -196,10 +196,10 @@ begin
       using errcode='42501';
   end if;
 
-  select pg_catalog.array_agg(distinct item->>'id')
+  select pg_catalog.array_agg(distinct i.item->>'id')
   into v_food_ids
-  from pg_catalog.jsonb_array_elements(v_guide->'meals') meal
-  cross join lateral pg_catalog.jsonb_array_elements(meal->'items') item;
+  from pg_catalog.jsonb_array_elements(v_guide->'meals') as m(meal)
+  cross join lateral pg_catalog.jsonb_array_elements(m.meal->'items') as i(item);
   if v_food_ids is null or pg_catalog.cardinality(v_food_ids) not between 1 and 300
     or pg_catalog.array_position(v_food_ids,null) is not null then
     raise exception 'Food list invalid';

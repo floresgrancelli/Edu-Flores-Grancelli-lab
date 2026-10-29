@@ -92,11 +92,17 @@ try{
     const field=document.createElement("textarea");document.body.append(field);
     drag(field,90,270);await new Promise(resolve=>setTimeout(resolve,30));
     const afterInput=count;field.remove();
+    const summary=document.createElement("div");summary.className="efg-pastel-day";document.body.append(summary);
+    const contentBlocked=drag(summary,340,520); // down: ordinary card must not become refresh
+    const upwardBlocked=drag(summary,340,165); // up: ordinary card must pan normally
+    await new Promise(resolve=>setTimeout(resolve,30));
+    const afterContent=count;summary.remove();
     test.dispose();
-    return {firstBlocked,first,visible,afterShort,afterInput};
+    return {firstBlocked,first,visible,afterShort,afterInput,contentBlocked,upwardBlocked,afterContent};
    });
    if(!gesture.firstBlocked||gesture.first!==1||gesture.visible!==1||
-      gesture.afterShort!==1||gesture.afterInput!==1)errors.push("pull-refresh touch gesture failed: "+JSON.stringify(gesture));
+      gesture.afterShort!==1||gesture.afterInput!==1||gesture.contentBlocked||gesture.upwardBlocked||gesture.afterContent!==1)
+      errors.push("pull-refresh must not hijack Android dashboard swipes: "+JSON.stringify(gesture));
   }
   await page.evaluate(async(role)=>{
    const {state,render,today,setConsentMap}=window.__EFG_VISUAL_QA__;

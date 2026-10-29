@@ -113,4 +113,46 @@ const hidden=ok(await call(path,{token:users.coachA.token}),"Revocation must inv
 assert.deepEqual(hidden,[]);
 denied(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:2}),"Revoked Coach tracking must block saving");
 assert.equal(sql("select count(*) from public.efg_goals"),"0");
-console.log("PASS NUT-53 LOCAL AUTH: signed GoTrue JWTs verified, Coach A/B and student separation, RLS read, unauthorized RPC denial, no premature goal, fail-closed legal, revision CAS and revocation. DATA/FIXTURES SYNTHETIC; no production/clinical/legal approval.");
+
+// NUT-54 positive atomic publication uses EXPLICITLY FICTITIOUS evidence/legal fixtures.
+// This proves transaction mechanics under signed LOCAL Auth; it does NOT validate a food,
+// allergy, diet, law, clinical decision or a real person's informed legal acceptance.
+sql("update public.efg_consents set accepted=true where student_id="+uuid(users.studentA.id));
+const termsId=randomUUID(),privacyId=randomUUID();
+const fixtureSQL=[
+ "insert into efg_private.coach_reviewed_foods(food_id,catalog_version,unit,k,p,c,f,fi,source_kind,source_url,evidence_id,evidence_status,reviewed_by,reviewed_at,expires_at) values "+
+  "('tofu_firm','synthetic_nut54','g',0.8,0.1,0.03,0.04,0.02,'validated_composition','https://example.org/testing-only-evidence','fakeTofuEvidence54','reviewed',"+uuid(users.reviewer.id)+",now()-interval '1 day',now()+interval '2 days')",
+ "insert into efg_private.coach_food_pattern_reviews(food_id,dietary_pattern,verdict,catalog_version,evidence_id,reviewed_by,reviewed_at,expires_at) values "+
+  "('tofu_firm','vegetarian','allowed','synthetic_nut54','fakeTofuEvidence54',"+uuid(users.reviewer.id)+",now()-interval '1 day',now()+interval '2 days')",
+ "insert into efg_private.coach_publication_scope_reviews(student_id,organization_id,coach_id,intake_updated_at,status,reviewed_by,reviewed_at) "+
+  "select student_id,organization_id,"+uuid(users.coachA.id)+",updated_at,'general_guidance_reviewed',"+uuid(users.reviewer.id)+",now() "+
+  "from public.efg_student_intakes where student_id="+uuid(users.studentA.id),
+ "insert into public.efg_legal_documents(id,kind,version,sha256,locale,published_at,effective_at,status) values "+
+  "("+uuid(termsId)+",'terms','synthetic-1','TEST_ONLY_NO_LEGAL_VALUE','es-AR',now()-interval '2 days',now()-interval '1 day','published'),"+
+  "("+uuid(privacyId)+",'privacy','synthetic-1','TEST_ONLY_NO_LEGAL_VALUE','es-AR',now()-interval '2 days',now()-interval '1 day','published')",
+ "insert into public.efg_legal_acceptances(user_id,document_id,acceptance_method,document_hash_sha256,version,kind) "+
+  "select u.id,d.id,'explicit_checkbox',d.sha256,d.version,d.kind "+
+  "from (values ("+uuid(users.coachA.id)+"::uuid),("+uuid(users.studentA.id)+"::uuid)) as u(id) cross join public.efg_legal_documents d"
+].join(";\n")+";";
+sql(fixtureSQL);
+const requestId=randomUUID(),pubPayload={p_student:users.studentA.id,p_expected_revision:2,p_request_id:requestId};
+const publishedGoal=ok(await rpc("efg_publish_coach_plan_draft",users.coachA.token,pubPayload),"Coach A publishes five-meal plan atomically with synthetic evidence");
+assert.match(publishedGoal,/^[0-9a-f-]{36}$/i);
+const replayGoal=ok(await rpc("efg_publish_coach_plan_draft",users.coachA.token,pubPayload),"Same idempotency key must return same goal ID");
+assert.equal(replayGoal,publishedGoal);
+denied(await rpc("efg_publish_coach_plan_draft",users.coachB.token,pubPayload),"Coach B cannot replay A's publication");
+denied(await rpc("efg_publish_coach_plan_draft",users.studentA.token,pubPayload),"Student cannot replay Coach publication");
+assert.equal(sql("select count(*) from public.efg_goals"),"1","Exactly one new goal");
+assert.equal(sql("select count(*) from public.efg_food_plans where guided_plan is not null"),"1","Exactly one guide");
+assert.equal(sql("select count(*) from public.efg_notifications"),"1","Exactly one message");
+assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1","Exactly one durable receipt");
+assert.equal(sql("select count(*) from public.efg_student_plan_access a join public.efg_food_plans p on p.student_id=a.student_id where a.student_id="+uuid(users.studentA.id)+" and a.status='published' and a.published_goal_id=p.guided_goal_id and p.guided_plan_approved_at is not null"),"1","Goal+guide+access must agree");
+const reopened=ok(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:2}),"Published plan can be reopened privately");
+assert.equal(Number(reopened),3,"New draft revision 3, old published plan remains active");
+assert.equal(sql("select count(*) from public.efg_goals"),"1","Reopening may not modify active goal");
+sql("update public.efg_consents set accepted=false where student_id="+uuid(users.studentA.id));
+denied(await rpc("efg_publish_coach_plan_draft",users.coachA.token,{p_student:users.studentA.id,p_expected_revision:3,p_request_id:randomUUID()}),"Revoked consent must deny reopened revision");
+assert.equal(sql("select count(*) from public.efg_goals"),"1","Failed publication cannot append goals");
+assert.equal(sql("select count(*) from public.efg_notifications"),"1","Failed publication cannot create notification");
+assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1","Failed publication cannot create receipt");
+console.log("PASS NUT-53/NUT-54 LOCAL AUTH: signed GoTrue JWT role isolation; private draft CAS 409; synthetic five-meal goal+guide+access+notification+receipt atomic publication, replay idempotence, old-plan preservation, revoked-consent rollback. ALL food/legal fixtures FICTITIOUS. No production, no medical/legal sign-off.");

@@ -824,7 +824,9 @@ function studentSummariesView(){
 function studentPrivacyView(){
  const c=state.consent;
  return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
- '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>';
+ '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
+ (state.profile.role==="student"&&state.planAccessSupported?
+ '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
 }
 function studentPlannerView(){
  return rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+

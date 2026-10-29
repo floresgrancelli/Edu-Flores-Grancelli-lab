@@ -2280,7 +2280,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
  if(el.dataset.reject)return onePaymentAction(el.dataset.reject,"rejected");
  if(el.dataset.proof)return showProof(el.dataset.proof);
- if(el.dataset.orgstatus){const org=state.orgs.find(x=>x.id===el.dataset.orgstatus);if(!org)throw new Error("Organización no encontrada.");const next=["trial","suspended"].includes(org.status)?"active":"suspended";if(!window.confirm(next==="suspended"?"¿Suspender la licencia de este coach? No podrá incorporar alumnos nuevos. Conservaremos los historiales.":"¿Activar la licencia de este coach? Confirmá primero el acuerdo comercial y la acreditación bancaria."))return;const {error}=await sb.rpc("efg_update_subscription",{p_org:org.id,p_status:next});if(error)throw error;await loadRoleData();await render();notify("Estado de licencia actualizado.");return;}
+ if(el.dataset.orgstatus){const org=state.orgs.find(x=>x.id===el.dataset.orgstatus);if(!org)throw Error("Organización no encontrada.");if(!window.confirm("¿Suspender la licencia de "+org.name+"? Los registros quedan intactos."))return;const {error}=await sb.rpc("efg_update_subscription",{p_org:org.id,p_status:"suspended"});if(error)throw error;await loadRoleData();await render();notify("Licencia suspendida.");return;}
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
  if(el.dataset.testseats){
   if(state.profile.role!=="admin"||!state.org?.is_test||state.org.coach_id!==state.session.user.id)throw new Error("No tenés permisos para modificar estos cupos de prueba.");
@@ -2291,7 +2291,24 @@ if(el.dataset.foodbulk){
   const {error}=await sb.rpc("efg_set_seats",{p_org:state.org.id,p_seats:count});if(error)throw error;
   state.org.seat_limit=count;await render();notify("Límite de alumnos de prueba actualizado.");return;
  }
- if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
+ if(el.dataset.contract){
+  if(state.profile.role!=="admin")throw Error("Solo EFG modifica contratos.");
+  const org=state.orgs.find(x=>x.id===el.dataset.contract);if(!org)throw Error("Contrato no encontrado.");
+  const a=window.prompt("Cupos contratados para "+org.name+":",String(org.seat_limit));if(a===null)return;
+  const b=window.prompt("Precio mensual acordado (ARS):",String(org.license_fee_ars||""));if(b===null)return;
+  const seats=Number(a),fee=Number(b);
+  if(!Number.isInteger(seats)||seats<1||seats>10000||!Number.isFinite(fee)||fee<=0||fee>10000000)throw Error("Cupo o importe inválido.");
+  if(!window.confirm("Cambiar plan puede suspender la licencia hasta comprobar el nuevo pago. ¿Continuar?"))return;
+  const {error}=await sb.rpc("efg_set_coach_plan",{p_org:org.id,p_seats:seats,p_fee_ars:fee});
+  if(error)throw error;await loadRoleData();await render();notify("Contrato actualizado; verificá el pago antes de activar.");return;
+ }
+ if(el.dataset.activatecoach){
+  if(state.profile.role!=="admin")throw Error("Solo EFG activa licencias.");
+  const org=state.orgs.find(x=>x.id===el.dataset.activatecoach);if(!org)throw Error("Coach no encontrado.");
+  if(!window.confirm("¿Verificaste el pago acreditado y aprobado del contrato actual de "+org.name+"?"))return;
+  const {error}=await sb.rpc("efg_activate_paid_coach",{p_org:org.id});
+  if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
+ }
  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();

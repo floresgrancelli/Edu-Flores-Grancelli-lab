@@ -180,8 +180,8 @@ begin
   for v_item in select value from pg_catalog.jsonb_array_elements(v_meal->'items') loop
    if pg_catalog.jsonb_typeof(v_item) is distinct from 'object' then return false; end if;
    if pg_catalog.jsonb_typeof(v_item->'id') is distinct from 'string' then return false; end if;
-   if pg_catalog.char_length(pg_catalog.btrim(v_item->>'id'))<1
-      or pg_catalog.char_length(v_item->>'id')>100 then return false; end if;
+   if pg_catalog.length(pg_catalog.btrim(v_item->>'id'))<1
+      or pg_catalog.length(v_item->>'id')>100 then return false; end if;
    if pg_catalog.jsonb_typeof(v_item->'qty') is distinct from 'number' then return false; end if;
    v_value := (v_item->>'qty')::numeric;
    if v_value<=0 or v_value>1000 then return false; end if;

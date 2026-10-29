@@ -50,7 +50,8 @@ export function inspectNUT57Modules(){
 // It ends in ROLLBACK unconditionally, even if all statements succeed.
 // It requires a marker provisioned in a fully isolated/restorable test DB.
 // There is intentionally no option anywhere to produce COMMIT.
-export function buildNUT57RollbackPreview(modules=inspectNUT57Modules()){
+export function buildNUT57RollbackPreview(){
+ const modules=inspectNUT57Modules();
  const preflight=`DO $nut57_preflight$
 BEGIN
  IF pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') IS NULL THEN
@@ -95,7 +96,7 @@ export function NUT57Status(){
   stagingFullRestore:"NOT VERIFIED",oldPwaSessions:"NOT VERIFIED"
  };
 }
-if(process.argv[1]&&fileURLToPath(import.meta.url)===fileURLToPath(new URL("file://"+process.argv[1]).href)){
+if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){
  const arg=process.argv[2];
  if(arg==="--preview-sql")process.stdout.write(buildNUT57RollbackPreview());
  else if(arg==="--status")process.stdout.write(JSON.stringify(NUT57Status(),null,2)+"\n");

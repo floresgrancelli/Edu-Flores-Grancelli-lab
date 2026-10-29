@@ -49,6 +49,20 @@ assert.equal(sunday.days.length,6);
 assert.equal(sunday.ideal,6,"Sunday consumption should not alter six daily prizes");
 assert.ok(sunday.hasTodaySunday);
 assert.match(weeklyConsistencyPanel(sunday),/Hoy es domingo/);
+
+const unopened=weeklyConsistencyPanel(sunday);
+assert.match(unopened,/ABRIR PREMIO/,"6/6 must reveal a premium reward action");
+assert.doesNotMatch(unopened,/autorizó expresamente/,"No automatic permission before opening reward");
+const revealedNoPermission=weeklyConsistencyPanel(sunday,{opened:true,verified:false,approved:true});
+assert.match(revealedNoPermission,/NO constituye una autorización automática/,"Unverified approval must be ignored");
+assert.doesNotMatch(revealedNoPermission,/Tu coach autorizó expresamente/);
+const revealedByCoach=weeklyConsistencyPanel(sunday,{opened:true,verified:true,approved:true});
+assert.match(revealedByCoach,/Tu coach autorizó expresamente/,"Verified coach approval is required");
+assert.match(revealedByCoach,/aria-live="polite"/,"Reward is announced accessibly");
+assert.match(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/2\/6/);
+assert.doesNotMatch(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/ABRIR PREMIO/,"No early reward");
+assert.doesNotMatch(unopened,/penalizad[oa]|castigo/i,"A reward is not a penalty");
+
 const noData=history([day("2026-10-26",1990,150)],"2026-10-29",[]);
 assert.equal(noData.ideal,0);
 assert.equal(noData.acceptable,0);

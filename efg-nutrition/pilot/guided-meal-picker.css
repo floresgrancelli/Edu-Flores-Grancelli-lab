@@ -1,0 +1,22 @@
+/* NUT-57 UX meal guide: visual grouping only, NEVER nutrition diagnosis or restriction color. */
+.efg-meal-guidance{border:1px solid #e8dfef;border-radius:20px;padding:13px;background:linear-gradient(145deg,#fffdfd,#f9f4ff);margin:12px 0}
+.efg-meal-guidance>p:first-child{margin:0 0 12px;line-height:1.5}
+.efg-meal-guidance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.efg-meal-guidance-choice{display:flex;flex-direction:column;gap:5px;min-width:0}
+.efg-guidance-tab{min-height:52px;width:100%;text-align:left;font-size:13px;line-height:1.4;font-weight:760;color:#3d3550;background:#fff;border:1px solid #ddd4e7;border-radius:13px;padding:10px;cursor:pointer;transition:box-shadow .15s ease,border-color .15s ease}
+.efg-guidance-tab.selected,.efg-guidance-tab[aria-pressed=true]{border-color:#756096;background:#ede7f8;box-shadow:0 0 0 1px #756096 inset;color:#2f2350}
+.efg-guidance-omit{background:transparent;color:#625977;min-height:40px;border:1px dashed #c9bfd9;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
+.efg-guidance-omit[aria-pressed=true]{border-color:#5f6b86;background:#e9edf6;color:#283850}
+.efg-guidance-tab:focus-visible,.efg-guidance-omit:focus-visible,.efg-guided-save-actions button:focus-visible{outline:3px solid #6a5d9c;outline-offset:2px}
+.efg-meal-guidance-hint{color:#514667;font-weight:650;font-size:12px;margin:11px 0 6px}
+.efg-meal-guidance-fat{border-radius:10px;background:#eff7f4;padding:9px 10px;color:#235a4b;font-size:12px;margin:10px 0 7px}
+.efg-meal-guidance>small{display:block;font-size:11px;line-height:1.5;color:#667084}
+.efg-guided-save-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.efg-guided-save-actions>.btn{min-width:0;white-space:normal;min-height:48px}
+.efg-guided-meal-summary{font-size:11px;line-height:1.5;padding:8px 10px;border-radius:10px;background:#f5f0fb;color:#4f476a;margin-top:8px}
+@media(max-width:440px){
+ .efg-meal-guidance{padding:11px}
+ .efg-meal-guidance-grid{gap:7px}
+ .efg-guidance-tab{font-size:12px;min-height:56px}
+ .efg-guided-save-actions{grid-template-columns:1fr}
+}

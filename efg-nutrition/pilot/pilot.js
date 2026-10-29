@@ -2293,7 +2293,10 @@ async function refreshVisibleWorkspace(){
  const id=state.session.user.id,originalView=activeViewKey();
  const selected=state.selectedStudent,goalId=state.coachGoals[0]?.id;
  const coachEdits={guided:state.coachGuidedDraft,pending:state.pendingGoal,
-  base:state.calculatedGoalBase,revision:state.pendingGoalRevision};
+  base:state.calculatedGoalBase,revision:state.pendingGoalRevision,
+  intakeUpdatedAt:state.coachIntakeForms?.[selected]?.updated_at??null,
+  draftRevision:state.coachPlanDraftRecord?.draft_revision??null,
+  draftStatus:state.coachPlanDraftRecord?.status??null};
  try{
   // This check is independent of the potentially slow data synchronization.
   void versionNotice.check({force:true});
@@ -2302,10 +2305,16 @@ async function refreshVisibleWorkspace(){
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
-  // loadStudentDetail clears drafts to protect switching pupils; restore ONLY for
-  // the same pupil with active consent and the same approved nutritional goal.
+  // No refresh can revive edits based on an intake that was changed or unshared
+  // in another device. The staged flow must also match the server draft revision.
+  const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(
+   !!state.coachIntakeForms?.[selected]?.shared_at&&
+   state.coachIntakeForms?.[selected]?.updated_at===coachEdits.intakeUpdatedAt&&
+   (state.coachPlanDraftRecord?.draft_revision??null)===coachEdits.draftRevision&&
+   (state.coachPlanDraftRecord?.status??null)===coachEdits.draftStatus
+  );
   if(selected&&state.selectedStudent===selected&&state.consent?.accepted&&
-     state.coachGoals[0]?.id===goalId&&activeViewKey()===originalView){
+     state.coachGoals[0]?.id===goalId&&activeViewKey()===originalView&&draftStillCurrent){
    state.coachGuidedDraft=coachEdits.guided;
    state.pendingGoal=coachEdits.pending;
    state.calculatedGoalBase=coachEdits.base;

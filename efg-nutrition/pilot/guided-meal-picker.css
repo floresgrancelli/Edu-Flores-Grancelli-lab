@@ -30,3 +30,15 @@
 .efg-meal-search-choice>small{flex-shrink:0;font-weight:750;color:#685382}
 .efg-meal-search-choice:is(:hover,:focus-visible){background:#f2ecfb;outline:2px solid #72549c;outline-offset:-2px}
 @media(max-width:440px){.efg-meal-search-results{max-height:min(210px,30vh)}.efg-meal-search-choice{min-height:48px;font-size:13px}}
+
+/* UX-GUIDE-01: grupos DIDÁCTICOS de dieta guía, NO semáforo de restricciones. */
+.efg-guide-education{display:grid;gap:11px;margin:14px 0;padding:12px;background:#faf7fa;border:1px solid #ded6e8;border-radius:17px}
+.efg-guide-education-intro{margin:1px 3px 4px!important;font-size:12px;line-height:1.65;color:#39435c}
+.efg-guide-food-group{min-width:0;display:grid;align-content:start;gap:6px;border:1px solid #d8d3e2;border-radius:13px;padding:12px;background:#fffdff}
+.efg-guide-food-group h4{font-size:13px;font-weight:820;margin:0;color:#282c47;line-height:1.4}
+.efg-guide-food-group-hint{font-size:11px!important;line-height:1.5!important;margin:0 0 3px!important;color:#555b72!important}
+.efg-guide-food-group-empty{font-size:12px!important;line-height:1.45!important;margin:3px 0!important;color:#6e6578!important;font-style:italic}
+.efg-guide-food-group .efg-guide-food{min-width:0}
+.efg-guide-education-foot{font-size:11px!important;line-height:1.6!important;margin:0 2px!important;color:#444968!important}
+@media(min-width:900px){.efg-guide-education{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.efg-guide-education-intro,.efg-guide-education-foot{grid-column:1 / -1}}
+@media(max-width:440px){.efg-guide-education{padding:9px;gap:9px}.efg-guide-food-group{padding:10px}}

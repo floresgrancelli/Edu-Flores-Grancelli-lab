@@ -43,5 +43,11 @@ export function renderFoodCompatibility(result){
  const badge=result.inPlan?'<span class="efg-in-plan">Incluido en mi plan</span>':'';
  if(result.color==='neutral')return badge;
  if(!labels[result.color])throw Error('Clasificación inválida');
- return '<span class="efg-food-compatibility efg-compat-'+result.color+'">'+esc(labels[result.color])+'</span>'+badge+'<ul class="efg-compat-reasons">'+result.reasons.map(r=>'<li>'+esc(r.reason)+'</li>').join('')+'</ul>';
+ return '<span class="efg-food-compatibility efg-compat-'+result.color+'">'+esc(labels[result.color])+'</span>'+badge+
+  '<ul class="efg-compat-reasons">'+(result.reasons||[]).map(r=>{
+   const sources=Array.isArray(r.sources)?[...new Set(r.sources)].filter(u=>typeof u==='string'&&/^https:\/\//i.test(u)).slice(0,3):[];
+   return '<li>'+esc(r.reason)+
+    (sources.length?'<span class="efg-compat-sources">'+sources.map((url,i)=>
+      ' <a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir fuente '+(i+1)+' de compatibilidad">Fuente '+(i+1)+'</a>').join('')+'</span>':'')+'</li>';
+  }).join('')+'</ul>';
 }

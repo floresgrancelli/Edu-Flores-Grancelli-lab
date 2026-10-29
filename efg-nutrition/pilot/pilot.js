@@ -2699,6 +2699,7 @@ function handleAuthStateChange(event,session){
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
   state.session={user:session.user};
  }else if(event==="SIGNED_OUT"){
+  state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachIntakeForms={};state.selectedStudent=null;
   state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
  }
 }

@@ -189,3 +189,82 @@ revoke all on function public.efg_submit_coach_payment(numeric,text,text,text) f
 grant execute on function public.efg_submit_coach_payment(numeric,text,text,text) to authenticated;
 
 
+
+-- Aun si el estado sigue "active" tras fin de mes, la autorización REAL
+-- exige paid_through >= hoy. Laboratorio EFG mantiene reglas de prueba.
+create or replace function efg_private.coach_has_student(p_student uuid)
+ returns boolean language sql stable security definer set search_path to ''
+as $fn$
+ select exists(
+  select 1 from public.efg_profiles student
+  join public.efg_organizations org on org.id=student.organization_id
+  join public.efg_consents c on c.student_id=student.user_id and c.organization_id=org.id
+  join public.efg_profiles coach on coach.user_id=org.coach_id
+  where student.user_id=p_student and student.role='student' and student.active
+    and org.coach_id=auth.uid() and org.status in ('trial','active','grace')
+    and (org.is_test or (org.status='active' and org.paid_through >= (now() at time zone 'America/Argentina/Buenos_Aires')::date))
+    and coach.active and (coach.role='coach' or (coach.role='admin' and org.is_test))
+    and c.accepted
+ );
+$fn$;
+
+-- En invitaciones también se valida pago mensual vigente.
+create or replace function public.efg_invite_student(p_email text,p_name text)
+ returns uuid language plpgsql security definer set search_path to ''
+as $fn$
+declare v_org public.efg_organizations%rowtype; v_email text:=lower(trim(p_email)); v_name text:=trim(p_name); v_taken integer; v_id uuid;
+begin
+ select * into v_org from public.efg_organizations where coach_id=auth.uid() for update;
+ if not found or v_org.status not in ('trial','active','grace')
+   or not (v_org.is_test or (v_org.status='active' and v_org.paid_through >= (now() at time zone 'America/Argentina/Buenos_Aires')::date))
+   or not exists(select 1 from public.efg_profiles where user_id=auth.uid() and role='coach' and active)
+ then raise exception 'Licencia comercial pendiente, vencida o sin permiso'; end if;
+ if v_email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$'
+   or length(v_name)<2 or length(v_name)>70 then raise exception 'Datos de alumno inválidos'; end if;
+ if exists(select 1 from public.efg_profiles where email=v_email)
+   or exists(select 1 from public.efg_invitations where lower(email)=v_email and revoked_at is null)
+ then raise exception 'Correo ya registrado o invitado'; end if;
+ select (select count(*) from public.efg_profiles where organization_id=v_org.id and role='student' and active)
+      +(select count(*) from public.efg_invitations where organization_id=v_org.id and role='student'
+        and claimed_by is null and revoked_at is null) into v_taken;
+ if v_taken>=v_org.seat_limit then raise exception 'Alcanzaste el cupo contratado'; end if;
+ insert into public.efg_invitations(email,nickname,role,organization_id,invited_by)
+ values(v_email,v_name,'student',v_org.id,auth.uid()) returning id into v_id;
+ return v_id;
+end $fn$;
+
+-- Una invitación de alumno no se puede reclamar si la licencia comercial
+-- fue suspendida o venció. El coach sí puede reclamar la suya para pagar.
+create or replace function public.efg_claim_invitation()
+ returns jsonb language plpgsql security definer set search_path to ''
+as $fn$
+declare v_uid uuid:=auth.uid(); v_email text; v_inv public.efg_invitations%rowtype; v_existing public.efg_profiles%rowtype;
+begin
+ if v_uid is null then raise exception 'Login required'; end if;
+ select lower(email) into v_email from auth.users where id=v_uid and email_confirmed_at is not null;
+ if v_email is null then raise exception 'Verify your email first'; end if;
+ select * into v_existing from public.efg_profiles where user_id=v_uid;
+ if found then return jsonb_build_object('role',v_existing.role,'status','existing'); end if;
+ select * into v_inv from public.efg_invitations
+  where lower(email)=v_email and claimed_by is null and revoked_at is null
+  order by created_at desc limit 1 for update;
+ if not found then raise exception 'Cuenta aún no habilitada por EFG o tu coach'; end if;
+ if v_inv.role='coach' then
+  update public.efg_organizations set coach_id=v_uid where id=v_inv.organization_id and coach_id is null;
+  if not found then raise exception 'Entrenador ya asignado'; end if;
+ elsif v_inv.role='student' then
+  if not exists(select 1 from public.efg_organizations o
+      where o.id=v_inv.organization_id and o.status in ('trial','active','grace')
+        and (o.is_test or (o.status='active' and o.paid_through >= (now() at time zone 'America/Argentina/Buenos_Aires')::date)))
+  then raise exception 'La licencia del coach no está activa para incorporar alumnos'; end if;
+ end if;
+ insert into public.efg_profiles(user_id,email,nickname,role,organization_id)
+ values(v_uid,v_email,v_inv.nickname,v_inv.role,
+        case when v_inv.role='student' then v_inv.organization_id else null end);
+ if v_inv.role='student' then
+   insert into public.efg_consents(student_id,organization_id,accepted)
+   values(v_uid,v_inv.organization_id,false);
+ end if;
+ update public.efg_invitations set claimed_by=v_uid where id=v_inv.id;
+ return jsonb_build_object('role',v_inv.role,'status','claimed');
+end $fn$;

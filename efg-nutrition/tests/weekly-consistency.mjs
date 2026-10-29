@@ -36,7 +36,7 @@ assert.match(html,/1\/6/);
 assert.match(html,/2\/6/);
 assert.match(html,/Domingo: alimentación flexible según las indicaciones de tu coach/);
 assert.match(html,/Basado en evidencia científica/);
-assert.match(html,/criterio práctico inspirado en esa evidencia/);
+assert.match(html,/bandas prácticas inspiradas en esos hallazgos/);
 assert.match(html,/no son límites clínicos universales/);
 assert.ok(!html.includes(">D</span>"),"Sunday must never be in six-day bar");
 const sunday=history([

@@ -59,6 +59,10 @@ jobs:
           node --check efg-nutrition/pilot/coach-intake-prefill.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach-intake-prefill.mjs
+      - name: Prevent goals from becoming active before approved Coach guides (synthetic)
+        run: |
+          node --check efg-nutrition/pilot/coach-goal-write-gate.js
+          node efg-nutrition/tests/coach-goal-write-gate.mjs
       - name: Verify legal onboarding draft (isolated; NO production legal gate)
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js

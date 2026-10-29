@@ -27,7 +27,7 @@ assert.equal(sql("select count(*) from public.efg_notifications where recipient_
  "Student B must begin with no notifications");
 assert.equal(sql("select count(*) from public.efg_notifications"),"1",
  "Atomic publish should create exactly ONE unified student A notification");
-const insertGoal=sql("begin;select pg_catalog.set_config('request.jwt.claim.sub',"+c+",true);"+
+const insertGoal=sql("begin;set local request.jwt.claim.sub = "+c+";"+
  "insert into public.efg_goals(student_id,approved_by,goal_type,kcal,protein_g,carb_g,fat_g,fiber_g)"+
  " values("+st+","+c+",'maintenance',2000,120,250,70,30) returning id;commit;");
 const ids=insertGoal.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/ig)||[];
@@ -37,7 +37,7 @@ assert.equal(sql("select count(*) from public.efg_notifications where recipient_
  "Old goal trigger must still notify outside atomic RPC");
 const guide={kind:"five_meal_example",version:1,meals:["desayuno","media_manana","almuerzo","merienda","cena"]
  .map(slot=>({slot,items:[{id:"tofu_firm",unit:"g",qty:100,k:.8,p:.1,c:.03,f:.04,fi:.02}]}))};
-sql("begin;select pg_catalog.set_config('request.jwt.claim.sub',"+c+",true);"+
+sql("begin;set local request.jwt.claim.sub = "+c+";"+
  "insert into public.efg_food_plans(student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at)"+
  " values("+st+","+c+",array['tofu_firm'],'"+JSON.stringify(guide)+"'::jsonb,"+goal+",pg_catalog.clock_timestamp());commit;");
 assert.equal(sql("select count(*) from public.efg_notifications where recipient_id="+st+" and event_key like 'guide:%'"),"1",

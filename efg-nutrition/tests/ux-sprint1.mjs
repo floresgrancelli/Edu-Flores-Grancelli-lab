@@ -27,7 +27,7 @@ const chatHost={innerHTML:"",querySelector:()=>null,contains:()=>false};
 const notifHost={innerHTML:"",hidden:false,setAttribute(){},className:"",id:""};
 globalThis.document={
  activeElement:null,hidden:false,body:{append(){}},
- createElement:()=>({innerHTML:"",querySelector:()=>null,setAttribute(){}}),
+ createElement:()=>notifHost,
  getElementById:id=>id==="efgMessagesContent"?chatHost:null,
  addEventListener:(type,cb)=>{(handlers[type]??=[]).push(cb);}
 };

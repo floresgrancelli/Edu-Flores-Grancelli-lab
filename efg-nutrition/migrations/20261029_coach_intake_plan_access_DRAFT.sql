@@ -12,7 +12,7 @@ create table public.efg_student_plan_access (
  published_at timestamptz,
  published_by uuid references auth.users(id),
  updated_at timestamptz not null default now(),
- constraint efg_access_published_consistent check ((status <> 'published') or (published_at is not null and published_by is not null and published_goal_id is not null))
+ constraint efg_access_published_consistent check ((status <> 'published') or (published_at is not null and published_by is not null))
 );
 create index efg_access_coach_status_idx on public.efg_student_plan_access (coach_id,status);
 

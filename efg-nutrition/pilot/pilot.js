@@ -4,6 +4,7 @@ import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consis
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
+import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
@@ -1800,17 +1801,32 @@ function guidedDayContents(plan,goal,editable=false){
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
   const mt=totals.perMeal.find(r=>r.slot===meal.slot)?.totals;
+  // Mantener índice ORIGINAL aunque se presenten los alimentos por grupos.
+  // Nunca duplicar un plato preparado ni alterar la cuenta de nutrientes.
+  const foodRow=(f,i)=>{
+   const alt=editable?guidedFoodAlternatives(f.id,foods):[];
+   const [min,max]=guidedPortionBounds(f.id);
+   const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
+   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+'</div>'+
+    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>':
+     '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
+  };
+  const sections=educationalGuideSections(meal,groupIdFor);
+  const contents=sections?
+   '<div class="efg-guide-education" aria-label="Grupos alimentarios de '+escapeHTML(meal.label)+'">'+
+    '<p class="efg-guide-education-intro">Aprendé a armar el plato: reconocé las fuentes de proteína y de hidratos. Cada alimento aporta todos sus nutrientes, no solamente los del grupo en que aparece.</p>'+
+    sections.map(group=>'<section class="efg-guide-food-group" data-guidefoodgroup="'+group.id+'" data-guideslot="'+escapeHTML(meal.slot)+'">'+
+     '<h4>'+escapeHTML(group.title)+'</h4>'+
+     '<p class="efg-guide-food-group-hint">'+escapeHTML(group.hint)+'</p>'+
+     (group.entries.length?group.entries.map(({food,index})=>foodRow(food,index)).join(''):
+       '<p class="efg-guide-food-group-empty">No hay una fuente separada de este grupo en la guía. No es obligatorio agregarla.</p>')+
+     '</section>').join('')+
+    '<p class="efg-guide-education-foot">Las grasas se calculan a partir de todos los alimentos y de los aceites que figuren en la guía. Un plato preparado se cuenta una sola vez.</p></div>':
+   meal.items.map(foodRow).join("");
   return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span></div>'+
    '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
-  meal.items.map((f,i)=>{
-  const alt=editable?guidedFoodAlternatives(f.id,foods):[];
-  const [min,max]=guidedPortionBounds(f.id);
-  const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
-  return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+'</div>'+
-  (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>':
-   '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
- }).join("")+
-  '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
+   contents+
+   '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
  '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+

@@ -7,7 +7,7 @@ function valid(manifest){
  if(!manifest||!/^[a-z0-9][a-z0-9._-]{2,40}$/i.test(manifest.id||"")||
     !/^[0-9A-Za-z._-]{2,35}$/.test(manifest.version||"")||
     typeof manifest.title!=="string"||!manifest.title.trim()||manifest.title.length>120||
-    !["announced","live"].includes(manifest.phase)||
+    !["preview","reauth_required","live"].includes(manifest.phase)||
     !Array.isArray(manifest.highlights)||manifest.highlights.length<1||manifest.highlights.length>8||
     manifest.highlights.some(h=>typeof h!=="string"||!h.trim()||h.length>230)||
     !Array.isArray(manifest.roles)||manifest.roles.length!==4||
@@ -23,7 +23,7 @@ export function releaseVisibleTo(manifest,role){
 export function renderMajorReleaseAnnouncement(manifest,role){
  if(!releaseVisibleTo(manifest,role))return "";
  const m=valid(manifest);
- if(m.phase!=="announced")return "";
+ if(!["preview","reauth_required"].includes(m.phase))return "";
  return '<section class="card efg-release-announcement" aria-labelledby="efgUpcomingReleaseTitle">'+
   '<span class="eyebrow">EFG NUTRITION PRO · PRÓXIMAMENTE</span>'+
   '<h2 id="efgUpcomingReleaseTitle">'+esc(m.title)+'</h2>'+
@@ -31,14 +31,16 @@ export function renderMajorReleaseAnnouncement(manifest,role){
   '<ul>'+m.highlights.map(t=>'<li>'+esc(t)+'</li>').join("")+'</ul>'+
   '<p class="pilot-hint">Para completar el cambio tendrás que volver a iniciar sesión. Al regresar, podrás revisar los documentos legales vigentes y aceptar lo que corresponda por separado.</p>'+
   '<p class="pilot-hint">Leer este aviso no constituye aceptación de Términos ni consentimiento para compartir información de salud.</p>'+
-  '<button class="btn" type="button" data-act="ackReleaseAndSignOut" data-release="'+esc(m.id)+'">Entendido, cerrar sesión</button>'+
+  (m.phase==="preview"
+   ?'<button class="btn" type="button" data-act="ackReleasePreview" data-release="'+esc(m.id)+'">Entendido</button>'
+   :'<button class="btn" type="button" data-act="ackReleaseAndSignOut" data-release="'+esc(m.id)+'">Entendido, cerrar sesión</button>')+
   '<button class="btn small light" type="button" data-act="releaseHelp">Ayuda y consultas</button></section>';
 }
 export function releaseAcknowledgment(manifest,role){
  const m=valid(manifest);
- if(m.phase!=="announced"||!releaseVisibleTo(m,role))throw Error("No hay comunicación activa para este perfil.");
- // Only server-side auth decides which identity owns the acknowledgment.
- return {release_id:m.id,acknowledgment_kind:"announcement_read"};
+ if(!["preview","reauth_required"].includes(m.phase)||!releaseVisibleTo(m,role))throw Error("No hay comunicación activa para este perfil.");
+ // Only server-side auth decides who owns the acknowledgment. NOT a contract signature.
+ return {release_id:m.id,acknowledgment_kind:m.phase==="preview"?"announcement_preview_read":"reauth_notice_acknowledged"};
 }
 export function renderWhatsNew(manifest,role,seenVersions=[]){
  if(!releaseVisibleTo(manifest,role))return "";

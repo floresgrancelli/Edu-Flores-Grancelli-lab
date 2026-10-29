@@ -36,10 +36,14 @@ jobs:
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Capture isolated special launch illustration in Chromium (no production data)
+        run: node efg-nutrition/tests/release-visual-qa.mjs
       - name: Install Safari-engine WebKit for mobile compatibility
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Capture isolated special launch illustration in WebKit (no production data)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/release-visual-qa.mjs
       - name: Preserve screenshots and machine-readable layout report
         if: always()
         uses: actions/upload-artifact@v4

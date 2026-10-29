@@ -38,7 +38,7 @@ export function createCoachCalculatorPrefill({intake,studentId,coachAuthorized=f
   "La guía genérica de cinco comidas contiene alimentos animales y no se genera para este patrón sin un motor dietético revisado.");
  else warnings.push("La ficha general no certifica ausencia de alergias o restricciones: la guía será solo un ejemplo para revisar, nunca un menú declarado seguro.");
  const context={
-  studentId,fields,objective:intake.objective||null,pattern,
+  studentId,sourceUpdatedAt:typeof intake.updated_at==="string"&&Number.isFinite(Date.parse(intake.updated_at))?intake.updated_at:null,fields,objective:intake.objective||null,pattern,
   preferredFoods:String(intake.preferred_foods||"").slice(0,400),
   dislikedFoods:String(intake.disliked_foods||"").slice(0,400),
   mealRoutine:String(intake.meal_routine||"").slice(0,400),

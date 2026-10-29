@@ -20,6 +20,22 @@ begin
     raise exception 'NOT READY: missing staging schema, versioned legal consent or server-owned food/medical validator'
       using errcode='55000';
   end if;
+  -- The two pre-existing production notification triggers MUST first be made
+  -- compatible or a single atomic publish generates three notices.
+  if not exists (
+    select 1 from pg_catalog.pg_trigger t
+    where t.tgrelid='public.efg_goals'::regclass
+      and t.tgname='trg_efg_notify_goal' and t.tgenabled='O'
+      and pg_catalog.strpos(pg_catalog.pg_get_triggerdef(t.oid,true),'efg.coach_atomic_publish')>0
+  ) or not exists (
+    select 1 from pg_catalog.pg_trigger t
+    where t.tgrelid='public.efg_food_plans'::regclass
+      and t.tgname='trg_efg_notify_food_guide' and t.tgenabled='O'
+      and pg_catalog.strpos(pg_catalog.pg_get_triggerdef(t.oid,true),'efg.coach_atomic_publish')>0
+  ) then
+    raise exception 'NOT READY: NUT56 legacy notification trigger compatibility is required'
+      using errcode='55000';
+  end if;
 end $efg_preflight$;
 
 -- A durable receipt makes retries idempotent even after a coach starts a

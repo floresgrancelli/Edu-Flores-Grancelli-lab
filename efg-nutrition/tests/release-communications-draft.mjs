@@ -10,6 +10,11 @@ for(const role of base.roles){
  const html=renderMajorReleaseAnnouncement(base,role);
  assert.match(html,/>Entendido<\/button>/);
  assert.match(html,/data-act="ackReleasePreview"/);
+ assert.match(html,/class="efg-release-art"/,"Special launch uses an original decorative SVG");
+ assert.match(html,/class="efg-release-highlights"/,"Highlights need distinct colorful cards");
+ assert.match(html,/aria-hidden="true"/,"Illustration must not distract screen readers");
+ assert.match(html,/viewBox="0 0 240 176"/);
+
  assert.doesNotMatch(html,/ackReleaseAndSignOut/,"Pre-release announcements cannot sign out too early");
  const activated={...base,phase:"reauth_required"};
  const activeHtml=renderMajorReleaseAnnouncement(activated,role);
@@ -29,6 +34,9 @@ const released={...base,phase:"live",title:"EFG Nutrition Pro renovada"};
 assert.equal(renderMajorReleaseAnnouncement(released,"student"),"");
 assert.match(renderWhatsNew(released,"student"),/Novedades de EFG Nutrition Pro/);
 assert.match(renderWhatsNew(released,"coach"),/Comenzar/);
+assert.match(renderWhatsNew(released,"personal"),/efg-release-art/);
+assert.match(renderWhatsNew(released,"admin"),/efg-release-highlights/);
+
 assert.equal(renderWhatsNew(released,"coach",[base.version]),"");
 assert.deepEqual(seenVersionRequest(released,"personal"),{release_id:base.id,view_kind:"whats_new_seen"});
 assert.throws(()=>seenVersionRequest(base,"student"),/no está publicada/);

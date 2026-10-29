@@ -30,8 +30,8 @@ begin
    raise exception 'STOP NUT56: production trigger identities/declarations drifted'
      using errcode='55000';
  end if;
- if pg_catalog.position('goal:' in pg_catalog.pg_get_functiondef('public.efg_notify_goal()'::regprocedure))=0
-    or pg_catalog.position('guide:' in pg_catalog.pg_get_functiondef('public.efg_notify_food_guide()'::regprocedure))=0 then
+ if pg_catalog.strpos(pg_catalog.pg_get_functiondef('public.efg_notify_goal()'::regprocedure),'goal:')=0
+    or pg_catalog.strpos(pg_catalog.pg_get_functiondef('public.efg_notify_food_guide()'::regprocedure),'guide:')=0 then
    raise exception 'STOP NUT56: existing notification function behavior changed'
      using errcode='55000';
  end if;

@@ -687,8 +687,33 @@ function versionCheckCard(){
  '<button type="button" class="btn small light" data-act="checkAppVersion">Comprobar actualizaciones</button>'+
  '<p class="pilot-hint" id="efgBuildStatus" role="status" aria-live="polite">La app también revisa versiones automáticamente.</p></section>';
 }
+/* Iconografía consistente: SVG vectorial con acabado metal cepillado via CSS.
+   El tercer campo de las entradas se mantiene; no se alteran destinos o permisos. */
+function efgMenuIcon(kind){
+ const paths={
+  adminManage:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.7l-1.5 1.5a1.6 1.6 0 0 0-1.7-.3l-1.2.5a1.6 1.6 0 0 0-1 1.4V21h-4v-1.2a1.6 1.6 0 0 0-1-1.4l-1.2-.5a1.6 1.6 0 0 0-1.7.3l-1.5-1.5a1.6 1.6 0 0 0 .3-1.7l-.5-1.2a1.6 1.6 0 0 0-1.4-1H3v-4h1.2a1.6 1.6 0 0 0 1.4-1l.5-1.2a1.6 1.6 0 0 0-.3-1.7l1.5-1.5a1.6 1.6 0 0 0 1.7.3l1.2-.5a1.6 1.6 0 0 0 1-1.4V3h4v1.2a1.6 1.6 0 0 0 1 1.4l1.2.5a1.6 1.6 0 0 0 1.7-.3l1.5 1.5a1.6 1.6 0 0 0-.3 1.7l.5 1.2a1.6 1.6 0 0 0 1.4 1H21v4h-1.2a1.6 1.6 0 0 0-1.4 1z"/>',
+  notifications:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
+  messages:'<path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 3v-3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M7 11h10M7 15h7"/>',
+  reports:'<rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/>',
+  summaries:'<rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/>',
+  weight:'<path d="m3 18 6-6 4 4 8-9"/><path d="M15 7h6v6"/><path d="M3 21h18"/>',
+  sport:'<circle cx="14" cy="4" r="2"/><path d="m12 9-4 4-5 1m8-6 5 5 4 1M12 10l-1 6-5 5m6-6 4 3 2 4"/>',
+  planner:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v4m10-4v4M3 10h18m-12 5h6m-3-3v6"/>',
+  recipes:'<path d="M3 14c.5 5 4 7 9 7s8.5-2 9-7H3z"/><path d="M7 12c-1-3 1-6 5-7m1 7c0-4 2-6 5-7"/>',
+  supplements:'<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-38 12 12)"/><path d="m9 10 5 6"/>',
+  payments:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h5"/>',
+  privacy:'<rect x="5" y="10" width="14" height="12" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v3"/>',
+  coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
+  coachTools:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 12h2m4 0h2m-8 5h2m4 0h2"/>',
+  testCoach:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
+  studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12M9 12h12M9 18h12"/>',
+  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>'
+ };
+ return '<svg class="efg-lux-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">'+(paths[kind]||paths.home)+'</svg>';
+}
+
 function premiumMenuView(title,description,entries){
- return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
+ return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
@@ -1357,7 +1382,7 @@ function coachHomeView(){
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
   ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
- ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
+ ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
  '<section class="card efg-content-card"><div class="section-head"><h2>Mis alumnos</h2><button type="button" class="btn small light" data-tab="coachStudents">Ver todos</button></div>'+
  (roster.length?roster.slice(0,5).map(p=>'<div class="efg-student-compact"><span class="coach-roster-avatar">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+(coachRosterConsent[p.user_id]===true?'Seguimiento autorizado':'Autorización pendiente')+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Abrir</button></div>').join(""):'<div class="empty">Todavía no hay alumnos activos. Podés invitarlos desde Mis alumnos.</div>')+
  '</section>';
@@ -1675,7 +1700,7 @@ function adminHomeView(){
  ["home","🍽️","MI DÍA","mint"],["testCoach","👥","Coach de prueba","blue"],
  ["reports","📈","Informes","peach"],["adminManage","⚙️","Organizaciones","lilac"],
  ["payments","💳","Pagos y licencias","cream"],["adminMore","☷","Más herramientas","mint"]
- ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji">'+x[1]+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
+ ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
  '<section class="card efg-content-card"><h2>Privacidad por diseño</h2><p class="pilot-hint">El administrador gestiona organizaciones y licencias, pero no accede automáticamente a los registros nutricionales privados de todos sus alumnos. Solo el seguimiento autorizado en el espacio de coach habilita la consulta.</p></section>';
 }
 function adminView(){

@@ -810,7 +810,7 @@ function notificationsView(){
   '<section class="card efg-inbox-full" id="efgInboxFull"><p class="pilot-hint">Consultando tus avisos…</p></section>';
 }
 function messagesView(){
- return rootText("💬 Mensajes","Conversaciones privadas entre el coach y el alumno, con historial y respuestas.")+
+ return rootText("MENSAJERÍA INTERNA","Buscá un contacto y tocá su conversación. Solo ves chats habilitados para tu cuenta.")+
   '<section class="card" id="efgMessagesContent"><p class="pilot-hint">Consultando conversación…</p></section>';
 }
 function studentSummariesView(){

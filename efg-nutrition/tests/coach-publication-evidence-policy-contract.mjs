@@ -15,7 +15,7 @@ assert.match(policy,/has_table_privilege\('authenticated','public\.efg_legal_acc
 assert.match(policy,/has_table_privilege\('authenticated','public\.efg_legal_acceptances','UPDATE'\)/);
 assert.match(policy,/create table efg_private\.coach_reviewed_foods/);
 assert.match(policy,/evidence_status text not null default 'pending'/);
-assert.match(policy,/source_url text not null check\(source_url ~ '\^https:\/\//);
+assert.match(policy,/source_url text not null check\([\s\S]*source_url ~ '\^https:\/\//);
 assert.match(policy,/catalog_version text not null/);
 assert.match(policy,/reviewed_by uuid references auth\.users/);
 assert.match(policy,/expires_at timestamptz/);

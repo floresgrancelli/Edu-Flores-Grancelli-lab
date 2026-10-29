@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 12
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -47,12 +47,20 @@ jobs:
           PGDATABASE: efg_nutrition_ephemeral
         run: |
           set -euo pipefail
+          # Production is PostgreSQL 17 (Supabase read-only project metadata).
+          # Assert the SERVER major, not the potentially different psql client.
+          server_num="$(psql -Atqc 'SHOW server_version_num')"
+          if ! [[ "$server_num" =~ ^17[0-9]{4}$ ]]; then
+            echo "Expected isolated PostgreSQL 17 server; found: $server_num" >&2
+            exit 1
+          fi
+          echo "Ephemeral PostgreSQL 17 verified; all data and claims below are synthetic."
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-bootstrap.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql
-          echo "PASS: actual ephemeral PostgreSQL syntax and synthetic transaction scenarios."
+          echo "PASS: ephemeral PostgreSQL 17 syntax and synthetic transaction scenarios."
       - name: State the limits
         if: always()
         run: |

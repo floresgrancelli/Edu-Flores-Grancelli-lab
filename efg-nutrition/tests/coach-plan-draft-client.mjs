@@ -73,4 +73,17 @@ assert.match(app,/if\(action==="publishCoachAtomicDraft"\)return publishCoachAto
 assert.match(app,/await assertCoachGoalWriteSafe\(sb,\{studentId:student,fromSharedIntake:/);
 assert.match(flow,/await assertCoachGoalWriteSafe\(sb,\{studentId:student,fromSharedIntake:/);
 assert.match(app,/state\.coachPlanDraftRecord=null;state\.coachPlanPublishRequestId=null/);
+assert.match(app,/const goal=\(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed\)\|\|state\.coachGoals\[0\]/,
+ "Staged GUI must generate five meals from the UNPUBLISHED goal, while legacy retains the approved goal");
+assert.match(app,/const guide=state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/,
+ "Save the edited guide, not the stale auto-generated preview");
+assert.match(app,/saved\.source_intake_updated_at===intake\.updated_at/,
+ "Never offer a publish action from a stale intake revision");
+assert.match(app,/state\.pendingGoal=\{\.\.\.savedDraft\.goal_proposal,student_id:studentId\}/,
+ "Restore only the coach's versioned private draft");
+assert.match(app,/savedDraft\.source_intake_updated_at===state\.coachIntakeForms\[studentId\]\.updated_at/,
+ "Never restore a draft against a changed source intake");
+assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado»/,
+ "Staged GUI may not expose old approve-guide button");
+
 console.log("PASS: Coach staged draft adapter OFF; validated five meals, versioned save, confirmed atomic publish, denial on revoked/stale/invalid identity; legacy guide and publish blocked under access schema (SYNTHETIC).");

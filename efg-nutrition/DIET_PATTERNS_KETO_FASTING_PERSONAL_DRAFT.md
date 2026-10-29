@@ -151,3 +151,31 @@ Ejemplo conceptual de 16:8 12:00–20:00, con 3 momentos:
 
 **ESTADO:** desarrollo experimental no clínico y documentación. NO indicar
 que keto, ayuno o calculadora Personal estén implementados en producción.
+
+## Decisión de producto confirmada · MOTOR COMPARTIDO (29/10/2026)
+**Todos** los patrones y reglas de preferencias/restricciones alimentarias son
+capacidades de EFG Nutrition Pro y deben servir a **ambas modalidades**, Coach y
+Personal. No construir una biblioteca de dietas para Coach y otra para Personal.
+
+- Único catálogo con fichas, fuentes, ingredientes, alérgenos, estado de validación,
+  porciones y metadatos nutricionales. Datos ausentes ≠ valor cero/seguro.
+- Único motor de patrones, reglas de compatibilidad y sugerencias según preferencias,
+  horarios y datos autorizados. Disponible para elaborar propuestas en ambos modos.
+- **Nutrition Coach**: el profesional habilitado configura/revisa las propuestas
+  pertinentes a su competencia y confirma antes de publicar; el alumno ve su plan,
+  conserva libertad de registro y no tiene calculadora ni permiso de autoaprobar metas.
+- **Nutrition Personal**: la persona elige el mismo catálogo de patrones y preferencias,
+  usa su propia calculadora y recibe orientaciones no terapéuticas, con avisos de
+  incompatibilidades y derivación a profesional cuando corresponda.
+- **Restricciones médicas (celiaquía, alergias, diabetes, HTA, etc.)**: se utilizan
+  en ambos modos solamente con declaración voluntaria, finalidad/permiso específico,
+  datos verificables, revisión clínica/legal y reglas de seguridad. La interfaz Personal
+  NO convierte una advertencia en prescripción clínica automática. La presencia de
+  un coach tampoco garantiza por sí sola incumbencia nutricional.
+- Los mismos tests de contenido nutricional y seguridad se ejecutan para ambos
+  modos; la autorización RLS, la aprobación y la experiencia UI difieren por modo.
+- Versionar el patrón/criterios de la guía para explicar por qué se eligieron o
+  descartaron opciones; no reescribir diarios previos al cambiar de modalidad.
+
+**Esta aprobación es de diseño y alcance, NO aprobación de publicar funciones
+clínicas ni de aplicar SQL en producción.**

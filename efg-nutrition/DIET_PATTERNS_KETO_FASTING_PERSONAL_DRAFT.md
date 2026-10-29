@@ -179,3 +179,49 @@ Personal. No construir una biblioteca de dietas para Coach y otra para Personal.
 
 **Esta aprobación es de diseño y alcance, NO aprobación de publicar funciones
 clínicas ni de aplicar SQL en producción.**
+
+## Decisión visual aprobada — semáforo para Coach, Alumno con Coach y Personal (29/10/2026)
+**El alumno vinculado a un coach también debe ver los colores, no solo el coach
+y la persona en Autogestión.** La función de clasificación utiliza el MISMO
+catálogo, ficha autorizada, guía y motor para los tres tipos de vista:
+
+- **VERDE — «Compatible verificado»**: se verificaron ingredientes y demás datos
+  pertinentes a la restricción/patrón individual, y cuando influye, la porción.
+  No equivale a garantía de seguridad médica absoluta.
+- **AMARILLO — «Verificar antes de elegir»**: falta algún dato crítico de
+  ingredientes, rótulo, trazas, preparación, porción o circunstancia clínica.
+  No pintar verde un producto desconocido o sin verificación de aptitud.
+- **ROJO — «No compatible / evitar según tu plan»**: existe incompatibilidad
+  comprobada con la restricción o el plan concreto. «Prohibido» es una
+  descripción coloquial del usuario, no una prohibición universal ni una
+  afirmación legal para todos los pacientes.
+
+**Distintivo adicional «Incluido en mi plan» (azul/violeta)**, separado de
+la clasificación de seguridad y nunca capaz de anular un rojo/amarillo.
+El color siempre va acompañado de texto y de un ícono; accesibilidad para
+daltonismo, lectores de pantalla y alto contraste. Al tocar una señal:
+mostrar la razón, la evidencia/fecha de la ficha, porción y alternativas.
+
+**El registro permanece libre y veraz:** no ocultar alimentos, no eliminar
+ingestas y no impedir informar que se comió algo incompatible; advertir sin
+presentar una selección insegura como apta. Cuando existan alergias/celiaquía
+y datos insuficientes, mostrar advertencia reforzada. El filtro opcional
+«Mostrar compatibles» es una comodidad, no borrado del catálogo.
+
+**Diferencia por rol:** coach revisa/configura la guía dentro de su competencia;
+el alumno con coach ve las señales al buscar/registrar y su plan aprobado,
+pero no tiene calculadora ni autoridad de modificar objetivos aprobados;
+Personal gestiona sus patrones/metas generales con permisos verificados.
+Al combinar varias restricciones prevalece la condición más restrictiva
+basada en evidencia verificable, nunca la conveniencia del nombre del alimento.
+Las guías de keto requieren considerar porción y resto diario; diabetes
+no crea una lista universal de alimentos prohibidos.
+
+**Legal:** términos de servicio con aceptación previa, versión y registro
+auditable; aviso de alcance, privacidad, consentimiento de datos sensibles
+distinto del contrato, responsabilidades realistas y revisión legal argentina.
+Los T&C NO eximen por sí solos al operador de responsabilidad por fallas de
+seguridad o información incorrecta (Ley 24.240, art. 37); Ley 25.326 exige
+seguridad y confidencialidad para datos de salud.
+
+ESTADO: DISEÑO APROBADO, NO construido en UI, no SQL ni cambios de producción.

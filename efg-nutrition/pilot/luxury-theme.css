@@ -375,3 +375,25 @@ body .pilot-layout .efg-menu-card :is(.efg-menu-arrow,strong,.efg-menu-emoji){co
  .pilot-layout .efg-personal-hello{padding:12px}
  .pilot-layout .efg-personal-hello strong{font-size:19px}
 }
+
+/* Última regresión visual: .efg-quick-more .btn.light heredaba background
+   pastel !important y tapaba nuestros materiales en tres accesos. */
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(n){
+ background:radial-gradient(circle at 12% 0%,#ffffff9c,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0d 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#f1ede6,#c5cbd2)!important;
+ color:#14283e!important;border:1px solid #b6b9bb!important;
+ box-shadow:inset 0 2px 1px #ffffffc9,inset 0 -2px 3px #62708032,0 6px 14px #192e4733!important;
+}
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(2){
+ background:radial-gradient(circle at 8% 0%,#ffffff2f,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0b 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#405776,#172a43)!important;
+ color:#f9f4ef!important;border-color:#14263c!important;
+}
+body .pilot-layout .efg-quick-more button.btn.light:nth-child(3){
+ background:radial-gradient(circle at 8% 0%,#ffffffb0,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff14 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#ead9bc,#c6ae86)!important;
+ color:#1b2a3c!important;border-color:#b29b77!important;
+}

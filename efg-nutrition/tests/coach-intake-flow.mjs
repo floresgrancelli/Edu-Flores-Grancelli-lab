@@ -132,6 +132,13 @@ state.coachFoodPlan.guided_plan_approved_at=null;
 await assert.rejects(()=>flow.publish(),/Primero aprobá/);
 assert.equal(rpcCount,0);
 state.coachFoodPlan.guided_plan_approved_at="2026-10-29T00:00:00Z";
+// Migration installed: legacy RPC must NOT run, even for an older published user.
+await assert.rejects(()=>flow.publish(),/Objetivo no guardado: falta el circuito transaccional/);
+assert.equal(rpcCount,0,"No old publication under plan-access schema");
+assert.equal(confirmCount,0,"Do not prompt to publish a plan that cannot pass backend gate");
+// Legacy pre-migration route remains available ONLY without the new schema.
+schemaMissing=true;
+state.coachIntakeForms={};
 globalThis.window.confirm=()=>{confirmCount++;return false;};
 await flow.publish();
 assert.equal(rpcCount,0,"Cancelled publish cannot invoke server RPC");
@@ -143,6 +150,7 @@ assert.deepEqual(calledRpc[0],{name:"efg_publish_coach_plan",
 assert.equal(refreshCount,1);
 assert.equal(notifications.at(-1),"Plan publicado. El alumno ya puede utilizar las herramientas nutricionales.");
 assert.equal(confirmCount,2);
+schemaMissing=false;
 
 // Sharing can be withdrawn even AFTER the coach published a plan.
 serverStatus="published";

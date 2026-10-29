@@ -23,7 +23,7 @@ import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-int
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "./coach-draft-review.js?v=20261029-review51";
-import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
+import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";

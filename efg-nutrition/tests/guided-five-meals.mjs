@@ -50,6 +50,25 @@ assert.equal(baseline.average.k,625);
 assert.match(baseline.warning,/no el consumo habitual/);
 console.log("PASS: five-meal educational guide, bounded portions, optional whey, assessment, sample intake, no auto-prescribing.");
 
+// An unknown measurement must never turn into an invented numeric zero.
+for(const nutrient of ["k","p","c","f","fi"]){
+ const incomplete=catalog.map(food=>({...food}));
+ const ingredient=incomplete.find(food=>food.id==="chicken");
+ delete ingredient[nutrient];
+ assert.throws(()=>generateGuidedDay(incomplete,goal),/datos nutricionales incompletos/,
+  "Guide generation must stop when "+nutrient+" is missing");
+}
+for(const badValue of [null,NaN,-1]){
+ const invalid=catalog.map(food=>({...food}));
+ invalid.find(food=>food.id==="chicken").p=badValue;
+ assert.throws(()=>generateGuidedDay(invalid,goal),/datos nutricionales incompletos/,
+  "Unknown, nonfinite or negative protein cannot become 0");
+}
+const explicitlyZero=catalog.map(food=>({...food}));
+assert.equal(explicitlyZero.find(food=>food.id==="coffee_black").c,0);
+assert.doesNotThrow(()=>generateGuidedDay(explicitlyZero,goal),
+ "An explicit measured/estimated zero is different from a missing value");
+
 const original=generateGuidedDay(catalog,goal);
 const exampleEgg=original.meals[0].items.find(x=>x.id==="egg");
 assert.equal(exampleEgg.qty,110,"Default breakfast must remain two eggs, not three");

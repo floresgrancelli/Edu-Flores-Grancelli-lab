@@ -137,3 +137,28 @@ await new Promise(resolve=>setImmediate(resolve));
 assert.match(fullHost.innerHTML,/Aviso exclusivo B/,"Queued refresh must load B without a polling delay");
 assert.doesNotMatch(fullHost.innerHTML,/Aviso de prueba/,"A's late response cannot repopulate B's inbox");
 console.log("UX Sprint 1: chat pagination and account-scoped notification cache/race PASS with synthetic fixtures.");
+
+// Saved habitual menus: the user must be able to inspect ingredients, portions,
+// and available saved macros BEFORE clicking the existing Register action.
+const {habitualShortLabel,habitualPreviewHTML}=await import(pathTo("habitual-preview.js"));
+const testEsc=x=>String(x??"").replace(/[&<>"']/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[t]));
+const choice={
+ name:"Habitual 1",items:[
+  {name:"Huevos",qty:110,unit:"g",k:155,p:13,c:1.1,f:11},
+  {name:"Tostada integral",qty:35,unit:"g",k:86,p:4.6,c:14.4,f:1.5},
+  {name:"Dulce de membrillo",qty:20,unit:"g",k:54,p:0.1,c:13.4,f:0}
+ ]
+};
+assert.match(habitualShortLabel(choice),/Habitual 1 · Huevos, Tostada integral \+1/);
+const preview=habitualPreviewHTML(choice,testEsc);
+for(const fragment of ["Huevos","110 g","Tostada integral","35 g","Dulce de membrillo","20 g","295 kcal","P 17,7 g","HC 28,9 g","G 12,5 g","Registrar habitual"]){
+ assert.ok(preview.includes(fragment),"Saved menu preview missing "+fragment);
+}
+assert.match(habitualPreviewHTML(null,testEsc),/Elegí un habitual/);
+assert.match(habitualPreviewHTML({name:"Archivo antiguo",items:[{name:"Alimento",qty:50,unit:"g"}]},testEsc),/Macros no disponibles/);
+assert.doesNotMatch(habitualPreviewHTML({name:"<img src=x>",items:[{name:"<script>alert(1)</script>",qty:40,unit:"g",k:50,p:2,c:2,f:2}]},testEsc),/<script>|<img src=x>/,"Never trust stored food names");
+assert.match(pilotSource,/habitualPreviewHTML\(selected,escapeHTML\)/,"Selected habitual must show its saved menu");
+assert.match(pilotSource,/if\(e\.target\.dataset\.habitualchoice\)\{updateHabitualPreview/,"Change of habitual must repaint preview");
+assert.match(pilotSource,/data-habitualapply=/,"Preview must not auto-register a meal");
+assert.match(pilotSource,/state\.habitualSelection\[slot\]=String\(data\.id\)/,"Newly saved menu should be previewed");
+console.log("PASS: saved habitual selection shows full quantities and macros, handles incomplete snapshots and escapes untrusted names.");

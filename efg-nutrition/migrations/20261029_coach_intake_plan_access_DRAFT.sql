@@ -33,7 +33,7 @@ on conflict(student_id) do nothing;
 
 -- Abort atomically rather than silently locking any historic account whose
 -- organization/coach linkage was missing or changed. No existing user data is edited.
-do $
+do $$
 declare v_uncovered bigint;
 begin
  select count(*) into v_uncovered

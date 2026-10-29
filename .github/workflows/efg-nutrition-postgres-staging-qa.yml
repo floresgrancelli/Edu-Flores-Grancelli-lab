@@ -65,6 +65,36 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql
           echo "PASS: ephemeral PostgreSQL 17 syntax and synthetic transaction scenarios."
+      - name: NUT-57 real PostgreSQL 17 abort-before-DDL when stage marker is absent (SYNTHETIC)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          # This DB is a disposable synthetic fixture; stage authorization marker
+          # is deliberately ABSENT. The preview has NO COMMIT and ends ROLLBACK.
+          node efg-nutrition/tests/nut57-staging-bundle.mjs --preview-sql > "$RUNNER_TEMP/nut57-rollback-only.sql"
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-rollback-only.sql"; then
+            echo "NUT57 unsafe: COMMIT detected" >&2
+            exit 1
+          fi
+          before="$(psql -Atqc 'select count(*) from public.efg_goals')"
+          if psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-rollback-only.sql" > "$RUNNER_TEMP/nut57-stage-probe.log" 2>&1; then
+            echo "NUT57 unsafe: preview did not reject absent staging marker" >&2
+            exit 1
+          fi
+          if ! grep -q "NUT57 STOP: not an approved isolated staging database" "$RUNNER_TEMP/nut57-stage-probe.log"; then
+            echo "NUT57 unexpected failure (not verified safe gate)" >&2
+            tail -n 12 "$RUNNER_TEMP/nut57-stage-probe.log" >&2
+            exit 1
+          fi
+          after="$(psql -Atqc 'select count(*) from public.efg_goals')"
+          test "$before" = "$after"
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = "t"
+          echo "PASS NUT57 PostgreSQL 17: abort before DDL without isolated staging marker; synthetic goals untouched; preview contains no COMMIT."
       - name: State the limits
         if: always()
         run: |

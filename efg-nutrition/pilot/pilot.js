@@ -2474,7 +2474,7 @@ if(el.dataset.foodbulk){
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
+ if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
  if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
@@ -2572,6 +2572,16 @@ if(el.dataset.foodbulk){
   if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent||!state.consent?.accepted)
    throw new Error("Calculá primero una propuesta para un alumno autorizado.");
   const studentId=state.selectedStudent,guide=state.coachIntakeGuidePreview;
+  if(state.coachIntakePrefill?.studentId===studentId){
+   // Re-read the current revision and current consent before approving.
+   const consentNow=await sb.from("efg_consents").select("accepted").eq("student_id",studentId).maybeSingle();
+   if(consentNow.error)throw consentNow.error;
+   if(consentNow.data?.accepted!==true)throw new Error("El alumno revocó el seguimiento. No se guardó el objetivo.");
+   await coachIntakeFlow.refreshCoachDetail(studentId,true);
+   const current=state.coachIntakeForms?.[studentId],source=state.coachIntakePrefill.sourceUpdatedAt;
+   if(!current?.shared_at||!source||current.updated_at!==source)
+    throw new Error("La ficha cambió o dejó de compartirse. Volvé a abrirla antes de aprobar.");
+  }
   const {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});
   if(error)throw error;
   await loadStudentDetail(studentId);
@@ -2613,7 +2623,14 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;state.coachIntakeGuidePreview=null;document.getElementById("coachIntakeGeneratedGuide")?.remove();const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
-root.addEventListener("change",e=>{invalidateCoachDraft(e);if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
+root.addEventListener("change",e=>{invalidateCoachDraft(e);
+ if(e.target.id==="efgIntakeShare"){
+  const button=document.getElementById("efgIntakeSubmitButton");
+  if(button)button.textContent=e.target.checked?"Enviar mi ficha a mi coach":
+   (state.studentIntake?.shared_at?"Guardar privada y retirar acceso":"Guardar ficha privada");
+  return;
+ }
+ if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
  state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();

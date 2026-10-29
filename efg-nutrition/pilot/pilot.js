@@ -409,7 +409,7 @@ function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 let cloudHabituales=[];
 async function loadCloudHabituales(){
- if(state.profile?.role!=="student"){cloudHabituales=[];return;}
+ if(!state.profile?.active||!["student","coach","admin"].includes(state.profile.role)){cloudHabituales=[];return;}
  const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
  if(error)throw error;
  cloudHabituales=data||[];
@@ -480,7 +480,7 @@ function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.
 let cloudRecipes=[];
 function myRecipes(){return cloudRecipes;}
 async function loadCloudRecipes(){
- if(state.profile?.role!=="student"){cloudRecipes=[];return;}
+ if(!state.profile?.active||!["student","coach","admin"].includes(state.profile.role)){cloudRecipes=[];return;}
  const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
  if(error)throw error;
  cloudRecipes=data||[];
@@ -550,6 +550,7 @@ function efgNavIcon(tab){
  planner:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18m-12 5h6m-3-3v6"/>',
  weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
  studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
+ coachMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
  coach:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 15l3-3 3 2 4-5M7 18h10"/>',
  coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
  reports:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
@@ -569,10 +570,10 @@ function frame(content){
  const menu=role==="student"
   ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
-  ?[["coach","⌂","Inicio"],["coachStudents","♧","Alumnos"],["reports","▥","Informes"],["payments","▤","Pagos"]]
+  ?[["coach","⌂","Inicio"],["home","◷","MI DÍA"],["coachStudents","♧","Alumnos"],["coachMore","☷","Más"]]
   :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
- const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
+ const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&["planner","weight","sport","recipes","supplements","summaries","coachTools","reports","payments","notifications","messages"].includes(state.tab)?"coachMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
@@ -715,6 +716,15 @@ function efgMenuIcon(kind){
 function premiumMenuView(title,description,entries){
  return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
 }
+function coachMoreView(){
+ return premiumMenuView("MI ESPACIO","Tu cuenta personal y tus herramientas profesionales, independientes de las fichas de tus alumnos.",[
+ ["planner","✨","Mi planificador","cream"],["weight","📈","Mi progreso","mint"],
+ ["recipes","🍲","Mis recetas","blue"],["supplements","💊","Mis suplementos","lilac"],
+ ["sport","🏃","Mi actividad","peach"],["reports","📋","Informes de alumnos","blue"],
+ ["payments","💳","Pagos y cobros","mint"],["coachTools","🧮","Herramientas del coach","lilac"],
+ ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","blue"]
+ ]);
+}
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
  ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
@@ -851,11 +861,23 @@ async function updateSundayPermission(approve){
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
- const weeklyPanel=state.profile.role==="student"&&state.goals?.length
+ // Todos los roles poseen diario personal; las metas personales no son las de los alumnos.
+ const personal=state.profile.role!=="student";
+ const personalEffective=state.personalTargets?.updated_at
+   ?new Intl.DateTimeFormat("en-CA",{timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(state.personalTargets.updated_at)):"";
+ // Sin historial personal de metas, no se atribuyen resultados a fechas anteriores a la meta vigente.
+ const personalGoals=state.personalTargets?[{
+   start_on:personalEffective||today(),kcal:state.personalTargets.kcal,
+   protein_g:state.personalTargets.protein_g,carb_g:state.personalTargets.carb_g,
+   fat_g:state.personalTargets.fat_g,fiber_g:state.personalTargets.fiber_g
+ }]:[];
+ const weekGoals=personal?personalGoals:(state.goals||[]);
+ const weeklyPanel=weekGoals.length
   ?weeklyConsistencyPanel(calculateWeeklyConsistency({
     today:today(),logs:[...(state.progressLogs||[]),...(state.diary?[state.diary]:[])],
-    goals:state.goals,totalOf:dailyTotals,goalForDate
-   }),{opened:state.rewardOpened===true,verified:state.rewardFeatureReady===true,approved:state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
+    goals:weekGoals,totalOf:dailyTotals,goalForDate
+   }),{personal,opened:state.rewardOpened===true,verified:!personal&&state.rewardFeatureReady===true,
+      approved:!personal&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
@@ -877,12 +899,12 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
-  return rootText("MI DÍA","Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
+  return rootText("MI DÍA",personal?"Tu alimentación, tus objetivos y tu progreso personales. No se mezclan con los datos de tus alumnos.":"Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
  '<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+
  pastelDaySummary(tot,goal,d,mealSlots)+
  weeklyPanel+
  '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
- (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
+ (!goal?'<div class="pilot-alert">'+(personal?"Configurá tus objetivos personales para ver el progreso semanal.":"Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.")+'</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
  '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div><div id="mealDialogContainer"></div>'+goalForm;
@@ -1383,6 +1405,7 @@ function coachHomeView(){
  '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
+ '<div class="efg-coach-personal-shortcut"><button class="btn light" type="button" data-tab="home">✦ Abrir MI DÍA personal</button><p>Usá tus registros, metas, recetas, planificación y gráficos. No consume cupos de alumnos.</p></div>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
   ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
@@ -1782,7 +1805,7 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachMore:coachMoreView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);

@@ -214,6 +214,11 @@ assert.match(sql,/create policy intake_student_delete on public\.efg_student_int
 // Static contract only; run actual BEFORE UPDATE trigger with two role JWTs in staging.
 assert.match(sql,/create function efg_private\.invalidate_stale_guided_approval\(\)/);
 assert.match(sql,/create trigger efg_guard_guided_approval_update/);
+const approvalTriggerSql=sql.slice(sql.indexOf("create function efg_private.invalidate_stale_guided_approval()"),sql.indexOf("create trigger efg_guard_guided_approval_update"));
+const sqlDollarPair=String.fromCharCode(36,36);
+assert.ok(approvalTriggerSql.includes("as "+sqlDollarPair+"\nbegin"),"PL/pgSQL trigger must open a valid dollar-quoted body");
+assert.ok(approvalTriggerSql.includes("end "+sqlDollarPair+";"),"PL/pgSQL trigger must close a valid dollar-quoted body");
+
 assert.match(sql,/before update of guided_plan,guided_goal_id,guided_plan_approved_at/);
 assert.match(sql,/new\.guided_plan is distinct from old\.guided_plan/);
 assert.match(sql,/new\.guided_goal_id is distinct from old\.guided_goal_id/);

@@ -113,3 +113,21 @@ G. Nutrition Personal/autogestión y “Calidad nutricional de mi alimentación�
 
 **ESTADO: investigación y diseño; nada de esto se ejecuta automáticamente en
 el generador actual, ni es un plan médico personalizado.**
+
+## Alcance transversal confirmado · Coach y Autogestión (29/10/2026)
+Esta biblioteca de patrones base, alimentos y filtros de compatibilidad será
+**una sola** y se reutilizará tanto en Nutrition Coach como en Nutrition Personal.
+No mantener reglas de dieta diferentes por modalidad. Separar en cambio:
+- La **identidad que decide**: coach/profesional habilitado revisa y aprueba cuando
+  corresponda, usuario Personal gestiona objetivos no clínicos con guardas.
+- La **autorización**: registro compartido solo con permiso explícito para Coach;
+  Personal privado por defecto. Cada condición de salud tiene acceso y finalidad
+  propios, bajo evaluación legal y clínica previa.
+- El **comportamiento seguro**: dietas vegetarianas, veganas, keto, mediterráneas,
+  DASH, Portfolio, adaptaciones de horarios y condiciones/restricciones deben usar
+  el mismo control de ingredientes, alérgenos, composición y datos desconocidos.
+  Una incompatibilidad detectada no autoriza prescribir tratamiento; cuando la
+  información es insuficiente, mostrar incertidumbre, impedir afirmar aptitud y
+  solicitar evaluación profesional para situaciones clínicas.
+**No implementado aún:** reglas clínicas automáticas, perfiles de salud y rutas
+Autogestión en producción. El documento es una especificación común a ambas.

@@ -101,6 +101,10 @@ for(const [query,id] of [
  const hay=normalize(foodSearchText(food));
  assert.ok(query.split(" ").every(word=>hay.includes(normalize(word))),"Search "+query+" failed for "+id);
 }
+assert.ok(FOOD_CATEGORIES.some(([id,label])=>id==="candy"&&/Golosinas/.test(label)),"Golosinas needs its own visible category");
+for(const id of ["gomitas_frutales","gomitas_acidas","caramelos_duros","chupetin_dulce","malvaviscos","pastillas_menta"]){
+ assert.equal(find(id)?.category,"candy","Candy must appear under Golosinas: "+id);
+}
 assert.equal(EXTRA_FOODS.filter(f=>f.id==="gomitas_frutales").length,1);
 assert.equal(EXTRA_FOODS.filter(f=>f.id==="pan_frances").length,1);
 assert.equal(EXTRA_FOODS.filter(f=>f.id==="tofu_firm").length,1);

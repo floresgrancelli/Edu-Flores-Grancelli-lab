@@ -57,7 +57,11 @@ assert.equal(state.planAccess.status,"pending");
 const fields={
  efgIntakeObjective:{value:"recomp"},efgIntakeAge:{value:"41"},
  efgIntakeHeight:{value:"174.0"},efgIntakeWeight:{value:"80.5"},
- efgIntakeActivity:{value:"moderate"},efgIntakeNotes:{value:"Horarios ficticios"},
+ efgIntakeActivity:{value:"moderate"},efgIntakeDiet:{value:"vegetarian"},
+ efgIntakePreferred:{value:"Legumbres, arroz, frutas"},
+ efgIntakeDisliked:{value:"Morrón (solo por gusto)"},
+ efgIntakeSchedule:{value:"Desayuno 7:00; almuerzo 13:00"},
+ efgIntakeNotes:{value:"Horarios ficticios"},
  efgIntakeShare:{checked:false}
 };
 globalThis.document={getElementById:id=>fields[id]||null};
@@ -68,6 +72,10 @@ assert.equal(submitted[0].organization_id,"org-fixture");
 assert.equal(submitted[0].shared_at,null,"Private draft must never be shared by default");
 assert.equal(submitted[0].weight_kg,80.5);
 assert.equal(submitted[0].age_years,41);
+assert.equal(submitted[0].dietary_pattern,"vegetarian");
+assert.equal(submitted[0].preferred_foods,"Legumbres, arroz, frutas");
+assert.equal(submitted[0].disliked_foods,"Morrón (solo por gusto)");
+assert.equal(submitted[0].meal_routine,"Desayuno 7:00; almuerzo 13:00");
 assert.equal(notifications.at(-1),"Ficha privada guardada.");
 
 // Consent must be explicit; revoking it sets shared_at=null, including after a previous share.
@@ -92,6 +100,16 @@ fields.efgIntakeObjective.value="malicious-unlisted-goal";
 await assert.rejects(()=>flow.save(),/Objetivo inválido/);
 assert.equal(writeCount,3);
 fields.efgIntakeObjective.value="recomp";
+fields.efgIntakeDiet.value="invalid-disorder";
+await assert.rejects(()=>flow.save(),/Patrón alimentario inválido/);
+assert.equal(writeCount,3);
+fields.efgIntakeDiet.value="vegetarian";
+fields.efgIntakePreferred.value="x".repeat(401);
+await assert.rejects(()=>flow.save(),/400 caracteres/);
+assert.equal(writeCount,3);
+fields.efgIntakePreferred.value="Legumbres, arroz, frutas";
+assert.match(flow.view(),/La celiaquía, diabetes, hipertensión, alergias/);
+assert.match(flow.view(),/Mis horarios de comida/);
 
 // No silent publication: absent coach authorization or incomplete guide cannot call RPC.
 globalThis.window={confirm:()=>{confirmCount++;return true;}};
@@ -142,6 +160,9 @@ await flow.save(); // Re-share a fake draft so the DELETE also removes its shari
 assert.ok(stored.shared_at);
 await flow.refreshCoachDetail("student-fixture",true);
 assert.match(flow.details("student-fixture"),/Ficha inicial compartida/,"Coach can view current, explicitly shared fake intake");
+assert.match(flow.details("student-fixture"),/Patrón alimentario/);
+assert.match(flow.details("student-fixture"),/Vegetariano/);
+assert.match(flow.details("student-fixture"),/Legumbres, arroz, frutas/);
 assert.match(flow.view(),/Eliminar solamente mi ficha inicial/);
 globalThis.window.confirm=()=>false;
 await flow.deleteOwn();
@@ -177,6 +198,10 @@ assert.match(app,/coachIntakeFlow\.details/);
 assert.match(css,/efg-intake-share-label/);
 assert.match(sql,/create table public\.efg_student_intakes/);
 assert.match(sql,/create table public\.efg_student_plan_access/);
+assert.match(sql,/dietary_pattern text check/,"Dietary pattern must be constrained server-side");
+assert.match(sql,/char_length\(preferred_foods\)<=400/);
+assert.match(sql,/char_length\(disliked_foods\)<=400/);
+assert.match(sql,/char_length\(meal_routine\)<=400/);
 assert.match(sql,/lock table public\.efg_profiles in share row exclusive mode/,"Profile backfill must be protected from concurrent new student inserts");
 assert.match(sql,/Legacy student access backfill incomplete/,"Incomplete legacy mapping must abort the transaction");
 assert.match(sql,/grant select,insert,update,delete on public\.efg_student_intakes to authenticated/);

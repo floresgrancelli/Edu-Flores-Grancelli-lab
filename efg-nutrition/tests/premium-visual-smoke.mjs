@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -140,6 +140,37 @@ try{
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
+
+  if(width===390){
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="messages";await v.render();await v.inbox.refresh();});
+   const search=page.locator("#efgChatSearch"),contact=page.locator("[data-chat-contact]");
+   if(!(await search.count()))errors.push(role+" chat search missing");
+   if((await contact.count())!==1)errors.push(role+" chat must show exactly one authorized contact; got "+await contact.count());
+   const excluded=await page.locator("#efgMessagesContent").innerText();
+   if(role!=="student"&&excluded.includes("Camila Pérez"))errors.push(role+" chat exposed unconsented student");
+   if(await search.count()){
+    await search.fill("contacto inexistente");
+    if(await page.locator("[data-chat-contact]").count())errors.push(role+" search did not filter chats");
+    await search.fill("");
+   }
+   if(await contact.count()){
+    await contact.first().click();
+    await page.waitForTimeout(70);
+    const thread=page.locator(".efg-chat-layout.show-thread #efgMessageForm");
+    if(!(await thread.count()))errors.push(role+" contact did not open conversation");
+    if(!(await page.locator("[data-chat-back]").count()))errors.push(role+" chat missing back arrow");
+    await page.locator("[data-chat-back]").click();
+    if(await page.locator(".efg-chat-layout.show-thread").count())errors.push(role+" chat back did not restore list");
+   }
+   const bell=page.locator(".efg-notify-bell");
+   if(!(await bell.count()))errors.push(role+" floating notification bell missing");
+   else{
+    const visual=await bell.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,icon:!!el.querySelector("svg"),w:el.getBoundingClientRect().width}));
+    if(visual.bg!=="rgba(0, 0, 0, 0)"||!visual.icon||visual.w<44)errors.push(role+" bell should be floating SVG without tile: "+JSON.stringify(visual));
+   }
+   await page.screenshot({path:join(outDir,engine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
+   await page.evaluate(async(role)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=role==="student"?"home":role==="coach"?"coach":"admin";await v.render();},role);
+  }
   const pageReport={role,width,pages:[],errors:[]};
   const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","home","studentMore","coachTools","coachStudents","reports","payments","recipes"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){

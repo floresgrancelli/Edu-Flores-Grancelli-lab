@@ -224,6 +224,15 @@ assert.match(sql,/new\.guided_plan is distinct from old\.guided_plan/);
 assert.match(sql,/new\.guided_goal_id is distinct from old\.guided_goal_id/);
 assert.match(sql,/new\.guided_plan_approved_at is not distinct from old\.guided_plan_approved_at/);
 assert.match(sql,/new\.guided_plan_approved_at := null;/);
+// Staging DRAFT: reject zero/missing/invalid per-item nutrient and amount fields at publish.
+assert.match(sql,/create function efg_private\.coach_guide_items_valid\(p_guide jsonb\)/);
+assert.match(sql,/and efg_private\.coach_guide_items_valid\(f\.guided_plan\)/);
+assert.match(sql,/jsonb_typeof\(v_item->'qty'\) is distinct from 'number'/);
+assert.match(sql,/foreach v_nutrient in array array\['k','p','c','f','fi'\]/);
+assert.match(sql,/jsonb_typeof\(v_item->v_nutrient\) is distinct from 'number'/);
+assert.match(sql,/if v_value<=0 or v_value>1000 then return false;/);
+assert.match(app,/if\(food.qty!==qty\)\{food.qty=qty;food.locked=true;\}/,
+ "The coach's changed portion must remain locked even without a preceding input event");
 assert.match(sql,/create function public\.efg_publish_coach_plan/);
 assert.match(sql,/f\.guided_goal_id=p_goal_id/);
 assert.match(sql,/as restrictive for insert/);

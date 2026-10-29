@@ -187,3 +187,21 @@ html,body{background:#dcd8d2!important}
    box-shadow:inset 0 1px 0 #fff7e1a0,0 13px 24px #14253b50!important
  }
 }
+
+/* Primera fila de seis accesos distintos por rol: seis acabados, no colores repetidos. */
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(5),
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(5){
+ color:#20283a!important;
+ background:radial-gradient(circle at 12% 5%,#ffffffb0,transparent 52%),
+            repeating-linear-gradient(114deg,#ffffff0c 0 1px,transparent 1px 5px),
+            linear-gradient(144deg,#e8dcc7,#c5b18b)!important;
+ border-color:#b3a17e!important;
+}
+.pilot-layout.efg-role-admin .efg-menu-grid>.efg-menu-card:nth-child(6),
+.pilot-layout.efg-role-coach .efg-coach-tiles>.efg-menu-card:nth-child(6){
+ color:#f9efe9!important;
+ background:radial-gradient(circle at 13% 7%,#ffffff2b,transparent 60%),
+            repeating-linear-gradient(110deg,#ffffff06 0 1px,transparent 1px 6px),
+            linear-gradient(146deg,#644052,#362334)!important;
+ border-color:#45283a!important;
+}

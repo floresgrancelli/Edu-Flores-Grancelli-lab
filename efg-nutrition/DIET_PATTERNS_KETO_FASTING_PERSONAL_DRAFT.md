@@ -225,3 +225,34 @@ seguridad o información incorrecta (Ley 24.240, art. 37); Ley 25.326 exige
 seguridad y confidencialidad para datos de salud.
 
 ESTADO: DISEÑO APROBADO, NO construido en UI, no SQL ni cambios de producción.
+
+## Aclaración prioritaria · SIN RESTRICCIONES = CATÁLOGO NEUTRO (29/10/2026)
+Decisión explícita del propietario: una persona sin restricciones médicas ni un
+patrón elegido que establezca exclusiones, como él mismo, **puede elegir TODOS
+los alimentos, sin semáforo**. En el selector general no pintar artificialmente
+todo de verde: mostrar tarjetas NEUTRAS, con búsqueda, cantidades y macros
+habituales. El distintivo opcional «Incluido en mi plan» es independiente.
+
+**PROHIBIDO utilizar el semáforo para juzgar densidad energética, calorías,
+proteína, grasas, hidratos, azúcar o si un alimento es «saludable» por sí mismo.**
+Los valores nutricionales se presentan en cifras, progresos y explicaciones
+aparte; tener 500 kcal o ser una golosina no vuelve automáticamente ROJO un
+producto. Tampoco un alimento «light» se vuelve VERDE por ser poco calórico.
+No pintar ROJO por exceder la energía o macros diarios del plan genérico.
+
+Activación condicional: solo si la persona declara voluntariamente una
+restricción específica (p. ej. alergia/celiaquía) o elige un patrón alimentario
+con criterios identificables (p. ej. vegano/vegetariano/keto), usar evaluación
+individual de ingredientes, origen, trazas, cantidades y criterios relevantes:
+- Verde: compatible **con la regla activa** y datos suficientes verificados.
+- Amarillo: hay una regla activa, pero falta evidencia para confirmar aptitud.
+- Rojo: incompatibilidad **con la regla activa** comprobada; no prohibición
+  universal. En diabetes, DASH u otras condiciones no establecer «prohibidos»
+  por categorías genéricas; individualizar y advertir solo cuando corresponda.
+- Ninguna restricción o patrón de exclusión activo: **NEUTRO / sin semáforo**,
+  nunca amarillo por carecer de rótulos que no son relevantes al perfil.
+- «Incluido en mi plan»: identificación aparte, sin anular compatibilidad.
+
+Aplica idénticamente a **Coach, alumno de Coach y Personal**, preservando la
+capacidad de registrar todo consumo real. La función sigue como documentación
+y futura QA; no hay cambios en producción ni filtros clínicos habilitados.

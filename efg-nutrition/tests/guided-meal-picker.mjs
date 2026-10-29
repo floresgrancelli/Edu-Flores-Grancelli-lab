@@ -69,7 +69,7 @@ for(const slot of ["media_manana","media_tarde","merienda"])
 assert.match(src,/educationalGuideSections\(meal,groupIdFor\)/);
 assert.match(src,/foodRow\(food,index\)/,"coach must edit original indexed food");
 assert.match(src,/data-guidefoodgroup/,"educational groups must reach the actual coach/student renderer");
-assert.match(html,/guide-meal-picker\.css\?v=20261029-uxguide1/);
+assert.match(html,/guided-meal-picker\.css\?v=20261029-uxguide1/);
 assert.match(src,/guide-meal-education\.js\?v=20261029-uxguide1/);
 console.log("PASS UX-GUIDE-01: coach/student shared guide main meals by group, originals intact; snacks classic; mixed food once; macro totals unchanged.");
 console.log("PASS: guided only breakfast/lunch/dinner; mixed plates counted once incl fats; optional skip, all other foods accessible; snacks remain classic; one 5% weekly bar.");

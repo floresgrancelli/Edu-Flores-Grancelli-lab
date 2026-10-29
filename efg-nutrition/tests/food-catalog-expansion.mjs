@@ -65,7 +65,7 @@ for(const [id,grams] of [["sushi_maki_salmon",28],["sushi_nigiri_salmon",35],["p
 }
 assert.ok(pilot.includes("foodSearchText(f)"),"Student/coach/planner must use shared synonyms");
 assert.match(index,/name="efg-build" content="202610(?:28-regional2(?:-luxury-pro-(?:rc1|r1))?|29-(?:seats-visible-r1|coach-commercial-r[12]))"/,"Versioned iPhone build marker required");
-assert.ok(index.includes("luxury-theme.css?v=20261029-coach-commercial-r2"),"Luxury CSS must be cache-busted for iPhone");
+assert.match(index,/luxury-theme\.css\?v=20261029-(?:coach-commercial-r2|habitual-preview1)/,"Luxury CSS must be versioned and cache-busted for iPhone");
 assert.equal(VERIFIED_SOURCE_COUNT,20);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));
 console.log("PASS expanded catalogue: "+EXPANDED_COUNT+" new foods, "+EXTRA_FOODS.length+" existing extension foods, units, source flags, synonyms and numeric macros");

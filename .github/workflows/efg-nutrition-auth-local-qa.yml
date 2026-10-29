@@ -1,0 +1,79 @@
+name: EFG Nutrition Supabase Auth local JWT/RLS QA (NUT-53; disposable)
+
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - '.github/workflows/efg-nutrition-auth-local-qa.yml'
+      - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
+      - 'efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql'
+      - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-auth-rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Supabase CLI (pinned; LOCAL only)
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Start disposable local Supabase Auth/PostgREST/Postgres
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/efg-nutrition-auth-local"
+          cd "$RUNNER_TEMP/efg-nutrition-auth-local"
+          supabase init --yes
+          # NEVER link or push remote databases. No access token or hosted project ref.
+          if [[ -n "$(printenv SUPABASE_ACCESS_TOKEN || true)" || -n "$(printenv SUPABASE_DB_PASSWORD || true)" ]]; then
+            echo "Hosted Supabase credentials are prohibited in local QA" >&2
+            exit 1
+          fi
+          supabase start
+          supabase status -o env > "/tmp/efg-nutrition-auth-local-status.env"
+          echo "Local Supabase stack available; credentials are ephemeral and not printed."
+      - name: Install PostgreSQL client if needed
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+      - name: Create disposable Coach schema and server-owned RPCs (NO REMOTE DATABASE)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54322'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: postgres
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: Test real LOCAL signed JWTs and A/B organization authorization
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: node efg-nutrition/tests/coach-auth-local-e2e.mjs
+      - name: Stop disposable environment (no backup or remote action)
+        if: always()
+        run: |
+          if command -v supabase >/dev/null 2>&1 && [ -d "$RUNNER_TEMP/efg-nutrition-auth-local/supabase" ]; then
+            cd "$RUNNER_TEMP/efg-nutrition-auth-local"
+            supabase stop --no-backup || true
+          fi
+      - name: Document limitations
+        if: always()
+        run: |
+          echo "LOCAL GoTrue JWT checks (if completed) do NOT certify hosted Supabase, exact production schema, approved legal text, clinical food evidence, OTP email delivery, production RLS or iOS/Android."
+          echo "No production SQL, no new hosted project, no preview branch, no project linking and no deployment. RELEASE NO GO."

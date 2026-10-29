@@ -20,6 +20,7 @@ import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -1841,6 +1842,7 @@ function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
  const intakeDraft=state.coachIntakePrefill?.studentId===p.user_id?state.coachIntakePrefill:null;
+ const goalWriteBlocked=!!(intakeDraft||state.coachIntakeAccess?.[p.user_id]);
  const intakeValue=(key,fallback="")=>escapeHTML(intakeDraft?(intakeDraft.fields[key]??""):fallback);
  const intakeWarnings=intakeDraft?'<div class="efg-intake-prefill" role="status"><strong>Ficha aplicada a la calculadora · borrador</strong><p>Confirmá los valores antes de calcular; todavía no se envió ningún plan.</p><ul>'+intakeDraft.warnings.map(w=>'<li>'+escapeHTML(w)+'</li>').join("")+'</ul>'+
  (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
@@ -1852,7 +1854,7 @@ function studentDetailView(p,consent){
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  coachGuidedSection()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
- intakeWarnings+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
+ intakeWarnings+(goalWriteBlocked?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
@@ -1994,7 +1996,7 @@ function adjustCalculatedGoal(){
  state.pendingGoal={...goal,student_id:state.selectedStudent};
  document.getElementById("goalPreviewSummary").innerHTML=showGoalComparison(base,goal);
  regenerateCoachIntakeGuidePreview();
- document.getElementById("approveGoalButton").disabled=false;
+ document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
 }
 async function approveGoalRevision(){
  const pending=state.pendingGoalRevision, latest=state.coachGoals[0];
@@ -2003,6 +2005,7 @@ async function approveGoalRevision(){
  if(error)throw error;
  if(data.id!==pending.baseId)throw new Error("Ya existe un objetivo más reciente. Actualizá la ficha y recalculá.");
  if(!window.confirm("¿Aplicar ahora "+num(pending.proposal.kcal)+" kcal/día para este alumno? Podés volver a ajustarlo cuando haga falta; el objetivo previo se conserva en el historial."))return;
+ await assertCoachGoalWriteSafe(sb,{studentId:pending.studentId});
  const {error:saveError}=await sb.from("efg_goals").insert({...pending.proposal,student_id:pending.studentId,approved_by:state.session.user.id,start_on:today()});
  if(saveError)throw saveError;
  state.pendingGoalRevision=null;state.pendingGoal=null;state.calculatedGoalBase=null;
@@ -2046,7 +2049,7 @@ function calculateGoal(){
  '<div class="field"><label for="proposalGoalMode">Reparto de macros</label><select id="proposalGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
  regenerateCoachIntakeGuidePreview();
- document.getElementById("approveGoalButton").disabled=false;
+ document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
 }
 async function saveDiary(){
  const d=activeDiary();
@@ -2582,6 +2585,7 @@ if(el.dataset.foodbulk){
    if(!current?.shared_at||!source||current.updated_at!==source)
     throw new Error("La ficha cambió o dejó de compartirse. Volvé a abrirla antes de aprobar.");
   }
+  await assertCoachGoalWriteSafe(sb,{studentId,fromSharedIntake:state.coachIntakePrefill?.studentId===studentId});
   const {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});
   if(error)throw error;
   await loadStudentDetail(studentId);

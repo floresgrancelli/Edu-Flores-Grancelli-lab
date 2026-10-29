@@ -261,7 +261,7 @@ begin
   if not found then raise exception 'Draft state changed before commit'; end if;
 
   return v_goal_id;
-end
+end;
 $efg_publish$;
 
 revoke all on function public.efg_publish_coach_plan_draft(uuid,bigint,uuid)

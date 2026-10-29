@@ -130,4 +130,8 @@ assert.match(sql,/as restrictive for delete/);
 assert.match(sql,/where p\.role='student' and o\.coach_id is not null/);
 assert.match(sql,/new\.role <> 'student'/);
 assert.match(sql,/shared_at is not null and efg_private\.coach_has_student/);
+assert.match(sql,/f\\.guided_plan->>'kind'='five_meal_example'/,"Published guide must have correct kind");
+assert.match(sql,/jsonb_array_length\\(f\\.guided_plan->'meals'\\)=5/,"Published guide must have five slots");
+assert.match(sql,/count\\(distinct m\\.meal->>'slot'\\)=5/,"Published guide must have five distinct slots");
+assert.match(sql,/jsonb_array_length\\(m\\.meal->'items'\\) between 1 and 15/,"Published meals need nonempty item arrays");
 console.log("EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.");

@@ -373,6 +373,35 @@ try{
      if(await bars.count()!==1)pageReport.errors.push("Need exactly one ±5% weekly bar");
      if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==6)pageReport.errors.push("One ±5% track must show Monday-Saturday only");
      if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
+     if(width===390&&engine==="chromium"){
+       const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
+       if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
+       else{
+         if(!(await breakfast.getAttribute("open")))await breakfast.locator("summary").click();
+         await breakfast.locator('[data-setmeal="desayuno"]').click();
+         const guide=page.locator(".efg-meal-guidance");
+         if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
+         else{
+           if(await guide.locator("[data-mealgroup]").count()!==4)pageReport.errors.push("Guided main meal needs 4 food categories");
+           if(await guide.locator("[data-mealomit]").count()!==2)pageReport.errors.push("Guided meal needs independent omit protein and carb controls");
+           if(!(await guide.innerText()).includes("Grasas registradas"))pageReport.errors.push("Automatic fat summary missing");
+           await guide.locator('[data-mealgroup="prepared"]').click();
+           const preparedOptions=await page.locator("#mealEditorFood option").allTextContents();
+           if(!preparedOptions.some(x=>/tarta|pizza|sushi|empanada/i.test(x)))pageReport.errors.push("Plato preparado did not expose mixed dishes");
+           await guide.locator('[data-mealgroup="carb"]').click();
+           const carbOptions=await page.locator("#mealEditorFood option").allTextContents();
+           if(!carbOptions.some(x=>/arroz|pan|avena|papa/i.test(x)))pageReport.errors.push("Hydrate tab did not expose carbohydrate choices");
+         }
+         await page.locator('[data-act="closeMeal"]').click();
+       }
+       const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
+       if(await snack.count()===1){
+         if(!(await snack.getAttribute("open")))await snack.locator("summary").click();
+         await snack.locator('[data-setmeal="media_tarde"]').click();
+         if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
+         await page.locator('[data-act="closeMeal"]').click();
+       }
+     }
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
        const styles=getComputedStyle(el);
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};

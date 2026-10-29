@@ -706,7 +706,8 @@ async function requestOtp(email){
   loginView("Si tu correo está habilitado, recibirás un código numérico de acceso. Puede tardar unos instantes; revisá Spam si es necesario.");
  }catch(err){
   state.loggingIn=false;
-  fail(err);
+  // Do not reveal provider messages that could expose email/account existence.
+  console.warn("EFG OTP request",err?.code||"failed");
   const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
   loginView(connection?"No pudimos conectar con el servicio. Revisá tu conexión y volvé a intentarlo.":"No pudimos solicitar el código en este momento. Intentá nuevamente en unos instantes.");
  }
@@ -728,7 +729,7 @@ async function confirmOtp(token){
   await refresh();
  }catch(err){
   state.loggingIn=false;
-  fail(err);
+  console.warn("EFG OTP verification",err?.code||"failed");
   if(verified){sessionConnectionRetry();return;}
   const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
   loginView(connection?"No pudimos verificar tu código por un problema de conexión. Volvé a intentarlo.":"El código es incorrecto o venció. Revisá el correo o solicitá otro.");

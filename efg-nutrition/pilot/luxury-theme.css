@@ -276,3 +276,102 @@ body .pilot-layout .efg-quick-more button:nth-child(3){
  color:#1b2a3c!important;
 }
 body .pilot-layout .efg-menu-card :is(.efg-menu-arrow,strong,.efg-menu-emoji){color:inherit!important}
+
+/* PRO-40: saludos distinguidos y mensaje del día protagonista en los tres roles. */
+.pilot-layout .efg-personal-hello{
+ display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:6px 0 17px;
+ padding:15px 19px;border:1px solid #b3a28c;border-radius:18px;
+ background:radial-gradient(circle at 7% 4%,#ffffff9c,transparent 55%),
+ linear-gradient(120deg,#e8dfd4,#c9cdd1);
+ box-shadow:inset 0 1px 0 #fff,0 8px 19px #19284124;
+}
+.pilot-layout .efg-personal-hello span{
+ color:#9b773f;font-weight:850;letter-spacing:.18em;font-size:11px;
+}
+.pilot-layout .efg-personal-hello strong{
+ font-family:"Iowan Old Style",Baskerville,Georgia,serif;
+ color:#1d2d43;font-size:clamp(21px,4vw,31px);font-weight:680;
+ line-height:1.15;overflow-wrap:anywhere;
+}
+.pilot-layout .efg-pastel-motivation{
+ background:linear-gradient(135deg,#293d55,#17283b 66%,#3c3e49)!important;
+ border:1px solid #a48b5d!important;
+ box-shadow:inset 0 1px 0 #ffffff58,0 12px 22px #17243546!important;
+ color:#faf2e6!important;
+}
+.pilot-layout .efg-pastel-motivation .eyebrow,
+.pilot-layout .efg-pastel-motivation h2,
+.pilot-layout .efg-pastel-motivation p{color:#f5eee5!important}
+.pilot-layout .efg-pastel-motivation .eyebrow{
+ display:block!important;color:#e9c47a!important;letter-spacing:.12em;
+ font-size:clamp(11px,2.9vw,13px)!important;font-weight:850;
+}
+.pilot-layout .efg-pastel-motivation h2{
+ font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-size:clamp(19px,4.4vw,27px)!important;font-weight:650!important;
+}
+.pilot-layout .efg-pastel-motivation p{color:#d9dce1!important;font-size:13px}
+.pilot-layout .efg-pastel-motivation .btn.light{
+ background:linear-gradient(140deg,#ebd9b8,#c0a06c)!important;
+ color:#18273d!important;border:1px solid #b69664!important;
+}
+/* Dos franjas motivacionales brillantes sobre superficie premium neutral. */
+.pilot-layout .efg-weekly-streak{
+ background:linear-gradient(148deg,#ebe6df,#d7d8dd)!important;
+ border:1px solid #b8b2ae!important;
+ box-shadow:inset 0 1px 0 #ffffffa8,0 11px 24px #22344d25!important;
+ color:#182638;
+}
+.pilot-layout .efg-weekly-streak-title h2{color:#1e2c42!important}
+.pilot-layout .efg-weekly-streak-title p{color:#596475}
+.pilot-layout .efg-weekly-streak .efg-streak-track{
+ background:linear-gradient(150deg,#f3eee8,#e7e1dc)!important;
+ border:1px solid #c7bcb0!important;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-acceptable{
+ background:linear-gradient(145deg,#f1e9e8,#e6dcdf)!important;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-trackhead strong{color:#1c293b}
+.pilot-layout .efg-weekly-streak .efg-streak-trackhead small{color:#4c5870}
+.pilot-layout .efg-weekly-streak .efg-streak-day.is-earned .efg-streak-dot{
+ background:var(--track-color)!important;color:#fff!important;
+ box-shadow:0 4px 11px #17283d24;
+}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-ideal{--track-color:#8b53ee;--track-light:#e6dafb}
+.pilot-layout .efg-weekly-streak .efg-streak-track.efg-streak-acceptable{--track-color:#ef538a;--track-light:#fad4e2}
+.pilot-layout .efg-weekly-streak-sunday{background:#e4ddd3;color:#3c4654}
+.pilot-layout .efg-weekly-streak-today,.pilot-layout .efg-weekly-streak-note{color:#4e5867}
+.pilot-layout .efg-weekly-streak-science{border-top-color:#b7ad9e}
+.pilot-layout .efg-weekly-streak-science :is(summary,p,small){color:#35465c}
+.pilot-layout .efg-weekly-streak-science a{color:#1c4b80}
+/* CTA de premio explícito, no concede permiso por sí solo. */
+.pilot-layout .efg-reward-container{
+ margin:17px 0 4px;padding:14px;border-radius:17px;
+ border:1px solid #b39c72;background:linear-gradient(145deg,#f3ece2,#ded5c9);
+ box-shadow:inset 0 1px 0 #ffffffb3,0 8px 17px #2333481d;
+}
+.efg-reward-intro{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:9px;row-gap:3px}
+.efg-reward-intro>span{grid-row:span 2;color:#aa863e;font-size:30px}
+.efg-reward-intro strong{font-size:13px;color:#20334c;letter-spacing:.07em}
+.efg-reward-intro small{color:#516074;font-size:11px}
+.pilot-layout .efg-reward-open{
+ display:block;width:100%;margin-top:12px;min-height:48px;
+ background:linear-gradient(135deg,#edd29b,#b78a43)!important;
+ color:#17283e!important;border:1px solid #997039!important;
+ box-shadow:inset 0 2px 1px #fffae2a0,inset 0 -3px 4px #4f300944,0 6px 13px #1d324c30!important;
+}
+.pilot-layout .efg-reward-open[aria-expanded=true]{box-shadow:inset 0 2px 6px #46320b58!important}
+.pilot-layout .efg-reward-reveal{
+ margin-top:12px;padding:14px 15px;border-radius:13px;border:1px solid #c5b192;
+ background:#eee6d8;color:#27364a;line-height:1.55;
+}
+.pilot-layout .efg-reward-reveal strong{font-family:"Iowan Old Style",Georgia,serif;font-size:20px;color:#22364f}
+.pilot-layout .efg-reward-reveal p{font-size:12px;margin:6px 0 0}
+.pilot-layout .efg-coach-reward{margin:15px 0;padding:17px}
+.pilot-layout .efg-coach-reward h3{font-size:16px;letter-spacing:.05em;color:#1b2a40}
+.pilot-layout .efg-reward-coach-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:11px}
+.pilot-layout .efg-reward-coach-controls .btn{min-height:44px}
+@media(max-width:360px){
+ .pilot-layout .efg-personal-hello{padding:12px}
+ .pilot-layout .efg-personal-hello strong{font-size:19px}
+}

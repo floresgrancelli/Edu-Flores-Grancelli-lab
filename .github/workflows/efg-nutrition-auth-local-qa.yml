@@ -6,6 +6,10 @@ on:
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
+      - 'efg-nutrition/tests/coach-local-backup-restore-nut55.mjs'
+      - 'efg-nutrition/tests/coach-legacy-write-audit-nut55.mjs'
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/pilot/coach-plan-draft-client.js'
       - 'efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql'
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
   workflow_dispatch:
@@ -23,6 +27,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Audit legacy Coach writes before starting containers
+        run: node efg-nutrition/tests/coach-legacy-write-audit-nut55.mjs
       - name: Install Supabase CLI (pinned; LOCAL only)
         uses: supabase/setup-cli@v3
         with:
@@ -65,6 +71,10 @@ jobs:
         env:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
         run: node efg-nutrition/tests/coach-auth-local-e2e.mjs
+      - name: Backup and restore LOCAL fictional Coach rows with pg_dump/pg_restore
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: node efg-nutrition/tests/coach-local-backup-restore-nut55.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "../pilot/coach-intake-prefill.js";
 import {readFileSync} from "node:fs";
-const sample={student_id:"student_A",shared_at:"2026-10-29T15:00:00Z",age_years:41,height_cm:174,
+const sample={student_id:"student_A",shared_at:"2026-10-29T15:00:00Z",updated_at:"2026-10-29T15:01:00Z",age_years:41,height_cm:174,
  weight_kg:80.5,objective:"recomp",activity_level:"moderate",dietary_pattern:"omnivore",
  preferred_foods:"Pollo, arroz",disliked_foods:"Morrón",meal_routine:"07:00 a 21:00"};
 assert.throws(()=>createCoachCalculatorPrefill({intake:sample,studentId:"student_A",coachAuthorized:false}),/autorizada/);
@@ -10,6 +10,7 @@ assert.throws(()=>createCoachCalculatorPrefill({intake:{...sample,shared_at:null
 const x=createCoachCalculatorPrefill({intake:sample,studentId:"student_A",coachAuthorized:true});
 assert.deepEqual(x.fields,{targetAge:"41",targetHeight:"174",targetWeight:"80.5",targetGoal:"recomp",targetActivity:"1.5"});
 assert.equal(x.readyForAutomaticCalculation,false,"Sex required by equation is NEVER guessed");
+assert.equal(x.sourceUpdatedAt,"2026-10-29T15:01:00Z","Bind prefill to a particular received revision");
 assert.equal(x.eligibleForGeneralExample,true);
 assert.ok(x.warnings.some(w=>w.includes("parámetro fisiológico")));
 assert.ok(x.warnings.some(w=>w.includes("alergias")));
@@ -40,6 +41,7 @@ assert.match(app,/if\(action==="prepareCoachPlanFromIntake"\)/);
 assert.match(app,/await loadStudentDetail\(studentId\)/,"Re-read RLS/consent before using intake");
 assert.match(form,/data-act="prepareCoachPlanFromIntake"/);
 assert.match(app,/coachIntakeGuidePreview/);
+assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide must be regenerated after changing target kcal");
 assert.match(app,/coachGuidePreviewAllowed/);
 assert.doesNotMatch(app,/createCoachCalculatorPrefill\([\s\S]{0,150}state\.session\.user\.id\s*\)/);
 console.log("PASS: coach prefill is role/consent-specific, fails closed, and cannot invent goals, clinical safety or equation sex");

@@ -154,3 +154,14 @@
 @media(prefers-reduced-motion:reduce){
  .efg-release-art svg,.efg-release-announcement,.efg-release-whatsnew{animation:none;transition:none}
 }
+
+/* Coach-only: visible provenance, incomplete-field warnings and no auto approval. */
+.efg-intake-prefill{margin:16px 0;padding:15px 17px;border:1px solid #abc9cb;
+ border-radius:16px;background:linear-gradient(135deg,#e4f0ee,#f2edfa);color:#2a4f5e;line-height:1.55}
+.efg-intake-prefill strong{font-size:15px}
+.efg-intake-prefill p{margin:8px 0;font-size:13px}
+.efg-intake-prefill ul{margin:9px 0 13px;padding-left:23px;display:grid;gap:6px}
+.efg-intake-prefill li{font-size:13px;line-height:1.45}
+#coachIntakeGeneratedGuide{margin-top:16px;border-top:1px solid #c9d9d6;padding-top:15px}
+#coachIntakeGeneratedGuide h4{font-size:16px;color:#275665}
+@media(max-width:430px){.efg-intake-prefill{padding:13px 12px}.efg-intake-prefill li{font-size:12px}}

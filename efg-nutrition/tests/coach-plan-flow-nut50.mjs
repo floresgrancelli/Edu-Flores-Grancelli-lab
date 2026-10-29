@@ -117,4 +117,13 @@ assert.match(app,/if\(!review\.ready\)throw Error\(review\.reason\)/);
 assert.match(app,/state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/);
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&proposed/);
 assert.match(app,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)/);
+assert.match(app,/const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED/,"Refresh must check current draft and intake before restoring edits");
+assert.match(app,/state\.coachIntakeForms\?\.\[selected\]\?\.updated_at===coachEdits\.intakeUpdatedAt/,"Reject changed intake on refresh");
+assert.match(app,/state\.coachPlanDraftRecord\?\.draft_revision\?\?null\)===coachEdits\.draftRevision/,"Reject another-device draft revision on refresh");
+for(const functionName of ["approveGoalRevision","approveGuidedDay","saveCoachFoods"]){
+ const chunk=app.slice(app.indexOf("async function "+functionName+"(){"),app.indexOf("async function "+functionName+"(){")+300);
+ assert.match(chunk,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)throw Error/,"Legacy write must be rejected in atomic mode: "+functionName);
+}
+const legacyFlow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
+assert.match(legacyFlow,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)[\s\S]{0,45}throw Error/,"Legacy plan-publish RPC disabled in future atomic mode");
 console.log("PASS NUT-50: real pure prefill/calculator/5 meals + synthetic private save/reload/revision/publish with exact-contents guard; OFF for live app.");

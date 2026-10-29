@@ -448,6 +448,43 @@ function getHabitualList(slot){
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
+function habitualPickerHTML(slot){
+ const list=getHabitualList(slot);
+ if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
+ return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
+ '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" selected>Elegí una de tus '+list.length+' comidas habituales</option>'+
+ list.map(x=>'<option value="'+escapeHTML(x.id||'')+'">'+escapeHTML(x.name)+'</option>').join('')+'</select>'+
+ '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
+ '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
+ '<small>Elegí una alternativa guardada para este horario. Se registrará únicamente al tocar «Registrar habitual».</small></div>';
+}
+function chosenHabitual(slot){
+ const id=document.getElementById('habitualChoice_'+slot)?.value;
+ if(!id)throw Error('Primero elegí una comida habitual de la lista.');
+ const item=getHabitualList(slot).find(x=>String(x.id)===String(id));
+ if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
+ return item;
+}
+async function deleteChosenHabitual(slot){
+ if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ const fav=chosenHabitual(slot);
+ if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
+ if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
+ const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",state.session.user.id).eq("meal_slot",slot).select("id");
+ if(error)throw error;
+ if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
+ cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
+ await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
+}
+async function applyChosenHabitual(slot){
+ if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ const fav=chosenHabitual(slot);
+ const d=activeDiary();d.meals[slot] ||= [];
+ if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
+ d.meals[slot]=structuredClone(fav.items);
+ d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
+ await saveDiary();notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+}
 async function habitualAction(slot,action){
  if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");
  const d=activeDiary();d.meals[slot] ||= [];
@@ -882,7 +919,7 @@ function homeView(){
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button>'+(getHabitual(key)?'<button class="btn small light" data-habitualuse="'+key+'">↻ Repetir habitual</button>':'')+'</div></div></details>';
+  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos cuando autorizás el seguimiento al ingresar con tu código. Podés retirar el permiso cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -1174,7 +1211,7 @@ function openMealDialog(slot){
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
- '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
+ '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
@@ -1193,10 +1230,11 @@ function filterMealFoods(){
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
  });
- selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
+ selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
- else if(filtered.length)selector.value=filtered[0].id;
- else selector.innerHTML='<option value="" disabled selected>Sin coincidencias</option>';
+ else selector.value="";
+ // No autoseleccionar la primera opción: iOS no emite "change" si el
+ // usuario elige un valor que el select ya consideraba seleccionado.
  updateMealEntryMode(true);
 }
 function updateMealEntryMode(foodChanged=false){
@@ -2109,7 +2147,15 @@ async function showProof(path){
 }
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
- if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
+ if(state.renderedDay&&state.renderedDay!==today()){
+  await ensureCurrentDay();await render();
+  notify("Nuevo día: lo anterior sigue guardado en tu historial.");
+  // El primer toque de navegación o de abrir una comida NO se descarta.
+  // No continuar acciones que pudieran confirmar formularios antiguos.
+  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
+  if(el.dataset.tab){state.tab=el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  return;
+ }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
  if(el.dataset.rewardApproval){await updateSundayPermission(el.dataset.rewardApproval==="yes");return;}
  if(el.dataset.fitfilter){state.fitFilter=el.dataset.fitfilter;await render();document.querySelector(".efg-fit-library")?.scrollIntoView({block:"start"});return;}
@@ -2197,6 +2243,8 @@ if(el.dataset.foodbulk){
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
+ if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
+ if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";state.plannerDraftGrams={};return render();}

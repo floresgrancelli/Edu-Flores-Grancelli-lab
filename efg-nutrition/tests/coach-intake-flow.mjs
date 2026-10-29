@@ -10,7 +10,7 @@ const [app,sql,css]=await Promise.all([
 const esc=s=>String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const state={profile:{role:"student",organization_id:"org-fixture"},session:{user:{id:"student-fixture"}},
  studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,coachGoals:[],coachFoodPlan:null};
-let schemaMissing=false,stored=null,writeCount=0,rpcCount=0,refreshCount=0,confirmCount=0;
+let schemaMissing=false,serverStatus="pending",stored=null,writeCount=0,rpcCount=0,refreshCount=0,confirmCount=0;
 const submitted=[],calledRpc=[];
 const db={
  from(table){
@@ -18,7 +18,7 @@ const db={
    select(){return this;},eq(){return this;},
    maybeSingle(){
     if(table==="efg_student_plan_access")return Promise.resolve({
-     data:schemaMissing?null:{status:"pending"},
+     data:schemaMissing?null:{status:serverStatus},
      error:schemaMissing?{code:"PGRST205"}:null
     });
     if(table==="efg_student_intakes")return Promise.resolve({data:stored,error:null});
@@ -109,6 +109,25 @@ assert.deepEqual(calledRpc[0],{name:"efg_publish_coach_plan",
 assert.equal(refreshCount,1);
 assert.equal(notifications.at(-1),"Plan publicado. El alumno ya puede utilizar las herramientas nutricionales.");
 assert.equal(confirmCount,2);
+
+// Sharing can be withdrawn even AFTER the coach published a plan.
+serverStatus="published";
+fields.efgIntakeShare.checked=true;
+await flow.save();
+assert.ok(stored.shared_at);
+await flow.loadStudent();
+assert.equal(flow.pending(),false);
+assert.equal(state.studentIntake.shared_at,stored.shared_at,"Published users must still see their intake");
+assert.match(flow.view(),/Mi ficha y mis permisos/);
+assert.doesNotMatch(flow.view(),/Estamos preparando tu plan/);
+assert.match(flow.view(),/Volver a MI DÍA/);
+fields.efgIntakeShare.checked=false;
+await flow.save();
+assert.equal(stored.shared_at,null,"Published student can revoke consent in their own intake");
+assert.match(app,/Revisar mi ficha y su permiso/,"Published students need a privacy route to their intake");
+assert.match(app,/data-tab="intake"/,"Privacy route must remain accessible after publication");
+assert.equal(writeCount,5);
+assert.equal(state.studentIntake.shared_at,null);
 
 // Prior-schema compatibility for historical accounts. Backend authorization is authoritative.
 schemaMissing=true;await flow.loadStudent();

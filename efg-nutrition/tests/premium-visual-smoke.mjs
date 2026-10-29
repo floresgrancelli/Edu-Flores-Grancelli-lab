@@ -440,6 +440,11 @@ try{
     const lunch=page.locator(".student-meal-card").nth(2);
     if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();
+    if((await page.locator("[data-mealgroup]").count())!==4)
+      pageReport.errors.push("Main meal must offer protein, carb, prepared and other sections");
+    if((await page.locator("[data-mealomit]").count())!==2)
+      pageReport.errors.push("Main meal must offer optional omit for protein and carbs");
+    await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
@@ -448,6 +453,7 @@ try{
     if((await unit.inputValue())!=="units")pageReport.errors.push("Sushi is not defaulting to unit/piece");
     const hint=await page.locator("#mealEditorHint").textContent();
     if(!hint.includes("pieza")||!hint.includes("28 g"))pageReport.errors.push("Sushi piece grams are not disclosed");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("zapallo");
     const squash=await page.locator("#mealEditorFood option").allTextContents();
     if(!squash.some(t=>t.includes("Zapallo anco")))pageReport.errors.push("Zapallo synonyms not searchable");
@@ -499,6 +505,7 @@ try{
     const cookieHint=await page.locator("#mealEditorHint").textContent();
     if(!cookieHint.includes("FDC 172718"))
       pageReport.errors.push("Fourth audit batch sandwich cookies source missing");
+    await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();

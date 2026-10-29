@@ -89,21 +89,51 @@ assert.match(chatHost.innerHTML,/Mensaje 1<small>/,"Paging reveals oldest messag
 assert.match(chatHost.innerHTML,/Mensaje 201/,"Paging does not lose the newest message");
 
 const {createNotificationInbox}=await import(pathTo("notifications-ui.js"));
-let failNext=false;
+let failNext=false,activeUser="student-a",holdNext=false,resolveHeld=null;
+const noticeFor=user=>[{
+ id:user==="student-a"?"notice-a":"notice-b",title:user==="student-a"?"Aviso de prueba":"Aviso exclusivo B",
+ body:"Contenido ficticio",created_at:"2026-10-29T10:00:00Z",is_read:false
+}];
 const inbox=createNotificationInbox({
  sb:{from:name=>{
   assert.equal(name,"efg_notifications");
-  return {select(){return this;},eq(){return this;},order(){return this;},
-   limit(){return Promise.resolve(failNext?{data:null,error:{message:"Network unavailable"}}:{
-    data:[{id:"notice-1",title:"Aviso de prueba",body:"Contenido ficticio",created_at:"2026-10-29T10:00:00Z",is_read:false}],error:null
-   });}};
+  let recipient=null;
+  return {select(){return this;},eq(key,value){if(key==="recipient_id")recipient=value;return this;},order(){return this;},
+   limit(){
+    if(holdNext){holdNext=false;return new Promise(resolve=>{resolveHeld=resolve;});}
+    return Promise.resolve(failNext?{data:null,error:{message:"Network unavailable"}}:{
+     data:noticeFor(recipient),error:null
+    });
+   }};
  }},
- getUserId:()=>"student-a",navigate:async()=>{}
+ getUserId:()=>activeUser,navigate:async()=>{}
 });
 await inbox.refresh();
 assert.match(fullHost.innerHTML,/Aviso de prueba/);
 failNext=true;await inbox.refresh();
 assert.equal(notifHost.hidden,false,"Bell must remain visible on error");
-assert.match(fullHost.innerHTML,/Aviso de prueba/,"Retain last known notices");
+assert.match(fullHost.innerHTML,/Aviso de prueba/,"Retain last known notices for the SAME user");
 assert.match(fullHost.innerHTML,/Reintentar/,"Offer retry after network failure");
-console.log("UX Sprint 1: chat page 201, cursor, stored drafts, stable controls, offline bell and accessible UI verified with fixtures.");
+
+// Explicit repaint after account switch must discard all previous-user alerts synchronously.
+failNext=false;
+activeUser="student-b";inbox.repaint();
+assert.doesNotMatch(fullHost.innerHTML,/Aviso de prueba/,"Old user's notices cannot appear after identity switch");
+await inbox.refresh();
+assert.match(fullHost.innerHTML,/Aviso exclusivo B/);
+
+// Race: user A has a pending request when B signs in. B must be cleared at once and fetched later.
+activeUser="student-a";await inbox.refresh();
+assert.match(fullHost.innerHTML,/Aviso de prueba/);
+holdNext=true;
+const pendingA=inbox.refresh();
+assert.equal(typeof resolveHeld,"function");
+activeUser="student-b";
+await inbox.refresh(); // queued behind A; must still wipe A's cached content immediately
+assert.doesNotMatch(fullHost.innerHTML,/Aviso de prueba/,"Do not show A while B waits for A's fetch");
+resolveHeld({data:noticeFor("student-a"),error:null});
+await pendingA;
+await new Promise(resolve=>setImmediate(resolve));
+assert.match(fullHost.innerHTML,/Aviso exclusivo B/,"Queued refresh must load B without a polling delay");
+assert.doesNotMatch(fullHost.innerHTML,/Aviso de prueba/,"A's late response cannot repopulate B's inbox");
+console.log("UX Sprint 1: chat pagination and account-scoped notification cache/race PASS with synthetic fixtures.");

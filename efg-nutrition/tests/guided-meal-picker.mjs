@@ -24,6 +24,8 @@ assert.deepEqual(guidedMealMarks({_guidedComponents:{desayuno:{protein:true}}},"
 assert.match(src,/const guided=isGuidedMealSlot\(slot\)/);
 assert.match(src,/guidedMealGroupFor\(f,groupIdFor\(f\)\)===activeGuidedMealGroup/);
 assert.match(src,/data-mealomit/);
+assert.match(src,/data-act="guidedMealGroup" data-mealgroup/,"Category buttons must reach delegated action router");
+assert.match(src,/data-act="guidedMealOmit" data-mealomit/,"Omit buttons must reach delegated action router");
 assert.match(src,/data-act="saveSelectedMealContinue"/);
 assert.match(src,/async function saveSelectedMeal\(continueGuided=false\)/);
 assert.match(src,/d\.skipped\._guidedComponents\[slot\]/);

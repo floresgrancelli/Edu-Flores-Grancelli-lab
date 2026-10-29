@@ -15,6 +15,29 @@ begin
 end
 $efg_preflight$;
 
+-- The student currently sends updated_at in the intake payload. Force
+-- server-owned monotonically increasing timestamps on INSERT and UPDATE,
+-- including sharing/revoking; a client may not spoof draft freshness.
+-- STAGING ONLY. Audit existing triggers before application.
+create function efg_private.efg_intake_server_revision()
+returns trigger language plpgsql security invoker
+set search_path=''
+as $efg_revision$
+begin
+ if tg_op='INSERT' then
+   new.updated_at := clock_timestamp();
+ else
+   new.updated_at := pg_catalog.greatest(
+     pg_catalog.clock_timestamp(), old.updated_at + interval '1 microsecond'
+   );
+ end if;
+ return new;
+end
+$efg_revision$;
+create trigger efg_intake_revision_server_owned
+before insert or update on public.efg_student_intakes
+for each row execute function efg_private.efg_intake_server_revision();
+
 create table public.efg_coach_plan_drafts (
  student_id uuid primary key references public.efg_profiles(user_id) on delete cascade,
  organization_id uuid not null references public.efg_organizations(id),
@@ -23,7 +46,7 @@ create table public.efg_coach_plan_drafts (
  goal_proposal jsonb not null,
  guide_proposal jsonb,
  draft_revision bigint not null default 1 check (draft_revision > 0),
- status text not null default 'draft' check(status='draft'),
+ status text not null default 'draft' check(status in ('draft','published')),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now(),
  constraint efg_coach_draft_goal_shape check (
@@ -107,7 +130,7 @@ begin
 
  if pg_catalog.jsonb_typeof(p_goal) is distinct from 'object'
    or pg_catalog.octet_length(p_goal::text)>8000
-   or (p_goal->>'goal_type') not in ('fat_loss','recomp','muscle_gain')
+   or (p_goal->>'goal_type') not in ('fat_loss','recomp','muscle_gain','maintenance')
    then raise exception 'Invalid nutrition goal proposal';
  end if;
  foreach v_key in array array['kcal','protein_g','carb_g','fat_g','fiber_g'] loop
@@ -149,12 +172,13 @@ begin
        guide_proposal=p_guide,
        source_intake_updated_at=p_intake_updated_at,
        updated_at=now(),
+       status='draft',
        draft_revision=draft_revision+1
    where student_id=p_student
      and organization_id=v_organization
      and coach_id=v_coach
      and draft_revision=p_expected_revision
-     and status='draft'
+     and status in ('draft','published')
    returning draft_revision into v_revision;
  end if;
  if v_revision is null then
@@ -173,8 +197,10 @@ grant execute on function public.efg_save_coach_plan_draft(
 commit;
 
 -- REQUIRED BEFORE STAGING SIGN-OFF:
--- * Server-owned updated_at trigger on efg_student_intakes; current UI submits
---   a client timestamp. Migrate to server-owned revision, prevent forged versions.
+-- * Confirm server-owned updated_at trigger handles every create/update in staging;
+--   change existing client saves to re-read server revision after writing.
+-- * Draft updates with matching version after publication reopen a NEW revision;
+--   existing goal/guide remain active until explicit atomic publication.
 -- * Token/session gate and current legal acceptance; none enforced here.
 -- * Test authenticated Coach A/B, revoked sharing, historical/new student, and
 --   direct REST writes (denied) with real JWTs in isolated staging.

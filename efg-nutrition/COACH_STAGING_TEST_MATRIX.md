@@ -59,6 +59,7 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
 | ST-22 | Ficha voluntaria: campos vacíos, inválidos, revocación, borrado | Confirmación expresa, RLS DELETE solo propietario, no modifica cuenta/plan/diarios y permite recrear ficha privada |
 | ST-23 | Plan guía visual y 5 comidas | Datos coherentes, comprobación de estructura **no solo JSON no nulo** |
 | ST-24 | Edición de guía tras aprobación | En staging, aprobar guía A → editar ingredientes/porciones o `guided_goal_id` sin aprobar otra vez → trigger deja `guided_plan_approved_at=NULL` y RPC rechaza publicación; nueva aprobación explícita (timestamp distinto) + cinco comidas válidas permite publicar; modificar solo otros metadatos no revoca aprobación. Probar update concurrente y dos organizaciones con JWT reales. |
+| ST-25 | Ingredientes y nutrientes obligatorios de guía | Intentar publicar con alimento sin `id`, `qty` ausente/cero/excesivo, o `k/p/c/f/fi` ausente, negativo, texto o ficticio; la RPC debe rechazar y conservar `pending`. Probar cinco slots válidos, alimento correcto y métricas numéricas: solo entonces permitir publicación. Contrastar id+composición con catálogo de servidor cuando exista (hoy solo hay guardas de forma/rango). Verificar patrón alimentario declarado y sustituciones con revisión profesional, no inferir aptitud. |
 
 ## Hallazgos de revisión preliminar read-only (29/10)
 - GitHub PR #34 sobre `acd79130` tenía Security, Premium y Visual 3/3

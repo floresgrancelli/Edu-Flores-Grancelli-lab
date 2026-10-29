@@ -1,7 +1,7 @@
 // Synthetic contract tests for proposed Coach/Personal planning components.
 // Zero network, no Supabase writes and no health records.
 import assert from "node:assert/strict";
-import {DIET_PATTERNS,EATING_WINDOWS,capabilitiesFor,evaluatePattern,distributeDailyTargets} from "../pilot/diet-pattern-workbench.js";
+import {DIET_PATTERNS,EATING_WINDOWS,capabilitiesFor,evaluatePattern,evaluateEatingWindow,distributeDailyTargets} from "../pilot/diet-pattern-workbench.js";
 assert.ok(DIET_PATTERNS.find(x=>x.id==="keto"));
 for(const id of ["balanced","mediterranean","dash","vegetarian","vegan","pescatarian","flexitarian","portfolio","low_carb"]){
  assert.ok(DIET_PATTERNS.some(x=>x.id===id),"Expected registered evidence-informed pattern: "+id);
@@ -22,6 +22,13 @@ assert.equal(evaluatePattern({patternId:"keto",medicationFlags:["sglt2"]}).statu
 assert.equal(evaluatePattern({patternId:"keto",healthFlags:["pregnancy"]}).status,"blocked_pending_clinical_review");
 assert.equal(evaluatePattern({patternId:"keto",age:17}).status,"blocked_pending_clinical_review");
 assert.equal(evaluatePattern({patternId:"balanced"}).requiresReview,false);
+assert.equal(evaluateEatingWindow({windowId:"regular"}).requiresReview,false);
+assert.equal(evaluateEatingWindow({windowId:"14_10"}).requiresReview,false);
+assert.equal(evaluateEatingWindow({windowId:"16_8",healthFlags:["pregnancy"]}).status,"blocked_pending_clinical_review");
+assert.equal(evaluateEatingWindow({windowId:"16_8",medicationFlags:["insulin"]}).requiresReview,true);
+assert.equal(evaluateEatingWindow({windowId:"16_8",medicationFlags:["sglt2"]}).requiresReview,true);
+assert.equal(distributeDailyTargets({targets:{k:2000,p:140,c:200,f:70},windowId:"regular",startTime:"08:00"}).endTime,null,"Ordinary times are not fasting.");
+
 assert.throws(()=>evaluatePattern({patternId:"unknown"}),/no reconocido/);
 const targets={k:2000,p:140,c:200,f:70};
 for(const [mode,start,end] of [["12_12","08:00","20:00"],["14_10","10:00","20:00"],["16_8","12:00","20:00"]]){

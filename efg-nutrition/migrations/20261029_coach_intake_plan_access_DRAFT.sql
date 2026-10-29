@@ -142,6 +142,25 @@ begin
  end loop;
 end $$;
 
+-- The current food guide is not approved merely because an older guide was approved.
+-- If the coach changes the JSON/associated goal without a NEW explicit approval event,
+-- invalidate the old timestamp at the database layer. Existing unaffected guides and
+-- legacy student access rows stay intact. Test against genuine JWTs in staging.
+create function efg_private.invalidate_stale_guided_approval()
+returns trigger language plpgsql set search_path='' as $
+begin
+ if (new.guided_plan is distinct from old.guided_plan
+     or new.guided_goal_id is distinct from old.guided_goal_id)
+    and new.guided_plan_approved_at is not distinct from old.guided_plan_approved_at then
+   new.guided_plan_approved_at := null;
+ end if;
+ return new;
+end $;
+create trigger efg_guard_guided_approval_update
+before update of guided_plan,guided_goal_id,guided_plan_approved_at
+on public.efg_food_plans
+for each row execute function efg_private.invalidate_stale_guided_approval();
+
 -- Publish only if the assigned, authorized coach has saved a matching approved 5-meal guide.
 create function public.efg_publish_coach_plan(p_student uuid,p_goal_id uuid)
 returns void language plpgsql security definer set search_path='' as $$

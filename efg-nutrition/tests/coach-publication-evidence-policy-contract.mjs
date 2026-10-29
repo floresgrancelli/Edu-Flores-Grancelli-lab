@@ -58,7 +58,7 @@ assert.match(policy,/rule\.expires_at>now\(\)/);
 assert.match(policy,/if not found then return false; end if;/);
 assert.match(policy,/revoke all on function efg_private\.coach_publication_policy_valid\(/);
 assert.doesNotMatch(policy,/\b(?:insert|upsert)\s+into\s+efg_private\.coach_(?:reviewed_foods|food_pattern_reviews|publication_scope_reviews)/i,"No trusted evidence must be auto-seeded");
-assert.match(policy,/for v_meal in[\s\S]*return true;\s*end\s*\$efg_food_policy\$/,"Positive result only after evidence checks");
+assert.match(policy,/for v_meal in[\s\S]*return true;\s*end;\s*\$efg_food_policy\$/,"Positive result only after evidence checks");
 assert.match(atomic,/to_regprocedure\([\s\S]*coach_publication_policy_valid\(uuid,jsonb,jsonb,uuid\)/);
 assert.match(atomic,/if efg_private\.coach_publication_policy_valid\([\s\S]*is distinct from true then/);
 assert.match(client,/FOOD_COMPATIBILITY_ENABLED=false/);

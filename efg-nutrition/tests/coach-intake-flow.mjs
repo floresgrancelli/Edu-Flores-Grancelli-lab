@@ -204,6 +204,9 @@ assert.match(sql,/char_length\(disliked_foods\)<=400/);
 assert.match(sql,/char_length\(meal_routine\)<=400/);
 assert.match(sql,/lock table public\.efg_profiles in share row exclusive mode/,"Profile backfill must be protected from concurrent new student inserts");
 assert.match(sql,/Legacy student access backfill incomplete/,"Incomplete legacy mapping must abort the transaction");
+assert.doesNotMatch(sql,/end \$;/,"Draft SQL must never close a DO block with a lone dollar sign");
+assert.equal((sql.match(/\$\$/g)||[]).length%2,0,"Draft SQL dollar-quoted blocks must have matching delimiters");
+
 assert.match(sql,/grant select,insert,update,delete on public\.efg_student_intakes to authenticated/);
 assert.match(sql,/create policy intake_student_delete on public\.efg_student_intakes/,"Student deletion needs owner-only RLS");
 

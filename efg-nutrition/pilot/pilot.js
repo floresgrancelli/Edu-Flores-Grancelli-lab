@@ -1803,17 +1803,22 @@ async function publishCoachAtomicDraft(){
  notify("Meta y guía publicadas conjuntamente por el servidor.");
 }
 function coachGuidedSection(){
- const goal=state.coachGoals[0],saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal&&saved?.guided_goal_id===goal.id;
+ const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
+ const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+ const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
+ const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
  return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">EFG · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
- '<p class="pilot-hint">El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.</p>'+
- (!goal?'<div class="pilot-notice">Primero aprobá el objetivo nutricional de este alumno.</div>':
+ '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
+ (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus cinco comidas privadas.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
- (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
- '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>'):
- '<p class="pilot-notice">El ejemplo se genera después de calcular y aprobar el objetivo.</p>'))+'</section>';
+ (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':'<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">'+(pending?'Esta guía es solo una propuesta; guardala junto con la nueva meta.':'Para revisarla, generá un nuevo borrador privado.')+'</p>':
+ '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>')):
+ '<p class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Generá y revisá las cinco comidas de este borrador, antes de guardar.':'El ejemplo se genera después de calcular y aprobar el objetivo.')+'</p>'))+'</section>';
 }
 function studentGuidedSection(){
  if(state.profile?.role!=="student"||!state.foodPlan?.guided_plan)return "";
@@ -2601,22 +2606,30 @@ if(el.dataset.foodbulk){
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="makeGuidedDay"){
-  const goal=state.coachGoals[0];
-  if(!goal||!state.selectedStudent||!state.consent?.accepted)throw new Error("Primero aprobá la meta del alumno.");
-  state.coachGuidedDraft=(!state.coachGuidedDraft&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
+  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
+  const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+  if(!goal||!state.selectedStudent||!state.consent?.accepted)
+   throw new Error(COACH_ATOMIC_PLAN_UI_ENABLED?"Primero calculá una propuesta privada.":"Primero aprobá la meta del alumno.");
+  if(COACH_ATOMIC_PLAN_UI_ENABLED){
+   const intake=state.coachIntakeForms?.[state.selectedStudent];
+   if(!intake?.shared_at||intake.dietary_pattern!=="omnivore")
+    throw new Error("No se genera un menú automático para esta ficha sin revisión profesional de la restricción y del catálogo.");
+  }
+  state.coachGuidedDraft=(!state.coachGuidedDraft&&goal.id&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
      structuredClone(state.coachFoodPlan.guided_plan):generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
-  showGuidedEditor();notify("Borrador generado: revisalo antes de enviarlo.");return;
+  showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
  if(action==="balanceGuidedDay"){
-  const draft=readGuidedEditor(),goal=state.coachGoals[0];
-  if(!goal)throw new Error("El alumno necesita un objetivo aprobado.");
+  const draft=readGuidedEditor(),proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
+  const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+  if(!goal)throw new Error("El alumno necesita una propuesta válida.");
   state.coachGuidedDraft=rebalanceGuidedDay(draft,goal);showGuidedEditor();
   notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
  }
  if(action==="saveGuidedDay")return approveGuidedDay();
-  if(action==="saveCoachAtomicDraft")return saveCoachAtomicDraft();
-  if(action==="publishCoachAtomicDraft")return publishCoachAtomicDraft();
+ if(action==="saveCoachAtomicDraft")return saveCoachAtomicDraft();
+ if(action==="publishCoachAtomicDraft")return publishCoachAtomicDraft();
  if(action==="calculateGoal")return calculateGoal();
  if(action==="adjustCalculatedGoal")return adjustCalculatedGoal();
  if(action==="previewGoalRevision")return previewGoalRevision();

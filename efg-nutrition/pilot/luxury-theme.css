@@ -205,3 +205,74 @@ html,body{background:#dcd8d2!important}
             linear-gradient(146deg,#644052,#362334)!important;
  border-color:#45283a!important;
 }
+
+/* QA visual corrigió cascada heredada: los colores pastel con !important
+   sobreescribían seis tarjetas y dejaban background-image:none. */
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(n){
+ --lux-card-color:#1b2a3c;
+ --lux-card-bg:radial-gradient(circle at 16% 0%,#ffffffb3,transparent 56%),
+    repeating-linear-gradient(112deg,#ffffff12 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#f2eee8,#c8cbd0);
+ color:var(--lux-card-color)!important;
+ background:var(--lux-card-bg)!important;
+ border-color:#aeb4bd!important;
+ box-shadow:inset 0 2px 1px #ffffffb7,inset 0 -2px 3px #17253a2b,0 8px 16px #1b2a4038!important;
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+1){
+ --lux-card-color:#f8f1e6;
+ --lux-card-bg:radial-gradient(circle at 8% 0%,#ffffff30,transparent 58%),
+    repeating-linear-gradient(112deg,#ffffff09 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#344962,#13253b);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+2){
+ --lux-card-color:#17273a;
+ --lux-card-bg:radial-gradient(circle at 8% 0%,#ffffffb3,transparent 57%),
+    repeating-linear-gradient(109deg,#ffffff15 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#eee6db,#d1c3b2);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+3){
+ --lux-card-color:#fbf4e8;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffff24,transparent 57%),
+    repeating-linear-gradient(110deg,#ffffff08 0 1px,transparent 1px 5px),
+    linear-gradient(146deg,#505058,#232b33);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+4){
+ --lux-card-color:#17273a;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffffb6,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff14 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#e7e9eb,#bac6d3);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n+5){
+ --lux-card-color:#182b3f;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffffb2,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff14 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#e9d9bd,#c2aa84);
+}
+body .pilot-layout:is(.efg-role-student,.efg-role-coach,.efg-role-admin) :is(.efg-menu-grid,.efg-coach-tiles)>.efg-menu-card:nth-child(6n){
+ --lux-card-color:#faf1e9;
+ --lux-card-bg:radial-gradient(circle at 11% 0%,#ffffff25,transparent 57%),
+    repeating-linear-gradient(113deg,#ffffff0d 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#684352,#362534);
+}
+body .pilot-layout .student-shortcuts button:nth-child(n),
+body .pilot-layout .efg-quick-more button:nth-child(n){
+ background:radial-gradient(circle at 12% 0%,#ffffff9c,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0d 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#f1ede6,#c5cbd2)!important;
+ color:#14283e!important;
+}
+body .pilot-layout .student-shortcuts button:nth-child(2),
+body .pilot-layout .efg-quick-more button:nth-child(2){
+ background:radial-gradient(circle at 8% 0%,#ffffff2f,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff0b 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#405776,#172a43)!important;
+ color:#f9f4ef!important;
+}
+body .pilot-layout .student-shortcuts button:nth-child(3),
+body .pilot-layout .efg-quick-more button:nth-child(3){
+ background:radial-gradient(circle at 8% 0%,#ffffffb0,transparent 58%),
+ repeating-linear-gradient(110deg,#ffffff14 0 1px,transparent 1px 5px),
+ linear-gradient(145deg,#ead9bc,#c6ae86)!important;
+ color:#1b2a3c!important;
+}
+body .pilot-layout .efg-menu-card :is(.efg-menu-arrow,strong,.efg-menu-emoji){color:inherit!important}

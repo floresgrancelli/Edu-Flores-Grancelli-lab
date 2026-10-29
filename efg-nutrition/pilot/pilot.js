@@ -1763,8 +1763,8 @@ function coachAtomicDraftPanel(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
  const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
  if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
- const saved=state.coachPlanDraftRecord,active=saved?.status==="draft"&&Number.isSafeInteger(saved?.draft_revision);
- const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachIntakeGuidePreview||state.coachGuidedDraft;
+ const saved=state.coachPlanDraftRecord,active=saved?.status==="draft"&&Number.isSafeInteger(saved?.draft_revision)&&saved.source_intake_updated_at===intake.updated_at;
+ const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
  '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
@@ -1777,14 +1777,14 @@ async function saveCoachAtomicDraft(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!intake?.shared_at||!state.consent?.accepted)
   throw Error("El circuito seguro de borradores todavía no está habilitado.");
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const guide=state.coachIntakeGuidePreview||state.coachGuidedDraft;
+ const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
  if(!goal||!guide)throw Error("Prepará primero el objetivo y las cinco comidas.");
  validateGuidedDay(guide,goal);
  const r=await coachDraftClient.save({
   studentId,sourceUpdatedAt:intake.updated_at,goal,guide,
   expectedRevision:state.coachPlanDraftRecord?.draft_revision??null
  });
- state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt};
+ state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt,goal_proposal:goal,guide_proposal:structuredClone(guide)};
  state.coachPlanPublishRequestId=null;
  await render();
  notify("Borrador privado guardado. El alumno conserva su plan vigente.");
@@ -2223,8 +2223,17 @@ async function loadStudentDetail(studentId){
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
- if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at)
-  state.coachPlanDraftRecord=await coachDraftClient.load(studentId);
+ if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
+  const savedDraft=await coachDraftClient.load(studentId);
+  state.coachPlanDraftRecord=savedDraft;
+  // Restore only a server-authorized draft based on the CURRENT shared intake.
+  // Never treat this proposal as an approved goal or a student diary entry.
+  if(savedDraft?.status==="draft"&&savedDraft.source_intake_updated_at===state.coachIntakeForms[studentId].updated_at
+    &&savedDraft.goal_proposal&&savedDraft.guide_proposal){
+   state.pendingGoal={...savedDraft.goal_proposal,student_id:studentId};
+   state.coachGuidedDraft=structuredClone(savedDraft.guide_proposal);
+  }
+ }
  await loadSundayPermission(studentId);
 }
 async function refresh(){

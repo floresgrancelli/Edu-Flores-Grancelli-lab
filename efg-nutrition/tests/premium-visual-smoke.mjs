@@ -185,6 +185,36 @@ try{
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.platformAlias="EFG.ALIAS.DEMO";v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   if(role==="student"&&width===390&&dest==="home"&&engine==="chromium"){
+     // Android-like native touch swipe, NOT a synthetic DOM-dispatched TouchEvent.
+     // Swipe starting inside the upper calorie chart must move the document.
+     const card=page.locator(".efg-pastel-day").first();
+     if(!(await card.count()))pageReport.errors.push("MI DÍA summary missing for Android native swipe");
+     else{
+       const details=await card.evaluate(el=>({touchAction:getComputedStyle(el).touchAction,
+         rect:{top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height},
+         scroll:document.documentElement.scrollHeight,viewport:window.innerHeight}));
+       if(!details.touchAction.includes("pan-y"))pageReport.errors.push("Android summary must allow pan-y: "+details.touchAction);
+       if(details.scroll<=details.viewport+100)pageReport.errors.push("Android fixture does not overflow viewport");
+       else{
+         await page.evaluate(()=>window.scrollTo(0,0));
+         const cdp=await context.newCDPSession(page);
+         const x=195,y=Math.max(170,Math.min(460,details.rect.top+Math.min(110,details.rect.height*.35)));
+         try{
+           await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y,id:11}]});
+           for(let n=1;n<=6;n++){
+             await cdp.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x,y:y-n*31,id:11}]});
+             await page.waitForTimeout(22);
+           }
+           await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+           await page.waitForTimeout(180);
+           const scrolled=await page.evaluate(()=>window.scrollY);
+           if(scrolled<40)pageReport.errors.push("Android upward swipe from summary did not scroll: "+scrolled+"px");
+         }finally{await cdp.detach();}
+         await page.evaluate(()=>window.scrollTo(0,0));
+       }
+     }
+   }
    if(role==="coach"){
      const content=await page.locator(".pilot-main").innerText();
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");

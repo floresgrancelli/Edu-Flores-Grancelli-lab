@@ -1,6 +1,6 @@
 # EFG Nutrition Pro — Con Coach: ingreso, ficha y publicación
 
-**Estado:** propuesta técnica, no desplegada. La nueva pestaña **Nuevos ingresos** en esta rama es una organización de datos existentes, **NO** activa ni bloquea planes. Trabajo separado del PR #33 UX1.
+**Estado 29/10/2026:** interfaces y migración SQL preparados en el PR #34 DRAFT, **NO desplegados ni activados**. El código del alumno incluye ficha inicial voluntaria, posibilidad de compartirla y vista restringida mientras espera; el coach incluye lectura de ficha consentida y botón separado para publicar plan. El backend necesario está en una migración DRAFT sin ejecutar; por eso nada de esto está disponible todavía en la aplicación pública. Trabajo separado del PR #33 UX1.
 
 ## Recorrido aprobado
 1. Coach invita alumno según cupo y licencia vigentes.
@@ -25,3 +25,11 @@ Pestaña **Nuevos ingresos** entre Inicio y Alumnos, con etapas visibles: Invita
 
 ## Estado del código
 La pestaña actual consulta `efg_goals` **solo en lectura** para alumnos activos con consentimiento conocido, y conserva resultados como «objetivo existente», no «plan publicado». No hay nuevas tablas, migraciones ni permisos añadidos. Cualquier falla en esa consulta se muestra como estado no verificable. Esta PR debe mantenerse DRAFT, sin fusionar/desplegar; tras cerrar UX1 rebasar/integrar cambios sobre la versión aprobada y repetir CI y QA visual autenticado.
+
+
+## Implementación en rama (pendiente de staging)
+- UI del alumno: `pilot/coach-intake-flow.js`, integrada con `pilot/pilot.js`; campos opcionales, compartir explícitamente, mantener o retirar autorización, mensajes y consulta de plan. Lee estado desde el servidor; no muestra bloqueo cuando la migración todavía no existe (compatibilidad temporal con la app actual).
+- UI del coach: pestaña «Ingresos», fichas compartidas cuando el servidor y el consentimiento lo permiten, estados separados de objetivo existente y plan publicado; en la guía aprobada hay acción «Publicar plan y habilitar MI DÍA» que invoca RPC.
+- SQL **NO APLICADO**: `migrations/20261029_coach_intake_plan_access_DRAFT.sql`. Crea tabla de ficha, estado y función de publicación, notificaciones genéricas, backfill de alumnos anteriores como habilitados, altas nuevas como pendientes, y políticas restrictivas sobre diarios/peso/actividades/recetas habituales. Revisar exhaustivamente SQL en staging y pasar E2E antes de cualquier ejecución.
+- QA: `tests/coach-intake-nav.mjs`, `tests/coach-intake-flow.mjs`, Premium QA, seguridad y visual. Test automatizado no significa QA multirol autenticado, revisión clínica/legal o dispositivo físico probado.
+- **PENDIENTES OBLIGATORIOS:** revisión experta de SQL y RLS, staging independiente y respaldo de restauración, ajustes de consentimiento OTP preexistente (hoy lo vincula a la identidad), pruebas de migración/backfill/cortes de red, revocación de acceso, historial y perfil, rutas de notificación, revisión visual completa, y recién después decisión explícita de publicación.

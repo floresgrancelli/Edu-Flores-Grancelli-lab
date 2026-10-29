@@ -48,6 +48,8 @@ const flow=createCoachIntakeFlow({sb:db,state,escapeHTML:esc,rootText:(a,b)=>a+"
 await flow.loadStudent();
 assert.equal(flow.pending(),true);
 assert.match(flow.view(),/Mi ficha inicial/);
+assert.match(flow.view(),/Todavía no guardaste una ficha/);
+assert.match(flow.view(),/0 datos opcionales aportados/);
 assert.match(flow.view(),/Autorizo compartir/);
 assert.match(flow.view(),/Abrir mensajes/);
 assert.match(flow.view(),/Estamos preparando tu plan/);
@@ -67,6 +69,8 @@ const fields={
 globalThis.document={getElementById:id=>fields[id]||null};
 await flow.save();
 assert.equal(writeCount,1);
+assert.match(flow.view(),/Ficha guardada de forma privada/);
+assert.match(flow.view(),/datos opcionales aportados/);
 assert.equal(submitted[0].student_id,"student-fixture");
 assert.equal(submitted[0].organization_id,"org-fixture");
 assert.equal(submitted[0].shared_at,null,"Private draft must never be shared by default");
@@ -84,6 +88,7 @@ await flow.save();
 assert.equal(writeCount,2);
 assert.ok(submitted[1].shared_at,"Explicit share creates a share timestamp");
 assert.equal(notifications.at(-1),"Ficha guardada y compartida.");
+assert.match(flow.view(),/Ficha compartida con tu coach/);
 fields.efgIntakeShare.checked=false;
 await flow.save();
 assert.equal(writeCount,3);

@@ -176,9 +176,9 @@ try{
      return {body:sample("body"),card:sample(".pilot-layout .card"),nav:sample(".pilot-layout .pilot-nav"),header:sample(".pilot-layout .efg-mobile-header")};
    });
    const isWhite=s=>(s||"").startsWith("rgb(255, 255, 255)")||(s||"").startsWith("rgba(255, 255, 255,");
-   if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have lavender background, not white");
-   if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards must use dusty pink, not white");
-   if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation must be pastel, not white");
+   if(!pastelColors.body||isWhite(pastelColors.body))pageReport.errors.push("Body must have stone luxury background, not white");
+   if(pastelColors.card&&isWhite(pastelColors.card))pageReport.errors.push("Cards cannot revert to flat white");
+   if(pastelColors.nav&&isWhite(pastelColors.nav))pageReport.errors.push("Navigation cannot revert to flat white");
    const typography=await page.evaluate(()=>{
      const styleOf=selector=>{
        const el=[...document.querySelectorAll(selector)].find(x=>x.getClientRects().length>0);
@@ -203,13 +203,14 @@ try{
      return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
        .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
          return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
-           color:cs.color,background:cs.backgroundColor,height:el.getBoundingClientRect().height,
+           color:cs.color,background:cs.backgroundColor,gradient:cs.backgroundImage,height:el.getBoundingClientRect().height,
            ratio:fg&&bg?contrast(fg,bg):0};});
    });
-   const vivid=new Set(["rgb(246, 119, 150)","rgb(247, 179, 76)","rgb(168, 118, 233)","rgb(117, 186, 240)","rgb(227, 138, 203)","rgb(107, 203, 223)"]);
+   // Los accesos usan materiales / gradientes luxury. Solo los graficos
+   // (circulos de macros, barras de progreso) usan colores vivos semanticos.
    for(const action of actionAudit){
-     if(!vivid.has(action.background))pageReport.errors.push("Quick action has non-vivid color: "+action.text+" "+action.background);
-     if(action.ratio<4.5)pageReport.errors.push("Quick action contrast <4.5: "+action.text+" ratio="+action.ratio.toFixed(2));
+     if(!action.gradient||!action.gradient.includes("gradient"))
+       pageReport.errors.push("Luxury action has no material gradient: "+action.text);
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
    }
    if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
@@ -218,9 +219,9 @@ try{
      const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
      const menuColors=await page.locator(menuSelector).evaluateAll(els=>
        els.filter(el=>el.getClientRects().length>0).slice(0,6)
-         .map(el=>getComputedStyle(el).backgroundColor));
-     if(menuColors.length!==6)pageReport.errors.push("Expected 6 color-coded coach/admin menu tiles");
-     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a color: "+menuColors.join(", "));
+         .map(el=>getComputedStyle(el).backgroundImage));
+     if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
+     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
    if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");

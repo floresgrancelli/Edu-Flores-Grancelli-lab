@@ -5,6 +5,7 @@ on:
     branches: [efg-nutrition-app]
     paths:
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
       - 'efg-nutrition/tests/sql/**'
       - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
   workflow_dispatch:

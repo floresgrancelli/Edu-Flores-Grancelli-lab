@@ -161,6 +161,40 @@ before update of guided_plan,guided_goal_id,guided_plan_approved_at
 on public.efg_food_plans
 for each row execute function efg_private.invalidate_stale_guided_approval();
 
+-- Defence in depth: the five slots alone do not make a valid nutritional guide.
+-- Prevent empty/unknown IDs, missing quantities and fabricated "zero" nutrients
+-- from passing the publication RPC. Values are per g/ml, NOT meal totals.
+-- This is a broad numeric/shape guard, not a substitute for comparing the
+-- chosen IDs and nutrient composition with a server-owned catalog in staging.
+create function efg_private.coach_guide_items_valid(p_guide jsonb)
+returns boolean language plpgsql immutable set search_path='' as $$
+declare
+ v_meal jsonb;
+ v_item jsonb;
+ v_nutrient text;
+ v_value numeric;
+begin
+ if pg_catalog.jsonb_typeof(p_guide->'meals') is distinct from 'array' then return false; end if;
+ for v_meal in select value from pg_catalog.jsonb_array_elements(p_guide->'meals') loop
+  if pg_catalog.jsonb_typeof(v_meal->'items') is distinct from 'array' then return false; end if;
+  for v_item in select value from pg_catalog.jsonb_array_elements(v_meal->'items') loop
+   if pg_catalog.jsonb_typeof(v_item) is distinct from 'object' then return false; end if;
+   if pg_catalog.jsonb_typeof(v_item->'id') is distinct from 'string' then return false; end if;
+   if pg_catalog.char_length(pg_catalog.btrim(v_item->>'id'))<1
+      or pg_catalog.char_length(v_item->>'id')>100 then return false; end if;
+   if pg_catalog.jsonb_typeof(v_item->'qty') is distinct from 'number' then return false; end if;
+   v_value := (v_item->>'qty')::numeric;
+   if v_value<=0 or v_value>1000 then return false; end if;
+   foreach v_nutrient in array array['k','p','c','f','fi'] loop
+    if pg_catalog.jsonb_typeof(v_item->v_nutrient) is distinct from 'number' then return false; end if;
+    v_value := (v_item->>v_nutrient)::numeric;
+    if v_value<0 or v_value>case when v_nutrient='k' then 12 else 1 end then return false; end if;
+   end loop;
+  end loop;
+ end loop;
+ return true;
+end $$;
+
 -- Publish only if the assigned, authorized coach has saved a matching approved 5-meal guide.
 create function public.efg_publish_coach_plan(p_student uuid,p_goal_id uuid)
 returns void language plpgsql security definer set search_path='' as $$
@@ -180,6 +214,7 @@ begin
     and o.coach_id=v_coach and g.student_id=p_student and g.approved_by=v_coach
     and f.coach_id=v_coach and f.guided_goal_id=p_goal_id
     and f.guided_plan is not null and f.guided_plan_approved_at is not null
+    and efg_private.coach_guide_items_valid(f.guided_plan)
     -- SQL-side structural check: UI approval alone is not sufficient.
     -- An empty JSON object or fewer than five nonempty, distinct slots cannot publish.
     and f.guided_plan->>'kind'='five_meal_example'

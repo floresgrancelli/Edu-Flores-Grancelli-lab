@@ -100,13 +100,15 @@ try{
      media_manana:[{id:"yogurt",name:"Yogur natural",qty:170,unit:"g",k:85,p:7,c:14,f:0,fi:0}],
      almuerzo:[{id:"chicken",name:"Pechuga de pollo",qty:180,unit:"g",k:297,p:55,c:0,f:6,fi:0}],
      media_tarde:[],merienda:[],cena:[]},sports:[],skipped:{},totals:{}};
-   state.goals=[{kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28}];
+   const goalStart=new Date(day+"T12:00:00Z");goalStart.setUTCDate(goalStart.getUTCDate()-90);
+   state.goals=[{start_on:goalStart.toISOString().slice(0,10),kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28}];
    const demoLogs=Array.from({length:7},(_,i)=>{
      const dt=new Date(day+"T12:00:00Z");dt.setUTCDate(dt.getUTCDate()-i);
      return {log_day:dt.toISOString().slice(0,10),meals:{
        desayuno:[{k:330,p:23,c:32,f:12,fi:3}],media_manana:[],almuerzo:[{k:670,p:48,c:75,f:18,fi:7}],
        media_tarde:[],merienda:[{k:220,p:18,c:22,f:7,fi:2}],cena:[{k:520,p:42,c:55,f:15,fi:6}]},sports:[],skipped:{}};
    });
+   if(role==="student")demoLogs.forEach((log,i)=>{if(i>0&&i<3)log.meals.cena.push({k:i===1?360:200,p:19,c:35,f:6,fi:0});});
    state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
    state.coachGoals=state.goals;
 
@@ -232,6 +234,10 @@ try{
      if(!b.src.includes("serotonina-acuarela.avif"))pageReport.errors.push("Wrong serotonin logo asset");
    }
    if(role==="student"&&dest==="home"){
+     const bars=page.locator(".efg-weekly-streak .efg-streak-track");
+     if(await bars.count()!==2)pageReport.errors.push("Need exactly two weekly tolerance bars");
+     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==12)pageReport.errors.push("Two tracks must show Monday-Saturday only");
+     if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
        const styles=getComputedStyle(el);
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};

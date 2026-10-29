@@ -48,6 +48,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   '<label class="efg-intake-share-label" for="efgIntakeShare"><input type="checkbox" id="efgIntakeShare" '+(shared?'checked':'')+'> Autorizo compartir esta ficha con mi coach vinculado. Puedo retirar este permiso cuando quiera.</label>'+
   '<p class="pilot-hint">Este permiso es distinto del seguimiento nutricional. Para que el coach lea la ficha, ambos deben estar activos.</p>'+
   '<button class="btn block" type="submit">Guardar mi ficha</button></form>'+
+  (state.studentIntake?'<div class="pilot-toolbar"><button type="button" class="btn light" data-act="deleteStudentIntake">Eliminar solamente mi ficha inicial</button></div><p class="pilot-hint">Se borran los datos opcionales de esta ficha y se deja de compartir. No se borran tu cuenta, el plan ni tus registros nutricionales.</p>':'')+
   '<div role="status" class="pilot-notice">'+(shared?'Ficha compartida con tu coach si autorizaste su seguimiento.':'Ficha privada. Todavía no la compartiste.')+'</div></section>'+
   (ready?'<section class="card"><h2>Tu plan sigue disponible</h2><p>Modificar o retirar el permiso para compartir esta ficha no borra tus registros ni despublica tu plan. El seguimiento del coach requiere por separado tu consentimiento vigente.</p><div class="pilot-toolbar"><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-tab="home">Volver a MI DÍA</button></div></section>':
    '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
@@ -74,6 +75,17 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(r.error)throw r.error;
   await loadStudent();await render();notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
+ async function deleteOwn(){
+  if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)
+   throw Error("Tu ficha no está disponible en esta sesión.");
+  if(!state.studentIntake)return;
+  if(!window.confirm("¿Eliminar definitivamente solo los datos de tu ficha inicial? No se borrarán tu cuenta, tu plan ni tus registros nutricionales."))return;
+  const id=state.session.user.id;
+  // The owner-only DELETE RLS policy provides the server-side permission check.
+  const r=await sb.from("efg_student_intakes").delete().eq("student_id",id);
+  if(r.error)throw r.error;
+  await loadStudent();await render();notify("Tu ficha inicial se eliminó. El seguimiento nutricional conserva sus propios permisos.");
+ }
  function details(studentId){
   const v=state.coachIntakeForms[studentId];
   if(!v||!v.shared_at)return "";
@@ -91,5 +103,5 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   await refresh();
   notify("Plan publicado. El alumno ya puede utilizar las herramientas nutricionales.");
  }
- return {pending,loadStudent,loadCoach,view,save,details,publish};
+ return {pending,loadStudent,loadCoach,view,save,deleteOwn,details,publish};
 }

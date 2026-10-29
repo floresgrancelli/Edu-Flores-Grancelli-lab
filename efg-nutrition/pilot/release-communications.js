@@ -1,7 +1,7 @@
 // EFG Nutrition Pro · major-release communications prototype (OFF by default).
 // Pure rendering / contract helpers. No database writes, mail, sign-out or legal consent.
 export const RELEASE_COMMUNICATIONS_ENABLED=false;
-const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;":"&#39;"}[c]));
+const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const ROLES=new Set(["admin","coach","student","personal"]);
 function valid(manifest){
  if(!manifest||!/^[a-z0-9][a-z0-9._-]{2,40}$/i.test(manifest.id||"")||

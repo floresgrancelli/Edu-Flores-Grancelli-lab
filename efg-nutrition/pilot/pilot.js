@@ -566,17 +566,39 @@ async function createPersonalRecipe(){
  cloudRecipes.push(data);
  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
-async function registerPersonalRecipe(){
+let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
+function closeRecipeRegistration(){
+ document.getElementById("efgRecipeRegisterOverlay")?.remove();
+ if(recipeDialogReturnFocus?.isConnected)recipeDialogReturnFocus.focus({preventScroll:true});
+ recipeDialogReturnFocus=null;
+}
+function registerPersonalRecipe(){
  const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
- const choice=prompt("Elegí la receta a registrar:\n"+saved.map((r,i)=>(i+1)+". "+r.name+" · "+num(r.totals.k/r.portions)+" kcal/porción").join("\n"),"1");
- if(choice===null)return;const selected=saved[Number(choice)-1];if(!selected)throw Error("Número de receta inválido.");
- const meal=prompt("Elegí la comida:\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"5");
- if(meal===null)return;const slot=mealSlots[Number(meal)-1]?.[0];if(!slot)throw Error("Comida inválida.");
- const qtyText=prompt("¿Cuántas porciones comiste?","1");if(qtyText===null)return;
- const qty=Number(qtyText.replace(",","."));if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Número de porciones inválido.");
- const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
- for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
- const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;await saveDiary();notify("Receta registrada y macros recalculados.");
+ closeRecipeRegistration();
+ recipeDialogReturnFocus=document.activeElement;
+ root.insertAdjacentHTML("beforeend",'<div class="efg-recipe-register-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle">'+
+ '<div class="between"><h2 id="efgRecipeRegisterTitle">Registrar receta propia</h2><button type="button" class="btn small ghost" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">✕</button></div>'+
+ '<p class="pilot-hint">Elegí la preparación, el horario y las porciones realmente consumidas. Nada se registrará hasta que confirmes.</p>'+
+ '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterSlot">Horario de comida</label><select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+escapeHTML(m[0])+'">'+escapeHTML(m[1])+'</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterQty">Porciones consumidas</label><input type="number" id="efgRecipeRegisterQty" value="1" min="0.1" max="20" step="any" inputmode="decimal"></div>'+
+ '<div class="efg-recipe-register-actions"><button type="button" class="btn light" data-act="closeRecipeRegistration">Cancelar</button><button type="button" class="btn" data-act="confirmRecipeRegistration">Registrar y recalcular</button></div></section></div>');
+ document.getElementById("efgRecipeRegisterId")?.focus({preventScroll:true});
+}
+async function confirmRecipeRegistration(){
+ if(recipeRegistrationBusy)return;
+ const selected=myRecipes().find(r=>r.id===document.getElementById("efgRecipeRegisterId")?.value);
+ const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
+ const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
+ if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
+ recipeRegistrationBusy=true;
+ try{
+  const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+  for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
+  const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;
+  await saveDiary();
+  closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+ }finally{recipeRegistrationBusy=false;}
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
@@ -2259,7 +2281,9 @@ if(el.dataset.foodbulk){
  }
  if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
- if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
+ if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
+ if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
+ if(el.dataset.act==="closeRecipeRegistration"){closeRecipeRegistration();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
@@ -2461,9 +2485,9 @@ root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 document.addEventListener("keydown",event=>{
- const dialog=document.querySelector("#mealDialogContainer .meal-popup");
+ const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
  if(!dialog)return;
- if(event.key==="Escape"){event.preventDefault();closeMealDialog();return;}
+ if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
  if(event.key!=="Tab")return;
  const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
  if(!items.length)return;

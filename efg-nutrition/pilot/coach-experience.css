@@ -55,3 +55,28 @@
 .coach-report-students .btn{min-height:44px;border-radius:14px}
 @media(max-width:600px){.coach-report-students{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.coach-report-students .btn{min-width:0;white-space:normal;overflow-wrap:anywhere}.coach-inbox-item button{min-height:44px}}
 @media(max-width:360px){.coach-report-students{grid-template-columns:1fr}}
+
+/* EFG Nutrition con Coach: new arrivals intake workspace, UI-only until RLS workflow ships. */
+.coach-intake-intro{margin-bottom:18px;padding:clamp(20px,4vw,30px);border:1px solid #baaf96;border-radius:24px;background:linear-gradient(136deg,#e7e4e8 0%,#f8ecdf 56%,#d9eae4 100%);color:#23394c;box-shadow:0 14px 28px rgba(24,38,56,.08)}
+.coach-intake-intro h2{font-family:Georgia,serif;font-size:clamp(24px,5vw,34px);margin:8px 0 12px;color:#1e3852}
+.coach-intake-intro p{line-height:1.6;max-width:760px;margin-bottom:0}
+.coach-intake-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.coach-intake-summary>div{padding:16px 12px;border:1px solid #d1d8d7;border-radius:16px;background:#f7faf8;min-width:0}
+.coach-intake-summary strong{display:block;font-size:clamp(23px,4vw,32px);line-height:1.25;color:#223f55;font-variant-numeric:tabular-nums}
+.coach-intake-summary span{display:block;font-size:12px;line-height:1.4;color:#536a73;font-weight:650;margin-top:4px}
+.coach-intake-steps{margin-bottom:18px}.coach-intake-steps ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));list-style:none;padding:0;margin:16px 0 0;gap:10px;counter-reset:intake}
+.coach-intake-steps li{counter-increment:intake;padding:16px 13px;border-radius:15px;background:#eef3f0;min-width:0}
+.coach-intake-steps li:before{content:counter(intake,decimal-leading-zero);display:block;font-size:18px;font-weight:800;color:#8d784e;margin-bottom:8px}
+.coach-intake-steps li strong,.coach-intake-steps li small{display:block}.coach-intake-steps li strong{color:#284458}.coach-intake-steps li small{font-size:12px;line-height:1.5;color:#586a73;margin-top:6px}
+.coach-intake-group{margin-bottom:16px}.coach-intake-group .section-head{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.coach-intake-person{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #dce5e2}
+.coach-intake-person:last-child{border-bottom:0}.coach-intake-person>div:nth-child(2){flex:1;min-width:0}
+.coach-intake-person strong,.coach-intake-person small{display:block;overflow-wrap:anywhere}
+.coach-intake-person strong{color:#233b4d}.coach-intake-person small{font-size:12px;margin-top:4px;color:#66777d}
+.coach-intake-actions{display:flex;gap:6px;flex-wrap:wrap}.coach-intake-actions button{min-height:44px}
+.efg-intake-status{display:inline-flex;align-items:center;min-height:30px;padding:4px 10px;border-radius:999px;background:#e5eef0;color:#355268;font-size:12px;font-weight:750}
+.efg-intake-empty{padding:14px 0;color:#62737c;font-size:14px}
+.coach-intake-privacy{border:1px solid #d1d8d7}.coach-intake-privacy p{line-height:1.6}
+@media(max-width:810px){.coach-intake-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-intake-steps ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.coach-intake-person{flex-wrap:wrap}.coach-intake-actions{width:100%;padding-left:58px}.coach-intake-actions button{flex:1 1 auto}.coach-intake-summary{gap:7px}.coach-intake-steps ol{gap:8px}.coach-intake-intro{padding:18px}}
+@media(max-width:350px){.coach-intake-steps ol{grid-template-columns:1fr}.coach-intake-actions{padding-left:0}}

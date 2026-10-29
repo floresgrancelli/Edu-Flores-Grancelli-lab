@@ -205,6 +205,13 @@ begin
     raise exception 'Food list invalid';
   end if;
 
+  -- The existing production goal/guide triggers would each create a notice.
+  -- NUT-56 STAGING companion updates their WHEN conditions so ONLY this
+  -- explicitly unified publication notice is emitted by this transaction.
+  -- Transaction-local setting; NOT authorization. Legacy operations outside
+  -- this RPC still create their existing notifications.
+  perform pg_catalog.set_config('efg.coach_atomic_publish','on',true);
+
   -- All writes below occur in ONE PostgreSQL function invocation/transaction.
   -- An exception at any step rolls back goal, guide, access, notification
   -- and receipt. The goal appears latest only when the entire call commits.

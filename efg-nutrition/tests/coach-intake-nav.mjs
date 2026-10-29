@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const base=new URL("../pilot/",import.meta.url);
+const [app,style]=await Promise.all(["pilot.js","coach-experience.css"].map(f=>readFile(new URL(f,base),"utf8")));
+assert.match(app,/"coachIntake","▣","Ingresos"/,"Coach has a dedicated Ingresos tab");
+assert.match(app,/function coachIntakeView\(\)/,"Coach intake dashboard has own routed view");
+assert.match(app,/coachIntake:coachIntakeView/,"Intake view is registered in router");
+assert.match(app,/data-intake-message/,"Students can open private existing chat from intake");
+assert.match(app,/coachRosterConsent\[p\.user_id\]===true/,"Intake never assumes sharing permission from registration");
+assert.match(app,/await loadCoachIntakeGoals\(\)/,"Overview uses read-only validated goals");
+assert.match(app,/efg_goals"\)\.select\("student_id,id"\)\.in\("student_id",ids\)/,"Goal summary filters explicitly authorized student ids");
+assert.match(app,/Una meta guardada no habilita por sí sola la app/,"An existing goal never implies publication");
+assert.match(app,/próxima implementación|Próxima implementación/,"No false claims of a functional published-plan gate");
+assert.match(style,/coach-intake-summary/,"Responsive intake summary is styled");
+assert.match(style,/@media\(max-width:500px\)/,"Mobile layout is defined");
+console.log("Coach intake navigation, permission states and transparent activation status: OK (static fixtures only).");

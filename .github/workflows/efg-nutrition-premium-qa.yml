@@ -44,6 +44,20 @@ jobs:
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
+      - name: Coach new arrivals role-safe navigation and honest status states
+        run: node efg-nutrition/tests/coach-intake-nav.mjs
+      - name: Coach voluntary intake and publication gate draft contracts
+        run: |
+          node --check efg-nutrition/pilot/coach-intake-flow.js
+          node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: Verify legal onboarding draft (isolated; NO production legal gate)
+        run: |
+          node --check efg-nutrition/pilot/legal-onboarding.js
+          node efg-nutrition/tests/legal-onboarding-draft.mjs
+      - name: Verify major release messages for every role (offline, NO live delivery)
+        run: |
+          node --check efg-nutrition/pilot/release-communications.js
+          node efg-nutrition/tests/release-communications-draft.mjs
       - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
         run: node efg-nutrition/tests/food-catalog-expansion.mjs
       - name: Validate expanded Argentine foods, sushi, pizza and sweets

@@ -34,3 +34,12 @@ Para activar en staging primero:
 - Completar semáforo médico/legal y Personal antes de liberar la gran actualización; la serotonina animada de marca no debe ocultar estados de error. GO únicamente con autorización expresa del titular.
 
 **No se ejecutó SQL en Supabase ni se hizo merge/deploy, signOut ni mensajes masivos. La entrega de esta etapa no cambia el NO GO.**
+
+## Continuación tras el corte de conexión · editor de borrador sin meta publicada (29/10)
+
+- El código del panel guardado en GitHub sobrevivió al corte de conexión. La candidata añade `coachGuidedSection` capaz de generar/editar cinco comidas desde `state.pendingGoal` o revisión de propuesta **no publicada** si la bandera está ON; con bandera OFF conserva el comportamiento anterior, sin cambiar la meta activa.
+- En el modo futuro ON, el editor deja de mostrar los botones legados `Aprobar y enviar al alumno` y `Publicar plan y habilitar MI DÍA`: la única opción es guardar borrador y solicitar publicación en la transacción del servidor. La generación automática se limita por ahora a fichas compartidas con patrón `omnivore`, sin deducir que los alimentos sean seguros ni convertir un patrón médico en verde.
+- Al guardar el borrador nuevo se toman **las cantidades leídas del editor** `readGuidedEditor()`; el menú editado tiene prioridad sobre la vista previa automática antigua. El cliente rechaza objetivos o alimentos incompletos; la seguridad y evidencia definitivas dependen del servidor.
+- Al cargar la ficha de un alumno, solo se restaura un borrador del backend si su revisión de ficha `source_intake_updated_at` coincide con la versión del servidor que continúa compartida. Al cambiar de alumno se elimina el estado local. Una revisión caducada no habilita el botón de publicar.
+- Test ampliado: `tests/coach-plan-draft-client.mjs` comprueba por contrato el objetivo no publicado, la guía editada, el control de versión y la ausencia de botones heredados en el modo futuro, además de los ensayos de cliente en memoria y PostgreSQL sintético preexistentes. **No es una prueba UI real con flag ON ni una prueba de firmas JWT Supabase**.
+- Estado: commit de esta continuación `df50745ea0a09dd59e00fc9884ed7740072f2d96` (Security/Premium/PostgreSQL sintético success al primer chequeo; Visual QA en curso). **El flag sigue OFF y NO GO.** Próximo: revisión final de flujos de objetivos iniciales y revisiones, pruebas end-to-end en Supabase staging con JWT firmados/restore, validación clínica y legal de alimentos, QA visual física y autorización expresa.

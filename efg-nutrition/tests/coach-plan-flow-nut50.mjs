@@ -6,7 +6,7 @@ import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "../pilot/co
 import {estimateMacros} from "../pilot/macro-engine.js";
 import {generateGuidedDay,validateGuidedDay,rebalanceGuidedDay} from "../pilot/guided-day.js";
 import {validateCoachPlanProposal,createCoachPlanDraftClient,COACH_ATOMIC_PLAN_UI_ENABLED} from "../pilot/coach-plan-draft-client.js";
-import {assessCoachDraftPublication} from "../pilot/coach-draft-review.js";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "../pilot/coach-draft-review.js";
 
 const student="00000000-0000-4000-8000-000000000011",other="00000000-0000-4000-8000-000000000022";
 const stamp="2026-10-29T18:00:00.000Z",requestId="30000000-0000-4000-8000-000000000001",goalId="40000000-0000-4000-8000-000000000001";
@@ -126,4 +126,32 @@ for(const functionName of ["approveGoalRevision","approveGuidedDay","saveCoachFo
 }
 const legacyFlow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(legacyFlow,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)[\s\S]{0,45}throw Error/,"Legacy plan-publish RPC disabled in future atomic mode");
-console.log("PASS NUT-50: real pure prefill/calculator/5 meals + synthetic private save/reload/revision/publish with exact-contents guard; OFF for live app.");
+
+const savedForReadback={student_id:student,source_intake_updated_at:stamp,status:"draft",
+ draft_revision:3,goal_proposal:structuredClone(goal),guide_proposal:structuredClone(guide)};
+const confirmed=verifyCoachDraftReadback({studentId:student,intake,savedDraft:savedForReadback,
+ expectedRevision:3,goal,guide});
+assert.notEqual(confirmed,savedForReadback,"Server response must not be shared mutable state");
+const kcalBefore=confirmed.goal_proposal.kcal;
+savedForReadback.goal_proposal.kcal+=99;
+assert.equal(confirmed.goal_proposal.kcal,kcalBefore,"Persisted goal cannot mutate via response alias");
+assert.throws(()=>verifyCoachDraftReadback({studentId:student,intake,savedDraft:savedForReadback,
+ expectedRevision:3,goal,guide}),/confirmar/,"Reject mismatched server payload");
+assert.throws(()=>verifyCoachDraftReadback({studentId:student,intake,savedDraft:confirmed,
+ expectedRevision:4,goal,guide}),/confirmar/,"Reject another-device revision");
+const editorIntake={...intake},otherIntake={...intake};
+const currentWorkspace={session:{user:{id:"coach-A"}},selectedStudent:student,
+ coachIntakeForms:{[student]:editorIntake},coachPlanDraftRecord:confirmed,consent:{accepted:true}};
+const token={state:currentWorkspace,studentId:student,intake:editorIntake,sessionUserId:"coach-A",previousDraft:confirmed};
+assert.equal(coachDraftWorkspaceCurrent(token),true);
+assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,selectedStudent:other}}),false,"Ignore result after switching students");
+assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,session:{user:{id:"coach-B"}}}}),false,"Ignore result after switching sessions");
+assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,coachIntakeForms:{[student]:otherIntake}}}),false,"Ignore result after refreshing the intake");
+assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,coachPlanDraftRecord:null}}),false,"Ignore result after resetting the draft");
+assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,consent:{accepted:false}}}),false,"Ignore result after revoked tracking");
+assert.match(app,/const snapshot=validateCoachPlanProposal\(goal,guide\)/,"Capture values before network awaits");
+assert.match(app,/const serverDraft=await coachDraftClient\.load\(studentId\)/,"Read back server draft after save");
+assert.match(app,/verifyCoachDraftReadback\(\{/,"Verify exact persisted revision");
+assert.match(app,/if\(!coachDraftWorkspaceCurrent\(\{state,studentId,intake,sessionUserId,previousDraft\}\)\)return;/,"Drop async result if another student was selected");
+
+console.log("PASS NUT-50/NUT-51: real calculation and synthetic draft RPC; immutable readback, revision and async workspace guards; production flag OFF.");

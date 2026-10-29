@@ -69,6 +69,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js
           node efg-nutrition/tests/legal-onboarding-draft.mjs
+      - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
+        run: node efg-nutrition/tests/serotonin-brand-loading.mjs
       - name: Verify major release messages for every role (offline, NO live delivery)
         run: |
           node --check efg-nutrition/pilot/release-communications.js

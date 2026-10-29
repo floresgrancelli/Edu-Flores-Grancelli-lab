@@ -105,3 +105,52 @@
 .efg-legal-check{display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px 14px;border-radius:12px;background:#eef2f2;line-height:1.5}
 .efg-legal-check input{flex:0 0 auto;width:20px;height:20px;accent-color:#385e65}
 @media(max-width:420px){.efg-student-intake-state{display:grid}.efg-legal-entry{padding:16px}}
+
+
+/* EFG NUTRITION — Special launch experience prototype. Disabled in production.
+   Original bowl/vegetable vector illustration, no third-party image rights. */
+.efg-release-announcement.card,.efg-release-whatsnew.card{
+ position:relative;overflow:hidden;isolation:isolate;text-align:center;
+ width:min(100%,680px);margin-inline:auto;border:1px solid #b8bfd1;border-radius:28px;
+ padding:clamp(20px,4.5vw,38px);
+ background:radial-gradient(circle at 8% 9%,#f8c6d7 0,transparent 32%),
+            radial-gradient(circle at 93% 21%,#b8dad4 0,transparent 34%),
+            radial-gradient(circle at 14% 95%,#ffe4aa 0,transparent 32%),
+            linear-gradient(145deg,#fbf8fc,#e8eefa);
+ color:#243950;box-shadow:0 16px 34px rgba(26,44,75,.15);
+}
+.efg-release-announcement h2,.efg-release-whatsnew h2{
+ color:#203950;font-family:Georgia,serif;font-size:clamp(26px,6.5vw,39px);
+ line-height:1.11;letter-spacing:-.015em;margin:4px 0 13px;
+}
+.efg-release-announcement p,.efg-release-whatsnew p{
+ line-height:1.62;color:#40566b;margin:10px auto;max-width:54ch;
+}
+.efg-release-announcement .eyebrow,.efg-release-whatsnew .eyebrow{
+ display:inline-flex;align-items:center;border-radius:999px;
+ background:#f6e2f0;border:1px solid #d3add0;color:#6a3976;
+ padding:8px 13px;font-size:11px;letter-spacing:.10em;font-weight:800;
+}
+.efg-release-art{display:grid;place-items:center;position:relative;max-height:198px;min-height:158px;margin:0 auto 13px}
+.efg-release-art svg{display:block;width:min(100%,256px);height:auto;max-height:187px;filter:drop-shadow(0 10px 14px rgba(19,46,64,.14))}
+.efg-release-highlights{display:grid;gap:11px;list-style:none;padding:0;margin:24px 0;text-align:left}
+.efg-release-highlights li{
+ display:flex;align-items:center;gap:11px;border-radius:15px;padding:13px 14px;
+ background:#fffdfd;border:1px solid #d4dce3;color:#264456;
+ font-weight:680;font-size:14px;line-height:1.42;
+ box-shadow:0 2px 8px rgba(35,61,82,.04);
+}
+.efg-release-highlights li:nth-child(3n + 1){background:#edf5fc;border-color:#bdd6ec}
+.efg-release-highlights li:nth-child(3n + 2){background:#fff1e1;border-color:#efd2ac}
+.efg-release-highlights li:nth-child(3n + 3){background:#f0f0fa;border-color:#cecaef}
+.efg-release-highlights span{font-size:18px;flex:0 0 20px;color:#8765af}
+.efg-release-announcement .btn,.efg-release-whatsnew .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin:8px 5px 0;padding:13px 21px}
+.efg-release-announcement .btn:focus-visible,.efg-release-whatsnew .btn:focus-visible{outline:3px solid #255c86;outline-offset:4px}
+@media(max-width:430px){
+ .efg-release-announcement.card,.efg-release-whatsnew.card{border-radius:20px;padding:17px 15px 23px}
+ .efg-release-highlights li{padding:12px 11px;font-size:13px}
+ .efg-release-announcement .btn,.efg-release-whatsnew .btn{width:100%;margin:8px 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .efg-release-art svg,.efg-release-announcement,.efg-release-whatsnew{animation:none;transition:none}
+}

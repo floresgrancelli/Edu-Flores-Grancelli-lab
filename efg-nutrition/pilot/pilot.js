@@ -1759,6 +1759,49 @@ function guidedDayContents(plan,goal,editable=false){
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
  '<p class="pilot-hint">Referencia educativa, no ingesta registrada. Las porciones y macros dependen de la marca, cocción y datos del catálogo. Considerá alergias, hábitos y contexto clínico.</p>';
 }
+function coachAtomicDraftPanel(){
+ if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
+ const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
+ if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
+ const saved=state.coachPlanDraftRecord,active=saved?.status==="draft"&&Number.isSafeInteger(saved?.draft_revision);
+ const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachIntakeGuidePreview||state.coachGuidedDraft;
+ return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
+ '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
+ '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
+ '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
+ (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft">Revisar y publicar juntos</button>':'')+'</div>'+
+ (!goal||!guide?'<p class="pilot-hint">Calculá una propuesta y prepará sus cinco comidas antes de guardar.</p>':'')+'</section>';
+}
+async function saveCoachAtomicDraft(){
+ const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
+ if(!COACH_ATOMIC_PLAN_UI_ENABLED||!intake?.shared_at||!state.consent?.accepted)
+  throw Error("El circuito seguro de borradores todavía no está habilitado.");
+ const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
+ const guide=state.coachIntakeGuidePreview||state.coachGuidedDraft;
+ if(!goal||!guide)throw Error("Prepará primero el objetivo y las cinco comidas.");
+ validateGuidedDay(guide,goal);
+ const r=await coachDraftClient.save({
+  studentId,sourceUpdatedAt:intake.updated_at,goal,guide,
+  expectedRevision:state.coachPlanDraftRecord?.draft_revision??null
+ });
+ state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt};
+ state.coachPlanPublishRequestId=null;
+ await render();
+ notify("Borrador privado guardado. El alumno conserva su plan vigente.");
+}
+async function publishCoachAtomicDraft(){
+ const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
+ if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
+    draft.status!=="draft"||!Number.isSafeInteger(draft.draft_revision))
+  throw Error("No hay un borrador seguro disponible para publicar.");
+ if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
+ state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||crypto.randomUUID();
+ await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
+  requestId:state.coachPlanPublishRequestId,confirmed:true});
+ state.coachPlanPublishRequestId=null;
+ await loadStudentDetail(studentId);await render();
+ notify("Meta y guía publicadas conjuntamente por el servidor.");
+}
 function coachGuidedSection(){
  const goal=state.coachGoals[0],saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
@@ -1857,7 +1900,7 @@ function studentDetailView(p,consent){
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- coachGuidedSection()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
+ coachGuidedSection()+coachAtomicDraftPanel()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  intakeWarnings+(goalWriteBlocked?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
@@ -2572,6 +2615,8 @@ if(el.dataset.foodbulk){
   notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
  }
  if(action==="saveGuidedDay")return approveGuidedDay();
+  if(action==="saveCoachAtomicDraft")return saveCoachAtomicDraft();
+  if(action==="publishCoachAtomicDraft")return publishCoachAtomicDraft();
  if(action==="calculateGoal")return calculateGoal();
  if(action==="adjustCalculatedGoal")return adjustCalculatedGoal();
  if(action==="previewGoalRevision")return previewGoalRevision();

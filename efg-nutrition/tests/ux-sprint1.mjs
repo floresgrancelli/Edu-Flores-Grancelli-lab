@@ -17,7 +17,7 @@ assert.doesNotMatch(inboxSource,/host\.hidden=!getUserId\(\)\|\|!available/,"No 
 assert.match(chatCSS,/efg-chat-load-more/,"Touch-friendly pagination");
 assert.match(inboxCSS,/efg-inbox-warning/,"Visible retry state");
 assert.match(pilotSource,/let verified=false/,"OTP error handling separates verification from later session loading");
-assert.match(pilotSource,/label for="\'+q\[0\]/,"Numeric fields have accessible labels");
+assert.match(pilotSource,/<label for=.*q\[0\]/,"Numeric fields have accessible labels");
 assert.match(pilotSource,/Cerrar ventana de alimentos/,"Food dialog close button has a name");
 assert.match(pilotSource,/if\(event\.key==="Escape"\)/,"Food dialog is dismissible with keyboard");
 

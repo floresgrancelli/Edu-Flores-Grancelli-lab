@@ -9,7 +9,7 @@ assert.match(app,/data-intake-message/,"Students can open private existing chat 
 assert.match(app,/coachRosterConsent\[p\.user_id\]===true/,"Intake never assumes sharing permission from registration");
 assert.match(app,/await loadCoachIntakeGoals\(\)/,"Overview uses read-only validated goals");
 assert.match(app,/efg_goals"\)\.select\("student_id,id"\)\.in\("student_id",ids\)/,"Goal summary filters explicitly authorized student ids");
-assert.match(app,/Un objetivo guardado no significa que el plan se haya publicado/,"Unpublished goal is never labeled as activated");
+assert.match(app,/Una meta guardada no habilita por sí sola la app/,"An existing goal never implies publication");
 assert.match(app,/próxima implementación|Próxima implementación/,"No false claims of a functional published-plan gate");
 assert.match(style,/coach-intake-summary/,"Responsive intake summary is styled");
 assert.match(style,/@media\(max-width:500px\)/,"Mobile layout is defined");

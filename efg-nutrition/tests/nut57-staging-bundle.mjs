@@ -4,6 +4,7 @@
 import {readFileSync} from "node:fs";
 import {createHash} from "node:crypto";
 import {fileURLToPath} from "node:url";
+import {resolve} from "node:path";
 
 const MODULES=Object.freeze([
  {id:"intake-access",path:"../migrations/20261029_coach_intake_plan_access_DRAFT.sql",anchor:"create table public.efg_student_plan_access"},
@@ -96,7 +97,7 @@ export function NUT57Status(){
   stagingFullRestore:"NOT VERIFIED",oldPwaSessions:"NOT VERIFIED"
  };
 }
-if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){
+if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
  const arg=process.argv[2];
  if(arg==="--preview-sql")process.stdout.write(buildNUT57RollbackPreview());
  else if(arg==="--status")process.stdout.write(JSON.stringify(NUT57Status(),null,2)+"\n");

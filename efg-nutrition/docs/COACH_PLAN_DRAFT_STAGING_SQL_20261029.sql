@@ -138,9 +138,9 @@ begin
      raise exception 'Missing/invalid numeric goal field: %',v_key;
    end if;
    v_number := (p_goal->>v_key)::numeric;
-   if v_number < 0 or v_number > case v_key
+   if v_number < 0 or v_number > (case v_key
      when 'kcal' then 10000 when 'fiber_g' then 150 when 'carb_g' then 2000
-     else 1000 end then
+     else 1000 end) then
      raise exception 'Goal field outside allowed bounds: %',v_key;
    end if;
  end loop;

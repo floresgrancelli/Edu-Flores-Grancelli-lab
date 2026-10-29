@@ -126,6 +126,19 @@ begin
     and o.coach_id=v_coach and g.student_id=p_student and g.approved_by=v_coach
     and f.coach_id=v_coach and f.guided_goal_id=p_goal_id
     and f.guided_plan is not null and f.guided_plan_approved_at is not null
+    -- SQL-side structural check: UI approval alone is not sufficient.
+    -- An empty JSON object or fewer than five nonempty, distinct slots cannot publish.
+    and f.guided_plan->>'kind'='five_meal_example'
+    and f.guided_plan->>'version'='1'
+    and case when jsonb_typeof(f.guided_plan->'meals')='array' then
+      jsonb_array_length(f.guided_plan->'meals')=5
+      and (select count(distinct m.meal->>'slot')=5
+           from jsonb_array_elements(f.guided_plan->'meals') as m(meal)
+           where m.meal->>'slot' in ('desayuno','media_manana','almuerzo','merienda','cena')
+             and case when jsonb_typeof(m.meal->'items')='array'
+               then jsonb_array_length(m.meal->'items') between 1 and 15
+               else false end)
+    else false end
     and g.id=(select g2.id from public.efg_goals g2 where g2.student_id=p_student order by g2.approved_at desc limit 1)
  ) then raise exception 'Complete and approve the latest goal and matching food guide first'; end if;
  update public.efg_student_plan_access

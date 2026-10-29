@@ -48,4 +48,17 @@ assert.ok(app.includes('p.payment_kind==="student_coach"&&p.organization_id===or
 assert.ok(app.includes('p.payer_id===state.session.user.id'),"Payment sender is payer_id, not sender_id");
 assert.ok(!app.includes('p.sender_id'),"Legacy sender_id does not exist in payment schema");
 assert.ok(app.includes('Comprobantes de licencias EFG'),"Admin billing must be preserved");
+// Contratos comerciales y cuenta nutricional propia del entrenador.
+for(const token of ["COBRAR A MIS ALUMNOS","PAGAR MI LICENCIA A EFG","Cupos contratados","ALTA COMERCIAL DE COACH","ALIAS OFICIAL DE EFG","data-copyplatform","state.platformAlias","studentMore:state.profile.role===\"coach\"?coachPersonalMoreView","function coachPersonalMoreView","personal:isPersonalProfessional","MI ESPACIO"])assert.ok(app.includes(token),"Missing coach personal/commercial UX: "+token);
+assert.ok(app.includes('["coach","⌂","Inicio"],["home","◷","MI DÍA"]'),"Coach has direct MI DÍA access");
+assert.ok(app.includes('state.profile.role==="coach"||state.profile.role==="admin"'),"Professional personal goal eligibility");
+assert.ok(app.includes('if(!["student","coach","admin"].includes(state.profile?.role))'),"Fit recipes register in professional private diary");
+assert.ok(app.includes('commercialReady=isTest||["active","grace"].includes(org?.status)'),"Commercial invitation requires admin activation");
+assert.ok(app.includes('["trial","suspended"].includes(org.status)'),"Trial coach explicitly activatable by admin");
+const licenseMigration=readFileSync("efg-nutrition/migrations/20261029_coach_license_activates_invites.sql","utf8");
+assert.match(licenseMigration,/efg_invite_student/);
+assert.match(licenseMigration,/efg_set_student_active/);
+assert.match(licenseMigration,/v_org.status not in \('active','grace'\)/);
+assert.match(licenseMigration,/v_org.is_test/,"Admin's lab is exempt from commercial trial restriction");
+assert.ok(!app.includes('EJEMPLO.ALIAS')&&!app.includes('efg-default-placeholder.invalid'),"Never assign a fictitious payment alias");
 console.log("PASS: 12 Fit recipes, 12 credited real photographs, budins, macros and payment UI.");

@@ -2130,7 +2130,7 @@ async function sendProof(){
  const name=state.session.user.id+"/"+crypto.randomUUID()+"."+ext;
  let upload=await sb.storage.from("efg-receipts").upload(name,file,{upsert:false,contentType:file.type});
  if(upload.error)throw upload.error;
- let payment=await sb.rpc("efg_submit_payment",{p_kind:kind,p_amount_ars:amount,p_period:period,p_receipt_path:name});
+ let payment=kind==="coach_efg"?await sb.rpc("efg_submit_coach_payment",{p_amount_ars:amount,p_period:period,p_receipt_path:name,p_alias:document.getElementById("platformPayAlias")?.value||state.platformAlias||""}):await sb.rpc("efg_submit_payment",{p_kind:kind,p_amount_ars:amount,p_period:period,p_receipt_path:name});
  if(payment.error)throw payment.error;
  await loadOrgAndPayments();await render();notify("Comprobante registrado. El destinatario deberá verificar la transferencia.");
 }
@@ -2167,7 +2167,7 @@ async function mainClick(event){
  if(el.dataset.copyalias||el.dataset.copyplatform){
  const isPlatform=el.dataset.copyplatform==="1";
  if(isPlatform&&state.profile.role!=="coach")throw new Error("Solo los coaches pueden copiar el alias oficial desde este acceso.");
- const alias=isPlatform?state.platformAlias:state.org?.payment_alias;
+ const alias=isPlatform?(document.getElementById("platformPayAlias")?.value||state.platformAlias):state.org?.payment_alias;
  if(!alias)throw new Error(isPlatform?"EFG todavía no configuró el alias central.":"Tu coach todavía no configuró un alias.");
  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(alias);notify("Alias copiado.");}
  else window.prompt("Copiá el alias:",alias);

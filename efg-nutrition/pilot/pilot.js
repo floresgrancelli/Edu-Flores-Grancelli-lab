@@ -758,7 +758,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Gestionar organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes de prueba","mint"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes de prueba","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
 }
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();

@@ -421,6 +421,35 @@ try{
      await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }
+  // Global Luxury includes FIRST-LOGIN, onboarding and OTP; do not treat
+  // dashboard-only screenshots as proof that the whole app is themed.
+  if(role==="student"&&width===390){
+    await page.evaluate(async()=>{
+      const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=true;await x.render();
+    });
+    const welcome=page.locator(".efg-onboard");
+    if(!(await welcome.isVisible()))pageReport.errors.push("Luxury onboarding missing");
+    const welcomeBrand=page.locator(".efg-onboard-serotonin");
+    if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
+      pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
+    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
+    if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
+    await page.screenshot({path:join(outDir,engine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
+    await page.evaluate(async()=>{
+      const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();
+    });
+    const login=page.locator(".pilot-login");
+    if(!(await login.isVisible()))pageReport.errors.push("Luxury login missing");
+    const loginMark=page.locator(".efg-login-brandmark");
+    if((await loginMark.count())!==1||(await loginMark.evaluate(el=>el.naturalWidth))<60)
+      pageReport.errors.push("Serotonin logo missing from private sign-in");
+    const loginMaterial=await page.locator(".pilot-login-art").evaluate(el=>getComputedStyle(el).backgroundImage);
+    if(!loginMaterial.includes("gradient"))pageReport.errors.push("Sign-in lacks luxury texture");
+    if((await page.locator("#loginEmail").count())!==1)pageReport.errors.push("Email OTP form lost");
+    const loginWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+    if(loginWidth>390+2)pageReport.errors.push("Login horizontal overflow "+loginWidth);
+    await page.screenshot({path:join(outDir,engine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
+  }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
   if(role==="coach"&&width===390){
    await page.evaluate(async()=>{

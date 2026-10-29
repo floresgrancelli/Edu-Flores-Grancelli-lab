@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -458,6 +458,54 @@ try{
         pageReport.errors.push("MacBook: suggestion did not update meal nutrients");
     }
     await page.locator('[data-act="closeMeal"]').click();
+   }
+   if(role==="student"&&(width===390||width===1280)&&dest==="home"){
+    // UX-GUIDE-01 actual renderer: same HTML for coach editor and student viewer.
+    // All sample data are in-memory. No hosted DB, no existing user plans.
+    const snapshot=await page.evaluate(()=>{
+      const v=window.__EFG_VISUAL_QA__;
+      const item=(id,qty)=>{const food=v.foods.find(f=>f.id===id);if(!food)throw Error("Missing education fixture food "+id);return {...food,qty};};
+      const plan={version:1,kind:"five_meal_example",supplementNote:"",meals:[
+       {slot:"desayuno",label:"Desayuno",items:[item("egg",110),item("bread",40),item("milk_skim",200)]},
+       {slot:"media_manana",label:"Media mañana",items:[item("yogurt",200),item("apple",120)]},
+       {slot:"almuerzo",label:"Almuerzo",items:[item("tarta_atun_horno",180),item("brownrice",110),item("rocket",60)]},
+       {slot:"merienda",label:"Merienda",items:[item("bread",35),item("cheese",30)]},
+       {slot:"cena",label:"Cena",items:[item("fish_hake",180),item("potato",180),item("pumpkin",150),item("oil",5)]}
+      ]};
+      const goal={kcal:2100,protein_g:140,carb_g:225,fat_g:70};
+      const original=JSON.stringify(plan),totals=JSON.stringify(v.guideTotals(plan));
+      const host=document.createElement("div");
+      host.id="efg-guide-education-qa";
+      host.style.cssText="background:#f5f1ed;padding:14px;margin:22px auto;max-width:980px";
+      host.innerHTML=v.guideEducationHTML(plan,goal,true);
+      document.body.appendChild(host);
+      return {samePlan:original===JSON.stringify(plan),sameMacros:totals===JSON.stringify(v.guideTotals(plan)),
+       foodCount:plan.meals.reduce((n,m)=>n+m.items.length,0),mealCount:plan.meals.length,
+       readonlyHTML:v.guideEducationHTML(plan,goal,false)};
+    });
+    const host=page.locator("#efg-guide-education-qa");
+    if(!snapshot.samePlan||!snapshot.sameMacros)pageReport.errors.push("Rendering education changed the approved guide or its nutrients");
+    if(await host.locator(".efg-guide-food").count()!==snapshot.foodCount)
+      pageReport.errors.push("Guide must render every original food once, without duplication");
+    for(const slot of ["desayuno","almuerzo","cena"]){
+      if(await host.locator('[data-guideslot="'+slot+'"][data-guidefoodgroup="protein"]').count()!==1||
+         await host.locator('[data-guideslot="'+slot+'"][data-guidefoodgroup="carb"]').count()!==1)
+        pageReport.errors.push("Main guide "+slot+" missing protein/carb education");
+    }
+    if(await host.locator('[data-guideslot="media_manana"],[data-guideslot="merienda"]').count())
+      pageReport.errors.push("Guide snacks/merienda were changed to educational sections");
+    if(await host.locator('[data-guideslot="almuerzo"][data-guidefoodgroup="prepared"] .efg-guide-food').count()!==1)
+      pageReport.errors.push("Tuna pie must appear in prepared group ONCE");
+    const editIndices=await host.locator("[data-guideqty]").evaluateAll(els=>els.map(x=>x.dataset.guideqty));
+    if(!editIndices.includes("almuerzo:0")||!editIndices.includes("almuerzo:1")||
+       !editIndices.includes("desayuno:0")||editIndices.length!==snapshot.foodCount)
+      pageReport.errors.push("Coach quantity input must preserve original food index after grouping");
+    if(!snapshot.readonlyHTML.includes("efg-guide-education")||snapshot.readonlyHTML.includes("data-guideqty"))
+      pageReport.errors.push("Student guide should show educational sections but cannot edit quantities");
+    if(await host.locator(".efg-guide-food-group").first().isVisible()!==true)
+      pageReport.errors.push("Educational guide sections hidden at "+width+"px");
+    await page.screenshot({path:join(outDir,engine+"-student-"+width+"-guide-education.png"),fullPage:true,animations:"disabled"});
+    await host.evaluate(el=>el.remove());
    }
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.

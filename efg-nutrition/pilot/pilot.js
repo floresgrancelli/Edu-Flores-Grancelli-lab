@@ -1390,6 +1390,7 @@ function updateCoachFoodCount(){
  if(e)e.textContent=root.querySelectorAll('input[data-coachfood]:checked').length+" alimentos seleccionados de "+foods.length;
 }
 async function saveCoachFoods(){
+ if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("La lista de alimentos debe integrarse a la aprobación atómica; no se modifica directamente durante esta etapa.");
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test))||!state.selectedStudent||!state.consent?.accepted)throw new Error("El alumno tiene que autorizarte primero.");
  const ids=[...root.querySelectorAll("input[data-coachfood]:checked")].map(x=>x.dataset.coachfood).filter(id=>foods.some(f=>f.id===id));
  if(!ids.length)throw new Error("Seleccioná por lo menos un alimento.");
@@ -1724,7 +1725,7 @@ function goalRevisionSection(latest){
  '<div class="field"><label for="reviseGoalMode">Reparto de macros</label><select id="reviseGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn block light" data-act="previewGoalRevision">Ver nuevo reparto de macros</button></div>'+
  '<div class="pilot-notice" id="revisedGoalPreview" aria-live="polite" style="margin-top:10px">Objetivo actual: '+num(latest.kcal)+' kcal. Elegí un cambio para previsualizar.</div>'+
- '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px">Aplicar ajuste ahora</button>'+
+ '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Aplicar ajuste ahora</button>'+
  '<p class="pilot-hint">No hay período de espera ni límite de revisiones. Podés aumentar o reducir las calorías según la respuesta del alumno. Si reducís todo proporcionalmente, también baja la proteína; evaluá conservarla para objetivos de fuerza o masa muscular.</p>'+history;
 }
 
@@ -1875,6 +1876,7 @@ function showGuidedEditor(){
  window.scrollTo({top:y,behavior:"instant"});
 }
 async function approveGuidedDay(){
+ if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Usá el borrador privado y la publicación conjunta: no está permitido enviar guías por separado.");
  const student=state.selectedStudent,goal=state.coachGoals[0],draft=readGuidedEditor();
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session.user.id))||!state.consent?.accepted||!student||!goal)throw new Error("No tenés permiso para enviar esta guía.");
  validateGuidedDay(draft,goal);
@@ -1918,7 +1920,7 @@ function studentDetailView(p,consent){
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
  '<div class="field"><label>Recomposición · estrategia energética</label><select id="targetRecompMode">'+recompOptions("deficit05")+'</select></div>'+activityHint+recompHint+
- '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Guardar objetivo para revisar guía</button></details></section>';
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button></details></section>';
 }
 
 function adminHomeView(){
@@ -2058,6 +2060,7 @@ function adjustCalculatedGoal(){
  document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
 }
 async function approveGoalRevision(){
+ if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Primero guardá una revisión privada con su guía. El objetivo vigente se mantiene.");
  const pending=state.pendingGoalRevision, latest=state.coachGoals[0];
  if(!pending||pending.studentId!==state.selectedStudent||!state.consent?.accepted||!latest||latest.id!==pending.baseId)throw new Error("Verificá la propuesta de revisión y los permisos del alumno.");
  const {data,error}=await sb.from("efg_goals").select("id").eq("student_id",pending.studentId).order("approved_at",{ascending:false}).limit(1).single();
@@ -2661,6 +2664,7 @@ if(el.dataset.foodbulk){
  if(action==="approveGoalRevision")return approveGoalRevision();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
  if(action==="approveGoal"){
+  if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("No guardes un objetivo aislado: prepará su guía y guardá un borrador privado.");
   if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent||!state.consent?.accepted)
    throw new Error("Calculá primero una propuesta para un alumno autorizado.");
   const studentId=state.selectedStudent,guide=state.coachIntakeGuidePreview;

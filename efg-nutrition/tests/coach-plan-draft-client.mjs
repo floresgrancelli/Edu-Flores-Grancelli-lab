@@ -56,7 +56,7 @@ shared=true;stamp="2026-10-29T12:01:00Z";
 await assert.rejects(()=>enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:2}),/modificada/);
 stamp=WHEN;
 failRpc={message:"La validación legal del servidor rechazó la propuesta."};
-await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:REQ,confirmed:true}),/validación legal/);
+await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:REQ,confirmed:true}),err=>err?.message?.includes("validación legal")===true);
 failRpc=null;
 await assert.rejects(()=>enabled.save({studentId:"other-student",sourceUpdatedAt:WHEN,goal,guide}),/Identificador de alumno inválido/);
 await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:"not-uuid",confirmed:true}),/Identificador único/);

@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -143,6 +143,49 @@ try{
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
      if(dest==="studentMore"&&(!content.includes("Mi planificador")||!content.includes("Mis suplementos")))pageReport.errors.push("Coach MI ESPACIO incomplete");
      if(dest==="payments"&&(!content.includes("COBRAR A MIS ALUMNOS")||!content.includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing");
+   }
+   if((role==="admin"||role==="student")&&width===390&&dest==="home"){
+     // Reproduce six meal slots, remote persisted favourites and first iPhone food selection
+     // with NO real Supabase access; fixtures are account-specific in memory only.
+     const slots=["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"];
+     await page.evaluate(async(role)=>{
+       const v=window.__EFG_VISUAL_QA__;
+       v.setHabituales(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"].flatMap(slot=>
+         [1,2].map(n=>({id:"demo-"+role+"-"+slot+"-"+n,meal_slot:slot,name:slot+" habitual "+n,
+             items:[{id:"egg",name:"Huevo habitual",qty:55,unit:"g",k:81,p:7,c:1,f:5,fi:0}]}))));
+       await v.render();
+     },role);
+     for(const slot of slots){
+       const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
+       if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
+       if(!(await block.getAttribute("open")))await block.locator("summary").click();
+       const select=block.locator('[data-habitualchoice="'+slot+'"]');
+       const options=await select.locator("option").allTextContents();
+       if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
+       await select.selectOption("demo-"+role+"-"+slot+"-1");
+       if(await select.inputValue()!=="demo-"+role+"-"+slot+"-1")pageReport.errors.push("First habitual choice not accepted for "+slot);
+     }
+     await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
+     await page.locator('[data-habitualapply="media_tarde"]').click();
+     await page.waitForTimeout(150);
+     const saved=await page.evaluate(()=>{
+       return (window.__EFG_VISUAL_QA__.state.diary?.meals?.media_tarde||[]).map(x=>x.qty);
+     });
+     if(!saved.includes(55))pageReport.errors.push("Selected habitual not saved on first tap for "+role);
+     await page.evaluate(async()=>{
+       const v=window.__EFG_VISUAL_QA__;v.openMealDialog("cena");
+     });
+     const initial=await page.locator("#mealEditorFood").inputValue();
+     if(initial!=="")pageReport.errors.push("Meal food editor must start with unselected placeholder, got "+initial);
+     const first=await page.locator('#mealEditorFood option[value]:not([value=""]):not([disabled])').first().getAttribute("value");
+     if(first){
+       await page.locator("#mealEditorFood").selectOption(first);
+       if(await page.locator("#mealEditorFood").inputValue()!==first)pageReport.errors.push("iOS first food option did not stick for "+role);
+       await page.locator('[data-act="saveSelectedMeal"]').click();
+       await page.waitForTimeout(130);
+       const stored=await page.evaluate(id=>(window.__EFG_VISUAL_QA__.state.diary?.meals?.cena||[]).some(x=>x.id===id),first);
+       if(!stored)pageReport.errors.push("First food selection not persisted on first try for "+role);
+     } else pageReport.errors.push("Meal editor has no foods for "+role);
    }
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".

@@ -20,6 +20,9 @@ assert.match(pilotSource,/let verified=false/,"OTP error handling separates veri
 assert.match(pilotSource,/<label for=.*q\[0\]/,"Numeric fields have accessible labels");
 assert.match(pilotSource,/Cerrar ventana de alimentos/,"Food dialog close button has a name");
 assert.match(pilotSource,/if\(event\.key==="Escape"\)/,"Food dialog is dismissible with keyboard");
+assert.match(pilotSource,/data-act="confirmRecipeRegistration"/,"Own recipes have an explicit confirmation");
+assert.match(pilotSource,/for\(const key of \["k","p","c","f","fi"\]\)/,"Own recipe registration retains five-macro proportional calculation");
+assert.match(pilotSource,/efgRecipeRegisterSlot/,"Own recipe dialog exposes meal selection");
 
 // A tiny fake DOM lets us exercise the actual chat and notification modules without credentials.
 const handlers={};

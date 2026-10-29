@@ -210,6 +210,15 @@ assert.equal((sql.match(/\$\$/g)||[]).length%2,0,"Draft SQL dollar-quoted blocks
 assert.match(sql,/grant select,insert,update,delete on public\.efg_student_intakes to authenticated/);
 assert.match(sql,/create policy intake_student_delete on public\.efg_student_intakes/,"Student deletion needs owner-only RLS");
 
+// An approved five-meal guide must be approved AGAIN after its items or goal change.
+// Static contract only; run actual BEFORE UPDATE trigger with two role JWTs in staging.
+assert.match(sql,/create function efg_private\.invalidate_stale_guided_approval\(\)/);
+assert.match(sql,/create trigger efg_guard_guided_approval_update/);
+assert.match(sql,/before update of guided_plan,guided_goal_id,guided_plan_approved_at/);
+assert.match(sql,/new\.guided_plan is distinct from old\.guided_plan/);
+assert.match(sql,/new\.guided_goal_id is distinct from old\.guided_goal_id/);
+assert.match(sql,/new\.guided_plan_approved_at is not distinct from old\.guided_plan_approved_at/);
+assert.match(sql,/new\.guided_plan_approved_at := null;/);
 assert.match(sql,/create function public\.efg_publish_coach_plan/);
 assert.match(sql,/f\.guided_goal_id=p_goal_id/);
 assert.match(sql,/as restrictive for insert/);

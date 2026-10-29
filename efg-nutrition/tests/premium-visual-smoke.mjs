@@ -196,6 +196,7 @@ try{
        const stored=await page.evaluate(id=>(window.__EFG_VISUAL_QA__.state.diary?.meals?.cena||[]).some(x=>x.id===id),first);
        if(!stored)pageReport.errors.push("First food selection not persisted on first try for "+role);
      } else pageReport.errors.push("Meal editor has no foods for "+role);
+     await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
    }
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".

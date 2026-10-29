@@ -15,8 +15,8 @@ for(const f of ["notifications-ui.js","messages-ui.js"])assert.ok(app.includes(f
 for(const f of ["notifications-ui.css","messages-ui.css"])assert.ok(html.includes(f),"Missing stylesheet "+f);
 assert.match(inbox,/setInterval\(/,"Inbox must refresh while page stays open");
 assert.match(inbox,/\.eq\("recipient_id",userId\)/,"Inbox must be user-scoped");
-assert.match(messages,/\.eq\("student_id",pair\.student\)/,"Chat must scope student");
-assert.match(messages,/\.eq\("coach_id",pair\.coach\)/,"Chat must scope coach");
+assert.match(messages,/\.eq\("student_id",x\.student\)/,"Chat must scope student");
+assert.match(messages,/\.eq\("coach_id",x\.coach\)/,"Chat must scope coach");
 assert.match(messages,/\.insert\(/,"Chat must allow sending");
 assert.match(notificationSQL,/enable row level security/i);
 assert.match(chatSQL,/enable row level security/i);
@@ -47,3 +47,13 @@ assert.match(html,/20261028-phase3-pastel-preview1/,"Release must invalidate Saf
 
 console.log("PASS: inbox + messages UI, no-refresh refresh, SQL RLS guards, Friday scheduling, dedicated tabs.");
 console.log("LIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific send/read, Friday cron, two devices.");
+
+
+assert.ok(messages.includes('id="efgChatSearch"'),"Contact search required");
+assert.ok(messages.includes('data-chat-filter="unread"'),"Unread filter required");
+assert.ok(messages.includes('data-chat-contact'),"Contact opens chat");
+assert.ok(messages.includes('data-chat-back="1"'),"Mobile back to list");
+assert.ok(messages.includes('consented?.[x.user_id]'),"Only consented students in coach inbox");
+assert.ok(messages.includes('.in("student_id",people.map'),"Coach inbox filtered to permitted students");
+assert.ok(inbox.includes('efg-notify-bell-svg'),"Vector notification bell required");
+assert.ok(read("efg-nutrition/pilot/notifications-ui.css").includes("background:transparent!important"),"Bell must float without tile");

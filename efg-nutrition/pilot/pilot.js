@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261028-luxury-pro-r1";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261029-coach-commercial-r1";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-regional2-photo1";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
@@ -15,8 +15,8 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messag
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
-import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
-import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg2";
+import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
+import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -358,7 +358,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -409,7 +409,7 @@ function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 let cloudHabituales=[];
 async function loadCloudHabituales(){
- if(state.profile?.role!=="student"){cloudHabituales=[];return;}
+ if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}
  const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
  if(error)throw error;
  cloudHabituales=data||[];
@@ -448,6 +448,43 @@ function getHabitualList(slot){
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
+function habitualPickerHTML(slot){
+ const list=getHabitualList(slot);
+ if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
+ return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
+ '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" selected>Elegí una de tus '+list.length+' comidas habituales</option>'+
+ list.map(x=>'<option value="'+escapeHTML(x.id||'')+'">'+escapeHTML(x.name)+'</option>').join('')+'</select>'+
+ '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
+ '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
+ '<small>Elegí una alternativa guardada para este horario. Se registrará únicamente al tocar «Registrar habitual».</small></div>';
+}
+function chosenHabitual(slot){
+ const id=document.getElementById('habitualChoice_'+slot)?.value;
+ if(!id)throw Error('Primero elegí una comida habitual de la lista.');
+ const item=getHabitualList(slot).find(x=>String(x.id)===String(id));
+ if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
+ return item;
+}
+async function deleteChosenHabitual(slot){
+ if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ const fav=chosenHabitual(slot);
+ if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
+ if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
+ const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",state.session.user.id).eq("meal_slot",slot).select("id");
+ if(error)throw error;
+ if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
+ cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
+ await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
+}
+async function applyChosenHabitual(slot){
+ if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ const fav=chosenHabitual(slot);
+ const d=activeDiary();d.meals[slot] ||= [];
+ if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
+ d.meals[slot]=structuredClone(fav.items);
+ d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
+ await saveDiary();notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+}
 async function habitualAction(slot,action){
  if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");
  const d=activeDiary();d.meals[slot] ||= [];
@@ -480,7 +517,7 @@ function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.
 let cloudRecipes=[];
 function myRecipes(){return cloudRecipes;}
 async function loadCloudRecipes(){
- if(state.profile?.role!=="student"){cloudRecipes=[];return;}
+ if(!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];return;}
  const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
  if(error)throw error;
  cloudRecipes=data||[];
@@ -569,10 +606,10 @@ function frame(content){
  const menu=role==="student"
   ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
-  ?[["coach","⌂","Inicio"],["coachStudents","♧","Alumnos"],["reports","▥","Informes"],["payments","▤","Pagos"]]
+  ?[["coach","⌂","Inicio"],["home","◷","MI DÍA"],["coachStudents","♧","Alumnos"],["studentMore","☷","MI ESPACIO"],["payments","▤","Pagos"]]
   :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
- const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
+ const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
@@ -715,6 +752,14 @@ function efgMenuIcon(kind){
 function premiumMenuView(title,description,entries){
  return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
 }
+function coachPersonalMoreView(){
+ return premiumMenuView("MI ESPACIO","Tus herramientas nutricionales personales. Los registros son exclusivamente tuyos y no pertenecen a los alumnos.",[
+ ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
+ ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
+ ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
+ ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"]
+ ]);
+}
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
  ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
@@ -739,7 +784,7 @@ function studentRecipesView(){
  (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
 }
 async function registerFitRecipe(id){
- if(state.profile?.role!=="student"&&state.profile?.role!=="admin")throw new Error("Esta función corresponde al diario personal.");
+ if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
  const recipe=FIT_RECIPES.find(r=>r.id===id);
  if(!recipe)throw new Error("No encontramos esa receta.");
  const meal=prompt("¿En qué comida querés registrar «"+recipe.name+"»?\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"1");
@@ -765,7 +810,7 @@ function notificationsView(){
   '<section class="card efg-inbox-full" id="efgInboxFull"><p class="pilot-hint">Consultando tus avisos…</p></section>';
 }
 function messagesView(){
- return rootText("💬 Mensajes","Conversaciones privadas entre el coach y el alumno, con historial y respuestas.")+
+ return rootText("MENSAJERÍA INTERNA","Buscá un contacto y tocá su conversación. Solo ves chats habilitados para tu cuenta.")+
   '<section class="card" id="efgMessagesContent"><p class="pilot-hint">Consultando conversación…</p></section>';
 }
 function studentSummariesView(){
@@ -778,7 +823,7 @@ function studentPrivacyView(){
  '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>';
 }
 function studentPlannerView(){
- return rootText("Mi planificador","Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.")+
+ return rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
  plannerCard()+'<div id="mealDialogContainer"></div>';
 }
 function adminMoreView(){
@@ -851,11 +896,20 @@ async function updateSundayPermission(approve){
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
  const motivation=motivationOfTheDay();
- const weeklyPanel=state.profile.role==="student"&&state.goals?.length
+ // El coach/admin puede utilizar sus propios gráficos semanales con la meta
+ // personal. Jamás se lee un alumno aquí ni se inventan metas históricas.
+ const isPersonalProfessional=state.profile.role==="coach"||state.profile.role==="admin";
+ const ownTarget=state.personalTargets;
+ const personalStart=ownTarget?.updated_at?new Intl.DateTimeFormat("sv-SE",{timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(ownTarget.updated_at)):today();
+ const history=isPersonalProfessional&&ownTarget?
+ [{start_on:personalStart,approved_at:ownTarget.updated_at,kcal:ownTarget.kcal,protein_g:ownTarget.protein_g}]:state.goals||[];
+ const weeklyPanel=(isPersonalProfessional?!!ownTarget:!!state.goals?.length)
   ?weeklyConsistencyPanel(calculateWeeklyConsistency({
     today:today(),logs:[...(state.progressLogs||[]),...(state.diary?[state.diary]:[])],
-    goals:state.goals,totalOf:dailyTotals,goalForDate
-   }),{opened:state.rewardOpened===true,verified:state.rewardFeatureReady===true,approved:state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
+    goals:history,totalOf:dailyTotals,goalForDate
+   }),{opened:state.rewardOpened===true,personal:isPersonalProfessional,
+    verified:!isPersonalProfessional&&state.rewardFeatureReady===true,
+    approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
@@ -865,7 +919,7 @@ function homeView(){
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button>'+(getHabitual(key)?'<button class="btn small light" data-habitualuse="'+key+'">↻ Repetir habitual</button>':'')+'</div></div></details>';
+  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos cuando autorizás el seguimiento al ingresar con tu código. Podés retirar el permiso cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -877,7 +931,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
-  return rootText("MI DÍA","Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
+  return rootText("MI DÍA",isPersonalProfessional?"Tu alimentación personal, tus objetivos y tu progreso. Ningún registro se mezcla con los de tus alumnos.":"Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo.")+
  '<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+
  pastelDaySummary(tot,goal,d,mealSlots)+
  weeklyPanel+
@@ -1157,7 +1211,7 @@ function openMealDialog(slot){
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
- '<div class="field"><label>Alimento</label><select id="mealEditorFood">'+groupedFoodOptions(allowed,slot)+'</select></div>'+
+ '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
@@ -1176,10 +1230,11 @@ function filterMealFoods(){
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
  });
- selector.innerHTML=groupedFoodOptions(filtered,state.activeMeal);
+ selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
- else if(filtered.length)selector.value=filtered[0].id;
- else selector.innerHTML='<option value="" disabled selected>Sin coincidencias</option>';
+ else selector.value="";
+ // No autoseleccionar la primera opción: iOS no emite "change" si el
+ // usuario elige un valor que el select ya consideraba seleccionado.
  updateMealEntryMode(true);
 }
 function updateMealEntryMode(foodChanged=false){
@@ -1399,10 +1454,10 @@ function coachView(){
  const roster=state.roster||[];
  const current=state.selectedStudent&&roster.find(p=>p.user_id===state.selectedStudent);
  const pending=(isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
- const seats=Number(org?.seat_limit)||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length,available=Math.max(0,seats-used);
+ const seats=Number(org?.seat_limit)||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length,available=Math.max(0,seats-used),commercialReady=isTest||["active","grace"].includes(org?.status);
  return rootText("Mis alumnos","Buscá alumnos, administrá autorizaciones y abrí sus fichas individuales.")+
  ' <div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
- '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+
+ '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
  (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 Laboratorio de EFG — '+seats+' cupos gratuitos de prueba</strong><small>Conservás tu cuenta de administrador. Solo ves datos de alumnos vinculados a este espacio que hayan dado consentimiento. No se generan cobros automáticos.</small></div>':'')+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="coachRosterSection"><div class="coach-roster-heading"><div><div class="eyebrow">PERSONAS PRIMERO</div><h2>Mis alumnos</h2><p class="pilot-hint">Avatares individuales. Las fotografías se mostrarán solamente cuando el alumno las autorice.</p></div><span class="coach-roster-total">'+activeRoster.length+' activos</span></div>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
@@ -1411,7 +1466,7 @@ function coachView(){
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de EFG Nutrition con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
- '<button class="btn block" data-act="inviteStudent" '+(used>=seats?'disabled':'')+'>Habilitar alumno</button><button class="btn light" data-act="copyStudentLink">Copiar enlace para enviar</button></div><p class="pilot-hint">El alumno recibirá el código o enlace de ingreso en su propio correo y deberá autorizarte a consultar sus registros.</p></div>'+
+ '<button class="btn block" data-act="inviteStudent" '+(used>=seats||!commercialReady?'disabled':'')+'>Habilitar alumno</button><button class="btn light" data-act="copyStudentLink">Copiar enlace para enviar</button></div><p class="pilot-hint">El alumno recibirá el código o enlace de ingreso en su propio correo y deberá autorizarte a consultar sus registros.</p></div>'+
  (isTest?'<div class="pilot-notice"><strong>Sin pagos en modo prueba</strong><small>Estos cupos no se facturan. Tu administración comercial continúa en la pestaña Administración.</small></div>':
  '<div class="card"><h2>Alias para pagos de alumnos</h2><p class="pilot-hint">'+(org?.payment_alias?'Actual: '+escapeHTML(org.payment_alias):'Todavía no configuraste tu alias bancario.')+'</p><div class="pilot-form"><div class="field"><label>Alias bancario</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div></div>')+
  '</div><div class="pilot-stack"><div id="studentFollowPanel" class="coach-selected-student">'+(current?studentDetailView(current,state.consent):'<div class="card"><h2>Seguimiento de un alumno</h2><div class="empty">Seleccioná un alumno que haya confirmado su cuenta y autorizado el acceso. Ahí podrás calcular sus objetivos de descenso, recomposición o aumento muscular y revisar los registros.</div></div>')+'</div></div></div>';
@@ -1712,9 +1767,9 @@ function adminView(){
  const orgs=state.orgs;
  return rootText("Organizaciones y licencias","Gestioná entrenadores, cupos y permisos sin acceder a la información nutricional privada.")+
  '<div class="efg-roster-summary"><span class="pilot-pill">'+orgs.length+' entrenadores registrados</span><button type="button" class="btn small light" data-tab="admin">Volver al inicio</button></div>'+
- '<div class="pilot-kpis"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>['active','trial','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+o.seat_limit,0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
- '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+escapeHTML(org.status)+' · '+(org.coach_id?'Acceso activado':'Pendiente de registro')+'</small></div><div class="pilot-toolbar"><button class="btn small light" data-seats="'+org.id+'">Modificar cupos</button><button class="btn small ghost" data-orgstatus="'+org.id+'">'+(org.status==="suspended"?"Reactivar":"Suspender")+'</button></div></div></div>').join(""):'<div class="empty">Todavía no se habilitaron entrenadores.</div>')+'</div><div class="card"><h2>Invitaciones de coaches</h2>'+ (state.invitations.length?state.invitations.filter(i=>i.role==="coach").map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+' · '+(i.claimed_by?'Activado':'Pendiente')+'</small>'+(!i.claimed_by&&!i.revoked_at?'<button class="btn small ghost" data-revokeinvite="'+i.id+'" style="margin-top:8px">Cancelar invitación</button>':'')+'</div>').join(""):'<p class="pilot-hint">Sin invitaciones comerciales.</p>')+'</div></div>'+
- '<div class="pilot-stack"><div class="card"><h2>Habilitar nuevo coach</h2><p class="pilot-hint">El entrenador recibirá una cuenta profesional al iniciar sesión con el correo que autorices. Vos definís sus cupos.</p><div class="pilot-form"><div class="field"><label>Nombre / usuario profesional</label><input id="newCoachName" placeholder="Ej. CoachCarla" maxlength="70"></div><div class="field"><label>Correo electrónico</label><input id="newCoachEmail" type="email" placeholder="coach@email.com"></div><div class="field"><label>Cupo contratado de alumnos</label><input id="newCoachSeats" type="number" min="1" max="10000" value="5"></div><button class="btn block" data-act="inviteCoach">Habilitar entrenador</button></div></div><div class="card"><h2>Alias de EFG Nutrition</h2><p class="pilot-hint">Lo verán exclusivamente los entrenadores para abonar sus licencias.</p><div class="pilot-form"><div class="field"><label>Alias de cobro</label><input id="platformAlias" value="'+escapeHTML(state.platformAlias||"")+'" maxlength="100" placeholder="EFG.NUTRITION"></div><button class="btn" data-act="savePlatformAlias">Guardar alias</button></div></div><div class="card"><h2>Mi cuenta personal</h2><p class="pilot-hint">Como propietario podés usar también tu diario nutricional, pero no ver los diarios de otros entrenadores.</p><button class="btn light" data-tab="home">Abrir mi alimentación</button></div></div></div>';
+ '<div class="pilot-kpis"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>['active','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">LICENCIAS PENDIENTES</div><div class="metric-value">'+orgs.filter(o=>o.status==="trial").length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+o.seat_limit,0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
+ '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+(org.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes · ':'Sin precio mensual · ')+escapeHTML(org.status==='active'&&org.paid_through>=today()?'Activa hasta '+org.paid_through:'Pendiente de pago / suspendida')+' · '+(org.coach_id?'Ingreso registrado':'Pendiente de ingreso')+'</small></div><div class="pilot-toolbar"><button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button><button class="btn small light" data-activatecoach="'+org.id+'" '+(!org.coach_id?'disabled':'')+'>Activar tras pago</button>'+(org.status!=="suspended"?'<button class="btn small ghost" data-orgstatus="'+org.id+'">Suspender</button>':'')+'</div></div></div>').join(""):'<div class="empty">Todavía no se habilitaron entrenadores.</div>')+'</div><div class="card"><h2>Invitaciones de coaches</h2>'+ (state.invitations.length?state.invitations.filter(i=>i.role==="coach").map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+' · '+(i.claimed_by?'Activado':'Pendiente')+'</small>'+(!i.claimed_by&&!i.revoked_at?'<button class="btn small ghost" data-revokeinvite="'+i.id+'" style="margin-top:8px">Cancelar invitación</button>':'')+'</div>').join(""):'<p class="pilot-hint">Sin invitaciones comerciales.</p>')+'</div></div>'+
+ '<div class="pilot-stack"><div class="card"><h2>ALTA COMERCIAL DE COACH</h2><p class="pilot-hint">Solo el administrador EFG habilita entrenadores. Escribí el cupo contratado; la cuenta nueva queda pendiente de activación hasta que verifiques el acuerdo y la transferencia.</p><div class="pilot-form"><div class="field"><label>Nombre / usuario profesional</label><input id="newCoachName" placeholder="Ej. CoachCarla" maxlength="70"></div><div class="field"><label>Correo electrónico</label><input id="newCoachEmail" type="email" placeholder="coach@email.com"></div><div class="field"><label for="newCoachSeats">Cupos contratados de alumnos (1 a 10.000)</label><input id="newCoachSeats" type="number" min="1" max="10000" required placeholder="Ej. 50"></div><div class="field"><label for="newCoachFee">Precio mensual acordado (ARS)</label><input id="newCoachFee" type="number" min="1" max="10000000" step=".01" placeholder="Importe del contrato"></div><button class="btn block" data-act="inviteCoach" '+(!state.platformAlias?'disabled':'')+'>Invitar coach · Pendiente de activación</button><small>'+(!state.platformAlias?'Primero configurá tu alias EFG.':'La invitación no activa la licencia hasta aprobar el pago.')+'</small></div></div><div class="card"><h2>ALIAS OFICIAL DE EFG</h2><p class="pilot-hint">Configurá tu alias para cobrar las licencias: se cargará automáticamente en «PAGAR MI LICENCIA A EFG» de todos los coaches. Nunca se modifica desde su cuenta.</p><div class="pilot-form"><div class="field"><label>Alias de cobro</label><input id="platformAlias" value="'+escapeHTML(state.platformAlias||"")+'" maxlength="100" placeholder="EFG.NUTRITION"></div><div class="field"><label for="platformAlias2">Alias alternativo 1 (opcional)</label><input id="platformAlias2" maxlength="100" value="'+escapeHTML(state.platformAliases?.[1]||"")+'"></div><div class="field"><label for="platformAlias3">Alias alternativo 2 (opcional)</label><input id="platformAlias3" maxlength="100" value="'+escapeHTML(state.platformAliases?.[2]||"")+'"></div><button class="btn" data-act="savePlatformAlias">Guardar alias de EFG</button></div></div><div class="card"><h2>Mi cuenta personal</h2><p class="pilot-hint">Como propietario podés usar también tu diario nutricional, pero no ver los diarios de otros entrenadores.</p><button class="btn light" data-tab="home">Abrir mi alimentación</button></div></div></div>';
 }
 function paymentCard(p){
  const isRecipient=p.recipient_id===state.session.user.id;
@@ -1725,22 +1780,31 @@ function paymentCard(p){
 }
 function paymentsView(){
  const role=state.profile.role,org=state.org;
- // Admin conserva su rol real, pero puede administrar los cobros de SU organización de prueba.
+ // El administrador sólo cobra licencias; su laboratorio de prueba puede cobrar
+ // a sus propios alumnos sin convertirse en coach comercial.
  const coachWorkspace=role==="coach"||(role==="admin"&&org?.is_test===true&&org?.coach_id===state.session.user.id);
  const kind=role==="student"?"student_coach":role==="coach"?"coach_efg":null;
  const alias=kind==="student_coach"?org?.payment_alias:kind==="coach_efg"?state.platformAlias:null;
+ const platformPicker=role==="coach"&&(state.platformAliases||[]).length?
+ '<div class="field"><label for="platformPayAlias">Alias oficial de EFG para transferir</label><select id="platformPayAlias">'+
+ state.platformAliases.map((v,i)=>'<option value="'+escapeHTML(v)+'">'+escapeHTML(v)+(i===0?' · Predeterminado':' · Alternativo')+'</option>').join('')+
+ '</select></div>':'';
  const received=state.payments.filter(p=>p.recipient_id===state.session.user.id&&p.payment_kind==="student_coach"&&p.organization_id===org?.id);
  const adminLicenses=role==="admin"?state.payments.filter(p=>p.recipient_id===state.session.user.id&&p.payment_kind==="coach_efg"):[];
  const sent=state.payments.filter(p=>p.payer_id===state.session.user.id);
  const pending=received.filter(p=>p.status==="pending");
- const aliasPanel=coachWorkspace?'<section class="card efg-payment-alias"><span class="eyebrow">COBROS A TUS ALUMNOS</span><h2>Mi alias de transferencia</h2><p class="pilot-hint">El alias que guardes acá aparecerá automáticamente en «Pagos y comprobantes» de tus alumnos.</p><div class="efg-alias-form"><div class="field"><label for="coachAlias">Alias bancario o de billetera virtual</label><input id="coachAlias" value="'+escapeHTML(org?.payment_alias||"")+'" maxlength="100" placeholder="EJEMPLO.ALIAS" autocomplete="off"></div><button class="btn" data-act="coachAlias">Guardar alias</button></div><small>El alias no verifica por sí solo la titularidad de la cuenta. Comprobá que sea correcto antes de compartirlo.</small></section>':'';
- return rootText("Pagos y comprobantes",coachWorkspace?"Configurá tu alias, recibí comprobantes de alumnos y verificá transferencias.":"Consultá el alias del destinatario y adjuntá tu comprobante de transferencia.")+
- aliasPanel+
- (coachWorkspace?'<section class="efg-payment-summary"><div><strong>'+pending.length+'</strong><span>Por verificar</span></div><div><strong>'+received.length+'</strong><span>Comprobantes recibidos</span></div><div><strong>'+sent.length+'</strong><span>Enviados a EFG</span></div></section>':'')+
- (coachWorkspace?'<section class="card efg-payment-inbox"><div class="section-head"><h2>Comprobantes de mis alumnos</h2><button type="button" class="btn small light" data-act="refreshPayments">Actualizar comprobantes</button><span class="pilot-pill '+(pending.length?"pending":"")+'">'+pending.length+' pendientes</span></div><p class="pilot-hint">El comprobante aparece cuando el alumno lo envía. Revisá la acreditación real en tu banco antes de aprobar.</p>'+(received.length?received.map(paymentCard).join(""):'<div class="empty">Todavía no recibiste comprobantes de alumnos.</div>')+'</section>':'')+
- (role==="admin"&&adminLicenses.length?'<section class="card efg-payment-inbox"><h2>Comprobantes de licencias EFG</h2><p class="pilot-hint">Transferencias de entrenadores a la plataforma.</p>'+adminLicenses.map(paymentCard).join("")+'</section>':'')+
- '<div class="pilot-two"><div class="pilot-stack">'+(kind?'<section class="card"><h2>'+(role==="coach"?"Mi pago a EFG":"Enviar comprobante")+'</h2><div class="pilot-notice efg-payment-target"><strong>Alias del destinatario: '+escapeHTML(alias||"Todavía no configurado")+'</strong>'+(role==="student"&&alias?'<button type="button" class="btn small light" data-copyalias="1">Copiar alias</button>':'')+'<small>'+(kind==="student_coach"?"Tu entrenador recibe el comprobante y verifica el pago.":"EFG Nutrition recibe y verifica la suscripción profesional.")+'</small></div><div class="pilot-form"><div class="field"><label for="payAmount">Importe transferido (ARS)</label><input id="payAmount" type="number" min="1" step=".01" placeholder="Importe"></div><div class="field"><label for="payPeriod">Mes / período del pago</label><input id="payPeriod" type="month" value="'+today().slice(0,7)+'"></div><div class="field"><label for="payFile">Foto del comprobante (máximo 5 MB)</label><input id="payFile" type="file" accept="image/jpeg,image/png,image/webp"></div><button class="btn block" data-act="sendProof" '+(!alias?'disabled':'')+'>Enviar comprobante</button></div><p class="pilot-hint">Adjuntar una foto no acredita el pago; el destinatario debe comprobarlo.</p></section>':'<section class="card"><h2>Superadministración</h2><p>Los pagos de licencias profesionales se gestionan desde la cuenta EFG.</p></section>')+'</div>'+
- '<div class="pilot-stack"><section class="card"><h2>'+(role==="coach"?"Mis pagos a EFG":"Mis transferencias")+'</h2>'+(sent.length?sent.map(paymentCard).join(""):'<div class="empty">Todavía no enviaste comprobantes.</div>')+'</section></div></div>';
+ const ownAlias=org?.payment_alias||"";
+ const platformAlias=state.platformAlias||"";
+ const aliasPanel=coachWorkspace?'<section class="card efg-payment-alias efg-payment-channel"><div class="eyebrow">CANAL 01 · COBROS</div><h2>COBRAR A MIS ALUMNOS</h2><p class="pilot-hint">Configurá tu alias profesional: EFG lo mostrará automáticamente en el panel de pagos de tus alumnos. Los comprobantes llegarán a esta misma sección, sin mezclarse con tu licencia.</p><div class="efg-alias-form"><div class="field"><label for="coachAlias">Mi alias para cobrar a los alumnos</label><input id="coachAlias" value="'+escapeHTML(ownAlias)+'" maxlength="100" placeholder="TU.ALIAS" autocomplete="off"></div><button type="button" class="btn" data-act="coachAlias">Guardar alias</button></div><small>Verificá los pagos en tu banco antes de aprobar comprobantes.</small></section>':'';
+ const coachInfo=role==="coach"?'<section class="card efg-license-summary"><div class="eyebrow">LICENCIA PROFESIONAL EFG</div><h2>Mi contrato</h2><div class="efg-license-meta"><div><strong>'+num(Number(org?.seat_limit)||0)+'</strong><span>Cupos contratados</span></div><div><strong>'+escapeHTML(org?.status==="active"?"ACTIVA":org?.status==="trial"?"PENDIENTE":org?.status==="grace"?"PRÓRROGA":"PENDIENTE / SUSPENDIDA")+'</strong><span>Estado de licencia</span></div></div><p><strong>'+(org?.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes':'Importe a definir por EFG')+'</strong></p><p class="pilot-hint">Los cupos y la activación los determina EFG. '+(org?.paid_through?'Vigencia abonada hasta '+escapeHTML(org.paid_through)+'. ':'')+'El comprobante enviado no activa ni amplía automáticamente el servicio.</p></section>':'';
+ const clientInbox=coachWorkspace?'<section class="card efg-payment-inbox"><div class="section-head"><h2>Comprobantes de mis alumnos</h2><button type="button" class="btn small light" data-act="refreshPayments">Actualizar comprobantes</button><span class="pilot-pill '+(pending.length?"pending":"")+'">'+pending.length+' pendientes</span></div>'+(received.length?received.map(paymentCard).join(""):'<div class="empty">Todavía no recibiste comprobantes de alumnos.</div>')+'</section>':'';
+ const adminBilling=role==="admin"?'<section class="card efg-payment-channel"><div class="eyebrow">COBRANZAS DE LA PLATAFORMA</div><h2>COBRAR LICENCIAS DE COACHES</h2><p class="pilot-hint">Tu alias central se carga una sola vez y se muestra automáticamente a todos los coaches. Ellos no pueden editarlo.</p><div class="efg-payment-target"><strong>Alias oficial EFG: '+escapeHTML(platformAlias||"PENDIENTE DE CONFIGURAR")+'</strong></div><button type="button" class="btn light" data-tab="adminManage">'+(platformAlias?"Administrar alias EFG":"Configurar mi alias EFG")+'</button></section><section class="card efg-payment-inbox"><h2>Comprobantes de licencias EFG</h2><p class="pilot-hint">Revisá la acreditación bancaria antes de aprobar. La aprobación del comprobante no cambia por sí sola el estado de la licencia.</p>'+(adminLicenses.length?adminLicenses.map(paymentCard).join(""):'<div class="empty">Todavía no hay comprobantes de coaches.</div>')+'</section>':'';
+ const transferPanel=kind?'<section class="card efg-payment-channel efg-payment-transfer"><div class="eyebrow">'+(role==="coach"?"CANAL 02 · LICENCIA EFG":"TRANSFERENCIA A TU COACH")+'</div><h2>'+(role==="coach"?"PAGAR MI LICENCIA A EFG":"PAGAR A MI COACH")+'</h2>'+(role==="coach"?'<p class="pilot-hint">La cuota depende de la cantidad de alumnos contratados. Transferí el importe acordado con EFG; la app no genera precios automáticos.</p>':'<p class="pilot-hint">Transferí al alias que configuró tu entrenador y luego adjuntá tu comprobante.</p>')+'<div class="pilot-notice efg-payment-target"><strong>Alias del destinatario: '+escapeHTML(alias||(role==="coach"?"EFG todavía debe configurar su alias":"Tu coach todavía debe configurar su alias"))+'</strong>'+(alias?'<button type="button" class="btn small light" '+(role==="coach"?'data-copyplatform="1"':'data-copyalias="1"')+'>Copiar alias</button>':'')+platformPicker+'<small>'+(role==="coach"?"Alias oficial del administrador, de solo lectura.":"El coach recibe tu comprobante y verifica el pago.")+'</small></div><div class="pilot-form"><div class="field"><label for="payAmount">Importe efectivamente transferido (ARS)</label><input id="payAmount" type="number" min="1" step=".01" placeholder="Importe según contrato" '+(role==="coach"&&Number(org?.license_fee_ars)>0?'value="'+Number(org.license_fee_ars)+'"':'')+'></div><div class="field"><label for="payPeriod">Mes / período del pago</label><input id="payPeriod" type="month" value="'+today().slice(0,7)+'"></div><div class="field"><label for="payFile">Comprobante (foto JPG, PNG o WebP, máximo 5 MB)</label><input id="payFile" type="file" accept="image/jpeg,image/png,image/webp"></div><button type="button" class="btn block" data-act="sendProof" '+(!alias?'disabled aria-disabled="true"':'')+'>Enviar comprobante</button></div><p class="pilot-hint">El envío no acredita el dinero ni renueva la licencia automáticamente; el destinatario verifica la transferencia.</p></section>':'';
+ const sentPanel=kind?'<section class="card efg-payment-inbox"><h2>'+(role==="coach"?"Mis pagos a EFG":"Mis transferencias")+'</h2>'+(sent.length?sent.map(paymentCard).join(""):'<div class="empty">Todavía no enviaste comprobantes.</div>')+'</section>':'';
+ return rootText("Pagos y comprobantes",role==="coach"?"Cobrá a tus alumnos y aboná tu licencia EFG en circuitos independientes.":role==="admin"?"Configurá el alias central y revisá los comprobantes de licencias profesionales.":"Transferí al alias de tu coach y registrá tu comprobante.")+
+ coachInfo+aliasPanel+
+ (coachWorkspace?'<section class="efg-payment-summary"><div><strong>'+pending.length+'</strong><span>Por verificar</span></div><div><strong>'+received.length+'</strong><span>Recibidos de alumnos</span></div><div><strong>'+sent.filter(p=>p.payment_kind==="coach_efg").length+'</strong><span>Enviados a EFG</span></div></section>':'')+
+ clientInbox+adminBilling+transferPanel+sentPanel;
 }
 // Retain open sections and unsaved coach inputs only when the view identity is unchanged.
 let lastRenderedViewKey=null;
@@ -1782,7 +1846,7 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -1887,10 +1951,10 @@ async function loadOrgAndPayments(){
  if(role==="student")orgResult=await sb.from("efg_organizations").select("*").eq("id",state.profile.organization_id).maybeSingle();
  if(orgResult?.error)throw orgResult.error;
  state.org=orgResult?.data||null;
- const [pay,bill]=await Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias").eq("id",1).maybeSingle()]);
+ const [pay,bill]=await Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias,additional_aliases").eq("id",1).maybeSingle()]);
  if(pay.error)throw pay.error;
  if(bill.error)throw bill.error;
- state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;
+ state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;state.platformAliases=[state.platformAlias,...(bill.data?.additional_aliases||[])].filter(Boolean);
 }
 async function loadCoachRosterConsent(){
  // One source of truth for real coaches AND the admin's test-coach workspace.
@@ -2058,13 +2122,15 @@ async function savePersonalTargets(){
 async function sendProof(){
  let input=document.getElementById("payFile"),file=input.files[0],amount=Number(document.getElementById("payAmount").value),period=document.getElementById("payPeriod").value;
  let kind=state.profile.role==="student"?"student_coach":"coach_efg";
+ if(kind==="coach_efg"&&!state.platformAlias)throw new Error("EFG aún no configuró su alias oficial. No envíes un comprobante hasta verificar el destinatario.");
+ if(kind==="student_coach"&&!state.org?.payment_alias)throw new Error("Tu coach todavía no configuró su alias.");
  if(!file||!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5242880)throw new Error("Elegí una foto JPG, PNG o WebP menor a 5 MB.");
  if(!Number.isFinite(amount)||amount<=0||amount>10000000||!/^\d{4}-\d{2}$/.test(period))throw new Error("Revisá importe y período.");
  const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"}[file.type];
  const name=state.session.user.id+"/"+crypto.randomUUID()+"."+ext;
  let upload=await sb.storage.from("efg-receipts").upload(name,file,{upsert:false,contentType:file.type});
  if(upload.error)throw upload.error;
- let payment=await sb.rpc("efg_submit_payment",{p_kind:kind,p_amount_ars:amount,p_period:period,p_receipt_path:name});
+ let payment=kind==="coach_efg"?await sb.rpc("efg_submit_coach_payment",{p_amount_ars:amount,p_period:period,p_receipt_path:name,p_alias:document.getElementById("platformPayAlias")?.value||state.platformAlias||""}):await sb.rpc("efg_submit_payment",{p_kind:kind,p_amount_ars:amount,p_period:period,p_receipt_path:name});
  if(payment.error)throw payment.error;
  await loadOrgAndPayments();await render();notify("Comprobante registrado. El destinatario deberá verificar la transferencia.");
 }
@@ -2085,12 +2151,28 @@ async function showProof(path){
 }
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
- if(state.renderedDay&&state.renderedDay!==today()){await ensureCurrentDay();await render();notify("Nuevo día: lo anterior sigue guardado en tu historial.");return;}
+ if(state.renderedDay&&state.renderedDay!==today()){
+  await ensureCurrentDay();await render();
+  notify("Nuevo día: lo anterior sigue guardado en tu historial.");
+  // El primer toque de navegación o de abrir una comida NO se descarta.
+  // No continuar acciones que pudieran confirmar formularios antiguos.
+  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
+  if(el.dataset.tab){state.tab=el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  return;
+ }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
  if(el.dataset.rewardApproval){await updateSundayPermission(el.dataset.rewardApproval==="yes");return;}
  if(el.dataset.fitfilter){state.fitFilter=el.dataset.fitfilter;await render();document.querySelector(".efg-fit-library")?.scrollIntoView({block:"start"});return;}
  if(el.dataset.fitrecipe){return registerFitRecipe(el.dataset.fitrecipe);}
- if(el.dataset.copyalias){const alias=state.org?.payment_alias;if(!alias)throw new Error("Tu coach todavía no configuró un alias.");if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(alias);notify("Alias copiado.");}else window.prompt("Copiá el alias:",alias);return;}
+ if(el.dataset.copyalias||el.dataset.copyplatform){
+ const isPlatform=el.dataset.copyplatform==="1";
+ if(isPlatform&&state.profile.role!=="coach")throw new Error("Solo los coaches pueden copiar el alias oficial desde este acceso.");
+ const alias=isPlatform?(document.getElementById("platformPayAlias")?.value||state.platformAlias):state.org?.payment_alias;
+ if(!alias)throw new Error(isPlatform?"EFG todavía no configuró el alias central.":"Tu coach todavía no configuró un alias.");
+ if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(alias);notify("Alias copiado.");}
+ else window.prompt("Copiá el alias:",alias);
+ return;
+}
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
@@ -2165,6 +2247,8 @@ if(el.dataset.foodbulk){
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
+ if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
+ if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";state.plannerDraftGrams={};return render();}
@@ -2200,7 +2284,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
  if(el.dataset.reject)return onePaymentAction(el.dataset.reject,"rejected");
  if(el.dataset.proof)return showProof(el.dataset.proof);
- if(el.dataset.orgstatus){const org=state.orgs.find(x=>x.id===el.dataset.orgstatus);if(!org)throw new Error("Organización no encontrada.");const next=org.status==="suspended"?"active":"suspended";if(!window.confirm(next==="suspended"?"¿Suspender la cuenta de este coach? No podrá consultar alumnos ni incorporar nuevos.":"¿Reactivar esta cuenta profesional?"))return;const {error}=await sb.rpc("efg_update_subscription",{p_org:org.id,p_status:next});if(error)throw error;await loadRoleData();await render();notify("Estado de licencia actualizado.");return;}
+ if(el.dataset.orgstatus){const org=state.orgs.find(x=>x.id===el.dataset.orgstatus);if(!org)throw Error("Organización no encontrada.");if(!window.confirm("¿Suspender la licencia de "+org.name+"? Los registros quedan intactos."))return;const {error}=await sb.rpc("efg_update_subscription",{p_org:org.id,p_status:"suspended"});if(error)throw error;await loadRoleData();await render();notify("Licencia suspendida.");return;}
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
  if(el.dataset.testseats){
   if(state.profile.role!=="admin"||!state.org?.is_test||state.org.coach_id!==state.session.user.id)throw new Error("No tenés permisos para modificar estos cupos de prueba.");
@@ -2211,7 +2295,24 @@ if(el.dataset.foodbulk){
   const {error}=await sb.rpc("efg_set_seats",{p_org:state.org.id,p_seats:count});if(error)throw error;
   state.org.seat_limit=count;await render();notify("Límite de alumnos de prueba actualizado.");return;
  }
- if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
+ if(el.dataset.contract){
+  if(state.profile.role!=="admin")throw Error("Solo EFG modifica contratos.");
+  const org=state.orgs.find(x=>x.id===el.dataset.contract);if(!org)throw Error("Contrato no encontrado.");
+  const a=window.prompt("Cupos contratados para "+org.name+":",String(org.seat_limit));if(a===null)return;
+  const b=window.prompt("Precio mensual acordado (ARS):",String(org.license_fee_ars||""));if(b===null)return;
+  const seats=Number(a),fee=Number(b);
+  if(!Number.isInteger(seats)||seats<1||seats>10000||!Number.isFinite(fee)||fee<=0||fee>10000000)throw Error("Cupo o importe inválido.");
+  if(!window.confirm("Cambiar plan puede suspender la licencia hasta comprobar el nuevo pago. ¿Continuar?"))return;
+  const {error}=await sb.rpc("efg_set_coach_plan",{p_org:org.id,p_seats:seats,p_fee_ars:fee});
+  if(error)throw error;await loadRoleData();await render();notify("Contrato actualizado; verificá el pago antes de activar.");return;
+ }
+ if(el.dataset.activatecoach){
+  if(state.profile.role!=="admin")throw Error("Solo EFG activa licencias.");
+  const org=state.orgs.find(x=>x.id===el.dataset.activatecoach);if(!org)throw Error("Coach no encontrado.");
+  if(!window.confirm("¿Verificaste el pago acreditado y aprobado del contrato actual de "+org.name+"?"))return;
+  const {error}=await sb.rpc("efg_activate_paid_coach",{p_org:org.id});
+  if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
+ }
  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
@@ -2253,10 +2354,19 @@ if(el.dataset.foodbulk){
 }
  if(action==="saveWeight")return saveWeight();
  if(action==="saveActivity")return saveActivity();
- if(action==="inviteCoach"){const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim(),seats=Number(document.getElementById("newCoachSeats").value);let r=await sb.rpc("efg_invite_coach",{p_email:email,p_name:name,p_seats:seats});if(r.error)throw r.error;await loadRoleData();await render();notify("Coach habilitado. Compartí su correo y dirección de acceso.");return;}
+ if(action==="inviteCoach"){
+  if(state.profile.role!=="admin")throw Error("Solo EFG puede contratar coaches.");
+  const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim();
+  const seats=Number(document.getElementById("newCoachSeats").value),fee=Number(document.getElementById("newCoachFee").value);
+  if(!Number.isInteger(seats)||seats<1||seats>10000||!Number.isFinite(fee)||fee<=0||fee>10000000)throw Error("Definí la cantidad de cupos y el precio mensual del contrato.");
+  if(!state.platformAlias)throw Error("Configurá primero el alias oficial de EFG.");
+  if(!window.confirm("¿Invitar a "+name+" con "+seats+" cupos a "+fee+" ARS/mes? La licencia quedará pendiente."))return;
+  const {error}=await sb.rpc("efg_offer_coach",{p_email:email,p_name:name,p_seats:seats,p_fee_ars:fee});
+  if(error)throw error;await loadRoleData();await render();notify("Invitación enviada, licencia pendiente de pago y activación.");return;
+ }
  if(action==="inviteStudent"){const email=document.getElementById("studentEmail").value.trim(),name=document.getElementById("studentName").value.trim();let r=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_invite_test_student":"efg_invite_student",{p_email:email,p_name:name});if(r.error)throw r.error;await loadRoleData();await render();notify("Alumno habilitado en los cupos de este coach.");return;}
  if(action==="coachAlias"){if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org.coach_id===state.session.user.id)))throw new Error("No tenés permiso para editar este alias.");let alias=document.getElementById("coachAlias").value.trim();let r=await sb.rpc("efg_set_coach_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias de cobro guardado.");return;}
- if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim();let r=await sb.rpc("efg_set_platform_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias EFG actualizado.");return;}
+ if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim(),two=document.getElementById("platformAlias2").value.trim(),three=document.getElementById("platformAlias3").value.trim();let r=await sb.rpc("efg_set_platform_aliases",{p_primary:alias,p_secondary:two||null,p_tertiary:three||null});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias oficiales de EFG actualizados.");return;}
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="makeGuidedDay"){

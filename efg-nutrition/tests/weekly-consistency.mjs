@@ -72,4 +72,13 @@ const changedGoals=history([day("2026-10-26",2100,150),day("2026-10-27",2000,150
  {start_on:"2026-10-27",kcal:2000,protein_g:150}
 ]);
 assert.equal(changedGoals.ideal,2,"Historical day uses effective goal, not today's target");
+
+const professionalReward=weeklyConsistencyPanel(sunday,{personal:true,opened:true,verified:true,approved:true});
+assert.match(professionalReward,/Reconocimiento personal por tu constancia semanal/);
+assert.doesNotMatch(professionalReward,/Tu coach autorizó expresamente/,"A coach cannot grant themselves free meals");
+assert.match(professionalReward,/Domingo: descanso de la evaluación semanal/);
+const selfGoalNotRetroactive=history([day("2026-10-26",2000,150),day("2026-10-27",2000,150)],"2026-10-28",[
+ {start_on:"2026-10-27",kcal:2000,protein_g:150}
+]);
+assert.equal(selfGoalNotRetroactive.evaluated,1,"Professional personal targets must not be retroactively applied before saved date");
 console.log("PASS: independent ±5/±10 Mon–Sat tracks, inclusive nesting, protein ≥90%, Sunday discretionary, provisional today, historical approved goals, no false awards.");

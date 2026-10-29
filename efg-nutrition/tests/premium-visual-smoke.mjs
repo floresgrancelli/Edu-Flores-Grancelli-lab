@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -54,7 +54,17 @@ try{
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
-  await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__);
+  try{await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__,null,{timeout:16000});}
+  catch(err){
+    const debug=await page.evaluate(()=>({
+      readyState:document.readyState,
+      title:document.title,
+      scripts:[...document.querySelectorAll('script')].map(x=>x.src).slice(-4),
+      body:document.body?.innerText?.slice(0,400)
+    })).catch(()=>({}));
+    throw Error("EFG pilot failed to boot in isolated "+engine+" "+role+"/"+width+
+      ": "+JSON.stringify(debug)+"; JS/page errors: "+errors.slice(-9).join(" | ")+"; "+String(err));
+  }
   if(role==="coach"&&width===390&&engine==="chromium"){
    // Isolated iPhone-width touch regression before the fixture signs in.
    const gesture=await page.evaluate(async()=>{
@@ -112,7 +122,7 @@ try{
    state.progressLogs=demoLogs;state.coachProgressLogs=demoLogs;
    state.coachGoals=state.goals;
 
-   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
+   state.personalTargets={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,updated_at:goalStart.toISOString()};
    state.consent={accepted:true};
    state.org={id:"demo-org",name:"Entrenamiento Demo",seat_limit:25,is_test:role==="admin",status:"active",payment_alias:"DEMO.ALIAS",coach_id:role==="admin"?"demo-admin":"demo-coach"};
    state.orgs=[
@@ -125,19 +135,107 @@ try{
      {user_id:"demo-student-b",nickname:"Camila Pérez",email:"alumno.b@example.invalid",role:"student",active:true},
      {user_id:"demo-student-c",nickname:"Lucas Díaz",email:"alumno.c@example.invalid",role:"student",active:false}
    ];
-   state.invitations=[];state.testInvitations=[];state.payments=[];
+   state.invitations=[];state.testInvitations=[];state.payments=[];state.platformAlias="EFG.ALIAS.DEMO";
    state.weights=[];state.activities=[];state.selectedStudent=null;
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
+
+  if(width===390){
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="messages";await v.render();await v.inbox.refresh();});
+   const search=page.locator("#efgChatSearch"),contact=page.locator("[data-chat-contact]");
+   if(!(await search.count()))errors.push(role+" chat search missing");
+   if((await contact.count())!==1)errors.push(role+" chat must show exactly one authorized contact; got "+await contact.count());
+   const excluded=await page.locator("#efgMessagesContent").innerText();
+   if(role!=="student"&&excluded.includes("Camila Pérez"))errors.push(role+" chat exposed unconsented student");
+   if(await search.count()){
+    await search.fill("contacto inexistente");
+    if(await page.locator("[data-chat-contact]").count())errors.push(role+" search did not filter chats");
+    await search.fill("");
+   }
+   if(await contact.count()){
+    await contact.first().click();
+    await page.waitForTimeout(70);
+    const thread=page.locator(".efg-chat-layout.show-thread #efgMessageForm");
+    if(!(await thread.count()))errors.push(role+" contact did not open conversation");
+    if(!(await page.locator("[data-chat-back]").count()))errors.push(role+" chat missing back arrow");
+    await page.locator("[data-chat-back]").click();
+    if(await page.locator(".efg-chat-layout.show-thread").count())errors.push(role+" chat back did not restore list");
+   }
+   const bell=page.locator(".efg-notify-bell");
+   if(!(await bell.count()))errors.push(role+" floating notification bell missing");
+   else{
+    const visual=await bell.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,icon:!!el.querySelector("svg"),w:el.getBoundingClientRect().width}));
+    if(visual.bg!=="rgba(0, 0, 0, 0)"||!visual.icon||visual.w<44)errors.push(role+" bell should be floating SVG without tile: "+JSON.stringify(visual));
+   }
+   await page.screenshot({path:join(outDir,engine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
+   await page.evaluate(async(role)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=role==="student"?"home":role==="coach"?"coach":"admin";await v.render();},role);
+  }
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","coachTools","coachStudents","reports","payments"]:["admin","home","testCoach","adminMore","payments"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","home","studentMore","coachTools","coachStudents","reports","payments","recipes"]:["admin","home","testCoach","adminMore","payments"];
   for(const dest of destinations){
    if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
-   else if(dest==="recipes"||dest==="coachTools")await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
+   else if(dest==="recipes"||dest==="coachTools"||(role==="coach"&&dest==="reports"))await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
-   if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
+   if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.platformAlias="EFG.ALIAS.DEMO";v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   if(role==="coach"){
+     const content=await page.locator(".pilot-main").innerText();
+     if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
+     if(dest==="studentMore"&&(!content.toLocaleUpperCase("es-AR").includes("MI PLANIFICADOR")||!content.toLocaleUpperCase("es-AR").includes("MIS SUPLEMENTOS")))pageReport.errors.push("Coach MI ESPACIO incomplete: "+content.slice(0,320));
+     if(dest==="payments"&&(!content.toLocaleUpperCase("es-AR").includes("COBRAR A MIS ALUMNOS")||!content.toLocaleUpperCase("es-AR").includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing: "+content.slice(0,470));
+   }
+   if((role==="admin"||role==="student")&&width===390&&dest==="home"){
+     // Reproduce six meal slots, remote persisted favourites and first iPhone food selection
+     // with NO real Supabase access; fixtures are account-specific in memory only.
+     const slots=["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"];
+     const diaryBefore=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+     await page.evaluate(async(role)=>{
+       const v=window.__EFG_VISUAL_QA__;
+       v.setHabituales(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"].flatMap(slot=>
+         [1,2].map(n=>({id:"demo-"+role+"-"+slot+"-"+n,meal_slot:slot,name:slot+" habitual "+n,
+             items:[{id:"egg",name:"Huevo habitual",qty:55,unit:"g",k:81,p:7,c:1,f:5,fi:0}]}))));
+       await v.render();
+     },role);
+     for(const slot of slots){
+       const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
+       if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
+       if(!(await block.getAttribute("open")))await block.locator("summary").click();
+       const select=block.locator('[data-habitualchoice="'+slot+'"]');
+       const options=await select.locator("option").allTextContents();
+       if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
+       await select.selectOption("demo-"+role+"-"+slot+"-1");
+       if(await select.inputValue()!=="demo-"+role+"-"+slot+"-1")pageReport.errors.push("First habitual choice not accepted for "+slot);
+     }
+     await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
+     await page.locator('[data-habitualapply="media_tarde"]').click();
+     await page.waitForTimeout(150);
+     const saved=await page.evaluate(()=>{
+       return (window.__EFG_VISUAL_QA__.state.diary?.meals?.media_tarde||[]).map(x=>x.qty);
+     });
+     if(!saved.includes(55))pageReport.errors.push("Selected habitual not saved on first tap for "+role);
+     await page.evaluate(async()=>{
+       const v=window.__EFG_VISUAL_QA__;v.openMealDialog("cena");
+     });
+     const initial=await page.locator("#mealEditorFood").inputValue();
+     if(initial!=="")pageReport.errors.push("Meal food editor must start with unselected placeholder, got "+initial);
+     const first=await page.locator('#mealEditorFood option[value]:not([value=""]):not([disabled])').first().getAttribute("value");
+     if(first){
+       await page.locator("#mealEditorFood").selectOption(first);
+       if(await page.locator("#mealEditorFood").inputValue()!==first)pageReport.errors.push("iOS first food option did not stick for "+role);
+       await page.locator('[data-act="saveSelectedMeal"]').click();
+       await page.waitForTimeout(130);
+       const stored=await page.evaluate(id=>(window.__EFG_VISUAL_QA__.state.diary?.meals?.cena||[]).some(x=>x.id===id),first);
+       if(!stored)pageReport.errors.push("First food selection not persisted on first try for "+role);
+     } else pageReport.errors.push("Meal editor has no foods for "+role);
+     await page.evaluate(async previous=>{
+       const v=window.__EFG_VISUAL_QA__;
+       v.state.diary=previous;
+       v.state.lastEditedMeal=null;
+       await v.render();
+     },diaryBefore);
+     await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
+   }
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".
      // El buscador debe mostrar la acción SIN cerrar el teclado Safari.
@@ -275,7 +373,7 @@ try{
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
     const lunch=page.locator(".student-meal-card").nth(2);
-    await lunch.locator("summary").click();
+    if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
@@ -373,7 +471,7 @@ try{
      if(!(await page.getByText("Comprobantes de mis alumnos",{exact:true}).count()))pageReport.errors.push("Coach receipts inbox missing");
      if(!(await page.getByText("Alex Gómez",{exact:false}).count()))pageReport.errors.push("Sender name missing in coach inbox");
      if((await page.locator(".efg-payment-inbox .efg-payment-item").count())!==1)pageReport.errors.push("Coach receipts inbox should contain one org-scoped receipt");
-     if(role==="admin"&&!(await page.getByText("Superadministración",{exact:true}).count()))pageReport.errors.push("Admin billing view must remain available");
+     if(role==="admin"&&!(await page.getByText("COBRAR LICENCIAS DE COACHES",{exact:true}).count()))pageReport.errors.push("Admin license billing view is missing");
    }
    if(role==="student"&&dest==="weight"){
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){

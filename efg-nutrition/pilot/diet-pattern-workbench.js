@@ -45,6 +45,22 @@ export function evaluatePattern({patternId,healthFlags=[],medicationFlags=[],age
  return {status:reasons.length?"blocked_pending_clinical_review":"requires_professional_review",
   requiresReview:true,reasons};
 }
+export function evaluateEatingWindow({windowId,healthFlags=[],medicationFlags=[],age=null}={}){
+ const window=EATING_WINDOWS.find(w=>w.id===windowId);
+ if(!window)throw Error("Ventana horaria desconocida.");
+ if(windowId==="regular")return {status:"general",requiresReview:false,reasons:[]};
+ const h=new Set(healthFlags),m=new Set(medicationFlags);
+ const reasons=[];
+ if(age!==null&&(!Number.isFinite(age)||age<18))reasons.push("Menores de edad: no habilitar ayuno automáticamente.");
+ for(const flag of ["pregnancy","lactation","eating_disorder"]){
+  if(h.has(flag))reasons.push("Condición que requiere evaluación previa: "+flag);
+ }
+ if(h.has("diabetes")||m.has("insulin")||m.has("sulfonylurea")||m.has("sglt2")){
+  reasons.push("Diabetes o tratamiento farmacológico: revisar riesgo de hipoglucemia/cetoacidosis y horarios.");
+ }
+ return {status:reasons.length?"blocked_pending_clinical_review":"informational_timing_option",
+  requiresReview:reasons.length>0,reasons};
+}
 const finite=(n)=>typeof n==="number"&&Number.isFinite(n)&&n>=0;
 const minute=(hhmm)=>{if(typeof hhmm!=="string"||!/^([01]\d|2[0-3]):[0-5]\d$/.test(hhmm))
  throw Error("Hora inválida; usar HH:MM.");const [h,m]=hhmm.split(":").map(Number);return h*60+m;};
@@ -56,7 +72,7 @@ export function distributeDailyTargets({targets,windowId="regular",startTime="08
  const window=EATING_WINDOWS.find(x=>x.id===windowId);
  if(!window)throw Error("Ventana horaria desconocida.");
  if(!Number.isInteger(mealCount)||mealCount<2||mealCount>4)throw Error("Elegí entre dos y cuatro comidas orientativas.");
- const start=minute(startTime),duration=window.hours??(24-start/60);
+ const start=minute(startTime),duration=window.hours??12; // Regular is an illustrative 12h schedule, NOT a fasting boundary.
  const end=start+duration*60;
  // Midnight-crossing schedules need deliberate multi-date diary mapping.
  if(end>1440)throw Error("Ventanas que cruzan medianoche requieren control de fechas del diario.");
@@ -77,7 +93,7 @@ export function distributeDailyTargets({targets,windowId="regular",startTime="08
  });
  // Preserve the original kcal/macros exactly (to 0.1) and never infer a deficit.
  const macroKcal=targets.p*4+targets.c*4+targets.f*9;
- return {windowId,startTime,endTime:time(end%1440),mealCount,meals,
+ return {windowId,startTime,endTime:windowId==="regular"?null:time(end%1440),mealCount,meals,
   dailyTargets:{...targets},preserved:true,macroEnergyDifference:tenth(macroKcal-targets.k),
   note:"Horario flexible: no sustituye la revisión de objetivos ni prescribe ayuno."};
 }

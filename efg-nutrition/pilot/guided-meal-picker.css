@@ -20,3 +20,13 @@
  .efg-guidance-tab{font-size:12px;min-height:56px}
  .efg-guided-save-actions{grid-template-columns:1fr}
 }
+
+/* UX-FIND-01: resultados visibles al tipear; selector nativo de respaldo intacto. */
+.efg-meal-search-results[hidden]{display:none!important}
+.efg-meal-search-results{margin-top:8px;max-height:min(248px,35vh);overflow-y:auto;overscroll-behavior:contain;border:1px solid #cabedc;border-radius:14px;background:#fffdfd;box-shadow:0 12px 25px rgba(54,39,83,.13)}
+.efg-meal-search-count{margin:0;padding:9px 12px;font-size:12px;font-weight:650;line-height:1.4;color:#534b65;background:#f2ecf8}
+.efg-meal-search-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:46px;text-align:left;padding:11px 12px;border:0;border-top:1px solid #eee7f3;border-radius:0;background:#fff;color:#29243a;font-size:14px;line-height:1.4;cursor:pointer;white-space:normal}
+.efg-meal-search-choice>span{min-width:0;overflow-wrap:anywhere}
+.efg-meal-search-choice>small{flex-shrink:0;font-weight:750;color:#685382}
+.efg-meal-search-choice:is(:hover,:focus-visible){background:#f2ecfb;outline:2px solid #72549c;outline-offset:-2px}
+@media(max-width:440px){.efg-meal-search-results{max-height:min(210px,30vh)}.efg-meal-search-choice{min-height:48px;font-size:13px}}

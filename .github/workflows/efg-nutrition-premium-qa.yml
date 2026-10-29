@@ -54,6 +54,11 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: Coach intake to calculator prefill and safe five-meal preview
+        run: |
+          node --check efg-nutrition/pilot/coach-intake-prefill.js
+          node --check efg-nutrition/pilot/pilot.js
+          node efg-nutrition/tests/coach-intake-prefill.mjs
       - name: Verify legal onboarding draft (isolated; NO production legal gate)
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js

@@ -15,8 +15,8 @@ for(const f of ["notifications-ui.js","messages-ui.js"])assert.ok(app.includes(f
 for(const f of ["notifications-ui.css","messages-ui.css"])assert.ok(html.includes(f),"Missing stylesheet "+f);
 assert.match(inbox,/setInterval\(/,"Inbox must refresh while page stays open");
 assert.match(inbox,/\.eq\("recipient_id",userId\)/,"Inbox must be user-scoped");
-assert.match(messages,/\.eq\("student_id",pair\.student\)/,"Chat must scope student");
-assert.match(messages,/\.eq\("coach_id",pair\.coach\)/,"Chat must scope coach");
+assert.match(messages,/\.eq\("student_id",x\.student\)/,"Chat must scope student");
+assert.match(messages,/\.eq\("coach_id",x\.coach\)/,"Chat must scope coach");
 assert.match(messages,/\.insert\(/,"Chat must allow sending");
 assert.match(notificationSQL,/enable row level security/i);
 assert.match(chatSQL,/enable row level security/i);

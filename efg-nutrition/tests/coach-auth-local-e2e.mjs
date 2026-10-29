@@ -46,17 +46,19 @@ async function signup(role){
  assert.equal(data.access_token.split(".").length,3);
  const user=ok(await call("/auth/v1/user",{token:data.access_token}),"GoTrue /user for "+role);
  assert.equal(user.id,data.user.id,"Signed token must identify the created GoTrue user");
- return {id:data.user.id,token:data.access_token};
+ return {id:data.user.id,token:data.access_token,email:data.user.email};
 }
 const users={};
 for(const role of ["coachA","coachB","studentA","studentB","reviewer"])users[role]=await signup(role);
 const orgA="10000000-0000-4000-8000-000000000001";
 const orgB="10000000-0000-4000-8000-000000000002";
 const seed=[
- "insert into public.efg_organizations(id,coach_id) values ("+uuid(orgA)+","+uuid(users.coachA.id)+"),("+uuid(orgB)+","+uuid(users.coachB.id)+")",
- "insert into public.efg_profiles(user_id,organization_id,role) values "+
-  "("+uuid(users.coachA.id)+",null,'coach'),("+uuid(users.coachB.id)+",null,'coach'),"+
-  "("+uuid(users.studentA.id)+","+uuid(orgA)+",'student'),("+uuid(users.studentB.id)+","+uuid(orgB)+",'student')",
+ "insert into public.efg_organizations(id,coach_id,name) values ("+uuid(orgA)+","+uuid(users.coachA.id)+",'Fictional Org A'),("+uuid(orgB)+","+uuid(users.coachB.id)+",'Fictional Org B')",
+ "insert into public.efg_profiles(user_id,email,nickname,organization_id,role) values "+
+  "("+uuid(users.coachA.id)+",'"+users.coachA.email+"','Coach A',null,'coach'),"+
+  "("+uuid(users.coachB.id)+",'"+users.coachB.email+"','Coach B',null,'coach'),"+
+  "("+uuid(users.studentA.id)+",'"+users.studentA.email+"','Student A',"+uuid(orgA)+",'student'),"+
+  "("+uuid(users.studentB.id)+",'"+users.studentB.email+"','Student B',"+uuid(orgB)+",'student')",
  "insert into public.efg_consents(student_id,organization_id,accepted) values "+
   "("+uuid(users.studentA.id)+","+uuid(orgA)+",true),("+uuid(users.studentB.id)+","+uuid(orgB)+",true)",
  "insert into public.efg_student_plan_access(student_id,organization_id,coach_id,status) values "+

@@ -27,3 +27,20 @@ export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,gu
  }
  return {ready:true,reason:"Borrador coincidente con la versión guardada.",revision:savedDraft.draft_revision};
 }
+
+/** Confirm the actual server record, never just a local revision counter. */
+export function verifyCoachDraftReadback({studentId,intake,savedDraft,expectedRevision,goal,guide}={}){
+ const match=assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide});
+ if(!match.ready||match.revision!==expectedRevision)
+  throw Error("No se pudo confirmar el contenido y la revisión del borrador en el servidor. Abrí la ficha nuevamente antes de publicar.");
+ // JSONB returned from the server must not retain a mutable reference to the editor.
+ return structuredClone(savedDraft);
+}
+
+/** Ignore asynchronous results after switching student, session or intake view. */
+export function coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}={}){
+ return !!(state?.session?.user?.id&&state.session.user.id===sessionUserId&&
+  state.selectedStudent===studentId&&
+  state.coachIntakeForms?.[studentId]===intake&&
+  state.coachPlanDraftRecord===previousDraft&&state.consent?.accepted===true);
+}

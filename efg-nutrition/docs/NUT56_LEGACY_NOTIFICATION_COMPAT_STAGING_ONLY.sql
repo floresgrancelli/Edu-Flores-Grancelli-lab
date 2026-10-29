@@ -41,14 +41,14 @@ drop trigger trg_efg_notify_goal on public.efg_goals;
 create trigger trg_efg_notify_goal
 after insert on public.efg_goals
 for each row
-when (pg_catalog.coalesce(pg_catalog.current_setting('efg.coach_atomic_publish',true),'') <> 'on')
+when (coalesce(pg_catalog.current_setting('efg.coach_atomic_publish',true),'') <> 'on')
 execute function public.efg_notify_goal();
 
 drop trigger trg_efg_notify_food_guide on public.efg_food_plans;
 create trigger trg_efg_notify_food_guide
 after insert or update on public.efg_food_plans
 for each row
-when (pg_catalog.coalesce(pg_catalog.current_setting('efg.coach_atomic_publish',true),'') <> 'on')
+when (coalesce(pg_catalog.current_setting('efg.coach_atomic_publish',true),'') <> 'on')
 execute function public.efg_notify_food_guide();
 commit;
 

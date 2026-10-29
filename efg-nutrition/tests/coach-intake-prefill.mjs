@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "../pilot/coach-intake-prefill.js";
+import {intakeSaveButtonLabel} from "../pilot/coach-intake-flow.js";
 import {readFileSync} from "node:fs";
 const sample={student_id:"student_A",shared_at:"2026-10-29T15:00:00Z",updated_at:"2026-10-29T15:01:00Z",age_years:41,height_cm:174,
  weight_kg:80.5,objective:"recomp",activity_level:"moderate",dietary_pattern:"omnivore",
@@ -43,5 +44,14 @@ assert.match(form,/data-act="prepareCoachPlanFromIntake"/);
 assert.match(app,/coachIntakeGuidePreview/);
 assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide must be regenerated after changing target kcal");
 assert.match(app,/coachGuidePreviewAllowed/);
+assert.equal(intakeSaveButtonLabel({wasShared:false,willShare:false}),"Guardar ficha privada");
+assert.equal(intakeSaveButtonLabel({wasShared:false,willShare:true}),"Guardar y enviar mi ficha a mi coach");
+assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:true}),"Actualizar ficha compartida con mi coach");
+assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:false}),"Guardar privada y dejar de compartir");
+assert.match(app,/if\(e\.target\.id==="efgIntakeShare"\)/,"Submit label updates on checkbox change");
+assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide preview gets regenerated on goal edits");
+assert.match(app,/await loadStudentDetail\(studentId\); \/\/ Revalidate RLS\/consent/);
+assert.match(app,/Guardar objetivo para revisar guía/,"Goal must not be advertised as published diet");
+
 assert.doesNotMatch(app,/createCoachCalculatorPrefill\([\s\S]{0,150}state\.session\.user\.id\s*\)/);
 console.log("PASS: coach prefill is role/consent-specific, fails closed, and cannot invent goals, clinical safety or equation sex");

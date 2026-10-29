@@ -35,7 +35,9 @@ assert.match(html,/OBJETIVO CUMPLIDO/);
 assert.match(html,/1\/6/);
 assert.match(html,/2\/6/);
 assert.match(html,/Domingo: alimentación flexible según las indicaciones de tu coach/);
-assert.match(html,/criterios prácticos de EFG, no valores clínicos universales/);
+assert.match(html,/Basado en evidencia científica/);
+assert.match(html,/criterio práctico inspirado en esa evidencia/);
+assert.match(html,/no son límites clínicos universales/);
 assert.ok(!html.includes(">D</span>"),"Sunday must never be in six-day bar");
 const sunday=history([
  day("2026-10-26",1990,150),day("2026-10-27",1990,150),

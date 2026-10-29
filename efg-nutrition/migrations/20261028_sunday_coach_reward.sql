@@ -28,7 +28,7 @@ using (student_id=(select auth.uid()));
 create policy "sunday_reward_coach_read"
 on public.efg_sunday_rewards for select to authenticated
 using (
- and and coach_id=(select auth.uid()) and exists (
+ and coach_id=(select auth.uid()) and exists (
   select 1 from public.efg_profiles p
   join public.efg_organizations o on o.id=p.organization_id
   join public.efg_consents c on c.student_id=p.user_id and c.organization_id=o.id

@@ -99,6 +99,20 @@ const adjusted=structuredClone(swapped);
 adjusted.meals[2].items[1].qty=200;adjusted.meals[2].items[1].locked=true;
 const protectedEdit=rebalanceGuidedDay(adjusted,goal);
 assert.equal(protectedEdit.meals[2].items[1].qty,200,"Coach-entered portion must survive automatic rebalancing");
+
+// Coach changes a quantity: keep that choice, recalculate other meals globally.
+// A 340 g cooked rice portion intentionally stresses the original daily balance.
+const chosen=structuredClone(original),fixedRice=chosen.meals.find(m=>m.slot==="almuerzo").items.find(i=>i.id==="brownrice");
+fixedRice.qty=340;fixedRice.locked=true;
+const automatic=rebalanceGuidedDay(chosen,goal);
+assert.equal(automatic.meals.find(m=>m.slot==="almuerzo").items.find(i=>i.id==="brownrice").qty,340,
+ "Coach-set grams must not be changed by automatic optimization");
+const beforeFlexible=chosen.meals.flatMap(m=>m.items.filter(i=>!i.locked).map(i=>m.slot+":"+i.id+":"+i.qty));
+const afterFlexible=automatic.meals.flatMap(m=>m.items.filter(i=>!i.locked).map(i=>m.slot+":"+i.id+":"+i.qty));
+assert.ok(beforeFlexible.some((x,i)=>x!==afterFlexible[i]),
+ "At least one other adjustable ingredient must rebalance when coach significantly changes a portion");
+assert.equal(automatic.meals.length,5,"Recalculation must cover the whole daily guide, not one isolated meal");
+
 const balanced=rebalanceGuidedDay(swapped,goal);
 assert.equal(balanced.meals[2].items[1].id,"rice","Rebalancing preserves chosen foods");
 assert.doesNotThrow(()=>validateGuidedDay(balanced,goal));

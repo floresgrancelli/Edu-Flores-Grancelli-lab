@@ -58,6 +58,7 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
 | ST-21 | Términos y privacidad preacceso futuros | Aceptación versionada, no premarcada, separada del permiso de salud; negativa impide acceso funcional |
 | ST-22 | Ficha voluntaria: campos vacíos, inválidos, revocación, borrado | Confirmación expresa, RLS DELETE solo propietario, no modifica cuenta/plan/diarios y permite recrear ficha privada |
 | ST-23 | Plan guía visual y 5 comidas | Datos coherentes, comprobación de estructura **no solo JSON no nulo** |
+| ST-24 | Edición de guía tras aprobación | En staging, aprobar guía A → editar ingredientes/porciones o `guided_goal_id` sin aprobar otra vez → trigger deja `guided_plan_approved_at=NULL` y RPC rechaza publicación; nueva aprobación explícita (timestamp distinto) + cinco comidas válidas permite publicar; modificar solo otros metadatos no revoca aprobación. Probar update concurrente y dos organizaciones con JWT reales. |
 
 ## Hallazgos de revisión preliminar read-only (29/10)
 - GitHub PR #34 sobre `acd79130` tenía Security, Premium y Visual 3/3
@@ -98,6 +99,6 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
 ## Criterio de salida
 Ninguna prueba con fixtures emulados sustituye JWT de dos organizaciones distintas.
 No fusionar PR #33/#34, migrar, activar bloqueo, registrar salud sensible ni publicar
-hasta que ST-01…ST-20 críticos estén documentados y aprobados, restauración real
+hasta que ST-01…ST-20 críticos y ST-24 estén documentados y aprobados, restauración real
 confirmada, revisión de privacidad concluida y autorización específica del dueño.
 El merge secuencial de UX1 y luego Coach exige repetir los tres controles de CI.

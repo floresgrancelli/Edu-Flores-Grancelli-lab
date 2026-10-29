@@ -67,6 +67,8 @@ jobs:
         run: node efg-nutrition/tests/coach-plan-draft-staging-contract.mjs
       - name: Verify staging-only atomic Coach publication contract (NO database connection)
         run: node efg-nutrition/tests/coach-plan-atomic-publish-contract.mjs
+      - name: Verify server-owned food evidence and legal policy contract (STATIC; NO database)
+        run: node efg-nutrition/tests/coach-publication-evidence-policy-contract.mjs
       - name: Verify legal onboarding draft (isolated; NO production legal gate)
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js

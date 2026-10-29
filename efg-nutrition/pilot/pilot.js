@@ -16,6 +16,7 @@ import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
@@ -358,7 +359,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -448,20 +449,35 @@ function getHabitualList(slot){
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
+const habitualEntryKey=(item,index)=>String(item.id||"local-"+index);
 function habitualPickerHTML(slot){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
+ const requested=state.habitualSelection[slot]||"";
+ const selectedIndex=list.findIndex((item,i)=>habitualEntryKey(item,i)===requested);
+ const choice=selectedIndex>=0?selectedIndex:list.length===1?0:-1;
+ const selected=choice<0?null:list[choice];
+ const selectedKey=selected?habitualEntryKey(selected,choice):"";
+ state.habitualSelection[slot]=selectedKey;
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
- '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" selected>Elegí una de tus '+list.length+' comidas habituales</option>'+
- list.map(x=>'<option value="'+escapeHTML(x.id||'')+'">'+escapeHTML(x.name)+'</option>').join('')+'</select>'+
+ '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
+ list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item))+'</option>').join('')+'</select>'+
+ '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
- '<small>Elegí una alternativa guardada para este horario. Se registrará únicamente al tocar «Registrar habitual».</small></div>';
+ '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
+}
+function updateHabitualPreview(slot){
+ const id=document.getElementById('habitualChoice_'+slot)?.value||"";
+ state.habitualSelection[slot]=id;
+ const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
+ const host=document.getElementById('habitualPreview_'+slot);
+ if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
 }
 function chosenHabitual(slot){
  const id=document.getElementById('habitualChoice_'+slot)?.value;
  if(!id)throw Error('Primero elegí una comida habitual de la lista.');
- const item=getHabitualList(slot).find(x=>String(x.id)===String(id));
+ const item=getHabitualList(slot).find((x,index)=>habitualEntryKey(x,index)===String(id));
  if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
  return item;
 }
@@ -474,6 +490,7 @@ async function deleteChosenHabitual(slot){
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
+ state.habitualSelection[slot]="";
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
 }
 async function applyChosenHabitual(slot){
@@ -499,6 +516,7 @@ async function habitualAction(slot,action){
   const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
   if(error)throw error;
   cloudHabituales.push(data);
+  state.habitualSelection[slot]=String(data.id);
   notify("Guardaste «"+clean+"» en tu cuenta.");return render();
  }
  const favorites=getHabitualList(slot);
@@ -2071,7 +2089,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
+  if(switchingUser){state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
@@ -2353,7 +2371,7 @@ if(el.dataset.foodbulk){
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
+ if(action==="logout"){await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
@@ -2461,7 +2479,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
-root.addEventListener("change",e=>{invalidateCoachDraft(e);if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
+root.addEventListener("change",e=>{invalidateCoachDraft(e);if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
  state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();

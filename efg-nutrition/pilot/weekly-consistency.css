@@ -1,0 +1,94 @@
+/* Fase 4 preview · Constancia semanal, 2 franjas y domingo discrecional (sin puntos).
+   Solo marcador motivacional; nunca semáforo clínico ni penalización. */
+.pilot-layout .efg-weekly-streak{
+ margin:14px 0 18px;padding:19px 18px 16px;
+ background:linear-gradient(135deg,#f6e5f2,#ede0f7 53%,#f3e9f8)!important;
+ border:1px solid #cfb7e2!important;
+ border-radius:23px!important;
+ color:#322341;
+ box-shadow:0 12px 32px rgba(86,53,110,.09);
+}
+.pilot-layout .efg-weekly-streak-title{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.pilot-layout .efg-weekly-streak-title h2{
+ margin:0;font-size:clamp(15px,3.8vw,19px);letter-spacing:.065em;line-height:1.35;
+ color:#322341;font-weight:850;
+}
+.pilot-layout .efg-weekly-streak-title p{margin:3px 0 0;color:#654f72;font-size:12px}
+.pilot-layout .efg-streak-star{
+ display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:13px;
+ background:#d6b1e9;color:#55267e;font-size:24px;
+}
+.pilot-layout .efg-streak-track{
+ --track-color:#8D5EDA;--track-light:#E8D6F4;
+ padding:13px 13px 15px;border-radius:17px;
+ background:#FAECF5!important;border:1px solid rgba(126,86,146,.16);
+ margin:10px 0 0;
+}
+.pilot-layout .efg-streak-track.efg-streak-acceptable{
+ --track-color:#F078A7;--track-light:#F7D7E6;
+ background:#F8E7EF!important;
+}
+.pilot-layout .efg-streak-trackhead{
+ display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:13px;
+}
+.pilot-layout .efg-streak-trackhead>span{display:grid;gap:3px;min-width:0}
+.pilot-layout .efg-streak-trackhead strong{
+ font-size:12px;font-weight:850;color:#322341;letter-spacing:.027em;
+}
+.pilot-layout .efg-streak-trackhead small{
+ font-size:11px;font-weight:600;color:#6C5875;line-height:1.25;
+}
+.pilot-layout .efg-streak-trackhead>b{
+ display:inline-flex;justify-content:center;align-items:center;min-width:49px;
+ padding:7px 8px;border-radius:99px;background:var(--track-light);
+ font-size:16px;font-weight:850;color:#392349;white-space:nowrap;
+}
+.pilot-layout .efg-streak-days{
+ display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(5px,2vw,12px);
+ width:100%;min-width:0;
+}
+.pilot-layout .efg-streak-day{
+ display:flex;min-width:0;flex-direction:column;align-items:center;gap:5px;
+ color:#6F627B;font-size:10px;
+}
+.pilot-layout .efg-streak-daylabel{font-size:11px;font-weight:800}
+.pilot-layout .efg-streak-dot{
+ width:100%;min-width:0;max-width:72px;height:23px;border-radius:8px;
+ background:var(--track-light);display:grid;place-items:center;
+ color:#8c7699;font-size:16px;font-weight:750;line-height:1;
+}
+.pilot-layout .efg-streak-day.is-earned .efg-streak-dot{
+ background:var(--track-color);color:#fff;box-shadow:0 4px 10px rgba(96,58,119,.16);
+}
+.pilot-layout .efg-streak-day.is-today .efg-streak-dot{
+ border:2px dashed var(--track-color);background:transparent;color:var(--track-color)
+}
+.pilot-layout .efg-weekly-streak-sunday,.pilot-layout .efg-weekly-streak-today,.pilot-layout .efg-weekly-streak-note{
+ margin:12px 0 0;font-size:11px;line-height:1.45;color:#624F71;
+}
+.pilot-layout .efg-weekly-streak-sunday{
+ display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border-radius:12px;
+ background:#e7d9f1;
+}
+.pilot-layout .efg-weekly-streak-sunday span{font-size:16px;line-height:1}
+.pilot-layout .efg-weekly-streak-science{
+ margin-top:13px;border-top:1px solid #d5c1e4;padding:10px 0 0;
+}
+.pilot-layout .efg-weekly-streak-science summary{
+ list-style:revert;cursor:pointer;font-size:12px;font-weight:800;color:#604092;min-height:33px;
+}
+.pilot-layout .efg-weekly-streak-science p,.pilot-layout .efg-weekly-streak-science small{
+ margin:7px 0 0;font-size:11px;line-height:1.5;color:#5c5067;
+}
+.pilot-layout .efg-weekly-streak-science a{color:#5f368f;text-decoration:underline;text-underline-offset:2px}
+@media(max-width:380px){
+ .pilot-layout .efg-weekly-streak{padding:14px 11px}
+ .pilot-layout .efg-streak-track{padding:10px 9px}
+ .pilot-layout .efg-streak-days{gap:6px}
+ .pilot-layout .efg-streak-dot{height:22px}
+ .pilot-layout .efg-streak-trackhead strong{font-size:11px}
+ .pilot-layout .efg-streak-trackhead small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pilot-layout .efg-streak-dot{transition:none}
+}

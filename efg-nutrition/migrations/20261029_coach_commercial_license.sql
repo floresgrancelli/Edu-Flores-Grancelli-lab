@@ -5,14 +5,21 @@ alter table public.efg_organizations
   add column if not exists license_fee_ars numeric(12,2);
 alter table public.efg_organizations
   add column if not exists paid_through date;
-alter table public.efg_organizations
-  add constraint efg_license_fee_range check
-    (license_fee_ars is null or (license_fee_ars>0 and license_fee_ars<=10000000));
+alter table public.efg_organizations add column if not exists plan_updated_at timestamptz not null default now();
+do $guard$ begin
+ if not exists(select 1 from pg_constraint where conrelid='public.efg_organizations'::regclass and conname='efg_license_fee_range') then
+  alter table public.efg_organizations add constraint efg_license_fee_range check
+   (license_fee_ars is null or (license_fee_ars>0 and license_fee_ars<=10000000));
+ end if;
+end $guard$;
 
 alter table public.efg_billing_settings
  add column if not exists additional_aliases text[] not null default '{}'::text[];
-alter table public.efg_billing_settings
- add constraint efg_billing_alias_count check(cardinality(additional_aliases)<=2);
+do $guard$ begin
+ if not exists(select 1 from pg_constraint where conrelid='public.efg_billing_settings'::regclass and conname='efg_billing_alias_count') then
+  alter table public.efg_billing_settings add constraint efg_billing_alias_count check(cardinality(additional_aliases)<=2);
+ end if;
+end $guard$;
 
 create or replace function public.efg_set_platform_aliases(
  p_primary text,p_secondary text default null,p_tertiary text default null
@@ -72,7 +79,7 @@ begin
                and alias is not null and length(trim(alias))>=3)
  then raise exception 'Configurá primero tu alias de EFG'; end if;
  v_org:=public.efg_invite_coach(p_email,p_name,p_seats);
- update public.efg_organizations set license_fee_ars=p_fee_ars where id=v_org;
+ update public.efg_organizations set license_fee_ars=p_fee_ars,plan_updated_at=now() where id=v_org;
  return v_org;
 end $fn$;
 revoke all on function public.efg_offer_coach(text,text,integer,numeric) from public,anon;
@@ -94,7 +101,7 @@ begin
  if p_seats<v_used then raise exception 'No podés disminuir por debajo de los cupos ocupados'; end if;
  if p_seats is distinct from v_org.seat_limit or p_fee_ars is distinct from v_org.license_fee_ars then
    update public.efg_organizations set seat_limit=p_seats,license_fee_ars=p_fee_ars,
-     status='suspended',paid_through=null where id=p_org;
+     status='suspended',paid_through=null,plan_updated_at=now() where id=p_org;
  end if;
  return true;
 end $fn$;
@@ -137,6 +144,7 @@ begin
   where p.organization_id=p_org and p.payer_id=v_org.coach_id
     and p.payment_kind='coach_efg' and p.status='approved'
     and p.period_label=v_month and p.amount_ars>=v_org.license_fee_ars
+    and p.reviewed_at is not null and p.reviewed_at>=v_org.plan_updated_at
  ) then raise exception 'EFG debe aprobar un pago del período que cubra el contrato'; end if;
  v_last:=((date_trunc('month',now() at time zone 'America/Argentina/Buenos_Aires')
            + interval '1 month - 1 day')::date);

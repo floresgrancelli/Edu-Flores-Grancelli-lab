@@ -78,6 +78,10 @@ create table public.efg_student_intakes (
  height_cm numeric(5,1) check(height_cm between 100 and 250),
  weight_kg numeric(5,1) check(weight_kg between 20 and 400),
  activity_level text check(activity_level is null or activity_level in ('low','light','moderate','high')),
+ dietary_pattern text check(dietary_pattern is null or dietary_pattern in ('omnivore','vegetarian','vegan','pescatarian','other')),
+ preferred_foods text not null default '' check(char_length(preferred_foods)<=400),
+ disliked_foods text not null default '' check(char_length(disliked_foods)<=400),
+ meal_routine text not null default '' check(char_length(meal_routine)<=400),
  notes text not null default '' check(char_length(notes)<=1000),
  shared_at timestamptz,
  updated_at timestamptz not null default now()

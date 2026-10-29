@@ -58,7 +58,7 @@ function slotCell(d,track){
   '" title="'+dayText+'" aria-label="'+dayText+'"><span class="efg-streak-daylabel">'+escape(d.label)+
   '</span><span class="efg-streak-dot" aria-hidden="true">'+icon+'</span></span>';
 }
-export function weeklyConsistencyPanel(report){
+export function weeklyConsistencyPanel(report,{opened=false,approved=false,verified=false}={}){
  const ideal=report?.ideal||0,acceptable=report?.acceptable||0;
  const draw=(type,name,detail,count)=>'<div class="efg-streak-track efg-streak-'+type+'">'+
   '<div class="efg-streak-trackhead"><span><strong>'+name+'</strong><small>'+detail+
@@ -71,6 +71,13 @@ export function weeklyConsistencyPanel(report){
    '<p>Lunes a sábado · Cada día cuenta</p></div></div>'+
   draw("ideal","ZONA IDEAL · ±5%","Calorías en rango y proteína ≥90%",ideal)+
   draw("acceptable","OBJETIVO CUMPLIDO · ±10%","También suma los días de ±5%",acceptable)+
+  (acceptable===6&&report?.evaluated===6
+   ?'<div class="efg-reward-container"><div class="efg-reward-intro"><span aria-hidden="true">✦</span><strong>¡SEMANA COMPLETA!</strong><small>6 días dentro de la zona cumplida'+(ideal===6?' · Distinción especial: 6 días ideales':'')+'</small></div>'+
+    '<button type="button" class="btn efg-reward-open" data-act="openWeeklyReward" aria-expanded="'+(opened?'true':'false')+'" aria-controls="efgRewardReveal">🎁 ABRIR PREMIO</button>'+
+    (opened?'<div id="efgRewardReveal" role="status" aria-live="polite" class="efg-reward-reveal"><strong>✦ ¡Felicitaciones por tu constancia!</strong><p>'+
+      (verified&&approved?'Tu coach autorizó expresamente una comida libre para este domingo. Respetá las indicaciones acordadas; no hace falta compensar después.':
+       'Conseguiste tu logro semanal. Consultá con tu coach si podés disfrutar una comida libre el domingo: el premio NO constituye una autorización automática.')+
+      '</p></div>':'')+'</div>':'')+
   '<p class="efg-weekly-streak-sunday"><span aria-hidden="true">☀️</span> Domingo: alimentación flexible según las indicaciones de tu coach. No suma ni resta.</p>'+
   (report.hasTodaySunday?'<p class="efg-weekly-streak-today">Hoy es domingo: disfrutá según las pautas de tu coach.</p>':
    '<p class="efg-weekly-streak-today">El día de hoy se evalúa al terminar; nunca se premia de forma anticipada.</p>')+

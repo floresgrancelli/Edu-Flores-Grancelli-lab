@@ -437,6 +437,7 @@ try{
    }
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
+    const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
     const lunch=page.locator(".student-meal-card").nth(2);
     if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();
@@ -533,6 +534,34 @@ try{
     const hamPie=await page.locator("#mealEditorHint").textContent();
     if(!hamPie.includes("Jamón cocido 260 g")||!hamPie.includes("Mozzarella 260 g"))
       pageReport.errors.push("Ham-cheese pie model ingredient trace is unavailable");
+    // Real browser interaction: omitting an extra protein source must persist,
+    // while a prepared tuna pie still contributes every nutrient exactly ONCE.
+    await page.locator('[data-mealomit="protein"]').click();
+    const marked=await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.diary?.skipped?._guidedComponents?.almuerzo?.protein);
+    if(marked!==true)pageReport.errors.push("Optional protein omission was not persisted");
+    await page.locator('[data-mealgroup="prepared"]').click();
+    await page.locator("#mealFoodSearch").fill("tarta atun");
+    await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
+    await page.locator('[data-act="saveSelectedMealContinue"]').click();
+    const savedMixed=await page.evaluate(()=>{
+      const meals=window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[];
+      const pies=meals.filter(item=>item.id==="tarta_atun_horno");
+      return {count:pies.length,p:pies[0]?.p,c:pies[0]?.c,f:pies[0]?.f,k:pies[0]?.k,
+        omitted:window.__EFG_VISUAL_QA__.state.diary?.skipped?._guidedComponents?.almuerzo?.protein};
+    });
+    if(savedMixed.count!==1||!(savedMixed.p>0&&savedMixed.c>0&&savedMixed.f>0&&savedMixed.k>0)||savedMixed.omitted!==true)
+      pageReport.errors.push("Mixed tuna pie must register once incl protein, carbs, fat after optional omission: "+JSON.stringify(savedMixed));
+    if((await page.locator("[data-mealgroup]").count())!==4)
+      pageReport.errors.push("Add and continue did not reopen guided meal");
+    await page.locator('[data-act="closeMeal"]').click();
+    await page.evaluate(async previous=>{
+      const fixture=window.__EFG_VISUAL_QA__;fixture.state.diary=previous;await fixture.render();
+      fixture.openMealDialog("media_manana");
+    },beforeGuided);
+    if(await page.locator("[data-mealgroup],[data-mealomit]").count())
+      pageReport.errors.push("Media mañana must retain classic food selector");
+    if((await page.locator('#mealEditorFood option').count())<10)
+      pageReport.errors.push("Media mañana classic selector lost food categories");
     await page.locator('[data-act="closeMeal"]').click();
    }
    if(role==="student"&&dest==="recipes"){

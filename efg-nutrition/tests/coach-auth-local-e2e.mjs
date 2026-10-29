@@ -98,10 +98,16 @@ denied(await rpc("efg_publish_coach_plan_draft",users.coachA.token,{p_student:us
 assert.equal(sql("select count(*) from public.efg_goals"),"0","Failure cannot publish an active goal");
 assert.equal(sql("select count(*) from public.efg_notifications"),"0","Failure cannot notify");
 assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"0","Failure cannot create a receipt");
-denied(await rpc("efg_save_coach_plan_draft",users.coachA.token,payload),"Null expected revision cannot overwrite existing draft");
+const duplicate=await rpc("efg_save_coach_plan_draft",users.coachA.token,payload);
+denied(duplicate,"Null expected revision cannot overwrite existing draft");
+assert.equal(duplicate.status,409,"Optimistic conflict must not be a retryable 40001");
+assert.equal(duplicate.data?.code,"PT409");
 const second=ok(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:1}),"Correct revision updates private draft");
 assert.equal(Number(second),2);
-denied(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:1}),"Concurrent stale revision must fail");
+const stale=await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:1});
+denied(stale,"Concurrent stale revision must fail");
+assert.equal(stale.status,409);
+assert.equal(stale.data?.code,"PT409");
 sql("update public.efg_consents set accepted=false where student_id="+uuid(users.studentA.id));
 const hidden=ok(await call(path,{token:users.coachA.token}),"Revocation must invalidate owner draft visibility");
 assert.deepEqual(hidden,[]);

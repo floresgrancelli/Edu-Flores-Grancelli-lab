@@ -10,7 +10,7 @@ const [app,sql,css]=await Promise.all([
 const esc=s=>String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const state={profile:{role:"student",organization_id:"org-fixture"},session:{user:{id:"student-fixture"}},
  studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,coachGoals:[],coachFoodPlan:null};
-let schemaMissing=false,serverStatus="pending",stored=null,writeCount=0,rpcCount=0,refreshCount=0,confirmCount=0;
+let schemaMissing=false,serverStatus="pending",stored=null,writeCount=0,deleteCount=0,deletedStudent=null,rpcCount=0,refreshCount=0,confirmCount=0;
 const submitted=[],calledRpc=[];
 const db={
  from(table){
@@ -28,6 +28,13 @@ const db={
     assert.equal(table,"efg_student_intakes");
     assert.equal(onConflict,"student_id");
     writeCount++;submitted.push({...row});stored={...row};return Promise.resolve({error:null});
+   },
+   delete(){
+    assert.equal(table,"efg_student_intakes","Erasure may only target the optional intake");
+    return {eq(field,value){
+     assert.equal(field,"student_id");assert.equal(value,"student-fixture");
+     deleteCount++;deletedStudent=value;stored=null;return Promise.resolve({error:null});
+    }};
    }
   };
  },
@@ -129,6 +136,26 @@ assert.match(app,/data-tab="intake"/,"Privacy route must remain accessible after
 assert.equal(writeCount,5);
 assert.equal(state.studentIntake.shared_at,null);
 
+// Erasure is a separate, strictly voluntary action and must not impact plan status.
+fields.efgIntakeShare.checked=true;
+await flow.save(); // Re-share a fake draft so the DELETE also removes its sharing.
+assert.ok(stored.shared_at);
+assert.match(flow.view(),/Eliminar solamente mi ficha inicial/);
+globalThis.window.confirm=()=>false;
+await flow.deleteOwn();
+assert.equal(deleteCount,0,"Cancelled erasure cannot delete records");
+assert.ok(state.studentIntake.shared_at);
+globalThis.window.confirm=()=>true;
+await flow.deleteOwn();
+assert.equal(deleteCount,1);
+assert.equal(deletedStudent,"student-fixture");
+assert.equal(stored,null);
+assert.equal(state.studentIntake,null);
+assert.equal(state.planAccess.status,"published","Erasing intake must never unpublish the plan");
+assert.doesNotMatch(flow.view(),/Eliminar solamente mi ficha inicial/,"No delete option when there is no intake");
+assert.equal(notifications.at(-1),"Tu ficha inicial se eliminó. El seguimiento nutricional conserva sus propios permisos.");
+assert.match(app,/if\(action==="deleteStudentIntake"\)return coachIntakeFlow\.deleteOwn\(\)/,"Delete button must be wired to the real action");
+
 // Prior-schema compatibility for historical accounts. Backend authorization is authoritative.
 schemaMissing=true;await flow.loadStudent();
 assert.equal(state.planAccessSupported,false);
@@ -141,6 +168,11 @@ assert.match(app,/coachIntakeFlow\.details/);
 assert.match(css,/efg-intake-share-label/);
 assert.match(sql,/create table public\.efg_student_intakes/);
 assert.match(sql,/create table public\.efg_student_plan_access/);
+assert.match(sql,/lock table public\.efg_profiles in share row exclusive mode/,"Profile backfill must be protected from concurrent new student inserts");
+assert.match(sql,/Legacy student access backfill incomplete/,"Incomplete legacy mapping must abort the transaction");
+assert.match(sql,/grant select,insert,update,delete on public\.efg_student_intakes to authenticated/);
+assert.match(sql,/create policy intake_student_delete on public\.efg_student_intakes/,"Student deletion needs owner-only RLS");
+
 assert.match(sql,/create function public\.efg_publish_coach_plan/);
 assert.match(sql,/f\.guided_goal_id=p_goal_id/);
 assert.match(sql,/as restrictive for insert/);

@@ -70,10 +70,13 @@ Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
   trigger `AFTER INSERT` crea `pending` en esa misma transacción. Probar este orden.
 - `efg_private.coach_has_student` exige coach activo, vínculo, consentimiento y
   licencia válida; confirmar en staging que no hay caminos alternos.
-- La RPC en DRAFT verifica `guided_plan is not null` y timestamp de aprobación:
-  contrastar **estructura real de cinco comidas y vigencia de la aprobación**
-  antes de considerarla apta. `verify_guide_goal()` actual solo verifica vínculo
-  de objetivo/alumno/coach, no el contenido de cinco comidas.
+- La RPC DRAFT fue reforzada para exigir `kind=five_meal_example`,
+  `version=1`, cinco horarios distintos con listas de alimentos no vacías y
+  `guided_plan_approved_at` presente. Se evaluó la expresión con seis JSON
+  ficticios mediante un SELECT de solo lectura: 1 válido / 5 inválidos, resultados
+  esperados. **Todavía falta probar en staging la vigencia real de la aprobación,
+  coherencia de cantidades y el flujo completo con JWT**. La función existente
+  `verify_guide_goal()` verifica vínculo alumno/coach/objetivo, no contenido.
 - El backfill histórico incluye únicamente alumnos de organizaciones con coach
   asignado. Comprobar cobertura total; abortar si hubiera excepciones.
 - El DRAFT no concede borrado de ficha por alumno: revocación de compartir sí,

@@ -2,7 +2,11 @@
 // RLS on efg_messages is the source of truth; this UI NEVER grants chat access.
 export function createMessagesCenter({sb,context,afterSend}){
  let selectedStudent=null,threadOpen=false,thread=[],overview=[],filter="",listMode="all";
- let busy=false,refreshing=false,formDraft="",epoch=0,knownUser=null,knownRole=null;
+ let busy=false,refreshing=false,loadingOlder=false,threadHasMore=false,formDraft="",epoch=0,knownUser=null;
+ const drafts=new Map();
+ const PAGE_SIZE=200;
+ const messageOrder=(a,b)=>String(a.created_at).localeCompare(String(b.created_at))||String(a.id).localeCompare(String(b.id));
+ const mergeMessages=(oldRows,newRows)=>[...new Map([...oldRows,...newRows].map(row=>[row.id,row])).values()].sort(messageOrder);
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const shortTime=v=>{if(!v)return "";const d=new Date(v);const now=new Date();
   return d.toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})===now.toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})?
@@ -22,9 +26,9 @@ export function createMessagesCenter({sb,context,afterSend}){
  const pair=()=>contacts().find(x=>x.student===selectedStudent)||null;
  function resetIfChanged(){
   const c=context(),key=c.userId+"|"+c.role+"|"+(c.testCoach?"test":"");
-  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";filter="";listMode="all";epoch++;}
+  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";drafts.clear();threadHasMore=false;filter="";listMode="all";epoch++;}
   const ids=new Set(contacts().map(x=>x.student));
-  if(selectedStudent&&!ids.has(selectedStudent)){selectedStudent=null;threadOpen=false;thread=[];formDraft="";epoch++;}
+  if(selectedStudent&&!ids.has(selectedStudent)){selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;drafts.delete(selectedStudent);epoch++;}
  }
  function previews(){
   const latest=new Map(),unread=new Map(),self=context().userId;
@@ -69,26 +73,34 @@ export function createMessagesCenter({sb,context,afterSend}){
    '<span class="efg-chat-avatar small" aria-hidden="true">'+esc(x.name.trim().slice(0,1).toUpperCase())+'</span>'+
    '<div><h3>'+esc(x.name)+'</h3><small>Conversación privada · '+esc(x.role)+'</small></div></div>'+
    '<div class="efg-message-history" aria-label="Mensajes" role="log" aria-live="polite">'+
+    (threadHasMore?'<button type="button" class="efg-chat-load-more" data-chat-older="1" '+(loadingOlder?"disabled":"")+'>'+(loadingOlder?"Cargando mensajes…":"Ver mensajes anteriores")+"</button>":"")+
     (bubbles||'<p class="efg-chat-empty">Todavía no hay mensajes. Podés iniciar la conversación.</p>')+'</div>'+
    '<form class="efg-message-compose" id="efgMessageForm"><textarea id="efgMessageText" required maxlength="2000" placeholder="Escribí un mensaje…" aria-label="Escribir mensaje">'+esc(formDraft)+'</textarea>'+
    '<button type="submit" '+(busy?'disabled':'')+' aria-label="Enviar mensaje"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg><span>Enviar</span></button></form>'+
    '<p class="efg-chat-privacy">Solo las personas vinculadas y autorizadas pueden conversar. Para emergencias usá los canales correspondientes.</p>';
  }
- function paint({force=false}={}){
+ function paint({force=false,prepend=false}={}){
   resetIfChanged();const host=document.getElementById("efgMessagesContent");if(!host)return;
-  const composer=host.querySelector("#efgMessageText");
-  if(!force&&composer===document.activeElement){
-   const history=host.querySelector(".efg-message-history");
-   if(history){const temp=document.createElement("div");temp.innerHTML=threadHTML();const fresh=temp.querySelector(".efg-message-history");
-    if(fresh){const bottom=history.scrollHeight-history.scrollTop-history.clientHeight<60;history.innerHTML=fresh.innerHTML;if(bottom)history.scrollTop=history.scrollHeight;}
-   }
-   const list=host.querySelector(".efg-chat-contacts");if(list)list.innerHTML=cardsHTML();
-   return;
-  }
+  const current=host.querySelector(".efg-message-history");
+  const oldPosition=current?{top:current.scrollTop,height:current.scrollHeight,atBottom:current.scrollHeight-current.scrollTop-current.clientHeight<65}:null;
+  const focused=host.contains(document.activeElement)?document.activeElement:null;
+  const focusId=focused?.id||null;
+  const selection=focusId&&typeof focused.selectionStart==="number"?[focused.selectionStart,focused.selectionEnd]:null;
+  // Refreshes should not close the mobile keyboard, reset a search, or jump while reading history.
   host.innerHTML='<section class="efg-chat-layout'+(threadOpen?" show-thread":"")+'">'+
     '<aside class="efg-chat-list">'+headerHTML()+'<div class="efg-chat-contacts" aria-label="Conversaciones">'+cardsHTML()+'</div></aside>'+
     '<section class="efg-chat-thread">'+threadHTML()+'</section></section>';
-  const history=host.querySelector(".efg-message-history");if(history)history.scrollTop=history.scrollHeight;
+  const history=host.querySelector(".efg-message-history");
+  if(history){
+   if(force||!oldPosition)history.scrollTop=history.scrollHeight;
+   else if(prepend)history.scrollTop=oldPosition.top+(history.scrollHeight-oldPosition.height);
+   else if(oldPosition.atBottom)history.scrollTop=history.scrollHeight;
+   else history.scrollTop=oldPosition.top;
+  }
+  if(focusId&&!force){
+   const replacement=host.querySelector("#"+focusId);
+   if(replacement){replacement.focus({preventScroll:true});if(selection&&typeof replacement.setSelectionRange==="function")replacement.setSelectionRange(...selection);}
+  }
  }
  async function refreshOverview(){
   const c=context(),people=contacts(),key=knownUser;
@@ -102,31 +114,57 @@ export function createMessagesCenter({sb,context,afterSend}){
   if(knownUser!==key)return;
   overview=data||[];paint();
  }
+ async function markRead(rows){
+  const unread=rows.filter(m=>m.sender_id!==context().userId&&!m.read_at).map(m=>m.id);
+  if(!unread.length)return rows;
+  const readAt=new Date().toISOString();
+  const {error}=await sb.from("efg_messages").update({read_at:readAt}).in("id",unread);
+  if(error){console.warn("Message receipt",error.message);return rows;}
+  const ids=new Set(unread);return rows.map(m=>ids.has(m.id)?{...m,read_at:readAt}:m);
+ }
  async function load(force=false){
   resetIfChanged();const x=pair(),key=epoch;
   if(refreshing)return;
   refreshing=true;
   try{
    if(x&&threadOpen){
+    // Newest-first pagination avoids the old first-200-messages cutoff.
     const {data,error}=await sb.from("efg_messages")
       .select("id,student_id,coach_id,sender_id,body,created_at,read_at")
-      .eq("student_id",x.student).eq("coach_id",x.coach).order("created_at",{ascending:true}).limit(200);
+      .eq("student_id",x.student).eq("coach_id",x.coach)
+      .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
     if(error)throw error;
     if(epoch!==key)return;
-    thread=data||[];
-    const unread=thread.filter(m=>m.sender_id!==context().userId&&!m.read_at).map(m=>m.id);
-    if(unread.length){
-     const {error:receiptError}=await sb.from("efg_messages").update({read_at:new Date().toISOString()}).in("id",unread);
-     if(receiptError)console.warn("Message receipt",receiptError.message);
-     else thread=thread.map(m=>unread.includes(m.id)?{...m,read_at:new Date().toISOString()}:m);
-    }
+    const incoming=await markRead(data||[]);
+    if(epoch!==key)return;
+    thread=mergeMessages(thread,incoming);
+    if(!thread.length||thread.length===incoming.length)threadHasMore=incoming.length===PAGE_SIZE;
    }
    await refreshOverview();
   }finally{refreshing=false;paint({force});}
  }
+ async function loadOlder(){
+  resetIfChanged();const x=pair(),oldest=thread[0],key=epoch;
+  if(!x||!threadOpen||!oldest||!threadHasMore||loadingOlder)return;
+  loadingOlder=true;paint();
+  try{
+   // Timestamp + UUID cursor: stable when new messages arrive while paging.
+   const cursor="created_at.lt."+oldest.created_at+",and(created_at.eq."+oldest.created_at+",id.lt."+oldest.id+")";
+   const {data,error}=await sb.from("efg_messages")
+     .select("id,student_id,coach_id,sender_id,body,created_at,read_at")
+     .eq("student_id",x.student).eq("coach_id",x.coach).or(cursor)
+     .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
+   if(error)throw error;
+   if(key!==epoch)return;
+   const older=await markRead(data||[]);
+   if(key!==epoch)return;
+   thread=mergeMessages(thread,older);
+   threadHasMore=older.length===PAGE_SIZE;
+  }finally{loadingOlder=false;if(key===epoch)paint({prepend:true});}
+ }
  async function openStudent(student){
   resetIfChanged();if(!contacts().some(x=>x.student===student))return;
-  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft="";epoch++;}
+  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft=drafts.get(student)||"";threadHasMore=false;epoch++;}
   threadOpen=true;paint({force:true});
   await load(true);
  }
@@ -138,19 +176,20 @@ export function createMessagesCenter({sb,context,afterSend}){
   try{
    const {error}=await sb.from("efg_messages").insert({student_id:x.student,coach_id:x.coach,sender_id:c.userId,body});
    if(error)throw error;
-   formDraft="";await load(true);afterSend?.();
+   formDraft="";drafts.delete(x.student);await load(true);afterSend?.();
   }finally{busy=false;paint({force:true});}
  }
  document.addEventListener("click",event=>{
   const host=document.getElementById("efgMessagesContent");if(!host||!host.contains(event.target))return;
   const contact=event.target.closest("[data-chat-contact]");
   if(contact){openStudent(contact.dataset.chatContact).catch(console.warn);return;}
-  if(event.target.closest("[data-chat-back]")){threadOpen=false;formDraft="";paint({force:true});return;}
+  if(event.target.closest("[data-chat-back]")){threadOpen=false;paint({force:true});return;}
+  if(event.target.closest("[data-chat-older]")){loadOlder().catch(console.warn);return;}
   const tab=event.target.closest("[data-chat-filter]");
   if(tab){listMode=tab.dataset.chatFilter;paint({force:true});}
  });
  document.addEventListener("input",event=>{
-  if(event.target?.id==="efgMessageText"){formDraft=event.target.value;return;}
+  if(event.target?.id==="efgMessageText"){formDraft=event.target.value;if(selectedStudent)drafts.set(selectedStudent,formDraft);return;}
   if(event.target?.id==="efgChatSearch"){
    filter=event.target.value;const list=document.querySelector("#efgMessagesContent .efg-chat-contacts");
    if(list)list.innerHTML=cardsHTML();

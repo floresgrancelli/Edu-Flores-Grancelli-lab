@@ -397,3 +397,43 @@ body .pilot-layout .efg-quick-more button.btn.light:nth-child(3){
  linear-gradient(145deg,#ead9bc,#c6ae86)!important;
  color:#1b2a3c!important;border-color:#b29b77!important;
 }
+
+/* Menús profesionales: iconos vectoriales cobre/dorado en disco satinado;
+   sin emojis que dependan del sistema operativo. */
+body .pilot-layout .efg-menu-card .efg-menu-emoji{
+ display:grid;place-items:center;
+ width:43px;height:43px;flex:0 0 43px;
+ border-radius:50%;
+ background:radial-gradient(circle at 35% 24%,#fff5dbb0,transparent 58%),
+ linear-gradient(145deg,#d0b98e3d,#ba95594d)!important;
+ border:1px solid #cbab7955;
+ box-shadow:inset 0 1px 1px #ffffff8c,0 3px 7px #0b1b3022;
+ color:#986e36!important;
+ filter:none!important;
+}
+body .pilot-layout .efg-menu-card .efg-lux-menu-icon{
+ width:25px;height:25px;stroke:#9f783e!important;
+ filter:drop-shadow(0 1px 0 #fff5db);
+}
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+1) .efg-lux-menu-icon,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+3) .efg-lux-menu-icon,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+1) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+3) .efg-lux-menu-icon,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n) .efg-lux-menu-icon{
+ stroke:#e9c181!important;filter:drop-shadow(0 1px 0 #090e1c);
+}
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+1) .efg-menu-emoji,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n+3) .efg-menu-emoji,
+body .pilot-layout .efg-menu-grid>.efg-menu-card:nth-child(6n) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+1) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n+3) .efg-menu-emoji,
+body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n) .efg-menu-emoji{
+ background:radial-gradient(circle at 35% 20%,#ffffff50,transparent 58%),
+ linear-gradient(150deg,#b6a07d39,#2b37472a)!important;
+ border-color:#e3ca9344;
+}
+@media(max-width:370px){
+ body .pilot-layout .efg-menu-card .efg-menu-emoji{width:39px;height:39px;flex-basis:39px}
+ body .pilot-layout .efg-menu-card .efg-lux-menu-icon{width:23px;height:23px}
+}

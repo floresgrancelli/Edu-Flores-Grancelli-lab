@@ -2351,17 +2351,18 @@ if(el.dataset.foodbulk){
  if(action==="saveWeight")return saveWeight();
  if(action==="saveActivity")return saveActivity();
  if(action==="inviteCoach"){
- const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim();
- const seats=Number(document.getElementById("newCoachSeats").value);
- if(state.profile.role!=="admin")throw new Error("Solo EFG puede invitar coaches.");
- if(!Number.isInteger(seats)||seats<1||seats>10000)throw new Error("Definí explícitamente los cupos contratados (1 a 10.000).");
- if(!window.confirm("¿Invitar a "+name+" con "+seats+" cupos? La licencia quedará pendiente de tu activación comercial."))return;
- let r=await sb.rpc("efg_invite_coach",{p_email:email,p_name:name,p_seats:seats});if(r.error)throw r.error;
- await loadRoleData();await render();notify("Invitación creada. La licencia seguirá pendiente hasta que la actives.");return;
-}
+  if(state.profile.role!=="admin")throw Error("Solo EFG puede contratar coaches.");
+  const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim();
+  const seats=Number(document.getElementById("newCoachSeats").value),fee=Number(document.getElementById("newCoachFee").value);
+  if(!Number.isInteger(seats)||seats<1||seats>10000||!Number.isFinite(fee)||fee<=0||fee>10000000)throw Error("Definí la cantidad de cupos y el precio mensual del contrato.");
+  if(!state.platformAlias)throw Error("Configurá primero el alias oficial de EFG.");
+  if(!window.confirm("¿Invitar a "+name+" con "+seats+" cupos a "+fee+" ARS/mes? La licencia quedará pendiente."))return;
+  const {error}=await sb.rpc("efg_offer_coach",{p_email:email,p_name:name,p_seats:seats,p_fee_ars:fee});
+  if(error)throw error;await loadRoleData();await render();notify("Invitación enviada, licencia pendiente de pago y activación.");return;
+ }
  if(action==="inviteStudent"){const email=document.getElementById("studentEmail").value.trim(),name=document.getElementById("studentName").value.trim();let r=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_invite_test_student":"efg_invite_student",{p_email:email,p_name:name});if(r.error)throw r.error;await loadRoleData();await render();notify("Alumno habilitado en los cupos de este coach.");return;}
  if(action==="coachAlias"){if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org.coach_id===state.session.user.id)))throw new Error("No tenés permiso para editar este alias.");let alias=document.getElementById("coachAlias").value.trim();let r=await sb.rpc("efg_set_coach_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias de cobro guardado.");return;}
- if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim();let r=await sb.rpc("efg_set_platform_alias",{p_alias:alias});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias EFG actualizado.");return;}
+ if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim(),two=document.getElementById("platformAlias2").value.trim(),three=document.getElementById("platformAlias3").value.trim();let r=await sb.rpc("efg_set_platform_aliases",{p_primary:alias,p_secondary:two||null,p_tertiary:three||null});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias oficiales de EFG actualizados.");return;}
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="makeGuidedDay"){

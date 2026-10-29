@@ -164,15 +164,16 @@ export const FOOD_SEARCH_ALIASES=Object.freeze({
  // Regional search should find the existing bread and sweets under colloquial names.
  pan_frances:["pan comun","pan común","pan de panaderia","pan de panadería","pan flauta","flauta","pan frances","pan francés","pan blanco de panaderia","pancito"],
  bread_white:["pan blanco","pan comun de molde","pan de miga"],
- gomitas_frutales:["gomitas","gomitas dulces","gomitas frutales","ositos","golosinas","caramelos blandos"],
- gomitas_acidas:["gomitas acidas","gomitas ácidas","golosinas ácidas","caramelos ácidos","gomitas sour"],
  colonial_chocolate_organico_80_cacao:["colonial","chocolate 80%","chocolate organico","chocolate amargo","chocolate organico colonial"],
  mi_mix_nueces_almendras_avellanas_caju:["mi mix","mix de frutos secos","mix de frutas secas","nueces almendras avellanas caju","castañas de cajú","nueces sin mani"],
  naranja_azucarada_cascara_confitada_granel:["naranja azucarada","naranja confitada","cascara de naranja confitada","cascaritas de naranja azucaradas","naranja abrillantada","naranja escarchada"],
  quinoa_inflada_pop_granel:["quinoa pop","quinoa inflada","quinoa expandida","quinoa soplada","quinua inflada","quinoa puff","quinua pop"],
  pochoclos_dulces_acaramelados_genericos:["pochoclos dulces","pochoclo dulce","pochoclos acaramelados","pochoclos caramelizados","palomitas dulces","popcorn caramel","popcorn dulce","maiz inflado dulce"],
  ...EXPANDED_ALIASES,
- ...PLANT_BAKERY_ALIASES
+ ...PLANT_BAKERY_ALIASES,
+ // Keep the legacy synonyms while adding common shopping terms.
+ gomitas_frutales:["gomita","gomitas caramelos","ositos","gomitas","gomitas dulces","gomitas frutales","golosinas","caramelos blandos"],
+ gomitas_acidas:["gomita ácida","gomitas sour","caramelos acidos","gomitas acidas","gomitas ácidas","golosinas ácidas","caramelos ácidos"]
 });
 export function foodSearchText(food){
  return [food.name,food.brand||"",food.productType||"",...(FOOD_SEARCH_ALIASES[food.id]||[])].join(" ");

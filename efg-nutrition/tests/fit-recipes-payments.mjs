@@ -50,7 +50,8 @@ assert.ok(!app.includes('p.sender_id'),"Legacy sender_id does not exist in payme
 assert.ok(app.includes('Comprobantes de licencias EFG'),"Admin billing must be preserved");
 // Contratos comerciales y cuenta nutricional propia del entrenador.
 for(const token of ["COBRAR A MIS ALUMNOS","PAGAR MI LICENCIA A EFG","Cupos contratados","ALTA COMERCIAL DE COACH","ALIAS OFICIAL DE EFG","data-copyplatform","state.platformAlias","studentMore:state.profile.role===\"coach\"?coachPersonalMoreView","function coachPersonalMoreView","personal:isPersonalProfessional","MI ESPACIO"])assert.ok(app.includes(token),"Missing coach personal/commercial UX: "+token);
-assert.ok(app.includes('["coach","⌂","Inicio"],["home","◷","MI DÍA"]'),"Coach has direct MI DÍA access");
+assert.ok(app.includes('["coach","⌂","Inicio"]')&&app.includes('["home","◷","MI DÍA"]'),"Coach has direct MI DÍA access regardless of coach navigation order");
+assert.ok(app.includes('["coachIntake","▣","Ingresos"]'),"Coach has a dedicated new arrivals tab");
 assert.ok(app.includes('state.profile.role==="coach"||state.profile.role==="admin"'),"Professional personal goal eligibility");
 assert.ok(app.includes('if(!["student","coach","admin"].includes(state.profile?.role))'),"Fit recipes register in professional private diary");
 assert.ok(app.includes('commercialReady=isTest||["active","grace"].includes(org?.status)'),"Commercial invitation requires admin activation");

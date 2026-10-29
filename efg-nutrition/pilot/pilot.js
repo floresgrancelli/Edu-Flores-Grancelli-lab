@@ -657,9 +657,9 @@ async function completeWelcome(){
 }
 function loginView(message=""){
  const verification=!!state.otpEmail;
- const title=verification?"Ingresá el código que recibiste":"Ingresá a tu espacio privado.";
+ const title=verification?"Revisá tu correo":"Ingresá a tu espacio privado.";
  const details=verification
-  ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
+  ?"Si tu cuenta está habilitada, recibirás un código de verificación en <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
   ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Al ingresar con este código, autorizás a tu coach asignado a consultar tus registros nutricionales, peso, actividad y suplementos para tu seguimiento. Podrás revocar el acceso desde la app. El código verifica tu identidad; ingresarlo confirma esta autorización.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
@@ -685,7 +685,8 @@ async function requestOtp(email){
  }catch(err){
   state.loggingIn=false;
   fail(err);
-  loginView(err.message);
+  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
+  loginView(connection?"No pudimos conectar con el servicio. Revisá tu conexión y volvé a intentarlo.":"No pudimos solicitar el código en este momento. Intentá nuevamente en unos instantes.");
  }
 }
 async function confirmOtp(token){
@@ -693,9 +694,11 @@ async function confirmOtp(token){
  const code=String(token||"").trim();
  if(!email||!/^\d{6,10}$/.test(code))throw new Error("El código debe tener entre 6 y 10 dígitos numéricos.");
  state.loggingIn=true;
+ let verified=false;
  try{
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
   if(error)throw error;
+  verified=true;
   const who=(await sb.auth.getUser()).data?.user;
   if(who?.id)sessionStorage.setItem("efgNutritionCoachConsent:"+who.id,"yes");
   state.otpEmail=null;
@@ -704,7 +707,9 @@ async function confirmOtp(token){
  }catch(err){
   state.loggingIn=false;
   fail(err);
-  loginView("El código es incorrecto o venció. Revisá el correo o solicitá otro.");
+  if(verified){sessionConnectionRetry();return;}
+  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
+  loginView(connection?"No pudimos verificar tu código por un problema de conexión. Volvé a intentarlo.":"El código es incorrecto o venció. Revisá el correo o solicitá otro.");
  }
 }
 function sessionConnectionRetry(){
@@ -1203,19 +1208,28 @@ async function addPlannedFood(key){
  state.plannerDraftGrams={};
  await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
 }
+let mealDialogReturnFocus=null;
+function closeMealDialog(){
+ const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
+ state.activeMeal=null;
+ if(mealDialogReturnFocus?.isConnected)mealDialogReturnFocus.focus({preventScroll:true});
+ mealDialogReturnFocus=null;
+}
 function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
  const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  state.activeMeal=slot;state.lastEditedMeal=slot;
+ mealDialogReturnFocus=document.activeElement;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
- '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
+ '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
  '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
+ document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -1407,14 +1421,14 @@ const fatOptions=(f=".9")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/
 function macroPlayground(){
  const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.9,recompMode:"deficit05"};
  const fields=[["previewAge","Edad",i.age,18,90],["previewHeight","Altura (cm)",i.height,120,220],["previewWeight","Peso (kg)",i.weight,35,300]];
- const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label>'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
- '<div class="field-row"><div class="field"><label>Ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
- '<div class="field"><label>Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
- '<div class="field-row"><div class="field"><label>Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
- '<div class="field"><label>Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
- '<div class="field"><label>Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
+ const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label for="'+q[0]+'">'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
+ '<div class="field-row"><div class="field"><label for="previewSex">Sexo utilizado por la ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
+ '<div class="field"><label for="previewActivity">Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
+ '<div class="field-row"><div class="field"><label for="previewModel">Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
+ '<div class="field"><label for="previewProtein">Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
+ '<div class="field"><label for="previewFat">Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. Ten Haaf es alternativa para deportistas entrenados, no una garantía de precisión. Proteína automática: 2,0 g/kg para recomposición y descenso, 1,8 g/kg para aumento muscular; grasas iniciales de 0,9 g/kg, ambas ajustables.</p>'+
- '<div class="field"><label>Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
+ '<div class="field"><label for="previewRecompMode">Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
  '<button class="btn" data-act="previewMacros">Calcular los 3 objetivos</button></div>';
  let cards="";
  if(state.macroPreview){
@@ -2336,7 +2350,7 @@ if(el.dataset.foodbulk){
   else window.prompt("Copiá el informe:",content);
   return;
  }
- if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
+ if(action==="closeMeal"){closeMealDialog();return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
@@ -2446,6 +2460,17 @@ root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
+document.addEventListener("keydown",event=>{
+ const dialog=document.querySelector("#mealDialogContainer .meal-popup");
+ if(!dialog)return;
+ if(event.key==="Escape"){event.preventDefault();closeMealDialog();return;}
+ if(event.key!=="Tab")return;
+ const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
+ if(!items.length)return;
+ const first=items[0],last=items[items.length-1];
+ if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}
+});
 root.addEventListener("submit",e=>{
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

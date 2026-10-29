@@ -480,21 +480,25 @@ try{
     const almondHint=await page.locator("#mealEditorHint").textContent();
     if(!almondHint.includes("FDC 168754"))
       pageReport.errors.push("Third audit batch chocolate almonds source missing");
+    await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("pochoclo");
     await page.locator("#mealEditorFood").selectOption("palomitas_saladas");
     const popcornHint=await page.locator("#mealEditorHint").textContent();
     if(!popcornHint.includes("FDC 170247"))
       pageReport.errors.push("Third audit batch popcorn source missing");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("helado frutilla");
     await page.locator("#mealEditorFood").selectOption("helado_frutilla_crema");
     const strawberryHint=await page.locator("#mealEditorHint").textContent();
     if(!strawberryHint.includes("FDC 168810"))
       pageReport.errors.push("Fourth audit batch strawberry ice cream source missing");
+    await page.locator('[data-mealgroup="carb"]').click();
     await page.locator("#mealFoodSearch").fill("donut");
     await page.locator("#mealEditorFood").selectOption("factura_donut");
     const donutHint=await page.locator("#mealEditorHint").textContent();
     if(!donutHint.includes("FDC 172758"))
       pageReport.errors.push("Fourth audit batch donut source missing");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("lemon pie");
     await page.locator("#mealEditorFood").selectOption("lemon_pie");
     const lemonHint=await page.locator("#mealEditorHint").textContent();

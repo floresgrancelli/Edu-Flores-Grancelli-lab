@@ -9,13 +9,13 @@ const [app,sql,css]=await Promise.all([
 ]);
 const esc=s=>String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const state={profile:{role:"student",organization_id:"org-fixture"},session:{user:{id:"student-fixture"}},
- studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,coachGoals:[],coachFoodPlan:null};
+ studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,coachGoals:[],coachFoodPlan:null,coachIntakeForms:{},coachIntakeAccess:{}};
 let schemaMissing=false,serverStatus="pending",stored=null,writeCount=0,deleteCount=0,deletedStudent=null,rpcCount=0,refreshCount=0,confirmCount=0;
 const submitted=[],calledRpc=[];
 const db={
  from(table){
   return {
-   select(){return this;},eq(){return this;},
+   select(){return this;},eq(){return this;},not(){return this;},
    maybeSingle(){
     if(table==="efg_student_plan_access")return Promise.resolve({
      data:schemaMissing?null:{status:serverStatus},
@@ -140,6 +140,8 @@ assert.equal(state.studentIntake.shared_at,null);
 fields.efgIntakeShare.checked=true;
 await flow.save(); // Re-share a fake draft so the DELETE also removes its sharing.
 assert.ok(stored.shared_at);
+await flow.refreshCoachDetail("student-fixture",true);
+assert.match(flow.details("student-fixture"),/Ficha inicial compartida/,"Coach can view current, explicitly shared fake intake");
 assert.match(flow.view(),/Eliminar solamente mi ficha inicial/);
 globalThis.window.confirm=()=>false;
 await flow.deleteOwn();
@@ -151,6 +153,13 @@ assert.equal(deleteCount,1);
 assert.equal(deletedStudent,"student-fixture");
 assert.equal(stored,null);
 assert.equal(state.studentIntake,null);
+await flow.refreshCoachDetail("student-fixture",true);
+assert.equal(flow.details("student-fixture"),"","Coach must not display cached intake after it was deleted");
+state.coachIntakeForms["student-fixture"]={notes:"stale fixture",shared_at:"2026-10-29T00:00:00Z"};
+await flow.refreshCoachDetail("student-fixture",false);
+assert.equal(flow.details("student-fixture"),"","Revoked coach-following consent clears cached intake");
+assert.match(app,/await coachIntakeFlow\.refreshCoachDetail\(studentId,c\.data\?\.accepted===true\)/,
+ "Coach must revalidate consented intake when opening a pupil");
 assert.equal(state.planAccess.status,"published","Erasing intake must never unpublish the plan");
 assert.doesNotMatch(flow.view(),/Eliminar solamente mi ficha inicial/,"No delete option when there is no intake");
 assert.equal(notifications.at(-1),"Tu ficha inicial se eliminó. El seguimiento nutricional conserva sus propios permisos.");

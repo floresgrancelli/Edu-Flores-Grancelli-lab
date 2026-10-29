@@ -27,7 +27,7 @@ begin
  if tg_op='INSERT' then
    new.updated_at := clock_timestamp();
  else
-   new.updated_at := pg_catalog.greatest(
+   new.updated_at := greatest(
      pg_catalog.clock_timestamp(), old.updated_at + interval '1 microsecond'
    );
  end if;

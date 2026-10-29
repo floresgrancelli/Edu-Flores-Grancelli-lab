@@ -1311,7 +1311,9 @@ function filterMealFoods(){
  const words=term.split(/\s+/).filter(Boolean);
  const previous=selector.value;
  const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
- const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
+ // Searching is global so familiar food names still work regardless of
+ // the current educational category; blank search shows the chosen section.
+ const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));

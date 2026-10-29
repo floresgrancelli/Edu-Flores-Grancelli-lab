@@ -58,7 +58,7 @@ function slotCell(d,track){
   '" title="'+dayText+'" aria-label="'+dayText+'"><span class="efg-streak-daylabel">'+escape(d.label)+
   '</span><span class="efg-streak-dot" aria-hidden="true">'+icon+'</span></span>';
 }
-export function weeklyConsistencyPanel(report,{opened=false,approved=false,verified=false}={}){
+export function weeklyConsistencyPanel(report,{opened=false,approved=false,verified=false,personal=false}={}){
  const ideal=report?.ideal||0,acceptable=report?.acceptable||0;
  const draw=(type,name,detail,count)=>'<div class="efg-streak-track efg-streak-'+type+'">'+
   '<div class="efg-streak-trackhead"><span><strong>'+name+'</strong><small>'+detail+
@@ -75,11 +75,11 @@ export function weeklyConsistencyPanel(report,{opened=false,approved=false,verif
    ?'<div class="efg-reward-container"><div class="efg-reward-intro"><span aria-hidden="true">✦</span><strong>¡SEMANA COMPLETA!</strong><small>6 días dentro de la zona cumplida'+(ideal===6?' · Distinción especial: 6 días ideales':'')+'</small></div>'+
     '<button type="button" class="btn efg-reward-open" data-act="openWeeklyReward" aria-expanded="'+(opened?'true':'false')+'" aria-controls="efgRewardReveal">🎁 ABRIR PREMIO</button>'+
     (opened?'<div id="efgRewardReveal" role="status" aria-live="polite" class="efg-reward-reveal"><strong>✦ ¡Felicitaciones por tu constancia!</strong><p>'+
-      (verified&&approved?'Tu coach autorizó expresamente una comida libre para este domingo. Respetá las indicaciones acordadas; no hace falta compensar después.':
+      (personal?'Reconocimiento personal por tu constancia semanal. Este logro no implica una autorización de comida libre ni un cambio en tus objetivos nutricionales.':verified&&approved?'Tu coach autorizó expresamente una comida libre para este domingo. Respetá las indicaciones acordadas; no hace falta compensar después.':
        'Conseguiste tu logro semanal. Consultá con tu coach si podés disfrutar una comida libre el domingo: el premio NO constituye una autorización automática.')+
       '</p></div>':'')+'</div>':'')+
-  '<p class="efg-weekly-streak-sunday"><span aria-hidden="true">☀️</span> Domingo: alimentación flexible según las indicaciones de tu coach. No suma ni resta.</p>'+
-  (report.hasTodaySunday?'<p class="efg-weekly-streak-today">Hoy es domingo: disfrutá según las pautas de tu coach.</p>':
+  '<p class="efg-weekly-streak-sunday"><span aria-hidden="true">☀️</span> '+(personal?'Domingo: descanso de la evaluación semanal. No suma ni resta.':'Domingo: alimentación flexible según las indicaciones de tu coach. No suma ni resta.')+'</p>'+
+  (report.hasTodaySunday?'<p class="efg-weekly-streak-today">Hoy es domingo: la constancia se retoma el lunes.</p>':
    '<p class="efg-weekly-streak-today">El día de hoy se evalúa al terminar; nunca se premia de forma anticipada.</p>')+
   '<details class="efg-weekly-streak-science"><summary>¿QUÉ DICE LA CIENCIA?</summary><p>Basado en evidencia científica: los registros alimentarios tienen errores y los estudios evalúan la adherencia con rangos, no con el 100% exacto. EFG utiliza ±5% y ±10% como bandas prácticas inspiradas en esos hallazgos, no como límites clínicos universales.</p>'+
   '<small>Referencias: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6928130/" target="_blank" rel="noopener noreferrer">Revisión sistemática de registros nutricionales (2019)</a> · <a href="https://onlinelibrary.wiley.com/doi/10.1111/obr.70066" target="_blank" rel="noopener noreferrer">Revisión sobre adherencia (2026)</a>.</small></details>'+

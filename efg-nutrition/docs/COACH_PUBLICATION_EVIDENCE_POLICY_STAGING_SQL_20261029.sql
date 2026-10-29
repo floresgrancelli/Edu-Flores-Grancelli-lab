@@ -44,7 +44,7 @@ create table efg_private.coach_reviewed_foods (
     ('manufacturer_label','official_product','validated_composition')),
   source_url text not null check(
     pg_catalog.length(source_url) between 13 and 2000
-    and source_url ~ '^https://[^[:space:]]+
+    and source_url ~ '^https://[^[:space:]]+$'),
   evidence_id text not null unique
     check(evidence_id ~ '^[A-Za-z0-9_-]{8,120}$'),
   evidence_status text not null default 'pending'

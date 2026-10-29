@@ -56,10 +56,16 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const v=state.studentIntake||{},shared=!!v.shared_at;
   const field=(id,label,value,min,max,step)=>'<div class="field"><label for="'+id+'">'+label+' (opcional)</label><input type="number" inputmode="decimal" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+escapeHTML(value??"")+'"></div>';
   const ready=!pending();
+  const nonEmptyKeys=["objective","age_years","height_cm","weight_kg","activity_level","dietary_pattern","preferred_foods","disliked_foods","meal_routine","notes"];
+  const informed=nonEmptyKeys.filter(k=>v[k]!==null&&v[k]!==undefined&&String(v[k]).trim()!=="").length;
+  const saved=!!state.studentIntake;
+  const statusLabel=!saved?"Todavía no guardaste una ficha":shared?"Ficha compartida con tu coach":"Ficha guardada de forma privada";
   return rootText(ready?"MI FICHA INICIAL":"MI INGRESO",ready?"Consultá, corregí o retirale el acceso a tu coach cuando quieras.":"Mientras tu coach prepara tu plan, podés conversar con él y completar tu ficha.")+
   (ready?'<section class="coach-intake-intro"><div class="eyebrow">MI FICHA · EFG NUTRITION CON COACH</div><h2>Mi ficha y mis permisos</h2><p>Tu plan ya está disponible. Esta ficha es independiente: podés actualizarla o dejar de compartirla sin perder el acceso a MI DÍA.</p></section>':
    '<section class="coach-intake-intro"><div class="eyebrow">BIENVENIDO · EFG NUTRITION CON COACH</div><h2>Estamos preparando tu plan.</h2><p>Al publicarlo tu coach, se habilitarán las herramientas nutricionales. Por ahora tenés la mensajería, la privacidad y tu ficha voluntaria.</p></section>')+
-  '<section class="card"><h2>Mi ficha inicial</h2><p class="pilot-hint">Todos los datos son opcionales y autodeclarados. Podés guardar sin compartir, o autorizar expresamente que el coach la vea.</p>'+
+  '<section class="card efg-student-intake-card"><h2>Mi ficha inicial</h2>'+
+  '<div class="efg-student-intake-state" role="status" aria-live="polite"><strong>'+escapeHTML(statusLabel)+'</strong><span>'+informed+' datos opcionales aportados · No es obligatorio completar todos</span></div>'+
+  '<p class="pilot-hint">Todos los datos son opcionales y autodeclarados. Podés guardar sin compartir, o autorizar expresamente que el coach la vea.</p>'+
   '<form id="efgStudentIntakeForm" class="pilot-form">'+
   '<div class="field"><label for="efgIntakeObjective">Mi objetivo (opcional)</label><select id="efgIntakeObjective">'+opt("","Elegir objetivo","",v.objective||"")+Object.entries(names).map(([k,l])=>opt(k,l,k,v.objective)).join("")+'</select></div>'+
   '<div class="field-row">'+field("efgIntakeAge","Edad (años)",v.age_years,18,100,1)+field("efgIntakeHeight","Altura (cm)",v.height_cm,100,250,0.1)+field("efgIntakeWeight","Peso (kg)",v.weight_kg,20,400,0.1)+'</div>'+

@@ -3,6 +3,7 @@
 export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh}){
  const names={fat_loss:"Reducir grasa",recomp:"Recomposición",muscle_gain:"Aumentar masa muscular",maintenance:"Mantenimiento",general:"Organizar mis hábitos"};
  const activities={low:"Mayormente sentado",light:"Ligera",moderate:"Moderada",high:"Alta"};
+ const diets={omnivore:"Omnívoro",vegetarian:"Vegetariano",vegan:"Vegano",pescatarian:"Pescetariano",other:"Otro / aún no definido"};
  const missing=e=>e&&["42P01","PGRST205"].includes(e.code);
  const pending=()=>state.profile?.role==="student"&&state.planAccessSupported&&state.planAccess?.status!=="published";
  async function loadStudent(){
@@ -14,7 +15,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.planAccessSupported=true;state.planAccess=a.data||{status:"pending"};
   // Privacy rights continue after publication: retain access to the intake and revoke sharing at any time.
   {
-   const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,notes,shared_at").eq("student_id",id).maybeSingle();
+   const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at").eq("student_id",id).maybeSingle();
    if(f.error)throw f.error;
    state.studentIntake=f.data||null;
   }
@@ -23,7 +24,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.coachIntakeForms={};state.coachIntakeAccess={};
   if(!consentedIds.length)return;
   const [a,b]=await Promise.all([
-   sb.from("efg_student_intakes").select("student_id,objective,age_years,height_cm,weight_kg,activity_level,notes,shared_at").in("student_id",consentedIds).not("shared_at","is",null).limit(500),
+   sb.from("efg_student_intakes").select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at").in("student_id",consentedIds).not("shared_at","is",null).limit(500),
    sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",consentedIds).limit(500)
   ]);
   if(a.error&&!missing(a.error))throw a.error;
@@ -40,7 +41,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(!consented)return;
   const [a,b]=await Promise.all([
    sb.from("efg_student_intakes")
-    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,notes,shared_at")
+    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at")
     .eq("student_id",studentId).not("shared_at","is",null).maybeSingle(),
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
@@ -63,7 +64,12 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   '<div class="field"><label for="efgIntakeObjective">Mi objetivo (opcional)</label><select id="efgIntakeObjective">'+opt("","Elegir objetivo","",v.objective||"")+Object.entries(names).map(([k,l])=>opt(k,l,k,v.objective)).join("")+'</select></div>'+
   '<div class="field-row">'+field("efgIntakeAge","Edad (años)",v.age_years,18,100,1)+field("efgIntakeHeight","Altura (cm)",v.height_cm,100,250,0.1)+field("efgIntakeWeight","Peso (kg)",v.weight_kg,20,400,0.1)+'</div>'+
   '<div class="field"><label for="efgIntakeActivity">Actividad diaria (opcional)</label><select id="efgIntakeActivity">'+opt("","Elegir nivel","",v.activity_level||"")+Object.entries(activities).map(([k,l])=>opt(k,l,k,v.activity_level)).join("")+'</select></div>'+
-  '<div class="field"><label for="efgIntakeNotes">Qué te gustaría contarle al coach (opcional)</label><textarea id="efgIntakeNotes" rows="3" maxlength="1000" placeholder="Preferencias, horarios o dudas. No hace falta compartir datos médicos.">'+escapeHTML(v.notes||"")+'</textarea></div>'+
+  '<div class="field"><label for="efgIntakeDiet">Mi patrón alimentario (opcional)</label><select id="efgIntakeDiet">'+opt("","Elegir o dejar sin definir","",v.dietary_pattern||"")+Object.entries(diets).map(([k,l])=>opt(k,l,k,v.dietary_pattern)).join("")+'</select></div>'+
+  '<div class="field"><label for="efgIntakePreferred">Alimentos que me gustan (opcional)</label><textarea id="efgIntakePreferred" rows="2" maxlength="400" placeholder="Ej.: arroz integral, frutas, pollo, legumbres">'+escapeHTML(v.preferred_foods||"")+'</textarea></div>'+
+  '<div class="field"><label for="efgIntakeDisliked">Alimentos que prefiero evitar por gusto (opcional)</label><textarea id="efgIntakeDisliked" rows="2" maxlength="400" placeholder="Solo gustos personales; no cargues alergias o diagnósticos acá">'+escapeHTML(v.disliked_foods||"")+'</textarea></div>'+
+  '<div class="field"><label for="efgIntakeSchedule">Mis horarios de comida (opcional)</label><textarea id="efgIntakeSchedule" rows="2" maxlength="400" placeholder="Ej.: desayuno 7:00, almuerzo 13:00, cena 21:00">'+escapeHTML(v.meal_routine||"")+'</textarea></div>'+
+  '<div class="pilot-hint" role="note">La celiaquía, diabetes, hipertensión, alergias y resultados de laboratorio requieren una sección clínica y autorización específicas. Esta ficha registra solamente preferencias generales.</div>'+
+  '<div class="field"><label for="efgIntakeNotes">Qué te gustaría contarle al coach (opcional)</label><textarea id="efgIntakeNotes" rows="3" maxlength="1000" placeholder="Horarios, hábitos o dudas. Evitá datos médicos en texto libre.">'+escapeHTML(v.notes||"")+'</textarea></div>'+
   '<label class="efg-intake-share-label" for="efgIntakeShare"><input type="checkbox" id="efgIntakeShare" '+(shared?'checked':'')+'> Autorizo compartir esta ficha con mi coach vinculado. Puedo retirar este permiso cuando quiera.</label>'+
   '<p class="pilot-hint">Este permiso es distinto del seguimiento nutricional. Para que el coach lea la ficha, ambos deben estar activos.</p>'+
   '<button class="btn block" type="submit">Guardar mi ficha</button></form>'+
@@ -80,14 +86,19 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    const n=Number(v);if(!Number.isFinite(n)||n<min||n>max||(integer&&!Number.isInteger(n)))throw Error("Revisá el campo "+id+".");
    return n;
   };
-  const objective=value("efgIntakeObjective")||null,activity_level=value("efgIntakeActivity")||null;
+  const objective=value("efgIntakeObjective")||null,activity_level=value("efgIntakeActivity")||null,dietary_pattern=value("efgIntakeDiet")||null;
   if(objective&&!Object.keys(names).includes(objective))throw Error("Objetivo inválido.");
   if(activity_level&&!Object.keys(activities).includes(activity_level))throw Error("Actividad inválida.");
+  if(dietary_pattern&&!Object.keys(diets).includes(dietary_pattern))throw Error("Patrón alimentario inválido.");
+  for(const field of ["efgIntakePreferred","efgIntakeDisliked","efgIntakeSchedule"]){
+   if(value(field).length>400)throw Error("El texto supera los 400 caracteres.");
+  }
   const allow=!!get("efgIntakeShare")?.checked;
   const payload={student_id:state.session.user.id,organization_id:state.profile.organization_id,
-   objective,activity_level,age_years:numeric("efgIntakeAge",18,100,true),
+   objective,activity_level,dietary_pattern,age_years:numeric("efgIntakeAge",18,100,true),
    height_cm:numeric("efgIntakeHeight",100,250),weight_kg:numeric("efgIntakeWeight",20,400),
-   notes:value("efgIntakeNotes").slice(0,1000),
+   preferred_foods:value("efgIntakePreferred"),disliked_foods:value("efgIntakeDisliked"),
+   meal_routine:value("efgIntakeSchedule"),notes:value("efgIntakeNotes").slice(0,1000),
    shared_at:allow?(state.studentIntake?.shared_at||new Date().toISOString()):null,
    updated_at:new Date().toISOString()};
   const r=await sb.from("efg_student_intakes").upsert(payload,{onConflict:"student_id"});
@@ -108,7 +119,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  function details(studentId){
   const v=state.coachIntakeForms[studentId];
   if(!v||!v.shared_at)return "";
-  const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Observaciones",v.notes]];
+  const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Patrón alimentario",diets[v.dietary_pattern]],["Alimentos preferidos",v.preferred_foods],["Evita por gusto",v.disliked_foods],["Horarios de comida",v.meal_routine],["Observaciones",v.notes]];
   return '<section class="card coach-intake-shared"><h3>Ficha inicial compartida</h3><p class="pilot-hint">Datos autodeclarados por el alumno. Úsalos únicamente para el acompañamiento autorizado.</p>'+
    items.filter(x=>x[1]).map(x=>'<p><strong>'+escapeHTML(x[0])+':</strong> '+escapeHTML(String(x[1]))+'</p>').join("")+'</section>';
  }

@@ -437,3 +437,23 @@ body .pilot-layout .efg-coach-tiles>.efg-menu-card:nth-child(6n) .efg-menu-emoji
  body .pilot-layout .efg-menu-card .efg-menu-emoji{width:39px;height:39px;flex-basis:39px}
  body .pilot-layout .efg-menu-card .efg-lux-menu-icon{width:23px;height:23px}
 }
+
+/* Los KPI coach/admin aún heredaban lavandas/rosas planos del sistema anterior. */
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(n){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#ece8e2,#cdd1d7)!important;
+ border:1px solid #adb3bb!important;border-radius:17px!important;
+ box-shadow:inset 0 1px 0 #ffffffa6,0 5px 12px #26375026!important;
+}
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(2){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#eee5d9,#d3c4b1)!important;
+ border-color:#b8aa95!important;
+}
+body .pilot-layout .efg-coach-stat-grid>div:nth-child(3){
+ background:radial-gradient(circle at 9% 0%,#ffffff8e,transparent 57%),
+ linear-gradient(145deg,#e4e7e8,#bbc3cd)!important;
+ border-color:#a8b1bd!important;
+}
+body .pilot-layout .efg-coach-stat-grid strong{color:#1a2b44!important}
+body .pilot-layout .efg-coach-stat-grid span{color:#536073!important}

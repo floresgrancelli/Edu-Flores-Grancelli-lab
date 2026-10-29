@@ -1,1 +1,69 @@
-.efg-messages-shell{display:grid;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:18px}.efg-message-roster{border:1px solid #dce8e1;border-radius:16px;padding:12px;background:#fff}.efg-message-roster button{display:block;width:100%;border:0;border-radius:10px;padding:13px;margin:3px 0;text-align:left;background:#f3f7f5;color:#214f40;cursor:pointer}.efg-message-roster button.active{background:#d7f2e3;font-weight:750}.efg-message-thread{border:1px solid #dce8e1;border-radius:16px;background:#fff;padding:16px;min-height:350px}.efg-message-history{height:min(50vh,430px);overflow:auto;display:flex;flex-direction:column;gap:10px;scrollbar-gutter:stable}.efg-message-bubble{max-width:84%;border-radius:14px;padding:11px 14px;background:#f2f5f4;color:#233a35;align-self:flex-start;white-space:pre-wrap;overflow-wrap:anywhere}.efg-message-bubble.self{background:#d8f3e5;align-self:flex-end}.efg-message-bubble small{display:block;color:#65877a;margin-top:7px;font-size:10px}.efg-message-compose{display:flex;gap:9px;margin-top:14px}.efg-message-compose textarea{flex:1;border:1px solid #c7d9cf;border-radius:12px;padding:10px;min-height:55px;font:inherit}.efg-message-compose button{border:0;border-radius:12px;background:#267758;color:#fff;padding:0 19px;cursor:pointer}.efg-inbox-full-meta{margin-bottom:15px;color:#4a7061}.efg-inbox-full .efg-notify-item{margin-bottom:5px}@media(max-width:650px){.efg-messages-shell{grid-template-columns:1fr}.efg-message-roster{display:flex;gap:7px;overflow-x:auto}.efg-message-roster button{min-width:160px}.efg-message-compose{flex-direction:column}.efg-message-compose button{padding:12px}}
+/* EFG Nutrition Pro Luxury · chat list + conversation, mobile-first */
+.efg-chat-layout{--chat-navy:#192b43;--chat-gold:#ad8752;--chat-ivory:#f0eae1;
+ display:grid;grid-template-columns:minmax(255px,36%) minmax(0,1fr);gap:0;min-height:min(68vh,640px);
+ border:1px solid #b9b0a5;border-radius:22px;overflow:hidden;
+ background:linear-gradient(145deg,#eee9e2,#d8d8da);
+ box-shadow:0 13px 30px #16263d20,inset 0 1px #fff8ed;
+ color:var(--chat-navy);
+}
+.efg-chat-list{min-width:0;display:flex;flex-direction:column;border-right:1px solid #bcb4aa;background:linear-gradient(150deg,#f3eee8,#d9dce0)}
+.efg-chat-list-head{padding:20px 17px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:9px}
+.efg-chat-list-head h2{font:700 30px/1.1 "Iowan Old Style",Georgia,serif;margin:3px 0 0;color:#1b2e47}
+.efg-chat-list-head .eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;color:#977341}
+.efg-chat-count{font-size:11px;color:#5e6873;white-space:nowrap}
+.efg-chat-search-wrap{margin:10px 14px 12px;position:relative}
+.efg-chat-search-wrap svg{position:absolute;left:13px;top:12px;width:23px;height:23px;pointer-events:none;color:#677383}
+.efg-chat-search-wrap input{display:block;width:100%;min-height:48px;padding:11px 12px 11px 43px;border-radius:28px;border:1px solid #c9c5c0;
+ background:#f9f7f2;color:#24344b;font-size:15px;box-sizing:border-box}
+.efg-chat-search-wrap input:focus-visible{outline:2px solid #ad8752;outline-offset:2px}
+.efg-chat-tabs{display:flex;gap:9px;padding:0 14px 15px}
+.efg-chat-tabs button{border:1px solid #b9b6b2;border-radius:99px;background:#f6f3ee;padding:8px 13px;min-height:42px;font-size:13px;font-weight:700;color:#536072}
+.efg-chat-tabs button.active{border-color:#b5a078;background:linear-gradient(125deg,#eadaba,#c5ac7c);color:#26344a}
+.efg-chat-contacts{min-height:160px;max-height:560px;overflow:auto;flex:1}
+.efg-chat-contact{appearance:none;display:flex;align-items:center;gap:12px;width:100%;min-height:82px;padding:13px 15px;border:0;border-bottom:1px solid #ccc6bf;background:transparent;text-align:left;color:#1b2b41;cursor:pointer}
+.efg-chat-contact:focus-visible{outline:2px solid #af8c54;outline-offset:-3px}
+.efg-chat-contact:hover,.efg-chat-contact.is-selected{background:linear-gradient(125deg,#f9f1e4,#e2ded7)}
+.efg-chat-avatar{flex:0 0 46px;width:46px;height:46px;display:grid;place-items:center;border-radius:50%;
+ background:radial-gradient(circle at 23% 15%,#f9eacc,#d0b385 70%,#b39462);border:1px solid #b4986c;
+ box-shadow:inset 0 1px 1px #fff,0 3px 8px #13294224;color:#243750;font-size:15px;font-weight:800}
+.efg-chat-avatar.small{flex-basis:38px;width:38px;height:38px}
+.efg-chat-contact-copy{min-width:0;display:flex;flex:1;flex-direction:column;gap:5px}
+.efg-chat-contact-copy strong{font-size:15px;line-height:1.3;color:#182942;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.efg-chat-contact-copy small{font-size:13px;color:#5d6877;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.efg-chat-side{display:flex;min-width:38px;flex-direction:column;align-items:flex-end;gap:7px;align-self:stretch;justify-content:center}
+.efg-chat-side time{font-size:11px;color:#718091;white-space:nowrap}
+.efg-chat-unread{min-width:21px;height:21px;padding:0 5px;border-radius:99px;display:grid;place-items:center;font-weight:800;font-size:11px;color:#fff;background:#1a7557}
+.efg-chat-empty{font-size:13px;color:#657284;margin:16px;line-height:1.5}
+.efg-chat-thread{min-width:0;display:flex;flex-direction:column;background:radial-gradient(circle at 80% 0%,#fff6e6,transparent 65%),#ece8e2}
+.efg-chat-thread-top{display:flex;align-items:center;gap:11px;padding:13px 17px;min-height:70px;background:linear-gradient(145deg,#2d415a,#172a43);color:#f3e9d7}
+.efg-chat-thread-top h3{margin:0;color:#f2e5d0;font-size:16px;line-height:1.3}
+.efg-chat-thread-top small{display:block;color:#cbd0d8;font-size:11px;margin-top:4px}
+.efg-chat-back{display:none;background:transparent;border:0;color:#f3e6d3;font-size:34px;line-height:1;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer}
+.efg-chat-welcome{height:100%;min-height:330px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:25px}
+.efg-chat-welcome>span{font-size:42px;color:#ae8956}
+.efg-chat-welcome h3{font:700 23px "Iowan Old Style",Georgia,serif;color:#1d344e;margin:10px 0}
+.efg-chat-welcome p{font-size:13px;color:#5d6b7c;max-width:270px}
+.efg-message-history{min-height:230px;flex:1;max-height:470px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:19px 16px;overscroll-behavior:contain}
+.efg-message-bubble{align-self:flex-start;max-width:85%;border:1px solid #c1bab0;border-radius:15px 15px 15px 5px;
+ background:linear-gradient(140deg,#fff9ed,#eeebe7);color:#25384e;padding:10px 13px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.efg-message-bubble.self{align-self:flex-end;border-color:#a99168;border-radius:15px 15px 5px 15px;background:linear-gradient(130deg,#e8d4ad,#ccb58c)}
+.efg-message-bubble small{display:block;margin-top:6px;font-size:10px;color:#667586}
+.efg-message-compose{display:flex;align-items:flex-end;gap:8px;padding:11px 14px;background:#e7e3db;border-top:1px solid #c9c0b4}
+.efg-message-compose textarea{box-sizing:border-box;min-width:0;flex:1;min-height:48px;max-height:124px;border:1px solid #b6b3af;border-radius:18px;background:#faf8f4;padding:12px 14px;color:#192c44;font:inherit;resize:vertical}
+.efg-message-compose button{display:flex;align-items:center;gap:5px;justify-content:center;min-height:48px;border:1px solid #8d754e;border-radius:15px;padding:8px 14px;background:linear-gradient(145deg,#d9be8a,#b28f55);font-size:13px;font-weight:800;color:#1c2d43}
+.efg-message-compose button svg{width:20px;height:20px}
+.efg-chat-privacy{font-size:11px;color:#657181;padding:0 18px 13px;margin:0}
+.efg-inbox-full-meta{color:#556b7b;margin-bottom:15px}
+@media(max-width:700px){
+ .efg-chat-layout{display:block;min-height:460px;margin:-2px 0 5px;border-radius:17px}
+ .efg-chat-list{height:min(69vh,660px);min-height:440px;border-right:0}
+ .efg-chat-contacts{max-height:none}
+ .efg-chat-thread{display:none;height:min(69vh,660px);min-height:440px}
+ .efg-chat-layout.show-thread .efg-chat-list{display:none}
+ .efg-chat-layout.show-thread .efg-chat-thread{display:flex}
+ .efg-chat-back{display:flex}
+ .efg-message-history{max-height:none;min-height:0}
+ .efg-chat-contact{min-height:78px;padding:11px 13px}
+ .efg-chat-contact-copy strong{font-size:15px}
+}
+@media(max-width:360px){.efg-chat-list-head h2{font-size:26px}.efg-chat-avatar{flex-basis:42px;width:42px;height:42px}.efg-chat-contact{gap:9px}}

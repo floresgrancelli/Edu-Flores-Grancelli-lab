@@ -27,6 +27,14 @@ assert.equal(classify(food,{patternId:'vegan',restrictions:['celiac']},[{...evid
 assert.equal(renderFoodCompatibility(classify(food,{})),'');
 assert.match(renderFoodCompatibility(classify(food,{inPlan:true})),/Incluido en mi plan/);
 assert.doesNotMatch(renderFoodCompatibility({color:'yellow',reasons:[{reason:'<script>x</script>'}]}),/<script>/);
+assert.match(renderFoodCompatibility(classify(food,{patternId:'vegan'},[evidence])),/Fuente 1/);
+assert.match(renderFoodCompatibility(classify(food,{patternId:'vegan'},[evidence])),/rel="noopener noreferrer"/);
+const unsafeUrl='https://example.test/"><script>alert(1)</script>';
+const safeHtml=renderFoodCompatibility({color:'yellow',reasons:[{reason:'Revisar',sources:[unsafeUrl,'javascript:alert(1)']}]});
+assert.doesNotMatch(safeHtml,/<script>/);
+assert.doesNotMatch(safeHtml,/href="javascript:/);
+assert.match(safeHtml,/&lt;script&gt;/);
+
 assert.deepEqual(food,{id:'fixture'},'Classifier must not mutate food/diary input');
 assert.equal(classify(food,{patternId:'vegan',restrictions:['pattern:vegan']},[evidence]).reasons.length,1,'No duplicate pattern restrictions');
 assert.equal(classify(food,{patternId:'vegan'},[{...evidence,catalogReviewId:null}]).color,'yellow');

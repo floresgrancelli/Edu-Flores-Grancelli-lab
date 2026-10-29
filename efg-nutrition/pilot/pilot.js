@@ -1377,9 +1377,12 @@ function coachHomeView(){
  const roster=(state.roster||[]).filter(p=>p.active);
  const pending=(test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
+ const testOrgSeats=Number(state.org?.seat_limit)||0;
+ const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);
  return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Alumnos, seguimiento e informes: lo importante está a un toque.")+
  '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
+ '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
   ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
@@ -1396,10 +1399,11 @@ function coachView(){
  const roster=state.roster||[];
  const current=state.selectedStudent&&roster.find(p=>p.user_id===state.selectedStudent);
  const pending=(isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
- const seats=org?.seat_limit||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length;
+ const seats=Number(org?.seat_limit)||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length,available=Math.max(0,seats-used);
  return rootText("Mis alumnos","Buscá alumnos, administrá autorizaciones y abrí sus fichas individuales.")+
- '<div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
- (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 Laboratorio de EFG — 5 cupos gratuitos de prueba</strong><small>Conservás tu cuenta de administrador. Solo ves datos de alumnos vinculados a este espacio que hayan dado consentimiento. No se generan cobros automáticos.</small></div>':'')+
+ ' <div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
+ '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+
+ (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 Laboratorio de EFG — '+seats+' cupos gratuitos de prueba</strong><small>Conservás tu cuenta de administrador. Solo ves datos de alumnos vinculados a este espacio que hayan dado consentimiento. No se generan cobros automáticos.</small></div>':'')+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="coachRosterSection"><div class="coach-roster-heading"><div><div class="eyebrow">PERSONAS PRIMERO</div><h2>Mis alumnos</h2><p class="pilot-hint">Avatares individuales. Las fotografías se mostrarán solamente cuando el alumno las autorice.</p></div><span class="coach-roster-total">'+activeRoster.length+' activos</span></div>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
  (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
@@ -1695,7 +1699,8 @@ function adminHomeView(){
  const orgs=state.orgs||[];
  return rootText("HOLA, "+escapeHTML(state.profile.nickname),"Tu centro de control EFG. Todos los espacios, en un único lugar.")+
  '<section class="efg-admin-banner"><span class="eyebrow">EFG NUTRITION PRO · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
- '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos habilitados</span></div></div>'+
+ '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos comerciales</span></div></div>'+
+ (state.org?.is_test?'<section class="card efg-seats-panel"><div class="section-head"><h2>MI LABORATORIO DE PRUEBA</h2><button type="button" class="btn small light" data-tab="testCoach">Ver alumnos</button></div><p><strong>'+Math.max(0,Number(state.org.seat_limit)-state.roster.filter(p=>p.active).length-state.testInvitations.filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at).length)+' cupos disponibles</strong> de '+Number(state.org.seat_limit)+' habilitados. No se cuentan como licencias comerciales.</p></section>':'')+
  '<section class="efg-menu-grid">'+[
  ["home","🍽️","MI DÍA","mint"],["testCoach","👥","Coach de prueba","blue"],
  ["reports","📈","Informes","peach"],["adminManage","⚙️","Organizaciones","lilac"],
@@ -2197,6 +2202,15 @@ if(el.dataset.foodbulk){
  if(el.dataset.proof)return showProof(el.dataset.proof);
  if(el.dataset.orgstatus){const org=state.orgs.find(x=>x.id===el.dataset.orgstatus);if(!org)throw new Error("Organización no encontrada.");const next=org.status==="suspended"?"active":"suspended";if(!window.confirm(next==="suspended"?"¿Suspender la cuenta de este coach? No podrá consultar alumnos ni incorporar nuevos.":"¿Reactivar esta cuenta profesional?"))return;const {error}=await sb.rpc("efg_update_subscription",{p_org:org.id,p_status:next});if(error)throw error;await loadRoleData();await render();notify("Estado de licencia actualizado.");return;}
  if(el.dataset.revokeinvite){if(!window.confirm("¿Cancelar esta invitación pendiente?"))return;const {error}=await sb.rpc(state.profile.role==="admin"&&state.org?.is_test?"efg_revoke_test_invitation":"efg_revoke_invitation",{p_invitation:el.dataset.revokeinvite});if(error)throw error;await loadRoleData();await render();notify("Invitación cancelada; el cupo quedó disponible.");return;}
+ if(el.dataset.testseats){
+  if(state.profile.role!=="admin"||!state.org?.is_test||state.org.coach_id!==state.session.user.id)throw new Error("No tenés permisos para modificar estos cupos de prueba.");
+  const value=window.prompt("Nuevo límite de alumnos de prueba (1 a 10000):",String(state.org.seat_limit));
+  if(value===null)return;
+  const count=Number(value),used=state.roster.filter(p=>p.active).length+state.testInvitations.filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at).length;
+  if(!Number.isInteger(count)||count<used||count>10000||count<1)throw new Error("Elegí un número entero que no sea menor que los cupos actualmente ocupados.");
+  const {error}=await sb.rpc("efg_set_seats",{p_org:state.org.id,p_seats:count});if(error)throw error;
+  state.org.seat_limit=count;await render();notify("Límite de alumnos de prueba actualizado.");return;
+ }
  if(el.dataset.seats){let org=state.orgs.find(x=>x.id===el.dataset.seats);let value=window.prompt("Nuevo cupo contratado:",String(org?.seat_limit||5));if(value===null)return;let count=Number(value);if(!Number.isInteger(count)||count<1||count>10000)throw new Error("Cupo inválido.");let {error}=await sb.rpc("efg_set_seats",{p_org:el.dataset.seats,p_seats:count});if(error)throw error;await loadRoleData();await render();notify("Cupo actualizado.");return;}
  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}

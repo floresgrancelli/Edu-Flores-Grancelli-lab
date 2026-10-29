@@ -635,7 +635,7 @@ body .pilot-layout .efg-payment-transfer .efg-payment-target strong{
 }
 body .pilot-layout .efg-payment-transfer .efg-payment-target small{color:#455369!important}
 body .pilot-layout :is(.efg-payment-transfer,.efg-payment-channel) button:disabled{
- opacity:.6;cursor:not-allowed;filter:grayscale(.25);
+ opacity:.6;cursor:not-allowed;
 }
 @media(max-width:390px){
  body .pilot-layout.efg-role-coach .pilot-nav{gap:2px}

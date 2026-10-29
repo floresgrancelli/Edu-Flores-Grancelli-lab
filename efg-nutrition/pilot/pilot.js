@@ -2059,6 +2059,8 @@ async function loadStudentDetail(studentId){
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
+ // Never reuse a previously cached shared intake after its consent or record changed.
+ await coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true);
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.coachFoodPlan=null;
  if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}

@@ -102,9 +102,15 @@ const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
 export const guidedPortionBounds=id=>bounds(id).slice(0,2);
-function source(food,qty){return {id:food.id,name:food.name,unit:food.unit||"g",qty,
- sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
- ...Object.fromEntries(NUTRIENTS.map(k=>[k,Number(food[k])||0]))};}
+function source(food,qty){
+ // A missing nutrient is NOT measured zero. Refuse to generate an approvable
+ // guide if the selected catalog entry lacks any required value.
+ if(!food||typeof food.id!=="string"||!NUTRIENTS.every(k=>valid(food[k])&&food[k]>=0))
+  throw new Error("El alimento "+String(food?.name||food?.id||"sin identificar")+" tiene datos nutricionales incompletos. Revisá su ficha antes de generar la guía.");
+ return {id:food.id,name:food.name,unit:food.unit||"g",qty,
+  sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
+  ...Object.fromEntries(NUTRIENTS.map(k=>[k,food[k]]))};
+}
 export function guideTotals(plan){
  const perMeal=(plan?.meals||[]).map(m=>({slot:m.slot,label:m.label,totals:sum(m.items||[])}));
  const totals=sum((plan?.meals||[]).flatMap(m=>m.items||[]));

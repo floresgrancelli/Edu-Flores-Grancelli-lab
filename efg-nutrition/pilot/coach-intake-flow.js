@@ -1,3 +1,4 @@
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
 export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
@@ -141,6 +142,10 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const student=state.selectedStudent,g=state.coachGoals[0],f=state.coachFoodPlan;
   if(!student||!state.consent?.accepted||!g||f?.guided_goal_id!==g.id||!f.guided_plan||!f.guided_plan_approved_at)
    throw Error("Primero aprobá un objetivo y su guía de cinco comidas para este alumno autorizado.");
+  // The legacy RPC must never publish a new-cohort plan or rewrite a historical
+  // published goal once efg_student_plan_access exists. Staged Coach drafts use
+  // efg_publish_coach_plan_draft separately after verified database review.
+  await assertCoachGoalWriteSafe(sb,{studentId:student,fromSharedIntake:!!state.coachIntakeForms?.[student]?.shared_at});
   if(!window.confirm("¿Publicar el plan y habilitar las funciones nutricionales de este alumno?"))return;
   const r=await sb.rpc("efg_publish_coach_plan",{p_student:student,p_goal_id:g.id});
   if(r.error)throw r.error;

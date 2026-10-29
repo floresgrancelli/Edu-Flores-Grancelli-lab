@@ -334,7 +334,7 @@ try{
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
     const lunch=page.locator(".student-meal-card").nth(2);
-    await lunch.locator("summary").click();
+    if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();
     await page.locator("#mealFoodSearch").fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();

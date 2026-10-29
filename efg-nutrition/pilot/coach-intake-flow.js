@@ -104,6 +104,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    if(value(field).length>400)throw Error("El texto supera los 400 caracteres.");
   }
   const allow=!!get("efgIntakeShare")?.checked;
+  if(allow&&state.consent?.accepted!==true)
+   throw Error("Para enviar la ficha, primero autorizá el seguimiento de tu coach. Podés guardarla privada mientras tanto.");
   const payload={student_id:state.session.user.id,organization_id:state.profile.organization_id,
    objective,activity_level,dietary_pattern,age_years:numeric("efgIntakeAge",18,100,true),
    height_cm:numeric("efgIntakeHeight",100,250),weight_kg:numeric("efgIntakeWeight",20,400),

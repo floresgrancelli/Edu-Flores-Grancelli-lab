@@ -63,6 +63,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-goal-write-gate.js
           node efg-nutrition/tests/coach-goal-write-gate.mjs
+      - name: Verify OFF-by-default Coach staged draft adapter and anti-bypass (SYNTHETIC)
+        run: node efg-nutrition/tests/coach-plan-draft-client.mjs
       - name: Verify staging-only Coach drafts SQL contract (NO database connection)
         run: node efg-nutrition/tests/coach-plan-draft-staging-contract.mjs
       - name: Verify staging-only atomic Coach publication contract (NO database connection)

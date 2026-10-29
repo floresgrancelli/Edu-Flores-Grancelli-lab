@@ -186,7 +186,7 @@ begin
     using errcode='40001';
  end if;
  return v_revision;
-end
+end;
 $efg_body$;
 
 -- PostgreSQL gives new functions PUBLIC EXECUTE by default; revoke explicitly.

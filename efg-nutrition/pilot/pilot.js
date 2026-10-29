@@ -19,6 +19,7 @@ import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bel
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createCoachIntakeFlow} from "./coach-intake-flow.js?v=20261029-intake1";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -360,7 +361,7 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -1839,18 +1840,24 @@ async function approveGuidedDay(){
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
+ const intakeDraft=state.coachIntakePrefill?.studentId===p.user_id?state.coachIntakePrefill:null;
+ const intakeValue=(key,fallback="")=>escapeHTML(intakeDraft?(intakeDraft.fields[key]??""):fallback);
+ const intakeWarnings=intakeDraft?'<div class="efg-intake-prefill" role="status"><strong>Ficha aplicada a la calculadora · borrador</strong><p>Confirmá los valores antes de calcular; todavía no se envió ningún plan.</p><ul>'+intakeDraft.warnings.map(w=>'<li>'+escapeHTML(w)+'</li>').join("")+'</ul>'+
+ (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
+ (intakeDraft.dislikedFoods?'<p><strong>Evita por gusto:</strong> '+escapeHTML(intakeDraft.dislikedFoods)+'</p>':"")+
+ (intakeDraft.mealRoutine?'<p><strong>Horarios:</strong> '+escapeHTML(intakeDraft.mealRoutine)+'</p>':"")+'</div>':"";
  return coachIntakeFlow.details(p.user_id)+'<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
  coachRewardPanel()+
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  coachGuidedSection()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
- '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity">'+activityOptions(1.5)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
+ intakeWarnings+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
  '<div class="field"><label>Recomposición · estrategia energética</label><select id="targetRecompMode">'+recompOptions("deficit05")+'</select></div>'+activityHint+recompHint+
- '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></details></section>';
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Guardar objetivo para revisar guía</button></details></section>';
 }
 
 function adminHomeView(){
@@ -2002,6 +2009,7 @@ async function approveGoalRevision(){
  notify("Nuevo objetivo aprobado. Plan anterior conservado.");
 }
 function calculateGoal(){
+ state.coachIntakeGuidePreview=null;
  const get=(id)=>document.getElementById(id)?.value;
  const weight=Number(get("targetWeight")),height=Number(get("targetHeight")),age=Number(get("targetAge")),activity=Number(get("targetActivity")),sex=get("targetSex"),goal=get("targetGoal"),model=get("targetModel")||"mifflin";
  const proteinChoice=get("targetProtein")||"auto",fatChoice=Number(get("targetFat")||.8);
@@ -2016,6 +2024,20 @@ function calculateGoal(){
  '<div class="field-row"><div class="field"><label for="proposalGoalKcal">Calorías objetivo</label><input type="number" id="proposalGoalKcal" min="1200" max="10000" step="1" value="'+result.kcal+'"></div>'+
  '<div class="field"><label for="proposalGoalMode">Reparto de macros</label><select id="proposalGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
+ const intakeDraft=state.coachIntakePrefill;
+ if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
+  if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
+   try{
+    const sample=generateGuidedDay(foods,state.pendingGoal);
+    state.coachIntakeGuidePreview={...sample,createdFrom:"coach_intake_unapproved_preview"};
+    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Ejemplo automático de cinco comidas · SIN APROBAR</h4>'+
+     '<p class="pilot-hint">Propuesta orientativa: NO se envía ni se suma al diario. Verificá ingredientes, alergias y restricciones antes de aprobarla.</p>'+
+     guidedDayContents(state.coachIntakeGuidePreview,state.pendingGoal,false)+'</section>';
+   }catch(error){
+    e.innerHTML+='<p class="pilot-hint">No se pudo preparar el menú automáticamente: '+escapeHTML(error.message)+'. Podés hacer la guía manual.</p>';
+   }
+  }else e.innerHTML+='<p class="pilot-hint">Este patrón alimentario requiere el motor dietético revisado. No generamos una guía genérica con alimentos posiblemente incompatibles.</p>';
+ }
  document.getElementById("approveGoalButton").disabled=false;
 }
 async function saveDiary(){
@@ -2119,7 +2141,7 @@ async function loadRoleData(){
 async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  state.selectedStudent=studentId;
- state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;
+ state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
  state.consent=c.data;
@@ -2448,6 +2470,22 @@ if(el.dataset.foodbulk){
  if(action==="completeWelcome")return completeWelcome();
  if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
  if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
+ if(action==="prepareCoachPlanFromIntake"){
+  const eligible=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
+  const studentId=state.selectedStudent;
+  if(!eligible||!studentId||!state.roster.some(p=>p.active&&p.user_id===studentId))
+   throw new Error("Solo podés preparar un plan de un alumno activo y autorizado.");
+  await loadStudentDetail(studentId); // Revalidate RLS/consent; never trust cached intake.
+  state.coachIntakePrefill=createCoachCalculatorPrefill({
+   intake:state.coachIntakeForms?.[studentId],studentId,coachAuthorized:state.consent?.accepted===true
+  });
+  state.coachIntakeGuidePreview=null;
+  state.tab="coachStudents";await render();
+  const panel=document.getElementById("coachStudentGoals");
+  if(panel){panel.open=true;panel.scrollIntoView?.({behavior:"smooth",block:"start"});}
+  notify("Datos autorizados precargados. Confirmá y calculá la propuesta antes de aprobar.");
+  return;
+ }
  if(action==="checkCoachPlan"){await coachIntakeFlow.loadStudent();await render();return;}
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
@@ -2522,7 +2560,19 @@ if(el.dataset.foodbulk){
  if(action==="previewGoalRevision")return previewGoalRevision();
  if(action==="approveGoalRevision")return approveGoalRevision();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
- if(action==="approveGoal"){if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta.");let {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});if(error)throw error;await loadStudentDetail(state.selectedStudent);await render();notify("Plan aprobado y disponible para el alumno.");return;}
+ if(action==="approveGoal"){
+  if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent||!state.consent?.accepted)
+   throw new Error("Calculá primero una propuesta para un alumno autorizado.");
+  const studentId=state.selectedStudent,guide=state.coachIntakeGuidePreview;
+  const {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});
+  if(error)throw error;
+  await loadStudentDetail(studentId);
+  if(guide&&state.coachGoals[0])state.coachGuidedDraft=rebalanceGuidedDay(guide,state.coachGoals[0]);
+  await render();
+  if(guide)document.getElementById("coachGuidedSlot")?.scrollIntoView?.({behavior:"smooth",block:"start"});
+  notify(guide?"Objetivo guardado: revisá y aprobá la guía antes de publicar el plan.":"Objetivo guardado: prepará la guía antes de publicar el plan.");
+  return;
+ }
  if(action==="checkAppVersion"){
   const label=document.getElementById("efgBuildStatus");
   if(label)label.textContent="Comprobando la versión publicada…";
@@ -2554,7 +2604,7 @@ root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
+const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;state.coachIntakeGuidePreview=null;document.getElementById("coachIntakeGeneratedGuide")?.remove();const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
 root.addEventListener("change",e=>{invalidateCoachDraft(e);if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
  state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);

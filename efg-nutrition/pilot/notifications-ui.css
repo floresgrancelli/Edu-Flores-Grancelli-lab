@@ -16,3 +16,47 @@
 .efg-notify-empty{margin:10px;padding:12px;font-size:13px;color:#648078}
 .efg-guide-description{margin:9px 0 12px;padding:11px 12px;border-radius:12px;background:#f0f8f3;color:#295a4a;font-size:13px;line-height:1.55}
 @media(max-width:760px){.efg-notifications{top:72px;right:12px}.efg-notify-bell{width:44px;height:44px}.efg-notify-popup{top:51px;max-height:60vh}}
+
+/* Luxury floating gold bell: remove former opaque white tile completely.
+   Keep 48px touch area, but display only the metallic bell artwork. */
+.efg-notifications{right:16px;top:clamp(90px,12vh,122px);isolation:isolate}
+.efg-notify-bell{
+ width:52px;height:52px;min-width:48px;min-height:48px;border:0!important;
+ border-radius:50%!important;background:transparent!important;
+ box-shadow:none!important;outline-offset:4px!important;
+ -webkit-tap-highlight-color:transparent;color:#a98039!important;
+ filter:drop-shadow(0 3px 2px #13253b68) drop-shadow(0 6px 10px #11233e3f);
+ transition:transform .16s ease,filter .16s ease;
+}
+.efg-notify-bell:before{
+ content:"";position:absolute;inset:6px 8px 7px;z-index:-1;
+ background:repeating-linear-gradient(108deg,#fcdd925a 0 1px,transparent 1px 4px);
+ -webkit-mask:radial-gradient(ellipse at center,#000 45%,transparent 73%);
+ mask:radial-gradient(ellipse at center,#000 45%,transparent 73%);
+ pointer-events:none;
+}
+.efg-notify-bell-svg{width:34px;height:34px;stroke:#b68e44;fill:#b99a5952;
+ filter:drop-shadow(0 -1px 0 #fff6c4) drop-shadow(0 2px 1px #3b26194b)}
+.efg-notify-bell:hover,.efg-notify-bell:focus-visible{
+ transform:translateY(-2px) scale(1.06);
+ filter:drop-shadow(0 3px 3px #172b4b7c) drop-shadow(0 8px 14px #11233e44);
+}
+.efg-notify-bell:focus-visible{outline:2px solid #a98039}
+.efg-notify-count{background:#ae3043;color:#fff;top:0;right:0;border:2px solid #ebe7df;font-variant-numeric:tabular-nums}
+.efg-notify-popup{
+ top:59px;border:1px solid #b6a483;
+ background:linear-gradient(145deg,#f5f1e9,#dedfe0);
+ box-shadow:0 16px 43px #10263d66;
+}
+.efg-notify-title{color:#192b43;border-bottom-color:#c6b8a0}
+.efg-notify-item{background:transparent;color:#213449;border-bottom-color:#c8c2b8}
+.efg-notify-item.unread{background:#e8decd;box-shadow:inset 3px 0 0 #ad8752}
+.efg-notify-item:hover{background:#eee3d1}
+.efg-notify-item>span:last-child{color:#526479}
+.efg-notify-empty{color:#5b6a7e}
+@media(max-width:760px){
+ .efg-notifications{top:clamp(110px,15vh,150px);right:12px}
+ .efg-notify-bell{width:50px;height:50px}
+ .efg-notify-popup{top:54px;max-height:65vh}
+}
+@media(prefers-reduced-motion:reduce){.efg-notify-bell{transition:none}}

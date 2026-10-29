@@ -41,8 +41,9 @@ begin
     or pg_catalog.has_table_privilege('authenticated','public.efg_food_plans','INSERT') then
    raise exception 'NUT56 old direct-client write permissions must be revoked after cutover';
  end if;
- if pg_catalog.position('efg.coach_atomic_publish' in
-   pg_catalog.pg_get_functiondef('public.efg_publish_coach_plan_draft(uuid,bigint,uuid)'::regprocedure))=0 then
+ if pg_catalog.strpos(
+   pg_catalog.pg_get_functiondef('public.efg_publish_coach_plan_draft(uuid,bigint,uuid)'::regprocedure),
+   'efg.coach_atomic_publish')=0 then
    raise exception 'NUT56 atomic publication RPC missing transaction-local notification marker';
  end if;
 end $assert$;

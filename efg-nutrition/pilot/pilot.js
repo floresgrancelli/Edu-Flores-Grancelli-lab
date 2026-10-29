@@ -1670,6 +1670,13 @@ function goalRevisionSection(latest){
 
 /* Five-meal guide: draft only on coach until explicit approval; not a diary entry. */
 const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g";
+function guidedTargetFeedback(deviations){
+ const keys=["k","p","c","f"];
+ const close=keys.every(k=>Number.isFinite(deviations[k]?.percent)&&Math.abs(deviations[k].percent)<=5);
+ return close
+  ?"Menú cercano al objetivo (energía y macros dentro del 5%). Los valores son orientativos."
+  :"Todavía hay diferencias con el objetivo. Recalculá las demás porciones o revisá el menú; se conservan los gramos que fijaste.";
+}
 function guidedDayContents(plan,goal,editable=false){
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
@@ -1687,7 +1694,7 @@ function guidedDayContents(plan,goal,editable=false){
   '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
- '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small></div>'+
+ '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
@@ -1702,7 +1709,7 @@ function coachGuidedSection(){
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
- (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Ajustar porciones a la meta</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
+ (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
  '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>'):
  '<p class="pilot-notice">El ejemplo se genera después de calcular y aprobar el objetivo.</p>'))+'</section>';
 }
@@ -1741,6 +1748,7 @@ function updateGuidedTotalsUI(){
  const all=document.querySelector("[data-guideoverall]");if(all)all.textContent="Menú modelo: "+guideNumbers(sums.totals);
  const deviations=document.querySelector("[data-guidedeviations]");
  if(deviations)deviations.textContent="Desvíos: "+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(dev[k].percent>0?"+":"")+num(dev[k].percent,1)+"%").join(" · ");
+ const status=document.querySelector("[data-guidetargetstatus]");if(status)status.textContent=guidedTargetFeedback(dev);
  for(const m of sums.perMeal){
   const k=document.querySelector('[data-guidemealmetric="'+m.slot+'"]');if(k)k.textContent=num(m.totals.k)+" kcal";
   const t=document.querySelector('[data-guidemealnumbers="'+m.slot+'"]');if(t)t.textContent=guideNumbers(m.totals);
@@ -2449,7 +2457,7 @@ if(el.dataset.foodbulk){
   const draft=readGuidedEditor(),goal=state.coachGoals[0];
   if(!goal)throw new Error("El alumno necesita un objetivo aprobado.");
   state.coachGuidedDraft=rebalanceGuidedDay(draft,goal);showGuidedEditor();
-  notify("Porciones ajustadas; revisá el resultado antes de aprobar.");return;
+  notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
  }
  if(action==="saveGuidedDay")return approveGuidedDay();
  if(action==="calculateGoal")return calculateGoal();
@@ -2494,12 +2502,12 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);if(["reviseGoalMode",
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
  state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();
- notify("Alternativa cambiada y demás porciones recalculadas sin alterar tus decisiones.");return;
+ notify("Ingrediente cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.dataset.guideqty){
  const draft=readGuidedEditor();
  state.coachGuidedDraft=rebalanceGuidedDay(draft,state.coachGoals[0]);
  showGuidedEditor();
- notify("Porciones ajustadas automáticamente; se respetó tu elección.");return;
+ notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");

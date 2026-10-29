@@ -2378,6 +2378,7 @@ if(el.dataset.foodbulk){
  const action=el.dataset.act;if(!action)return;
  if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
+ if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
  if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
  if(action==="checkCoachPlan"){await coachIntakeFlow.loadStudent();await render();return;}
  if(action==="loginBack"){state.otpEmail=null;return loginView();}

@@ -22,6 +22,7 @@ import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.j
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
+import {assessCoachDraftPublication} from "./coach-draft-review.js?v=20261029-review50";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -1763,14 +1764,16 @@ function coachAtomicDraftPanel(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
  const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
  if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
- const saved=state.coachPlanDraftRecord,active=saved?.status==="draft"&&Number.isSafeInteger(saved?.draft_revision)&&saved.source_intake_updated_at===intake.updated_at;
+ const saved=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
+ const publication=assessCoachDraftPublication({studentId:student,intake,savedDraft:saved,goal,guide});
+ const active=saved?.status==="draft"&&saved.source_intake_updated_at===intake.updated_at;
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
  '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
  '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
- (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft">Revisar y publicar juntos</button>':'')+'</div>'+
- (!goal||!guide?'<p class="pilot-hint">Calculá una propuesta y prepará sus cinco comidas antes de guardar.</p>':'')+'</section>';
+ (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft" '+(publication.ready?'':'disabled')+'>Revisar y publicar juntos</button>':'')+'</div>'+
+ (!publication.ready?'<p class="pilot-hint" role="status">'+escapeHTML(publication.reason)+'</p>':'')+'</section>';
 }
 async function saveCoachAtomicDraft(){
  const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
@@ -1784,7 +1787,7 @@ async function saveCoachAtomicDraft(){
   studentId,sourceUpdatedAt:intake.updated_at,goal,guide,
   expectedRevision:state.coachPlanDraftRecord?.draft_revision??null
  });
- state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt,goal_proposal:goal,guide_proposal:structuredClone(guide)};
+ state.coachPlanDraftRecord={...(state.coachPlanDraftRecord||{}),student_id:studentId,status:"draft",draft_revision:r.revision,source_intake_updated_at:r.sourceUpdatedAt,goal_proposal:goal,guide_proposal:structuredClone(guide)};
  state.coachPlanPublishRequestId=null;
  await render();
  notify("Borrador privado guardado. El alumno conserva su plan vigente.");
@@ -1794,6 +1797,10 @@ async function publishCoachAtomicDraft(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
     draft.status!=="draft"||!Number.isSafeInteger(draft.draft_revision))
   throw Error("No hay un borrador seguro disponible para publicar.");
+ const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
+ const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide});
+ if(!review.ready)throw Error(review.reason);
  if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
  state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||crypto.randomUUID();
  await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,

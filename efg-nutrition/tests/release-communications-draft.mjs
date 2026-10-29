@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {RELEASE_COMMUNICATIONS_ENABLED,releaseVisibleTo,renderMajorReleaseAnnouncement,releaseAcknowledgment,renderWhatsNew,seenVersionRequest} from "../pilot/release-communications.js";
-const base={id:"major_2026_01",version:"2026.11.1",phase:"announced",
+const base={id:"major_2026_01",version:"2026.11.1",phase:"preview",
  title:'Nueva etapa EFG Nutrition Pro <script>alert(1)</script>',
  roles:["admin","coach","student","personal"],
  highlights:["Fichas voluntarias y permisos","Semáforo por restricciones, no calorías","Dietas y guía de cinco comidas"]};
@@ -8,12 +8,18 @@ assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false,"Never send messages or sign o
 for(const role of base.roles){
  assert.equal(releaseVisibleTo(base,role),true);
  const html=renderMajorReleaseAnnouncement(base,role);
- assert.match(html,/Entendido, cerrar sesión/);
- assert.match(html,/data-act="ackReleaseAndSignOut"/);
+ assert.match(html,/>Entendido<\/button>/);
+ assert.match(html,/data-act="ackReleasePreview"/);
+ assert.doesNotMatch(html,/ackReleaseAndSignOut/,"Pre-release announcements cannot sign out too early");
+ const activated={...base,phase:"reauth_required"};
+ const activeHtml=renderMajorReleaseAnnouncement(activated,role);
+ assert.match(activeHtml,/Entendido, cerrar sesión/);
+ assert.match(activeHtml,/data-act="ackReleaseAndSignOut"/);
+ assert.deepEqual(releaseAcknowledgment(activated,role),{release_id:base.id,acknowledgment_kind:"reauth_notice_acknowledged"});
  assert.match(html,/no constituye aceptación de Términos/);
  assert.doesNotMatch(html,/<script>/);
  assert.match(html,/&lt;script&gt;/);
- assert.deepEqual(releaseAcknowledgment(base,role),{release_id:base.id,acknowledgment_kind:"announcement_read"});
+ assert.deepEqual(releaseAcknowledgment(base,role),{release_id:base.id,acknowledgment_kind:"announcement_preview_read"});
 }
 assert.equal(releaseVisibleTo(base,"visitor"),false);
 assert.equal(renderMajorReleaseAnnouncement(base,"visitor"),"");

@@ -1,5 +1,9 @@
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
+export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
+ return willShare?(wasShared?"Actualizar ficha compartida con mi coach":"Guardar y enviar mi ficha a mi coach"):
+  (wasShared?"Guardar privada y dejar de compartir":"Guardar ficha privada");
+}
 export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh}){
  const names={fat_loss:"Reducir grasa",recomp:"Recomposición",muscle_gain:"Aumentar masa muscular",maintenance:"Mantenimiento",general:"Organizar mis hábitos"};
  const activities={low:"Mayormente sentado",light:"Ligera",moderate:"Moderada",high:"Alta"};
@@ -78,7 +82,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   '<div class="field"><label for="efgIntakeNotes">Qué te gustaría contarle al coach (opcional)</label><textarea id="efgIntakeNotes" rows="3" maxlength="1000" placeholder="Horarios, hábitos o dudas. Evitá datos médicos en texto libre.">'+escapeHTML(v.notes||"")+'</textarea></div>'+
   '<label class="efg-intake-share-label" for="efgIntakeShare"><input type="checkbox" id="efgIntakeShare" '+(shared?'checked':'')+'> Autorizo compartir esta ficha con mi coach vinculado. Puedo retirar este permiso cuando quiera.</label>'+
   '<p class="pilot-hint">Este permiso es distinto del seguimiento nutricional. Para que el coach lea la ficha, ambos deben estar activos.</p>'+
-  '<button class="btn block" id="efgIntakeSubmitButton" type="submit">'+(shared?"Actualizar ficha compartida":"Guardar ficha privada")+'</button></form>'+
+  '<button class="btn block" id="efgIntakeSubmitButton" type="submit">'+intakeSaveButtonLabel({wasShared:shared,willShare:shared})+'</button></form>'+
   (state.studentIntake?'<div class="pilot-toolbar"><button type="button" class="btn light" data-act="deleteStudentIntake">Eliminar solamente mi ficha inicial</button></div><p class="pilot-hint">Se borran los datos opcionales de esta ficha y se deja de compartir. No se borran tu cuenta, el plan ni tus registros nutricionales.</p>':'')+
   '<div role="status" class="pilot-notice">'+(shared?'Ficha compartida con tu coach si autorizaste su seguimiento.':'Ficha privada. Todavía no la compartiste.')+'</div></section>'+
   (ready?'<section class="card"><h2>Tu plan sigue disponible</h2><p>Modificar o retirar el permiso para compartir esta ficha no borra tus registros ni despublica tu plan. El seguimiento del coach requiere por separado tu consentimiento vigente.</p><div class="pilot-toolbar"><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-tab="home">Volver a MI DÍA</button></div></section>':

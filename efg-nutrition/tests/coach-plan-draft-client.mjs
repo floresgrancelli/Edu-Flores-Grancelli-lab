@@ -27,9 +27,9 @@ const db={
  async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:rev,error:null};if(name==="efg_publish_coach_plan_draft")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
 };
 const disabled=createCoachPlanDraftClient({sb:db});
-await assert.rejects(()=>disabled.load(STU),/todavía no habilitados/);
-await assert.rejects(()=>disabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide}),/todavía no habilitados/);
-await assert.rejects(()=>disabled.publish({studentId:STU,expectedRevision:1,requestId:REQ,confirmed:true}),/todavía no habilitados/);
+await assert.rejects(()=>disabled.load(STU),/aún no habilitados/);
+await assert.rejects(()=>disabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide}),/aún no habilitados/);
+await assert.rejects(()=>disabled.publish({studentId:STU,expectedRevision:1,requestId:REQ,confirmed:true}),/aún no habilitados/);
 assert.equal(operations,0,"OFF must not issue reads or writes");
 const enabled=createCoachPlanDraftClient({sb:db,enabled:true}); // isolated synthetic test, never production flag
 const loaded=await enabled.load(STU);

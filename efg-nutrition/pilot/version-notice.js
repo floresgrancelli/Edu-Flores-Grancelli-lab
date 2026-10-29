@@ -20,18 +20,8 @@ export function createVersionNotice({
  host.setAttribute("aria-label","Actualización de EFG Nutrition Pro");
  host.hidden=true;
  document.body.append(host);
- const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- function paint(){
-  const visible=!!latest&&latest.key!==dismissed&&canShow();
-  host.hidden=!visible;
-  if(!visible){host.innerHTML="";return;}
-  host.innerHTML='<div class="efg-version-icon" aria-hidden="true">✦</div>'+
-   '<div class="efg-version-copy"><strong>¡Nueva versión disponible!</strong>'+
-   '<p>Hay mejoras en EFG Nutrition Pro. Elegí cuándo incorporarlas.</p></div>'+
-   '<div class="efg-version-actions">'+
-   '<button type="button" class="efg-version-later" data-version-action="later">Más tarde</button>'+
-   '<button type="button" class="efg-version-update" data-version-action="update">Actualizar ahora</button></div>';
- }
+ // Build changes are silent. Promotional and legal flows have separate server gates.
+ function paint(){host.hidden=true;host.innerHTML="";}
  async function check({force=false,reopen=false}={}){
   if(inFlight){
    await inFlight;
@@ -64,19 +54,6 @@ export function createVersionNotice({
    if(finish)finish();
   }
  }
- function onAction(event){
-  const button=event.target.closest("[data-version-action]");
-  if(!button||!host.contains(button))return;
-  if(button.dataset.versionAction==="later"){dismissed=latest?.key||null;paint();return;}
-  if(button.dataset.versionAction!=="update"||!latest)return;
-  if(hasUnsavedChanges()){
-   const agreed=window.confirm("Hay datos que podrías no haber guardado (por ejemplo una dieta o mensaje). Guardalos antes de actualizar. ¿Querés recargar y descartar cualquier edición pendiente?");
-   if(!agreed)return;
-  }
-  // The user's click is the ONLY path that reloads. No forced background updates.
-  window.location.reload();
- }
- host.addEventListener("click",onAction);
  const visibilityHandler=()=>{if(!document.hidden){paint();void check();}};
  const focusHandler=()=>{paint();void check();};
  document.addEventListener("visibilitychange",visibilityHandler);
@@ -85,7 +62,7 @@ export function createVersionNotice({
  // Do the first fetch promptly after all module initializers have mounted.
  queueMicrotask(()=>{void check({force:true});});
  return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
-  clearInterval(poll);host.removeEventListener("click",onAction);
+  clearInterval(poll);
   document.removeEventListener("visibilitychange",visibilityHandler);
   window.removeEventListener("focus",focusHandler);host.remove();
  }};

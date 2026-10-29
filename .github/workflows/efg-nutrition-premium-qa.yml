@@ -40,10 +40,14 @@ jobs:
           node --check efg-nutrition/pilot/progress-charts.js
           node --check efg-nutrition/pilot/fit-recipes.js
           node --check efg-nutrition/pilot/fit-recipe-illustrations.js
+      - name: Shared food compatibility evidence contracts
+        run: node efg-nutrition/tests/food-compatibility.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
+      - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)
+        run: node efg-nutrition/tests/ux-sprint1.mjs
       - name: Coach new arrivals role-safe navigation and honest status states
         run: node efg-nutrition/tests/coach-intake-nav.mjs
       - name: Coach voluntary intake and publication gate draft contracts

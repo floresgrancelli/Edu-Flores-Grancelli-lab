@@ -2,6 +2,7 @@
 // Pure rendering / contract helpers. No database writes, mail, sign-out or legal consent.
 export const RELEASE_COMMUNICATIONS_ENABLED=false;
 const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const roleCopy={admin:"Organizá tu plataforma y acompañá a tu comunidad.",coach:"Más claridad para acompañar a cada alumno.",student:"Tus hábitos, tu historia y tu acompañamiento en un mismo lugar.",personal:"Un espacio para organizar tus hábitos a tu ritmo."};
 const ROLES=new Set(["admin","coach","student","personal"]);
 function valid(manifest){
  if(!manifest||!/^[a-z0-9][a-z0-9._-]{2,40}$/i.test(manifest.id||"")||
@@ -25,9 +26,10 @@ export function renderMajorReleaseAnnouncement(manifest,role){
  const m=valid(manifest);
  if(!["preview","reauth_required"].includes(m.phase))return "";
  return '<section class="card efg-release-announcement" aria-labelledby="efgUpcomingReleaseTitle">'+
-  '<span class="eyebrow">EFG NUTRITION PRO · PRÓXIMAMENTE</span>'+
+  '<span class="eyebrow">EFG NUTRITION PRO · '+(m.phase==='preview'?'PRÓXIMAMENTE':'YA DISPONIBLE')+'</span>'+
   '<h2 id="efgUpcomingReleaseTitle">'+esc(m.title)+'</h2>'+
-  '<p>Estamos preparando una actualización importante de la plataforma. No perderás tus registros ni tus planes.</p>'+
+  '<p>'+esc(m.phase==='preview'?'Estamos preparando una nueva etapa para acompañarte cada día.':'La nueva versión está disponible. Guardá tus cambios antes de volver a ingresar.')+'</p>'+
+  '<p>'+esc(roleCopy[role])+'</p>'+
   '<ul>'+m.highlights.map(t=>'<li>'+esc(t)+'</li>').join("")+'</ul>'+
   '<p class="pilot-hint">Para completar el cambio tendrás que volver a iniciar sesión. Al regresar, podrás revisar los documentos legales vigentes y aceptar lo que corresponda por separado.</p>'+
   '<p class="pilot-hint">Leer este aviso no constituye aceptación de Términos ni consentimiento para compartir información de salud.</p>'+
@@ -48,8 +50,8 @@ export function renderWhatsNew(manifest,role,seenVersions=[]){
  if(m.phase!=="live"||seenVersions.includes(m.version))return "";
  return '<section class="card efg-release-whatsnew" aria-labelledby="efgReleaseWhatsNewTitle">'+
   '<span class="eyebrow">NUEVA VERSIÓN · '+esc(m.version)+'</span>'+
-  '<h2 id="efgReleaseWhatsNewTitle">Novedades de EFG Nutrition Pro</h2>'+
-  '<p>Conocé las mejoras que ya están disponibles.</p>'+
+  '<h2 id="efgReleaseWhatsNewTitle">¡Bienvenido a la nueva versión de EFG Nutrition Pro!</h2>'+
+  '<p>'+esc(roleCopy[role])+'</p><p>Novedades de EFG Nutrition Pro: conocé las mejoras que ya están disponibles.</p>'+
   '<ul>'+m.highlights.map(t=>'<li>'+esc(t)+'</li>').join("")+'</ul>'+
   '<button class="btn" type="button" data-act="markReleaseSeen" data-release="'+esc(m.id)+'">Comenzar</button></section>';
 }

@@ -591,17 +591,11 @@ try{
     await window.__EFG_VISUAL_QA__.versionNotice.check({force:true});
    });
    const banner=page.locator("#efgVersionNotice");
-   if(!(await banner.isVisible()))pageReport.errors.push("Version notice did not appear for a newer build");
-   if(!(await banner.getByText("Nueva versión disponible").count()))pageReport.errors.push("New-version heading missing");
-   const urlBefore=page.url();
-   await page.locator("#targetAge").fill("42"); // Unsafe to discard without warning.
-   let warningShown=false;
-   page.once("dialog",dialog=>{warningShown=true;void dialog.dismiss()});
-   await banner.locator('[data-version-action="update"]').click();
-   await page.waitForTimeout(90);
-   if(!warningShown||page.url()!==urlBefore)pageReport.errors.push("Draft guard did not prevent a forced version reload");
-   await banner.locator('[data-version-action="later"]').click();
-   if(await banner.isVisible())pageReport.errors.push("Later button did not dismiss update notice");
+   if(await banner.isVisible())pageReport.errors.push("Minor build displayed an unsolicited banner");
+   await page.locator("#targetAge").fill("42");
+   await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.check({force:true,reopen:true}));
+   if(await banner.isVisible())pageReport.errors.push("Manual diagnostics displayed a release ceremony");
+   if(await page.locator("#targetAge").inputValue()!=="42")pageReport.errors.push("Silent check lost draft");
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;
     x.state.tab="coachTools";await x.render();
@@ -614,8 +608,8 @@ try{
      document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
     const label=await page.locator("#efgBuildStatus").textContent();
     const visible=await banner.isVisible();
-    if(!label.includes("nueva versión")||!visible)
-     pageReport.errors.push("User-initiated check failed to reopen a postponed release: label="+label+", visible="+visible);
+    if(!label.includes("nueva versión")||visible)
+     pageReport.errors.push("Inline version diagnostic failed: label="+label+", visible="+visible);
    }
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }

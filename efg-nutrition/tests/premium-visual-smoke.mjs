@@ -54,7 +54,17 @@ try{
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
-  await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__);
+  try{await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__,null,{timeout:16000});}
+  catch(err){
+    const debug=await page.evaluate(()=>({
+      readyState:document.readyState,
+      title:document.title,
+      scripts:[...document.querySelectorAll('script')].map(x=>x.src).slice(-4),
+      body:document.body?.innerText?.slice(0,400)
+    })).catch(()=>({}));
+    throw Error("EFG pilot failed to boot in isolated "+engine+" "+role+"/"+width+
+      ": "+JSON.stringify(debug)+"; JS/page errors: "+errors.slice(-9).join(" | ")+"; "+String(err));
+  }
   if(role==="coach"&&width===390&&engine==="chromium"){
    // Isolated iPhone-width touch regression before the fixture signs in.
    const gesture=await page.evaluate(async()=>{

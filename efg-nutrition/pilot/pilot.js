@@ -1993,6 +1993,7 @@ function adjustCalculatedGoal(){
  const goal=adjustNutritionGoal(base,Number(document.getElementById("proposalGoalKcal")?.value),document.getElementById("proposalGoalMode")?.value);
  state.pendingGoal={...goal,student_id:state.selectedStudent};
  document.getElementById("goalPreviewSummary").innerHTML=showGoalComparison(base,goal);
+ regenerateCoachIntakeGuidePreview();
  document.getElementById("approveGoalButton").disabled=false;
 }
 async function approveGoalRevision(){
@@ -2007,6 +2008,26 @@ async function approveGoalRevision(){
  state.pendingGoalRevision=null;state.pendingGoal=null;state.calculatedGoalBase=null;
  await loadStudentDetail(pending.studentId);await render();
  notify("Nuevo objetivo aprobado. Plan anterior conservado.");
+}
+function regenerateCoachIntakeGuidePreview(){
+ state.coachIntakeGuidePreview=null;
+ document.getElementById("coachIntakeGeneratedGuide")?.remove();
+ const e=document.getElementById("goalPreview");
+ if(!e||!state.pendingGoal)return;
+ const intakeDraft=state.coachIntakePrefill;
+ if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
+  if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
+   try{
+    const sample=generateGuidedDay(foods,state.pendingGoal);
+    state.coachIntakeGuidePreview={...sample,createdFrom:"coach_intake_unapproved_preview"};
+    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Ejemplo automático de cinco comidas · SIN APROBAR</h4>'+
+     '<p class="pilot-hint">Propuesta orientativa: NO se envía ni se suma al diario. Verificá ingredientes, alergias y restricciones antes de aprobarla.</p>'+
+     guidedDayContents(state.coachIntakeGuidePreview,state.pendingGoal,false)+'</section>';
+   }catch(error){
+    e.innerHTML+='<p class="pilot-hint">No se pudo preparar el menú automáticamente: '+escapeHTML(error.message)+'. Podés hacer la guía manual.</p>';
+   }
+  }else e.innerHTML+='<p class="pilot-hint">Este patrón alimentario requiere el motor dietético revisado. No generamos una guía genérica con alimentos posiblemente incompatibles.</p>';
+ }
 }
 function calculateGoal(){
  state.coachIntakeGuidePreview=null;
@@ -2024,20 +2045,7 @@ function calculateGoal(){
  '<div class="field-row"><div class="field"><label for="proposalGoalKcal">Calorías objetivo</label><input type="number" id="proposalGoalKcal" min="1200" max="10000" step="1" value="'+result.kcal+'"></div>'+
  '<div class="field"><label for="proposalGoalMode">Reparto de macros</label><select id="proposalGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
- const intakeDraft=state.coachIntakePrefill;
- if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
-  if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
-   try{
-    const sample=generateGuidedDay(foods,state.pendingGoal);
-    state.coachIntakeGuidePreview={...sample,createdFrom:"coach_intake_unapproved_preview"};
-    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Ejemplo automático de cinco comidas · SIN APROBAR</h4>'+
-     '<p class="pilot-hint">Propuesta orientativa: NO se envía ni se suma al diario. Verificá ingredientes, alergias y restricciones antes de aprobarla.</p>'+
-     guidedDayContents(state.coachIntakeGuidePreview,state.pendingGoal,false)+'</section>';
-   }catch(error){
-    e.innerHTML+='<p class="pilot-hint">No se pudo preparar el menú automáticamente: '+escapeHTML(error.message)+'. Podés hacer la guía manual.</p>';
-   }
-  }else e.innerHTML+='<p class="pilot-hint">Este patrón alimentario requiere el motor dietético revisado. No generamos una guía genérica con alimentos posiblemente incompatibles.</p>';
- }
+ regenerateCoachIntakeGuidePreview();
  document.getElementById("approveGoalButton").disabled=false;
 }
 async function saveDiary(){

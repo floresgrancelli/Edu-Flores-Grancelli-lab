@@ -19,3 +19,49 @@ Diabetes guidance: ADA Standards of Care 2026 https://diabetesjournals.org/care/
 ## Delivery plan
 After UX1 closure, audit security and stage isolated Coach intake/plan-publishing. Add dietary preference UI and private health context as separate, opt-in modules AFTER legal/privacy + healthcare specialist review. Then nutritional quality dashboard and transparent nutrient coverage. Personal self-management after Coach stabilized; no automated clinical diet rules or numeric glucose predictions in initial release.
 Neither production nor Supabase altered by this roadmap.
+
+## Coach intake — first nonclinical profile increment (DRAFT PR #34, 29/10)
+- Implemented **only in the Draft code and migration**, not in Supabase/Render:
+  voluntary `dietary_pattern` (omnivorous, vegetarian, vegan, pescatarian or other),
+  `preferred_foods`, `disliked_foods` specifically **by taste**, and
+  `meal_routine` (self-reported times). All can be blank.
+- Schema restricts pattern choices and length of each free-text preference field
+  to 400 characters. The student chooses whether to share this whole intake with
+  the linked coach and may withdraw permission or erase the intake.
+- The coach sees these fields only through RLS with active link, accepted monitoring
+  consent and non-NULL `shared_at`. No automated food bans or diagnostic inference.
+- QA: synthetic tests for allowed/invalid patterns, length, private draft, shared
+  view, revocation and post-publication erasure; staging with two organizations,
+  real JWT and recoverable backup is still required.
+- This set is useful for choosing meals in Nutrition Coach and is a reusable
+  nonclinical preference basis for the later Personal mode.
+
+## Phase after Coach security: separate voluntary health profile (NOT BUILT)
+The exact user-requested distinctions matter:
+
+| Group | Suggested UI fields | Safety / data treatment |
+|---|---|---|
+| Lifestyle / pattern | Vegetarian, vegan, pescatarian, other, food choices and routine | Editable freely, never equals a diagnosis |
+| Diagnosed or self-reported context | Diabetes (without assuming type), celiac disease, fatty liver, hypertension, dyslipidemia/high cholesterol | Optional **distinct** checkboxes, provenance as self-reported, no inferred diagnosis; consent purpose and practitioner role to be reviewed |
+| Food safety | Known medically documented allergens and confirmed gluten-free foods | No blanket exclusion from a free-text food dislike; products with verified gluten-free label must be checked against current ANMAT data |
+| Measured laboratory history | Real glucose and lipid measurements (e.g. total cholesterol, LDL, HDL, triglycerides) | Values only with date, unit, source and real measurement; never inferred from diet logs |
+| Follow-up and decisions | Which coach/provider may see each group, revocation, corrections and deletion rules | Separate revocable access with RLS and auditable records; legal/clinical review before collecting sensitive values |
+
+- Glucose needs specimen/context (fasting, nonfasting or unknown), explicit unit
+  mg/dL or mmol/L, date and verified self-report. There is no "glucose level"
+  automatically computed from a weekly food log.
+- Cholesterol and triglycerides need analyte distinctions, units and dates. Do
+  not present all of them under a single editable "colesterol" number.
+- User-supplied conditions can inform warnings and encourage consultation with
+  an appropriately qualified provider; they cannot, by themselves, justify
+  rigid restrictions or individualized treatment. For celiac food safety, do
+  not label unknown products safe.
+- The future nutritional quality view should show colorful food-group/coverage
+  graphics, fiber/sodium/saturated fat only where supported by a traceable
+  source, and distinct "not enough data" states. Unknown micronutrients
+  are not zeros. Do not infer HbA1c, insulin, liver enzymes, blood pressure or
+  serum cholesterol.
+- **Release sequence:** finish Coach staged migration and E2E, review legal
+  versioned terms/privacy, approve purpose-bound health consent and clinical
+  workflows, build optional health profile with security testing, then build
+  Personal guidance on top of the same food catalog and provenance model.

@@ -24,11 +24,12 @@ assert.match(pilotSource,/if\(event\.key==="Escape"\)/,"Food dialog is dismissib
 // A tiny fake DOM lets us exercise the actual chat and notification modules without credentials.
 const handlers={};
 const chatHost={innerHTML:"",querySelector:()=>null,contains:()=>false};
+const fullHost={innerHTML:""};
 const notifHost={innerHTML:"",hidden:false,setAttribute(){},className:"",id:""};
 globalThis.document={
  activeElement:null,hidden:false,body:{append(){}},
  createElement:()=>notifHost,
- getElementById:id=>id==="efgMessagesContent"?chatHost:null,
+ getElementById:id=>id==="efgMessagesContent"?chatHost:id==="efgInboxFull"?fullHost:null,
  addEventListener:(type,cb)=>{(handlers[type]??=[]).push(cb);}
 };
 globalThis.window={addEventListener(){}};
@@ -97,9 +98,9 @@ const inbox=createNotificationInbox({
  getUserId:()=>"student-a",navigate:async()=>{}
 });
 await inbox.refresh();
-assert.match(notifHost.innerHTML,/Aviso de prueba/);
+assert.match(fullHost.innerHTML,/Aviso de prueba/);
 failNext=true;await inbox.refresh();
 assert.equal(notifHost.hidden,false,"Bell must remain visible on error");
-assert.match(notifHost.innerHTML,/Aviso de prueba/,"Retain last known notices");
-assert.match(notifHost.innerHTML,/Reintentar/,"Offer retry after network failure");
+assert.match(fullHost.innerHTML,/Aviso de prueba/,"Retain last known notices");
+assert.match(fullHost.innerHTML,/Reintentar/,"Offer retry after network failure");
 console.log("UX Sprint 1: chat page 201, cursor, stored drafts, stable controls, offline bell and accessible UI verified with fixtures.");

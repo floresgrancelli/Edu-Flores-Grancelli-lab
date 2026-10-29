@@ -17,6 +17,7 @@ import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
+import {createCoachIntakeFlow} from "./coach-intake-flow.js?v=20261029-intake1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
@@ -358,17 +359,17 @@ async function publishWeeklyReport(){
  notify("Informe compartido con el alumno.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
   const coachMode=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
-  const targets=new Set(["home","reports","coachStudents","summaries","payments","messages"]);
+  const targets=new Set(["home","reports","coachStudents","coachIntake","summaries","payments","messages"]);
   let target=targets.has(n.target_tab)?n.target_tab:"notifications";
   if(!coachMode&&["reports","coachStudents"].includes(target))target="home";
-  if(coachMode&&n.target_student&&["reports","coachStudents","messages"].includes(target)){
+  if(coachMode&&n.target_student&&["reports","coachStudents","coachIntake","messages"].includes(target)){
    const p=(state.roster||[]).find(p=>p.user_id===n.target_student&&p.active);
-   if(p&&target!=="messages")await loadStudentDetail(p.user_id);
+   if(p&&target!=="messages"&&target!=="coachIntake")await loadStudentDetail(p.user_id);
    if(p&&target==="messages")messages.selectStudent(p.user_id);
   }
   state.tab=target;
@@ -387,6 +388,8 @@ const messages=createMessagesCenter({sb,
  afterSend:()=>inbox.refresh()
 });
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
+const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
+const studentPlanPending=()=>coachIntakeFlow.pending();
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
@@ -605,7 +608,7 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
+  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]])
   :role==="coach"
   ?[["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["studentMore","☷","MI ESPACIO"],["payments","▤","Pagos"]]
   :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
@@ -1694,7 +1697,7 @@ function coachGuidedSection(){
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Ajustar porciones a la meta</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
- '<p class="pilot-hint">Guía aprobada y disponible para el alumno. Para editarla, generá otra versión.</p>'):
+ '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>'):
  '<p class="pilot-notice">El ejemplo se genera después de calcular y aprobar el objetivo.</p>'))+'</section>';
 }
 function studentGuidedSection(){
@@ -1766,7 +1769,7 @@ async function approveGuidedDay(){
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
- return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ return coachIntakeFlow.details(p.user_id)+'<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
  coachRewardPanel()+
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
@@ -1872,11 +1875,12 @@ function restoreViewContinuity(snapshot){
 async function render(){
  if(!state.profile)return loginView();
  if(state.welcomePending)return welcomeView();
+ if(studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={intake:coachIntakeFlow.view,notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -2020,6 +2024,7 @@ async function loadRoleData(){
    state.roster=students.data||[];state.testInvitations=pending.data||[];
    await loadCoachRosterConsent();
    await loadCoachIntakeGoals();
+   await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
    if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
   }
  }
@@ -2031,6 +2036,7 @@ async function loadRoleData(){
   state.roster=r.data||[];state.invitations=inv.data||[];
   await loadCoachRosterConsent();
   await loadCoachIntakeGoals();
+   await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
 
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }
@@ -2090,6 +2096,7 @@ async function refresh(){
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
+  if(state.profile.role==="student")await coachIntakeFlow.loadStudent();
   if(state.profile.role==="student")await loadSundayPermission(id);
   await inbox.refresh();
   if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
@@ -2200,8 +2207,8 @@ async function mainClick(event){
   notify("Nuevo día: lo anterior sigue guardado en tu historial.");
   // El primer toque de navegación o de abrir una comida NO se descarta.
   // No continuar acciones que pudieran confirmar formularios antiguos.
-  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
-  if(el.dataset.tab){state.tab=el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  if(el.dataset.setmeal){if(studentPlanPending()){state.tab="intake";await render();return;}openMealDialog(el.dataset.setmeal);return;}
+  if(el.dataset.tab){state.tab=studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
   return;
  }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
@@ -2220,7 +2227,7 @@ async function mainClick(event){
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
-  state.tab=el.dataset.tab;
+  state.tab=studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
   if(state.tab==="payments")await loadOrgAndPayments();
   if(state.tab==="reports"&&!state.selectedStudent){
    const student=(state.roster||[]).find(p=>p.active);
@@ -2363,8 +2370,10 @@ if(el.dataset.foodbulk){
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
  const action=el.dataset.act;if(!action)return;
- if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
+ if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
+ if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
+ if(action==="checkCoachPlan"){await coachIntakeFlow.loadStudent();await render();return;}
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
@@ -2496,6 +2505,7 @@ root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 root.addEventListener("submit",e=>{
+ if(e.target.id==="efgStudentIntakeForm"){e.preventDefault();coachIntakeFlow.save().catch(fail);return;}
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();
   if(state.loggingIn)return;

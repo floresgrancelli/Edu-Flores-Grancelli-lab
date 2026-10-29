@@ -1,19 +1,31 @@
 // Shared, side-effect-free compatibility contract. OFF until catalog evidence,
 // consent, server permissions and professional review are validated in staging.
 // Evidence must come from a reviewed server catalog, never user-supplied claims.
+// The frontend cannot authenticate provenance: backend must supply/catalog-authorize
+// catalogEvidence separately from editable food/diary payloads. Feature remains OFF.
 import {DIET_PATTERNS} from './diet-pattern-workbench.js';
 export const FOOD_COMPATIBILITY_ENABLED=false;
 const exclusions={vegan:['meat','fish','shellfish','dairy','egg','honey','animal_derivative'],vegetarian:['meat','fish','shellfish','animal_derivative'],pescatarian:['meat','animal_derivative']};
 const neutralPatterns=new Set(['balanced','mediterranean','flexitarian']);
 const labels={neutral:'Sin restricciones excluyentes',green:'Compatible verificado',yellow:'Revisar información',red:'No compatible con tu restricción'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function classifyFood(food,{patternId='balanced',restrictions=[],inPlan=false}={}, {now=Date.now()}={}){
- if(!DIET_PATTERNS.some(p=>p.id===patternId)||!Array.isArray(restrictions))throw Error('Perfil de compatibilidad inválido');
- const active=[...new Set(restrictions)];
- if(!neutralPatterns.has(patternId))active.push('pattern:'+patternId);
+export function classifyFood(food,{patternId='balanced',restrictions=[],inPlan=false}={}, {now=Date.now(),catalogEvidence=[]}={}){
+ if(!DIET_PATTERNS.some(p=>p.id===patternId)||!Array.isArray(restrictions)||
+    restrictions.some(r=>typeof r!=='string'||r.length>100||!r.trim())||
+    !Array.isArray(catalogEvidence))throw Error('Perfil de compatibilidad inválido');
+ const active=[...new Set([...restrictions,...(neutralPatterns.has(patternId)?[]:['pattern:'+patternId])])];
  const results=[];
  for(const rule of active){
-  const evidence=(food?.compatibilityEvidence||[]).filter(e=>e.rule===rule&&e.foodId===food.id&&e.status==='reviewed'&&typeof e.sourceUrl==='string'&&/^https:\/\//.test(e.sourceUrl)&&Number.isFinite(Date.parse(e.reviewedAt))&&Date.parse(e.reviewedAt)<=now&&Date.parse(e.expiresAt)>now);
+  // Never consume food.compatibilityEvidence: a diary/food object can be edited.
+  // These entries must be provided by a server-controlled vetted catalog adapter.
+  const evidence=catalogEvidence.filter(e=>e&&typeof food?.id==='string'&&food.id.length>0&&
+    e.rule===rule&&e.foodId===food.id&&e.status==='reviewed'&&
+    typeof e.catalogReviewId==='string'&&/^[A-Za-z0-9_-]{8,120}$/.test(e.catalogReviewId)&&
+    typeof e.catalogVersion==='string'&&/^[A-Za-z0-9._-]{3,60}$/.test(e.catalogVersion)&&
+    ['manufacturer_label','official_product','validated_composition'].includes(e.sourceKind)&&
+    typeof e.sourceUrl==='string'&&/^https:\/\//.test(e.sourceUrl)&&
+    Number.isFinite(Date.parse(e.reviewedAt))&&Date.parse(e.reviewedAt)<=now&&
+    Number.isFinite(Date.parse(e.expiresAt))&&Date.parse(e.expiresAt)>now);
   // Clinical restrictions remain unknown until a professionally reviewed rule
   // registry supports them. Never infer allergy/gluten safety from food names.
   const pattern=rule.startsWith('pattern:')?rule.slice(8):null;

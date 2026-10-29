@@ -7,6 +7,9 @@ on:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
       - 'efg-nutrition/tests/coach-local-backup-restore-nut55.mjs'
+      - 'efg-nutrition/tests/coach-notification-compat-nut56.mjs'
+      - 'efg-nutrition/tests/sql/nut56-*.sql'
+      - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/coach-legacy-write-audit-nut55.mjs'
       - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/pilot/coach-plan-draft-client.js'
@@ -63,9 +66,12 @@ jobs:
         run: |
           set -euo pipefail
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql
           psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
       - name: Test real LOCAL signed JWTs and A/B organization authorization
         env:
@@ -75,6 +81,10 @@ jobs:
         env:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
         run: node efg-nutrition/tests/coach-local-backup-restore-nut55.mjs
+      - name: Check independent legacy notices survive atomic publication
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: node efg-nutrition/tests/coach-notification-compat-nut56.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

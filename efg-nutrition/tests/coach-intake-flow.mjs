@@ -84,6 +84,9 @@ assert.equal(notifications.at(-1),"Ficha privada guardada.");
 
 // Consent must be explicit; revoking it sets shared_at=null, including after a previous share.
 fields.efgIntakeShare.checked=true;
+await assert.rejects(()=>flow.save(),/primero autorizá el seguimiento/,"Private intake cannot be sent before Coach permission");
+assert.equal(writeCount,1,"Denied share must not write or notify");
+state.consent={accepted:true};
 await flow.save();
 assert.equal(writeCount,2);
 assert.ok(submitted[1].shared_at,"Explicit share creates a share timestamp");
@@ -212,6 +215,7 @@ assert.match(app,/coachIntakeFlow\.loadStudent/);
 assert.match(app,/coachIntakeFlow\.details/);
 assert.match(css,/efg-intake-share-label/);
 assert.match(sql,/create table public\.efg_student_intakes/);
+assert.match(sql,/if not exists\([\s\S]*?public\.efg_consents[\s\S]*?c\.accepted=true/,"Draft intake-notification trigger must respect consent");
 assert.match(sql,/create table public\.efg_student_plan_access/);
 assert.match(sql,/dietary_pattern text check/,"Dietary pattern must be constrained server-side");
 assert.match(sql,/char_length\(preferred_foods\)<=400/);

@@ -15,8 +15,8 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messag
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
-import {createNotificationInbox} from "./notifications-ui.js?v=20261028-inbox2";
-import {createMessagesCenter} from "./messages-ui.js?v=20261028-msg2";
+import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
+import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
 import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 

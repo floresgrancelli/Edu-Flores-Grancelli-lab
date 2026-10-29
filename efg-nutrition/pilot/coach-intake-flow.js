@@ -15,7 +15,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.planAccessSupported=true;state.planAccess=a.data||{status:"pending"};
   // Privacy rights continue after publication: retain access to the intake and revoke sharing at any time.
   {
-   const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at").eq("student_id",id).maybeSingle();
+   const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at").eq("student_id",id).maybeSingle();
    if(f.error)throw f.error;
    state.studentIntake=f.data||null;
   }
@@ -24,7 +24,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.coachIntakeForms={};state.coachIntakeAccess={};
   if(!consentedIds.length)return;
   const [a,b]=await Promise.all([
-   sb.from("efg_student_intakes").select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at").in("student_id",consentedIds).not("shared_at","is",null).limit(500),
+   sb.from("efg_student_intakes").select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at").in("student_id",consentedIds).not("shared_at","is",null).limit(500),
    sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",consentedIds).limit(500)
   ]);
   if(a.error&&!missing(a.error))throw a.error;
@@ -41,7 +41,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(!consented)return;
   const [a,b]=await Promise.all([
    sb.from("efg_student_intakes")
-    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at")
+    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at")
     .eq("student_id",studentId).not("shared_at","is",null).maybeSingle(),
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
@@ -78,7 +78,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   '<div class="field"><label for="efgIntakeNotes">Qué te gustaría contarle al coach (opcional)</label><textarea id="efgIntakeNotes" rows="3" maxlength="1000" placeholder="Horarios, hábitos o dudas. Evitá datos médicos en texto libre.">'+escapeHTML(v.notes||"")+'</textarea></div>'+
   '<label class="efg-intake-share-label" for="efgIntakeShare"><input type="checkbox" id="efgIntakeShare" '+(shared?'checked':'')+'> Autorizo compartir esta ficha con mi coach vinculado. Puedo retirar este permiso cuando quiera.</label>'+
   '<p class="pilot-hint">Este permiso es distinto del seguimiento nutricional. Para que el coach lea la ficha, ambos deben estar activos.</p>'+
-  '<button class="btn block" type="submit">Guardar mi ficha</button></form>'+
+  '<button class="btn block" type="submit">Guardar mi ficha / confirmar envío si autorizo compartirla</button></form>'+
   (state.studentIntake?'<div class="pilot-toolbar"><button type="button" class="btn light" data-act="deleteStudentIntake">Eliminar solamente mi ficha inicial</button></div><p class="pilot-hint">Se borran los datos opcionales de esta ficha y se deja de compartir. No se borran tu cuenta, el plan ni tus registros nutricionales.</p>':'')+
   '<div role="status" class="pilot-notice">'+(shared?'Ficha compartida con tu coach si autorizaste su seguimiento.':'Ficha privada. Todavía no la compartiste.')+'</div></section>'+
   (ready?'<section class="card"><h2>Tu plan sigue disponible</h2><p>Modificar o retirar el permiso para compartir esta ficha no borra tus registros ni despublica tu plan. El seguimiento del coach requiere por separado tu consentimiento vigente.</p><div class="pilot-toolbar"><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-tab="home">Volver a MI DÍA</button></div></section>':

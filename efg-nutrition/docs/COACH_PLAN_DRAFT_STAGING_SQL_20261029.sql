@@ -183,7 +183,7 @@ begin
  end if;
  if v_revision is null then
    raise exception 'Draft already exists or version changed; reload before editing'
-    using errcode='40001';
+    using errcode='PT409';
  end if;
  return v_revision;
 end;

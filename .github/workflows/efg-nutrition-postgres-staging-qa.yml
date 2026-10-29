@@ -1,0 +1,60 @@
+name: EFG Nutrition Coach Atomic PostgreSQL QA (ephemeral, synthetic claims)
+
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/tests/sql/**'
+      - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: efg_nutrition_ephemeral
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d efg_nutrition_ephemeral"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client present
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          psql --version
+      - name: Run full schema and real PostgreSQL transaction scenarios (NO SUPABASE)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql
+          echo "PASS: actual ephemeral PostgreSQL syntax and synthetic transaction scenarios."
+      - name: State the limits
+        if: always()
+        run: |
+          echo "No production Supabase connection, real JWT, real patient or clinical data."
+          echo "The health/legal inputs are SYNTHETIC, not verified evidence."
+          echo "A passed test is NOT authorization for migration or deploy."

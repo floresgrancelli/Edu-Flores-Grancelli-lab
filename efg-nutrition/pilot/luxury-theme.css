@@ -593,3 +593,52 @@ body .pilot-layout .efg-seats-caption{
  border:1px solid #c4b8a5;font-size:13px;font-weight:700;
 }
 @media(max-width:370px){body .pilot-layout .efg-seats-panel{padding:12px!important}}
+
+/* Alta comercial y doble circuito de cobros coach/EFG · 2026-10-29 */
+body .pilot-layout .efg-payment-channel,
+body .pilot-layout .efg-license-summary{
+ background:radial-gradient(circle at 10% 0%,#ffffffa3,transparent 58%),
+ linear-gradient(140deg,#f2ece2,#d4d8df)!important;
+ border:1px solid #b7aa98!important;border-radius:19px!important;
+ box-shadow:inset 0 1px 0 #ffffffda,0 10px 21px #1b2e4126!important;
+ color:#1d2b3c!important;
+ padding:clamp(15px,3vw,22px)!important;
+}
+body .pilot-layout .efg-payment-channel .eyebrow,
+body .pilot-layout .efg-license-summary .eyebrow{
+ font-size:11px;letter-spacing:.13em;font-weight:800;color:#92713d!important;
+}
+body .pilot-layout .efg-payment-channel h2,
+body .pilot-layout .efg-license-summary h2{
+ color:#182e49!important;font-family:"Iowan Old Style",Baskerville,Georgia,serif!important;
+ font-size:clamp(18px,4.5vw,25px)!important;line-height:1.2;
+}
+body .pilot-layout .efg-payment-channel p,
+body .pilot-layout .efg-license-summary p{color:#4b576a!important}
+body .pilot-layout .efg-license-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}
+body .pilot-layout .efg-license-meta>div{
+ background:linear-gradient(140deg,#fff6e7,#dcd5cc);
+ border:1px solid #c1b09a;border-radius:12px;padding:12px;
+ box-shadow:inset 0 1px 0 #fffcf6b9;
+ display:grid;gap:6px;min-width:0;
+}
+body .pilot-layout .efg-license-meta strong{font-size:clamp(16px,4vw,25px);overflow-wrap:anywhere;color:#22364c}
+body .pilot-layout .efg-license-meta span{font-size:11px;color:#546173;font-weight:700}
+body .pilot-layout .efg-payment-transfer .efg-payment-target{
+ background:linear-gradient(145deg,#e5d4b8,#c7ac7b)!important;
+ border:1px solid #b39a74!important;
+ color:#152c43!important;
+ display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:9px;
+}
+body .pilot-layout .efg-payment-transfer .efg-payment-target strong{
+ color:#172b42!important;overflow-wrap:anywhere;
+}
+body .pilot-layout .efg-payment-transfer .efg-payment-target small{color:#455369!important}
+body .pilot-layout :is(.efg-payment-transfer,.efg-payment-channel) button:disabled{
+ opacity:.6;cursor:not-allowed;filter:grayscale(.25);
+}
+@media(max-width:390px){
+ body .pilot-layout.efg-role-coach .pilot-nav{gap:2px}
+ body .pilot-layout.efg-role-coach .pilot-nav .navitem{min-width:0}
+ body .pilot-layout.efg-role-coach .pilot-nav .nav-label{font-size:clamp(9px,2.55vw,11px);white-space:nowrap}
+}

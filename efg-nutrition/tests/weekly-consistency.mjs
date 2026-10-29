@@ -59,6 +59,13 @@ assert.doesNotMatch(revealedNoPermission,/Tu coach autorizó expresamente/);
 const revealedByCoach=weeklyConsistencyPanel(sunday,{opened:true,verified:true,approved:true});
 assert.match(revealedByCoach,/Tu coach autorizó expresamente/,"Verified coach approval is required");
 assert.match(revealedByCoach,/aria-live="polite"/,"Reward is announced accessibly");
+
+const coachOwn=weeklyConsistencyPanel(sunday,{personal:true,opened:true,verified:true,approved:true});
+assert.match(coachOwn,/constancia con tus objetivos personales/,"Coach receives his or her own 6\/6 recognition");
+assert.doesNotMatch(coachOwn,/Tu coach autorizó expresamente/,"A coach cannot self-authorize a Sunday meal");
+assert.match(coachOwn,/no autoriza una comida libre/,"Coach personal panel must not imply special meal permission");
+assert.doesNotMatch(coachOwn,/pautas de tu coach/,"Coach personal dashboard has a personal wording");
+
 assert.match(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/2\/6/);
 assert.doesNotMatch(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/ABRIR PREMIO/,"No early reward");
 assert.doesNotMatch(unopened,/penalizad[oa]|castigo/i,"A reward is not a penalty");

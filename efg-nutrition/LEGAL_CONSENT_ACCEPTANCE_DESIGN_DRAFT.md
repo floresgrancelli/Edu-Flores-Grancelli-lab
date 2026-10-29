@@ -103,3 +103,30 @@ E) Solo tras evaluación clínica/legal diseñar el módulo de condiciones
 
 **Este archivo describe el diseño técnico y los puntos jurídicos a revisar; no es
 una opinión legal ni confirma que la app cumpla la normativa.**
+
+## Compatibilidad coloreada y responsabilidad (decisión de UX, 29/10/2026)
+La interfaz futura mostrará alimentos con tres estados explícitos:
+VERDE «Compatible verificado», AMARILLO «Verificar antes de elegir» y
+ROJO «No compatible con la restricción/plan elegido», más un distintivo
+separado «Incluido en mi plan». Se usará en Coach, **Alumno con Coach**
+y Autogestión. La elección y registro veraz de alimentos seguirá siendo
+del usuario; debe poder leer por qué aparece la advertencia. **Nunca**
+presentar rótulos sin evidencia como seguros para celiaquía o alergias.
+
+En los Términos y Condiciones, explicar el alcance de estas señales,
+limitaciones de fichas y fuentes, necesidad de revisar envases/ingredientes,
+fecha y condiciones, y que orientaciones generales no reemplazan atención
+profesional. Mostrar aviso específico en pantalla donde aplique;
+no limitarse a una aceptación contractual al registrarse.
+La aceptación será informada, no premarcada, fechada y versionada; se separa
+de consentimientos voluntarios para compartir salud con un coach.
+
+**No prometer liberación total de responsabilidad jurídica:** Ley argentina
+24.240 art. 37 puede dejar sin efecto cláusulas que limiten responsabilidad
+por daños o derechos del consumidor. Ley 25.326 regula datos personales
+sensibles y seguridad. Debe mediar revisión profesional del texto y de la
+operación real de la app, además de pruebas de seguridad alimentaria.
+Fuente oficial: https://www.argentina.gob.ar/normativa/nacional/638/actualizacion
+Privacidad: https://www.argentina.gob.ar/normativa/nacional/64790/actualizacion
+
+ESTADO: planificación legal/UX, sin textos finales, sin migración ni publicación.

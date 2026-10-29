@@ -39,6 +39,12 @@ assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
 assert.ok(app.includes('return rootText("MI DÍA"'),"Main daily heading is uppercase");
 assert.ok(app.includes('["home","⌂","MI DÍA"]'),"Student navigation label uppercase");
+assert.ok(app.includes('["coach","⌂","Inicio"],["home","◷","MI DÍA"],["coachStudents","♧","Alumnos"],["coachMore","☷","Más"]'),"Coach main navigation includes personal MI DÍA");
+assert.match(app,/function coachMoreView\(\)/,"Coaches get a premium personal/professional extras menu");
+assert.ok(app.includes('"recipes","🍲","Mis recetas"'),"Coaches get their own recipes");
+assert.match(app,/const weekGoals=personal\?personalGoals:/,"Personal weekly goals are isolated from student goals");
+assert.match(app,/!\["student","coach","admin"\]\.includes\(state\.profile\.role\)/,"Coach and admin cloud recipes/habits enabled by role");
+
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");
 assert.match(app,/\["adminManage","⚙️","Organizaciones","lilac"\]/,"Admin management entry uses a single legible word");
 assert.match(app,/\["messages","💬","Mensajería interna","mint"\]/,"Admin messaging has a real-product label");

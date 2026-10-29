@@ -242,7 +242,13 @@ try{
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
        await select.selectOption("demo-"+role+"-"+slot+"-1");
        if(await select.inputValue()!=="demo-"+role+"-"+slot+"-1")pageReport.errors.push("First habitual choice not accepted for "+slot);
+       const preview=await block.locator("#habitualPreview_"+slot).innerText();
+       if(!preview.includes("Huevo habitual")||!preview.includes("55 g")||!preview.includes("81 kcal"))
+         pageReport.errors.push("Saving habitual name alone is insufficient: preview must show stored food, quantity and kcal in "+slot+": "+preview.slice(0,150));
      }
+     const diaryAfterPreview=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+     if(JSON.stringify(diaryBefore)!==JSON.stringify(diaryAfterPreview))
+       pageReport.errors.push("Previewing a habitual changed the diary before confirming for "+role);
      await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
      await page.locator('[data-habitualapply="media_tarde"]').click();
      await page.waitForTimeout(150);
@@ -446,7 +452,28 @@ try{
     if((await page.locator("[data-mealomit]").count())!==2)
       pageReport.errors.push("Main meal must offer optional omit for protein and carbs");
     await page.locator('[data-mealgroup="prepared"]').click();
-    await page.locator("#mealFoodSearch").fill("sushi");
+    const foodSearch=page.locator("#mealFoodSearch");
+    await foodSearch.fill("lech");
+    const firstSuggestion=page.locator('#mealFoodSuggestions [data-mealsuggestion]').first();
+    if(!(await firstSuggestion.count())||!(await firstSuggestion.innerText()).toLocaleLowerCase("es-AR").includes("lech"))
+      pageReport.errors.push("Typing lech did not reveal visible selectable matches in the lunch modal");
+    else{
+      const firstId=await firstSuggestion.getAttribute("data-mealsuggestion");
+      await firstSuggestion.click();
+      if(await page.locator("#mealEditorFood").inputValue()!==firstId)
+        pageReport.errors.push("Tapping suggested food did not select its real catalog ID");
+      if(await foodSearch.getAttribute("aria-expanded")!=="false")
+        pageReport.errors.push("Suggestions did not collapse after food selection");
+    }
+    await foodSearch.fill("sushi");
+    const firstKeyboard=await page.locator('#mealFoodSuggestions [data-mealsuggestion]').first().getAttribute("data-mealsuggestion");
+    await foodSearch.press("Enter");
+    if(await page.locator("#mealEditorFood").inputValue()!==firstKeyboard)
+      pageReport.errors.push("Pressing Enter did not choose the first visible food suggestion");
+    await foodSearch.fill("sin_coincidencias_nunca_123");
+    if(!(await page.locator("#mealFoodSuggestions").innerText()).includes("No encontramos"))
+      pageReport.errors.push("No-match search did not inform the user");
+    await foodSearch.fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");

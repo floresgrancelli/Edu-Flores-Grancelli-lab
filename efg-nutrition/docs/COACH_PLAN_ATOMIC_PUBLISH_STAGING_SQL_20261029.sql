@@ -147,7 +147,7 @@ begin
     or v_draft.status is distinct from 'draft'
     or v_draft.source_intake_updated_at is distinct from v_intake_updated then
     raise exception 'Draft is missing, changed, already published or based on an old intake'
-      using errcode='40001';
+      using errcode='PT409';
   end if;
 
   v_goal := v_draft.goal_proposal;

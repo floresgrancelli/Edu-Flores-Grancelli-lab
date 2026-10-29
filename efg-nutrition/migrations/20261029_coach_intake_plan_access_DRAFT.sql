@@ -248,6 +248,11 @@ language plpgsql security definer set search_path='' as $$
 declare v_coach uuid;
 begin
  if new.shared_at is null or (tg_op='UPDATE' and old.shared_at is not null) then return new; end if;
+ -- Do not notify a coach before the student has separately approved follow-up.
+ if not exists(
+  select 1 from public.efg_consents c
+  where c.student_id=new.student_id and c.accepted=true
+ ) then return new; end if;
  select o.coach_id into v_coach from public.efg_profiles p
  join public.efg_organizations o on o.id=p.organization_id
  where p.user_id=new.student_id and p.role='student' and p.active and p.organization_id=new.organization_id;

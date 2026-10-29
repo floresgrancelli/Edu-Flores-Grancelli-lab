@@ -151,13 +151,14 @@ try{
    if(role==="coach"){
      const content=await page.locator(".pilot-main").innerText();
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
-     if(dest==="studentMore"&&(!content.includes("Mi planificador")||!content.includes("Mis suplementos")))pageReport.errors.push("Coach MI ESPACIO incomplete");
-     if(dest==="payments"&&(!content.includes("COBRAR A MIS ALUMNOS")||!content.includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing");
+     if(dest==="studentMore"&&(!content.toLocaleUpperCase("es-AR").includes("MI PLANIFICADOR")||!content.toLocaleUpperCase("es-AR").includes("MIS SUPLEMENTOS")))pageReport.errors.push("Coach MI ESPACIO incomplete: "+content.slice(0,320));
+     if(dest==="payments"&&(!content.toLocaleUpperCase("es-AR").includes("COBRAR A MIS ALUMNOS")||!content.toLocaleUpperCase("es-AR").includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing: "+content.slice(0,470));
    }
    if((role==="admin"||role==="student")&&width===390&&dest==="home"){
      // Reproduce six meal slots, remote persisted favourites and first iPhone food selection
      // with NO real Supabase access; fixtures are account-specific in memory only.
      const slots=["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"];
+     const diaryBefore=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
      await page.evaluate(async(role)=>{
        const v=window.__EFG_VISUAL_QA__;
        v.setHabituales(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"].flatMap(slot=>
@@ -196,6 +197,12 @@ try{
        const stored=await page.evaluate(id=>(window.__EFG_VISUAL_QA__.state.diary?.meals?.cena||[]).some(x=>x.id===id),first);
        if(!stored)pageReport.errors.push("First food selection not persisted on first try for "+role);
      } else pageReport.errors.push("Meal editor has no foods for "+role);
+     await page.evaluate(async previous=>{
+       const v=window.__EFG_VISUAL_QA__;
+       v.state.diary=previous;
+       v.state.lastEditedMeal=null;
+       await v.render();
+     },diaryBefore);
      await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
    }
    if(role==="student"&&width===390&&dest==="planner"){
@@ -433,7 +440,7 @@ try{
      if(!(await page.getByText("Comprobantes de mis alumnos",{exact:true}).count()))pageReport.errors.push("Coach receipts inbox missing");
      if(!(await page.getByText("Alex Gómez",{exact:false}).count()))pageReport.errors.push("Sender name missing in coach inbox");
      if((await page.locator(".efg-payment-inbox .efg-payment-item").count())!==1)pageReport.errors.push("Coach receipts inbox should contain one org-scoped receipt");
-     if(role==="admin"&&!(await page.getByText("Superadministración",{exact:true}).count()))pageReport.errors.push("Admin billing view must remain available");
+     if(role==="admin"&&!(await page.getByText("COBRAR LICENCIAS DE COACHES",{exact:true}).count()))pageReport.errors.push("Admin license billing view is missing");
    }
    if(role==="student"&&dest==="weight"){
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){

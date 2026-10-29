@@ -2,7 +2,7 @@
 // Polls the RLS-protected table; never reloads the page or queries someone else's inbox.
 export function createNotificationInbox({sb,getUserId,navigate}){
  const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- let records=[],open=false,loadedUser=null,inFlight=false,status="ok";
+ let records=[],open=false,loadedUser=null,inFlight=false,status="ok",failureType="network";
  const host=document.createElement("aside");
  host.id="efgNotifications";host.className="efg-notifications";
  host.setAttribute("aria-label","Notificaciones de EFG");
@@ -12,7 +12,8 @@ export function createNotificationInbox({sb,getUserId,navigate}){
  }
  function paint(){
   const count=records.filter(n=>!n.is_read).length;
-  const warning=status==="ok"?"":'<div class="efg-inbox-warning" role="status">No pudimos actualizar los avisos. Se muestran los últimos disponibles. <button type="button" data-efg-action="retry">Reintentar</button></div>';
+  const reason=failureType==="access"?"Revisá tu sesión y volvé a intentar.":failureType==="schema"?"El servicio de avisos no está disponible temporalmente.":"Comprobá tu conexión e intentá nuevamente.";
+  const warning=status==="ok"?"":'<div class="efg-inbox-warning" role="status">No pudimos actualizar los avisos. Se muestran los últimos disponibles. '+reason+' <button type="button" data-efg-action="retry">Reintentar</button></div>';
   const full=document.getElementById("efgInboxFull");
   if(full)full.innerHTML=warning+'<div class="efg-inbox-full-meta">'+count+' pendientes · '+records.length+' recientes</div>'+listMarkup();
   host.hidden=!getUserId();
@@ -33,11 +34,15 @@ export function createNotificationInbox({sb,getUserId,navigate}){
      .eq("recipient_id",userId).order("created_at",{ascending:false}).limit(80);
    if(error)throw error;
    if(getUserId()!==userId)return;
-   status="ok";records=data||[];paint();
+   status="ok";failureType="network";records=data||[];paint();
   }catch(err){
    console.warn("EFG inbox:",err.message);
    // Offline, expired sessions and schema failures are not equivalent. Never hide saved alerts.
-   if(getUserId()===userId){status="stale";paint();}
+   if(getUserId()===userId){
+    const code=String(err.code||""),http=Number(err.status||0);
+    failureType=["42P01","PGRST205"].includes(code)?"schema":(["42501","PGRST301"].includes(code)||http===401||http===403)?"access":"network";
+    status="stale";paint();
+   }
   }finally{inFlight=false;}
  }
  document.addEventListener("click",async event=>{

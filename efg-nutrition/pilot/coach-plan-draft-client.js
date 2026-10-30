@@ -3,6 +3,7 @@
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
 import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
+import {approvedFoodGuide} from "./coach-food-selection.js";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=false;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -33,6 +34,8 @@ export function validateCoachPlanProposal(goal,guide){
     throw Error("Revisá cantidades, unidades y nutrientes de los alimentos.");
   }
  }
+ if(guide.approvedFoodIds!==undefined)
+  guide=approvedFoodGuide(guide,guide.approvedFoodIds);
  if(guide.supplementNote!==undefined&&
     (typeof guide.supplementNote!=="string"||guide.supplementNote.length>300))
   throw Error("La nota de suplementos supera los 300 caracteres.");
@@ -91,6 +94,8 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(relaunchEnabled&&(!Number.isSafeInteger(sourceRevision)||sourceRevision<1))
    throw Error("Recargá la ficha nueva: falta la revisión verificada del servidor.");
   const p=validateCoachPlanProposal(goal,guide);
+  if(relaunchEnabled&&!Array.isArray(p.guide.approvedFoodIds))
+   throw Error("Para el nuevo alumno, seleccioná los alimentos aprobados junto con su guía.");
   await currentIntake(studentId,sourceUpdatedAt,relaunchEnabled?sourceRevision:null);
   const params={p_student:studentId,p_goal:p.goal,p_guide:p.guide,
    p_intake_updated_at:sourceUpdatedAt,p_expected_revision:expectedRevision};

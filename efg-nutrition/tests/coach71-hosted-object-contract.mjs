@@ -44,4 +44,23 @@ const guard=spawnSync(process.execPath,
   {encoding:'utf8',env:{...process.env,PGHOST:'',PGPORT:'',PGDATABASE:''},timeout:5000});
 assert.equal(guard.status,3,'COACH71 must refuse non-local/unknown PostgreSQL target before any SQL');
 assert.match(guard.stderr,/COACH71 STOP/);
+
+// Simulate libpq environment variables that otherwise override PGHOST silently.
+// They must stop BEFORE running psql (even with plausible localhost settings).
+for(const [variable,value] of [
+  ['PGHOSTADDR','203.0.113.18'],
+  ['PGSERVICE','remote_db'],
+  ['PGSERVICEFILE','/tmp/unsafe-service.conf'],
+  ['PGOPTIONS','-c search_path=public']
+]){
+  const attempt=spawnSync(process.execPath,
+    [new URL('../scripts/coach71-hosted-preflight.mjs',import.meta.url).pathname],
+    {encoding:'utf8',env:{...process.env,PGHOST:'127.0.0.1',
+       PGPORT:'5432',PGDATABASE:'efg_coach71_restore_preflight',
+       PGHOSTADDR:'',PGSERVICE:'',PGSERVICEFILE:'',PGSYSCONFDIR:'',PGOPTIONS:'',
+       [variable]:value},timeout:5000});
+  assert.equal(attempt.status,3,variable+' must refuse redirected or altered libpq environment');
+  assert.match(attempt.stderr,/COACH71 STOP: indirect PostgreSQL routing\/session overrides/);
+}
+
 console.log('PASS COACH71: hosted metadata snapshot internally consistent; strict preflight refuses unknown DB. No staging comparison or restore performed.');

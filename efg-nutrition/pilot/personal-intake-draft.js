@@ -87,7 +87,7 @@ export function renderPersonalIntakeDraft(initial={}){
  const textarea=(id,label,value,max)=>'<div class="field"><label for="efgSelf_'+id+'">'+label+'</label>'+
   '<textarea id="efgSelf_'+id+'" maxlength="'+max+'" rows="2">'+html(value)+'</textarea></div>';
  return '<section class="card efg-personal-intake-draft" aria-labelledby="efgSelfIntakeHeading">'+
-  '<span class="eyebrow">EFG NUTRITION · AUTOGESTIÓN</span>'+
+  '<span class="eyebrow">Nutrición Con-Ciencia · Autogestión</span>'+
   '<h2 id="efgSelfIntakeHeading">Mi ficha nutricional</h2>'+
   '<p>Completá lo que conozcas. No es un diagnóstico y la información sensible no se comparte con ningún coach.</p>'+
   '<div role="note" class="pilot-hint">Esta ficha está en preparación y todavía no se guarda. No ingreses información médica real en esta versión de prueba.</div>'+

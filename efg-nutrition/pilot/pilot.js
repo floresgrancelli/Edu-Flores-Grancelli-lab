@@ -713,7 +713,7 @@ function loginView(message=""){
   ?"Si tu cuenta está habilitada, recibirás un código de verificación en <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
-  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Al ingresar con este código, autorizás a tu coach asignado a consultar tus registros nutricionales, peso, actividad y suplementos para tu seguimiento. Podrás revocar el acceso desde la app. El código verifica tu identidad; ingresarlo confirma esta autorización.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
+  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Este código verifica únicamente tu identidad. No autoriza a compartir tus datos nutricionales, peso, actividad ni suplementos. Si sos alumno, podrás autorizar o revocar el seguimiento por separado desde Privacidad y seguimiento.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><img class="efg-login-brandmark" src="./assets/serotonina-acuarela.avif" width="100" height="56" alt="" aria-hidden="true" decoding="async"><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
@@ -751,8 +751,6 @@ async function confirmOtp(token){
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
   if(error)throw error;
   verified=true;
-  const who=(await sb.auth.getUser()).data?.user;
-  if(who?.id)sessionStorage.setItem("efgNutritionCoachConsent:"+who.id,"yes");
   state.otpEmail=null;
   state.loggingIn=false;
   await refresh();
@@ -984,7 +982,7 @@ function homeView(){
   detail+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
- const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos cuando autorizás el seguimiento al ingresar con tu código. Podés retirar el permiso cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
+ const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
  const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentario del día</h3>'+
  '<p class="pilot-hint">¿Tuviste dificultades con una comida, los horarios, el apetito o la saciedad? Podés contárselo a tu coach. Es opcional.</p>'+
  '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
@@ -2367,11 +2365,9 @@ async function refresh(){
   if(state.profile.role==="student")await coachIntakeFlow.loadStudent();
   if(state.profile.role==="student")await loadSundayPermission(id);
   await inbox.refresh();
-  if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
-   // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
-   const acceptedNotice=sessionStorage.getItem("efgNutritionCoachConsent:"+id)==="yes";
-   if(acceptedNotice){const result=await sb.from("efg_consents").update({accepted:true,email_report_opt_in:false,updated_at:new Date().toISOString()}).eq("student_id",id).eq("accepted",false).select().maybeSingle();if(!result.error&&result.data)state.consent=result.data;sessionStorage.removeItem("efgNutritionCoachConsent:"+id);}
-  }
+  // Legacy OTP auto-consent tokens must never be interpreted as permission.
+  // Signing in is authentication only; coach consent requires the dedicated action.
+  sessionStorage.removeItem("efgNutritionCoachConsent:"+id);
   await loadWelcomeStatus();
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
@@ -2726,7 +2722,8 @@ if(el.dataset.foodbulk){
  if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
  if(action==="revokeConsent"||action==="grantConsent"){
  const accepted=action==="grantConsent";
-
+ if(state.profile?.role!=="student"||!state.consent)throw Error("Permiso de seguimiento exclusivo del alumno.");
+ if(accepted&&!window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras."))return;
  const {data,error}=await sb.from("efg_consents").update({
   accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
  }).eq("student_id",state.session.user.id).select().single();

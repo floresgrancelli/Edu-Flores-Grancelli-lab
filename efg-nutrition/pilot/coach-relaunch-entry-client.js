@@ -1,10 +1,10 @@
 // COACH-RELAUNCH: private owner-only intake entry client, NOT ENABLED.
 // No local/session storage; signed JWT + server RLS/RPC is authoritative.
 import {COACH_RELEASE_INTAKE_VERSION,COACH_RELAUNCH_ONBOARDING_ENABLED,
- resolveCoachRelaunchEntry,initialCoachRelaunchIntake} from "./coach-relaunch-onboarding.js";
+ resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
-const accepted=x=>Array.isArray(x)&&x.length===2&&x.every(z=>z&&z.accepted===true);
+const accepted=isCurrentCoachLegalAccepted;
 const known={
  objective:[["","Sin definir"],["fat_loss","Reducir grasa"],["recomp","Recomposición"],["muscle_gain","Aumentar masa muscular"],["maintenance","Mantener peso"],["general","Mejorar hábitos"]],
  activity_level:[["","No informado"],["low","Mayormente sentado"],["light","Ligera"],["moderate","Moderada"],["high","Alta"]],

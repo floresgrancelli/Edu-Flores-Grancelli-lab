@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
+      - 'efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs'
+      - 'efg-nutrition/tests/sql/coach-pilot-local-jwt-overlay.sql'
+      - 'efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/coach-local-backup-restore-nut55.mjs'
       - 'efg-nutrition/tests/coach-notification-compat-nut56.mjs'
       - 'efg-nutrition/tests/sql/nut56-*.sql'
@@ -176,6 +179,28 @@ jobs:
         run: |
           node --check efg-nutrition/tests/personal-auth-local-e2e.mjs
           node efg-nutrition/tests/personal-auth-local-e2e.mjs
+      - name: COACH-PILOT-10 prepare strictly LOCAL disposable role and invitation fixtures
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54322'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: postgres
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '54322'
+          test "${PGDATABASE}" = 'postgres'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-local-jwt-overlay.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: COACH-PILOT-10 signed LOCAL GoTrue JWT and ten-seat promotion test
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: |
+          node --check efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
+          node efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

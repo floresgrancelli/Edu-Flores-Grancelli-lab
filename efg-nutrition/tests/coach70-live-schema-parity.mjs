@@ -6,8 +6,8 @@ import {readFileSync} from "node:fs";
 import {spawnSync} from "node:child_process";
 const manifest=JSON.parse(readFileSync(new URL("./sql/coach70-live-schema-columns-20261030.json",import.meta.url),"utf8"));
 assert.equal(manifest.project,"cyjvddhimbsfipjfctsl");
-assert.equal(manifest.fixture_tables.length,11);
-assert.equal(manifest.not_in_fixture.length,4);
+assert.equal(manifest.fixture_tables.length,15);
+assert.equal(manifest.not_in_fixture.length,0);
 assert.ok(manifest.fixture_tables.every(t=>Array.isArray(manifest.tables[t])));
 if(!["127.0.0.1","localhost"].includes(process.env.PGHOST)||
  !["5432","54322"].includes(process.env.PGPORT)||
@@ -43,4 +43,4 @@ for(const table of manifest.fixture_tables){
    errors.push(table+"."+col.column+" extra synthetic column");
 }
 assert.deepEqual(errors,[],"COACH70 production-shape metadata mismatch: "+errors.join(" | "));
-console.log("PASS COACH70: "+manifest.fixture_tables.length+" core synthetic tables match 2026-10-30 hosted column names/types/nullability/default presence. This is PARTIAL parity only: "+manifest.not_in_fixture.join(", ")+" are NOT represented; no data/constraints/triggers/policies or production restoration audited.");
+console.log("PASS COACH70: "+manifest.fixture_tables.length+" synthetic app tables match 2026-10-30 hosted column names/types/nullability/default presence. Column metadata ONLY: neither full constraint/trigger/policy parity nor actual data/production restoration has been certified.");

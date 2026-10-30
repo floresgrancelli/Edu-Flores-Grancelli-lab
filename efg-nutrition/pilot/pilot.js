@@ -1870,7 +1870,9 @@ async function saveCoachAtomicDraft(){
  // silently become the "saved" version through a shared mutable goal object.
  const snapshot=validateCoachPlanProposal(goal,guide);
  const r=await coachDraftClient.save({
-  studentId,sourceUpdatedAt:intake.updated_at,goal:snapshot.goal,guide:snapshot.guide,
+  studentId,sourceUpdatedAt:intake.updated_at,
+   sourceRevision:COACH_RELAUNCH_ONBOARDING_ENABLED?intake.revision:null,
+   goal:snapshot.goal,guide:snapshot.guide,
   expectedRevision:previousDraft?.draft_revision??null
  });
  const serverDraft=await coachDraftClient.load(studentId);

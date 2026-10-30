@@ -33,6 +33,8 @@ jobs:
         run: |
           node --check efg-nutrition/scripts/coach72-private-storage-restore-verify.mjs
           node efg-nutrition/tests/coach72-private-storage-restore.mjs
+      - name: COACH75 verify read-only 12-object hosted release prerequisite gate (OFFLINE)
+        run: node efg-nutrition/tests/coach75-release-prerequisites-contract.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

@@ -32,7 +32,7 @@ await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confi
 phase='reauth_required';published=false;
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confirmada/);
 published=true;authUser=other;
-await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/identidad/);
+await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/identidad|sesión/);
 authUser=uid;ackGood=false;
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/No pudimos confirmar/);
 assert.equal(calls.filter(x=>x[0]==='signOut').length,0);

@@ -153,6 +153,7 @@ jobs:
           export PGDATABASE=efg_nut57_before
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-preupgrade-fixture.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
+          node efg-nutrition/tests/coach70-live-schema-parity.mjs
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql

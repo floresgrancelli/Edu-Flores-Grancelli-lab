@@ -86,7 +86,9 @@ create table public.efg_daily_logs(
  skipped jsonb not null default '{}'::jsonb,
  totals jsonb not null default '{}'::jsonb,
  updated_at timestamptz not null default now(),
- primary key(student_id,log_day)
+ primary key(student_id,log_day),
+ constraint meals_object check(jsonb_typeof(meals)='object'),
+ constraint sports_array check(jsonb_typeof(sports)='array')
 );
 create table public.efg_weights(
  student_id uuid references public.efg_profiles(user_id),measured_on date not null,

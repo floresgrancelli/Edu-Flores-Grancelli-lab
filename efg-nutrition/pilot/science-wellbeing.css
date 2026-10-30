@@ -54,6 +54,19 @@
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-progress i.is-current{background:#5b806e}
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-next{background:linear-gradient(100deg,#5a7b69,#3a6657)}
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-back{background:#fffdf7;border:1px solid #67927b;color:#486d5d}
+/* The owner-approved eighth screen uses two equal CTAs and a gentle skip link below. */
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header{justify-content:center}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header img,
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header strong{display:none}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header>span{font-size:14px;background:transparent;border:0;color:#3d6353}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"back next" "skip skip";
+ gap:9px;background:linear-gradient(130deg,#fffaf4,#fffdfb)}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-back{grid-area:back}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-next{grid-area:next}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-skip{
+ grid-area:skip;justify-self:center;width:auto;min-height:28px;padding:3px 18px;color:#587b69;font-weight:600}
+
 @media(min-width:850px){
  .ns-wellbeing{padding:32px 46px 39px}
  .ns-wellbeing-points{max-width:740px}

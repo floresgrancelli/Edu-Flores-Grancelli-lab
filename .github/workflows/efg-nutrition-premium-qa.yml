@@ -52,6 +52,11 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
+      - name: REPORT-LUX weekly student view, editable draft, history, no automatic clinical or reward claims (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/weekly-luxury-report.js
+          node --check efg-nutrition/pilot/pilot.js
+          node efg-nutrition/tests/weekly-luxury-report.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
       - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)

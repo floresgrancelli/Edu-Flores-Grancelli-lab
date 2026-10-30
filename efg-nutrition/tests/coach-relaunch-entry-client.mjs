@@ -5,7 +5,8 @@ import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,su
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false);
 const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",org="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const profile={user_id:uid,organization_id:org,role:"student",active:true};
-const legal=[{document_id:"terms",version:"1",accepted:true},{document_id:"privacy",version:"1",accepted:true}];
+const legal=[{kind:"terms",document_id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",version:"1",sha256:"a".repeat(64),accepted:true},
+ {kind:"privacy",document_id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",version:"1",sha256:"b".repeat(64),accepted:true}];
 let status=null,allowed=false,queries=0,writes=0;
 const sb={
  rpc(name,payload){

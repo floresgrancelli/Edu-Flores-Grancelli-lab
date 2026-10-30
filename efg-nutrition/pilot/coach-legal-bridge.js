@@ -21,11 +21,11 @@ function normalizeDocuments(rows,status){
  return status.map(x=>{
   const row=byId.get(x.document_id);
   if(!row||row.kind!==x.kind||row.version!==x.version||row.sha256!==x.sha256||
-    row.status!=="published"||typeof row.content!=="string"||row.content.trim().length<100)
+    row.is_current!==true||typeof row.published_at!=="string"||!Number.isFinite(Date.parse(row.published_at))||typeof row.body!=="string"||row.body.trim().length<300)
    throw Error("La versión legal publicada no coincide con la versión activa.");
   return {kind:row.kind,id:row.id,version:row.version,sha256:row.sha256,
    status:"published",sections:[{heading:row.kind==="terms"?
-    "Términos y Condiciones completos":"Política de Privacidad completa",body:row.content}]};
+    "Términos y Condiciones completos":"Política de Privacidad completa",body:row.body}]};
  });
 }
 export async function loadCoachLegalOnboarding(sb,{enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,legalEnabled=LEGAL_ONBOARDING_ENABLED}={}){
@@ -37,7 +37,7 @@ export async function loadCoachLegalOnboarding(sb,{enabled=COACH_RELAUNCH_LEGAL_
  if(answer.error)throw Error("No se pudo verificar el estado legal.");
  const status=assertStatus(answer.data);
  const current=await sb.from("efg_legal_documents")
-  .select("id,kind,version,sha256,content,status")
+  .select("id,kind,version,sha256,body,is_current,published_at")
   .in("id",status.map(x=>x.document_id)).limit(2);
  if(current.error)throw Error("No se pudieron consultar los textos legales completos.");
  const documents=normalizeDocuments(current.data,status);
@@ -60,9 +60,17 @@ export async function acceptCoachLegalOnboarding(sb,snapshot,checked,{
  if(typeof sb?.rpc!=="function")throw Error("No se pudo verificar el servidor.");
  const selections=makeLegalAcceptanceRequest(snapshot.documents,snapshot.accepted,checked);
  if(!selections.length)return loadCoachLegalOnboarding(sb,{enabled:true,legalEnabled:true});
- const ids=selections.map(x=>x.document_id);
- if(ids.some(id=>!uuid.test(id)))throw Error("Identificador legal inválido.");
- const r=await sb.rpc("efg_accept_legal_documents",{p_document_ids:ids});
+ // COACH115 requires both CURRENT ids and separate explicit acceptance.
+ // An already-accepted current document stays accepted; each outstanding one
+ // must have its own newly checked box (enforced above).
+ const terms=snapshot.documents.find(d=>d.kind==="terms");
+ const privacy=snapshot.documents.find(d=>d.kind==="privacy");
+ if(!terms||!privacy||![terms.id,privacy.id].every(id=>uuid.test(id)))
+  throw Error("Identificadores legales vigentes inválidos.");
+ const r=await sb.rpc("efg_accept_current_legal",{
+  p_terms_id:terms.id,p_privacy_id:privacy.id,
+  p_terms_checked:true,p_privacy_checked:true
+ });
  if(r.error)throw Error("No se pudo registrar la aceptación legal en el servidor.");
  // Never trust the mutation response alone. Re-read current status + documents,
  // which may have been replaced by a new published version since submission.

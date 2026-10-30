@@ -77,27 +77,42 @@ create table public.efg_notifications(
  unique(recipient_id,event_key)
 );
 -- Historic nutrition tables: preserve data, add restrictive write-only policies
--- during migration. These are NOT all columns from the hosted system.
+-- during migration. The five core nutrition tables now mirror the documented
+-- column shapes needed by the app, but this remains a PARTIAL synthetic fixture.
 create table public.efg_daily_logs(
  student_id uuid references public.efg_profiles(user_id),log_day date not null,
  meals jsonb not null default '{}'::jsonb,
+ sports jsonb not null default '[]'::jsonb,
+ skipped jsonb not null default '{}'::jsonb,
+ totals jsonb not null default '{}'::jsonb,
+ updated_at timestamptz not null default now(),
  primary key(student_id,log_day)
 );
 create table public.efg_weights(
  student_id uuid references public.efg_profiles(user_id),measured_on date not null,
- kg numeric(5,1),primary key(student_id,measured_on)
+ kg numeric(5,1) not null,
+ created_at timestamptz not null default now(),
+ measured_time time,
+ primary key(student_id,measured_on)
 );
 create table public.efg_activities(
  student_id uuid references public.efg_profiles(user_id),activity_day date not null,
- steps integer,primary key(student_id,activity_day)
+ steps integer,exercise_minutes integer,kind text,
+ primary key(student_id,activity_day)
 );
 create table public.efg_habitual_meals(
  student_id uuid references public.efg_profiles(user_id),id uuid primary key default gen_random_uuid(),
- meal_slot text not null,items jsonb not null default '[]'::jsonb
+ meal_slot text not null,name text not null default 'Habitual ficticio',
+ items jsonb not null default '[]'::jsonb,
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
 );
 create table public.efg_personal_recipes(
  student_id uuid references public.efg_profiles(user_id),id uuid primary key default gen_random_uuid(),
- name text not null,ingredients jsonb not null default '[]'::jsonb
+ name text not null,ingredients jsonb not null default '[]'::jsonb,
+ portions integer not null default 1,
+ totals jsonb not null default '{}'::jsonb,
+ created_at timestamptz not null default now()
 );
 -- Pre-upgrade log tables already have identity-based RLS in the hosted app.
 -- Recreate ONLY a limited synthetic ownership policy for this test.

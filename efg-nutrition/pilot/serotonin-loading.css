@@ -1,0 +1,53 @@
+/* EFG Nutrition Pro · molecular brand load states. Draft PR #37; no release activation.
+   Real shared asset: pilot/assets/serotonina-acuarela.avif (not a third-party image).
+   Motion is decorative and never encodes loading progress. */
+:root{--efg-serotonin-motion:2.9s}
+.efg-serotonin-stage{
+  display:grid;place-items:center;position:relative;flex-shrink:0;
+  width:160px;height:86px;margin:0 auto;pointer-events:none
+}
+.efg-serotonin-stage::before{
+  content:"";position:absolute;width:116px;height:64px;border-radius:50%;
+  border:1px solid rgba(137,112,183,.23);transform:rotate(-18deg);
+  box-shadow:0 0 22px rgba(177,141,180,.10)
+}
+.efg-serotonin-mark{
+  display:block;object-fit:contain;width:80px;height:48px;
+  animation:efg-serotonin-orbit var(--efg-serotonin-motion) ease-in-out infinite;
+  filter:drop-shadow(0 7px 12px rgba(66,59,90,.11));
+  will-change:transform
+}
+@keyframes efg-serotonin-orbit{
+  0%,100%{transform:translate(-17px,4px) rotate(-11deg)}
+  25%{transform:translate(7px,-12px) rotate(7deg)}
+  50%{transform:translate(18px,0px) rotate(14deg)}
+  75%{transform:translate(-4px,12px) rotate(-3deg)}
+}
+/* Existing role=status .spin has a semantic fallback, but its graphics are the
+   authentic brand asset rather than the default border-ring indicator. */
+body .spin:not(.efg-unbranded-spinner),.efg-serotonin-spinner{
+  display:inline-block;box-sizing:border-box;flex:0 0 auto;
+  width:36px;height:36px;border:0!important;border-radius:0!important;
+  background:transparent url("./assets/serotonina-acuarela.avif") center /contain no-repeat!important;
+  animation:efg-serotonin-orbit var(--efg-serotonin-motion) ease-in-out infinite!important;
+  filter:drop-shadow(0 3px 4px rgba(37,31,74,.09));
+}
+/* Release art remains OFF until owner and backend authorize the major update.
+   Its original illustration stays in place; the molecule identifies the brand. */
+.efg-release-art{position:relative}
+.efg-release-art .efg-serotonin-stage{
+  width:150px;height:85px;margin:0 auto -2px;
+}
+.efg-release-art .efg-serotonin-mark{width:78px;height:47px}
+@media (prefers-reduced-motion:reduce){
+  .efg-serotonin-mark,
+  body .spin:not(.efg-unbranded-spinner),.efg-serotonin-spinner{
+    animation:none!important;will-change:auto;
+  }
+  .efg-serotonin-mark{transform:none!important}
+}
+@media (max-width:480px){
+  .efg-serotonin-stage{width:130px;height:70px}
+  .efg-serotonin-mark{width:70px;height:42px}
+  .efg-release-art .efg-serotonin-stage{width:120px;height:68px}
+}

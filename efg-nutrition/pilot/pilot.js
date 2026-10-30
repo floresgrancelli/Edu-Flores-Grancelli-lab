@@ -518,7 +518,7 @@ function habitualPickerHTML(slot){
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
  const requested=state.habitualSelection[slot]||"";
  const selectedIndex=list.findIndex((item,i)=>habitualEntryKey(item,i)===requested);
- const choice=selectedIndex>=0?selectedIndex:list.length===1?0:-1;
+ const choice=selectedIndex>=0?selectedIndex:0; // Preview first saved habitual even when multiple choices exist; never registers until explicit button.
  const selected=choice<0?null:list[choice];
  const selectedKey=selected?habitualEntryKey(selected,choice):"";
  state.habitualSelection[slot]=selectedKey;

@@ -79,6 +79,11 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
+      - name: UX35 major release exceptional; minor version silent and explicit mobile logout
+        run: |
+          node --check efg-nutrition/pilot/logout-session.js
+          node --check efg-nutrition/pilot/pilot.js
+          node efg-nutrition/tests/ux35-session-release-contract.mjs
       - name: REPORT-LUX weekly student view, editable draft, history, no automatic clinical or reward claims (SYNTHETIC)
         run: |
           node --check efg-nutrition/pilot/weekly-luxury-report.js

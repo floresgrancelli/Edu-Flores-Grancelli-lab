@@ -37,8 +37,8 @@ for(const s of NUTRITION_SCIENCE_SOURCES){
 }
 assert.match(js,/import \{SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep\} from "\.\/science-welcome\.js/);
 assert.match(js,/nutritionScience:renderScienceVerticalView/);
-assert.match(js,/\["nutritionScience","✦","Con-Ciencia"\]/);
-assert.equal((js.match(/\["nutritionScience","✦","Con-Ciencia"\]/g)||[]).length,2,"one real tab for student and one for coach");
+assert.match(js,/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
+assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,2,"one real tab for student and one for coach");
 assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,2,"discoverable from BOTH more menus");
 assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","privacy","notifications"\]\.includes\(state\.tab\)\)state\.tab="intake"/,
  "pending intake gate must prevent science from bypassing onboarding");

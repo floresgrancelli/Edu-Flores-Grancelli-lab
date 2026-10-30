@@ -16,6 +16,7 @@ on:
       - 'efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql'
       - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
+      - 'efg-nutrition/docs/NUT60_PERSONAL_JWT_STAGING_REVIEW_20261030.md'
       - 'efg-nutrition/tests/personal-auth-local-e2e.mjs'
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
   workflow_dispatch:

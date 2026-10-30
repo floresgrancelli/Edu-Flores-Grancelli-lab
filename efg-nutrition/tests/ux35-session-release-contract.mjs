@@ -37,8 +37,8 @@ assert.match(app,/class="efg-mobile-logout" data-act="logout"/,'Student/Coach/Ad
 assert.match(css,/@media\(max-width:720px\)/);
 assert.match(css,/min-height:44px/,'Touch targets accessible');
 assert.match(html,/release-session\.css\?v=20261030-ux35-mobile1/);
-assert.match(html,/meta name="efg-build" content="20261030-ux35-session1"/);
-assert.match(html,/pilot\.js\?v=20261030-ux35-session1/);
+assert.match(html,/meta name="efg-build" content="20261030-ux35-major2"/);
+assert.match(html,/pilot\.js\?v=20261030-ux35-major2/);
 assert.match(app,/auth:sb\.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits/);
 assert.match(app,/if\(!result\.signedOut\)return/);
 assert.match(app,/function resetPrivateSession\(\)/);

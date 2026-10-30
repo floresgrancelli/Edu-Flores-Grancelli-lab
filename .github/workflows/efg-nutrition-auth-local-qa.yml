@@ -1,7 +1,6 @@
 name: EFG Nutrition Supabase Auth local JWT/RLS QA (NUT-53; disposable)
 
 on:
-  workflow_call:  # Run directly from the existing PR Premium QA while not merged
   pull_request:
     branches: [efg-nutrition-app]
     paths:

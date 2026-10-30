@@ -186,6 +186,50 @@ assert.equal(sql("select count(*) from public.efg_food_plans where guided_plan i
 assert.equal(sql("select count(*) from public.efg_notifications"),"1","Exactly one message");
 assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1","Exactly one durable receipt");
 assert.equal(sql("select count(*) from public.efg_student_plan_access a join public.efg_food_plans p on p.student_id=a.student_id where a.student_id="+uuid(users.studentA.id)+" and a.status='published' and a.published_goal_id=p.guided_goal_id and p.guided_plan_approved_at is not null"),"1","Goal+guide+access must agree");
+// NUT-59: an ALREADY OPEN legacy PWA still sends independent REST writes.
+// After the atomic version is live, a stale coach tab must NEVER split the
+// published goal/guide or duplicate notifications. No user data is involved.
+const oldGoal={
+ student_id:users.studentA.id,approved_by:users.coachA.id,
+ goal_type:"maintenance",kcal:2500,protein_g:100,carb_g:320,fat_g:90,fiber_g:25
+};
+denied(await call("/rest/v1/efg_goals",{
+ method:"POST",token:users.coachA.token,body:oldGoal
+}),"Legacy pre-upgrade Coach POST goal after atomic publish must fail closed");
+denied(await call("/rest/v1/efg_food_plans?student_id=eq."+users.studentA.id,{
+ method:"PATCH",token:users.coachA.token,body:{approved_food_ids:["egg"]}
+}),"Legacy pre-upgrade Coach PATCH guide after atomic publish must fail closed");
+denied(await call("/rest/v1/efg_food_plans",{
+ method:"POST",token:users.coachA.token,
+ body:{student_id:users.studentA.id,coach_id:users.coachA.id,approved_food_ids:["egg"]}
+}),"Legacy pre-upgrade Coach POST guide after atomic publish must fail closed");
+const ownGoals=ok(await call("/rest/v1/efg_goals?select=id,student_id,kcal&student_id=eq."+users.studentA.id,{
+ token:users.coachA.token
+}),"Current Coach still reads published goal after legacy write denial");
+assert.equal(ownGoals.length,1);
+assert.equal(ownGoals[0].id,publishedGoal);
+assert.equal(ownGoals[0].kcal,goal.kcal);
+const studentGoals=ok(await call("/rest/v1/efg_goals?select=id,student_id&student_id=eq."+users.studentA.id,{
+ token:users.studentA.token
+}),"Student still reads published goal while stale Coach PWA is blocked");
+assert.equal(studentGoals.length,1);
+const crossOrgGoals=ok(await call("/rest/v1/efg_goals?select=id,student_id&student_id=eq."+users.studentA.id,{
+ token:users.coachB.token
+}),"Other organization goal read checks RLS");
+assert.deepEqual(crossOrgGoals,[],"Coach of another organization must not see A's goal");
+const activeGuide=ok(await call("/rest/v1/efg_food_plans?select=student_id,guided_goal_id,approved_food_ids&student_id=eq."+users.studentA.id,{
+ token:users.studentA.token
+}),"Student can still read published guide after old Coach attempts");
+assert.equal(activeGuide.length,1);
+assert.equal(activeGuide[0].guided_goal_id,publishedGoal);
+assert.deepEqual(activeGuide[0].approved_food_ids,["tofu_firm"]);
+assert.equal(sql("select count(*) from public.efg_goals"),"1",
+ "Old PWA cannot create a second goal or overwrite the active one");
+assert.equal(sql("select count(*) from public.efg_notifications"),"1",
+ "Old PWA failed requests cannot generate a second notification");
+assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1",
+ "Legacy writes cannot invent or duplicate atomic receipts");
+
 const reopened=ok(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:2}),"Published plan can be reopened privately");
 assert.equal(Number(reopened),3,"New draft revision 3, old published plan remains active");
 assert.equal(sql("select count(*) from public.efg_goals"),"1","Reopening may not modify active goal");

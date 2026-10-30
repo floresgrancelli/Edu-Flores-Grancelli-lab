@@ -37,17 +37,18 @@ async function sign(name){
  const r=yes(await request("/auth/v1/signup",{method:"POST",
   body:{email:"coach-relaunch-"+name+"-"+suffix+"@example.invalid",password:pw}}),name+" signup");
  assert.ok(r.access_token&&r.user?.id);
- return {id:r.user.id,token:r.access_token};
+ return {id:r.user.id,token:r.access_token,email:r.user.email};
 }
 const people={};
 for(const role of ["coachA","coachB","studentA","studentB"])people[role]=await sign(role);
 const orgA=randomUUID(),orgB=randomUUID();
-sql("insert into public.efg_organizations(id,coach_id) values ("+
- uuid(orgA)+","+uuid(people.coachA.id)+"),("+uuid(orgB)+","+uuid(people.coachB.id)+")");
-sql("insert into public.efg_profiles(user_id,role,organization_id) values ("+
- uuid(people.coachA.id)+",'coach',null),("+uuid(people.coachB.id)+",'coach',null),"+
- "("+uuid(people.studentA.id)+",'student',"+uuid(orgA)+"),"+
- "("+uuid(people.studentB.id)+",'student',"+uuid(orgB)+")");
+sql("insert into public.efg_organizations(id,coach_id,name) values ("+
+ uuid(orgA)+","+uuid(people.coachA.id)+",'Synthetic Relaunch A'),("+uuid(orgB)+","+uuid(people.coachB.id)+",'Synthetic Relaunch B')");
+sql("insert into public.efg_profiles(user_id,email,nickname,role,organization_id) values ("+
+ uuid(people.coachA.id)+",'"+people.coachA.email+"','Relaunch Coach A','coach',null),"+
+ "("+uuid(people.coachB.id)+",'"+people.coachB.email+"','Relaunch Coach B','coach',null),"+
+ "("+uuid(people.studentA.id)+",'"+people.studentA.email+"','Relaunch Student A','student',"+uuid(orgA)+"),"+
+ "("+uuid(people.studentB.id)+",'"+people.studentB.email+"','Relaunch Student B','student',"+uuid(orgB)+")");
 sql("insert into public.efg_consents(student_id,organization_id,accepted) values ("+
  uuid(people.studentA.id)+","+uuid(orgA)+",false),"+
  "("+uuid(people.studentB.id)+","+uuid(orgB)+",true)");

@@ -816,8 +816,8 @@ try{
     const hint=await page.locator("#efgVersionNotice .efg-version-copy p").textContent();
     if(!hint.includes("Guardá tus cambios")||!hint.includes("cerrá la app"))
      pageReport.errors.push("Update instructions must explain how to save and reopen");
-    if(await page.locator("#targetAge").inputValue()!=="42")
-     pageReport.errors.push("Update guidance must not lose the editable draft");
+    if(!(await page.locator('[data-act="checkAppVersion"]').count()))
+     pageReport.errors.push("Update guidance must not navigate away from Coach tools");
    }
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }

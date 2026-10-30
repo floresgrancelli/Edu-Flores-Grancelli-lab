@@ -55,3 +55,6 @@
 
 .efg-self-brand{min-width:0;flex:1}.efg-self-brand span{min-width:0;overflow-wrap:anywhere;line-height:1.18}.efg-self-head .btn{flex-shrink:0}
 @media(max-width:375px){.efg-self-brand{gap:5px}.efg-self-brand img{width:29px;height:auto}.efg-self-brand small{font-size:10px}.efg-self-head{padding:12px 11px}}
+
+/* QA 320px: logout remains a fully reachable 44px touch target. */
+.efg-self-head .btn{min-height:44px;min-width:88px;display:inline-flex;align-items:center;justify-content:center}

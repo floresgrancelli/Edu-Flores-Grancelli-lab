@@ -52,6 +52,10 @@ sql("insert into public.efg_profiles(user_id,email,nickname,role,organization_id
 sql("insert into public.efg_consents(student_id,organization_id,accepted) values ("+
  uuid(people.studentA.id)+","+uuid(orgA)+",false),"+
  "("+uuid(people.studentB.id)+","+uuid(orgB)+",true)");
+// The real pilot has a legacy intake; mirror that historical row in this
+// disposable fixture so the privacy-clear assertion checks preservation.
+sql("insert into public.efg_student_intakes(student_id,organization_id,dietary_pattern,shared_at) values ("+
+ uuid(people.studentA.id)+","+uuid(orgA)+",'vegetarian',null)");
 const version="coach_major_2026_r1";
 const body={p_completed_version:version,p_payload:{objective:"recomp",age_years:41,height_cm:174,
  weight_kg:80.5,activity_level:"moderate",dietary_pattern:"vegetarian",

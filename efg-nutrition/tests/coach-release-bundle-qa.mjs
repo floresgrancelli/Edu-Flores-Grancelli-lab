@@ -69,6 +69,18 @@ if(phase==='failure'){
  assert.equal(sql(`select count(*) from public.efg_student_plan_access where status='published'`),'2');
  assert.equal(sql(`select count(*) from public.efg_legal_documents`),'0');
  assert.equal(sql(`select count(*) from public.efg_legal_acceptances`),'0');
+ // The freshly installed release must remain CLOSED before approved real
+ // Spanish terms/privacy have been published and explicitly accepted.
+ // An empty legal catalog is not implicit consent; never seed fake approvals.
+ const unconsented='22222222-2222-4222-8222-222222222222';
+ const noTermsIntake=run(`BEGIN; SET LOCAL ROLE authenticated;
+  SET LOCAL request.jwt.claim.sub='${unconsented}';
+  SELECT public.efg_submit_coach_relaunch_intake(
+   'coach_major_2026_r1','{}'::jsonb,0,false); COMMIT;`);
+ assert.notEqual(noTermsIntake.status,0,'Cannot submit relaunch intake without current legal texts');
+ assert.match(noTermsIntake.stderr,/terms and privacy must be explicitly accepted/i);
+ assert.equal(sql('select count(*) from public.efg_coach_relaunch_intakes'),'0',
+  'Rejected intake must not create versioned rows or infer user acceptance');
  for(const table of ['efg_legal_acceptances','efg_coach_relaunch_intakes','efg_coach_plan_drafts',
   'efg_coach_plan_publish_receipts','efg_science_intro_receipts','efg_goals','efg_food_plans']){
   assert.equal(sql(`select has_table_privilege('authenticated','public.${table}','INSERT,UPDATE,DELETE')`),'f');

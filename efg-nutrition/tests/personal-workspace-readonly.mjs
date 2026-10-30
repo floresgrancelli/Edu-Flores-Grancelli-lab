@@ -85,4 +85,9 @@ await assert.rejects(()=>loadPersonalWorkspace(client({failure:"efg_personal_gui
  {profile,userId:a,day}),/verificar/);
 assert.throws(()=>renderPersonalWorkspace({...snap,verified:false}),/verificado/);
 assert.throws(()=>renderPersonalWorkspace({...snap,diary:{...diary,user_id:b}}),/verificado/);
+assert.throws(()=>renderPersonalWorkspace({...snap,day:"2026-13-10"}),/verificado/);
+assert.throws(()=>renderPersonalWorkspace({...snap,day:"2026-11-31"}),/verificado/);
+assert.throws(()=>renderPersonalWorkspace({...snap,guide:{...guide,user_id:b}}),/verificado/);
+assert.throws(()=>renderPersonalWorkspace({...snap,habituals:[{...habituals[0],user_id:b}]}),/verificado/);
+assert.equal(guideMeals({...guide,user_id:b},goal),null,"An alien guide may not match this owner's goal.");
 console.log("PASS NUT-60 read-only Personal: signed server data contract, role/org/legal gates, owner isolation, five slots, goal revision, escaped content and no Coach/Student access or writable UI.");

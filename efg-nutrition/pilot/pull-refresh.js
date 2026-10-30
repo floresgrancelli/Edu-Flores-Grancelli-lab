@@ -25,6 +25,11 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
   tracking=false;claimed=false;distance=0;
   if(!busy)paint(lastSuccess?"Actualizado hace unos segundos":"Deslizá para actualizar");
  }
+ function isDashboardContent(el){
+  // A touch beginning on MI DÍA's cards, graphs or food rows is always a scroll
+  // gesture, including when the card happens to lie within the first 110px.
+  return !!el?.closest?.('.efg-pastel-day,.efg-progress-dashboard,.efg-meal-guidance,.meal-popup,.efg-guide-student,.efg-meal-card,.efg-food-row');
+ }
  function isEditable(el){
   return !!el?.closest?.('input,textarea,select,[contenteditable=""],[contenteditable="true"],[role="dialog"],dialog[open],.efg-notify-popup,.efg-message-history,.efg-inbox-full');
  }
@@ -38,7 +43,7 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
  }
  function atTop(){return (window.scrollY||document.documentElement.scrollTop||0)<=2;}
  function start(e){
-  if(busy||!canRefresh()||e.touches.length!==1||!atTop()||isEditable(e.target)||hasNestedScroll(e.target)||document.querySelector("dialog[open]"))return;
+  if(busy||!canRefresh()||e.touches.length!==1||!atTop()||isEditable(e.target)||isDashboardContent(e.target)||hasNestedScroll(e.target)||document.querySelector("dialog[open]"))return;
   // Android Chrome: do not intercept downward gestures begun over the dashboard.
   // Pull-to-refresh is reserved for the very top edge; the rest is native scrolling.
   const topEdge=Math.min(110,Math.round(window.innerHeight*.18));

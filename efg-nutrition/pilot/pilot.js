@@ -1958,9 +1958,15 @@ async function publishCoachAtomicDraft(){
  await loadStudentDetail(studentId);await render();
  notify("Meta y guía publicadas conjuntamente por el servidor.");
 }
+function activeCoachGuideGoal(){
+ // While preparing an atomic Coach draft, NEVER silently fall back to the student's published goal.
+ return COACH_ATOMIC_PLAN_UI_ENABLED
+  ? (state.pendingGoal||state.pendingGoalRevision?.proposal||null)
+  : (state.coachGoals[0]||null);
+}
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+ const goal=activeCoachGuideGoal();
  const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
  const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
@@ -2006,7 +2012,7 @@ function readGuidedEditor(){
  return draft;
 }
 function updateGuidedTotalsUI(){
- const plan=state.coachGuidedDraft,goal=state.coachGoals[0];if(!plan||!goal)return;
+ const plan=state.coachGuidedDraft,goal=activeCoachGuideGoal();if(!plan||!goal)return;
  const sums=guideTotals(plan),dev=guideDeviation(plan,goal);
  const all=document.querySelector("[data-guideoverall]");if(all)all.textContent="Menú modelo: "+guideNumbers(sums.totals);
  const deviations=document.querySelector("[data-guidedeviations]");
@@ -2990,7 +2996,7 @@ if(el.dataset.foodbulk){
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
  if(action==="makeGuidedDay"){
   const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
-  const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+  const goal=activeCoachGuideGoal();
   if(!goal||!state.selectedStudent||!state.consent?.accepted)
    throw new Error(COACH_ATOMIC_PLAN_UI_ENABLED?"Primero calculá una propuesta privada.":"Primero aprobá la meta del alumno.");
   if(COACH_ATOMIC_PLAN_UI_ENABLED){
@@ -3005,7 +3011,7 @@ if(el.dataset.foodbulk){
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
  if(action==="balanceGuidedDay"){
   const draft=readGuidedEditor(),proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
-  const goal=(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed)||state.coachGoals[0];
+  const goal=activeCoachGuideGoal();
   if(!goal)throw new Error("El alumno necesita una propuesta válida.");
   state.coachGuidedDraft=rebalanceGuidedDay(draft,goal);showGuidedEditor();
   notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
@@ -3090,13 +3096,15 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
   return;
  }
  if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
+ const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
- state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
+ state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),targetGoal);
  showGuidedEditor();
  notify("Ingrediente cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.dataset.guideqty){
+ const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor();
- state.coachGuidedDraft=rebalanceGuidedDay(draft,state.coachGoals[0]);
+ state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});

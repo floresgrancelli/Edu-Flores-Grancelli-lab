@@ -29,7 +29,8 @@ import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261030-coach119-catalog1";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=20261030-coach119-catalog1";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=20261030-review-rev1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentminor1";
@@ -1491,7 +1492,9 @@ async function saveSelectedMeal(continueGuided=false){
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
- const selected=new Set(state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
+ const selected=new Set(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachPlanDraftRecord?.guide_proposal?.approvedFoodIds?.length
+  ?state.coachPlanDraftRecord.guide_proposal.approvedFoodIds
+  :state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
  const sections=FOOD_CATEGORIES.map(([id,title],index)=>{
   const items=foods.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
   if(!items.length)return "";
@@ -1503,7 +1506,9 @@ function coachFoodChoices(p,consent){
   '<p class="pilot-hint">Semáforo por patrón alimentario: 🟢 compatible revisado, 🟡 verificar etiqueta o composición, 🔴 incompatible con el patrón según evidencia. Sin restricciones: sin color. Los colores no indican calorías y no impiden registrar alimentos.</p>'+ 
  '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
  '<div class="food-library-tools"><label for="coachFoodSearch">Buscar alimentos</label><input type="search" id="coachFoodSearch" placeholder="Buscar entre '+foods.length+' alimentos…" autocomplete="off"><p id="coachFoodCount" class="pilot-hint">'+selected.size+' alimentos seleccionados de '+foods.length+'</p></div>'+
- sections+'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>';
+ sections+(COACH_ATOMIC_PLAN_UI_ENABLED
+  ?'<p class="pilot-hint" role="note">Esta selección se guarda JUNTO con el borrador privado de cinco comidas. Antes de publicar el servidor verificará las referencias de cada alimento. No significa aptitud clínica.</p>'
+  :'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>');
 }
 function filterCoachFoodLibrary(){
  const input=document.getElementById("coachFoodSearch");
@@ -1951,7 +1956,9 @@ function coachAtomicDraftPanel(){
  if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
  const saved=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
- const publication=assessCoachDraftPublication({studentId:student,intake,savedDraft:saved,goal,guide});
+ const checkedGuide=COACH_ATOMIC_PLAN_UI_ENABLED&&saved?.guide_proposal?.approvedFoodIds&&guide
+  ?{...guide,approvedFoodIds:saved.guide_proposal.approvedFoodIds}:guide;
+ const publication=assessCoachDraftPublication({studentId:student,intake,savedDraft:saved,goal,guide:checkedGuide});
  const active=saved?.status==="draft"&&coachDraftSourceCurrent(intake,saved);
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
@@ -1971,7 +1978,10 @@ async function saveCoachAtomicDraft(){
  validateGuidedDay(guide,goal);
  // Capture exactly what was submitted BEFORE network waits: later edits cannot
  // silently become the "saved" version through a shared mutable goal object.
- const snapshot=validateCoachPlanProposal(goal,guide);
+ const finalGuide=COACH_ATOMIC_PLAN_UI_ENABLED
+  ?approvedFoodGuide(guide,coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)})
+  :guide;
+ const snapshot=validateCoachPlanProposal(goal,finalGuide);
  const r=await coachDraftClient.save({
   studentId,sourceUpdatedAt:intake.updated_at,
    sourceRevision:COACH_RELAUNCH_ONBOARDING_ENABLED?intake.revision:null,
@@ -1997,7 +2007,8 @@ async function publishCoachAtomicDraft(){
  const sessionUserId=state.session?.user?.id,previousDraft=draft;
  const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
- const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide});
+ const finalGuide=approvedFoodGuide(guide,coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
+ const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide:finalGuide});
  if(!review.ready)throw Error(review.reason);
  if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))

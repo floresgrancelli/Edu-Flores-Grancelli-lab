@@ -1,4 +1,4 @@
-// EFG Nutrition Pro · versioned legal onboarding UI contract (DRAFT, OFF by default).
+// Nutrición Con-Ciencia · versioned legal onboarding UI contract (DRAFT, OFF by default).
 // Server-authenticated RPC/RLS remains the authority; this module stores NOTHING.
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const allowed=new Set(["terms","privacy"]);
@@ -31,7 +31,7 @@ export function renderLegalOnboarding(documents,accepted=[]){
  const msg={terms:"Leí y acepto expresamente los Términos y Condiciones indicados.",
   privacy:"Leí y tomé conocimiento de la Política de Privacidad indicada. Esto no autoriza compartir mis datos de salud."};
  return '<section class="card efg-legal-entry" aria-labelledby="efgLegalHeading">'+
- '<span class="eyebrow">EFG NUTRITION · TU INFORMACIÓN</span><h2 id="efgLegalHeading">Antes de empezar</h2>'+
+ '<span class="eyebrow">Nutrición Con-Ciencia · TU INFORMACIÓN</span><h2 id="efgLegalHeading">Antes de empezar</h2>'+
  '<p>Revisá cada documento completo. Tus permisos de seguimiento y los datos de salud se gestionan por separado.</p>'+
  missing.map(kind=>{
   const d=docs[kind];return '<details class="efg-legal-document" data-legaldoc="'+kind+'"><summary>'+

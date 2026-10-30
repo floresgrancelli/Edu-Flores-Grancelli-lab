@@ -28,8 +28,7 @@ alter table efg_private.major_release_manifests
 alter table efg_private.major_release_manifests
  add constraint coach122_reauth_cutover_after_preview
  check (reauth_required_at is null or
-   (reauth_required_at>=activated_at and
-    reauth_required_at<=pg_catalog.now()+interval '5 minutes'));
+   (activated_at is not null and reauth_required_at>=activated_at));
 -- Important: set reauth_required_at to the REAL server release instant,
 -- atomically with the approved phase change. Never use the earlier preview
 -- activated_at as the OTP cutoff. Existing sessions from preview remain OLD.

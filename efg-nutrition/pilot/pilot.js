@@ -26,7 +26,7 @@ import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.j
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "./coach-draft-review.js?v=20261029-review51";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=20261030-review-rev1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
@@ -1893,7 +1893,7 @@ function coachAtomicDraftPanel(){
  const saved=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
  const publication=assessCoachDraftPublication({studentId:student,intake,savedDraft:saved,goal,guide});
- const active=saved?.status==="draft"&&saved.source_intake_updated_at===intake.updated_at;
+ const active=saved?.status==="draft"&&coachDraftSourceCurrent(intake,saved);
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
  '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
@@ -2420,7 +2420,7 @@ async function loadStudentDetail(studentId){
   state.coachPlanDraftRecord=savedDraft;
   // Restore only a server-authorized draft based on the CURRENT shared intake.
   // Never treat this proposal as an approved goal or a student diary entry.
-  if(savedDraft?.status==="draft"&&savedDraft.source_intake_updated_at===state.coachIntakeForms[studentId].updated_at
+  if(savedDraft?.status==="draft"&&coachDraftSourceCurrent(state.coachIntakeForms[studentId],savedDraft)
     &&savedDraft.goal_proposal&&savedDraft.guide_proposal){
    state.pendingGoal={...savedDraft.goal_proposal,student_id:studentId};
    state.coachGuidedDraft=structuredClone(savedDraft.guide_proposal);
@@ -2489,6 +2489,7 @@ async function refreshVisibleWorkspace(){
  const coachEdits={guided:state.coachGuidedDraft,pending:state.pendingGoal,
   base:state.calculatedGoalBase,revision:state.pendingGoalRevision,
   intakeUpdatedAt:state.coachIntakeForms?.[selected]?.updated_at??null,
+  intakeRevision:state.coachIntakeForms?.[selected]?.revision??null,
   draftRevision:state.coachPlanDraftRecord?.draft_revision??null,
   draftStatus:state.coachPlanDraftRecord?.status??null};
  try{
@@ -2504,6 +2505,11 @@ async function refreshVisibleWorkspace(){
   const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(
    !!state.coachIntakeForms?.[selected]?.shared_at&&
    state.coachIntakeForms?.[selected]?.updated_at===coachEdits.intakeUpdatedAt&&
+   (!COACH_RELAUNCH_ONBOARDING_ENABLED||(
+    Number.isSafeInteger(coachEdits.intakeRevision)&&coachEdits.intakeRevision>=1&&
+    state.coachIntakeForms?.[selected]?.revision===coachEdits.intakeRevision&&
+    (!state.coachPlanDraftRecord||
+      coachDraftSourceCurrent(state.coachIntakeForms?.[selected],state.coachPlanDraftRecord))))&&
    (state.coachPlanDraftRecord?.draft_revision??null)===coachEdits.draftRevision&&
    (state.coachPlanDraftRecord?.status??null)===coachEdits.draftStatus
   );

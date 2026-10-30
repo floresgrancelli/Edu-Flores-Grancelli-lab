@@ -44,7 +44,7 @@ export function parsePersonalIntake(values={}){
  if(!["","low","light","moderate"].includes(activity))throw Error("Actividad no reconocida.");
  const sex=String(values.sex_for_equation??"");
  if(!["","male","female"].includes(sex))throw Error("Sexo de ecuación no reconocido.");
- const flags=codes(values.health_flags??[],PERSONAL_HEALTH_FLAGS.map(x=>x[0]),"condiciones autodeclaradas");
+ const flags=codes(values.health_flags===undefined?[]:values.health_flags,PERSONAL_HEALTH_FLAGS.map(x=>x[0]),"condiciones autodeclaradas");
  const age=numOrNull(values.age_years,18,100,"edad");
  if(age!==null&&!Number.isInteger(age))throw Error("La edad debe indicarse en años enteros.");
  const allergyDetails=text(values.allergy_details,250,"detalle de alergias");
@@ -53,7 +53,7 @@ export function parsePersonalIntake(values={}){
  const intake={
   goal,age_years:age,height_cm:numOrNull(values.height_cm,100,250,"altura"),
   weight_kg:numOrNull(values.weight_kg,20,400,"peso"),activity_level:activity,
-  sex_for_equation:sex,dietary_pattern:pattern,health_flags:flags,
+  sex_for_equation:sex,dietary_pattern:pattern,health_flags:Object.freeze(flags),
   allergy_details:allergyDetails,
   preferred_foods:text(values.preferred_foods,400,"alimentos preferidos"),
   disliked_foods:text(values.disliked_foods,400,"alimentos no preferidos"),

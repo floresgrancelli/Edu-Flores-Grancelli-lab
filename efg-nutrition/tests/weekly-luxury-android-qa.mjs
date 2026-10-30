@@ -60,14 +60,14 @@ try{
    const r=report.getBoundingClientRect(),img=report.querySelector('.lux-report-serotonin');
    return {
     viewport:innerWidth,documentWidth:root.scrollWidth,
-    touch:'ontouchstart' in window,pointerCoarse:matchMedia('(pointer: coarse)').matches,
+    touchPoints:navigator.maxTouchPoints,pointerCoarse:matchMedia('(pointer: coarse)').matches,
     reportLeft:r.left,reportRight:r.right,
     buttonWidth:b.width,buttonHeight:b.height,
     imageReady:!!img&&img.complete&&img.naturalWidth>0,
     demoVisible:report.textContent.includes('MODELO · DATOS FICTICIOS')
    };
   });
-  assert.equal(dimensions.touch,true,name+' touch must be emulated');
+  assert.ok(dimensions.touchPoints>=1,name+' touch API must be emulated');
   assert.equal(dimensions.pointerCoarse,true,name+' must have coarse pointer');
   assert.ok(dimensions.documentWidth<=dimensions.viewport+2,name+' horizontal scroll '+JSON.stringify(dimensions));
   assert.ok(dimensions.reportLeft>=-2&&dimensions.reportRight<=dimensions.viewport+2,name+' report outside screen '+JSON.stringify(dimensions));

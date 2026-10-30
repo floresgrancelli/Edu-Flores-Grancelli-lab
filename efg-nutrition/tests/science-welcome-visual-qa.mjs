@@ -26,6 +26,7 @@ try{
    for(const step of [0,3,7]){
     const body=renderScienceWelcomeStep(step);
     await page.setContent('<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><base href="http://fixture.test/"><style>body{margin:0;font:16px system-ui,sans-serif}'+css+'</style></head><body>'+body+'</body></html>',{waitUntil:"domcontentloaded"});
+    if(step===7)await page.locator(".ns-wellbeing-logo").evaluate(img=>img.decode());
     const info=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
      panel:document.querySelectorAll(".ns-welcome-slide").length,
      progress:document.querySelectorAll(".ns-welcome-progress i").length,
@@ -52,6 +53,7 @@ try{
     metrics.push({engine,device:target.name,step:step+1,...info});
    }
    await page.setContent('<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://fixture.test/"><style>body{margin:0;padding:8px;font:16px system-ui,sans-serif}'+css+'</style></head><body>'+renderScienceVerticalView()+'</body></html>',{waitUntil:"domcontentloaded"});
+   await page.locator(".ns-library-panel[data-science-step=\'8\'] .ns-wellbeing-logo").evaluate(img=>img.decode());
    const vertical=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth,sections:document.querySelectorAll(".ns-library-panel").length}));
    if(vertical.width>width+2||vertical.sections!==8)failures.push(target.name+" vertical "+JSON.stringify(vertical));
    const verticalBrand=await page.evaluate(()=>({

@@ -44,6 +44,10 @@ jobs:
         run: node efg-nutrition/tests/coach-relaunch-visual-qa.mjs
       - name: REPORT-LUX student report responsive Luxury Pro (Chromium, synthetic)
         run: node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
+      - name: ANDROID-QA Pixel 7 full app student coach admin with touch and food search (Chromium emulation; synthetic)
+        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: ANDROID-QA Pixel 7 + Galaxy S9+ Luxury Pro report and tap-to-reply (Chromium emulation; synthetic)
+        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
       - name: Install Safari-engine WebKit for mobile compatibility
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)

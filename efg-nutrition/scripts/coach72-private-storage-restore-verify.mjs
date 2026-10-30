@@ -54,16 +54,21 @@ export async function verifyPrivateReceiptRestore({manifest,sourceDir,restoredDi
    throw Error("COACH72 STOP: incomplete or extra receipt bytes");
  }
  for(const o of manifest.objects){
-  for(const dir of [src,dst]){
-   const name=resolve(dir,o.file);
+  const sourceFile=resolve(src,o.file),restoredFile=resolve(dst,o.file);
+  const hashes=[];
+  for(const [dir,name] of [[src,sourceFile],[dst,restoredFile]]){
    if(!inside(name,dir))throw Error("COACH72 STOP: invalid file path");
    const st=await lstat(name);
    if(!st.isFile()||st.isSymbolicLink()||st.size!==o.bytes)
     throw Error("COACH72 STOP: missing/replaced receipt or incorrect length");
+   hashes.push({dev:st.dev,ino:st.ino});
    const actual=await hash(name);
    if(actual.bytes!==o.bytes||actual.sha256.toLowerCase()!==o.sha256.toLowerCase())
     throw Error("COACH72 STOP: restored receipt SHA-256 mismatch");
   }
+  // Two directory entries hardlinked to the SAME inode are not independent backups.
+  if(hashes[0].dev===hashes[1].dev&&hashes[0].ino===hashes[1].ino)
+   throw Error("COACH72 STOP: source and destination are the same physical file");
  }
  return {verified_objects:summary.objects,verified_bytes:summary.bytes,
   source_and_restored_bytes_equal:true,scope:"OFFLINE_BYTES_ONLY_NOT_ACL_OR_RLS"};

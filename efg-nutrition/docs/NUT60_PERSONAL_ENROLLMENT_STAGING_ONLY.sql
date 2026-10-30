@@ -29,6 +29,7 @@ begin
  end if;
  if pg_catalog.to_regclass('public.efg_personal_accounts') is not null
    or pg_catalog.to_regclass('public.efg_personal_goals') is not null
+   or pg_catalog.to_regclass('public.efg_personal_guides') is not null
    or pg_catalog.to_regclass('public.efg_personal_daily_logs') is not null
    or pg_catalog.to_regclass('public.efg_personal_habitual_meals') is not null
    or pg_catalog.to_regprocedure('public.efg_register_personal(text)') is not null then
@@ -69,6 +70,31 @@ alter table public.efg_personal_goals enable row level security;
 revoke all on public.efg_personal_goals from public,anon,authenticated;
 grant select on public.efg_personal_goals to authenticated;
 create policy personal_goal_read_self on public.efg_personal_goals
+ for select to authenticated using(user_id=(select auth.uid()));
+
+-- Draft five-meal guides are immutable revisions linked to the exact Personal
+-- goal revision. No direct INSERT/UPDATE/DELETE from client; only owner reads.
+-- NOT medically reviewed or published. This is a private draft contract.
+create table public.efg_personal_guides(
+ user_id uuid not null,
+ revision integer not null check(revision>=1),
+ goal_revision integer not null check(goal_revision>=1),
+ guide jsonb not null,
+ created_at timestamptz not null default now(),
+ primary key(user_id,revision),
+ foreign key(user_id,goal_revision)
+  references public.efg_personal_goals(user_id,revision) on delete restrict,
+ constraint personal_five_meal_guide_shape check(
+  coalesce(jsonb_typeof(guide)='object',false)
+  and coalesce(guide->>'kind'='five_meal_example',false)
+  and coalesce(jsonb_typeof(guide->'meals')='array',false)
+  and octet_length(guide::text)<30000
+ )
+);
+alter table public.efg_personal_guides enable row level security;
+revoke all on public.efg_personal_guides from public,anon,authenticated;
+grant select on public.efg_personal_guides to authenticated;
+create policy personal_guide_read_self on public.efg_personal_guides
  for select to authenticated using(user_id=(select auth.uid()));
 
 -- Unified fail-closed write gate. A suspended Personal account cannot mutate
@@ -263,5 +289,66 @@ $goal$;
 revoke all on function public.efg_save_personal_goal(jsonb,integer)
  from public,anon,authenticated;
 grant execute on function public.efg_save_personal_goal(jsonb,integer) to authenticated;
+-- User-authored draft; no automatic clinical validity and no Coach approval.
+-- Five required slots, correct current goal revision, optimistic concurrency.
+create function public.efg_save_personal_guide(
+ p_guide jsonb,p_goal_revision integer,p_expected_revision integer
+) returns integer language plpgsql security definer set search_path=''
+as $personal_guide$
+declare
+ v_uid uuid:=auth.uid();
+ v_latest_goal integer;
+ v_last integer;
+ v_count integer;
+ v_valid integer;
+ v_distinct integer;
+ v_revision integer;
+begin
+ if v_uid is null or not (select public.efg_personal_write_allowed()) then
+  raise exception 'Active Personal account and current legal acceptance required'
+   using errcode='42501';
+ end if;
+ perform 1 from public.efg_personal_accounts a where a.user_id=v_uid for update;
+ if not found then raise exception 'Personal account not found' using errcode='42501'; end if;
+ if p_guide is null or jsonb_typeof(p_guide) is distinct from 'object' then
+  raise exception 'Guide draft must be an object' using errcode='22023';
+ end if;
+ if p_guide->>'kind' is distinct from 'five_meal_example'
+    or jsonb_typeof(p_guide->'meals') is distinct from 'array'
+    or octet_length(p_guide::text)>=30000 then
+  raise exception 'Invalid five-meal guide structure' using errcode='22023';
+ end if;
+ select count(*),count(*) filter (
+  where jsonb_typeof(m.value)='object'
+   and m.value->>'slot' in ('desayuno','media_manana','almuerzo','media_tarde','cena')
+   and case when jsonb_typeof(m.value->'items')='array'
+    then jsonb_array_length(m.value->'items')<=30 else false end
+ ),count(distinct m.value->>'slot')
+ into v_count,v_valid,v_distinct
+ from jsonb_array_elements(p_guide->'meals') m;
+ if v_count<>5 or v_valid<>5 or v_distinct<>5 then
+  raise exception 'Five distinct supported meals with item arrays required'
+   using errcode='22023';
+ end if;
+ select max(revision) into v_latest_goal from public.efg_personal_goals
+  where user_id=v_uid;
+ if p_goal_revision is distinct from v_latest_goal or v_latest_goal is null then
+  raise exception 'Guide must match the latest own objective revision'
+   using errcode='PT409';
+ end if;
+ select max(revision) into v_last from public.efg_personal_guides where user_id=v_uid;
+ if p_expected_revision is distinct from v_last then
+  raise exception 'Guide draft changed in another session' using errcode='PT409';
+ end if;
+ v_revision:=coalesce(v_last,0)+1;
+ insert into public.efg_personal_guides(user_id,revision,goal_revision,guide)
+ values(v_uid,v_revision,p_goal_revision,p_guide);
+ return v_revision;
+end
+$personal_guide$;
+revoke all on function public.efg_save_personal_guide(jsonb,integer,integer)
+ from public,anon,authenticated;
+grant execute on function public.efg_save_personal_guide(jsonb,integer,integer) to authenticated;
+
 commit;
--- NEVER APPLY to real Supabase. LEGAL 07 text still fictitious; no personal guide.
+-- NEVER APPLY to real Supabase. LEGAL-07 content is fictitious; drafts are not clinical approvals.

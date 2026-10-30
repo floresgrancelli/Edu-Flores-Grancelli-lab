@@ -35,6 +35,11 @@ assert.equal(queries,0,"Documents verified before querying intake.");
 allowed=true;gate=await loadCoachRelaunchEntry(sb,{profile,userId:uid});
 assert.equal(gate.route,"intake");
 const html=renderCoachRelaunchEntry(gate);
+assert.match(html,/Cetogénica \/ keto/,'Keto selectable in Coach');
+assert.match(html,/DASH/);
+assert.match(html,/Mediterránea/);
+assert.match(html,/16:8/,'Intermittent fasting selectable as timing');
+assert.match(html,/no se aplican automáticamente/i);
 assert.match(html,/Conozcámonos de nuevo/);
 assert.match(html,/Confirmar mi ficha nueva/);
 assert.match(html,/Autorizo compartir/);
@@ -42,13 +47,19 @@ assert.doesNotMatch(html,/id="coachRelaunch_share"[^>]+checked/);
 const fields={
  objective:{value:"recomp"},age_years:{value:"41"},height_cm:{value:"174"},
  weight_kg:{value:"80.5"},activity_level:{value:"moderate"},
- dietary_pattern:{value:"vegetarian"},preferred_foods:{value:"Arroz"},
+ dietary_pattern:{value:"vegetarian"},eating_window:{value:"regular"},preferred_foods:{value:"Arroz"},
  disliked_foods:{value:""},meal_routine:{value:""},notes:{value:""},share:{checked:false}
 };
 const doc={getElementById:id=>fields[id.replace("coachRelaunch_","")]||null};
 const form=readCoachRelaunchForm(doc);
 assert.equal(form.shareWithCoach,false);
 assert.equal(form.payload.weight_kg,80.5);
+assert.equal(form.payload.eating_window,"regular");
+fields.dietary_pattern.value="keto";fields.eating_window.value="16_8";
+const selected=readCoachRelaunchForm(doc);
+assert.equal(selected.payload.dietary_pattern,"keto");
+assert.equal(selected.payload.eating_window,"16_8");
+fields.dietary_pattern.value="vegetarian";fields.eating_window.value="regular";
 assert.ok(!("student_id" in form.payload)&&!("health_flags" in form.payload));
 await assert.rejects(()=>submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:gate,...form}),/Verificá/);
 assert.equal(writes,0);
@@ -108,6 +119,9 @@ await assert.rejects(()=>revokeCoachRelaunchSharing(sb,{profile,userId:uid,entry
 
 fields.age_years.value="17";assert.throws(()=>readCoachRelaunchForm(doc),/Revisá/);fields.age_years.value="41";
 fields.dietary_pattern.value="invalid";assert.throws(()=>readCoachRelaunchForm(doc),/Opción/);
+fields.dietary_pattern.value="vegetarian";
+fields.eating_window.value="invalid";assert.throws(()=>readCoachRelaunchForm(doc),/Opción/);
+fields.eating_window.value="regular";
 const source=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const roleGuard=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)',source.indexOf("async function render()"));

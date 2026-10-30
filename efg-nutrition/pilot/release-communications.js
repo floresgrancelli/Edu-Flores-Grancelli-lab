@@ -1,4 +1,4 @@
-// EFG Nutrition Pro · major-release communications prototype (OFF by default).
+// Nutrición Con-Ciencia · major-release communications prototype (OFF by default).
 // Pure rendering / contract helpers. No database writes, mail, sign-out or legal consent.
 export const RELEASE_COMMUNICATIONS_ENABLED=false;
 const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -27,7 +27,7 @@ export function renderMajorReleaseAnnouncement(manifest,role){
  const m=valid(manifest);
  if(!["preview","reauth_required"].includes(m.phase))return "";
  return '<section class="card efg-release-announcement" aria-labelledby="efgUpcomingReleaseTitle">'+launchArtwork+
-  '<span class="eyebrow">EFG NUTRITION PRO · '+(m.phase==='preview'?'PRÓXIMAMENTE':'YA DISPONIBLE')+'</span>'+
+  '<span class="eyebrow">Nutrición Con-Ciencia · '+(m.phase==='preview'?'PRÓXIMAMENTE':'YA DISPONIBLE')+'</span>'+
   '<h2 id="efgUpcomingReleaseTitle">'+esc(m.title)+'</h2>'+
   '<p>'+esc(m.phase==='preview'?'Estamos preparando una nueva etapa para acompañarte cada día.':'La nueva versión está disponible. Guardá tus cambios antes de volver a ingresar.')+'</p>'+
   '<p>'+esc(roleCopy[role])+'</p>'+
@@ -51,8 +51,8 @@ export function renderWhatsNew(manifest,role,seenVersions=[]){
  if(m.phase!=="live"||seenVersions.includes(m.version))return "";
  return '<section class="card efg-release-whatsnew" aria-labelledby="efgReleaseWhatsNewTitle">'+launchArtwork+
   '<span class="eyebrow">NUEVA VERSIÓN · '+esc(m.version)+'</span>'+
-  '<h2 id="efgReleaseWhatsNewTitle">¡Bienvenido a la nueva versión de EFG Nutrition Pro!</h2>'+
-  '<p>'+esc(roleCopy[role])+'</p><p>Novedades de EFG Nutrition Pro: conocé las mejoras que ya están disponibles.</p>'+
+  '<h2 id="efgReleaseWhatsNewTitle">¡Bienvenido a la nueva versión de Nutrición Con-Ciencia!</h2>'+
+  '<p>'+esc(roleCopy[role])+'</p><p>Novedades de Nutrición Con-Ciencia: conocé las mejoras que ya están disponibles.</p>'+
   '<ul class="efg-release-highlights">'+m.highlights.map(t=>'<li><span aria-hidden="true">✦</span>'+esc(t)+'</li>').join("")+'</ul>'+
   '<button class="btn" type="button" data-act="markReleaseSeen" data-release="'+esc(m.id)+'">Comenzar</button></section>';
 }

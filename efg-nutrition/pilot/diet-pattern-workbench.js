@@ -20,12 +20,13 @@ export const EATING_WINDOWS=Object.freeze([
  {id:"16_8",label:"16:8",hours:8}
 ].map(x=>Object.freeze(x)));
 const modes=["coach","coached_student","personal","admin"];
-// Critical: front-end convenience only. UI and REST MUST enforce server-verified
-// subscription/care-mode; never infer Personal rights from a student role or URL.
+// UI affordance only: backend is the authority on role, activity, legal acceptance
+// and account ownership. Personal is a standalone role, NEVER a student alias.
+// The serverVerifiedPersonal input MUST originate from a verified server response.
 export function capabilitiesFor({role,mode,serverVerifiedPersonal=false}={}){
  if(!modes.includes(mode))return Object.freeze({calculator:false,canApproveStudentPlan:false});
  if(role==="coach"&&mode==="coach")return Object.freeze({calculator:true,canApproveStudentPlan:true});
- if(role==="student"&&mode==="personal"&&serverVerifiedPersonal===true)
+ if(role==="personal"&&mode==="personal"&&serverVerifiedPersonal===true)
   return Object.freeze({calculator:true,canApproveStudentPlan:false});
  return Object.freeze({calculator:false,canApproveStudentPlan:false});
 }

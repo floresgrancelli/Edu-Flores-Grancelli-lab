@@ -1,7 +1,8 @@
 // Nutrición Con-Ciencia — opt-in version update notice for the installed /pilot/ PWA.
 // Checks current published HTML only; no execution of remote code until the user chooses to reload.
 export function createVersionNotice({
- currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000
+ currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000,
+ announceMinorUpdates=false
 }={}){
  const headVersion=document.querySelector('meta[name="efg-build"]')?.content||String(currentVersion||"");
  const stylesheetSignature=(doc)=>[...doc.querySelectorAll('link[rel="stylesheet"]')].map(el=>el.getAttribute("href")||"").sort();
@@ -24,7 +25,10 @@ export function createVersionNotice({
  // Build changes are independent of promotional and legal flows.
  function paint(){
   host.replaceChildren();
-  const canPresent=!!latest&&dismissed!==latest.key&&canShow()&&!document.hidden;
+  // UX-35 definitive 29/10: minor/daily releases are SILENT by default.
+  // Manual check still reports the new code; major reauth has a separate,
+  // server-verified, explicitly approved release workflow.
+  const canPresent=announceMinorUpdates===true&&!!latest&&dismissed!==latest.key&&canShow()&&!document.hidden;
   host.hidden=!canPresent;
   if(!canPresent)return;
   const icon=document.createElement("span");
@@ -98,7 +102,7 @@ export function createVersionNotice({
  const poll=setInterval(()=>{void check();},intervalMs);
  // Do the first fetch promptly after all module initializers have mounted.
  queueMicrotask(()=>{void check({force:true});});
- return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
+ return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,automaticNoticeEnabled:announceMinorUpdates===true,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
   clearInterval(poll);
   document.removeEventListener("visibilitychange",visibilityHandler);
   window.removeEventListener("focus",focusHandler);host.remove();

@@ -440,7 +440,7 @@ async function ensureCurrentDay(){
  })();
  try{await state.daySwitching;}finally{state.daySwitching=null;}
 }
-const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.goals[0].kcal,p:state.goals[0].protein_g,c:state.goals[0].carb_g,f:state.goals[0].fat_g,fi:state.goals[0].fiber_g}:null):(state.personalTargets?{k:state.personalTargets.kcal,p:state.personalTargets.protein_g,c:state.personalTargets.carb_g,f:state.personalTargets.fat_g,fi:state.personalTargets.fiber_g}:null);
+const activeGoal=()=>{ const p=state.profile; const own=state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}

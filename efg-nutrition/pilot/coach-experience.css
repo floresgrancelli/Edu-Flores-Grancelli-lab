@@ -182,3 +182,33 @@
  .efg-coach-relaunch{border-radius:18px}
  .efg-coach-relaunch .field-row{grid-template-columns:1fr;gap:8px}
 }
+
+
+/* CLIN-GUT-02 | Premium restrained clinical section in new Coach intake.
+   Disabled until sensitive-data permissions, review and evidence are verified. */
+.efg-coach-relaunch .efg-gut-intake{margin:18px 0;padding:clamp(15px,3vw,24px);
+ border:1px solid #b7c7c5;border-radius:20px;
+ background:linear-gradient(145deg,#f8fbfa,#e8eee9);
+ box-shadow:inset 0 1px 0 #fff,0 7px 20px #243a4420}
+.efg-coach-relaunch .efg-gut-intake legend{padding:0 9px;color:#1d3c46;
+ font-size:13px;font-weight:900;letter-spacing:.01em}
+.efg-coach-relaunch .efg-gut-choice{display:flex;align-items:flex-start;gap:12px;
+ margin:10px 0;padding:15px;background:#fff;border-radius:14px;border:1px solid #dbe5e1}
+.efg-coach-relaunch .efg-gut-choice input{width:18px;height:18px;flex:0 0 18px;
+ margin-top:3px;accent-color:#278579}
+.efg-coach-relaunch .efg-gut-choice span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.efg-coach-relaunch .efg-gut-choice strong{color:#213b46;font-size:13px}
+.efg-coach-relaunch .efg-gut-choice small{color:#5c7079;font-size:11px;line-height:1.55}
+.efg-coach-relaunch .efg-gut-clinical-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.efg-coach-relaunch .efg-gut-clinical-status label{display:flex;flex-direction:column;gap:7px;
+ color:#405b62;font-weight:700;font-size:11px;min-width:0}
+.efg-coach-relaunch .efg-gut-clinical-status label:last-child{grid-column:1 / -1}
+.efg-coach-relaunch .efg-gut-clinical-status select{width:100%;min-height:44px;
+ border:1px solid #cbd8d3;background:#fff;border-radius:11px;padding:9px 11px;color:#354e59}
+.efg-coach-relaunch .efg-gut-consent{display:flex;align-items:flex-start;gap:10px;
+ border-radius:13px;padding:13px;background:#e1e9e5;color:#435d64;font-size:11px;line-height:1.55}
+.efg-coach-relaunch .efg-gut-consent input{margin-top:3px;accent-color:#288377}
+.efg-coach-relaunch .efg-gut-intake :disabled{cursor:not-allowed;opacity:.62}
+@media(max-width:560px){.efg-coach-relaunch .efg-gut-clinical-status{grid-template-columns:1fr}
+ .efg-coach-relaunch .efg-gut-intake{padding:13px}
+ .efg-coach-relaunch .efg-gut-choice{padding:12px}}

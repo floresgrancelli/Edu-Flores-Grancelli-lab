@@ -66,6 +66,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-relaunch-onboarding.js
           node efg-nutrition/tests/coach-relaunch-onboarding.mjs
+      - name: COACH-RELAUNCH fresh intake form client and legal-first readback (OFF)
+        run: |
+          node --check efg-nutrition/pilot/coach-relaunch-entry-client.js
+          node efg-nutrition/tests/coach-relaunch-entry-client.mjs
       - name: Coach intake to calculator prefill and safe five-meal preview
         run: |
           node --check efg-nutrition/pilot/coach-intake-prefill.js

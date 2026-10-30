@@ -1,4 +1,4 @@
--- NUT-57 B3. Deterministic digest of ALL historical rows in the 12
+-- NUT-57 B3. Deterministic digest of ALL historical rows in the 16
 -- FICTIONAL fixture tables only. No health/client data from production.
 -- The CI test compares this digest before migration, after COMMIT, and after
 -- destroying/rebuilding its ephemeral database from pg_dump/pg_restore.
@@ -14,5 +14,9 @@ select md5(jsonb_build_object(
  'weights',(select coalesce(jsonb_agg(to_jsonb(t) order by t.student_id,t.measured_on),'[]'::jsonb) from public.efg_weights t),
  'activities',(select coalesce(jsonb_agg(to_jsonb(t) order by t.student_id,t.activity_day),'[]'::jsonb) from public.efg_activities t),
  'habitual',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_habitual_meals t),
- 'recipes',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_personal_recipes t)
+ 'recipes',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_personal_recipes t),
+ 'invitations',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_invitations t),
+ 'messages',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_messages t),
+ 'payments',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_payments t),
+ 'weekly_reports',(select coalesce(jsonb_agg(to_jsonb(t) order by t.id),'[]'::jsonb) from public.efg_weekly_reports t)
 )::text) as synthetic_legacy_digest;

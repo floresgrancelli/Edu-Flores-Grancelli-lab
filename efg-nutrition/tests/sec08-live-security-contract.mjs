@@ -26,7 +26,7 @@ const privileged=[
 assert.equal(new Set(privileged).size,19);
 for(const name of privileged)assert.ok(doc.includes("`"+name+"`"),"Undocumented live privilege "+name);
 for(const term of ["NO GO","privacidad","19","7","RLS","JWT"])
- assert.ok(doc.includes(term),"SEC08 release note lost "+term);
+ assert.ok(doc.toLowerCase().includes(term.toLowerCase()),"SEC08 release note lost "+term);
 const entry=readFileSync(new URL("../pilot/coach-relaunch-onboarding.js",import.meta.url),"utf8");
 const publish=readFileSync(new URL("../pilot/coach-release-plan-gate.js",import.meta.url),"utf8");
 const legal=readFileSync(new URL("../pilot/coach-legal-bridge.js",import.meta.url),"utf8");

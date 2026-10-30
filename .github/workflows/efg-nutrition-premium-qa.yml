@@ -62,6 +62,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: COACH-68 versioned intake revision on all draft/policy/publish SQL (STATIC ONLY)
+        run: |
+          node --check efg-nutrition/pilot/coach-plan-draft-client.js
+          node efg-nutrition/tests/coach68-versioned-server-contract.mjs
       - name: COACH-67 published legal content, consent and server readback (OFF, SYNTHETIC)
         run: |
           node --check efg-nutrition/pilot/coach-legal-bridge.js

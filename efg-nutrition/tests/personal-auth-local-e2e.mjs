@@ -81,6 +81,7 @@ no(await save(null,{p_goal:goal,p_expected_revision:null}),"Anon cannot save per
 assert.equal(Number(yes(await save(a,{p_goal:goal,p_expected_revision:null}),"Personal A saves goal revision1")),1);
 no(await save(a,{p_goal:goal,p_expected_revision:null}),"Stale revision cannot overwrite");
 no(await save(a,{p_goal:{...goal,kcal:100},p_expected_revision:1}),"Out of range goal must fail");
+no(await save(a,{p_goal:{...goal,kcal:2150.5},p_expected_revision:1}),"Fractional kcal must not silently round");
 no(await save(a,{p_goal:{...goal,user_id:b.id},p_expected_revision:1}),"A cannot embed another account's user id in goal");
 no(await rest("/rest/v1/efg_personal_goals",{method:"POST",token:a.token,body:{
  user_id:a.id,revision:4,...goal

@@ -5,6 +5,7 @@ import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
 import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
+import {renderNutritionScienceView} from "./nutrition-science.js?v=20261030-science-edu1";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
@@ -662,6 +663,7 @@ function efgNavIcon(tab){
  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
  planner:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18m-12 5h6m-3-3v6"/>',
  weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
+ nutritionScience:'<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/><path d="m10 2 2 3 2-3"/>',
  studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
  coach:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 15l3-3 3 2 4-5M7 18h10"/>',
  coachIntake:'<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>',
@@ -681,9 +683,9 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]])
+  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Ciencia"],["studentMore","☷","Más"]])
   :role==="coach"
-  ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
+  ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]]:[];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
@@ -817,6 +819,7 @@ function efgMenuIcon(kind){
   weight:'<path d="m3 18 6-6 4 4 8-9"/><path d="M15 7h6v6"/><path d="M3 21h18"/>',
   sport:'<circle cx="14" cy="4" r="2"/><path d="m12 9-4 4-5 1m8-6 5 5 4 1M12 10l-1 6-5 5m6-6 4 3 2 4"/>',
   planner:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v4m10-4v4M3 10h18m-12 5h6m-3-3v6"/>',
+  nutritionScience:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8m-8 4h8m-8 4h5"/>',
   recipes:'<path d="M3 14c.5 5 4 7 9 7s8.5-2 9-7H3z"/><path d="M7 12c-1-3 1-6 5-7m1 7c0-4 2-6 5-7"/>',
   supplements:'<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-38 12 12)"/><path d="m9 10 5 6"/>',
   payments:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h5"/>',
@@ -838,12 +841,13 @@ function coachPersonalMoreView(){
  ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
+ ["nutritionScience","🧠","Nutrición con ciencia","mint"],
  ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"]
  ]);
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
- ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+ ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["nutritionScience","🧠","Nutrición con ciencia","lilac"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
@@ -2201,7 +2205,7 @@ async function render(){
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
-   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderNutritionScienceView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);

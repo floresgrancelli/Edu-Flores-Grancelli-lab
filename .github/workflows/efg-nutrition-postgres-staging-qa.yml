@@ -170,6 +170,67 @@ jobs:
           test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
           test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
           echo 'PASS NUT57: restored synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory and injected rollback preserved historical rows. NOT full production parity.'
+      - name: NUT-57 B3 committed fixture disaster-restore from BEFORE snapshot (CI ONLY, never hosted)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+          NUT57_SYNTHETIC_RESTORE_TEST: 'true'
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test "$PGHOST" = '127.0.0.1'
+          test "$PGDATABASE" = 'efg_nutrition_ephemeral'
+          # The original preupgrade database was created with FAKE profiles and foods.
+          fingerprint_file='efg-nutrition/tests/sql/nut57-synthetic-history-fingerprint.sql'
+          before_digest="$(PGDATABASE=efg_nut57_before psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")"
+          test "${#before_digest}" -eq 32
+          test -s "$RUNNER_TEMP/nut57-before.dump"
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_postcommit
+          test "$(psql -Atqc "select current_database()")" = 'efg_nut57_postcommit'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = 't'
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql > "$RUNNER_TEMP/nut57-b3-legal.log"
+          # Only this ephemeral GitHub Actions job may convert the ROLLBACK
+          # preview to a COMMIT scenario. The project bundle itself has NO apply.
+          node efg-nutrition/tests/nut57-staging-bundle.mjs --preview-sql |
+            node efg-nutrition/tests/nut57-ci-fixture-commit.mjs > "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql"
+          test "$(grep -Eic '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql")" = 1
+          if grep -Eiq '^[[:space:]]*ROLLBACK[[:space:]]*;' "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql"; then
+            echo 'B3 STOP: unexpected ROLLBACK inside commit-only synthetic SQL' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql" > "$RUNNER_TEMP/nut57-b3-commit.log" 2>&1 || {
+            tail -n 40 "$RUNNER_TEMP/nut57-b3-commit.log" >&2
+            exit 1
+          }
+          # Confirm the migration really COMMITTED while all historic rows stayed intact.
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_publish_receipts') is not null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_student_plan_access where status='published'")" = 2
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          # Simulate a restore decision: destroy ONLY the dedicated fake CI DB.
+          # Real recovery requires PITR/concurrent write handling, NOT proven here.
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'drop database efg_nut57_postcommit with (force)'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_postcommit
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_legal_documents') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = 4
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = 1
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
+          echo 'PASS NUT57 B3: COMMIT really persisted in isolated synthetic DB; pre-upgrade backup recreated original schema and exact 12-table history digest after destructive restore. No real data, no hosted connection.'
       - name: State the limits
         if: always()
         run: |

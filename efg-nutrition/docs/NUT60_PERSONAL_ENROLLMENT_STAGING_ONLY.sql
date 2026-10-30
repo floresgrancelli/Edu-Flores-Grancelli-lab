@@ -6,10 +6,13 @@ begin;
 
 do $preflight$
 begin
- if pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null
-    or (select count(*) from efg_private.nut57_isolated_staging_marker)<>1 then
-  raise exception 'NUT60 STOP: not a dedicated, disposable isolated staging database'
-    using errcode='55000';
+ if pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null then
+  raise exception 'NUT60 STOP: isolated staging marker absent'
+   using errcode='55000';
+ end if;
+ if (select count(*) from efg_private.nut57_isolated_staging_marker)<>1 then
+  raise exception 'NUT60 STOP: invalid isolated staging marker count'
+   using errcode='55000';
  end if;
  if pg_catalog.to_regclass('public.efg_profiles') is null
     or pg_catalog.to_regclass('public.efg_legal_acceptances') is null

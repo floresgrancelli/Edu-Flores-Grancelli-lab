@@ -36,6 +36,10 @@ await assert.rejects(()=>loadReviewedFoodEvidence(down,{foodIds:['test_food'],pa
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');
 for(const check of [/function foodTrafficLight\(food\)/,/function refreshFoodCompatibilityEvidence\(\)/,/groupedFoodOptions\(displayedWithSignals,slot\)/,/mealCompatibilityStatus/,/foodTrafficLight\(f\)\.symbol/,/await refreshFoodCompatibilityEvidence\(\)/])assert.match(app,check);
+assert.match(app,/Alimentos disponibles para planificar/);
+assert.match(app,/Semáforo por patrón alimentario/);
+assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);
+assert.match(app,/data-coachfood[\s\S]*foodTrafficLight\(f\)\.symbol/);
 assert.match(html,/food-compatibility\.css\?v=20261030-coach101/);
 assert.match(html,/pilot\.js\?v=20261030-coach101-traffic-light/);
 for(const name of ['green','yellow','red'])assert.ok(readFileSync(new URL('../pilot/food-compatibility.css',import.meta.url),'utf8').includes('.efg-compat-'+name));

@@ -44,7 +44,7 @@ const idParts=identity.stdout.trim().split('|');
 const directLoopback=['127.0.0.1','::1'].includes(idParts[1])&&idParts[2]===port;
 const ciDisposableDocker=process.env.GITHUB_ACTIONS==='true'&&
  host==='127.0.0.1'&&port==='5432'&&db==='efg_nut57_before'&&
- /^172\\.(1[6-9]|2[0-9]|3[01])\\.[0-9]{1,3}\\.[0-9]{1,3}$/.test(idParts[1]||'')&&
+ /^172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}$/.test(idParts[1]||'')&&
  idParts[2]==='5432';
 if(idParts.length!==4||idParts[0]!==db||!(directLoopback||ciDisposableDocker)||
  !/^17[0-9]{4}$/.test(idParts[3])){

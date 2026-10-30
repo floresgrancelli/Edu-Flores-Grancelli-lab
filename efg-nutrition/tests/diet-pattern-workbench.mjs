@@ -11,8 +11,16 @@ assert.equal(capabilitiesFor({role:"coach",mode:"coach"}).calculator,true);
 assert.equal(capabilitiesFor({role:"coach",mode:"coach"}).canApproveStudentPlan,true);
 assert.equal(capabilitiesFor({role:"student",mode:"coached_student"}).calculator,false,"Coach-linked students never use the macro calculator");
 assert.equal(capabilitiesFor({role:"student",mode:"personal"}).calculator,false,"A client-supplied Personal mode must NOT unlock the calculator");
-assert.equal(capabilitiesFor({role:"student",mode:"personal",serverVerifiedPersonal:true}).calculator,true);
-assert.equal(capabilitiesFor({role:"student",mode:"personal",serverVerifiedPersonal:true}).canApproveStudentPlan,false);
+assert.equal(capabilitiesFor({role:"student",mode:"personal",serverVerifiedPersonal:true}).calculator,false,
+ "A coach-linked Student must NEVER obtain Personal tools, even if a client boolean is forged");
+assert.equal(capabilitiesFor({role:"personal",mode:"personal"}).calculator,false,
+ "Personal features require server-verified role and active authorization");
+assert.equal(capabilitiesFor({role:"personal",mode:"personal",serverVerifiedPersonal:true}).calculator,true,
+ "Verified independent Personal role receives its calculator");
+assert.equal(capabilitiesFor({role:"personal",mode:"personal",serverVerifiedPersonal:true}).canApproveStudentPlan,false,
+ "Personal never receives Coach approval capability");
+assert.equal(capabilitiesFor({role:"coach",mode:"personal",serverVerifiedPersonal:true}).calculator,false,
+ "Coach identity never aliases Personal role");
 assert.equal(capabilitiesFor({role:"admin",mode:"admin"}).calculator,false);
 assert.equal(capabilitiesFor({role:"student",mode:"coached_student",serverVerifiedPersonal:true}).calculator,false);
 const keto=evaluatePattern({patternId:"keto"});

@@ -110,6 +110,27 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
           node efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
+      - name: CLIN-GUT-03 apply private health schema ONLY to disposable local Postgres
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54322'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: postgres
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '54322'
+          test "${PGDATABASE}" = 'postgres'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: CLIN-GUT-03 signed GoTrue LOCAL JWT health processing and coach sharing
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: |
+          node --check efg-nutrition/tests/clinical-health-auth-local-e2e.mjs
+          node efg-nutrition/tests/clinical-health-auth-local-e2e.mjs
       - name: COACH-69 switch ONLY disposable local stack from legacy RPCs to versioned schema
         env:
           PGHOST: 127.0.0.1

@@ -223,3 +223,25 @@
 @media(max-width:560px){.efg-coach-relaunch .efg-gut-clinical-status{grid-template-columns:1fr}
  .efg-coach-relaunch .efg-gut-intake{padding:13px}
  .efg-coach-relaunch .efg-gut-choice{padding:12px}}
+
+/* COACH117 legal-first student welcome: actual current text stays complete,
+   two distinct unselected checkboxes, readable on 320px Android and iPhone. */
+.efg-coach-legal{width:min(100%,760px);min-width:0;box-sizing:border-box;margin-inline:auto;
+ background:linear-gradient(150deg,#fffdfa,#f6f1fb);border:1px solid #d8ccd9;
+ box-shadow:0 12px 32px #45334d13;overflow-wrap:anywhere}
+.efg-coach-legal h2{color:#35465b;font-size:clamp(23px,4.8vw,31px)}
+.efg-coach-legal .pilot-form{grid-template-columns:minmax(0,1fr)}
+.efg-coach-legal .pilot-form>*,.efg-coach-legal details{min-width:0;max-width:100%}
+.efg-legal-document{border:1px solid #d9e1e7;border-radius:17px;padding:14px;
+ background:#fff;min-width:0;box-sizing:border-box}
+.efg-legal-document summary{cursor:pointer;font-size:14px;font-weight:800;color:#284f64;
+ padding:6px 0;overflow-wrap:anywhere}
+.efg-legal-body{font-size:12px;line-height:1.75;color:#475966;padding:14px 0;
+ max-height:320px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.efg-legal-confirm{display:flex;align-items:flex-start;gap:12px;margin-top:12px;
+ color:#384c62;font-size:13px;font-weight:700;line-height:1.55}
+.efg-legal-confirm input{accent-color:#386c87;flex:none;width:19px;height:19px;
+ margin:1px 0 0}
+.efg-coach-legal .btn.block{width:100%;max-width:100%;white-space:normal}
+@media(max-width:560px){.efg-coach-legal{padding:18px 13px}
+ .efg-legal-document{padding:12px}.efg-coach-legal .pilot-form{gap:12px}}

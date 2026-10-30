@@ -4,7 +4,8 @@ export const NUTRITION_SCIENCE_SOURCES=Object.freeze([
  {title:"OMS · Calidad de los hidratos de carbono (2023)",url:"https://www.who.int/publications/i/9789240073593"},
  {title:"OMS · Grasas saturadas y trans (2023)",url:"https://www.who.int/publications/i/item/9789240073630"},
  {title:"NIH · Balance energético y calorías",url:"https://www.ncbi.nlm.nih.gov/books/NBK20371/"},
- {title:"ISSN · Proteína y ejercicio, revisión (2017)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/"}
+ {title:"ISSN · Proteína y ejercicio, revisión (2017)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/"},
+ {title:"Morton et al. · Metaanálisis sobre proteína y entrenamiento de fuerza (2018)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5867436/"}
 ]);
 const macro=(grams,kcal)=>Object.freeze({grams,kcal,energy:grams*kcal});
 export function macroEnergy(grams,kind){
@@ -24,7 +25,7 @@ export function renderNutritionScienceView(){
  return '<div class="ns-science" aria-label="Educación nutricional basada en evidencia">'+
  '<header class="ns-hero">'+
  '<span class="ns-kicker">EFG LAB · APRENDÉ EN 5 MINUTOS</span>'+
- '<h1>Nutrición <em>con ciencia.</em></h1>'+
+ '<h1>Nutrición <em>Con-Ciencia.</em></h1>'+
  '<p>Sin dietas mágicas, sin alimentos enemigos. Lo esencial para entender tu plan y elegir con libertad.</p>'+
  '<div class="ns-hero-chips" aria-label="Temas"><span>⚡ Energía</span><span>💪 Proteínas</span><span>🥑 Grasas</span><span>🌾 Hidratos</span></div>'+
  '</header>'+
@@ -46,6 +47,19 @@ export function renderNutritionScienceView(){
  '<article class="ns-macro ns-carbs"><span class="ns-macro-emoji" aria-hidden="true">🌾</span><h3>Hidratos</h3><b>Energía para vivir y rendir</b><p>Aportan combustible para tus actividades y entrenamiento. Las fuentes con fibra, como avena, frutas, legumbres y cereales integrales, suman nutrientes.</p><small>Ejemplos: arroz, papa, pan integral, frutas y lentejas.</small></article>'+
  '<article class="ns-macro ns-fat"><span class="ns-macro-emoji" aria-hidden="true">🥑</span><h3>Grasas</h3><b>También son esenciales</b><p>Ayudan a las membranas celulares y a absorber vitaminas A, D, E y K. Priorizá las insaturadas y moderá las saturadas; no se trata de eliminarlas.</p><small>Ejemplos: aceite de oliva, nueces, semillas y pescados.</small></article>'+
  '</div></section>'+
+ '<section class="ns-protein-focus" aria-labelledby="ns-fuerza">'+
+ '<span class="ns-eyebrow">ESPECIAL · NUTRICIÓN Y GIMNASIO</span><h2 id="ns-fuerza">¿Por qué importa la proteína si entrenás?</h2>'+
+ '<p>El entrenamiento de fuerza estimula los músculos. La proteína aporta los aminoácidos que el cuerpo necesita para adaptarse. <strong>Trabajan en equipo:</strong> la proteína por sí sola no reemplaza entrenar.</p>'+
+ '<div class="ns-protein-benefits">'+
+ '<article><strong>01 · Músculo</strong><p>Ayuda a desarrollar y mantener masa magra cuando se combina con entrenamiento de fuerza.</p></article>'+
+ '<article><strong>02 · Recuperación</strong><p>Aporta aminoácidos para reparar y renovar proteínas musculares después del esfuerzo.</p></article>'+
+ '<article><strong>03 · Descenso de grasa</strong><p>Consumir suficiente proteína puede ayudar a conservar músculo durante un déficit energético.</p></article>'+
+ '<article><strong>04 · Saciedad</strong><p>Puede aumentar la sensación de estar satisfecho y facilitar sostener el plan. No es una garantía.</p></article>'+
+ '</div>'+
+ '<div class="ns-protein-numbers"><div><b>1,4–2,0 g/kg/día</b><span>Rango orientativo de ingesta proteica total para muchos adultos sanos que entrenan. No es una receta universal.</span></div><div><b>20–40 g</b><span>Por comida puede ser una referencia práctica para algunos adultos, con variaciones por edad, peso y contexto.</span></div></div>'+
+ '<p class="ns-protein-note">Ejemplo ilustrativo: una persona de 75 kg tendría un rango orientativo de 105–150 g de proteína al día. Más proteína <strong>no asegura</strong> más músculo si ya se alcanza lo suficiente. Un metaanálisis de entrenamiento de fuerza halló que el beneficio adicional tendía a estabilizarse cerca de 1,6 g/kg/día en promedio.</p>'+
+ '<p class="ns-protein-note">Huevos, carnes, pescado, lácteos, tofu, soja y legumbres pueden aportar proteína. La whey es una opción práctica, no obligatoria. <strong>Primero importa la cantidad total del día</strong>; no hace falta correr a tomar un batido apenas terminás de entrenar.</p>'+
+ '</section>'+
  '<section class="ns-myth" aria-labelledby="ns-mito"><span class="ns-eyebrow">03 · DERRIBANDO UN MITO</span>'+
  '<div class="ns-myth-badge" aria-hidden="true">MITO ≠ CIENCIA</div><h2 id="ns-mito">Los hidratos no son el villano.</h2>'+
  '<p><strong>Comer arroz, pan o papa no te hace aumentar grasa automáticamente.</strong> Importa la cantidad total de energía y la calidad de la alimentación. No es igual basar tu dieta en legumbres, frutas e integrales que en bebidas azucaradas y productos de baja calidad nutricional.</p>'+

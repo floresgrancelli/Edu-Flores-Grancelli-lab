@@ -35,7 +35,9 @@ for(const match of dynamicWrites){
  }),"Direct write outside audited legacy handlers: "+match[0]);
 }
 assert.match(draftClient,/sb\.rpc\("efg_save_coach_plan_draft"/);
-assert.match(draftClient,/sb\.rpc\("efg_publish_coach_plan_draft"/);
+assert.match(draftClient,/relaunchEnabled\?"efg_publish_coach_plan_draft_atomic":"efg_publish_coach_plan_draft"/,
+ "Major Coach must use new atomic RPC; legacy may only remain for old disconnected cohort");
+assert.match(draftClient,/sb\.rpc\(endpoint,\{/);
 assert.doesNotMatch(draftClient,/\.from\(["']efg_goals["']\)\.(insert|upsert|update|delete)/);
 assert.doesNotMatch(draftClient,/\.from\(["']efg_food_plans["']\)\.(insert|upsert|update|delete)/);
 console.log("PASS NUT-55 STATIC LEGACY WRITE AUDIT: 4 direct writes are guarded before RPC when flag ON, draft client only uses atomic RPC, feature remains OFF. Manual app flows and hosted RLS are NOT certified.");

@@ -111,6 +111,42 @@ for(const data of [
  {...body,p_completed_version:"coach_old_2026",p_expected_revision:3},
  {...body,p_expected_revision:3,p_share_with_coach:null}
 ])no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,data),"Reject invalid/sensitive/stale-input");
+// COACH-65: the same versioned endpoint updates and clears optional general fields.
+const edited={...body,p_expected_revision:3,
+ p_payload:{...body.p_payload,weight_kg:79.9,notes:"Horario nuevo"},
+ p_share_with_coach:false};
+assert.equal(Number(yes(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,edited),
+ "Student edits OWN current-version intake")),4);
+const afterEdit=yes(await request(
+ "/rest/v1/efg_coach_relaunch_intakes?select=revision,weight_kg,notes,shared_at,completed_version",
+ {token:people.studentA.token}),"Read edited owner fields");
+assert.equal(afterEdit[0].weight_kg,79.9);
+assert.equal(afterEdit[0].revision,4);
+assert.equal(afterEdit[0].shared_at,null);
+assert.deepEqual(yes(await read(people.coachA.token),"Coach cannot read private edited intake"),[]);
+no(await request("/rest/v1/efg_coach_relaunch_intakes?student_id=eq."+people.studentA.id,{
+ method:"DELETE",token:people.studentA.token}),"Direct REST delete of current marker must be denied.");
+const clearedPayload={objective:null,age_years:null,height_cm:null,weight_kg:null,
+ activity_level:null,dietary_pattern:null,preferred_foods:"",disliked_foods:"",
+ meal_routine:"",notes:""};
+assert.equal(Number(yes(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,{
+ p_completed_version:version,p_payload:clearedPayload,
+ p_expected_revision:4,p_share_with_coach:false
+}),"Owner clears voluntary intake while retaining completion version")),5);
+const afterClear=yes(await request(
+ "/rest/v1/efg_coach_relaunch_intakes?select=revision,weight_kg,objective,notes,shared_at,completed_version",
+ {token:people.studentA.token}),"Read erased current-version general fields");
+assert.equal(afterClear.length,1);
+assert.equal(afterClear[0].revision,5);
+assert.equal(afterClear[0].completed_version,version);
+assert.equal(afterClear[0].weight_kg,null);
+assert.equal(afterClear[0].objective,null);
+assert.equal(afterClear[0].notes,"");
+assert.equal(afterClear[0].shared_at,null);
+assert.equal(sql("select dietary_pattern from public.efg_student_intakes where student_id="+uuid(people.studentA.id)),
+ "vegetarian","Old Coach intake history must not be cleared by new-version erasure.");
+no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,{
+ ...edited,p_expected_revision:4}),"Stale revision cannot undo the data clearing.");
 sql("update public.efg_consents set accepted=false where student_id="+uuid(people.studentA.id));
 assert.deepEqual(yes(await read(people.coachA.token),"Revoked Coach consent hides shared records"),[]);
 assert.equal(sql("select count(*) from public.efg_goals"),beforeGoals,"Historical goals unchanged");

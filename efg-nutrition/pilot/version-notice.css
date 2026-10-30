@@ -14,6 +14,7 @@
 .efg-version-actions button{font:inherit;font-size:13px;font-weight:700;border-radius:11px;min-height:40px;padding:10px 14px;cursor:pointer}
 .efg-version-later{background:#f1f5f3;border:1px solid #d7e5dd;color:#3d6153}
 .efg-version-update{background:#247c5d;border:1px solid #247c5d;color:#fff}
+.efg-version-update:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.35)}
 .efg-version-actions button:focus-visible{outline:3px solid #a6dcc9;outline-offset:2px}
 @media(min-width:850px){.efg-version-notice{bottom:24px}}
 @media(prefers-reduced-motion:reduce){.efg-version-notice *{animation:none!important;transition:none!important}}

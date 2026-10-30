@@ -45,7 +45,7 @@ export function walkingEstimateMarkup(estimate){
   '<div><span>Distancia</span><strong>'+n(estimate.distanceKm,2)+' <small>km</small></strong></div>'+
   '<div><span>Duración estimada</span><strong>'+(estimate.durationMinutes===null?'—':n(estimate.durationMinutes))+' <small>min</small></strong></div>'+
   '<div><span>Calorías activas</span><strong>'+(estimate.activeKcal===null?'—':n(estimate.activeKcal))+' <small>kcal</small></strong></div></div>'+
-  '<p class="pilot-hint">'+(estimate.activeKcal===null?
+  '<p class="pilot-hint">'+(estimate.steps===0?'Todavía no hay pasos registrados.':estimate.activeKcal===null?
     'Indicá tu peso para estimar calorías activas. Sin ritmo, los registros antiguos muestran solo distancia.':
     'Calorías activas netas estimadas según peso, ritmo y tiempo inferido; no incluyen el gasto en reposo.')+'</p>'+
   '<p class="pilot-hint">'+(estimate.usedDefaultStepLength?
@@ -63,7 +63,7 @@ export function renderWalkingActivityCard({todayActivity=null,lastWeightKg=null}
   (lastWeightKg!==null&&Number.isFinite(Number(lastWeightKg))?fmt(Number(lastWeightKg)):'');
  const kind=KINDS.includes(a.kind)?a.kind:'Caminata';
  let preview=null;
- try{preview=estimateWalkingSteps({steps:steps===''?0:Number(steps),
+ try{preview=steps===''?null:estimateWalkingSteps({steps:Number(steps),
   pace:selectedPace,heightCm:height===''?null:Number(height),weightKg:weight===''?null:Number(weight)});}
  catch(_){}
  return '<section class="card efg-walk-card" aria-labelledby="efgWalkTitle">'+

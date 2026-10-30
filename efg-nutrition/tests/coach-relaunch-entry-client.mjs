@@ -65,4 +65,14 @@ assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches
 assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\)/);
 assert.match(source,/await submitCoachRelaunchEntry\(sb,/);
 assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED\}/);
+const flow=await (await import("node:fs/promises")).readFile(
+ new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
+assert.match(flow,/const currentIntakeTable=/);
+assert.match(flow,/COACH_RELAUNCH_ONBOARDING_ENABLED\?/);
+assert.match(flow,/filterRelease\(sb.from\(currentIntakeTable\(\)\)/,
+ "Coach must read only current revision when relaunch enabled.");
+assert.match(flow,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)[\s\S]*?throw Error\("Esta versión utiliza una ficha/,
+ "Legacy student update must not overwrite new release intake.");
+assert.match(flow,/el borrado antiguo está deshabilitado/,
+ "Legacy delete must never erase the wrong versioned record.");
 console.log("PASS Coach re-entry UI synthetic: Terms first, fresh unsigned form, explicit share-off, no implicit save, signed backend readback required.");

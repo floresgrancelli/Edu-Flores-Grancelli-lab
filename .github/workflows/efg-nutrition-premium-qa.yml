@@ -50,6 +50,10 @@ jobs:
         run: node efg-nutrition/tests/food-compatibility.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: BRAND77B eight-step intro, user-scoped receipts and vertical library (OFFLINE)
+        run: |
+          node --check efg-nutrition/pilot/science-welcome.js
+          node efg-nutrition/tests/science-welcome-contract.mjs
       - name: EDUCATION-01 evidence-based macro lessons for BOTH coach and student (OFFLINE)
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js

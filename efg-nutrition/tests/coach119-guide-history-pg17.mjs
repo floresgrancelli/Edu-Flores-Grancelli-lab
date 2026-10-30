@@ -1,0 +1,87 @@
+// COACH119: REAL PostgreSQL-17 behavioral regression on fully synthetic data.
+// Runs exclusively in disposable GitHub Actions database, never Supabase hosted.
+// Unlike static inspection, this executes the exact archive schema and trigger
+// extracted from the candidate SQL and verifies history, rollback, and privacy.
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+assert.equal(process.env.GITHUB_ACTIONS,'true');
+assert.equal(process.env.PGHOST,'127.0.0.1');
+assert.equal(process.env.PGPORT,'5432');
+assert.equal(process.env.PGDATABASE,'efg_coach119_history');
+for(const key of ['PGHOSTADDR','PGSERVICE','PGOPTIONS','SUPABASE_ACCESS_TOKEN','SUPABASE_DB_PASSWORD'])
+ assert.ok(!process.env[key],key+' forbidden in disposable QA');
+function exec(sql,expectedSuccess=true){
+ const r=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{
+  input:sql,encoding:'utf8',timeout:30000,maxBuffer:1024*1024
+ });
+ if(expectedSuccess)assert.equal(r.status,0,(r.stderr||'Postgres error').slice(-1500));
+ else assert.notEqual(r.status,0,'A required deny operation unexpectedly succeeded');
+ return (r.stdout||'').trim();
+}
+assert.equal(exec('select current_database()'),'efg_coach119_history');
+assert.match(exec('show server_version_num'),/^17\\d{4}$/);
+const source=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
+const start=source.indexOf('create table efg_private.coach_guide_history');
+const end=source.indexOf('-- Preserve exactly the two existing legacy notifications',start);
+assert.ok(start>0&&end>start,'Exact COACH119 ledger/trigger section not found');
+const actualArchiveSQL=source.slice(start,end);
+assert.ok(actualArchiveSQL.includes('create trigger coach119_archive_previous_approved_guide'));
+const student='11111111-1111-4111-8111-111111111111';
+const coach='22222222-2222-4222-8222-222222222222';
+const goal='33333333-3333-4333-8333-333333333333';
+exec(`create role authenticated nologin;
+create role anon nologin;
+create schema auth;
+create schema efg_private;
+create table auth.users(id uuid primary key);
+create table public.efg_profiles(user_id uuid primary key);
+create table public.efg_goals(id uuid primary key);
+create table public.efg_food_plans(
+ student_id uuid primary key references public.efg_profiles(user_id) on delete cascade,
+ coach_id uuid not null references auth.users(id),
+ approved_food_ids text[] not null,
+ guided_plan jsonb,
+ guided_goal_id uuid references public.efg_goals(id),
+ guided_plan_approved_at timestamptz,
+ updated_at timestamptz not null default now()
+);
+insert into auth.users(id) values ('${coach}');
+insert into public.efg_profiles(user_id) values ('${student}');
+insert into public.efg_goals(id) values ('${goal}');
+`);
+exec(actualArchiveSQL);
+exec(`insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
+) values (
+ '${student}','${coach}',array['food-a'],'{"version":"A"}'::jsonb,
+ '${goal}','2026-10-30T09:00:00Z'
+)`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0');
+exec(`update public.efg_food_plans set guided_plan='{"version":"B"}'::jsonb,
+ guided_plan_approved_at='2026-10-30T10:00:00Z' where student_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'1');
+assert.equal(exec("select guided_plan->>'version' from efg_private.coach_guide_history"),'A');
+exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
+ where student_id='${student}'`);
+assert.equal(exec("select string_agg(guided_plan->>'version',',' order by id) from efg_private.coach_guide_history"),'A,B');
+exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
+ where student_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
+ 'No-op update must not duplicate history');
+const tx=exec(`begin;
+ update public.efg_food_plans set guided_plan='{"version":"C"}'::jsonb
+ where student_id='${student}';
+ select count(*) from efg_private.coach_guide_history;
+ rollback;`);
+assert.match(tx,/3/,'Update must archive inside the transaction');
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
+ 'Rollback must also roll back the archive');
+assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'B');
+exec("set role authenticated; select * from efg_private.coach_guide_history;",false);
+assert.equal(exec("select has_table_privilege('authenticated','efg_private.coach_guide_history','SELECT')"),'f');
+assert.equal(exec("select has_table_privilege('anon','efg_private.coach_guide_history','SELECT')"),'f');
+exec(`delete from public.efg_profiles where user_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
+ 'Approved deletion of student must remove private historic rows as well');
+console.log('PASS COACH119 REAL PG17: approved guide archive, food changes, no duplicates, rollback, anon/auth deny, authorized student deletion; ONLY synthetic fixtures.');

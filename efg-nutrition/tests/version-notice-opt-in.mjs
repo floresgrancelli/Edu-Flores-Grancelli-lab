@@ -92,7 +92,7 @@ assert.equal(host.hidden,true,"Do not show version notice in background");
 visible=true;notice.paint();
 assert.equal(host.hidden,false);
 buttons()[1].click();
-assert.equal(reloads,1,"Only the user's explicit click may reload");
+assert.equal(reloads,0,"Instructions never reload a running PWA");
 notice.dispose();
 assert.equal(host.wasRemoved,true);
 Object.assign(globalThis,original);

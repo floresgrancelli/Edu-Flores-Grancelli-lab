@@ -188,7 +188,7 @@ begin
    foreach v_nutrient in array array['k','p','c','f','fi'] loop
     if pg_catalog.jsonb_typeof(v_item->v_nutrient) is distinct from 'number' then return false; end if;
     v_value := (v_item->>v_nutrient)::numeric;
-    if v_value<0 or v_value>case when v_nutrient='k' then 12 else 1 end then return false; end if;
+    if v_value<0 or v_value>(case when v_nutrient='k' then 12 else 1 end) then return false; end if;
    end loop;
   end loop;
  end loop;

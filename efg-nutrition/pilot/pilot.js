@@ -28,6 +28,8 @@ import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspace
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch1";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2121,6 +2123,14 @@ async function render(){
   root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
   return;
  }
+ // Returning students with existing plans must complete this major-version intake too.
+ // This gate is OFF until the staging, legal and mobile approvals are complete.
+ if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
+  if(state.coachRelaunchEntry?.route!=="ready"){
+   root.innerHTML=renderCoachRelaunchEntry(state.coachRelaunchEntry||{route:"retry",reason:"Revalidá tu sesión."});
+   return;
+  }
+ }
  if(state.welcomePending)return welcomeView();
  if(studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
@@ -2376,10 +2386,15 @@ async function refresh(){
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
   if(p.error)throw p.error;
   state.profile=p.data;
+  state.coachRelaunchEntry=null;
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
+  if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
+   state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
+   if(state.coachRelaunchEntry.route!=="ready")return render();
+  }
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
@@ -2917,6 +2932,18 @@ document.addEventListener("keydown",event=>{
  else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}
 });
 root.addEventListener("submit",e=>{
+ if(e.target.id==="efgCoachRelaunchForm"){
+  e.preventDefault();
+  if(!COACH_RELAUNCH_ONBOARDING_ENABLED)return;
+  (async()=>{
+   const data=readCoachRelaunchForm(document);
+   await submitCoachRelaunchEntry(sb,{profile:state.profile,userId:state.session?.user?.id,
+    entry:state.coachRelaunchEntry,payload:data.payload,shareWithCoach:data.shareWithCoach,explicitSubmit:true});
+   await refresh();
+   notify("Ficha nueva confirmada. Tus registros anteriores están conservados.");
+  })().catch(fail);
+  return;
+ }
  if(e.target.id==="efgStudentIntakeForm"){e.preventDefault();coachIntakeFlow.save().catch(fail);return;}
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();

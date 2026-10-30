@@ -1,0 +1,142 @@
+{
+  "source": "Metadata-only read from hosted EFG Nutrition 2026-10-30; no users or personal data",
+  "project": "cyjvddhimbsfipjfctsl",
+  "warning": "Counts and RLS flags are NOT complete policy/trigger/constraint parity; staging has not yet been cloned/restored.",
+  "tables": [
+    {
+      "t": "efg_activities",
+      "rls": true,
+      "indexes": 1,
+      "foreign_keys": 1,
+      "check_constraints": 2,
+      "application_triggers": 0,
+      "policies": 4
+    },
+    {
+      "t": "efg_consents",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 2,
+      "check_constraints": 0,
+      "application_triggers": 1,
+      "policies": 2
+    },
+    {
+      "t": "efg_daily_logs",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 1,
+      "check_constraints": 2,
+      "application_triggers": 0,
+      "policies": 4
+    },
+    {
+      "t": "efg_food_plans",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 3,
+      "check_constraints": 2,
+      "application_triggers": 3,
+      "policies": 3
+    },
+    {
+      "t": "efg_goals",
+      "rls": true,
+      "indexes": 3,
+      "foreign_keys": 2,
+      "check_constraints": 7,
+      "application_triggers": 1,
+      "policies": 2
+    },
+    {
+      "t": "efg_habitual_meals",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 1,
+      "check_constraints": 3,
+      "application_triggers": 0,
+      "policies": 4
+    },
+    {
+      "t": "efg_invitations",
+      "rls": true,
+      "indexes": 5,
+      "foreign_keys": 3,
+      "check_constraints": 2,
+      "application_triggers": 0,
+      "policies": 1
+    },
+    {
+      "t": "efg_messages",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 3,
+      "check_constraints": 2,
+      "application_triggers": 1,
+      "policies": 3
+    },
+    {
+      "t": "efg_notifications",
+      "rls": true,
+      "indexes": 3,
+      "foreign_keys": 1,
+      "check_constraints": 3,
+      "application_triggers": 0,
+      "policies": 2
+    },
+    {
+      "t": "efg_organizations",
+      "rls": true,
+      "indexes": 3,
+      "foreign_keys": 1,
+      "check_constraints": 3,
+      "application_triggers": 0,
+      "policies": 1
+    },
+    {
+      "t": "efg_payments",
+      "rls": true,
+      "indexes": 5,
+      "foreign_keys": 3,
+      "check_constraints": 3,
+      "application_triggers": 1,
+      "policies": 1
+    },
+    {
+      "t": "efg_personal_recipes",
+      "rls": true,
+      "indexes": 2,
+      "foreign_keys": 1,
+      "check_constraints": 4,
+      "application_triggers": 0,
+      "policies": 4
+    },
+    {
+      "t": "efg_profiles",
+      "rls": true,
+      "indexes": 3,
+      "foreign_keys": 2,
+      "check_constraints": 3,
+      "application_triggers": 0,
+      "policies": 1
+    },
+    {
+      "t": "efg_weekly_reports",
+      "rls": true,
+      "indexes": 3,
+      "foreign_keys": 2,
+      "check_constraints": 1,
+      "application_triggers": 1,
+      "policies": 4
+    },
+    {
+      "t": "efg_weights",
+      "rls": true,
+      "indexes": 1,
+      "foreign_keys": 1,
+      "check_constraints": 1,
+      "application_triggers": 0,
+      "policies": 4
+    }
+  ]
+}

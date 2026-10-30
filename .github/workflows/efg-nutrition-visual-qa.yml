@@ -50,6 +50,8 @@ jobs:
         run: EFG_QA_ANDROID=1 node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
       - name: ANDROID Pixel and Galaxy Chrome touch targets, report and reply CTA (synthetic)
         run: node efg-nutrition/tests/weekly-luxury-android-qa.mjs
+      - name: CLIN-GUT-02 lactose + SIBO options in responsive intake (SYNTHETIC, collection OFF)
+        run: node efg-nutrition/tests/gut-clinical-visual-qa.mjs
       - name: Install Safari-engine WebKit for mobile compatibility
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)

@@ -428,7 +428,7 @@ try{
    if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
      pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
    const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();
-   if(!(brandText||"").includes("EFG Nutrition"))pageReport.errors.push("Brand text EFG Nutrition must remain visible");
+   if(!(brandText||"").includes("Nutrición Con-Ciencia"))pageReport.errors.push("Brand text Nutrición Con-Ciencia must remain visible");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));

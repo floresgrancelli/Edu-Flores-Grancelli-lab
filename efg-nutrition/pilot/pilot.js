@@ -36,6 +36,7 @@ import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentmin
 import {signOutCurrentDevice} from "./logout-session.js?v=20261030-session01";
 import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=20261030-ux35-major1";
 import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=20261030-coach120";
+import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=20261030-coach121";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
@@ -3039,16 +3040,18 @@ if(el.dataset.foodbulk){
     const current=state.majorRelease,profile=state.profile;
     const type=action==="ackReleasePreview"?"announcement_preview_read":
      action==="ackReleaseAndSignOut"?"reauth_notice_acknowledged":"whats_new_seen";
-    // On exceptional reauth, ASK before acknowledging if local edits exist.
-    if(action==="ackReleaseAndSignOut"&&hasPendingUnsavedEdits()&&
-      !window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Los registros ya guardados no se pierden."))return;
-    await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,
-     explicitClick:true,explicitlyEnabled:true});
     if(action==="ackReleaseAndSignOut"){
-     const out=await signOutCurrentDevice({auth:sb.auth,explicitClick:true});
-     if(!out.signedOut)throw Error("El cierre para el relanzamiento no se confirmó.");
+     const out=await confirmMajorRelaunchAndExit(sb,{
+      profile,userId:profile.user_id,releaseId:current.id,
+      currentBuild:document.querySelector('meta[name="efg-build"]')?.content||"",
+      explicitClick:true,enabled:true,hasUnsavedChanges:hasPendingUnsavedEdits,
+      confirmDiscard:()=>window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Tus registros guardados permanecen intactos.")
+     });
+     if(!out.signedOut)return; // User chose not to discard unsaved edits.
      resetPrivateSession();await inbox.refresh();return loginView();
     }
+    await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,
+     explicitClick:true,explicitlyEnabled:true});
     await refresh();return;
    }
   if(action==="pilotDemoContinue"){

@@ -41,6 +41,29 @@ insert into public.efg_habitual_meals(student_id,meal_slot,name,items) values
  ('22222222-2222-4222-8222-222222222222','desayuno','Desayuno ficticio','[{"id":"egg","qty":2}]'::jsonb);
 insert into public.efg_personal_recipes(student_id,name,ingredients,portions,totals) values
  ('22222222-2222-4222-8222-222222222222','Receta ficticia','[{"id":"rice","qty":70}]'::jsonb,1,'{}'::jsonb);
+-- COACH70: preserve four additional kinds of fictional legacy records too.
+insert into public.efg_invitations(email,nickname,role,organization_id,invited_by) values
+ ('future-a@example.invalid','Invitation Ficticia','student',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+  '11111111-1111-4111-8111-111111111111');
+insert into public.efg_messages(student_id,coach_id,sender_id,body) values
+ ('22222222-2222-4222-8222-222222222222',
+  '11111111-1111-4111-8111-111111111111',
+  '22222222-2222-4222-8222-222222222222',
+  'Mensaje ficticio previo a la actualización');
+insert into public.efg_payments(
+ payer_id,recipient_id,organization_id,payment_kind,
+ amount_ars,period_label,alias_snapshot,receipt_path
+) values
+ ('22222222-2222-4222-8222-222222222222',
+  '11111111-1111-4111-8111-111111111111',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1',
+  'student_coach',12000,'2026-10','coach.demo',
+  '22222222-2222-4222-8222-222222222222/cccccccc-cccc-4ccc-8ccc-ccccccccccc1.png');
+insert into public.efg_weekly_reports(student_id,coach_id,week_ending,report_text) values
+ ('22222222-2222-4222-8222-222222222222',
+  '11111111-1111-4111-8111-111111111111',
+  '2026-10-23','Informe semanal ficticio previo al relanzamiento');
 do $fixture_validate$
 begin
  if (select count(*) from public.efg_profiles where role='student')<>2
@@ -48,6 +71,10 @@ begin
     or (select count(*) from public.efg_goals)<>1
     or (select count(*) from public.efg_food_plans)<>1
     or (select count(*) from public.efg_notifications)<>1
+    or (select count(*) from public.efg_invitations)<>1
+    or (select count(*) from public.efg_messages)<>1
+    or (select count(*) from public.efg_payments)<>1
+    or (select count(*) from public.efg_weekly_reports)<>1
     or pg_catalog.to_regclass('public.efg_student_plan_access') is not null then
   raise exception 'Preupgrade historical fixture is not valid';
  end if;

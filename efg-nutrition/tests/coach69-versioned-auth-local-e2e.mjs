@@ -136,10 +136,44 @@ bad(await request("/rest/v1/efg_goals",{method:"POST",token:users.coachA.token,
  kcal:1800,protein_g:120,carb_g:180,fat_g:70,fiber_g:25}}),"Old direct goal write denied");
 bad(await request("/rest/v1/efg_food_plans?student_id=eq."+users.studentA.id,{method:"PATCH",
  token:users.coachA.token,body:{approved_food_ids:["unverified"]}}),"Old PWA guide write denied");
+// COACH-RELEASE-REV-02: real signed LOCAL JWT edit, still shared and legal
+// approved. A new intake revision invalidates the old publication draft even
+// if the previous goal/guide remain visible in the student's history.
+const retainedHistoryGoal=goalId;
+const editShared={...intakePayload,p_expected_revision:1,p_share_with_coach:true,
+ p_payload:{...intakePayload.p_payload,preferred_foods:"Legumbres, arroz"}};
+assert.equal(Number(good(await rpc("efg_submit_coach_relaunch_intake",
+ users.studentA.token,editShared),"Student edits same-version shared intake")),2);
+const secondIntake=sql("select updated_at from public.efg_coach_relaunch_intakes where student_id="+quote(users.studentA.id));
+assert.ok(secondIntake.includes("2026")||secondIntake.includes("2027"));
+bad(await rpc("efg_publish_coach_plan_draft",users.coachA.token,{
+ p_student:users.studentA.id,p_expected_revision:1,p_request_id:randomUUID()}),
+ "Old published draft cannot be approved a second time on revised intake");
+bad(await rpc("efg_save_coach_plan_draft",users.coachA.token,{
+ ...draft,p_expected_revision:1}),
+ "Old timestamp and old intake revision cannot overwrite a revised shared intake");
+assert.equal(Number(good(await rpc("efg_save_coach_plan_draft",users.coachA.token,{
+ ...draft,p_intake_updated_at:secondIntake,p_intake_revision:2,p_expected_revision:1}),
+ "Coach reopens fresh private draft after student update")),2);
+const renewedDraft=good(await request(
+ "/rest/v1/efg_coach_plan_drafts?select=draft_revision,source_intake_revision,status",
+ {token:users.coachA.token}),"Read new source revision from RLS");
+assert.ok(renewedDraft.some(x=>x.draft_revision===2&&
+ x.source_intake_revision===2&&x.status==="draft"));
+bad(await rpc("efg_publish_coach_plan_draft",users.coachA.token,{
+ p_student:users.studentA.id,p_expected_revision:2,p_request_id:randomUUID()}),
+ "New draft cannot bypass old food/legal publication-scope review tied to revision one");
+assert.equal(sql("select guided_goal_id from public.efg_food_plans where student_id="+quote(users.studentA.id)),
+ retainedHistoryGoal,"Student keeps prior published plan until next approval");
+assert.equal(Number(sql("select count(*) from public.efg_goals")),legacyCount+1,
+ "Revised intake/draft must never publish an unreviewed second goal");
+assert.equal(Number(sql("select count(*) from public.efg_coach_plan_publish_receipts")),receiptBefore+1);
+assert.equal(Number(sql("select count(*) from public.efg_notifications")),previousNoticeCount+1);
+
 // Revoke personal sharing, then verify even idempotent replay cannot bypass the current permission check.
-const edit={...intakePayload,p_expected_revision:1,p_share_with_coach:false};
+const edit={...editShared,p_expected_revision:2,p_share_with_coach:false};
 assert.equal(Number(good(await rpc("efg_submit_coach_relaunch_intake",users.studentA.token,edit),
- "Student revokes sharing after publication")),2);
+ "Student revokes sharing after publication")),3);
 bad(await rpc("efg_publish_coach_plan_draft",users.coachA.token,toPublish),
  "Revoked share denies replay before idempotent receipt");
 bad(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...draft,
@@ -147,4 +181,4 @@ bad(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...draft,
 assert.deepEqual(good(await request("/rest/v1/efg_coach_plan_drafts?select=draft_revision",{token:users.coachA.token}),"Revoked Coach loses draft RLS"),[]);
 assert.equal(Number(sql("select count(*) from public.efg_goals")),legacyCount+1);
 assert.equal(Number(sql("select count(*) from public.efg_notifications")),previousNoticeCount+1);
-console.log("PASS COACH69: signed LOCAL GoTrue JWT, 2 organizations, student new-version intake, revision-bound private Coach draft, both explicit legal consents, fake nutrition evidence, atomic publish exactly once, denied legacy writes and revocation, without changing historic records. NOT production parity/clinical approval.");
+console.log("PASS COACH69: signed LOCAL GoTrue JWT, 2 organizations, student new-version intake, revision-bound private Coach draft, both explicit legal consents, fake nutrition evidence, atomic publish exactly once, denied legacy writes, revised shared intake stale draft, reviewed scope on revision two and revocation, without changing historic records. NOT production parity/clinical approval.");

@@ -100,7 +100,7 @@ begin
   raise exception 'Invalid private health intake request' using errcode='22023';
  end if;
  -- Only two reviewed condition code families; never accept arbitrary diagnoses or text.
- if pg_catalog.jsonb_object_length(p_conditions)>2 then
+ if (select count(*) from pg_catalog.jsonb_object_keys(p_conditions))>2 then
   raise exception 'Unexpected conditions' using errcode='22023';
  end if;
  for v_key in select pg_catalog.jsonb_object_keys(p_conditions) loop

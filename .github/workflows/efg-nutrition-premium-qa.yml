@@ -100,6 +100,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/pilot-participation-demo.js
           node efg-nutrition/tests/coach98-pilot-participation-demo.mjs
+      - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/coach-student-journey.js
+          node efg-nutrition/tests/coach100-student-journey.mjs
       - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
         run: |
           node --check efg-nutrition/pilot/coach-release-plan-gate.js

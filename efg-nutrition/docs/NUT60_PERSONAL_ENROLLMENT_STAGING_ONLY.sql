@@ -90,10 +90,19 @@ create table public.efg_personal_daily_logs(
 alter table public.efg_personal_daily_logs enable row level security;
 revoke all on public.efg_personal_daily_logs from public,anon,authenticated;
 grant select,insert,update,delete on public.efg_personal_daily_logs to authenticated;
-create policy personal_diary_owner on public.efg_personal_daily_logs
- for all to authenticated
- using(user_id=(select auth.uid()))
- with check(user_id=(select auth.uid()));
+create policy personal_diary_read_self on public.efg_personal_daily_logs
+ for select to authenticated using(user_id=(select auth.uid()));
+create policy personal_diary_insert_self on public.efg_personal_daily_logs
+ for insert to authenticated
+ with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
+  from public.efg_legal_current_status() z));
+create policy personal_diary_update_self on public.efg_personal_daily_logs
+ for update to authenticated using(user_id=(select auth.uid()))
+ with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
+  from public.efg_legal_current_status() z));
+-- Own-data erasure must stay possible even if Terms changed or were declined.
+create policy personal_diary_delete_self on public.efg_personal_daily_logs
+ for delete to authenticated using(user_id=(select auth.uid()));
 
 create table public.efg_personal_habitual_meals(
  id uuid primary key default gen_random_uuid(),
@@ -112,10 +121,18 @@ create index efg_personal_habitual_owner_slot_idx
 alter table public.efg_personal_habitual_meals enable row level security;
 revoke all on public.efg_personal_habitual_meals from public,anon,authenticated;
 grant select,insert,update,delete on public.efg_personal_habitual_meals to authenticated;
-create policy personal_habitual_owner on public.efg_personal_habitual_meals
- for all to authenticated
- using(user_id=(select auth.uid()))
- with check(user_id=(select auth.uid()));
+create policy personal_habitual_read_self on public.efg_personal_habitual_meals
+ for select to authenticated using(user_id=(select auth.uid()));
+create policy personal_habitual_insert_self on public.efg_personal_habitual_meals
+ for insert to authenticated
+ with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
+  from public.efg_legal_current_status() z));
+create policy personal_habitual_update_self on public.efg_personal_habitual_meals
+ for update to authenticated using(user_id=(select auth.uid()))
+ with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
+  from public.efg_legal_current_status() z));
+create policy personal_habitual_delete_self on public.efg_personal_habitual_meals
+ for delete to authenticated using(user_id=(select auth.uid()));
 
 create function public.efg_register_personal(p_nickname text)
 returns uuid language plpgsql security definer set search_path=''

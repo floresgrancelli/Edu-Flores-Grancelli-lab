@@ -814,36 +814,30 @@ try{
     await window.__EFG_VISUAL_QA__.versionNotice.check({force:true});
    });
    const banner=page.locator("#efgVersionNotice");
-   if(!(await banner.isVisible()))pageReport.errors.push("New build was detected but the update notice did not appear");
+   const status=await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.getStatus());
+   if(!status.hasUpdate)pageReport.errors.push("New minor build was not detected");
+   if(status.automaticNoticeEnabled!==false)pageReport.errors.push("Minor build automatic notice unexpectedly enabled");
+   if(await banner.isVisible())pageReport.errors.push("Routine build unexpectedly interrupted coach with an alert");
    await page.locator("#targetAge").fill("42");
    await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.check({force:true,reopen:true}));
-   if(!(await banner.isVisible()))pageReport.errors.push("Manual recheck did not reopen the update notice");
-   if(await page.locator("#targetAge").inputValue()!=="42")pageReport.errors.push("Silent check lost draft");
+   if(await banner.isVisible())pageReport.errors.push("Manual check reopened a forbidden minor-build popup");
+   if(await page.locator("#targetAge").inputValue()!=="42")pageReport.errors.push("Version check lost unsaved coach draft");
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;
     x.state.tab="coachTools";await x.render();
    });
    const manualCheck=page.locator('[data-act="checkAppVersion"]');
-   if(!(await manualCheck.count()))pageReport.errors.push("Manual version checker missing from Coach More");
+   if(!(await manualCheck.count()))pageReport.errors.push("Manual version check missing from coach tools");
    else{
     await manualCheck.click();
     await page.waitForFunction(()=>/nueva versión|Estás al día|No se pudo comprobar|La comprobación sigue/.test(
      document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
     const label=await page.locator("#efgBuildStatus").textContent();
-    const visible=await banner.isVisible();
-    if(!label.includes("nueva versión")||!visible)
-     pageReport.errors.push("Inline version diagnostic failed: label="+label+", visible="+visible);
+    if(!label.includes("nueva versión")||!label.includes("Guardá tus cambios"))
+     pageReport.errors.push("Manual version result missing safe-save guidance: "+label);
+    if(await banner.isVisible())pageReport.errors.push("Manual version check showed unwanted popup");
    }
-   const explain=page.locator("#efgVersionNotice .efg-version-update");
-   if(!(await explain.count()))pageReport.errors.push("Safe update guidance missing from banner");
-   else{
-    await explain.click();
-    const hint=await page.locator("#efgVersionNotice .efg-version-copy p").textContent();
-    if(!hint.includes("Guardá tus cambios")||!hint.includes("cerrá la app"))
-     pageReport.errors.push("Update instructions must explain how to save and reopen");
-    if(!(await page.locator('[data-act="checkAppVersion"]').count()))
-     pageReport.errors.push("Update guidance must not navigate away from Coach tools");
-   }
+   // Exceptional major-release CTA is a separate OFF-until-approved flow.
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }
   results.push(pageReport);

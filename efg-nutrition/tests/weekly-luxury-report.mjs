@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import './weekly-luxury-editor.mjs';
 import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from '../pilot/weekly-luxury-report.js';
 const from='2026-10-23',to='2026-10-29',friday='2026-10-30';
 const inputs=[

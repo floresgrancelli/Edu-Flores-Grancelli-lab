@@ -87,5 +87,5 @@
  .efg-lux-print-target .lux-report-section,.efg-lux-print-target .lux-report-conclusion{
   break-inside:avoid}
  .lux-report-toolbar,.pilot-nav,.pilot-bottom-nav{display:none!important}
- .lux-report-cover,.lux-report-conclusion,.lux-report-column i{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .lux-report-cover,.lux-report-conclusion,.lux-report-flex,.lux-report-column i{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }

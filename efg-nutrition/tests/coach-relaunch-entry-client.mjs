@@ -54,4 +54,15 @@ assert.equal(writes,1);
 await assert.rejects(()=>submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:done,...form,explicitSubmit:true}),/Verificá/);
 fields.age_years.value="17";assert.throws(()=>readCoachRelaunchForm(doc),/Revisá/);fields.age_years.value="41";
 fields.dietary_pattern.value="invalid";assert.throws(()=>readCoachRelaunchForm(doc),/Opción/);
+const source=await (await import("node:fs/promises")).readFile(
+ new URL("../pilot/pilot.js",import.meta.url),"utf8");
+const roleGuard=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)',source.indexOf("async function render()"));
+const welcome=source.indexOf("if(state.welcomePending)return welcomeView()",source.indexOf("async function render()"));
+assert.ok(roleGuard>0&&welcome>roleGuard,"The new Coach versioned intake precedes legacy student welcome/navigation.");
+const start=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)',source.indexOf("async function refresh()"));
+const legacy=source.indexOf('await Promise.all([loadPersonalData(),loadOrgAndPayments()])',start);
+assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches for returning students.");
+assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\)/);
+assert.match(source,/await submitCoachRelaunchEntry\(sb,/);
+assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED\}/);
 console.log("PASS Coach re-entry UI synthetic: Terms first, fresh unsigned form, explicit share-off, no implicit save, signed backend readback required.");

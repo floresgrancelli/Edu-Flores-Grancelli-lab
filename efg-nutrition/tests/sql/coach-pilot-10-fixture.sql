@@ -1,8 +1,7 @@
 -- COACH-PILOT-10 disposable PostgreSQL 17 fixture, no hosted connections.
 create schema auth;
 create schema efg_private;
-create role authenticated nologin;
-create role anon nologin;
+-- anon/authenticated roles already exist cluster-wide from isolated PG bootstrap.
 create function auth.uid() returns uuid language sql stable set search_path=''
 as $body$
 select nullif(pg_catalog.current_setting('request.jwt.claim.sub',true),'')::uuid

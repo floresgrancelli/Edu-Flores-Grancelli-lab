@@ -8,7 +8,7 @@ Se consultaron `get_advisors(type=security)`, `pg_catalog.pg_proc`, `information
 
 - **19 funciones `public` `SECURITY DEFINER`** son ejecutables por `authenticated`. **Ninguna** de esas 19 es ejecutable por `anon`, según `has_function_privilege`. En las 19, `search_path=""` y propietario `postgres`, confirmado por catálogo. Esto reduce riesgos de acceso anónimo y manipulación de resolución de nombres, pero **no impide por sí mismo ataques por usuario autenticado**.
 - El código de `efg_private.is_admin()` comprueba perfil de `auth.uid()`, `role='admin'` y `active`. Se inspeccionaron los 19 cuerpos: cada función contiene una comprobación de identidad/rol o delega a una que la contiene. **No es una prueba dinámica de autorización ni de ausencia de vulnerabilidades**. Comprobar rutas intermedias y efectos laterales requiere un entorno staging aislado y JWT por rol.
-- El Security Advisor también informó dos tablas con RLS activo y sin políticas: `efg_private.daily_mail_jobs` y `public.efg_daily_email_deliveries`. Su comportamiento puede ser deliberado para procesos internos, pero faltan pruebas de que ninguna superficie REST o usuario autenticado deba leerlas o modificarlas.
+- El Security Advisor también informó dos tablas con RLS activo y sin políticas: `efg_private.daily_mail_jobs` y `public.efg_daily_email_deliveries`. Una consulta adicional a `has_table_privilege` confirmó que `anon` **no tiene SELECT** y `authenticated` **no tiene SELECT, INSERT ni UPDATE** sobre ninguna. Esto es coherente con tablas internas, pero no se comprobó toda la superficie API ni el programa de envío.
 - Existe una alerta separada de **Leaked Password Protection disabled**, relevante si se mantienen entradas con contraseña además del OTP; requiere revisar configuración de Auth y decidir habilitarla con atención a impacto. No se modificó la configuración.
 
 ## Clasificación de las 19 funciones de interfaz
@@ -21,6 +21,10 @@ Se consultaron `get_advisors(type=security)`, `pg_catalog.pg_proc`, `information
 | Autogestión por identidad autenticada/destinatario/propiedad | `efg_claim_invitation`, `efg_confirm_payment`, `efg_submit_coach_payment`, `efg_submit_payment` | Revisar verificación de correo confirmado, identidad/recipient, comprobante en storage, rol y organización |
 
 `efg_confirm_payment` limita la actualización a `recipient_id=auth.uid()`, `status='pending'` y resultado `approved/rejected`. `efg_submit_payment` verifica inicio de sesión, rol, ruta de comprobante con UUID del autor y propiedad del objeto en `storage.objects`; hay que comprobar políticas del bucket completo y transacciones de pago en staging. `efg_set_student_active` evita reautorizar automáticamente consentimientos al activar un alumno. Estos controles se observaron en código, no mediante explotación simulada del Supabase hospedado.
+
+## Performance Advisor (sin modificaciones)
+
+Se comprobó también `get_advisors(type=performance)`, que informó 6 claves externas sin índice de cobertura, 5 índices sin uso registrado, 2 tablas con políticas permisivas de SELECT que pueden solaparse (`efg_sunday_rewards` y `efg_weekly_reports`) y un aviso de configuración de conexiones de Supabase Auth. Esas alertas deben revisarse contra consultas reales y cardinalidades antes de agregar/eliminar índices o alterar RLS. Los 2 avisos de políticas permisivas no equivalen automáticamente a filtración de datos, pero exigen tests de acceso por organización.
 
 ## Política antes de lanzar
 

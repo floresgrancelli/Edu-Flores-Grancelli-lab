@@ -212,7 +212,7 @@ assert.match(app,/data-act="balanceGuidedDay">Recalcular con nuevos pesos y\/o i
  "The coach needs a clearly named explicit recalculation control");
 assert.match(app,/if\(e.target.dataset.guideswap\)[\s\S]*?rebalanceGuidedDay\(swapGuidedFood/,
  "Changing a food should automatically rebalance the other adjustable portions");
-assert.match(app,/if\(e.target.dataset.guideqty\)[\s\S]*?rebalanceGuidedDay\(draft,state.coachGoals\[0\]\)/,
+assert.match(app,/if\(e.target.dataset.guideqty\)[\s\S]*?const targetGoal=activeCoachGuideGoal\(\);if\(!targetGoal\)return;[\s\S]*?rebalanceGuidedDay\(draft,targetGoal\)/,
  "Changing grams should automatically rebalance the other adjustable portions");
 assert.match(app,/function guidedTargetFeedback\(deviations\)/,
  "Show how close the guide got to the approved target; never imply exact matching");

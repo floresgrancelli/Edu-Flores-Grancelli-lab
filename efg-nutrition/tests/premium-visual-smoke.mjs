@@ -103,15 +103,16 @@ try{
     drag(field,90,270);await new Promise(resolve=>setTimeout(resolve,30));
     const afterInput=count;field.remove();
     const summary=document.createElement("div");summary.className="efg-pastel-day";document.body.append(summary);
+    const topCardBlocked=drag(summary,90,270); // top MI DÍA card must NOT steal scroll
     const contentBlocked=drag(summary,340,520); // down: ordinary card must not become refresh
     const upwardBlocked=drag(summary,340,165); // up: ordinary card must pan normally
     await new Promise(resolve=>setTimeout(resolve,30));
     const afterContent=count;summary.remove();
     test.dispose();
-    return {firstBlocked,first,visible,afterShort,afterInput,contentBlocked,upwardBlocked,afterContent};
+    return {firstBlocked,first,visible,afterShort,afterInput,topCardBlocked,contentBlocked,upwardBlocked,afterContent};
    });
    if(!gesture.firstBlocked||gesture.first!==1||gesture.visible!==1||
-      gesture.afterShort!==1||gesture.afterInput!==1||gesture.contentBlocked||gesture.upwardBlocked||gesture.afterContent!==1)
+      gesture.afterShort!==1||gesture.afterInput!==1||gesture.topCardBlocked||gesture.contentBlocked||gesture.upwardBlocked||gesture.afterContent!==1)
       errors.push("pull-refresh must not hijack Android dashboard swipes: "+JSON.stringify(gesture));
   }
   await page.evaluate(async(role)=>{
@@ -250,7 +251,13 @@ try{
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
-       await select.selectOption("demo-"+role+"-"+slot+"-1");
+       const firstSelected=await select.inputValue();
+        if(firstSelected!=="demo-"+role+"-"+slot+"-1")
+          pageReport.errors.push("Multiple habitual meals show blank on returning in "+slot);
+        const firstPreview=await block.locator("#habitualPreview_"+slot).innerText();
+        if(!firstPreview.includes("Huevo habitual")||!firstPreview.includes("55 g"))
+          pageReport.errors.push("Returning habitual first preview invisible in "+slot);
+        await select.selectOption("demo-"+role+"-"+slot+"-1");
        if(await select.inputValue()!=="demo-"+role+"-"+slot+"-1")pageReport.errors.push("First habitual choice not accepted for "+slot);
        const preview=await block.locator("#habitualPreview_"+slot).innerText();
        if(!preview.includes("Huevo habitual")||!preview.includes("55 g")||!preview.includes("81 kcal"))

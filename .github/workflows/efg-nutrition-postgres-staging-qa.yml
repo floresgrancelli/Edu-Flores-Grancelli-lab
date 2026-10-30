@@ -129,6 +129,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-preupgrade-fixture.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
           test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
           test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
           pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"

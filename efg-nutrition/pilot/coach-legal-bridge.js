@@ -31,7 +31,7 @@ function normalizeDocuments(rows,status){
 export async function loadCoachLegalOnboarding(sb,{enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,legalEnabled=LEGAL_ONBOARDING_ENABLED}={}){
  if(enabled!==true||legalEnabled!==true)
   throw Error("La aceptación legal nueva no puede activarse sin revisión de textos y permisos.");
- if(typeof sb?.rpc!=="function"||typeof sb?.from!=="function)
+ if(typeof sb?.rpc!=="function"||typeof sb?.from!=="function")
   throw Error("Conexión legal no disponible.");
  const answer=await sb.rpc("efg_legal_current_status");
  if(answer.error)throw Error("No se pudo verificar el estado legal.");
@@ -57,7 +57,7 @@ export async function acceptCoachLegalOnboarding(sb,snapshot,checked,{
 }={}){
  if(explicitSubmit!==true||enabled!==true||legalEnabled!==true)
   throw Error("No se registró una aceptación legal explícita y habilitada.");
- if(typeof sb?.rpc!=="function)throw Error("No se pudo verificar el servidor.");
+ if(typeof sb?.rpc!=="function")throw Error("No se pudo verificar el servidor.");
  const selections=makeLegalAcceptanceRequest(snapshot.documents,snapshot.accepted,checked);
  if(!selections.length)return loadCoachLegalOnboarding(sb,{enabled:true,legalEnabled:true});
  const ids=selections.map(x=>x.document_id);

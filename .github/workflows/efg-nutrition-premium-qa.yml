@@ -62,6 +62,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
+        run: |
+          node --check efg-nutrition/pilot/coach-release-plan-gate.js
+          node efg-nutrition/tests/coach-release-plan-gate.mjs
       - name: COACH-RELAUNCH pilot student intake version and legal first (DRAFT, OFF)
         run: |
           node --check efg-nutrition/pilot/coach-relaunch-onboarding.js

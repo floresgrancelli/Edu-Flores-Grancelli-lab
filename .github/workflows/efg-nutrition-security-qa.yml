@@ -39,6 +39,10 @@ jobs:
         run: |
           node --check efg-nutrition/scripts/coach91-local-db-backup-rehearsal.mjs
           node efg-nutrition/tests/coach91-local-db-backup-rehearsal.mjs
+      - name: COACH94 Supabase-aware private roles/schema/data seal and destination guard (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/scripts/coach94-platform-triplet-recovery.mjs
+          node efg-nutrition/tests/coach94-platform-triplet-recovery.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

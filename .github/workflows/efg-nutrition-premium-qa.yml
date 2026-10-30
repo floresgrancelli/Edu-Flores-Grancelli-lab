@@ -121,6 +121,10 @@ jobs:
           node efg-nutrition/tests/coach106-pilot-participation-client.mjs
       - name: COACH106-110 hosted additive participation, general intake, coach draft, pending and notice (STATIC)
         run: node efg-nutrition/tests/coach110-hosted-pilot-foundation-contract.mjs
+      - name: COACH111 signed hosted entry status + client fail-closed (STATIC/OFFLINE)
+        run: |
+          node --check efg-nutrition/pilot/coach-pilot-entry-client.js
+          node efg-nutrition/tests/coach111-hosted-entry-client.mjs
       - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
         run: |
           node --check efg-nutrition/pilot/coach-student-journey.js

@@ -107,4 +107,48 @@ assert.equal(sql("select count(*) from public.efg_personal_goals"),"3");
 assert.equal(sql("select count(*) from public.efg_goals"),coachBefore.goals,"Personal goals cannot write coach goal history");
 assert.equal(sql("select count(*) from public.efg_food_plans"),coachBefore.guides,"Personal goals cannot write coach guide");
 assert.equal(sql("select count(*) from public.efg_notifications"),coachBefore.notifications,"Personal goal changes cannot fake Coach notifications");
-console.log("PASS NUT-60 local: signed JWT personal A/B, legal gating, no auto-acceptance, no role escalation, isolated versioned personal goals, CAS, cross-account RLS. NO hosted, NO plans UI, NO real terms.");
+// NUT-60 step B: isolated Personal diary, meal presets and cross-account RLS.
+// This tests OWNERSHIP only; reconsent gating for old JS writes is still a release blocker.
+const logDay="2026-10-30";
+const diaryPath="/rest/v1/efg_personal_daily_logs";
+const todayLog={user_id:a.id,log_day:logDay,
+ meals:{desayuno:[{id:"egg",qty:2}]},sports:[],skipped:{},totals:{}};
+yes(await rest(diaryPath,{method:"POST",token:a.token,body:todayLog}),"A owns personal breakfast");
+const dayA=yes(await rest(diaryPath+"?select=user_id,log_day,meals&log_day=eq."+logDay,{token:a.token}),"A reads own breakfast");
+assert.equal(dayA.length,1);
+assert.equal(dayA[0].user_id,a.id);
+assert.equal(dayA[0].meals.desayuno[0].qty,2);
+assert.deepEqual(yes(await rest(diaryPath+"?select=user_id&log_day=eq."+logDay,{token:b.token}),
+ "B can read only own empty diary"),[]);
+no(await rest(diaryPath,{method:"POST",token:b.token,body:{...todayLog,log_day:"2026-10-29"}}),
+ "B cannot impersonate A by supplying A user_id");
+const maliciousPatch=await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:b.token,body:{meals:{desayuno:[{id:"egg",qty:99}]}}
+});
+assert.ok([200,204,401,403,404].includes(maliciousPatch.status),"Cross-owner PATCH rejected or zero affected rows");
+const intact=yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),"A diary intact");
+assert.equal(intact[0].meals.desayuno[0].qty,2);
+yes(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:3}]}}
+}),"A corrects own diary");
+const corrected=yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),"A corrected diary read");
+assert.equal(corrected[0].meals.desayuno[0].qty,3);
+assert.equal(sql("select count(*) from public.efg_personal_daily_logs"),"1");
+const favPath="/rest/v1/efg_personal_habitual_meals";
+const fav={user_id:a.id,meal_slot:"desayuno",name:"Desayuno propio",items:[{id:"egg",qty:3}]};
+yes(await rest(favPath,{method:"POST",token:a.token,body:fav}),"A saves own reusable meal");
+const ownFav=yes(await rest(favPath+"?select=id,user_id,meal_slot,name,items",{token:a.token}),"A reads own preset");
+assert.equal(ownFav.length,1);
+assert.equal(ownFav[0].name,"Desayuno propio");
+assert.equal(ownFav[0].user_id,a.id);
+assert.deepEqual(yes(await rest(favPath+"?select=id,user_id",{token:b.token}),"B cannot read A preset"),[]);
+no(await rest(favPath,{method:"POST",token:b.token,
+ body:{...fav,name:"Forged cross-account meal"}}),"B cannot save A preset");
+await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:b.token});
+assert.equal(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset remains after B delete attempt").length,1);
+yes(await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:a.token}),"A deletes only own preset");
+assert.deepEqual(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset deleted"),[]);
+assert.equal(sql("select count(*) from public.efg_personal_habitual_meals"),"0");
+assert.equal(sql("select count(*) from public.efg_daily_logs"),"1",
+ "Personal diary cannot alter historic Student diary");
+console.log("PASS NUT-60 LOCAL: signed JWT A/B, legal-gated enrollment, personal goals revisions, owner RLS diary and meal presets, no Coach/Student cross-writes. No real clinical/legal approval.");

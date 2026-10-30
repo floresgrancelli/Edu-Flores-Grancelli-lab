@@ -62,7 +62,7 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
   if(busy||!canRefresh())return false;
   clearDelayed();
   busy=true;tracking=false;claimed=false;distance=0;
-  paint("Actualizando EFG Nutrition…",threshold,"loading");
+  paint("Actualizando Nutrición Con-Ciencia…",threshold,"loading");
   try{
    await refresh();
    lastSuccess=Date.now();

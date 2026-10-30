@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {
  PILOT_PARTICIPATION_ENABLED,PILOT_PARTICIPATION_VERSION,
- PILOT_PARTICIPATION_TEXT,renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton
+ PILOT_PARTICIPATION_TEXT,renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton,bindPilotParticipationDemo
 } from '../pilot/pilot-participation-demo.js';
 assert.equal(PILOT_PARTICIPATION_ENABLED,false);
 assert.equal(PILOT_PARTICIPATION_VERSION,'coach_pilot_2026_demo1');
@@ -38,4 +38,36 @@ assert.deepEqual(readPilotParticipationSelection(doc(true,true),{explicitClick:t
  version:PILOT_PARTICIPATION_VERSION,participationRequested:true,
  sharingRequested:true,persisted:false,legalAcceptance:false
 });
+// Simulate browser change and click events without production data or network.
+const listeners={};
+const makeElement=(id,checked=false)=>({
+ checked,disabled:true,addEventListener(event,fn){listeners[id+':'+event]=fn;}
+});
+const controls={
+ efgPilotParticipate:makeElement('efgPilotParticipate'),
+ efgPilotShare:makeElement('efgPilotShare'),
+ efgPilotContinue:makeElement('efgPilotContinue')
+};
+const fakeDoc={getElementById:id=>controls[id]||null};
+const acceptedEvents=[];
+bindPilotParticipationDemo(fakeDoc,{onContinue:value=>acceptedEvents.push(value)});
+assert.equal(controls.efgPilotContinue.disabled,true);
+controls.efgPilotParticipate.checked=true;
+listeners['efgPilotParticipate:change']();
+assert.equal(controls.efgPilotContinue.disabled,true);
+assert.throws(()=>listeners['efgPilotContinue:click'](),/requiere autorización expresa/);
+controls.efgPilotShare.checked=true;
+listeners['efgPilotShare:change']();
+assert.equal(controls.efgPilotContinue.disabled,false);
+listeners['efgPilotContinue:click']();
+assert.equal(acceptedEvents.length,1);
+assert.deepEqual(acceptedEvents[0],{
+ version:PILOT_PARTICIPATION_VERSION,participationRequested:true,
+ sharingRequested:true,persisted:false,legalAcceptance:false
+});
+controls.efgPilotShare.checked=false;
+listeners['efgPilotShare:change']();
+assert.equal(controls.efgPilotContinue.disabled,true);
+assert.throws(()=>listeners['efgPilotContinue:click'](),/requiere autorización expresa/);
+assert.equal(acceptedEvents.length,1);
 console.log('PASS COACH99: both pilot and coach-sharing boxes mandatory and unchecked, Continue disabled unless both checked; no fictitious acceptance or persistence.');

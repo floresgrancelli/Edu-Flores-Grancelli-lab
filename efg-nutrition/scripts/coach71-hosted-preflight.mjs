@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const baseline=JSON.parse(readFileSync(fileURLToPath(new URL('../tests/sql/coach71-hosted-object-signatures-20261030.json',import.meta.url)),'utf8'));
+const privileged=JSON.parse(readFileSync(fileURLToPath(new URL('../tests/sql/sec12-hosted-privileged-rpc-baseline-20261030.json',import.meta.url)),'utf8'));
+
 const host=process.env.PGHOST||'';
 const port=process.env.PGPORT||'';
 const db=process.env.PGDATABASE||'';
@@ -101,9 +103,37 @@ for(const [name,before] of accessExpected){
  }
 }
 for(const name of accessPresent.keys())if(!accessExpected.has(name))problems.push(name+': unexpected grants/FK entry');
+// Third READ ONLY inventory: all 19 current privileged hosted RPCs.
+// An object-shape match without these function ACL/body fingerprints is NOT parity.
+if(privileged.functions?.length!==19||typeof privileged.discovery_sql!=='string'){
+ console.error('COACH71 STOP: missing SEC12 hosted function baseline');process.exit(3);
+}
+const functionSource=privileged.discovery_sql.trim();
+if(!/^select\b/i.test(functionSource)||!functionSource.endsWith(';')||
+ /;\s*(?:create|alter|drop|insert|update|delete|grant|revoke|call|do)\b/i.test(functionSource)){
+ console.error('COACH71 STOP: invalid SEC12 catalog query');process.exit(3);
+}
+const functionQuery="select coalesce(json_agg(t order by t.name),'[]'::json) from ("+functionSource.slice(0,-1)+") t;";
+const f=localPsql('BEGIN READ ONLY; '+functionQuery+' COMMIT;');
+if(f.status!==0){
+ console.error('COACH71 function catalog SQL error: '+(f.stderr||f.stdout||'unknown').slice(0,1000));process.exit(3);
+}
+const currentFunctions=JSON.parse(f.stdout.trim());
+const beforeFunctions=new Map(privileged.functions.map(r=>[r.name,r]));
+const presentFunctions=new Map(currentFunctions.map(r=>[r.name,r]));
+for(const [name,before] of beforeFunctions){
+ const now=presentFunctions.get(name);
+ if(!now){problems.push(name+': SECURITY DEFINER RPC missing');continue}
+ for(const key of ['args','security_definer','anon_execute','authenticated_execute','configuration','explicit_search_path','references_identity_or_admin','definition_md5']){
+  if(now[key]!==before[key])problems.push(name+': '+key+' privileged RPC drift');
+ }
+}
+for(const name of presentFunctions.keys()){
+ if(!beforeFunctions.has(name))problems.push(name+': unexpected accessible SECURITY DEFINER RPC');
+}
 if(problems.length){
  console.error('COACH71 NO GO: hosted object-shape parity not demonstrated ('+problems.length+' differences).');
  problems.slice(0,80).forEach(x=>console.error(' - '+x));
  process.exit(2);
 }
-console.log('COACH71 PASS: 15-table RLS, policy, trigger, index, CHECK, FK and effective table-grant catalog fingerprints MATCH the 2026-10-30 hosted baseline. No data/restore, helper function or JWT authorization, legal, clinical or device validation implied.');
+console.log('COACH71 PASS: 15-table RLS, policy, trigger, index, CHECK, FK, grant and 19 privileged RPC catalog fingerprints MATCH the 2026-10-30 hosted baseline. No data/restore, helper function or JWT authorization, legal, clinical or device validation implied.');

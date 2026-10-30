@@ -20,11 +20,12 @@ const db={
   maybeSingle(){
    if(table==="efg_consents")return Promise.resolve({data:{accepted:consent},error:null});
    if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:STU,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore"}:null,error:null});
+   if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:STU,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
    if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:STU,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
    throw Error("Unrecognized table "+table);
   }
  };},
- async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:rev,error:null};if(name==="efg_publish_coach_plan_draft")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
+ async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:rev,error:null};if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
 };
 const disabled=createCoachPlanDraftClient({sb:db});
 await assert.rejects(()=>disabled.load(STU),/aún no habilitados/);
@@ -60,6 +61,32 @@ await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,reque
 failRpc=null;
 await assert.rejects(()=>enabled.save({studentId:"other-student",sourceUpdatedAt:WHEN,goal,guide}),/Identificador de alumno inválido/);
 await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:"not-uuid",confirmed:true}),/Identificador único/);
+// The major release uses COACH119 exclusively; its hosted RPC is NOT installed
+// until evidence/consents/legal/release gates have been verified.
+const relaunchBlocked=createCoachPlanDraftClient({sb:db,enabled:true,relaunchEnabled:true});
+const noServerCalls=calls.length;
+await assert.rejects(()=>relaunchBlocked.publish({studentId:STU,expectedRevision:2,requestId:REQ,confirmed:true}),
+ /todavía no puede guardarse ni publicarse/);
+assert.equal(calls.length,noServerCalls,"A non-verified versioned backend MUST make no write");
+const versioned=createCoachPlanDraftClient({sb:db,enabled:true,relaunchEnabled:true,versionedBackendVerified:true});
+const releaseDraft=await versioned.save({
+ studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:3,goal,guide,expectedRevision:2
+});
+assert.equal(releaseDraft.sourceRevision,3);
+assert.equal(calls.at(-1).name,"efg_save_coach_plan_draft");
+assert.equal(calls.at(-1).payload.p_intake_revision,3);
+await assert.rejects(()=>versioned.save({
+ studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:2,goal,guide,expectedRevision:2
+}),/modificada en otra sesión/);
+const releasePublish=await versioned.publish({
+ studentId:STU,expectedRevision:2,requestId:REQ,confirmed:true
+});
+assert.equal(releasePublish.goalId,GOAL);
+assert.deepEqual(calls.at(-1),{name:"efg_publish_coach_plan_draft_atomic",payload:{
+ p_student:STU,p_expected_revision:2,p_request_id:REQ
+}});
+assert.ok(!calls.slice(noServerCalls).some(x=>x.name==="efg_publish_coach_plan_draft"),
+ "Current major release must NEVER fall back to old non-atomic RPC");
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const flow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(app,/createCoachPlanDraftClient\(\{sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED\}\)/);

@@ -1,7 +1,7 @@
 // COACH-71: strict hosted object-shape preflight, READ ONLY, before Coach migration.
 // Intended for an approved isolated PostgreSQL 17 restore. NEVER connects to hosted DB.
-// This verifies only policy/trigger/index/CHECK fingerprints and RLS flags on 15 tables.
-// Passing is NOT release approval: FK/grants/functions, data, Storage, Auth, UAT remain.
+// This verifies catalog metadata, foreign keys and effective grants on 15 tables.
+// Passing is NOT release approval: function authorization, data/Storage restore, Auth, UAT remain.
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,31 @@ if(!['127.0.0.1','localhost'].includes(host) ||
   console.error('COACH71 STOP: isolated local postgres only; set PGHOST, PGPORT and an approved ephemeral PGDATABASE.');
   process.exit(3);
 }
+// libpq can use PGHOSTADDR (and service files) to override PGHOST silently.
+// Refuse ambiguous routing before invoking psql, even if PGHOST says localhost.
+const dangerous=['PGHOSTADDR','PGSERVICE','PGSERVICEFILE','PGSYSCONFDIR','PGOPTIONS'];
+if(dangerous.some(key=>String(process.env[key]||'').length>0)){
+ console.error('COACH71 STOP: indirect PostgreSQL routing/session overrides are forbidden.');
+ process.exit(3);
+}
+const pgEnv={...process.env,PGCONNECT_TIMEOUT:'5'};
+const psqlArgs=['-X','-Atq','-v','ON_ERROR_STOP=1','-h',host,'-p',port,'-d',db];
+function localPsql(sql){
+ return spawnSync('psql',[...psqlArgs,'-c',sql],{
+  env:pgEnv,encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024
+ });
+}
+// Verify the connection actually landed on the intended local server/database.
+const identity=localPsql("select current_database(),inet_server_addr()::text,inet_server_port(),current_setting('server_version_num')");
+if(identity.status!==0){
+ console.error('COACH71 STOP: local PostgreSQL identity query failed.');
+ process.exit(3);
+}
+const idParts=identity.stdout.trim().split('|');
+if(idParts.length!==4||idParts[0]!==db||!['127.0.0.1','::1'].includes(idParts[1])||idParts[2]!==port||!/^17[0-9]{4}$/.test(idParts[3])){
+ console.error('COACH71 STOP: connection is not the approved PostgreSQL 17 local endpoint.');
+ process.exit(3);
+}
 if(!Array.isArray(baseline.tables)||baseline.tables.length!==15||!baseline.snapshot_sql){
   throw new Error('COACH71 missing/invalid hosted metadata baseline');
 }
@@ -29,9 +54,7 @@ for(const s of [baseline.snapshot_sql,baseline.access_snapshot_sql]){
  }
 }
 const query="select coalesce(json_agg(t order by t.tbl),'[]'::json) from ("+baseline.snapshot_sql+") t;";
-const p=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1','-c','BEGIN READ ONLY; '+query+' COMMIT;'],{
-  env:process.env,encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024
-});
+const p=localPsql('BEGIN READ ONLY; '+query+' COMMIT;');
 if(p.status!==0){
  console.error('COACH71 SQL error: '+(p.stderr||p.stdout||'unknown').slice(0,1000));
  process.exit(3);
@@ -51,9 +74,7 @@ for(const name of present.keys())if(!expected.has(name))problems.push(name+': un
 // Second READ-ONLY preflight: FK definitions + effective table privileges.
 // These checks do not authorize access to another student's rows; RLS JWT remains separate.
 const accessQuery="select coalesce(json_agg(t order by t.tbl),'[]'::json) from ("+baseline.access_snapshot_sql+") t;";
-const a=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1','-c','BEGIN READ ONLY; '+accessQuery+' COMMIT;'],{
- env:process.env,encoding:'utf8',timeout:20000,maxBuffer:4*1024*1024
-});
+const a=localPsql('BEGIN READ ONLY; '+accessQuery+' COMMIT;');
 if(a.status!==0){
  console.error('COACH71 foreign-key/table-grant SQL error: '+(a.stderr||a.stdout||'unknown').slice(0,1000));
  process.exit(3);
@@ -76,4 +97,4 @@ if(problems.length){
  problems.slice(0,80).forEach(x=>console.error(' - '+x));
  process.exit(2);
 }
-console.log('COACH71 PASS: 15-table RLS, policy, trigger, index, CHECK, FK and effective table-grant catalog fingerprints MATCH the 2026-10-30 hosted baseline. No data/restore, FK, grants, helper functions, JWT, legal, clinical or device validation implied.');
+console.log('COACH71 PASS: 15-table RLS, policy, trigger, index, CHECK, FK and effective table-grant catalog fingerprints MATCH the 2026-10-30 hosted baseline. No data/restore, helper function or JWT authorization, legal, clinical or device validation implied.');

@@ -1479,9 +1479,10 @@ function coachFoodChoices(p,consent){
   if(!items.length)return "";
   return '<details class="coach-food-group" data-foodgroup="'+id+'" '+(index===0?'open':'')+'><summary><span>'+escapeHTML(title)+'</span><small>'+items.length+' opciones</small></summary>'+
   '<div class="coach-food-bulk"><button type="button" class="btn small light" data-foodbulk="'+id+'" data-foodchecked="yes">Marcar categoría</button><button type="button" class="btn small ghost" data-foodbulk="'+id+'" data-foodchecked="no">Desmarcar</button></div>'+
-  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(plannerNormalizeQuery(foodSearchText(f)))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div></details>';
+  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(plannerNormalizeQuery(foodSearchText(f)))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</label>').join("")+'</div></details>';
  }).join("");
- return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3>'+
+ return '<div class="divider"></div><h3>Alimentos disponibles para planificar</h3>'+ 
+  '<p class="pilot-hint">Semáforo por patrón alimentario: 🟢 compatible revisado, 🟡 verificar etiqueta o composición, 🔴 incompatible con el patrón según evidencia. Sin restricciones: sin color. Los colores no indican calorías y no impiden registrar alimentos.</p>'+ 
  '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
  '<div class="food-library-tools"><label for="coachFoodSearch">Buscar alimentos</label><input type="search" id="coachFoodSearch" placeholder="Buscar entre '+foods.length+' alimentos…" autocomplete="off"><p id="coachFoodCount" class="pilot-hint">'+selected.size+' alimentos seleccionados de '+foods.length+'</p></div>'+
  sections+'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>';

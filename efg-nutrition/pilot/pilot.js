@@ -591,7 +591,6 @@ async function habitualAction(slot,action){
   // preview are visible immediately, rather than hidden in a closed <details>.
   state.lastEditedMeal=slot;
   await render();
-  document.getElementById("habitualChoice_"+slot)?.focus({preventScroll:true});
   notify("Guardaste «"+clean+"». Ya podés verlo y elegirlo en Mis habituales.");
   return;
  }

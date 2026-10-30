@@ -2605,6 +2605,7 @@ async function refresh(){
    if(state.coachLegalPending)return render();
   }
   if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
+   if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
    state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});

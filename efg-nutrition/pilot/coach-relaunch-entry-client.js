@@ -9,7 +9,8 @@ const accepted=isCurrentCoachLegalAccepted;
 const known={
  objective:[["","Sin definir"],["fat_loss","Reducir grasa"],["recomp","Recomposición"],["muscle_gain","Aumentar masa muscular"],["maintenance","Mantener peso"],["general","Mejorar hábitos"]],
  activity_level:[["","No informado"],["low","Mayormente sentado"],["light","Ligera"],["moderate","Moderada"],["high","Alta"]],
- dietary_pattern:[["","No definido"],["omnivore","Omnívoro"],["vegetarian","Vegetariano"],["vegan","Vegano"],["pescatarian","Pescetariano"],["other","Otro"]]
+ dietary_pattern:[["","No definido"],["omnivore","Equilibrada / sin exclusiones"],["mediterranean","Mediterránea"],["dash","DASH"],["vegetarian","Vegetariana"],["vegan","Vegana"],["pescatarian","Pescetariana"],["flexitarian","Flexitariana"],["portfolio","Portfolio vegetal"],["low_carb","Moderada en hidratos"],["keto","Cetogénica / keto (requiere revisión del coach)"],["other","Otro patrón"]],
+ eating_window:[["regular","Sin ayuno programado"],["12_12","12:12 · 12 h de alimentación"],["14_10","14:10 · 10 h de alimentación"],["16_8","16:8 · 8 h de alimentación"]]
 };
 export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
  if(!sb||!validUid(userId)||profile?.user_id!==userId||profile?.role!=="student"||
@@ -24,7 +25,7 @@ export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
   status:null,legalStatus
  };
  const r=await sb.from("efg_coach_relaunch_intakes")
-  .select("student_id,organization_id,completed_version,revision,shared_at,completed_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes")
+  .select("student_id,organization_id,completed_version,revision,shared_at,completed_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,eating_window,preferred_foods,disliked_foods,meal_routine,notes")
   .eq("student_id",userId).eq("completed_version",COACH_RELEASE_INTAKE_VERSION).maybeSingle();
  if(r.error)throw Error("No se pudo verificar la ficha de relanzamiento actual.");
  const status=r.data||null;
@@ -74,6 +75,8 @@ export function renderCoachRelaunchEntry(entry,{editing=false}={}){
  field("weight_kg","Peso (kg)",data.weight_kg,.1,20,400)+'</div>'+
  select("activity_level","Actividad habitual",data.activity_level)+
  select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
+ select("eating_window","Organización horaria / ayuno intermitente",data.eating_window||"regular")+
+ '<p class="pilot-hint">El patrón y la ventana horaria son preferencias de planificación para conversar con tu coach. Keto y ayuno no se aplican automáticamente ni reducen por sí solos tus calorías.</p>'+
  renderGutClinicalDraft()+
  textarea("preferred_foods","Alimentos que me gustan",data.preferred_foods,400)+
  textarea("disliked_foods","Alimentos que evito por gusto",data.disliked_foods,400)+
@@ -116,6 +119,7 @@ export function readCoachRelaunchForm(doc){
    weight_kg:number("weight_kg",20,400),
    activity_level:choice("activity_level"),
    dietary_pattern:choice("dietary_pattern"),
+   eating_window:choice("eating_window"),
    preferred_foods:text("preferred_foods",400),
    disliked_foods:text("disliked_foods",400),
    meal_routine:text("meal_routine",400),
@@ -147,7 +151,7 @@ export async function submitCoachRelaunchEntry(sb,{profile,userId,entry,payload,
 
 export const emptyCoachRelaunchPayload=()=>({
  objective:null,age_years:null,height_cm:null,weight_kg:null,activity_level:null,
- dietary_pattern:null,preferred_foods:"",disliked_foods:"",meal_routine:"",notes:""
+ dietary_pattern:null,eating_window:"regular",preferred_foods:"",disliked_foods:"",meal_routine:"",notes:""
 });
 export function currentCoachRelaunchPayload(entry){
  if(entry?.route!=="ready"||entry.status?.completed_version!==COACH_RELEASE_INTAKE_VERSION)

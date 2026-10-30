@@ -21,6 +21,10 @@ jobs:
           node-version: '22'
       - name: Validate static security contract
         run: node efg-nutrition/tests/security-guardrails.mjs
+      - name: COACH71 metadata inventory and fail-closed local restore preflight (NO hosted DB)
+        run: |
+          node --check efg-nutrition/scripts/coach71-hosted-preflight.mjs
+          node efg-nutrition/tests/coach71-hosted-object-contract.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

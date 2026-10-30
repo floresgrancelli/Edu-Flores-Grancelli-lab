@@ -27,6 +27,8 @@ jobs:
           node efg-nutrition/tests/coach71-hosted-object-contract.mjs
       - name: SEC12 hosted privileged RPC definitions and ACL drift (OFFLINE snapshot)
         run: node efg-nutrition/tests/sec12-hosted-privileged-rpc-contract.mjs
+      - name: SEC13 require exact 19-RPC signed JWT/tenant test matrix (planning only)
+        run: node efg-nutrition/tests/sec13-hosted-rpc-authorization-plan.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

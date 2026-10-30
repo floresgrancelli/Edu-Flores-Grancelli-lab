@@ -107,8 +107,22 @@ export function renderGutClinicalDraft(draft={}, {backendApproved=false}={}){
  return '<fieldset class="efg-gut-intake" aria-describedby="efgGutSafetyNote"><legend>Condiciones digestivas y restricciones alimentarias</legend>'+
  GUT_CONDITIONS.map(c=>'<label class="efg-gut-choice"><input type="checkbox" name="gutClinicalCondition" value="'+c.id+'"'+
   (selected.conditions.includes(c.id)?' checked':'')+disabled+'><span><strong>'+esc(c.label)+'</strong><small>'+esc(c.note)+'</small></span></label>').join('')+
+ '<div class="efg-gut-clinical-status">'+
+ GUT_CONDITIONS.map(c=>'<label for="gutStatus_'+c.id+'">Estado informado · '+esc(c.label)+
+ '<select id="gutStatus_'+c.id+'"'+disabled+'>'+
+ GUT_DIAGNOSTIC_STATUS.map(v=>'<option value="'+v.id+'"'+
+ (selected.statuses[c.id]===v.id?' selected':'')+'>'+esc(v.label)+'</option>').join('')+
+ '</select></label>').join('')+
+ '<label for="gutSiboPhase">Plan de síntomas por SIBO, solo si lo indica un profesional'+
+ '<select id="gutSiboPhase"'+disabled+'>'+
+ SIBO_FODMAP_PHASES.map(v=>'<option value="'+v.id+'"'+
+ (selected.siboPhase===v.id?' selected':'')+'>'+esc(v.label)+'</option>').join('')+
+ '</select></label></div>'+
+ '<label class="efg-gut-consent"><input type="checkbox" id="gutHealthShareConsent"'+
+ (selected.explicitHealthDataConsent?' checked':'')+disabled+
+ '> Autorización separada para gestionar y, si lo elijo, compartir datos de salud con mi coach (en revisión).</label>'+
  '<p id="efgGutSafetyNote" class="pilot-hint" role="note">Próxima función en revisión. Aún no ingreses diagnósticos: falta autorización separada para datos de salud, almacenamiento protegido y revisión profesional. Estas opciones no se guardan.</p>'+
- '<p class="pilot-hint">Cuando se habilite se consultará si el diagnóstico fue confirmado o está en estudio. SIBO no activará por sí solo una dieta restrictiva.</p></fieldset>';
+ '<p class="pilot-hint">SIBO no activa una dieta restrictiva por sí solo. La guía requiere revisión y adaptación de un profesional.</p></fieldset>';
 }
 export function buildGutGuideForCoach({condition,diagnosticStatus='not_reported',
  siboPhase='none',coachReviewed=false,restrictions=[],reviewedRows=[],asOf=new Date(),

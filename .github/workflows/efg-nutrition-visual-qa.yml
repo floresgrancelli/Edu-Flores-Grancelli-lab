@@ -48,8 +48,6 @@ jobs:
         run: EFG_QA_ANDROID=1 node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: ANDROID-QA Pixel 7 + Galaxy S9+ Luxury Pro report and tap-to-reply (Chromium emulation; synthetic)
         run: EFG_QA_ANDROID=1 node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
-      - name: ANDROID Pixel 7 three roles full app navigation touch UX (synthetic, no live backend)
-        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: ANDROID Pixel and Galaxy Chrome touch targets, report and reply CTA (synthetic)
         run: node efg-nutrition/tests/weekly-luxury-android-qa.mjs
       - name: Install Safari-engine WebKit for mobile compatibility

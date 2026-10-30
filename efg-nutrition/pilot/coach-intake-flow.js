@@ -77,8 +77,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const saved=!!state.studentIntake;
   const statusLabel=!saved?"Todavía no guardaste una ficha":shared?"Ficha compartida con tu coach":"Ficha guardada de forma privada";
   return rootText(ready?"MI FICHA INICIAL":"MI INGRESO",ready?"Consultá, corregí o retirale el acceso a tu coach cuando quieras.":"Mientras tu coach prepara tu plan, podés conversar con él y completar tu ficha.")+
-  (ready?'<section class="coach-intake-intro"><div class="eyebrow">MI FICHA · EFG NUTRITION CON COACH</div><h2>Mi ficha y mis permisos</h2><p>Tu plan ya está disponible. Esta ficha es independiente: podés actualizarla o dejar de compartirla sin perder el acceso a MI DÍA.</p></section>':
-   '<section class="coach-intake-intro"><div class="eyebrow">BIENVENIDO · EFG NUTRITION CON COACH</div><h2>Estamos preparando tu plan.</h2><p>Al publicarlo tu coach, se habilitarán las herramientas nutricionales. Por ahora tenés la mensajería, la privacidad y tu ficha voluntaria.</p></section>')+
+  (ready?'<section class="coach-intake-intro"><div class="eyebrow">MI FICHA · Nutrición Con-Ciencia Coach</div><h2>Mi ficha y mis permisos</h2><p>Tu plan ya está disponible. Esta ficha es independiente: podés actualizarla o dejar de compartirla sin perder el acceso a MI DÍA.</p></section>':
+   '<section class="coach-intake-intro"><div class="eyebrow">BIENVENIDO · Nutrición Con-Ciencia Coach</div><h2>Estamos preparando tu plan.</h2><p>Al publicarlo tu coach, se habilitarán las herramientas nutricionales. Por ahora tenés la mensajería, la privacidad y tu ficha voluntaria.</p></section>')+
   '<section class="card efg-student-intake-card"><h2>Mi ficha inicial</h2>'+
   '<div class="efg-student-intake-state" role="status" aria-live="polite"><strong>'+escapeHTML(statusLabel)+'</strong><span>'+informed+' datos opcionales aportados · No es obligatorio completar todos</span></div>'+
   '<p class="pilot-hint">Todos los datos son opcionales y autodeclarados. Podés guardar sin compartir, o autorizar expresamente que el coach la vea.</p>'+

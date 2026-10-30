@@ -39,7 +39,7 @@ export function estimateWalkingSteps({steps,pace=null,heightCm=null,weightKg=nul
  });
 }
 export function estimateStoredWalkingActivity(row){
- if(!row||typeof row!=='object')return null;
+ if(!row||typeof row!=='object'||row.steps===null||row.steps===undefined)return null;
  const steps=Number(row.steps);
  if(!Number.isSafeInteger(steps)||steps<0||steps>100000)return null;
  const pace=Object.hasOwn(WALKING_PACES,row.walking_pace)?row.walking_pace:null;

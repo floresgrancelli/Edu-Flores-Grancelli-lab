@@ -53,9 +53,11 @@ assert.ok(docs.every(d=>!d.accepted));
 no(await reg(a,"Personal A"),"A cannot self-enroll before any legal acceptance");
 no(await reg(null,"Anonymous"),"Anonymous cannot self-register");
 const allDocs=docs.map(x=>x.document_id);
-assert.equal(Number(yes(await rpc("efg_accept_legal_documents",a,{p_document_ids:allDocs.slice(0,1)}),"A accepts one doc")),1);
-no(await reg(a,"Personal A"),"Partial legal acceptance is insufficient");
-assert.equal(Number(yes(await rpc("efg_accept_legal_documents",a,{p_document_ids:allDocs.slice(1)}),"A explicitly accepts second doc")),1);
+no(await rpc("efg_accept_legal_documents",a,{p_document_ids:allDocs.slice(0,1)}),
+ "LEG-07 must reject incomplete terms/privacy document sets atomically");
+no(await reg(a,"Personal A"),"Personal registration still denied after incomplete legal attempt");
+assert.equal(Number(yes(await rpc("efg_accept_legal_documents",a,{p_document_ids:allDocs}),
+ "A explicitly accepts BOTH documents in one signed transaction")),2);
 assert.equal(yes(await reg(a,"Personal A"),"A self-enrolls with own signed identity"),a.id);
 no(await reg(a,"Duplicate A"),"Cannot re-register an already enrolled profile");
 no(await reg(b,"Personal B"),"B must accept independently; cannot inherit A acceptance");

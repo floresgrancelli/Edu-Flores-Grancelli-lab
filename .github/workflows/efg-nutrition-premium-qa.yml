@@ -53,6 +53,10 @@ jobs:
           node --check efg-nutrition/pilot/food-compatibility-adapter.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs
+      - name: COACH105 Android pull-to-refresh Gboard, habitual visibility and keto fasting guardrails (OFFLINE)
+        run: |
+          node --check efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
+          node efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
       - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
       - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker

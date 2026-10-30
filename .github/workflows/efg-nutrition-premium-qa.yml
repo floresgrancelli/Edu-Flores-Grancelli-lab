@@ -62,6 +62,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: COACH-67 published legal content, consent and server readback (OFF, SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/coach-legal-bridge.js
+          node efg-nutrition/tests/coach-legal-bridge.mjs
       - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
         run: |
           node --check efg-nutrition/pilot/coach-release-plan-gate.js

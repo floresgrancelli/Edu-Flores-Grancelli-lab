@@ -63,3 +63,28 @@ export function syncPilotParticipationContinueButton(doc){
  button.disabled=!ready;
  return ready;
 }
+
+// Hook for the isolated pilot preview; a future production route must call the
+// server acceptance/permission RPC and verify it before navigating.
+export function bindPilotParticipationDemo(doc,{onContinue}={}){
+ if(typeof doc?.getElementById!=="function"||typeof onContinue!=="function")
+  throw Error("Falta el controlador de la participación piloto.");
+ const participate=doc.getElementById("efgPilotParticipate");
+ const share=doc.getElementById("efgPilotShare");
+ const button=doc.getElementById("efgPilotContinue");
+ if(!participate||!share||!button||
+    typeof participate.addEventListener!=="function"||
+    typeof share.addEventListener!=="function"||
+    typeof button.addEventListener!=="function")
+  throw Error("No se pueden enlazar los controles del piloto.");
+ const sync=()=>syncPilotParticipationContinueButton(doc);
+ participate.addEventListener("change",sync);
+ share.addEventListener("change",sync);
+ button.addEventListener("click",()=>{
+  const choice=readPilotParticipationSelection(doc,{explicitClick:true});
+  if(!sync())throw Error("Completá las dos autorizaciones antes de continuar.");
+  onContinue(choice); // Demo only, NEVER a server acceptance.
+ });
+ sync();
+ return {ready:sync};
+}

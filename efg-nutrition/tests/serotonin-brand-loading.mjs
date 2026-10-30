@@ -11,7 +11,7 @@ assert.ok(existsSync(new URL("../pilot/assets/serotonina-acuarela.avif",import.m
 assert.match(html,/serotonin-loading\.css\?v=/,"Brand CSS loaded in app before JS");
 assert.match(html,/efg-serotonin-stage/,"Load screen shows serotonina before pilot.js");
 assert.match(html,/efg-serotonin-mark[^>]+serotonina-acuarela\.avif/,"Display authentic brand asset");
-assert.match(html,/<div class="spin" role="status" aria-label="Cargando EFG Nutrition"><\/div>/,"Original accessible status retained");
+assert.match(html,/<div class="spin" role="status" aria-label="Cargando Nutrición Con-Ciencia"><\/div>/,"Original accessible status retained");
 assert.ok(html.indexOf("efg-serotonin-stage")<html.indexOf("pilot.js"),"App splash must be immediate");
 assert.match(css,/body \.spin:not\(\.efg-unbranded-spinner\),\.efg-serotonin-spinner/,"All existing standard spinners use branded visual");
 assert.match(css,/url\("\.\/assets\/serotonina-acuarela\.avif"\)/,"Spinner reuses local asset");
@@ -21,7 +21,7 @@ assert.match(css,/@media \(max-width:480px\)/,"Responsive mobile sizing");
 assert.doesNotMatch(css,/@import|https?:\/\/|@keyframes\s+rotate\(/i,"No extra assets or animation libraries");
 assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false,"Never activate release while validation incomplete");
 assert.match(release,/efg-serotonin-stage/,"Draft major release carries brand molecule");
-const base={id:"efg_major_serotonin_01",version:"2026.11.1",phase:"preview",title:"Nuevo EFG Nutrition",roles:["admin","coach","student","personal"],highlights:["Guías alimentarias","Fichas de seguimiento"]};
+const base={id:"efg_major_serotonin_01",version:"2026.11.1",phase:"preview",title:"Nuevo Nutrición Con-Ciencia",roles:["admin","coach","student","personal"],highlights:["Guías alimentarias","Fichas de seguimiento"]};
 for(const role of base.roles){
  const preview=renderMajorReleaseAnnouncement(base,role);
  const live=renderWhatsNew({...base,phase:"live"},role);

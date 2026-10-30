@@ -57,5 +57,6 @@ assert.match(script,/id="weeklyLuxuryPublishButton".*?disabled/);
 assert.match(script,/luxuryWeeklyEditor\.reset\(\)/);
 assert.match(script,/index===-1.*?state\.coachHistory/s);
 const source=readFileSync(new URL('../pilot/weekly-luxury-editor.js',import.meta.url),'utf8');
-assert.doesNotMatch(source,/localStorage|sessionStorage|indexedDB|fetch\(/,'Coach draft must remain memory-only');
+const executable=source.split('\n').filter(line=>!line.trimStart().startsWith('//')).join('\n');
+assert.doesNotMatch(executable,/localStorage|sessionStorage|indexedDB|fetch\(/,'Coach draft must remain memory-only');
 console.log('PASS REPORT-LUX-76: edit survives redraw; changed data/text revokes approval; exactly previewed text publishable; student/coach isolation; no browser storage.');

@@ -52,3 +52,6 @@
 .efg-self-balance-suggestions h4{margin:0 0 7px;font-size:14px}
 .efg-self-balance-suggestions p{margin:5px 0;font-size:13px}
 @media(max-width:680px){.efg-self-plan-preview,.efg-self-balance{padding:19px 15px;border-radius:18px}.efg-self-plan-preview h3,.efg-self-balance h3{font-size:19px}.efg-self-plan-scroll table{font-size:12px}.efg-self-plan-scroll th,.efg-self-plan-scroll td{padding:10px 8px}}
+
+.efg-self-brand{min-width:0;flex:1}.efg-self-brand span{min-width:0;overflow-wrap:anywhere;line-height:1.18}.efg-self-head .btn{flex-shrink:0}
+@media(max-width:375px){.efg-self-brand{gap:5px}.efg-self-brand img{width:29px;height:auto}.efg-self-brand small{font-size:10px}.efg-self-head{padding:12px 11px}}

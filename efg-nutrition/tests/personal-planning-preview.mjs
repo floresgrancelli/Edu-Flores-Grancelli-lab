@@ -74,3 +74,5 @@ const injected=renderPersonalPlanningPreview({...preview,warnings:[...preview.wa
 assert.ok(injected.includes("&lt;img"));
 assert.doesNotMatch(injected,/<img src=x/);
 console.log("PASS NUT-62: explicit request, no medical flags, bounded Mifflin inputs, five exact meal splits, no raw health data or writes, method and disclaimers.");
+// Keep the future Personal day-balance gate with the OFF-by-default planning preview.
+await import("./personal-day-balance.mjs");

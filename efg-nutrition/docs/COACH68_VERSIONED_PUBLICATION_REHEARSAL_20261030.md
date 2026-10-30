@@ -37,3 +37,14 @@ Los **SQL previos de publicación** no se editaron ni se reemplazaron en producc
 5. Verificar las cinco suites GitHub sobre **el mismo último SHA**, revisar PR y obtener autorización expresa del propietario antes de merge o deploy.
 
 **Nutrition Autogestión permanece en pausa. Ninguna modificación alojada ni publicación fue autorizada o ejecutada.**
+
+
+## COACH-69 · JWT firmados en GoTrue local (30/10/2026)
+
+Se agregó **una fase real de autenticación local** después de que terminan las pruebas del circuito Coach anterior en el mismo stack descartable de Supabase. `tests/sql/coach69-disposable-local-version-switch.sql` exige el marcador de aislamiento, base local `postgres`, la tabla nueva de ficha y el esquema legado de prueba antes de retirar **solo en ese stack ficticio** las RPC/tablas antiguas de borrador, revisión alimentaria y publicación. A continuación el workflow aplica los tres SQL nuevos COACH-68 y relee el esquema de PostgREST; nunca se ejecuta contra Supabase alojada.
+
+`tests/coach69-versioned-auth-local-e2e.mjs` crea nuevos usuarios ficticios mediante GoTrue y verifica el token con `/auth/v1/user`. Luego prueba de punta a punta: dos organizaciones, permisos negativos de coach/estudiante/anónimo, aceptación explícita de los dos documentos vigentes para alumno y coach, nueva ficha del alumno compartida, revisión vinculada al borrador, aislamiento RLS del borrador, rechazo por falta de evidencia alimentaria, evidencia/revisión totalmente sintéticas, publicación atómica de objetivo y cinco comidas, repetición idempotente del identificador sin nuevos recibos ni avisos, bloqueo de API antiguas y revocación posterior del permiso de compartir que impide lecturas, cambios y reenvíos. Se comprueba conservación del número histórico de objetivos anterior a la prueba, sumando exactamente uno tras aprobación.
+
+**Evidencia de ejecución:** workflow `EFG Nutrition Supabase Auth local JWT/RLS QA`, run `41046329327`, commit `e33cc51b1dc988c4866af23477de178b9a0af1b9`: los pasos `COACH-69 switch ONLY disposable local stack` y `COACH-69 signed LOCAL JWT` finalizaron ambos `success` verificado en su lista de pasos. La comprobación de finalización del workflow completo y el resto de checks debe hacerse por ese mismo SHA.
+
+Los resultados validan **control de acceso y mecánica de publicación con documentos y alimentos inventados**. NO son evidencia nutricional/diagnóstica para alimentos ni aprobación de legales, migración de producción, restauración PITR o uso en iPhone/Android reales. La bandera de publicación y la bandera de ingreso versionado permanecen OFF hasta GO documentado.

@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {spawnSync} from "node:child_process";
-import {randomBytes} from "node:crypto";
+import {randomBytes,randomUUID} from "node:crypto";
 const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV||"","utf8")
  .split(/\r?\n/).filter(x=>x.includes("=")).map(x=>{const i=x.indexOf("=");return [x.slice(0,i),x.slice(i+1).trim().replace(/^['"]|['"]$/g,"")]}));
 const base=env.API_URL,key=env.ANON_KEY||env.PUBLISHABLE_KEY;
@@ -34,11 +34,18 @@ async function signup(role){
  return {id:a.user.id,token:a.access_token,email};
 }
 const people={};for(const role of ["studentA","studentB","coach","admin"])people[role]=await signup(role);
+// The local production-shaped profile constraint requires every student to belong
+// to an existing organization, while coaches/admins have organization_id=NULL.
+// The organization and identities are synthetic and never contact hosted Supabase.
+const organizationId=randomUUID();
+sql("insert into public.efg_organizations(id,name,coach_id) values("+
+ quote(organizationId)+",'BRAND77 isolated test organization',"+quote(people.coach.id)+")");
 for(const role of Object.keys(people)){
  const person=people[role];
  const appRole=role.startsWith("student")?"student":role;
  sql("insert into public.efg_profiles(user_id,email,nickname,role,organization_id) values("+
-  quote(person.id)+",'"+person.email+"','BRAND77 "+role+"','"+appRole+"',null)");
+  quote(person.id)+",'"+person.email+"','BRAND77 "+role+"','"+appRole+"',"+
+  (appRole==="student"?quote(organizationId):"null")+")");
 }
 const version="con_ciencia_2026_r1";
 const read=person=>request("/rest/v1/efg_science_intro_receipts?select=user_id,version,seen_at,action",{token:person?.token});

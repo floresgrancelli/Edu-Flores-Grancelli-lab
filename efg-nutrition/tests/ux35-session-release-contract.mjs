@@ -27,7 +27,7 @@ const discarded=await signOutCurrentDevice({auth,explicitClick:true,
 assert.equal(discarded.signedOut,true);
 assert.equal(confirmCalls,2);
 assert.equal(calls.length,2);
-await assert.rejects(signOutCurrentDevice({auth:{signOut:async()=>({error:{message:'offline'}}},explicitClick:true}),/No pudimos cerrar/);
+await assert.rejects(signOutCurrentDevice({auth:{signOut:async()=>({error:{message:'offline'}})},explicitClick:true}),/No pudimos cerrar/);
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../pilot/release-session.css',import.meta.url),'utf8');

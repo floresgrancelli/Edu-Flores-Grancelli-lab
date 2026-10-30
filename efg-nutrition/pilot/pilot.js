@@ -34,6 +34,8 @@ import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspace
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentminor1";
 import {signOutCurrentDevice} from "./logout-session.js?v=20261030-session01";
+import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=20261030-ux35-major1";
+import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=20261030-coach120";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
@@ -404,7 +406,7 @@ const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
-state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
+state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -2227,6 +2229,23 @@ function restoreViewContinuity(snapshot){
 }
 async function render(){
  if(!state.profile)return loginView();
+ // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
+ // response. Both flags default OFF. Never use a minor asset build as a trigger.
+ if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease?.phase!=="none"&&state.majorRelease){
+  const phase=state.majorRelease.phase;
+  if(phase==="preview"||phase==="reauth_required"){
+   root.innerHTML=renderMajorReleaseAnnouncement(state.majorRelease,state.profile.role);
+   return;
+  }
+  if(phase==="legal"){
+   root.innerHTML=renderCoachPilotLegal(state.majorReleaseLegal);
+   return;
+  }
+  if(phase==="live"){
+   root.innerHTML=renderWhatsNew(state.majorRelease,state.profile.role);
+   return;
+  }
+ }
  // Unrecognized roles never inherit legacy Student/Coach/Admin screens.
  // Read-only Personal stays OFF until schema, legal and clinical approvals.
  if(!["student","coach","admin"].includes(state.profile.role)){
@@ -2560,6 +2579,15 @@ async function refresh(){
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
+  // Signed major manifest is independent of app code version. No active
+  // release => no notices and no automatic logout for routine fixes.
+  state.majorRelease=null;state.majorReleaseLegal=null;
+  if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED){
+   state.majorRelease=await readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true});
+   if(state.majorRelease.phase==="legal")
+    state.majorReleaseLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
+   if(state.majorRelease.phase!=="none")return render();
+  }
   if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
@@ -2987,16 +3015,42 @@ if(el.dataset.foodbulk){
   return loginView();
  }
  if(action==="acceptCoachPilotLegal"){
-   if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
-      state.coachPilotEntry?.route!=="legal"||!state.coachPilotLegal?.ready)
-    throw Error("La aceptación legal de este piloto no está habilitada.");
-   const selections=readCoachPilotLegalSelections(document,state.coachPilotLegal);
-   await submitCoachPilotLegal(sb,state.coachPilotLegal,selections,{
+   const majorLegal=MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease?.phase==="legal";
+   const pilotLegal=COACH_STUDENT_JOURNEY_ENABLED&&state.profile?.role==="student"&&
+     state.coachPilotEntry?.route==="legal";
+   const snapshot=majorLegal?state.majorReleaseLegal:state.coachPilotLegal;
+   if((!majorLegal&&!pilotLegal)||!snapshot?.ready)
+    throw Error("La aceptación legal actual no está disponible.");
+   const selections=readCoachPilotLegalSelections(document,snapshot);
+   await submitCoachPilotLegal(sb,snapshot,selections,{
     explicitSubmit:true,profile:state.profile
    });
    await refresh();notify("Términos y Política de Privacidad confirmados por separado.");
    return;
   }
+  if(["ackReleasePreview","ackReleaseAndSignOut","markReleaseSeen","releaseHelp"].includes(action)){
+    if(!MAJOR_RELEASE_FLOW_ENABLED||!RELEASE_COMMUNICATIONS_ENABLED||
+       !state.majorRelease||state.majorRelease.phase==="none")
+     throw Error("El relanzamiento todavía no está habilitado.");
+    if(action==="releaseHelp"){
+     notify("Para consultar sobre el relanzamiento, contactá a tu coach o al equipo EFG.");
+     return;
+    }
+    const current=state.majorRelease,profile=state.profile;
+    const type=action==="ackReleasePreview"?"announcement_preview_read":
+     action==="ackReleaseAndSignOut"?"reauth_notice_acknowledged":"whats_new_seen";
+    // On exceptional reauth, ASK before acknowledging if local edits exist.
+    if(action==="ackReleaseAndSignOut"&&hasPendingUnsavedEdits()&&
+      !window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Los registros ya guardados no se pierden."))return;
+    await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,
+     explicitClick:true,explicitlyEnabled:true});
+    if(action==="ackReleaseAndSignOut"){
+     const out=await signOutCurrentDevice({auth:sb.auth,explicitClick:true});
+     if(!out.signedOut)throw Error("El cierre para el relanzamiento no se confirmó.");
+     resetPrivateSession();await inbox.refresh();return loginView();
+    }
+    await refresh();return;
+   }
   if(action==="pilotDemoContinue"){
   if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
      state.coachPilotEntry?.route!=="participation")
@@ -3365,6 +3419,7 @@ function resetPrivateSession(){
  // invalidation. Never carry another Coach's private data to a fresh OTP user.
  state.foodCompatEvidence=[];state.habitualSelection={};
  state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
+ state.majorRelease=null;state.majorReleaseLegal=null;
  state.coachLegalPending=false;state.coachLegalSnapshot=null;state.coachRelaunchEntry=null;
  state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;
  state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakeGoals={};

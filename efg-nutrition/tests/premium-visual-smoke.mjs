@@ -432,6 +432,14 @@ try{
      if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
+   // UX35: every authenticated role has a 44px mobile logout in the header;
+   // do not activate it in this synthetic fixture.
+   if(width<=720){
+    const logout=page.locator('button.efg-mobile-logout[data-act="logout"]');
+    const rect=await logout.first().boundingBox();
+    if(await logout.count()!==1||!rect||rect.height<44||rect.width<44)
+     pageReport.errors.push("UX35 "+role+"/"+dest+": mobile logout missing or touch target too small");
+   }
    if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
      pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
    const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();

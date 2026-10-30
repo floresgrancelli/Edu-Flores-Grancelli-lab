@@ -7,7 +7,7 @@ export const COACH_RELEASE_INTAKE_VERSION="coach_major_2026_r1";
 const isUuid=id=>typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
 export const EMPTY_COACH_RELAUNCH_INTAKE=Object.freeze({
  objective:"",age_years:null,height_cm:null,weight_kg:null,activity_level:"",
- dietary_pattern:"",preferred_foods:"",disliked_foods:"",meal_routine:"",notes:"",
+ dietary_pattern:"",eating_window:"regular",preferred_foods:"",disliked_foods:"",meal_routine:"",notes:"",
  health_flags:Object.freeze([]),allergy_details:"",shareWithCoach:false
 });
 // Both distinct CURRENT legal kinds are required. Two accepted rows of the same

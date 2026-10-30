@@ -86,22 +86,14 @@ create table public.efg_notifications(
  created_at timestamptz not null default now(),
  unique(recipient_id,event_key)
 );
-create table public.efg_legal_documents(
- id uuid primary key,kind text not null,version text not null,
- sha256 text not null, locale text not null,
- content text not null default '',published_at timestamptz not null,
- effective_at timestamptz not null,retired_at timestamptz,
- status text not null
+-- LEG-07: mark THIS disposable local Supabase database as test-only.
+-- The reviewed staging-only legal SQL will create the actual legal tables.
+-- Never add this marker to the hosted production database.
+create table efg_private.nut57_isolated_staging_marker(
+ local_only boolean not null default true check(local_only=true)
 );
-create table public.efg_legal_acceptances(
- id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id),
- document_id uuid not null references public.efg_legal_documents(id),
- accepted_at timestamptz not null default now(),
- acceptance_method text not null,document_hash_sha256 text not null,
- version text not null,kind text not null,recorded_at timestamptz not null default now(),
- unique(user_id,document_id)
-);
-revoke insert,update,delete on public.efg_legal_acceptances from public,anon,authenticated;
+insert into efg_private.nut57_isolated_staging_marker default values;
+
 create function public.efg_publish_coach_plan(p_student uuid,p_goal_id uuid)
 returns void language plpgsql as $old$
 begin raise exception 'Old RPC prohibited in staging'; end

@@ -36,7 +36,8 @@ import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach111";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
+import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
 import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
 import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=20261030-coach106";
@@ -402,7 +403,7 @@ const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
-state.coachPilotEntry=null;state.coachPilotIntake=null;
+state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -2248,7 +2249,9 @@ async function render(){
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
   const pilot=state.coachPilotEntry;
   if(pilot?.route!=="ready"){
-   if(pilot?.route==="participation")
+   if(pilot?.route==="legal")
+    root.innerHTML=renderCoachPilotLegal(state.coachPilotLegal);
+   else if(pilot?.route==="participation")
     root.innerHTML=renderPilotParticipationNotice({serverReceipts:true});
    else if(pilot?.route==="intake"){
     const saved=state.coachPilotIntake;
@@ -2268,6 +2271,8 @@ async function render(){
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
    if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
    state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   if(state.coachPilotEntry.route==="legal")
+    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
    if(state.coachPilotEntry.route==="intake")
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
    if(!["ready","review"].includes(state.coachPilotEntry.route))return render();
@@ -2549,7 +2554,7 @@ async function refresh(){
   if(p.error)throw p.error;
   state.profile=p.data;
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
-  state.coachPilotEntry=null;state.coachPilotIntake=null;
+  state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
@@ -2625,7 +2630,9 @@ async function refreshVisibleWorkspace(){
   }
   if(COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"){
    state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
-   state.coachPilotIntake=null;
+   state.coachPilotLegal=null;state.coachPilotIntake=null;
+   if(state.coachPilotEntry.route==="legal")
+    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
    if(state.coachPilotEntry.route==="intake")
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
    if(!["ready","review"].includes(state.coachPilotEntry.route)){await render();return;}
@@ -2968,8 +2975,19 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.foodCompatEvidence=[];state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
- if(action==="pilotDemoContinue"){
+ if(action==="logout"){state.foodCompatEvidence=[];state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="acceptCoachPilotLegal"){
+   if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
+      state.coachPilotEntry?.route!=="legal"||!state.coachPilotLegal?.ready)
+    throw Error("La aceptación legal de este piloto no está habilitada.");
+   const selections=readCoachPilotLegalSelections(document,state.coachPilotLegal);
+   await submitCoachPilotLegal(sb,state.coachPilotLegal,selections,{
+    explicitSubmit:true,profile:state.profile
+   });
+   await refresh();notify("Términos y Política de Privacidad confirmados por separado.");
+   return;
+  }
+  if(action==="pilotDemoContinue"){
   if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
      state.coachPilotEntry?.route!=="participation")
    throw Error("La participación del piloto no está disponible.");

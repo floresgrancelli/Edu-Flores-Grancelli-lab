@@ -30,8 +30,14 @@ assert.ok(actualArchiveSQL.includes('create trigger coach119_archive_previous_ap
 const student='11111111-1111-4111-8111-111111111111';
 const coach='22222222-2222-4222-8222-222222222222';
 const goal='33333333-3333-4333-8333-333333333333';
-exec(`create role authenticated nologin;
-create role anon nologin;
+exec(`do $roles$ begin
+ if not exists(select 1 from pg_roles where rolname='authenticated') then
+  create role authenticated nologin;
+ end if;
+ if not exists(select 1 from pg_roles where rolname='anon') then
+  create role anon nologin;
+ end if;
+end $roles$;
 create schema auth;
 create schema efg_private;
 create table auth.users(id uuid primary key);

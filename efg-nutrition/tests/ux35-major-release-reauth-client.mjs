@@ -39,7 +39,7 @@ const before=calls.length;
 const no=await confirmMajorRelaunchAndExit(sb,{...args,
  hasUnsavedChanges:()=>true,confirmDiscard:()=>false});
 assert.equal(no.cancelled,true);
-assert.equal(calls.length-before,2,'Cancelled after read but before acknowledgment');
+assert.equal(calls.length-before,1,'Cancelled after status read but before acknowledgment');
 const yes=await confirmMajorRelaunchAndExit(sb,{...args,
  hasUnsavedChanges:()=>true,confirmDiscard:()=>true});
 assert.equal(yes.signedOut,true);

@@ -79,6 +79,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
+      - name: COACH120-121 hosted signed major manifest + new OTP session + legal + once-only WhatsNew (OFF)
+        run: |
+          node --check efg-nutrition/pilot/major-release-client.js
+          node efg-nutrition/tests/coach120-major-release-contract.mjs
       - name: UX35 signed MAJOR reauth adapter remains OFF until hosted release receipts
         run: |
           node --check efg-nutrition/pilot/major-release-reauth-client.js

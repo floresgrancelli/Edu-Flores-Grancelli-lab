@@ -24,12 +24,17 @@ export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
   status:null,legalStatus
  };
  const r=await sb.from("efg_coach_relaunch_intakes")
-  .select("student_id,organization_id,completed_version,revision,shared_at,completed_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes")
+  .select("student_id,organization_id,completed_version,revision,shared_at,completed_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes")
   .eq("student_id",userId).eq("completed_version",COACH_RELEASE_INTAKE_VERSION).maybeSingle();
  if(r.error)throw Error("No se pudo verificar la ficha de relanzamiento actual.");
  const status=r.data||null;
  const gate=resolveCoachRelaunchEntry({userId,profile,identityVerified:true,
   legalStatus,legalStatusFetched:true,onboardingStatus:status,onboardingStatusFetched:true});
+ // The Coach calculator and the atomic draft require the exact server timestamp
+ // AND revision. A completed form without updated_at cannot open a publishable plan.
+ if(gate.route==="ready"&&(
+   typeof status?.updated_at!=="string"||!Number.isFinite(Date.parse(status.updated_at))))
+  return {route:"retry",reason:"No se pudo verificar la fecha de revisión de la ficha.",status:null,legalStatus};
  return {...gate,status,legalStatus};
 }
 const field=(id,label,val,step,min,max)=>

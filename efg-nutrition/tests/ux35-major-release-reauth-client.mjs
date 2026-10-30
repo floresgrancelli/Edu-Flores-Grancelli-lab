@@ -6,7 +6,7 @@ const other='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const profile={user_id:uid,role:'student',active:true};
 const args={profile,userId:uid,releaseId:'major_2026_01',currentBuild:'20261030-ux35-session1',
  explicitClick:true,enabled:true,hasUnsavedChanges:()=>false};
-let phase='preview',published=true,ackGood=true,authUser=uid;
+let phase='preview',published=false,ackGood=true,authUser=uid;
 let calls=[];
 const sb={auth:{getUser:async()=>({data:{user:{id:authUser}},error:null}),
  signOut:async opts=>{calls.push(['signOut',opts]);return {error:null}}},
@@ -27,10 +27,10 @@ await assert.rejects(confirmMajorRelaunchAndExit(sb,{...args,explicitClick:false
 assert.equal(calls.length,0,'OFF and without click cannot call server');
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confirmada/);
 assert.equal(calls.filter(x=>x[0]==='signOut').length,0);
-phase='live';
+phase='live';published=true;
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confirmada/);
 phase='reauth_required';published=false;
-await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confirmada/);
+await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/Manifiesto/);
 published=true;authUser=other;
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/identidad|sesión/);
 authUser=uid;ackGood=false;

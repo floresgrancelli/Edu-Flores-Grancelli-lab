@@ -260,7 +260,7 @@ for(const [who,actor] of [["Coach",probeCoach],["Student",probeStudent]]){
  assert.deepEqual(yes(await rest(favPath+"?select=id",{token:actor.token}),
   who+" Personal favorites RLS isolation"),[]);
  no(await rest(diaryPath,{method:"POST",token:actor.token,
-  body:{...todayLog,meals:{desayuno:[{id:"egg",qty:999}]}}),
+  body:{...todayLog,meals:{desayuno:[{id:"egg",qty:999}]}}}),
   who+" cannot forge Personal A diary insert");
  no(await rest(favPath,{method:"POST",token:actor.token,body:suspendedFav}),
   who+" cannot forge Personal A preset");

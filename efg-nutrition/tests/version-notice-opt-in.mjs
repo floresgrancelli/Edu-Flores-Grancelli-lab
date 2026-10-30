@@ -72,7 +72,8 @@ globalThis.fetch=async (url,opts)=>{
 };
 const notice=createVersionNotice({
  currentVersion:current,canShow:()=>loggedIn,
- hasUnsavedChanges:()=>editing,intervalMs:3600000
+ hasUnsavedChanges:()=>editing,intervalMs:3600000,
+ announceMinorUpdates:true // legacy compatibility test: non-default user opt-in
 });
 const host=root.children.find(x=>x.id==="efgVersionNotice");
 assert.ok(host);

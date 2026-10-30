@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {LEGAL_ONBOARDING_ENABLED,legalOutstanding,renderLegalOnboarding,makeLegalAcceptanceRequest} from "../pilot/legal-onboarding.js";
 const hash="a".repeat(64);
 const docs=["terms","privacy"].map(kind=>({kind,id:"20261029_"+kind,version:"2026.10",sha256:hash,status:"published",
@@ -33,3 +34,33 @@ for(const invalid of [
  docs.map(x=>({...x,sha256:"invalid"}))
 ])assert.throws(()=>renderLegalOnboarding(invalid),/legal|Documento|Faltan/i);
 console.log("PASS: legal onboarding preview is opt-in, versioned, explicit, escaped and server-authoritative");
+
+
+// SEC-10: OTP proves identity only, never serves as consent to share health data.
+// Legacy sessionStorage flags may be removed but cannot grant any permissions.
+const pilot=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
+const otp=pilot.split("async function confirmOtp(token){")[1]?.split("function sessionConnectionRetry(){")[0];
+assert.ok(otp,"OTP handler must exist");
+assert.match(otp,/auth\.verifyOtp\(\{email,token:code,type:"email"\}\)/);
+assert.doesNotMatch(otp,/efg_consents|efgNutritionCoachConsent|sessionStorage\.setItem/,
+ "OTP confirmation must never create Coach sharing permission");
+const refresh=pilot.split("async function refresh(){")[1]?.split("// Explicit pull-to-refresh")[0];
+assert.ok(refresh,"Authenticated refresh must exist");
+assert.doesNotMatch(refresh,/acceptedNotice|\.from\("efg_consents"\)\.update/,
+ "Reopening a logged-in session must not auto-grant Coach data access");
+assert.match(refresh,/sessionStorage\.removeItem\("efgNutritionCoachConsent:"\+id\)/,
+ "Any stale legacy OTP consent flag must be discarded");
+assert.match(pilot,/data-act="grantConsent"/,
+ "A dedicated voluntary Coach-sharing action is required");
+const consentAction=pilot.split('if(action==="revokeConsent"||action==="grantConsent"){')[1]?.split('if(action==="saveWeight")')[0];
+assert.ok(consentAction);
+assert.match(consentAction,/state\.profile\?\.role!=="student"/,
+ "Only the Student can invoke their own sharing consent UI action");
+assert.match(consentAction,/accepted&&!window\.confirm\(/,
+ "Grant requires a separate, affirmative user interaction");
+assert.match(consentAction,/\.eq\("student_id",state\.session\.user\.id\)/,
+ "Never change another person's consent");
+assert.match(pilot,/Este código verifica únicamente tu identidad\. No autoriza a compartir tus datos/);
+assert.doesNotMatch(pilot,/ingresar con tu código\. Podés retirar el permiso/,
+ "Privacy panel must not represent OTP entry as Coach sharing consent");
+console.log("PASS SEC-10: authentication and Coach health-data sharing are separate opt-in actions.");

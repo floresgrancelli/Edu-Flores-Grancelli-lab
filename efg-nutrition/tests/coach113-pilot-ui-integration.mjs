@@ -28,11 +28,14 @@ for(const token of [
 const index=pilot.indexOf('if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){');
 const old=pilot.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){',index);
 assert.ok(index>0&&old>index,'Signed new pilot must take priority when enabled.');
-const signout=pilot.match(/if\(action==="logout"\)\{[^\n]+/);
-assert.ok(signout&&signout[0].includes('state.coachPilotEntry=null;')&&
- signout[0].includes('state.coachPilotIntake=null;')&&
- signout[0].includes('state.foodCompatEvidence=[];'),
- 'Signing out must clear new private pilot, compatibility, and old session caches.');
+// Session01: all private caches are centralized and used by explicit logout
+// and SIGNED_OUT (including involuntary JWT invalidation).
+assert.match(pilot,/function resetPrivateSession\(\)\{[\s\S]*?state\.foodCompatEvidence=\[\];/);
+assert.match(pilot,/state\.coachPilotEntry=null;state\.coachPilotIntake=null;state\.coachPilotLegal=null;/);
+assert.match(pilot,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/,
+ 'Explicit logout must clear Coach pilot and old session cache');
+assert.match(pilot,/else if\(event==="SIGNED_OUT"\)\{[\s\S]*?resetPrivateSession\(\);loginView\(\);/,
+ 'Signed-out auth events must clear the same private cache');
 assert.match(pilot,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)throw Error\("Ingreso piloto duplicado/);
 assert.match(pilot,/if\(!data.shareWithCoach\)throw Error\("Para continuar compartí la ficha/);
 console.log('PASS COACH113: signed pilot entry and consent-driven intake UI wired but OFF; waiting preserves messaging; session caches cleared.');

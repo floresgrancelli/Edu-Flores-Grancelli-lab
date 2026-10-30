@@ -4,7 +4,7 @@ import {PERSONAL_INTAKE_ENABLED,PERSONAL_HEALTH_FLAGS,PERSONAL_INTAKE_GOALS,
  parsePersonalIntake,personalIntakeSafety,renderPersonalIntakeDraft} from "../pilot/personal-intake-draft.js";
 assert.equal(PERSONAL_INTAKE_ENABLED,false,"No sensitive intake collection until legal/backend review.");
 assert.ok(PERSONAL_INTAKE_GOALS.some(x=>x[0]==="recomp"));
-for(const code of ["celiac","diabetes","hypertension","high_cholesterol","fatty_liver","food_allergy","kidney_disease"]){
+for(const code of ["celiac","diabetes","hypertension","high_cholesterol","fatty_liver","food_allergy","lactose_intolerance","sibo","kidney_disease"]){
  assert.ok(PERSONAL_HEALTH_FLAGS.some(x=>x[0]===code),"Missing self-reported condition "+code);
 }
 const data=parsePersonalIntake({
@@ -19,6 +19,7 @@ assert.equal(personalIntakeSafety(data).canPreviewGeneralEnergyEstimate,true);
 assert.equal(personalIntakeSafety(data).automaticGuideAllowed,false);
 assert.equal(personalIntakeSafety(parsePersonalIntake({...data,health_flags:["celiac"]})).requiresProfessionalReview,true);
 assert.equal(personalIntakeSafety(parsePersonalIntake({...data,health_flags:["celiac"]})).canPreviewGeneralEnergyEstimate,false);
+for(const f of ["lactose_intolerance","sibo"]){const d=personalIntakeSafety(parsePersonalIntake({...data,health_flags:[f]}));assert.equal(d.automaticGuideAllowed,false);assert.equal(d.requiresProfessionalReview,true);}
 assert.equal(personalIntakeSafety(parsePersonalIntake({...data,goal:"general"})).canPreviewGeneralEnergyEstimate,false);
 assert.throws(()=>parsePersonalIntake({...data,health_flags:["celiac","celiac"]}),/Selección inválida/);
 assert.throws(()=>parsePersonalIntake({...data,health_flags:["not_a_diagnosis"]}),/Selección inválida/);
@@ -32,7 +33,7 @@ assert.equal(parsePersonalIntake({...data,health_flags:["food_allergy"],allergy_
 assert.throws(()=>parsePersonalIntake({...data,notes:"x".repeat(801)}),/observaciones/);
 assert.throws(()=>parsePersonalIntake({...data,health_flags:null}),/Selección inválida/);
 const html=renderPersonalIntakeDraft(data);
-for(const s of ["Mi ficha nutricional","Celiaquía","Diabetes","Hipertensión","Hígado graso","Colesterol elevado","Alergia alimentaria","Patrón de alimentación"]){
+for(const s of ["Mi ficha nutricional","Celiaquía","Diabetes","Hipertensión","Hígado graso","Colesterol elevado","Alergia alimentaria","Intolerancia a la lactosa","SIBO","Patrón de alimentación"]){
  assert.ok(html.includes(s),s);
 }
 assert.ok(html.includes("&lt;script&gt;"),"All user text escaped");

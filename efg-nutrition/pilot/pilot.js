@@ -26,7 +26,7 @@ import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-sa
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "./coach-draft-review.js?v=20261029-review51";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
-import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
+import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2939,7 +2939,7 @@ root.addEventListener("input",e=>{if(meaningfulField(e.target))userHasUnconfirme
 root.addEventListener("change",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 document.addEventListener("input",e=>{if(e.target?.id==="efgMessageText")userHasUnconfirmedEdits=true;},{capture:true});
 const versionNotice=createVersionNotice({
- currentVersion:"20261028-version1",
+ currentVersion:"20261030-grand-candidate-nut58",
  canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
  hasUnsavedChanges:()=>userHasUnconfirmedEdits||
   !!state.coachGuidedDraft||!!state.pendingGoal||!!state.pendingGoalRevision||

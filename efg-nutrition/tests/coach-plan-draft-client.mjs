@@ -89,7 +89,8 @@ assert.ok(!calls.slice(noServerCalls).some(x=>x.name==="efg_publish_coach_plan_d
  "Current major release must NEVER fall back to old non-atomic RPC");
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const flow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
-assert.match(app,/createCoachPlanDraftClient\(\{sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED\}\)/);
+assert.match(app,/createCoachPlanDraftClient\(\{sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,\s*versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED\}\)/,
+ "Main app must pass backend-verification flag; no hardcoded false on GO");
 assert.match(app,/if\(!COACH_ATOMIC_PLAN_UI_ENABLED\)return ""/);
 assert.match(app,/data-act="saveCoachAtomicDraft"/);
 assert.match(app,/data-act="publishCoachAtomicDraft"/);

@@ -27,8 +27,8 @@ const restored={...base,PGHOST:'127.0.0.1',PGPORT:'5432',
  PGDATABASE:'efg_coach91_disposable_restore',PGUSER:'postgres',
  EFG_COACH91_RESTORE_ACK:'I_ACCEPT_DISPOSABLE_LOCAL_RESTORE'};
 assert.equal(validateModeEnvironment('inspect',base),true);
-assert.equal(validateModeEnvironment('capture',captured),true);
-assert.equal(validateModeEnvironment('restore',restored),true);
+assert.throws(()=>validateModeEnvironment('capture',captured),/retired; use COACH94/);
+assert.throws(()=>validateModeEnvironment('restore',restored),/retired; use COACH94/);
 for(const bad of [
  {...captured,CI:'true'}, {...captured,GITHUB_ACTIONS:'true'},
  {...captured,PGHOST:'malicious.example'}, {...captured,PGSSLMODE:'disable'},
@@ -41,4 +41,4 @@ for(const bad of [
  assert.throws(()=>validateModeEnvironment(mode,bad),/COACH91 STOP/);
 }
 assert.throws(()=>validateModeEnvironment('delete',base),/COACH91 STOP/);
-console.log('PASS COACH91: offline PG17 backup/restore guardrails reject missing Auth, Storage metadata, legacy tables, ACL controls, prod destinations, CI and insecure source connections; NO real data touched.');
+console.log('PASS COACH91: retired unsafe managed Supabase raw dump and restore fail closed; diagnostic archive TOC rejects incomplete fixtures. NO real data touched.');

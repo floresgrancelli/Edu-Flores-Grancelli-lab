@@ -81,7 +81,8 @@ begin
  if old.guided_plan is not null and old.guided_plan_approved_at is not null
   and (new.guided_plan is distinct from old.guided_plan
    or new.guided_goal_id is distinct from old.guided_goal_id
-   or new.guided_plan_approved_at is distinct from old.guided_plan_approved_at)
+   or new.guided_plan_approved_at is distinct from old.guided_plan_approved_at
+   or new.approved_food_ids is distinct from old.approved_food_ids)
  then
   insert into efg_private.coach_guide_history(
    student_id,coach_id,guided_goal_id,guided_plan,
@@ -97,7 +98,7 @@ $coach119_archive$;
 revoke all on function efg_private.coach119_archive_replaced_guide()
  from public,anon,authenticated;
 create trigger coach119_archive_previous_approved_guide
- before update of guided_plan,guided_goal_id,guided_plan_approved_at
+ before update of guided_plan,guided_goal_id,guided_plan_approved_at,approved_food_ids
  on public.efg_food_plans
  for each row execute function efg_private.coach119_archive_replaced_guide();
 

@@ -185,3 +185,12 @@ jobs:
         run: |
           echo "Static gate only: NOT permission to deploy."
           echo "Manual iPhone/Android screenshots and Supabase E2E remain required."
+
+  # COACH-RELEASE CI: local JWT/RLS workflow exists only on candidate until merge.
+  # Calling it from an existing PR workflow executes the exact candidate commit.
+  # The called job starts strictly disposable LOCAL Supabase, never hosted.
+  coach-local-signed-jwt:
+    name: Coach signed local JWT / RLS (isolated; no hosted database)
+    uses: ./.github/workflows/efg-nutrition-auth-local-qa.yml
+    permissions:
+      contents: read

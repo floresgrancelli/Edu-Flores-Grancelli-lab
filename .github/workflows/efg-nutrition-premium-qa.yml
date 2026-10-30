@@ -44,6 +44,10 @@ jobs:
         run: node efg-nutrition/tests/food-compatibility.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: NUT-58 PWA visible manual upgrade, no automatic reload while editing
+        run: |
+          node --check efg-nutrition/pilot/version-notice.js
+          node efg-nutrition/tests/version-notice-opt-in.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
       - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)

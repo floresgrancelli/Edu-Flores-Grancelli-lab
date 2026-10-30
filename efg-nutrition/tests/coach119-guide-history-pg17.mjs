@@ -20,7 +20,7 @@ function exec(sql,expectedSuccess=true){
  return (r.stdout||'').trim();
 }
 assert.equal(exec('select current_database()'),'efg_coach119_history');
-assert.match(exec('show server_version_num'),/^17\\d{4}$/);
+assert.ok(exec('show server_version_num').startsWith('17'), 'PostgreSQL 17 required');
 const source=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
 const start=source.indexOf('create table efg_private.coach_guide_history');
 const end=source.indexOf('-- Preserve exactly the two existing legacy notifications',start);

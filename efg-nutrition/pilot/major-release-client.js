@@ -18,7 +18,13 @@ function validRelease(data,role){
    !Array.isArray(data.highlights)||data.highlights.length<1||data.highlights.length>8||
    data.highlights.some(x=>typeof x!=='string'||x.length>230||!x.trim())||
    !Array.isArray(data.roles)||data.roles.length!==4||
-   !ROLES.has(role)||!data.roles.includes(role))throw Error('Manifiesto de relanzamiento incompleto.');
+   new Set(data.roles).size!==4||data.roles.some(r=>!ROLES.has(r))||
+   !ROLES.has(role)||!data.roles.includes(role)||
+   typeof data.build!=='string'||!/^[0-9A-Za-z._-]{6,80}$/.test(data.build)||
+   data.build==='unconfigured'||typeof data.published!=='boolean'||
+   (data.phase==='preview'&&data.published!==false)||
+   (['reauth_required','live'].includes(data.phase)&&data.published!==true))
+  throw Error('Manifiesto de relanzamiento incompleto.');
  return Object.freeze({...data,roles:Object.freeze([...data.roles]),
   highlights:Object.freeze([...data.highlights])});
 }

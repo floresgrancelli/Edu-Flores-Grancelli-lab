@@ -53,6 +53,10 @@ jobs:
           node --check efg-nutrition/pilot/food-compatibility-adapter.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs
+      - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
+        run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
+      - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
+        run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)

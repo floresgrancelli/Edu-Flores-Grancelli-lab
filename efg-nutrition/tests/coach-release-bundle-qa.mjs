@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {buildCoachReleaseBundle,COACH_RELEASE_DATABASE} from '../scripts/coach-release-bundle.mjs';
+import {buildCoachLegacyCompatibilityRecoverySQL} from '../scripts/coach-legacy-compat-recovery.mjs';
 
 assert.equal(process.env.GITHUB_ACTIONS,'true','Disposable CI only');
 assert.equal(process.env.PGHOST,'127.0.0.1');
@@ -120,6 +121,39 @@ if(phase==='failure'){
  assert.match(duplicate.stderr,/existing legal tables/);
  assert.deepEqual(snapshot(),installed);
  assert.equal(sql(`select to_jsonb(t)::text from public.efg_science_intro_receipts t`),receipt);
+ // Rehearse an emergency forward-compatibility path WITHOUT restoring an old
+ // database snapshot: disabled new RPCs + original authenticated DML grants.
+ // Old frontend only; not a production rollback or approved nutrition workflow.
+ sql(buildCoachLegacyCompatibilityRecoverySQL());
+ for(const table of ['efg_goals','efg_food_plans']){
+  for(const privilege of ['INSERT','UPDATE','DELETE']){
+   assert.equal(sql(`select has_table_privilege('authenticated','public.${table}','${privilege}')`),'t',
+    'Legacy Coach DML grant must be restored: '+table+' '+privilege);
+  }
+  assert.equal(sql(`select has_table_privilege('anon','public.${table}','INSERT')`),'f',
+   'Anonymous writes must stay blocked');
+ }
+ for(const fn of ['public.efg_publish_coach_plan_draft(uuid,bigint,uuid)',
+  'public.efg_save_coach_plan_draft(uuid,jsonb,jsonb,timestamptz,integer,bigint)',
+  'public.efg_publish_coach_plan(uuid,uuid)']){
+  assert.equal(sql(`select has_function_privilege('authenticated','${fn}','EXECUTE')`),'f',
+   'New and staging-only legacy publication RPCs must stay disabled');
+ }
+ // All legacy writes must remain restricted by unchanged organization RLS.
+ const priorAfterInstall=sql(historySql);
+ const coachA=sql(`select coach_id from public.efg_student_plan_access where student_id='${studentA}'`);
+ sql(`BEGIN; SET LOCAL ROLE authenticated; SET LOCAL request.jwt.claim.sub='${coachA}';
+   insert into public.efg_goals(student_id,approved_by,goal_type,kcal,protein_g,carb_g,fat_g,fiber_g)
+   values('${studentA}','${coachA}','maintenance',2000,120,250,70,30); ROLLBACK;`);
+ assert.equal(sql(historySql),priorAfterInstall,'Legacy emergency writing test must not alter history');
+ // Verify a student from another organization cannot directly insert goals.
+ const foreignGoal=run(`BEGIN; SET LOCAL ROLE authenticated; SET LOCAL request.jwt.claim.sub='${coachA}';
+   insert into public.efg_goals(student_id,approved_by,goal_type,kcal,protein_g,carb_g,fat_g,fiber_g)
+   values('${studentB}','${coachA}','maintenance',2000,120,250,70,30); COMMIT;`);
+ assert.notEqual(foreignGoal.status,0,'Coach A must not write goals for student B after fallback');
+ assert.match(foreignGoal.stderr,/row-level security/);
+ assert.equal(sql(historySql),priorAfterInstall);
+ console.log('PASS COACH86: isolated forward-compatibility recovery of legacy DML, no new publish/draft RPC, RLS cross-org denies, unchanged history. NOT a production rollback.');
  console.log('PASS COACH RELEASE: committed fresh eight-module install, historical access, no fabricated consent, RLS receipts/idempotence, legacy writes revoked and duplicate install rejected.');
 }else{
  absent();assert.deepEqual(snapshot(),JSON.parse(readFileSync(evidencePath,'utf8')),

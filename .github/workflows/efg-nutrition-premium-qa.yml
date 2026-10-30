@@ -220,6 +220,11 @@ jobs:
         run: node efg-nutrition/tests/user-photo-labels-20261028.mjs
       - name: Validate phase 3 pastel preview contracts (no live data)
         run: node efg-nutrition/tests/pastel-phase3-preview.mjs
+      - name: SPORT-STEP pace-aware walking km and active kcal, same student RLS (OFFLINE)
+        run: |
+          node --check efg-nutrition/pilot/walking-steps-estimator.js
+          node --check efg-nutrition/pilot/walking-activity-ui.js
+          node efg-nutrition/tests/sport-step-walking-estimator.mjs
       - name: Check one ±5% weekly track, 6/6 reward and discretionary Sunday
         run: node efg-nutrition/tests/weekly-consistency.mjs
       - name: Verify guided main-meal picker, mixed dishes, skip and unchanged snacks

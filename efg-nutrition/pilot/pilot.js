@@ -5,7 +5,7 @@ import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
 import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
-import {renderNutritionScienceView} from "./nutrition-science.js?v=20261030-science-edu1";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261030-brand77b1";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
@@ -393,7 +393,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -714,6 +714,7 @@ function welcomeView(){
 }
 async function loadWelcomeStatus(){
  state.welcomePending=false;
+ if(SCIENCE_WELCOME_ENABLED)return; // Replace generic old student welcome with science intro on new release.
  if(state.profile?.role!=="student"||!state.profile?.active)return;
  const {data,error}=await sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle();
  // Un error de red o configuración nunca impide consultar los diarios privados.
@@ -2199,13 +2200,17 @@ async function render(){
   }
  }
  if(state.welcomePending)return welcomeView();
+ if(SCIENCE_WELCOME_ENABLED&&state.scienceWelcomePending){
+  root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
+  return;
+ }
  if(studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
-   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderNutritionScienceView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -2448,7 +2453,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
+  if(switchingUser){state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
@@ -2476,6 +2481,17 @@ async function refresh(){
   // Signing in is authentication only; coach consent requires the dedicated action.
   sessionStorage.removeItem("efgNutritionCoachConsent:"+id);
   await loadWelcomeStatus();
+  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";
+  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)){
+   try{
+    // Never infer acceptance from sign-in, local storage or another user session.
+    const found=await readScienceWelcomeStatus(sb,{profile:state.profile,userId:id});
+    state.scienceWelcomePending=found.pending;
+   }catch(error){
+    // A temporarily unavailable education module must not lock out nutrition tools.
+    console.warn("No se pudo verificar la presentación educativa:",error?.message);
+   }
+  }
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
  finally{state.loading=false;}
@@ -2590,6 +2606,29 @@ async function showProof(path){
 }
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
+ if(el.dataset.act&&["scienceNext","sciencePrev","scienceFinish","scienceSkip"].includes(el.dataset.act)){
+  if(!SCIENCE_WELCOME_ENABLED||!state.scienceWelcomePending||state.scienceWelcomeBusy||
+     !["student","coach"].includes(state.profile?.role))return;
+  const step=state.scienceWelcomeStep;
+  if(el.dataset.act==="scienceNext"){state.scienceWelcomeStep=Math.min(SCIENCE_STEPS.length-1,step+1);state.scienceWelcomeError="";await render();window.scrollTo(0,0);return;}
+  if(el.dataset.act==="sciencePrev"){state.scienceWelcomeStep=Math.max(0,step-1);state.scienceWelcomeError="";await render();window.scrollTo(0,0);return;}
+  if(el.dataset.act==="scienceFinish"&&step!==SCIENCE_STEPS.length-1)throw Error("Completá la presentación antes de confirmar.");
+  state.scienceWelcomeBusy=true;state.scienceWelcomeError="";await render();
+  const userId=state.session?.user?.id,profile=state.profile;
+  try{
+   await acknowledgeScienceWelcome(sb,{profile,userId,
+    action:el.dataset.act==="scienceSkip"?"skipped":"completed",explicitClick:true});
+   // A network response for a previously signed-in account cannot unlock another.
+   if(state.session?.user?.id!==userId||state.profile!==profile)return;
+   state.scienceWelcomePending=false;state.scienceWelcomeStep=0;
+   await render();window.scrollTo(0,0);
+  }catch(error){
+   if(state.session?.user?.id===userId&&state.profile===profile){
+    state.scienceWelcomeError=error.message;await render();
+   }
+  }finally{state.scienceWelcomeBusy=false;}
+  return;
+ }
  if(state.renderedDay&&state.renderedDay!==today()){
   await ensureCurrentDay();await render();
   notify("Nuevo día: lo anterior sigue guardado en tu historial.");
@@ -2805,7 +2844,7 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
+ if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="confirmLegalAcceptance"){
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||

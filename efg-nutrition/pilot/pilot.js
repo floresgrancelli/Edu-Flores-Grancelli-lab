@@ -2535,6 +2535,23 @@ async function refreshVisibleWorkspace(){
   void versionNotice.check({force:true});
   const user=await sb.auth.getUser();
   if(user.error||user.data?.user?.id!==id)throw Error("No se pudo validar la sesión. Revisá tu conexión e intentá nuevamente.");
+  // COACH88: refresh is a real server-side legal/intake revalidation.
+  // An expired legal version or withdrawn sharing must block new private reads
+  // and must not resurrect an edited Coach draft from the previous session.
+  if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="coach"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
+   state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+   state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
+   if(state.coachLegalPending){
+    state.selectedStudent=null;state.coachPlanDraftRecord=null;state.coachGuidedDraft=null;
+    await render();return;
+   }
+  }
+  if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"){
+   state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
+   if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
+    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+   if(state.coachRelaunchEntry.route!=="ready"){await render();return;}
+  }
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();

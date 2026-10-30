@@ -88,11 +88,9 @@ no(conflict,"Repeat expected 0 must conflict");
 assert.equal(conflict.status,409,"Stale submissions return HTTP 409, not an implicit retry.");
 no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,{...body,p_expected_revision:1,p_share_with_coach:true}),
  "Unaccepted follow-up may not share even when legal accepted");
-sql("update public.efg_consents set organization_id="+uuid(orgB)+",accepted=true where student_id="+uuid(people.studentA.id));
-no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,
- {...body,p_expected_revision:1,p_share_with_coach:true}),
- "A consent row for another organization cannot authorize sharing.");
-sql("update public.efg_consents set organization_id="+uuid(orgA)+",accepted=true where student_id="+uuid(people.studentA.id));
+// Identity/organization of an existing consent is immutable in the Coach schema.
+ // Cross-organization access is tested via signed tokens from both Coach A and B.
+sql("update public.efg_consents set accepted=true where student_id="+uuid(people.studentA.id));
 assert.equal(Number(yes(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,
  {...body,p_expected_revision:1,p_share_with_coach:true}),"Explicit share once consented")),2);
 assert.equal(yes(await read(people.coachA.token),"Coach sees explicitly shared copy").length,1);

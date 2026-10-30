@@ -9,6 +9,13 @@ assert.match(src,/data-act="promoteExistingPilotCoach"/,'EFG admin has controlle
 assert.match(src,/state\.profile\?\.role!=="admin"\|\|!COACH_PILOT_PROMOTION_ENABLED/,'Never perform conversion from student/coach role or before launch');
 assert.match(src,/sb\.rpc\("efg_promote_existing_student_to_pilot_coach",\{p_email:email\}\)/,'Use server-owned admin RPC and verified existing email');
 assert.match(src,/MI DÍA/);
+assert.match(src,/const legacyPilot=p\?\.role==="coach"&&state\.org\?\.is_test&&!own&&historical/,
+ 'Converted pilot coach may see their last approved goal as fallback in MI DÍA');
+assert.match(src,/const source=p\?\.role==="student"\?historical:\(own\|\|legacyPilot\)/,
+ 'Personal targets must override legacy pilot student goal; no data is overwritten');
+assert.match(src,/state\.profile\.role==="admin"&&test\?state\.testInvitations:state\.invitations/,
+ 'Pilot coach seat summary must include real pending invitations; admin uses test queue');
+
 assert.match(src,/const isTest=!!org\?\.is_test/,'Trial coaches must be recognized as test spaces');
 assert.match(src,/commercialReady=isTest\|\|\["active","grace"\]/,'Pilot coach can invite despite trial license');
 assert.match(src,/state\.profile\.role==="admin"&&isTest\?state\.testInvitations:state\.invitations/,'Pilot coach uses their own invitations');

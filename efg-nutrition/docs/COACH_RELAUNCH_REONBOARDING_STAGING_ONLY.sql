@@ -72,7 +72,8 @@ create policy efg_coach_relaunch_shared_coach_select on public.efg_coach_relaunc
   shared_at is not null and efg_private.coach_has_student(student_id)
   and exists (
    select 1 from public.efg_consents c
-   where c.student_id=efg_coach_relaunch_intakes.student_id and c.accepted=true
+   where c.student_id=efg_coach_relaunch_intakes.student_id
+    and c.organization_id=efg_coach_relaunch_intakes.organization_id and c.accepted=true
   )
  );
 -- No direct PostgREST INSERT/UPDATE/DELETE grant and NO write RLS policies.
@@ -162,7 +163,7 @@ begin
  if p_share_with_coach then
   if not exists(
    select 1 from public.efg_consents c
-   where c.student_id=v_uid and c.accepted=true
+   where c.student_id=v_uid and c.organization_id=v_org and c.accepted=true
   ) then
    raise exception 'Coach follow-up permission required before sharing intake'
     using errcode='42501';
@@ -177,7 +178,7 @@ begin
  select revision into v_revision from public.efg_coach_relaunch_intakes
   where student_id=v_uid and completed_version=p_completed_version for update;
  if coalesce(v_revision,0)<>p_expected_revision then
-  raise exception 'Intake revision conflict; reload before retry' using errcode='40001';
+  raise exception 'Intake revision conflict; reload before retry' using errcode='PT409';
  end if;
  insert into public.efg_coach_relaunch_intakes(
   student_id,organization_id,completed_version,revision,
@@ -208,7 +209,7 @@ begin
  where efg_coach_relaunch_intakes.revision=p_expected_revision
  returning revision into v_new_revision;
  if v_new_revision is null then
-  raise exception 'Intake revision conflict' using errcode='40001';
+  raise exception 'Intake revision conflict' using errcode='PT409';
  end if;
  return v_new_revision;
 end

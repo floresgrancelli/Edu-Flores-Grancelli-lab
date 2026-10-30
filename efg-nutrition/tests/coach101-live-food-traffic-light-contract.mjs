@@ -43,6 +43,6 @@ assert.match(app,/Semáforo por patrón alimentario/);
 assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);
 assert.match(app,/data-coachfood[\s\S]*foodTrafficLight\(f\)\.symbol/);
 assert.match(html,/food-compatibility\.css\?v=20261030-coach101/);
-assert.match(html,/pilot\.js\?v=20261030-sport-step03/, 'PWA loads latest shared module while retaining traffic lights');
+assert.match(html,/pilot\.js\?v=20261030-coach117-legal-first/, 'PWA loads latest shared module while retaining traffic lights');
 for(const name of ['green','yellow','red'])assert.ok(readFileSync(new URL('../pilot/food-compatibility.css',import.meta.url),'utf8').includes('.efg-compat-'+name));
 console.log('PASS COACH101: reviewed-only green/red, missing or clinical yellow, no-restriction neutral, searchable food and coach plan badge.');

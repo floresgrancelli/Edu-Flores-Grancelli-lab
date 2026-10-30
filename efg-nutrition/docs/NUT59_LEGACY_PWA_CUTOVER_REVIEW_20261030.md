@@ -34,7 +34,11 @@ La versión antigua no incluye por definición una lógica capaz de presentar un
 4. Confirmar que **coach de otra organización** no puede leer el objetivo.
 5. Revalidar que quedan exactamente **1 meta, 1 guía, 1 notificación y 1 recibo** tras los intentos obsoletos, sin alteración del objetivo ni sus cantidades.
 
-Estas pruebas complementan los checks NUT-57 PostgreSQL 17 de antiguos vs. nuevos y no suponen acceso a la base real. Los datos de pruebas, aceptación legal y evidencia nutricional siguen **FICTICIOS**.
+6. Modelar `efg_daily_logs` en un fixture GoTrue local con RLS de propiedad, registrar un desayuno con token firmado de Alumno A, leerlo y corregir su cantidad mientras el nuevo objetivo/guía ya están publicados.
+7. Simular que Alumno B de **otra organización** intenta leer, insertar y modificar el registro de A; comprobar siempre que la fila de A no cambió, incluso si PostgREST devuelve HTTP 204 por una actualización de cero filas.
+8. Comprobar después que sigue habiendo una única entrada de diario y que objetivos, notificaciones y recibos no se alteraron.
+
+Estas pruebas complementan los checks NUT-57 PostgreSQL 17 de antiguos vs. nuevos y no suponen acceso a la base real. **El fixture del diario solo replica RLS de propiedad**: no certifica la lógica completa de planes, restricciones médicas o revocación del consentimiento del proyecto Supabase alojado. Los datos de pruebas, aceptación legal y evidencia nutricional siguen **FICTICIOS**.
 
 ## Corte/recuperación — decisiones necesarias ANTES de GO
 

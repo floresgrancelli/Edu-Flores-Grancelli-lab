@@ -216,6 +216,23 @@ begin
  end loop;
 end
 $old_rls$;
+-- COACH70: All 15 hosted baseline tables have RLS enabled; align fixture
+-- flags without pretending these limited synthetic policies equal production.
+alter table public.efg_organizations enable row level security;
+alter table public.efg_profiles enable row level security;
+alter table public.efg_consents enable row level security;
+alter table public.efg_notifications enable row level security;
+grant select on public.efg_organizations,public.efg_profiles,
+ public.efg_consents,public.efg_notifications to authenticated;
+create policy synthetic_organizations_owner on public.efg_organizations
+ for select to authenticated using(coach_id=auth.uid());
+create policy synthetic_profiles_owner on public.efg_profiles
+ for select to authenticated using(user_id=auth.uid());
+create policy synthetic_consents_owner on public.efg_consents
+ for select to authenticated using(student_id=auth.uid());
+create policy synthetic_notifications_owner on public.efg_notifications
+ for select to authenticated using(recipient_id=auth.uid());
+
 do $preflight$
 begin
  if pg_catalog.to_regclass('public.efg_student_plan_access') is not null

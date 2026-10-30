@@ -9,6 +9,7 @@ import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=20261030-lux-r1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
@@ -345,7 +346,10 @@ async function loadMyWeeklyReports(){
 }
 function weeklyStudentPanel(){
  if(state.profile?.role!=="student")return "";
- const items=myWeeklyReports.map(r=>'<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+'</summary><p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p></details>').join("");
+ const items=myWeeklyReports.map((r,i)=>{const luxury=parseLuxuryWeeklyReport(r.report_text);
+  return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
+   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
+   '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
 }
 function weeklyReportEnd(){
@@ -363,15 +367,21 @@ async function publishWeeklyReport(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
- const reportText=document.getElementById("weeklyCoachDraftText")?.value?.trim();
- if(!reportText||reportText.length>8000)throw Error("Revisá el borrador antes de compartirlo.");
- if(!confirm("¿Confirmás que revisaste el informe y querés compartirlo con el alumno?"))return;
- const {error}=await sb.from("efg_weekly_reports").upsert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()},{onConflict:"student_id,week_ending"});
+ if((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))throw Error("Ya existe un informe publicado para esa semana. El historial compartido no se sobrescribe.");
+ const model=buildCurrentLuxuryModel();
+ const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
+ const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
+ const reportText=reportAsStoredText(model,conclusion,flexible);
+ if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
+ if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
+ const {error}=await sb.from("efg_weekly_reports").insert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()});
  if(error)throw error;
- notify("Informe compartido con el alumno.");
+ await loadStudentDetail(student.user_id);
+ await render();
+ notify("Informe Luxury Pro compartido con el alumno y conservado en su historial.");
 }
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -1697,18 +1707,45 @@ function weeklyDraftText(){
  notes.push("BORRADOR SIN ENVÍO. El entrenador debe corregir, aprobar y compartirlo por el canal que acuerde con el alumno.");
  return notes.join("\\n\\n");
 }
-function weeklyCoachDraft(){
- const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+function buildCurrentLuxuryModel(){
  const window=weeklyReportWindow();
- const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to);
- return '<section class="card" id="coachReportWeek"><h2>🌱 Informe del viernes '+window.friday+'</h2><p class="pilot-hint">Período evaluado: '+window.from+' a '+window.to+'. El borrador se construye con registros reales guardados, y debe ser revisado antes de compartir.</p>'+
- '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
- '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
- '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
- '<div class="pilot-notice"><strong>🧬 Entender para mejorar</strong><small>Proteínas: se analiza la cercanía al objetivo del coach, no la calidad de la persona. Peso: un cambio aislado puede incluir agua y glucógeno. Días sin registro: faltan datos, no significa que se haya comido menos. Las recomendaciones deben considerar objetivos, evolución y comentarios del alumno.</small></div>'+
- '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+
- '<button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar texto revisado</button><button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>'+
- '<p class="pilot-hint">La copia no representa aprobación ni entrega. No emitir recomendaciones clínicas automáticas.</p></section>';
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),null);
+ const student=(state.roster||[]).find(p=>p.user_id===state.selectedStudent);
+ return buildLuxuryWeeklyReport({
+  ...window,studentName:student?.nickname||"Alumno",
+  coachName:state.profile?.nickname||state.profile?.full_name||"Entrenador EFG",
+  days:report.days,logs:state.coachLogs,goals:state.coachGoals
+ });
+}
+function coachLuxuryHistoryPanel(){
+ const list=state.coachHistory||[];
+ const items=list.map((r,i)=>{
+  const luxury=parseLuxuryWeeklyReport(r.report_text);
+  return '<details><summary>'+escapeHTML(r.week_ending)+' · '+(luxury?'Luxury Pro':'Informe anterior')+'</summary>'+
+   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn light small" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
+   '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text||'')+'</p>')+'</details>';
+ }).join('');
+ return '<section class="card"><h2>📚 Historial de informes por alumno y fecha</h2><p class="pilot-hint">Solo informes que ya fueron aprobados y compartidos. Los anteriores se conservan en su formato original.</p>'+
+  '<div class="lux-report-history">'+(items||'<p class="pilot-hint">Este alumno todavía no tiene informes compartidos.</p>')+'</div></section>';
+}
+function weeklyCoachDraft(){
+ const window=weeklyReportWindow();
+ const model=buildCurrentLuxuryModel();
+ const published=(state.coachHistory||[]).some(r=>r.week_ending===window.friday);
+ return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
+ '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Conclusiones automáticas, siempre revisadas antes del envío.</p>'+
+ '<div class="field"><label for="weeklyCoachConclusion">Conclusión automática · editable por el coach</label>'+
+ '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published?'disabled':'')+'>'+escapeHTML(model.conclusion)+'</textarea></div>'+
+ '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
+ '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published?'disabled':'')+'>'+escapeHTML(model.flexibleNote)+'</textarea></div>'+
+ '<div class="lux-report-toolbar">'+(published?'<span class="pilot-pill">Informe de esta semana ya compartido · historial protegido</span>':
+ '<button type="button" class="btn small light" data-act="previewLuxuryReport">Actualizar vista previa del alumno</button>'+
+ '<button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>')+
+ '<button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="-1">Exportar vista previa a PDF</button></div>'+
+ '<h3 class="lux-report-preview-heading">Así lo verá el alumno</h3>'+
+ '<p class="pilot-hint">Vista previa privada. No se publica al generarla. Para compartir, el coach debe aprobar expresamente.</p>'+
+ '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(model)+'</div>'+
+ '<p class="pilot-hint">Las recomendaciones son orientativas y están basadas en el objetivo aprobado por fecha. No se sugieren permisos alimentarios como premio ni indicaciones clínicas automáticas.</p></section>';
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -1727,6 +1764,7 @@ function coachReportsView(){
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
  out+=weeklyAdherenceSummary();
  out+=weeklyCoachDraft();
+ out+=coachLuxuryHistoryPanel();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
@@ -2350,17 +2388,18 @@ async function loadStudentDetail(studentId){
  await coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true);
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.coachFoodPlan=null;
- if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
+ if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];return;}
  const results=await Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",studentId).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
  sb.from("efg_activities").select("*").eq("student_id",studentId).order("activity_day",{ascending:false}).limit(15),
  sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(20),
- sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle()
+ sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle(),
+ sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",studentId).order("week_ending",{ascending:false}).limit(52)
  ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
- state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
+ state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;state.coachHistory=results[6].data||[];
  if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
   const savedDraft=await coachDraftClient.load(studentId);
   state.coachPlanDraftRecord=savedDraft;
@@ -2611,8 +2650,29 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.act==="previewLuxuryReport"){
+  const model=buildCurrentLuxuryModel();
+  model.conclusion=String(document.getElementById("weeklyCoachConclusion")?.value||"").trim();
+  model.flexibleNote=String(document.getElementById("weeklyCoachFlexibleNote")?.value||"").trim();
+  const target=document.getElementById("weeklyLuxuryPreview");
+  if(!target)throw Error("No se encontró la vista previa.");
+  target.innerHTML=renderLuxuryWeeklyReport(model);
+  notify("Vista previa actualizada. Todavía no se envió nada.");return;
+ }
+ if(el.dataset.act==="printLuxuryReport"){
+  const index=Number(el.dataset.reportindex);
+  const reports=state.profile?.role==="student"?myWeeklyReports:state.coachHistory;
+  if(index!==-1&&!(reports||[])[index])throw Error("No existe el informe solicitado.");
+  if(index===-1&&!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))throw Error("Vista previa exclusiva del coach.");
+  const source=index===-1?document.querySelector("#weeklyLuxuryPreview .lux-report"):
+    document.querySelectorAll(".lux-report-history .lux-report, .pilot-record .lux-report")[index];
+  if(!source)throw Error("No se encontró el informe para exportar.");
+  source.classList.add("efg-lux-print-target");
+  const clear=()=>{source.classList.remove("efg-lux-print-target");window.removeEventListener("afterprint",clear);};
+  window.addEventListener("afterprint",clear,{once:true});
+  window.print();return;
+ }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
- if(el.dataset.act==="copyWeeklyDraft"){const draft=document.getElementById("weeklyCoachDraftText")?.value?.trim();if(!draft)throw Error("El borrador está vacío.");await navigator.clipboard.writeText(draft);notify("Texto revisado copiado. El envío al alumno queda a cargo del entrenador.");return;}
  if(el.dataset.coachsection){const sec=document.getElementById(el.dataset.coachsection);if(!sec)return;if(sec.tagName==="DETAILS")sec.open=true;sec.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.coachfilter){const target=document.getElementById("coachRosterSection");target?.scrollIntoView({behavior:"smooth",block:"start"});const btn=target?.querySelector('[data-rosterfilter="'+el.dataset.coachfilter+'"]');btn?.click();return;}
  if(el.dataset.coachjump){const target=document.getElementById(el.dataset.coachjump);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return;}

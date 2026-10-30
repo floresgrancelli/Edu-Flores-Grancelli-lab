@@ -50,6 +50,15 @@ create table efg_private.efg_coach_health_intakes(
 );
 create index efg_health_shared_coach_idx
  on efg_private.efg_coach_health_intakes(organization_id,shared_at) where shared_at is not null;
+-- Nonclinical anti-replay marker; no diagnoses, sharing status, or document text.
+-- A revocation must not allow an old in-flight request to recreate sensitive data.
+create table efg_private.efg_coach_health_revocations(
+ student_id uuid primary key references public.efg_profiles(user_id) on delete cascade,
+ last_revision integer not null check(last_revision between 1 and 100000),
+ revoked_at timestamptz not null default pg_catalog.now()
+);
+alter table efg_private.efg_coach_health_revocations enable row level security;
+revoke all on efg_private.efg_coach_health_revocations from public,anon,authenticated;
 alter table efg_private.efg_coach_health_intakes enable row level security;
 alter table efg_private.efg_coach_health_documents enable row level security;
 revoke all on efg_private.efg_coach_health_intakes from public,anon,authenticated;
@@ -141,6 +150,10 @@ begin
   'efg_health/'||v_uid::text,0));
  select revision into v_current from efg_private.efg_coach_health_intakes
  where student_id=v_uid for update;
+ if v_current is null then
+  select last_revision into v_current from efg_private.efg_coach_health_revocations
+   where student_id=v_uid for update;
+ end if;
  if coalesce(v_current,0)<>p_expected_revision then
   raise exception 'Health data revision conflict' using errcode='PT409';
  end if;
@@ -172,6 +185,7 @@ create function public.efg_get_coach_health_intake(p_student uuid)
 returns jsonb language plpgsql stable security definer set search_path=''
 as $f$
 declare v_uid uuid := (select auth.uid()); v_row record; v_owner boolean; v_coach boolean;
+ v_rev integer;
 begin
  if v_uid is null or p_student is null then return null; end if;
  select h.student_id,h.organization_id,h.conditions,h.sibo_phase,
@@ -180,7 +194,18 @@ begin
  join public.efg_profiles p on p.user_id=h.student_id
   and p.organization_id=h.organization_id and p.active and p.role='student'
  where h.student_id=p_student;
- if not found then return null; end if;
+ if not found then
+  -- After deletion the student sees ONLY a nonclinical revision marker to
+  -- consent again safely; no coach or foreign student can see this marker.
+  if v_uid=p_student then
+   select last_revision into v_rev from efg_private.efg_coach_health_revocations
+    where student_id=v_uid;
+   if v_rev is not null then
+    return pg_catalog.jsonb_build_object('revision',v_rev,'revoked',true,'conditions','{}'::jsonb);
+   end if;
+  end if;
+  return null;
+ end if;
  v_owner=(v_uid=p_student);
  -- Valid follow-up AND explicit independent health-data share must BOTH hold.
  v_coach=(v_row.shared_at is not null and
@@ -199,19 +224,31 @@ grant execute on function public.efg_get_coach_health_intake(uuid) to authentica
 create function public.efg_revoke_coach_health_intake(p_expected_revision integer)
 returns boolean language plpgsql security definer set search_path=''
 as $f$
-declare v_uid uuid := (select auth.uid()); v_deleted uuid;
+declare v_uid uuid := (select auth.uid()); v_deleted uuid; v_current integer;
 begin
  if v_uid is null or p_expected_revision is null or p_expected_revision<1 then
   raise exception 'Authorized explicit revision required' using errcode='42501';
  end if;
  -- Erase clinical conditions and share privilege together. No residual diagnoses
  -- in client-accessible audit history, daily logs or general-intake notes.
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(
+  'efg_health/'||v_uid::text,0));
+ select revision into v_current from efg_private.efg_coach_health_intakes
+  where student_id=v_uid for update;
+ if v_current is distinct from p_expected_revision then
+  raise exception 'Health data revision conflict' using errcode='PT409';
+ end if;
  delete from efg_private.efg_coach_health_intakes
  where student_id=v_uid and revision=p_expected_revision
  returning student_id into v_deleted;
  if v_deleted is null then
   raise exception 'Health data revision conflict' using errcode='PT409';
  end if;
+ -- Keep only a revision counter; eliminates replay of older consent requests.
+ insert into efg_private.efg_coach_health_revocations(student_id,last_revision,revoked_at)
+ values(v_uid,p_expected_revision+1,pg_catalog.now())
+ on conflict(student_id) do update set
+ last_revision=excluded.last_revision,revoked_at=excluded.revoked_at;
  return true;
 end $f$;
 revoke all on function public.efg_revoke_coach_health_intake(integer) from public,anon,authenticated;

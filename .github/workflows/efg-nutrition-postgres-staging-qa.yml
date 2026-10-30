@@ -110,6 +110,61 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legal-pg17-scenarios.sql
           echo 'PASS LEG-07: separate isolated database, synthetic documents and simulated claim roles; no real consent.'
+      - name: NUT-57 full FIVE-module transaction + restored preupgrade snapshot, always ROLLBACK (SYNTHETIC PG17)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          # SEPARATE empty databases; do NOT connect, link, or export any hosted database.
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_before'
+          export PGDATABASE=efg_nut57_before
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-preupgrade-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          docker exec "$pg_container" pg_dump -U postgres -Fc efg_nut57_before > "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_restored'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_restored < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_restored
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_food_plans")" = "1"
+          # The real legal backend design is created only on this isolated restore.
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
+          node efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --assert-preview-sql > "$RUNNER_TEMP/nut57-five-asserted.sql"
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-five-asserted.sql"; then
+            echo 'NUT57 STOP: full staging preview must not contain COMMIT' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-five-asserted.sql" > "$RUNNER_TEMP/nut57-five-success.log" 2>&1 || {
+            tail -n 45 "$RUNNER_TEMP/nut57-five-success.log" >&2
+            exit 1
+          }
+          grep -q "PASS NUT57 INSIDE TRANSACTION" "$RUNNER_TEMP/nut57-five-success.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_intakes') is null")" = "t"
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
+          test "$(psql -Atqc "select count(*) from public.efg_goals")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_legal_acceptances")" = "0"
+          node efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --inject-failure-sql > "$RUNNER_TEMP/nut57-five-failure.sql"
+          if psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-five-failure.sql" > "$RUNNER_TEMP/nut57-five-failure.log" 2>&1; then
+            echo 'NUT57 STOP: failure injection did not abort' >&2
+            exit 1
+          fi
+          grep -q "NUT57 SYNTHETIC INJECTED FAILURE" "$RUNNER_TEMP/nut57-five-failure.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
+          echo 'PASS NUT57: restored synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory and injected rollback preserved historical rows. NOT full production parity.'
       - name: State the limits
         if: always()
         run: |

@@ -17,7 +17,7 @@ assert.match(src,/role==="coach"&&org\?\.is_test/,'Pilot coach cannot be billed 
 assert.match(src,/state\.orgs=\(o\.data\|\|\[\]\)\.filter\(o=>!o\.is_test\|\|o\.coach_id!==state\.session\.user\.id\)/,
  'EFG admin must see test coaches not admin own trial org');
 assert.match(staged,/if not efg_private\.is_admin\(\)/);
-assert.match(staged,/p\.role='student'/);
+assert.match(staged,/v_user\.role<>'student'/,'Only an existing student may be promoted');
 assert.match(staged,/seat_limit,status,is_test,license_fee_ars/);
 assert.match(staged,/values\('Piloto EFG · '\|\|v_user\.nickname,v_user\.user_id,10,'trial',true,null\)/);
 assert.match(staged,/update public\.efg_profiles set role='coach',organization_id=null/);

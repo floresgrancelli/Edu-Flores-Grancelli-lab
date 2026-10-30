@@ -170,6 +170,17 @@
 .efg-coach-relaunch{width:min(100%,760px);margin-inline:auto;overflow-wrap:anywhere;
  background:linear-gradient(145deg,#fffdfa 0%,#faf3fc 100%);border-radius:24px;
  box-shadow:0 12px 36px rgba(57,37,72,.12)}
+/* COACH-RELAUNCH responsive: nested fieldsets are min-content-sized by
+   default inside display:grid. Safari/WebKit could expand the form 25px
+   beyond a 390px viewport when the long share/clinical labels wrap. */
+.efg-coach-relaunch,.efg-coach-relaunch form{min-width:0;max-width:100%;box-sizing:border-box}
+.efg-coach-relaunch .pilot-form{grid-template-columns:minmax(0,1fr)}
+.efg-coach-relaunch .pilot-form>*,
+.efg-coach-relaunch .pilot-form fieldset,
+.efg-coach-relaunch .efg-gut-intake,
+.efg-coach-relaunch .efg-intake-share-label{min-width:0;max-width:100%;box-sizing:border-box}
+.efg-coach-relaunch .pilot-form button.btn{width:100%;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.efg-coach-relaunch .efg-gut-choice{min-width:0;max-width:100%}
 .efg-coach-relaunch .eyebrow{color:#826089;font-size:11px;letter-spacing:.12em}
 .efg-coach-relaunch h2{color:#3b2f43;font-size:clamp(22px,3vw,30px);letter-spacing:-.025em}
 .efg-coach-relaunch p{line-height:1.6;color:#584e60}

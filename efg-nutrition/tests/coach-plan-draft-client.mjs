@@ -13,7 +13,7 @@ assert.equal(guide.approvedFoodIds,undefined,"Selections must not mutate editor 
 assert.throws(()=>approvedFoodGuide(guide,["banana"]),/no está seleccionado/);
 assert.throws(()=>approvedFoodGuide(guide,["tofu_firm","tofu_firm"]),/duplicados/);
 assert.throws(()=>approvedFoodGuide(guide,["tofu_firm","unknown"],{knownIds:["tofu_firm"]}),/inexistentes/);
-assert.throws(()=>coachFoodChoicesFromDom({querySelectorAll:()=>[]}),/selector/);
+assert.throws(()=>coachFoodChoicesFromDom({querySelectorAll:()=>[]}),/selección de alimentos/);
 assert.deepEqual(coachFoodChoicesFromDom({querySelectorAll:()=>[
  {checked:true,dataset:{coachfood:"tofu_firm"}},{checked:false,dataset:{coachfood:"banana"}}
 ]}),["tofu_firm"]);

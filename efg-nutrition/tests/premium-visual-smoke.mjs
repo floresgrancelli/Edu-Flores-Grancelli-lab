@@ -57,7 +57,7 @@ try{
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   if(androidMode){
-   const mobile=await page.evaluate(()=>({ua:navigator.userAgent,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio}));
+   const mobile=await page.evaluate(()=>({ua:navigator.userAgent,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio,meta:document.querySelector("meta[name=viewport]")?.getAttribute("content"),documentWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,visualWidth:visualViewport?.width,screenWidth:screen.width,url:location.href}));
    if(!mobile.ua.includes("Android")||mobile.touch<1||mobile.dpr<2||mobile.viewport!==width)
     errors.push("Android Pixel 7 device emulation not active: "+JSON.stringify(mobile));
   }

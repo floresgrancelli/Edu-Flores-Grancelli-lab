@@ -47,7 +47,7 @@ jobs:
           node-version: '22'
       - name: Audit legacy Coach writes before starting containers
         run: node efg-nutrition/tests/coach-legacy-write-audit-nut55.mjs
-      - name: COACH-GO-01 defend scope: Carla promotion AFTER release, not admin
+      - name: 'COACH-GO-01 defend scope: Carla promotion AFTER release, not admin'
         run: node efg-nutrition/tests/coach-major-release-scope.mjs
       - name: Install Supabase CLI (pinned; LOCAL only)
         uses: supabase/setup-cli@v3

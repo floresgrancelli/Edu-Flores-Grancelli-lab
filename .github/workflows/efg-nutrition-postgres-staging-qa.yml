@@ -196,6 +196,37 @@ jobs:
           test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
           test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
           echo 'PASS NUT57: restored synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory and injected rollback preserved historical rows. NOT full production parity.'
+      - name: COACH-68 parse and ROLLBACK full version-aware Coach SQL in isolated PG17
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nut57_restored
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '5432'
+          test "${PGDATABASE}" = 'efg_nut57_restored'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          node efg-nutrition/tests/coach68-stage-rollback.mjs --preview-sql > "$RUNNER_TEMP/coach68-only-rollback.sql"
+          test "$(grep -Eic '^[[:space:]]*ROLLBACK[[:space:]]*;' "$RUNNER_TEMP/coach68-only-rollback.sql")" = 1
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/coach68-only-rollback.sql"; then
+            echo 'COACH68 STOP: generated SQL may not COMMIT' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/coach68-only-rollback.sql" > "$RUNNER_TEMP/coach68-parsed.log" 2>&1 || {
+            tail -n 70 "$RUNNER_TEMP/coach68-parsed.log" >&2
+            exit 1
+          }
+          grep -q 'PASS COACH68 INSIDE TRANSACTION' "$RUNNER_TEMP/coach68-parsed.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_relaunch_intakes') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_publish_receipts') is null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_goals")" = 1
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = 1
+          echo 'PASS COACH68: real PG17 parsed all six version-aware modules inside transaction, rollback preserved synthetic historical records. NOT JWT or production parity.'
       - name: NUT-57 B3 committed fixture disaster-restore from BEFORE snapshot (CI ONLY, never hosted)
         env:
           PGHOST: 127.0.0.1

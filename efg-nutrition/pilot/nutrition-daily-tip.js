@@ -54,6 +54,11 @@ const photos=[
   "alt": "Bowl de avena con fruta y frutos secos"
  }
 ];
+const gnocchiPhotos=[
+ {src:"https://images.unsplash.com/photo-1745871136691-8fb229223fc8?auto=format&fit=crop&w=960&q=75",page:"https://unsplash.com/photos/gnocchi-with-sauce-and-fresh-basil-served-on-a-plate-_ESn6muFTPU",by:"Leandro Rossi",alt:"Ñoquis con salsa y albahaca"},
+ {src:"https://images.unsplash.com/photo-1698688332650-8724293b2ad8?auto=format&fit=crop&w=960&q=75",page:"https://unsplash.com/photos/a-white-plate-topped-with-pasta-and-sauce-Etsdv1OFgEo",by:"Laura Peruchi",alt:"Plato de ñoquis servido con salsa"},
+ {src:"https://images.unsplash.com/photo-1774828893338-50fd6c5f3062?auto=format&fit=crop&w=960&q=75",page:"https://unsplash.com/photos/gnocchi-with-meat-sauce-red-wine-and-parmesan-cheese-R_-17QeZi6U",by:"Arthur P.",alt:"Ñoquis servidos con salsa roja y queso"}
+];
 const themes=[
  [
   "Desayunos sin apuro",
@@ -452,7 +457,7 @@ export function nutritionTipForDate(instant=new Date()){
  if(date.day===29){
   const n=((date.year*12+date.month)%gnocchi.length);
   return {id:"gnocchi-"+n,title:gnocchi[n][0],body:gnocchi[n][1],
-   category:"Tradiciones argentinas",special:true,date:date.iso,...photoFor("gnocchi")};
+   category:"Tradiciones argentinas",special:true,date:date.iso,...gnocchiPhotos[(date.year*12+date.month)%gnocchiPhotos.length]};
  }
  const i=((serial%DAILY_TIP_LIBRARY_SIZE)+DAILY_TIP_LIBRARY_SIZE)%DAILY_TIP_LIBRARY_SIZE;
  const group=themes[i%themes.length];

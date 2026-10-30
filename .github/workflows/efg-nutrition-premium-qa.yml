@@ -75,6 +75,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js
           node efg-nutrition/tests/nutrition-science-education.mjs
+      - name: PRO-60 monthly ñoquis 29, 72 illustrated daily tips and gated action (OFFLINE)
+        run: |
+          node --check efg-nutrition/pilot/nutrition-daily-tip.js
+          node efg-nutrition/tests/nutrition-daily-tip.mjs
       - name: NUT-58 PWA visible manual upgrade, no automatic reload while editing
         run: |
           node --check efg-nutrition/pilot/version-notice.js

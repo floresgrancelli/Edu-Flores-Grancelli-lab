@@ -50,17 +50,13 @@ export function createVersionNotice({
    dismissed=latest?.key||null;
    paint();
   });
-  const upgrade=document.createElement("button");
-  upgrade.type="button";upgrade.className="efg-version-update";
-  upgrade.textContent="Actualizar";
-  upgrade.disabled=dirty;
-  if(dirty)upgrade.title="Primero guardá los cambios pendientes";
-  upgrade.addEventListener("click",()=>{
-   if(hasUnsavedChanges()){paint();return;}
-   // User gesture ONLY. No automatic refresh on visibility/focus/check.
-   window.location.reload();
+  const instructions=document.createElement("button");
+  instructions.type="button";instructions.className="efg-version-update";
+  instructions.textContent="Cómo actualizar";
+  instructions.addEventListener("click",()=>{
+   hint.textContent="Guardá tus cambios, cerrá la app y volvé a abrirla. La actualización nunca recarga tu sesión de forma automática.";
   });
-  actions.append(later,upgrade);
+  actions.append(later,instructions);
   host.append(icon,copy,actions);
  }
  async function check({force=false,reopen=false}={}){

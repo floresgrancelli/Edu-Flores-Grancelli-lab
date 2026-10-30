@@ -10,10 +10,16 @@ export const EMPTY_COACH_RELAUNCH_INTAKE=Object.freeze({
  dietary_pattern:"",preferred_foods:"",disliked_foods:"",meal_routine:"",notes:"",
  health_flags:Object.freeze([]),allergy_details:"",shareWithCoach:false
 });
-function legalAccepted(status){
+// Both distinct CURRENT legal kinds are required. Two accepted rows of the same
+// kind, an incomplete server response or a missing document hash must fail closed.
+export function isCurrentCoachLegalAccepted(status){
  return Array.isArray(status)&&status.length===2&&
-  status.every(x=>x&&typeof x.document_id==="string"&&x.document_id.length>0&&
-   typeof x.version==="string"&&x.version.length>0&&x.accepted===true)&&
+  new Set(status.map(x=>x?.kind)).size===2&&
+  ["terms","privacy"].every(kind=>status.some(x=>x?.kind===kind))&&
+  status.every(x=>x&&isUuid(x.document_id)&&
+   typeof x.version==="string"&&x.version.trim().length>0&&
+   typeof x.sha256==="string"&&/^[a-f0-9]{64}$/i.test(x.sha256)&&
+   x.accepted===true)&&
   new Set(status.map(x=>x.document_id)).size===2;
 }
 export function resolveCoachRelaunchEntry({
@@ -27,7 +33,7 @@ export function resolveCoachRelaunchEntry({
  if(profile.role!=="student")return {route:"other_role",reason:"Esta ficha corresponde solamente a alumnos Coach."};
  if(!isUuid(profile.organization_id))return {route:"verify",reason:"No se pudo validar la organización de la cuenta."};
  if(!legalStatusFetched)return {route:"retry",reason:"No se pudo consultar el estado legal actual."};
- if(!legalAccepted(legalStatus))return {route:"legal",reason:"Revisar Términos y Privacidad actuales por separado."};
+ if(!isCurrentCoachLegalAccepted(legalStatus))return {route:"legal",reason:"Revisar Términos y Privacidad actuales por separado."};
  if(!onboardingStatusFetched)return {route:"retry",reason:"No se pudo consultar la revisión de la ficha."};
  if(typeof requiredVersion!=="string"||!/^[a-z0-9_]{5,80}$/.test(requiredVersion))
   return {route:"retry",reason:"Versión de ficha inválida."};
@@ -38,6 +44,10 @@ export function resolveCoachRelaunchEntry({
   ))return {route:"retry",reason:"La respuesta de la ficha no corresponde a este alumno."};
  if(onboardingStatus?.completed_version!==requiredVersion)
   return {route:"intake",reason:"Completar/revisar la ficha nueva de Nutrition Coach."};
+ // A version string alone is not a completed server revision. Refuse malformed
+ // or uncommitted markers rather than unlocking MI DÍA from a partial response.
+ if(!Number.isSafeInteger(onboardingStatus.revision)||onboardingStatus.revision<1)
+  return {route:"retry",reason:"No se pudo verificar la revisión guardada de tu ficha."};
  return {route:"ready",reason:"La revisión de ficha actual está confirmada."};
 }
 // Begin the MAJOR release intake with a fresh form, without deleting legacy

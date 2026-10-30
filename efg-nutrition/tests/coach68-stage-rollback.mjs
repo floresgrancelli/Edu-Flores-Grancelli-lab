@@ -25,6 +25,9 @@ export function buildCoach68RollbackPreview(){
    throw Error("COACH68 STOP versioned SQL uses legacy intake "+id);
   return {id,body:text.replace(/^\s*begin;\s*$/im,"").replace(/^\s*commit;\s*$/im,"").trim()};
  });
+ const behavior=readFileSync(new URL("./sql/coach68-versioned-behavior.sql",import.meta.url),"utf8");
+ if(!behavior.includes("PASS COACH68 SIMULATED CLAIMS")||/^(?:\s*BEGIN|\s*COMMIT|\s*ROLLBACK)\s*;/im.test(behavior))
+  throw Error("COACH68 STOP: invalid simulated-claims rollback companion.");
  return [
   "-- COACH68 VERSIONED release preview. SYNTHETIC ISOLATED PG17 ONLY.",
   "-- Release GO, legal and clinical signoff, hosted parity and mobile QA are absent.",
@@ -32,6 +35,7 @@ export function buildCoach68RollbackPreview(){
   "DO $coa68$ BEGIN IF pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') IS NULL",
   " THEN RAISE EXCEPTION 'COACH68 STOP: isolation marker absent' USING ERRCODE='55000'; END IF; END $coa68$;",
   ...bodies.flatMap(x=>["-- COACH68 MODULE "+x.id,x.body,"-- COACH68 END "+x.id]),
+  "-- COACH68 synthetic simulated-claim behavior inside ROLLBACK",behavior,
   "DO $assert68$ BEGIN",
   "IF pg_catalog.to_regclass('public.efg_coach_relaunch_intakes') IS NULL",
   " OR pg_catalog.to_regclass('public.efg_coach_plan_drafts') IS NULL",

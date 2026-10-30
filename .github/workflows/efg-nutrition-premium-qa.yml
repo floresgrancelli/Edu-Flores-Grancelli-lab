@@ -61,6 +61,8 @@ jobs:
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
       - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
         run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
+      - name: COACH105 keto DASH Portfolio and fasting 12 12, 14 10, 16 8 UI SQL and nutrient targets (synthetic)
+        run: node efg-nutrition/tests/coach105-patterns-fasting-e2e-contract.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)

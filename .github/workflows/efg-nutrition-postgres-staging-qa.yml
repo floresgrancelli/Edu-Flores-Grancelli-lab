@@ -124,6 +124,25 @@ jobs:
           test "$(psql -Atqc "select to_regclass('public.efg_personal_goals') is null")" = "t"
           test "$(psql -Atqc "select to_regclass('public.efg_personal_daily_logs') is null")" = "t"
           echo 'PASS NUT60: markerless PG17 refuses role/registration/schema changes before any DDL.'
+      - name: CLIN-GUT-03 refuse health schema without isolated marker (negative control)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql > "$RUNNER_TEMP/gut03-negative.log" 2>&1; then
+            echo 'CLIN-GUT-03 UNSAFE: accepted missing stage marker' >&2
+            exit 1
+          fi
+          grep -q 'CLIN-GUT-03 STOP: only isolated fixture database' "$RUNNER_TEMP/gut03-negative.log"
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_documents') is null")" = 't'
+          echo 'PASS CLIN-GUT-03: missing marker blocks health tables before any DDL on PG17.'
       - name: LEG-07 versioned legal backend on separate disposable PostgreSQL 17 database (SYNTHETIC)
         env:
           PGHOST: 127.0.0.1

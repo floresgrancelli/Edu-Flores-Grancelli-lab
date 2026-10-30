@@ -348,7 +348,7 @@ function weeklyStudentPanel(){
  if(state.profile?.role!=="student")return "";
  const items=myWeeklyReports.map((r,i)=>{const luxury=parseLuxuryWeeklyReport(r.report_text);
   return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
-   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
+   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
    '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
 }
@@ -2650,6 +2650,15 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.act==="replyWeeklyReport"){
+  if(state.profile?.role!=="student")throw Error("Solo el alumno puede responder un informe desde su cuenta.");
+  const week=String(el.dataset.week||"");
+  if(!myWeeklyReports.some(r=>r.week_ending===week&&parseLuxuryWeeklyReport(r.report_text)))
+    throw Error("No se encontró un informe compartido válido.");
+  state.tab="messages";await render();
+  await messages.replyToWeeklyReport(state.session.user.id,week);
+  return;
+ }
  if(el.dataset.act==="previewLuxuryReport"){
   const model=buildCurrentLuxuryModel();
   model.conclusion=String(document.getElementById("weeklyCoachConclusion")?.value||"").trim();

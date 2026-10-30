@@ -26,13 +26,14 @@ function canonical(value){
  if(value&&typeof value==="object")return Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])]));
  return value;
 }
-export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide}={}){
+export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide,
+ versioned=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
  const no=(reason)=>({ready:false,reason});
  if(!studentId||!intake?.shared_at)return no("La ficha ya no está compartida con este coach.");
  if(!savedDraft||savedDraft.student_id!==studentId||savedDraft.status!=="draft"||
     !Number.isSafeInteger(savedDraft.draft_revision)||savedDraft.draft_revision<1)
   return no("Todavía no existe un borrador privado guardado para este alumno.");
- if(!coachDraftSourceCurrent(intake,savedDraft))
+ if(!coachDraftSourceCurrent(intake,savedDraft,{versioned}))
   return no("La ficha del alumno cambió. Volvé a cargarla y revisar el plan.");
  if(!goal||!guide)return no("Primero prepará el objetivo y las cinco comidas.");
  try{
@@ -47,8 +48,9 @@ export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,gu
 }
 
 /** Confirm the actual server record, never just a local revision counter. */
-export function verifyCoachDraftReadback({studentId,intake,savedDraft,expectedRevision,goal,guide}={}){
- const match=assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide});
+export function verifyCoachDraftReadback({studentId,intake,savedDraft,expectedRevision,goal,guide,
+ versioned=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
+ const match=assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide,versioned});
  if(!match.ready||match.revision!==expectedRevision)
   throw Error("No se pudo confirmar el contenido y la revisión del borrador en el servidor. Abrí la ficha nuevamente antes de publicar.");
  // JSONB returned from the server must not retain a mutable reference to the editor.

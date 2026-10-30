@@ -6,9 +6,13 @@ begin;
 do $safe$
 begin
  if pg_catalog.current_database() not in ('postgres','efg_nut57_restored','efg_nut57_before','efg_nutrition_ephemeral')
- or pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null
- or (select count(*) from efg_private.nut57_isolated_staging_marker) <> 1 then
+  or pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null then
   raise exception 'CLIN-GUT-03 STOP: only isolated fixture database' using errcode='55000';
+ end if;
+ -- PostgreSQL may plan all operands of a boolean expression; never reference a
+ -- marker table until its existence was established by a preceding statement.
+ if (select count(*) from efg_private.nut57_isolated_staging_marker) <> 1 then
+  raise exception 'CLIN-GUT-03 STOP: invalid isolated fixture marker' using errcode='55000';
  end if;
  if pg_catalog.to_regclass('public.efg_profiles') is null
  or pg_catalog.to_regclass('public.efg_consents') is null

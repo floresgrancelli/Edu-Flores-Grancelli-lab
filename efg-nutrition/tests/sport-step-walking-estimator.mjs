@@ -67,7 +67,7 @@ const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 assert.match(app,/function sportView\(\)[\s\S]*?movementCard\(\)/);
 assert.match(app,/function progressView\(\)[\s\S]*?movementCard\(\)/);
 assert.match(app,/const \{estimate,\.\.\.entry\}=readWalkingActivityForm\(document\)/);
-assert.match(app,/walking_pace/);
+assert.match(readFileSync(new URL('../pilot/walking-activity-ui.js',import.meta.url),'utf8'),/walking_pace/);
 assert.match(app,/refreshWalkingActivityPreview\(document\)/);
 assert.match(app,/renderWalkingActivityHistory\(a\)/);
 assert.doesNotMatch(app,/const dailyTotals=.*walking_/, 'Walking kcal must not be a food/supplement macro.');

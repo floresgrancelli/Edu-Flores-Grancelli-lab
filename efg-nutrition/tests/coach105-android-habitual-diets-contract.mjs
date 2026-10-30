@@ -12,6 +12,7 @@ assert.match(src,/const choice=selectedIndex>=0\?selectedIndex:0;/, 'Saved habit
 assert.match(src,/getHabitualList\(slot\)/,'Pick only the current meal slot');
 assert.match(src,/cloudHabituales=data\|\|\[\]/,'Previously saved meals must be fetched');
 assert.match(src,/\.eq\("student_id",state\.session\.user\.id\)\.order\("created_at"/,'Habitual fetch must use signed account');
+assert.match(src,/state\.habitualSelection\[slot\]=String\(data\.id\);[\s\S]*?state\.lastEditedMeal=slot;[\s\S]*?await render\(\)/,'Saving a habitual keeps its meal open, shows the newly chosen option and repaints after server confirmation');
 assert.match(src,/data-habitualchoice/,'User can choose each habitual');
 assert.match(src,/data-habitualapply/,'User can apply selected habitual');
 assert.match(src,/data-habitualdelete/,'User can delete habitual without deleting history');

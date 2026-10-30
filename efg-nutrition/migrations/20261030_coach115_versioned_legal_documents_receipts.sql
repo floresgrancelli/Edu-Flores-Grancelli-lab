@@ -83,7 +83,8 @@ language plpgsql security definer set search_path=''
 as $accept$
 declare
  v_uid uuid := auth.uid();
- v_found integer;
+ v_found integer := 0;
+ v_legal_id uuid;
 begin
  if v_uid is null or p_terms_checked is distinct from true
  or p_privacy_checked is distinct from true
@@ -100,15 +101,18 @@ begin
    using errcode='42501';
  end if;
  -- Lock exact current versions so they cannot change mid-transaction.
- select count(*) into v_found
- from public.efg_legal_documents doc
- where (doc.id=p_terms_id and doc.kind='terms'
-    or doc.id=p_privacy_id and doc.kind='privacy')
-  and doc.is_current and doc.published_at is not null
-  and pg_catalog.char_length(doc.body)>=300
-  and doc.sha256=pg_catalog.encode(
-   pg_catalog.sha256(pg_catalog.convert_to(doc.body,'UTF8')),'hex')
- for share;
+ for v_legal_id in
+  select doc.id from public.efg_legal_documents doc
+  where ((doc.id=p_terms_id and doc.kind='terms')
+      or (doc.id=p_privacy_id and doc.kind='privacy'))
+   and doc.is_current and doc.published_at is not null
+   and pg_catalog.char_length(doc.body)>=300
+   and doc.sha256=pg_catalog.encode(
+    pg_catalog.sha256(pg_catalog.convert_to(doc.body,'UTF8')),'hex')
+  for share
+ loop
+  v_found := v_found+1;
+ end loop;
  if v_found<>2 then
   raise exception 'Terms or privacy version unavailable or invalid'
    using errcode='PT409';

@@ -42,13 +42,14 @@ async function signup(label){
 const u={};
 for(const label of ['coachA','coachB','studentA','studentB'])u[label]=await signup(label);
 const orgA=randomUUID(),orgB=randomUUID();
-sql('insert into public.efg_organizations(id,coach_id) values ('+
- quote(orgA)+','+quote(u.coachA.id)+'),('+quote(orgB)+','+quote(u.coachB.id)+')');
-sql('insert into public.efg_profiles(user_id,organization_id,role,active) values '+
- '('+quote(u.coachA.id)+',null,\'coach\',true),'+
- '('+quote(u.coachB.id)+',null,\'coach\',true),'+
- '('+quote(u.studentA.id)+','+quote(orgA)+',\'student\',true),'+
- '('+quote(u.studentB.id)+','+quote(orgB)+',\'student\',true)');
+sql('insert into public.efg_organizations(id,coach_id,name) values ('+
+ quote(orgA)+','+quote(u.coachA.id)+',\'Clinical Fixture A\'),('+
+ quote(orgB)+','+quote(u.coachB.id)+',\'Clinical Fixture B\')');
+sql('insert into public.efg_profiles(user_id,email,nickname,organization_id,role,active) values '+
+ '('+quote(u.coachA.id)+',\''+u.coachA.email+'\',\'Coach Gut A\',null,\'coach\',true),'+
+ '('+quote(u.coachB.id)+',\''+u.coachB.email+'\',\'Coach Gut B\',null,\'coach\',true),'+
+ '('+quote(u.studentA.id)+',\''+u.studentA.email+'\',\'Student Gut A\','+quote(orgA)+',\'student\',true),'+
+ '('+quote(u.studentB.id)+',\''+u.studentB.email+'\',\'Student Gut B\','+quote(orgB)+',\'student\',true)');
 sql('insert into public.efg_consents(student_id,organization_id,accepted) values ('+
  quote(u.studentA.id)+','+quote(orgA)+',true),('+
  quote(u.studentB.id)+','+quote(orgB)+',true)');

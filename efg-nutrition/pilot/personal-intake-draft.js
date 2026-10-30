@@ -14,6 +14,7 @@ export const PERSONAL_HEALTH_FLAGS=Object.freeze([
  ["celiac","Celiaquía"],["diabetes","Diabetes"],["hypertension","Hipertensión"],
  ["high_cholesterol","Colesterol elevado"],["fatty_liver","Hígado graso"],
  ["food_allergy","Alergia alimentaria"],["lactose_intolerance","Intolerancia a la lactosa"],
+ ["sibo","SIBO (confirmado o en estudio; sin dieta automática)"],
  ["kidney_disease","Enfermedad renal"],["other_health","Otra condición que requiere evaluación"]
 ]);
 const html=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));

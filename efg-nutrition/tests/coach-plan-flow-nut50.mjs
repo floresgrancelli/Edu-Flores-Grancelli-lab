@@ -111,7 +111,7 @@ assert.deepEqual(calls.filter(x=>x.type==="rpc").map(x=>x.name),["efg_save_coach
 assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:serverDraft,goal,guide:edited}).ready,false,"No re-publication after successful commit");
 
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
-assert.match(app,/import \{assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent\} from "\.\/coach-draft-review/);
+assert.match(app,/import \{assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent\} from "\.\/coach-draft-review/);
 assert.match(app,/const review=assessCoachDraftPublication\(\{studentId,intake,savedDraft:draft,goal,guide\}\)/);
 assert.match(app,/if\(!review\.ready\)throw Error\(review\.reason\)/);
 assert.match(app,/state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/);

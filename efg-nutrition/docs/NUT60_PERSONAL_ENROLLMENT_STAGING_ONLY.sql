@@ -71,6 +71,28 @@ grant select on public.efg_personal_goals to authenticated;
 create policy personal_goal_read_self on public.efg_personal_goals
  for select to authenticated using(user_id=(select auth.uid()));
 
+-- Unified fail-closed write gate. A suspended Personal account cannot mutate
+-- its diary or presets even when its JWT and legal acceptance remain valid.
+-- Read/delete stay owner-scoped for access/erasure while suspended. Never trust
+-- caller-editable JWT metadata for role/activation decisions.
+create function public.efg_personal_write_allowed()
+returns boolean language sql stable security definer set search_path=''
+as $personal_gate$
+ select (select auth.uid()) is not null
+  and exists(
+   select 1 from public.efg_personal_accounts a
+   join public.efg_profiles p on p.user_id=a.user_id
+   where a.user_id=(select auth.uid()) and p.role='personal'
+     and p.active is true and p.organization_id is null
+  )
+  and (
+   select count(*)=2 and coalesce(bool_and(z.accepted),false)
+   from public.efg_legal_current_status() z
+  )
+$personal_gate$;
+revoke all on function public.efg_personal_write_allowed() from public,anon,authenticated;
+grant execute on function public.efg_personal_write_allowed() to authenticated;
+
 -- Personal diary and reusable meal presets have NO coach organization ID.
 -- They are kept distinct from the legacy efg_daily_logs / efg_habitual_meals.
 create table public.efg_personal_daily_logs(
@@ -94,12 +116,10 @@ create policy personal_diary_read_self on public.efg_personal_daily_logs
  for select to authenticated using(user_id=(select auth.uid()));
 create policy personal_diary_insert_self on public.efg_personal_daily_logs
  for insert to authenticated
- with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
-  from public.efg_legal_current_status() z));
+ with check(user_id=(select auth.uid()) and (select public.efg_personal_write_allowed()));
 create policy personal_diary_update_self on public.efg_personal_daily_logs
  for update to authenticated using(user_id=(select auth.uid()))
- with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
-  from public.efg_legal_current_status() z));
+ with check(user_id=(select auth.uid()) and (select public.efg_personal_write_allowed()));
 -- Own-data erasure must stay possible even if Terms changed or were declined.
 create policy personal_diary_delete_self on public.efg_personal_daily_logs
  for delete to authenticated using(user_id=(select auth.uid()));
@@ -125,12 +145,10 @@ create policy personal_habitual_read_self on public.efg_personal_habitual_meals
  for select to authenticated using(user_id=(select auth.uid()));
 create policy personal_habitual_insert_self on public.efg_personal_habitual_meals
  for insert to authenticated
- with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
-  from public.efg_legal_current_status() z));
+ with check(user_id=(select auth.uid()) and (select public.efg_personal_write_allowed()));
 create policy personal_habitual_update_self on public.efg_personal_habitual_meals
  for update to authenticated using(user_id=(select auth.uid()))
- with check(user_id=(select auth.uid()) and (select count(*)=2 and coalesce(bool_and(z.accepted),false)
-  from public.efg_legal_current_status() z));
+ with check(user_id=(select auth.uid()) and (select public.efg_personal_write_allowed()));
 create policy personal_habitual_delete_self on public.efg_personal_habitual_meals
  for delete to authenticated using(user_id=(select auth.uid()));
 

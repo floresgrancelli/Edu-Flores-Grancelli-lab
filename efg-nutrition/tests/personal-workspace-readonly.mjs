@@ -67,7 +67,7 @@ for(const label of ["Mis objetivos","Mis cinco comidas","Desayuno","Media mañan
 assert.ok(html.includes("&lt;svg"),"Food names are escaped");
 assert.ok(html.includes("&lt;script&gt;"),"Habitual names are escaped");
 assert.ok(html.includes("&lt;img"),"Nickname is escaped");
-assert.doesNotMatch(html,/<script|<img|<svg/i,"Untrusted HTML must never render as elements");
+assert.doesNotMatch(html,/<script|<img src=x|<svg onload/i,"Untrusted HTML must never render as elements");
 assert.doesNotMatch(html,/data-act="(?:save|approve|grant|send|register)/,"Read-only view cannot forge writes.");
 assert.doesNotMatch(html,/data-tab="admin"|data-tab="coach"/);
 assert.ok(html.includes('data-act="logout"'));

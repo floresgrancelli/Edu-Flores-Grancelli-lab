@@ -92,6 +92,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js
           node efg-nutrition/tests/legal-onboarding-draft.mjs
+      - name: NUT-60 Personal read-only and independent role isolation (SYNTHETIC, OFF)
+        run: |
+          node --check efg-nutrition/pilot/personal-workspace.js
+          node efg-nutrition/tests/personal-workspace-readonly.mjs
       - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
         run: node efg-nutrition/tests/serotonin-brand-loading.mjs
       - name: Verify major release messages for every role (offline, NO live delivery)

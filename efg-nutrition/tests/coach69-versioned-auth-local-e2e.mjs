@@ -114,9 +114,15 @@ bad(await rpc("efg_publish_coach_plan_draft",users.coachB.token,{
  p_student:users.studentA.id,p_expected_revision:1,p_request_id:randomUUID()}),"Other Coach may not publish");
 const keyOnce=randomUUID();
 const toPublish={p_student:users.studentA.id,p_expected_revision:1,p_request_id:keyOnce};
-const goalId=good(await rpc("efg_publish_coach_plan_draft",users.coachA.token,toPublish),
- "New revision publishes goal+5-meal guide atomically");
+// Two actual concurrent HTTP requests with the SAME idempotency key must
+// serialize at the server row lock, publish once, and return the same goal.
+const simultaneous=await Promise.all([
+ rpc("efg_publish_coach_plan_draft",users.coachA.token,toPublish),
+ rpc("efg_publish_coach_plan_draft",users.coachA.token,toPublish)
+]);
+const goalId=good(simultaneous[0],"Concurrent approval A").toLowerCase();
 assert.match(goalId,/^[0-9a-f-]{36}$/i);
+assert.equal(good(simultaneous[1],"Concurrent approval B").toLowerCase(),goalId);
 assert.equal(good(await rpc("efg_publish_coach_plan_draft",users.coachA.token,toPublish),
  "Idempotency exact key"),goalId);
 assert.equal(Number(sql("select count(*) from public.efg_goals")),legacyCount+1);

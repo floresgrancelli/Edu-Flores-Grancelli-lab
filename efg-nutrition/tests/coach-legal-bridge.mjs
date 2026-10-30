@@ -8,25 +8,27 @@ assert.equal(LEGAL_ONBOARDING_ENABLED,false);
 const terms="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const privacy="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const hash="a".repeat(64);
-const text="Documento hipotético exclusivamente para pruebas: "+("Explica derechos, alcance, privacidad y condiciones en detalle. ").repeat(3)+"<script>alert('bad')</script>";
+const text="Documento hipotético exclusivamente para pruebas: "+("Explica derechos, alcance, privacidad y condiciones en detalle. ").repeat(6)+"<script>alert('bad')</script>";
 let docs=[
- {id:terms,kind:"terms",version:"2026.10",sha256:hash,content:text,status:"published"},
- {id:privacy,kind:"privacy",version:"2026.10",sha256:hash,content:text,status:"published"}
+ {id:terms,kind:"terms",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"},
+ {id:privacy,kind:"privacy",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"}
 ],accepted=new Set(),writes=0,queries=0,misreport=false;
 const sb={
  rpc(name,payload){
   if(name==="efg_legal_current_status")
    return Promise.resolve({data:docs.map(d=>({kind:d.kind,document_id:d.id,version:d.version,sha256:d.sha256,
     accepted:accepted.has(d.id)})),error:null});
-  assert.equal(name,"efg_accept_legal_documents");
+  assert.equal(name,"efg_accept_current_legal");
   writes++;
-  assert.deepEqual([...payload.p_document_ids].sort(),docs.filter(d=>!accepted.has(d.id)).map(d=>d.id).sort());
-  if(!misreport)for(const id of payload.p_document_ids)accepted.add(id);
-  return Promise.resolve({data:2,error:null});
+  assert.deepEqual(payload,{p_terms_id:docs.find(d=>d.kind==="terms").id,
+   p_privacy_id:docs.find(d=>d.kind==="privacy").id,
+   p_terms_checked:true,p_privacy_checked:true});
+  if(!misreport)for(const id of [payload.p_terms_id,payload.p_privacy_id])accepted.add(id);
+  return Promise.resolve({data:true,error:null});
  },
  from(name){
   assert.equal(name,"efg_legal_documents");queries++;
-  return {select(){return this;},in(k,values){assert.equal(k,"id");assert.deepEqual([...values].sort(),docs.map(d=>d.id).sort());return this},
+  return {select(columns){assert.equal(columns,"id,kind,version,sha256,body,is_current,published_at");return this;},in(k,values){assert.equal(k,"id");assert.deepEqual([...values].sort(),docs.map(d=>d.id).sort());return this},
    limit(n){assert.equal(n,2);return Promise.resolve({data:docs,error:null})}};
  }
 };

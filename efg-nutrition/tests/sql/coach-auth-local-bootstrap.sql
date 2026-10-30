@@ -86,6 +86,30 @@ create table public.efg_notifications(
  created_at timestamptz not null default now(),
  unique(recipient_id,event_key)
 );
+-- NUT-59 synthetic ledger: old Student PWA still writes daily meals separately.
+-- This deliberately models ownership RLS ONLY; hosted plan-access/consent
+-- policies have more conditions and require faithful staging review.
+create table public.efg_daily_logs(
+ student_id uuid not null references public.efg_profiles(user_id),
+ log_day date not null,
+ meals jsonb not null default '{}'::jsonb,
+ sports jsonb not null default '[]'::jsonb,
+ skipped jsonb not null default '{}'::jsonb,
+ totals jsonb not null default '{}'::jsonb,
+ updated_at timestamptz not null default now(),
+ primary key(student_id,log_day)
+);
+alter table public.efg_daily_logs enable row level security;
+grant select,insert,update on public.efg_daily_logs to authenticated;
+create policy daily_owner_select on public.efg_daily_logs
+ for select to authenticated using(student_id=(select auth.uid()));
+create policy daily_owner_insert on public.efg_daily_logs
+ for insert to authenticated with check(student_id=(select auth.uid()));
+create policy daily_owner_update on public.efg_daily_logs
+ for update to authenticated
+ using(student_id=(select auth.uid()))
+ with check(student_id=(select auth.uid()));
+
 -- LEG-07: mark THIS disposable local Supabase database as test-only.
 -- The reviewed staging-only legal SQL will create the actual legal tables.
 -- Never add this marker to the hosted production database.

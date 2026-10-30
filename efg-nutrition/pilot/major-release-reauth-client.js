@@ -32,6 +32,10 @@ export async function confirmMajorRelaunchAndExit(sb,{
   status.data?.published!==true||
   !Array.isArray(status.data?.roles)||!status.data.roles.includes(profile.role))
   throw Error('La Gran Actualización todavía no fue confirmada por el servidor.');
+ // If the user cancels the unsaved-changes warning, do not even record
+ // acknowledgment. No server signal and no session closure may occur.
+ if(hasUnsavedChanges()&&confirmDiscard()!==true)
+  return Object.freeze({signedOut:false,cancelled:true});
  // Only after a signed, explicit acknowledgment receipt does local OTP exit.
  // This receipt is NOT acceptance of legal documents or medical sharing.
  const ack=await sb.rpc('efg_major_release_acknowledge',{
@@ -40,6 +44,6 @@ export async function confirmMajorRelaunchAndExit(sb,{
  if(ack.error||ack.data?.release_id!==releaseId||
   ack.data?.acknowledgment_kind!=='reauth_notice_acknowledged')
   throw Error('No se confirmó el aviso de actualización. La sesión sigue activa.');
- return signOutCurrentDevice({auth:sb.auth,
-  explicitClick:true,hasUnsavedChanges,confirmDiscard});
+ return signOutCurrentDevice({auth:sb.auth,explicitClick:true,
+  hasUnsavedChanges:()=>false}); // already confirmed before recording receipt
 }

@@ -129,6 +129,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-pilot-intake-client.js
           node efg-nutrition/tests/coach112-pilot-general-intake.mjs
+      - name: COACH113 signed pilot 2-checkbox, general intake and waiting messages UI (OFF)
+        run: |
+          node --check efg-nutrition/pilot/pilot.js
+          node efg-nutrition/tests/coach113-pilot-ui-route-contract.mjs
       - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
         run: |
           node --check efg-nutrition/pilot/coach-student-journey.js

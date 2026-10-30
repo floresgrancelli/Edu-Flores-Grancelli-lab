@@ -1,0 +1,61 @@
+import assert from 'node:assert/strict';
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from '../pilot/weekly-luxury-report.js';
+const from='2026-10-23',to='2026-10-29',friday='2026-10-30';
+const inputs=[
+ ['2026-10-23',1940,140,192,68],
+ ['2026-10-24',2110,146,224,70],
+ ['2026-10-26',2059,149,215,67],
+ ['2026-10-28',2163,142,230,75],
+ ['2026-10-29',2178,148,239,70]
+];
+const days=inputs.map(([date,k,p,c,f])=>({date,k,p,c,f,hasData:true,closed:true}));
+const goals=[{start_on:'2026-10-22',kcal:2300,protein_g:150,carb_g:265,fat_g:71}];
+const logs=inputs.map(([log_day],i)=>({log_day,meals:{
+ desayuno:[{id:'egg',name:'Huevos'},{id:'bread',name:'Pan integral'}],
+ almuerzo:[{id:'chicken',name:'Pollo'},{id:i===2?'potato':'rice',name:i===2?'Papa':'Arroz integral'}],
+ cena:i<3?[{id:'banana',name:'Banana'}]:[]
+}}));
+const data={from,to,friday,studentName:'Sofía DEMO',coachName:'Coach EFG DEMO',days,goals,logs};
+const model=buildLuxuryWeeklyReport(data);
+assert.equal(model.daysRecorded,5);
+assert.equal(model.daysClosed,5);
+assert.equal(model.days.filter(d=>!d.hasData).length,2);
+assert.equal(model.averages.k,2090);
+assert.equal(model.averages.p,145);
+assert.equal(model.averages.c,220);
+assert.equal(model.averages.f,70);
+assert.equal(model.targets.k,2300);
+assert.equal(model.topFoods[0].days,5);
+assert.equal(model.topFoods.some(x=>x.name==='Arroz integral'&&x.days===4),true);
+assert.ok(model.focus.some(x=>x.includes('carbohidratos')),'Protein nearly met + carbohydrate deficit => check carbs');
+assert.ok(!model.conclusion.toLowerCase().includes('incumplimiento'));
+assert.ok(!model.flexibleNote.toLowerCase().includes('merec'));
+const html=renderLuxuryWeeklyReport(model,{demo:true});
+assert.match(html,/MODELO · DATOS FICTICIOS/);
+assert.match(html,/5 \/ 7/);
+assert.match(html,/2\.090/);
+assert.match(html,/Los días sin datos/);
+assert.doesNotMatch(html,/<script|javascript:/);
+const payload=reportAsStoredText(model,'Comentario <script>alert(1)</script> del coach','Si disfrutás un postre, es parte de tu flexibilidad.');
+const parsed=parseLuxuryWeeklyReport(payload);
+assert.equal(parsed.conclusion,'Comentario <script>alert(1)</script> del coach');
+assert.doesNotMatch(renderLuxuryWeeklyReport(parsed),/<script>/,'User/coach input must be escaped');
+assert.equal(parseLuxuryWeeklyReport('Informe anterior en texto plano'),null);
+assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,approvedByCoach:false})),null);
+assert.throws(()=>reportAsStoredText(model,'',null),/debe revisar/);
+assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete días/);
+const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});
+assert.match(scant.conclusion,/insuficientes|parciales/);
+assert.ok(!scant.focus.some(x=>x.includes('carbohidratos')),'Do not suggest macros from two days');
+const noGoals=buildLuxuryWeeklyReport({...data,goals:[]});
+assert.equal(noGoals.targets.k,null);
+assert.ok(!noGoals.focus.some(x=>x.includes('porciones de carbohidratos')),'No unsupported target-based priorities');
+const changedGoals=buildLuxuryWeeklyReport({...data,goals:[
+ {start_on:'2026-10-22',kcal:2300,protein_g:140,carb_g:270,fat_g:72},
+ {start_on:'2026-10-27',kcal:2500,protein_g:160,carb_g:300,fat_g:75}
+]});
+assert.equal(changedGoals.targets.k,(2300*3+2500*2)/5);
+assert.equal(changedGoals.targets.p,(140*3+160*2)/5);
+const bad=buildLuxuryWeeklyReport({...data,studentName:'<img src=x onerror=alert(1)>'});
+assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img/);
+console.log('PASS REPORT-LUX: numbers/goal-by-date, top-food-day, low-data, XSS, legacy, privacy-friendly guidance and serialization.');

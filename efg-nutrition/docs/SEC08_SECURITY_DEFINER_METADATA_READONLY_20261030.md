@@ -43,3 +43,12 @@ Las otras **11** funciones `SECURITY DEFINER` pertenecen a generación de correo
 5. Solicitar revisión de seguridad independiente de cualquier decisión de lanzamiento. **Las comprobaciones de catálogo de PostgreSQL no sustituyen las pruebas dinámicas.**
 
 **Estado:** inventario de superficie y ACL CONCLUIDO (lectura alojada). Matriz de ejecución con JWT real sobre esquema fiel, pendiente. Ningún cambio alojado ni publicación autorizada.
+
+## Advisor de seguridad oficial, solo lectura (30/10)
+
+`get_advisors(type=security)` reportó:
+- **WARN ×19:** funciones `SECURITY DEFINER` ejecutables por `authenticated`; coincide con el inventario. No implica por sí solo explotación, pero obliga a probar la autorización interna. [Referencia de remediación](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable).
+- **WARN ×1:** protección de contraseñas filtradas desactivada en Auth. Revisar si se utilizan contraseñas en cualquier flujo real; OTP no elimina automáticamente el valor de verificar esta opción. [Referencia](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+- **INFO ×2:** RLS habilitado sin políticas en `efg_private.daily_mail_jobs` y `public.efg_daily_email_deliveries`. Puede ser correcto para tablas sólo de servicio, pero exige verificar las rutas y los roles internos de correo. [Referencia](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
+
+**Ninguna configuración se alteró en la base real.** Un inventario con `anon_execute=false` no sustituye análisis de cuerpos, credenciales de servicio, entradas indirectas o pruebas de penetración.

@@ -12,7 +12,7 @@ assert.equal(classify({...food,compatibilityEvidence:[evidence]},{patternId:'veg
 assert.equal(classify(food,{patternId:'vegan'},[evidence]).color,'green');
 // Even a typed catalog review cannot imply clinical/allergy/gluten compatibility.
 assert.equal(classify(food,{patternId:'vegan',restrictions:['celiac']},[evidence]).color,'yellow');
-assert.equal(FOOD_COMPATIBILITY_ENABLED,false);
+assert.equal(FOOD_COMPATIBILITY_ENABLED,true,'Pilot compatibility UI enabled with verified-only catalog and yellow fail-closed; no clinical green');
 for(const k of [0,100,1000])assert.equal(classify({...food,k,f:100,c:900},{inPlan:true}).color,'neutral');
 assert.equal(classify(food,{patternId:'vegan'},[evidence]).color,'green');
 assert.equal(classify(food,{patternId:'vegan'},[{...evidence,ingredientClasses:['dairy']}]).color,'red');

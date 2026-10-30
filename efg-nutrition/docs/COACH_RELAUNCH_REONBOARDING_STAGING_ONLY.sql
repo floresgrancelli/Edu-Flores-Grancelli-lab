@@ -40,7 +40,8 @@ create table public.efg_coach_relaunch_intakes (
  weight_kg numeric(5,1) check(weight_kg between 20 and 400),
  activity_level text check(activity_level is null or activity_level in ('low','light','moderate','high')),
  dietary_pattern text check(dietary_pattern is null or dietary_pattern in
-  ('omnivore','vegetarian','vegan','pescatarian','other')),
+  ('omnivore','mediterranean','dash','vegetarian','vegan','pescatarian','flexitarian','portfolio','low_carb','keto','other')),
+ eating_window text not null default 'regular' check(eating_window in ('regular','12_12','14_10','16_8')),
  preferred_foods text not null default '' check(char_length(preferred_foods)<=400),
  disliked_foods text not null default '' check(char_length(disliked_foods)<=400),
  meal_routine text not null default '' check(char_length(meal_routine)<=400),
@@ -91,7 +92,7 @@ declare
  v_legal boolean;
  v_allowed text[] := array[
   'objective','age_years','height_cm','weight_kg','activity_level',
-  'dietary_pattern','preferred_foods','disliked_foods','meal_routine','notes'
+  'dietary_pattern','eating_window','preferred_foods','disliked_foods','meal_routine','notes'
  ];
  v_field text;
  v_text text;
@@ -140,8 +141,11 @@ begin
     (p_payload->>'activity_level') not in ('low','light','moderate','high')
   then raise exception 'Invalid activity' using errcode='22023'; end if;
  if nullif(p_payload->>'dietary_pattern','') is not null and
-    (p_payload->>'dietary_pattern') not in ('omnivore','vegetarian','vegan','pescatarian','other')
+    (p_payload->>'dietary_pattern') not in ('omnivore','mediterranean','dash','vegetarian','vegan','pescatarian','flexitarian','portfolio','low_carb','keto','other')
   then raise exception 'Invalid dietary pattern' using errcode='22023'; end if;
+ if nullif(p_payload->>'eating_window','') is not null
+    and (p_payload->>'eating_window') not in ('regular','12_12','14_10','16_8')
+  then raise exception 'Invalid eating window' using errcode='22023'; end if;
  foreach v_field in array array['preferred_foods','disliked_foods','meal_routine','notes'] loop
   v_text:=coalesce(p_payload->>v_field,'');
   if pg_catalog.char_length(v_text)>(case when v_field='notes' then 1000 else 400 end) then
@@ -182,7 +186,7 @@ begin
  end if;
  insert into public.efg_coach_relaunch_intakes(
   student_id,organization_id,completed_version,revision,
-  objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,
+  objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,eating_window,
   preferred_foods,disliked_foods,meal_routine,notes,shared_at,completed_at,updated_at
  ) values(
   v_uid,v_org,p_completed_version,p_expected_revision+1,
@@ -192,6 +196,7 @@ begin
   nullif(p_payload->>'weight_kg','')::numeric,
   nullif(p_payload->>'activity_level',''),
   nullif(p_payload->>'dietary_pattern',''),
+  coalesce(nullif(p_payload->>'eating_window',''),'regular'),
   coalesce(p_payload->>'preferred_foods',''),
   coalesce(p_payload->>'disliked_foods',''),
   coalesce(p_payload->>'meal_routine',''),
@@ -202,7 +207,7 @@ begin
   revision=excluded.revision,
   objective=excluded.objective,age_years=excluded.age_years,
   height_cm=excluded.height_cm,weight_kg=excluded.weight_kg,
-  activity_level=excluded.activity_level,dietary_pattern=excluded.dietary_pattern,
+  activity_level=excluded.activity_level,dietary_pattern=excluded.dietary_pattern,eating_window=excluded.eating_window,
   preferred_foods=excluded.preferred_foods,disliked_foods=excluded.disliked_foods,
   meal_routine=excluded.meal_routine,notes=excluded.notes,
   shared_at=excluded.shared_at,updated_at=excluded.updated_at

@@ -1,6 +1,8 @@
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
+import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=false;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -38,8 +40,9 @@ export function validateCoachPlanProposal(goal,guide){
  return {goal:clean,guide:structuredClone(guide)};
 }
 
-export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENABLED}={}){
+export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENABLED,relaunchEnabled=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
  const check=()=>{
+  assertCoachReleasePlanWriteAllowed({relaunchEnabled});
   if(enabled!==true)throw Error("Borradores seguros aún no habilitados. El objetivo y la guía existentes permanecen intactos.");
   if(typeof sb?.rpc!=="function"||typeof sb?.from!=="function")
    throw Error("No se pudo verificar la conexión segura.");

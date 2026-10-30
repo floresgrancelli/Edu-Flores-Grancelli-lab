@@ -185,6 +185,58 @@ assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:
 no(await save(b,{p_goal:{...goal,kcal:2301},p_expected_revision:1}),
  "Other person cannot inherit A's new Terms acceptance");
 
+// NUT-60 account suspension is server-enforced even for previously signed JWTs.
+// No direct-profile REST privilege is granted; fixture admin changes only local rows.
+assert.equal(yes(await rpc("efg_personal_write_allowed",a,{}),
+ "A has active personal write access after reacceptance"),true);
+assert.equal(yes(await rpc("efg_personal_write_allowed",b,{}),
+ "B loses write access until independently reaccepting Terms"),false);
+no(await rpc("efg_personal_write_allowed",null,{}),
+ "Anonymous cannot invoke the Personal authorization gate");
+const suspendedFav={...fav,name:"Suspension regression"};
+yes(await rest(favPath,{method:"POST",token:a.token,body:suspendedFav}),
+ "A creates preset before account suspension");
+const suspensionItem=yes(await rest(favPath+"?select=id,name",{token:a.token}),
+ "A reads suspension regression preset")[0];
+assert.ok(suspensionItem?.id);
+sql("update public.efg_profiles set active=false where user_id='"+a.id+"' and role='personal'");
+assert.equal(yes(await rpc("efg_personal_write_allowed",a,{}),
+ "Suspended user must be denied by server-side predicate"),false);
+no(await save(a,{p_goal:{...goal,kcal:2000},p_expected_revision:3}),
+ "Suspended JWT must not save goals even after legal acceptance");
+no(await rest(diaryPath,{method:"POST",token:a.token,body:{
+ ...todayLog,log_day:"2026-10-31"
+}}),"Suspended JWT cannot create new diary");
+no(await rest(favPath,{method:"POST",token:a.token,body:{
+ ...suspendedFav,name:"Forbidden suspended"
+}}),"Suspended JWT cannot create new preset");
+// PostgREST PATCH can correctly return 204 for zero matched rows: read back.
+await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:99}]}}
+});
+assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
+ "Suspended profile can read own diary for privacy access")[0].meals.desayuno[0].qty,4,
+ "Suspended profile must not mutate existing diary via PATCH");
+await rest(favPath+"?id=eq."+suspensionItem.id,{
+ method:"PATCH",token:a.token,body:{name:"Forged inactive edit"}
+});
+assert.equal(yes(await rest(favPath+"?select=name&id=eq."+suspensionItem.id,{token:a.token}),
+ "Suspended profile may still view own presets")[0].name,"Suspension regression");
+yes(await rest(favPath+"?id=eq."+suspensionItem.id,{method:"DELETE",token:a.token}),
+ "Inactive account retains owner-only deletion for privacy rights");
+assert.deepEqual(yes(await rest(favPath+"?select=id",{token:a.token}),
+ "Inactive owner deletion succeeded"),[]);
+sql("update public.efg_profiles set active=true where user_id='"+a.id+"' and role='personal'");
+assert.equal(yes(await rpc("efg_personal_write_allowed",a,{}),
+ "Explicit fixture reactivation restores valid authorizations"),true);
+assert.equal(Number(yes(await save(a,{p_goal:{...goal,kcal:2000},p_expected_revision:3}),
+ "Reactivated personal profile can create the next revision")),4);
+yes(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:5}]}}
+}),"Reactivated profile can update own diary");
+assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
+ "Reactivation readback")[0].meals.desayuno[0].qty,5);
+
 assert.equal(sql("select count(*) from public.efg_personal_habitual_meals"),"0");
 assert.equal(sql("select count(*) from public.efg_daily_logs"),coachBefore.studentDaily,
  "Personal diary cannot alter historic Student diary");

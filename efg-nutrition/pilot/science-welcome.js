@@ -1,12 +1,13 @@
 // BRAND-77B — same eight content panels for guided intro and vertical library.
 // OFF until a user-scoped, audited server receipt and physical QA are ready.
 import {renderNutritionScienceView} from "./nutrition-science.js";
+import {renderScienceWellbeingPanel} from "./science-wellbeing.js";
 export const SCIENCE_WELCOME_ENABLED=false;
 export const SCIENCE_WELCOME_VERSION="con_ciencia_2026_r1";
 export const SCIENCE_STEPS=Object.freeze([
  "Bienvenido a Nutrición Con-Ciencia","¿Qué son las calorías?","Los tres macronutrientes",
  "Proteína y entrenamiento","¿Qué pasa si cambio los macros?",
- "El mito de los hidratos","Cómo combinar tus alimentos","Lo importante para recordar"
+ "El mito de los hidratos","Cómo combinar tus alimentos","Más que nutrición: bienestar"
 ]);
 const section=(html,cls,tag="section")=>{
  const match=html.match(new RegExp('<'+tag+'\\b[^>]*class="'+cls+'(?:\\s[^"]*)?"[^>]*>[\\s\\S]*?<\\/'+tag+'>'));
@@ -43,13 +44,14 @@ export function sciencePanels(){
  return [
   section(page,"ns-hero","header"),section(page,"ns-intro"),macro,
   section(page,"ns-protein-focus"),section(page,"ns-balance"),
-  section(page,"ns-myth"),meals,conclusions
+  section(page,"ns-myth"),meals,renderScienceWellbeingPanel()
  ];
 }
 export function renderScienceVerticalView(){
  const page=renderNutritionScienceView();
  return '<div class="ns-science ns-science-library" aria-label="Nutrición Con-Ciencia · página vertical">'+
- sciencePanels().map((p,i)=>'<div class="ns-library-panel" data-science-step="'+(i+1)+'">'+p+'</div>').join("")+
+ sciencePanels().map((p,i)=>(i===7?'<div class="ns-library-summary">'+conclusions+'</div>':'')+
+  '<div class="ns-library-panel" data-science-step="'+(i+1)+'">'+p+'</div>').join("")+
  section(page,"ns-faq")+section(page,"ns-sources")+'</div>';
 }
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));

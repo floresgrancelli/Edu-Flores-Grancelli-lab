@@ -130,7 +130,7 @@ const fixtureSQL=[
   "select student_id,organization_id,"+uuid(users.coachA.id)+",updated_at,'general_guidance_reviewed',"+uuid(users.reviewer.id)+",now() "+
   "from public.efg_student_intakes where student_id="+uuid(users.studentA.id),
  "insert into public.efg_legal_documents(id,kind,version,content,sha256,locale,published_at,effective_at,status) "+
-  "select x.id,x.kind,'synthetic-1',x.body,encode(sha256(convert_to(x.body,'UTF8')),'hex'),"+
+  "select x.id::uuid,x.kind,'synthetic-1',x.body,encode(sha256(convert_to(x.body,'UTF8')),'hex'),"+
   "'es-AR',now()-interval '2 days',now()-interval '1 day','published' from (values "+
   "("+uuid(termsId)+",'terms',repeat('SYNTHETIC TERMS ONLY; NOT LEGAL ADVICE. ',5)),"+
   "("+uuid(privacyId)+",'privacy',repeat('SYNTHETIC PRIVACY POLICY; NOT LEGAL CONTENT. ',5))"+

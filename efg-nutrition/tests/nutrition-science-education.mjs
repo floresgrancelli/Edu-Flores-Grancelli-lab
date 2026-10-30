@@ -35,8 +35,8 @@ for(const s of NUTRITION_SCIENCE_SOURCES){
  assert.ok(/^https:\/\/(www\.)?(who\.int|ncbi\.nlm\.nih\.gov|pmc\.ncbi\.nlm\.nih\.gov)\//.test(s.url),s.title+" scientific link");
  assert.ok(page.includes(s.url),"cited source missing");
 }
-assert.match(js,/import \{renderNutritionScienceView\} from "\.\/nutrition-science\.js/);
-assert.match(js,/nutritionScience:renderNutritionScienceView/);
+assert.match(js,/import \{SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep\} from "\.\/science-welcome\.js/);
+assert.match(js,/nutritionScience:renderScienceVerticalView/);
 assert.match(js,/\["nutritionScience","✦","Con-Ciencia"\]/);
 assert.equal((js.match(/\["nutritionScience","✦","Con-Ciencia"\]/g)||[]).length,2,"one real tab for student and one for coach");
 assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,2,"discoverable from BOTH more menus");

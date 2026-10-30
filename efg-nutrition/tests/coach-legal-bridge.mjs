@@ -20,13 +20,13 @@ const sb={
     accepted:accepted.has(d.id)})),error:null});
   assert.equal(name,"efg_accept_legal_documents");
   writes++;
-  assert.deepEqual(payload.p_document_ids.sort(),[terms,privacy].sort());
+  assert.deepEqual([...payload.p_document_ids].sort(),docs.filter(d=>!accepted.has(d.id)).map(d=>d.id).sort());
   if(!misreport)for(const id of payload.p_document_ids)accepted.add(id);
   return Promise.resolve({data:2,error:null});
  },
  from(name){
   assert.equal(name,"efg_legal_documents");queries++;
-  return {select(){return this;},in(k,values){assert.equal(k,"id");assert.deepEqual(values.sort(),[terms,privacy].sort());return this},
+  return {select(){return this;},in(k,values){assert.equal(k,"id");assert.deepEqual([...values].sort(),docs.map(d=>d.id).sort());return this},
    limit(n){assert.equal(n,2);return Promise.resolve({data:docs,error:null})}};
  }
 };
@@ -55,16 +55,8 @@ const yes=await acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:true},
 assert.deepEqual(yes.missing,[]);
 assert.equal(renderCoachLegalOnboarding(yes),"");
 assert.equal(writes,1);
+// The old accepted document ID cannot authorize a newly published version.
 docs=docs.map((d,i)=>i===0?{...d,id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",version:"2026.11"}:d);
-await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/verificar|coincide|publicadas/).catch?.(()=>{});
-// Do not let a stale legal acceptance unlock a new published version.
-docs=[
- {id:terms,kind:"terms",version:"2026.11",sha256:hash,content:text,status:"published"},
- {id:privacy,kind:"privacy",version:"2026.10",sha256:hash,content:text,status:"published"}
-];
-const newStatus=await loadCoachLegalOnboarding(sb,opts);
-assert.deepEqual(newStatus.missing,[]);
-docs=docs.map((d,i)=>i===0?{...d,id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc"}:d);
 const refresh=await loadCoachLegalOnboarding(sb,opts);
 assert.deepEqual(refresh.missing,["terms"]);
 misreport=true;

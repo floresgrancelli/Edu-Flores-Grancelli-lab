@@ -1,7 +1,7 @@
 // NUT-60 signed-token experiments, LOCAL Supabase only, NEVER hosted.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {randomBytes} from "node:crypto";
+import {randomBytes,randomUUID} from "node:crypto";
 import {spawnSync} from "node:child_process";
 const lines=readFileSync(process.env.EFG_LOCAL_STATUS_ENV||"","utf8").split(/\r?\n/);
 const settings=Object.fromEntries(lines.filter(x=>x.includes("=")).map(x=>{
@@ -147,8 +147,44 @@ no(await rest(favPath,{method:"POST",token:b.token,
  body:{...fav,name:"Forged cross-account meal"}}),"B cannot save A preset");
 await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:b.token});
 assert.equal(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset remains after B delete attempt").length,1);
-yes(await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:a.token}),"A deletes only own preset");
+// LEG-07 regression: legal version changes must prevent NEW personal writes,
+// but self-read and self-deletion remain possible for privacy/access rights.
+const terms=docs.find(d=>d.kind==="terms");
+const newTermsId=randomUUID();
+sql("update public.efg_legal_documents set status='retired',retired_at=now() where id='"+terms.document_id+"'");
+sql("insert into public.efg_legal_documents(id,kind,version,content,sha256,locale,published_at,effective_at,status) "+
+ "select '"+newTermsId+"','terms','synthetic-personal-3',x.body,"+
+ "encode(sha256(convert_to(x.body,'UTF8')),'hex'),'es-AR',now(),now(),'published' "+
+ "from (select repeat('SYNTHETIC PERSONAL TERMS REVISION ONLY. ',4) as body) x");
+const changed=yes(await status(a),"Current fictional Terms after version rotation");
+assert.equal(changed.find(x=>x.kind==="terms").accepted,false);
+assert.equal(changed.find(x=>x.kind==="privacy").accepted,true);
+no(await save(a,{p_goal:{...goal,kcal:2100},p_expected_revision:2}),
+ "Personal goal revision must stop until new legal version accepted");
+no(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:4}]}}
+}),"Personal diary update must be gated by CURRENT legal versions");
+no(await rest(diaryPath,{method:"POST",token:a.token,
+ body:{...todayLog,log_day:"2026-10-29"}}),"Personal diary INSERT must stop with stale legal acceptance");
+no(await rest(favPath,{method:"POST",token:a.token,
+ body:{...fav,name:"Should not write"}}),"New favorites cannot be written before new terms accepted");
+assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
+ "Person can still read own data to exercise privacy rights").length,1);
+yes(await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:a.token}),
+ "A can delete own personal data even with terms reacceptance pending");
 assert.deepEqual(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset deleted"),[]);
+assert.equal(Number(yes(await rpc("efg_accept_legal_documents",a,{p_document_ids:[newTermsId]}),
+ "A explicitly reaccepts only changed Terms")),1);
+assert.equal(Number(yes(await save(a,{p_goal:{...goal,kcal:2100},p_expected_revision:2}),
+ "A can save again after legal reacceptance")),3);
+yes(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
+ method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:4}]}}
+}),"A can correct own diary after reaccepting new terms");
+assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
+ "A diary after legal reacceptance")[0].meals.desayuno[0].qty,4);
+no(await save(b,{p_goal:{...goal,kcal:2301},p_expected_revision:1}),
+ "Other person cannot inherit A's new Terms acceptance");
+
 assert.equal(sql("select count(*) from public.efg_personal_habitual_meals"),"0");
 assert.equal(sql("select count(*) from public.efg_daily_logs"),coachBefore.studentDaily,
  "Personal diary cannot alter historic Student diary");

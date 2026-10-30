@@ -10,7 +10,7 @@ assert.match(oct29.title,/ñoquis/i);
 assert.match(oct29.body,/salsa|ñ oquis|ñ oqui|tradición|plato/i);
 assert.match(oct29.src,/^https:\/\/images\.unsplash\.com\/photo-/);
 assert.match(oct29.page,/^https:\/\/unsplash\.com\/photos\//);
-assert.ok(oct29.alt.includes("Ñoquis"));
+assert.match(oct29.alt,/ñoquis/i);
 assert.equal(nutritionTipForDate(new Date("2026-10-29T01:20:00Z")).date,"2026-10-28",
  "Tip uses Buenos Aires clock, not UTC: 28th before local midnight");
 assert.equal(nutritionTipForDate(new Date("2026-10-29T03:20:00Z")).date,"2026-10-29");

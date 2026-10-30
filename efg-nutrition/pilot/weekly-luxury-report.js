@@ -176,7 +176,7 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
  const top=(model.topFoods||[]).map((f,i)=>'<li><b>'+String(i+1).padStart(2,'0')+'</b><span>'+escape(f.name)+'</span><strong>'+fmt(f.days)+' día(s)</strong></li>').join('');
  const focus=(model.focus||[]).slice(0,3).map((f,i)=>'<li><b>'+String(i+1).padStart(2,'0')+'</b><span>'+escape(f)+'</span></li>').join('');
  return '<article class="lux-report" aria-label="Informe semanal del alumno">'+
-  '<div class="lux-report-cover"><div class="lux-report-kicker">EFG NUTRITION PRO <span>LUXURY PRO</span></div>'+
+  '<div class="lux-report-cover"><div class="lux-report-kicker"><img class="lux-report-serotonin" src="./assets/serotonina-acuarela.avif" width="43" height="32" alt="" decoding="async">EFG NUTRITION PRO <span>LUXURY PRO</span></div>'+
   (demo?'<p class="lux-report-demo">MODELO · DATOS FICTICIOS</p>':'')+
   '<h2>Tu semana,<br><em>en perspectiva.</em></h2><p>Una mirada clara a tus registros, tus hábitos y tu próximo paso.</p>'+
   '<div class="lux-report-identity"><span>'+escape(model.studentName)+'</span><span>'+escape(model.from)+' / '+escape(model.to)+'</span></div></div>'+

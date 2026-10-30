@@ -48,19 +48,22 @@ export const LUXURY_EVIDENCE_SOURCES=Object.freeze([
   supports:'La proteína se evalúa según actividad, masa corporal, objetivo y contexto; no subirla sin motivo.'}
 ]);
 export const LUXURY_REVIEW_RULES=Object.freeze({
- minRecorded:4,minClosed:3,proteinBelow:.90,energyBelow:.95,energyAbove:1.05,carbBelow:.95,fatBelow:.85
+ minRecorded:4,minClosed:3,minDaysWithTwoMeals:3,proteinBelow:.90,energyBelow:.95,energyAbove:1.05,carbBelow:.95,fatBelow:.85
 });
 function recommendations(model){
- const {daysRecorded,daysClosed,averages,targets}=model;
+ const {daysRecorded,daysClosed,daysWithMeasuredMeals,daysWithMultipleMeals,averages,targets}=model;
  const r=LUXURY_REVIEW_RULES;
  const ratio=key=>targets[key]>0&&averages[key]!==null?averages[key]/targets[key]:null;
  const p=ratio('p'),k=ratio('k'),f=ratio('f'),carb=ratio('c');
- const enough=daysRecorded>=r.minRecorded&&daysClosed>=r.minClosed;
+ // Minimum data coverage rules are conservative EFG quality checks, NOT clinical thresholds.
+ const enough=daysRecorded>=r.minRecorded&&daysClosed>=r.minClosed&&
+  (daysWithMeasuredMeals===0||daysWithMultipleMeals>=r.minDaysWithTwoMeals);
  const comparisons={energyPct:k===null?null:Math.round(k*100),proteinPct:p===null?null:Math.round(p*100),
   carbsPct:carb===null?null:Math.round(carb*100),fatsPct:f===null?null:Math.round(f*100)};
  const evidence={
   grade:enough?'orientativa':'insuficiente',
-  dataBasis:daysRecorded+' de 7 días con ingestas autodeclaradas; '+daysClosed+' días cerrados por fecha (no significa comidas completas).',
+  dataBasis:daysRecorded+' de 7 días con ingestas autodeclaradas; '+daysClosed+' días cerrados por fecha (no significa comidas completas). '+
+   (daysWithMeasuredMeals>0?daysWithMultipleMeals+' días con al menos dos comidas cargadas.':'Cantidad de comidas no verificada.'),
   dailyGoals:'Comparación con objetivos aprobados que estaban vigentes en cada fecha; sin objetivo verificable, no se interpreta un faltante.',
   rule:'EFG usa límites de revisión internos (90 % proteína; 95 % energía/HC; 85 % grasas), que NO son umbrales clínicos. El coach debe revisar antes de compartir.',
   scientificSources:LUXURY_EVIDENCE_SOURCES.map(s=>s.id),
@@ -115,8 +118,8 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  const byDate=new Map(recorded.map(d=>[d.date,d]));
  const cleanDays=all.map(key=>{
   const d=byDate.get(key);
-  return d?{date:key,hasData:true,closed:!!d.closed,k:Number(d.k),p:Number(d.p),c:Number(d.c),f:Number(d.f)}:
-   {date:key,hasData:false,closed:false,k:null,p:null,c:null,f:null};
+  return d?{date:key,hasData:true,closed:!!d.closed,mealCount:finite(d.mealCount),k:Number(d.k),p:Number(d.p),c:Number(d.c),f:Number(d.f)}:
+   {date:key,hasData:false,closed:false,mealCount:null,k:null,p:null,c:null,f:null};
  });
  const valid=cleanDays.filter(d=>d.hasData);
  const mean=key=>valid.length?valid.reduce((a,d)=>a+d[key],0)/valid.length:null;
@@ -129,6 +132,8 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  const targets={k:meanTarget('k'),p:meanTarget('p'),c:meanTarget('c'),f:meanTarget('f')};
  const model={kind:LUXURY_WEEKLY_KIND,studentName:clean(studentName,70)||'Alumno',coachName:clean(coachName,70)||'Entrenador',
   from,to,friday,daysRecorded:valid.length,daysClosed:valid.filter(d=>d.closed).length,
+  daysWithMeasuredMeals:valid.filter(d=>d.mealCount!==null).length,
+  daysWithMultipleMeals:valid.filter(d=>d.mealCount!==null&&d.mealCount>=2).length,
   days:cleanDays,averages,targets,topFoods:foodsFromLogs(logs,from,to,new Set(valid.map(d=>d.date))),focus:[],conclusion:'',flexibleNote:''};
  const advice=recommendations(model);model.focus=advice.focus;model.conclusion=advice.conclusion;model.evidence=advice.evidence;
  // A flexible eating idea is never an earned reward, prescription or clinical approval.

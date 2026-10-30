@@ -42,6 +42,8 @@ jobs:
         run: |
           node efg-nutrition/tests/nutrition-science-visual-qa.mjs
           EFG_QA_ANDROID=1 node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+      - name: PRO-60 monthly ñoquis premium card Chromium iPhone Pixel desktop (synthetic photo)
+        run: node efg-nutrition/tests/nutrition-daily-tip-visual-qa.mjs
       - name: COACH101 semaforo labels and vetted-source badges Chromium, iPhone/Pixel/desktop (synthetic)
         run: node efg-nutrition/tests/coach101-semaforo-visual-qa.mjs
       - name: Capture isolated special launch illustration in Chromium (no production data)
@@ -68,6 +70,8 @@ jobs:
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/science-welcome-visual-qa.mjs
       - name: EDUCATION-02 science screen Safari/WebKit responsive (synthetic)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+      - name: PRO-60 illustrated tip WebKit Safari mobile (synthetic photo)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/nutrition-daily-tip-visual-qa.mjs
       - name: COACH101 semaforo in mobile Safari/WebKit (synthetic)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach101-semaforo-visual-qa.mjs
       - name: Capture isolated special launch illustration in WebKit (no production data)

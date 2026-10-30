@@ -96,6 +96,10 @@ jobs:
           node efg-nutrition/tests/coach-legal-bridge.mjs
       - name: COACH-67 parse disabled legal bridge (STATIC, NO LEGAL GO)
         run: node --check efg-nutrition/pilot/coach-legal-bridge.js
+      - name: COACH98 provisional pilot participation demo, no fake legal consent (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/pilot-participation-demo.js
+          node efg-nutrition/tests/coach98-pilot-participation-demo.mjs
       - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
         run: |
           node --check efg-nutrition/pilot/coach-release-plan-gate.js

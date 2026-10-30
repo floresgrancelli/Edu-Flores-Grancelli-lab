@@ -104,3 +104,10 @@ Nota de QA: hubo dos fallas de **fixtures/aserciones**, no de cálculos reales n
 5. Solo con evidencia de lo anterior y autorización del propietario solicitar GO; **NO merge, deploy, DDL/DML hosted ni reinicios de alumnos** mientras tanto.
 
 La expectativa de completar hoy las tareas automatizables NO anula estas puertas de autorización profesional/legal ni garantiza una salida segura en la misma fecha.
+
+
+### COACH-67 · Pantalla legal conectada bajo banderas OFF
+
+En `pilot/pilot.js`, la ruta de reingreso de un **alumno Coach** ahora sabe presentar los textos actuales de Términos y Privacidad mediante `renderCoachLegalOnboarding()` y enviar las casillas marcadas con `acceptCoachLegalOnboarding()`; la pantalla vuelve a consultar la sesión y el estado legal en `refresh()` antes de permitir que se muestre la ficha nueva. El usuario no puede abrir «MI DÍA» ni la ficha cuando el servidor no confirmó la versión requerida. Se exige `COACH_RELAUNCH_ONBOARDING_ENABLED` **y** `COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED` además de `LEGAL_ONBOARDING_ENABLED`; todas siguen en `false` y la variante legal sin aprobar permanece bloqueada.
+
+`tests/coach-legal-bridge.mjs` añade comprobaciones de que el ingreso ejecuta el puente solo tras el resultado `route='legal'`, exige confirmación expresa y reconsulta el servidor, y no se basa en una marca local. La conexión todavía no valida textos jurídicos reales y no fue probada con sesiones de usuarios de producción.

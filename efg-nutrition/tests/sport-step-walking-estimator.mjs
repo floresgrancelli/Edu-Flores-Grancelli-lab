@@ -36,6 +36,8 @@ const legacy={activity_day:'2026-10-28',steps:6000,exercise_minutes:60,kind:'Cam
 assert.equal(estimateStoredWalkingActivity(legacy).distanceKm,4.2);
 assert.equal(estimateStoredWalkingActivity({steps:null,exercise_minutes:60}),null,
  'Older exercise-only rows are not made into fictional walks.');
+assert.equal(estimateStoredWalkingActivity({steps:0,exercise_minutes:60}),null,
+ 'Exercise-only 0-step sessions do not become fake walking history.');
 assert.equal(estimateStoredWalkingActivity(legacy).activeKcal,null);
 const fields={activitySteps:'8000',activityPace:'moderate',activityHeightCm:'174',
  activityWeightKg:'78',activityMinutes:'60',activityKind:'Entrenamiento de fuerza'};
@@ -48,7 +50,14 @@ assert.equal(entry.exercise_minutes,60,'Exercise minutes are preserved separatel
 assert.equal(entry.estimate.activeKcal,252);
 fields.activityWeightKg='';
 assert.equal(readWalkingActivityForm(doc).estimate.activeKcal,null);
-fields.activityWeightKg='78';fields.activitySteps='abc';
+fields.activityWeightKg='78';fields.activitySteps='';
+const exerciseOnly=readWalkingActivityForm(doc);
+assert.equal(exerciseOnly.steps,0);
+assert.equal(exerciseOnly.exercise_minutes,60);
+assert.equal(exerciseOnly.walking_pace,null);
+assert.equal(exerciseOnly.walking_weight_kg,null);
+assert.equal(exerciseOnly.estimate.activeKcal,null);
+fields.activitySteps='abc';
 assert.throws(()=>readWalkingActivityForm(doc),/pasos/);
 fields.activitySteps='8000';fields.activityMinutes='';
 assert.equal(readWalkingActivityForm(doc).exercise_minutes,0);

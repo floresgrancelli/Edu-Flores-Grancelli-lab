@@ -55,7 +55,7 @@ function recommendations(model){
  const r=LUXURY_REVIEW_RULES;
  const ratio=key=>targets[key]>0&&averages[key]!==null?averages[key]/targets[key]:null;
  const p=ratio('p'),k=ratio('k'),f=ratio('f'),carb=ratio('c');
- // Minimum data coverage rules are conservative EFG quality checks, NOT clinical thresholds.
+ // These are record-coverage checks, NOT diagnostic, performance or moral thresholds.
  const enough=daysRecorded>=r.minRecorded&&daysClosed>=r.minClosed&&
   (daysWithMeasuredMeals===0||daysWithMultipleMeals>=r.minDaysWithTwoMeals);
  const comparisons={energyPct:k===null?null:Math.round(k*100),proteinPct:p===null?null:Math.round(p*100),
@@ -69,44 +69,49 @@ function recommendations(model){
   scientificSources:LUXURY_EVIDENCE_SOURCES.map(s=>s.id),
   comparisons
  };
+ const firstName=clean(model.studentName,70).split(/\s+/).find(Boolean)||'';
+ const hello=firstName&&firstName.toLowerCase()!=='alumno'?'¡Hola, '+firstName+'! ':'¡Hola! ';
  if(!enough){
   return {focus:[
-   'Registrar más días y las comidas faltantes para interpretar mejor el consumo.',
-   'Revisar con tu coach si hubo comidas sin cargar.',
-   'Elegir una rutina sostenible de registro para la próxima semana.'
-  ],conclusion:'Esta semana hay '+daysRecorded+' de 7 días con alimentos registrados. No contamos con suficiente cobertura para inferir un faltante nutricional. Los días sin registro no representan cero calorías y un día cerrado por fecha puede tener comidas incompletas.',
+   'Probá registrar los días que faltan y las comidas que hayas podido hacer.',
+   'Contale a tu coach si hubo comidas que no llegaste a cargar.',
+   'Elegí un momento cómodo del día para llevar tu registro, sin presión.'
+  ],conclusion:hello+'Gracias por registrar tu alimentación esta semana. Tenemos '+daysRecorded+
+   ' de 7 días con alimentos registrados, así que todavía nos falta información para interpretar la semana con confianza. '+
+   'No pasa nada si quedó algo sin cargar: un día vacío no significa que no hayas comido. '+
+   'La próxima semana podemos enfocarnos en completar el registro y, con tu coach, encontrar un hábito que te resulte fácil de sostener.',
    evidence};
  }
  const focus=[];
- // Source-backed principle: compare individual approved plan, never prescribe a population-based dose.
  if(p!==null&&p<r.proteinBelow)
-  focus.push('Revisar con tu coach cómo acercar la proteína registrada al objetivo del plan, sin cambios automáticos.');
+  focus.push('Conversá con tu coach cómo acercar las proteínas registradas a tu meta personal, sin aumentar cantidades automáticamente.');
  else if(p!==null)
-  focus.push('Mantener la proteína próxima al objetivo revisado por el coach; no aumentarla por inercia.');
+  focus.push('Seguí incluyendo fuentes de proteína que disfrutes, en las porciones acordadas con tu coach.');
  if(k!==null&&k<r.energyBelow){
   if(f!==null&&f<r.fatBelow)
-   focus.push('Revisar primero la energía y las grasas registradas frente al plan individual.');
+   focus.push('Revisá con tu coach si las comidas y las grasas registradas alcanzan para acompañar tu plan de energía.');
   else if(carb!==null&&carb<r.carbBelow)
-   focus.push('Revisar las porciones de carbohidratos con el coach según tus metas y tipo de entrenamiento.');
-  else focus.push('Revisar la distribución de las comidas para cubrir el objetivo energético acordado.');
+   focus.push('Mirá junto a tu coach las porciones de carbohidratos según tu rutina y entrenamiento.');
+  else focus.push('Revisá la distribución de las comidas para acercarte a la energía prevista en tu plan.');
  }else if(k!==null&&k>r.energyAbove)
-  focus.push('Revisar con tu coach las diferencias registradas respecto del plan, sin compensaciones.');
- else focus.push('Sostener los hábitos y mirar la tendencia antes de modificar el plan.');
- focus.push('Mejorar la cobertura del registro, especialmente si quedaron comidas sin cargar.');
- const calories=averages.k===null?'no estimable':fmt(averages.k)+' kcal';
- const cmp=targets.k>0?' frente a '+fmt(targets.k)+' kcal del objetivo promedio vigente en esos días':' (sin objetivo calórico comparable)';
- const comparisonsText=[
-  p===null?'No hubo objetivo proteico comparable.':
-    p<r.proteinBelow?'La proteína registrada se ubicó por debajo del objetivo individual.':
-    'La proteína registrada estuvo cerca o por encima de la referencia individual.',
-  k===null?'No corresponde inferir un déficit energético.':
-    k<r.energyBelow?'La energía registrada quedó por debajo del objetivo aprobado; puede reflejar alimentos sin cargar.':
-    k>r.energyAbove?'La energía registrada superó el objetivo aprobado en el promedio de días cargados.':
-    'La energía registrada estuvo próxima a la referencia aprobada.'
+  focus.push('Mirá junto a tu coach la diferencia con tu plan, sin compensaciones ni culpabilidad.');
+ else focus.push('Conservá los hábitos que te resultan cómodos y observá la tendencia antes de cambiar cantidades.');
+ focus.push('Si faltó cargar alguna comida, completá el registro para que la próxima revisión sea más útil.');
+ const kcalText=averages.k===null?'no pudimos calcular la energía media':'la energía media registrada fue '+fmt(averages.k)+' kcal';
+ const targetText=targets.k>0?' frente a '+fmt(targets.k)+' kcal de la meta media vigente.':'.';
+ const parts=[
+  hello+'¡Ya tenemos una buena base para conversar sobre tu semana! Registraste comidas en '+daysRecorded+' de 7 días.',
+  'En esos días, '+kcalText+targetText,
+  p===null?'No hay una meta proteica comparable para sacar conclusiones sobre las proteínas.':
+   p<r.proteinBelow?'Las proteínas registradas quedaron por debajo de tu objetivo individual; podemos revisar juntos opciones que se adapten a tu rutina.':
+   'Las proteínas registradas estuvieron cerca o por encima de tu referencia personal; no hace falta aumentarlas porque sí.',
+  k===null?'Todavía no podemos comparar la energía con un objetivo válido.':
+   k<r.energyBelow?'La energía registrada quedó por debajo de la referencia del plan; también podría haber comidas sin anotar.':
+   k>r.energyAbove?'El promedio declarado superó la referencia acordada; sirve para conversar y ajustar, no para juzgar.':
+   'La energía anotada estuvo cerca del objetivo acordado.',
+  'Para la próxima semana, elijamos un cambio pequeño y sostenible con tu coach. Estos números describen lo registrado: no miden por sí solos todo lo que comiste ni tu estado de salud.'
  ];
- const conclusion='En '+daysRecorded+' días con registros, la energía media declarada fue '+calories+cmp+'. '+
-  comparisonsText.join(' ')+' Este resultado describe registros, no determina ingesta real, estado clínico ni rendimiento; debe interpretarse con el coach.';
- return {focus:focus.slice(0,3),conclusion,evidence};
+ return {focus:focus.slice(0,3),conclusion:parts.join(' '),evidence};
 }
 export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,days=[],goals=[],logs=[]}={}){
  if(!date(from)||!date(to)||!date(friday)||from>to||to>=friday)throw Error('Período semanal no válido');
@@ -137,7 +142,7 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
   days:cleanDays,averages,targets,topFoods:foodsFromLogs(logs,from,to,new Set(valid.map(d=>d.date))),focus:[],conclusion:'',flexibleNote:''};
  const advice=recommendations(model);model.focus=advice.focus;model.conclusion=advice.conclusion;model.evidence=advice.evidence;
  // A flexible eating idea is never an earned reward, prescription or clinical approval.
- model.flexibleNote='Podés planificar una comida que disfrutes según tus preferencias y restricciones conocidas. No necesitás ganártela ni compensarla. Revisalo con tu coach.';
+ model.flexibleNote='Comer también es compartir, elegir y disfrutar. Si te gusta un helado o una comida especial, podés conversar con tu coach cómo incluirlos en tu semana teniendo en cuenta tus preferencias y necesidades. No hace falta ganárselos ni compensarlos.';
  return model;
 }
 export function reportAsStoredText(model,editedConclusion,editedFlexibleNote){
@@ -200,7 +205,7 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
   '</details></section>'+
 
   '<section class="lux-report-section"><h3>Tus tres focos para la próxima semana</h3><ol class="lux-report-focus">'+focus+'</ol></section>'+
-  (model.flexibleNote?'<section class="lux-report-flex"><h3>Un espacio para disfrutar</h3><p>'+escape(model.flexibleNote)+'</p></section>':'')+
+  (model.flexibleNote?'<section class="lux-report-flex"><h3><span aria-hidden="true">✦</span> Espacio para disfrutar</h3><p>'+escape(model.flexibleNote)+'</p></section>':'')+
   '<footer>REVISADO POR '+escape(model.coachName).toUpperCase()+
   ' · Los datos de alimentación son autodeclarados. Este informe no sustituye asesoramiento médico o nutricional personalizado.</footer></div></article>';
 }

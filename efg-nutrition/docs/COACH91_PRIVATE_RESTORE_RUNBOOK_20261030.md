@@ -1,3 +1,13 @@
+# COACH-91 · MÉTODO OBSOLETO: NO EJECUTAR CAPTURE / RESTORE
+
+**Corrección de seguridad 30/10/2026:** el método anterior de exportación con pg_dump genérico de Supabase administrado puede incluir internals/roles que impiden una restauración portable. Las operaciones `capture` y `restore` de `scripts/coach91-local-db-backup-rehearsal.mjs` han sido **desactivadas de forma segura**. El resto de este documento es historial de lo preparado, **no instrucciones operativas vigentes**.
+
+**Procedimiento vigente:** `docs/COACH94_SUPABASE_PLATFORM_RECOVERY_AND_STORAGE_RUNBOOK_20261030.md`, que emplea el método oficial de Supabase CLI (roles/schema/data), recuperación en instancia Supabase aislada y transferencia real de Storage por S3. Las pruebas sintéticas anteriores NO demostraron recuperación real. Sin nuevas autorizaciones ni costos.
+
+Fuentes Supabase: https://supabase.com/docs/guides/self-hosting/restore-from-platform y https://supabase.com/docs/guides/self-hosting/copy-from-platform-s3 .
+
+---
+
 # COACH-91 · Respaldo privado y ensayo de recuperación PG17 — SOLO PILOTO
 
 **30/10/2026 · Nutrición Con-Ciencia / Nutrition Coach · PR #37 DRAFT · NO GO**

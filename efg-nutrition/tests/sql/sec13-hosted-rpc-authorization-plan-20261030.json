@@ -1,0 +1,324 @@
+{
+  "marker": "SEC13_PENDING_DYNAMIC_AUTHORIZATION",
+  "created_on": "2026-10-30",
+  "source_project": "cyjvddhimbsfipjfctsl",
+  "source": "SEC12 signed metadata baseline + read-only catalog inspect",
+  "scope": "19 public authenticated SECURITY DEFINER RPCs. DYNAMIC STAGING JWT NOT EXECUTED.",
+  "actor_matrix": [
+    "anonymous",
+    "student_A",
+    "student_B",
+    "coach_A",
+    "coach_B",
+    "admin_active",
+    "admin_inactive"
+  ],
+  "rules": [
+    {
+      "name": "efg_activate_paid_coach",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin habilita una organizacion tras pago y controles de titularidad.",
+      "negative_actor": "coach_A",
+      "negative_case": "organizacion ajena",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_claim_invitation",
+      "policy_class": "invited_email_only",
+      "positive_candidate": "Usuario autenticado con invitacion vigente y email confirmado la reclama.",
+      "negative_actor": "student_B",
+      "negative_case": "invitacion revocada/ya reclamada o email no coincide",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_confirm_payment",
+      "policy_class": "recipient_only",
+      "positive_candidate": "Destinatario del comprobante pendiente aprueba o rechaza una sola vez.",
+      "negative_actor": "coach_B",
+      "negative_case": "comprobante con destinatario ajeno o procesado",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_delete_pending_invitation",
+      "policy_class": "owner_or_admin",
+      "positive_candidate": "Coach propietario o admin autorizado elimina invitacion no reclamada.",
+      "negative_actor": "coach_B",
+      "negative_case": "invitacion de otra organizacion",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_invite_coach",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo invita un nuevo coach segun limite autorizado.",
+      "negative_actor": "coach_A",
+      "negative_case": "invitacion admin ajena o repetida",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_invite_student",
+      "policy_class": "coach_owner_only",
+      "positive_candidate": "Coach activo emite invitacion con cupo real y org propia.",
+      "negative_actor": "coach_B",
+      "negative_case": "11.o cupo, organizacion ajena, licencia inactiva",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_invite_test_student",
+      "policy_class": "admin_test_owner_only",
+      "positive_candidate": "Admin EFG invita alumno a su organizacion de prueba.",
+      "negative_actor": "coach_A",
+      "negative_case": "org comercial o admin inactivo",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_offer_coach",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo prepara oferta de coach con cupos y tarifa validados.",
+      "negative_actor": "coach_A",
+      "negative_case": "oferta duplicada o no autorizada",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_revoke_invitation",
+      "policy_class": "owner_or_admin",
+      "positive_candidate": "Propietario autorizado revoca invitacion pendiente.",
+      "negative_actor": "coach_B",
+      "negative_case": "invitacion de otra organizacion o ya reclamada",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_revoke_test_invitation",
+      "policy_class": "admin_test_owner_only",
+      "positive_candidate": "Admin EFG revoca invitacion de su prueba.",
+      "negative_actor": "coach_B",
+      "negative_case": "invitacion de org comercial o ajena",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_coach_alias",
+      "policy_class": "coach_self_only",
+      "positive_candidate": "Coach activo cambia alias de su propia organizacion; admin solo su espacio prueba.",
+      "negative_actor": "coach_B",
+      "negative_case": "intento de editar alias de otra organizacion",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_coach_plan",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo ajusta plan comercial de organizacion autorizada.",
+      "negative_actor": "coach_A",
+      "negative_case": "seats menores que ocupados o cambio no autorizado",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_platform_alias",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo configura alias de plataforma.",
+      "negative_actor": "coach_A",
+      "negative_case": "alias invalido",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_platform_aliases",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo configura aliases alternativos de plataforma.",
+      "negative_actor": "student_A",
+      "negative_case": "alias invalido o duplicado",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_seats",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo modifica cupos respetando alumnos+invitaciones.",
+      "negative_actor": "coach_A",
+      "negative_case": "cupo menor al ocupado",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_set_student_active",
+      "policy_class": "coach_owner_only",
+      "positive_candidate": "Coach activo desactiva/reactiva alumno propio sin restaurar consentimiento.",
+      "negative_actor": "coach_B",
+      "negative_case": "alumno de org ajena, reactiva sin cupo",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_submit_coach_payment",
+      "policy_class": "coach_own_receipt_only",
+      "positive_candidate": "Coach activo presenta recibo privado propio y alias EFG vigente.",
+      "negative_actor": "student_A",
+      "negative_case": "objeto Storage no propio o ruta forjada",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_submit_payment",
+      "policy_class": "payer_own_receipt_only",
+      "positive_candidate": "Alumno paga su coach o coach a EFG con archivo Storage propio.",
+      "negative_actor": "coach_B",
+      "negative_case": "recibo ajeno, importe invalido, receptor incorrecto",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    },
+    {
+      "name": "efg_update_subscription",
+      "policy_class": "admin_only",
+      "positive_candidate": "Admin activo actualiza suscripcion comercial.",
+      "negative_actor": "coach_A",
+      "negative_case": "org ajena o estado no admitido",
+      "mandatory_denials": [
+        "anonymous",
+        "admin_inactive",
+        "wrong_organization_or_owner"
+      ],
+      "requires_signed_jwt": true,
+      "requires_isolated_faithful_restore": true,
+      "effects_must_be_verified": true,
+      "qa_result": "NOT_TESTED_ON_HOSTED_SHAPE"
+    }
+  ],
+  "limitations": "Role descriptions are test objectives, NOT confirmation of hosted authorization. Must test all on approved faithful isolated restored schema with signed JWT and inspect side effects and rollback. No hosted RPC invocations allowed.",
+  "critical_review": "efg_confirm_payment currently authorizes via recipient_id=auth.uid() and pending status; test explicitly whether inactive/suspended recipient must be refused by product policy. Do not infer a vulnerability from missing profile-active check alone."
+}

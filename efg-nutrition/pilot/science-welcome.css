@@ -1,0 +1,55 @@
+/* BRAND-77B: premium responsive illustrated slide intro + vertical learning library. */
+.ns-science-library .ns-library-panel{margin-bottom:21px}
+.ns-meals,.ns-conclusions{background:#fff;border:1px solid #dbe8ee;border-radius:24px;padding:clamp(21px,4vw,37px);margin-bottom:24px;color:#203747}
+.ns-meals h2,.ns-conclusions h2{font-size:clamp(24px,4vw,34px);letter-spacing:-.035em;margin:3px 0 12px}
+.ns-meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
+.ns-meal{background:linear-gradient(125deg,#fff9ee,#f5fbf9);border:1px solid #ede7e3;border-radius:18px;padding:20px}
+.ns-meal:nth-child(2){background:linear-gradient(125deg,#e9f7e9,#f8fcfa)}
+.ns-meal:nth-child(3){background:linear-gradient(125deg,#fceaf1,#fffbf9)}
+.ns-meal:nth-child(4){background:linear-gradient(125deg,#e5f2fd,#fff)}
+.ns-meal-art{display:block;font-size:39px;line-height:1.3;margin-bottom:10px}
+.ns-meal h3{font-size:18px;margin:0;color:#203747}
+.ns-meal p{font-size:13px;line-height:1.8;color:#405668;margin-top:8px}
+.ns-meal-caution{font-size:12px;color:#5b6974;margin-top:15px}
+.ns-conclusions{background:linear-gradient(125deg,#f5f3fb,#e8f7f5)}
+.ns-conclusion-list{display:grid;gap:10px;margin-top:21px}
+.ns-conclusion-list article{display:flex;align-items:center;gap:15px;border-radius:14px;padding:14px 16px;background:#fff;border:1px solid #e3e8ed;min-width:0}
+.ns-conclusion-list article:nth-child(1){background:#e0f2e2}
+.ns-conclusion-list article:nth-child(2){background:#fce8e8}
+.ns-conclusion-list article:nth-child(3){background:#fff0cc}
+.ns-conclusion-list article:nth-child(4){background:#fff2c6}
+.ns-conclusion-list article:nth-child(5){background:#e2eafe}
+.ns-conclusion-list article>span{font-size:32px;line-height:1;flex-shrink:0}
+.ns-conclusion-list strong{display:block;font-size:15px;line-height:1.4;color:#253b4d}
+.ns-conclusion-list p{font-size:13px;margin:3px 0 0;color:#42596d;line-height:1.5}
+.ns-final-motto{font-family:Georgia,serif;font-size:21px;font-style:italic;text-align:center;color:#254c60;padding:17px 0 1px}
+.ns-welcome-shell{box-sizing:border-box;min-height:100vh;min-height:100dvh;background:linear-gradient(140deg,#e9edf6,#f6f6fa 50%,#eef7f2);padding:clamp(11px,3vw,30px);color:#203848;display:flex;flex-direction:column;gap:12px;font-family:inherit;overflow-x:hidden}
+.ns-welcome-shell *{box-sizing:border-box}
+.ns-welcome-header,.ns-welcome-progress,.ns-welcome-actions,.ns-welcome-slide{width:100%;max-width:960px;margin-left:auto;margin-right:auto}
+.ns-welcome-header{display:flex;align-items:center;gap:10px;min-height:47px}
+.ns-welcome-header img{object-fit:contain;flex-shrink:0}
+.ns-welcome-header strong{font-size:clamp(14px,2.5vw,19px);letter-spacing:-.015em;flex:1}
+.ns-welcome-header>span{font-size:12px;font-weight:850;background:#fff;padding:7px 12px;border-radius:99px;border:1px solid #dde4ec;white-space:nowrap}
+.ns-welcome-progress{display:flex;gap:5px}
+.ns-welcome-progress i{display:block;flex:1;background:#cfdae4;height:6px;border-radius:99px}
+.ns-welcome-progress i.is-current{background:#30628b}
+.ns-welcome-slide{border-radius:24px;background:#fff;min-height:340px;box-shadow:0 12px 38px #2b3e5821;padding:clamp(10px,2.7vw,24px);flex:1;overflow-wrap:anywhere}
+.ns-welcome-slide>header,.ns-welcome-slide>section{margin:0;height:auto;max-width:none}
+.ns-welcome-slide .ns-hero{min-height:360px;display:flex;flex-direction:column;justify-content:center}
+.ns-welcome-slide .ns-intro{min-height:360px}
+.ns-welcome-slide .ns-section-head{margin:10px 8px 16px}
+.ns-welcome-slide .ns-macro-grid{margin:0}
+.ns-welcome-slide .ns-protein-focus,.ns-welcome-slide .ns-balance,.ns-welcome-slide .ns-myth,.ns-welcome-slide .ns-meals,.ns-welcome-slide .ns-conclusions{min-height:335px}
+.ns-welcome-slide .ns-macro{min-height:260px}
+.ns-welcome-slide .ns-macro-grid .ns-macro:last-child{grid-column:auto}
+.ns-welcome-actions{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fff;border:1px solid #d9e2ed;padding:12px;border-radius:16px;position:sticky;bottom:env(safe-area-inset-bottom,0px);z-index:2;box-shadow:0 5px 20px #273d5414}
+.ns-welcome-actions button{min-height:48px;border:0;border-radius:12px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;padding:11px 19px}
+.ns-welcome-actions button:focus-visible{outline:3px solid #177eb4;outline-offset:3px}
+.ns-welcome-actions button:disabled{opacity:.45;cursor:wait}
+.ns-welcome-actions .ns-next{background:linear-gradient(120deg,#263c59,#3d5681);color:#fff;min-width:120px}
+.ns-welcome-actions .ns-back{background:#e8edf3;color:#334a5d}
+.ns-welcome-actions .ns-skip{background:transparent;color:#3d6479;font-size:12px}
+.ns-welcome-error{max-width:960px;width:100%;margin:0 auto;background:#fff0ee;border:1px solid #d9948e;color:#862e2e;padding:12px;border-radius:12px;font-size:13px}
+@media(max-width:750px){.ns-welcome-slide .ns-macro-grid{grid-template-columns:1fr 1fr}.ns-welcome-slide .ns-macro-grid .ns-macro:last-child{grid-column:1/-1}.ns-welcome-slide .ns-intro{grid-template-columns:1fr}.ns-welcome-slide .ns-protein-benefits{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.ns-meal-grid,.ns-welcome-slide .ns-macro-grid,.ns-welcome-slide .ns-protein-benefits,.ns-welcome-slide .ns-protein-numbers{grid-template-columns:1fr}.ns-welcome-slide .ns-macro-grid .ns-macro:last-child{grid-column:auto}.ns-welcome-shell{padding:9px}.ns-welcome-slide{border-radius:16px;padding:10px;min-height:280px}.ns-welcome-slide .ns-hero{min-height:290px}.ns-welcome-slide .ns-macro{min-height:auto}.ns-meals,.ns-conclusions{padding:20px 16px}.ns-welcome-actions{gap:4px;padding:7px 5px;border-radius:12px}.ns-welcome-actions button{padding:9px 10px;font-size:12px}.ns-welcome-actions .ns-next{min-width:87px}.ns-welcome-slide .ns-protein-focus{padding:20px 16px}.ns-welcome-slide .ns-macro{padding:19px 16px}.ns-conclusion-list article{gap:10px;padding:12px}.ns-conclusion-list article>span{font-size:24px}}
+@media(prefers-reduced-motion:reduce){.ns-welcome-shell *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

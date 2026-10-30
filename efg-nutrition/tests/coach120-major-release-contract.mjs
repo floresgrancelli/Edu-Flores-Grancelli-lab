@@ -8,6 +8,7 @@ import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhat
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const profile={user_id:uid,role:'student',active:true};
 const base={id:'major_2026_01',version:'2026.11.1',
+ build:'20261030-ux35-session1',published:false,
  title:'Relanzamiento Nutrición Con-Ciencia',phase:'preview',
  roles:['student','coach','admin','personal'],
  highlights:['Plan alimentario con coach','Ficha con permisos específicos','Nuevas herramientas']};
@@ -32,7 +33,7 @@ assert.equal(await acknowledgeMajorRelease(sb,{profile,release:state,
 assert.deepEqual(calls.at(-1),['efg_major_release_ack',{
  p_release:'major_2026_01',p_event_kind:'announcement_preview_read',p_explicit_click:true
 }]);
-payload={...base,phase:'reauth_required'};
+payload={...base,phase:'reauth_required',published:true};
 state=await readMajorRelease(sb,{profile,explicitlyEnabled:true});
 assert.match(renderMajorReleaseAnnouncement(state,'student'),/Entendido, cerrar sesión/);
 await assert.rejects(acknowledgeMajorRelease(sb,{profile,release:state,
@@ -41,14 +42,23 @@ assert.equal(await acknowledgeMajorRelease(sb,{profile,release:state,
  kind:'reauth_notice_acknowledged',explicitClick:true,explicitlyEnabled:true}),true);
 payload={phase:'legal',id:'major_2026_01'};
 assert.equal((await readMajorRelease(sb,{profile,explicitlyEnabled:true})).phase,'legal');
-payload={...base,phase:'live'};
+payload={...base,phase:'live',published:true};
 state=await readMajorRelease(sb,{profile,explicitlyEnabled:true});
 assert.match(renderWhatsNew(state,'student'),/Comenzar/);
 assert.equal(await acknowledgeMajorRelease(sb,{profile,release:state,
  kind:'whats_new_seen',explicitClick:true,explicitlyEnabled:true}),true);
+// Reject a stale or forged deployment signal, even if the request was signed.
+payload={...base,phase:'reauth_required',published:false};
+await assert.rejects(readMajorRelease(sb,{profile,explicitlyEnabled:true}),/Manifiesto/);
+payload={...base,build:'unconfigured'};
+await assert.rejects(readMajorRelease(sb,{profile,explicitlyEnabled:true}),/Manifiesto/);
+payload={...base,roles:['student','student','admin','personal']};
+await assert.rejects(readMajorRelease(sb,{profile,explicitlyEnabled:true}),/Manifiesto/);
+payload={...base,roles:['student','coach','admin','intruder']};
+await assert.rejects(readMajorRelease(sb,{profile,explicitlyEnabled:true}),/Manifiesto/);
 payload={phase:'none'};
 assert.equal((await readMajorRelease(sb,{profile,explicitlyEnabled:true})).phase,'none');
-payload={...base,roles:['coach','coach','admin','personal']};
+payload={...base,roles:['student','student','admin','personal']};
 await assert.rejects(readMajorRelease(sb,{profile,explicitlyEnabled:true}),/Manifiesto/);
 await assert.rejects(readMajorRelease(sb,{profile:{...profile,user_id:'bad'},
  explicitlyEnabled:true}),/sesión/);

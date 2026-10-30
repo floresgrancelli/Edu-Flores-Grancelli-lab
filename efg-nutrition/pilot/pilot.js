@@ -376,7 +376,12 @@ async function publishWeeklyReport(){
  if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
  const {error}=await sb.from("efg_weekly_reports").insert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()});
  if(error)throw error;
- await loadStudentDetail(student.user_id);
+ // Reload only report history; do not discard an unrelated unsaved coach plan draft.
+ const latest=await sb.from("efg_weekly_reports")
+  .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
+  .order("week_ending",{ascending:false}).limit(52);
+ if(latest.error)throw latest.error;
+ state.coachHistory=latest.data||[];
  await render();
  notify("Informe Luxury Pro compartido con el alumno y conservado en su historial.");
 }
@@ -1688,25 +1693,6 @@ function weeklyAdherenceSummary(){
  '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+metrics.proteinDaysCompared)+'</strong></div></div>'+
  '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo aprobado vigente en cada fecha registrada.</p></section>';
 }
-function weeklyDraftText(){
- const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
- const window=weeklyReportWindow();
- const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to).sort((a,b)=>a.date.localeCompare(b.date));
- if(!week.length)return "Semana del "+window.from+" al "+window.to+": sin registros alimentarios suficientes. No corresponde emitir conclusiones.";
- const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
- const goal=state.coachGoals[0]||null;
- const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Período: "+window.from+" a "+window.to+" (se presenta el viernes "+window.friday+").","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
- if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
- if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
- const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
- if(weights.length>=2)notes.push("Peso: cambio entre los dos últimos pesajes disponibles "+num(Number(weights[0].kg)-Number(weights[1].kg),2)+" kg. No equivale necesariamente a cambios de grasa ni de masa magra.");
- else notes.push("Peso: faltan al menos dos mediciones para comparar una tendencia.");
- const comments=week.filter(d=>d.comment).map(d=>d.date+": "+d.comment).slice(-3);
- if(comments.length)notes.push("Comentarios del alumno para revisar: "+comments.join(" | "));
- notes.push("Propuesta para conversar: revisar regularidad de registros y elegir uno o dos ajustes de hábitos sostenibles, según preferencias y objetivos aprobados.");
- notes.push("BORRADOR SIN ENVÍO. El entrenador debe corregir, aprobar y compartirlo por el canal que acuerde con el alumno.");
- return notes.join("\\n\\n");
-}
 function buildCurrentLuxuryModel(){
  const window=weeklyReportWindow();
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),null);
@@ -2674,7 +2660,7 @@ if(el.dataset.foodbulk){
   if(index!==-1&&!(reports||[])[index])throw Error("No existe el informe solicitado.");
   if(index===-1&&!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))throw Error("Vista previa exclusiva del coach.");
   const source=index===-1?document.querySelector("#weeklyLuxuryPreview .lux-report"):
-    document.querySelectorAll(".lux-report-history .lux-report, .pilot-record .lux-report")[index];
+    el.closest("details")?.querySelector(".lux-report");
   if(!source)throw Error("No se encontró el informe para exportar.");
   source.classList.add("efg-lux-print-target");
   const clear=()=>{source.classList.remove("efg-lux-print-target");window.removeEventListener("afterprint",clear);};

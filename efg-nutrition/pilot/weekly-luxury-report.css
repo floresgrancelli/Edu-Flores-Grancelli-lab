@@ -52,8 +52,8 @@
 .lux-report-conclusion{margin-top:17px;background:#17283f;border-radius:17px;padding:24px 22px;color:#f8faf9}
 .lux-report-conclusion h3{color:#e8cfa4!important}
 .lux-report-conclusion p{color:#f1f4f4;font-size:13px;white-space:pre-line;line-height:1.8}
-.lux-report-flex{border-radius:17px;background:#ede7dc;margin-top:15px;padding:21px}
-.lux-report-flex p{margin:0;white-space:pre-line;font-size:12.5px}
+.lux-report-flex{border-radius:17px;background:linear-gradient(128deg,#dff5ff 0%,#c4eafa 53%,#e7f8ff 100%);border:1px solid #8ecde8;margin-top:15px;padding:22px 23px;box-shadow:0 8px 22px #267da51c;position:relative;overflow:hidden}
+.lux-report-flex h3{color:#105b7a!important;font-size:17px;margin:0 0 9px!important;display:flex;align-items:center;gap:8px}.lux-report-flex h3 span{color:#008fc5;font-size:24px;line-height:1}.lux-report-flex p{margin:0;white-space:pre-line;font-size:12.5px;color:#234c60;line-height:1.75;max-width:680px}
 .lux-report footer{margin-top:20px;border-top:1px solid #dad9d4;padding-top:13px;color:#677583;font-size:9px;line-height:1.6}
 .lux-report-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
 .lux-report-toolbar button{border-radius:12px;min-height:44px;min-width:44px;touch-action:manipulation}

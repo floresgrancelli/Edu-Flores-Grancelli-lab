@@ -1,11 +1,23 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
 const STU="00000000-0000-4000-8000-000000000011",REQ="30000000-0000-4000-8000-000000000001",GOAL="40000000-0000-4000-8000-000000000001";
 const WHEN="2026-10-29T12:00:00.000Z";
 const goal={goal_type:"recomp",kcal:2100,protein_g:140,carb_g:230,fat_g:70,fiber_g:28};
 const food={id:"tofu_firm",unit:"g",qty:100,k:0.8,p:0.1,c:0.03,f:0.04,fi:0.02};
 const guide={kind:"five_meal_example",version:1,meals:["desayuno","media_manana","almuerzo","merienda","cena"].map(slot=>({slot,items:[{...food}]})),supplementNote:""};
+const versionedGuide=approvedFoodGuide(guide,["tofu_firm","banana","oats_raw"],{knownIds:["tofu_firm","banana","oats_raw"]});
+assert.deepEqual(versionedGuide.approvedFoodIds,["banana","oats_raw","tofu_firm"]);
+assert.equal(guide.approvedFoodIds,undefined,"Selections must not mutate editor source");
+assert.throws(()=>approvedFoodGuide(guide,["banana"]),/no está seleccionado/);
+assert.throws(()=>approvedFoodGuide(guide,["tofu_firm","tofu_firm"]),/duplicados/);
+assert.throws(()=>approvedFoodGuide(guide,["tofu_firm","unknown"],{knownIds:["tofu_firm"]}),/inexistentes/);
+assert.throws(()=>coachFoodChoicesFromDom({querySelectorAll:()=>[]}),/selector/);
+assert.deepEqual(coachFoodChoicesFromDom({querySelectorAll:()=>[
+ {checked:true,dataset:{coachfood:"tofu_firm"}},{checked:false,dataset:{coachfood:"banana"}}
+]}),["tofu_firm"]);
+assert.deepEqual(validateCoachPlanProposal(goal,versionedGuide).guide.approvedFoodIds,versionedGuide.approvedFoodIds);
 assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,false,"Release flag stays OFF until approved staging/JWT/legal QA");
 assert.deepEqual(validateCoachPlanProposal(goal,guide).goal,goal);
 for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:20.5},{...goal,goal_type:"unlisted"}])
@@ -69,14 +81,19 @@ await assert.rejects(()=>relaunchBlocked.publish({studentId:STU,expectedRevision
  /todavía no puede guardarse ni publicarse/);
 assert.equal(calls.length,noServerCalls,"A non-verified versioned backend MUST make no write");
 const versioned=createCoachPlanDraftClient({sb:db,enabled:true,relaunchEnabled:true,versionedBackendVerified:true});
-const releaseDraft=await versioned.save({
+const beforeMissingList=calls.length;
+await assert.rejects(()=>versioned.save({
  studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:3,goal,guide,expectedRevision:2
+}),/seleccioná los alimentos aprobados/);
+assert.equal(calls.length,beforeMissingList,"No RPC when approved catalog is missing");
+const releaseDraft=await versioned.save({
+ studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:3,goal,guide:versionedGuide,expectedRevision:2
 });
 assert.equal(releaseDraft.sourceRevision,3);
 assert.equal(calls.at(-1).name,"efg_save_coach_plan_draft");
 assert.equal(calls.at(-1).payload.p_intake_revision,3);
 await assert.rejects(()=>versioned.save({
- studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:2,goal,guide,expectedRevision:2
+ studentId:STU,sourceUpdatedAt:WHEN,sourceRevision:2,goal,guide:versionedGuide,expectedRevision:2
 }),/modificada en otra sesión/);
 const releasePublish=await versioned.publish({
  studentId:STU,expectedRevision:2,requestId:REQ,confirmed:true
@@ -126,4 +143,10 @@ assert.match(app,/coachDraftSourceCurrent\(state\.coachIntakeForms\[studentId\],
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado»/,
  "Staged GUI may not expose old approve-guide button");
 
+assert.match(app,/approvedFoodGuide\(guide,coachFoodChoicesFromDom\(root\)/,
+ "Coach must submit exactly the visible selected catalog");
+assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&state\.coachPlanDraftRecord\?\.guide_proposal\?\.approvedFoodIds/,
+ "Reopened private draft must show the same approved catalog");
+assert.match(app,/guide:finalGuide/,
+ "Publish must compare the food selection against the saved draft");
 console.log("PASS: Coach staged draft adapter OFF; validated five meals, versioned save, confirmed atomic publish, denial on revoked/stale/invalid identity; legacy guide and publish blocked under access schema (SYNTHETIC).");

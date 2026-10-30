@@ -129,6 +129,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-pilot-intake-client.js
           node efg-nutrition/tests/coach112-pilot-general-intake.mjs
+      - name: COACH114 private reviewed source prerequisite for atomic guides (STATIC; UNSEEDED)
+        run: node efg-nutrition/tests/coach114-reviewed-guide-source-contract.mjs
       - name: COACH113 signed pilot 2-checkbox, general intake and waiting messages UI (OFF)
         run: |
           node --check efg-nutrition/pilot/pilot.js

@@ -15,6 +15,8 @@ on:
       - 'efg-nutrition/pilot/coach-plan-draft-client.js'
       - 'efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql'
       - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
+      - 'efg-nutrition/tests/personal-auth-local-e2e.mjs'
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
   workflow_dispatch:
 
@@ -87,6 +89,26 @@ jobs:
         env:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
         run: node efg-nutrition/tests/coach-notification-compat-nut56.mjs
+      - name: NUT-60 apply STRICTLY LOCAL isolated Personal enrollment and goal revision prototype
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54322'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: postgres
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '54322'
+          test "${PGDATABASE}" = 'postgres'
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: NUT-60 Authenticated Personal A/B isolated goals (synthetic JWT; no real legal docs)
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: |
+          node --check efg-nutrition/tests/personal-auth-local-e2e.mjs
+          node efg-nutrition/tests/personal-auth-local-e2e.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

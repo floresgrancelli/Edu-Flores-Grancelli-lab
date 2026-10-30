@@ -71,5 +71,17 @@ assert.match(src,/foodRow\(food,index\)/,"coach must edit original indexed food"
 assert.match(src,/data-guidefoodgroup/,"educational groups must reach the actual coach/student renderer");
 assert.match(html,/guided-meal-picker\.css\?v=20261029-uxguide1/);
 assert.match(src,/guide-meal-education\.js\?v=20261029-uxguide1/);
+// ANDROID-GBOARD-02: keyboard Enter used by an IME is NOT a user food selection.
+const keyboardStart=src.indexOf('document.addEventListener("keydown",event=>{');
+const keyboardEnd=src.indexOf('root.addEventListener("submit"',keyboardStart);
+assert.ok(keyboardStart>=0&&keyboardEnd>keyboardStart,"Meal dialog keyboard handler must remain wired");
+const keyboard=src.slice(keyboardStart,keyboardEnd);
+const imeGuard=keyboard.indexOf('if(event.isComposing||event.keyCode===229)return;');
+const enterSelection=keyboard.indexOf('if(event.key==="Enter"&&event.target===search&&choices.length)');
+assert.ok(imeGuard>=0&&enterSelection>imeGuard,
+ "Gboard composition must be ignored BEFORE Enter could pick a suggestion or preventDefault");
+assert.match(keyboard,/if\(event\.key==="Escape"\)/,
+ "Normal Escape keyboard dismissal must remain available when not composing");
+console.log("PASS ANDROID-GBOARD-02: IME Enter protected; physical Android Gboard QA still required.");
 console.log("PASS UX-GUIDE-01: coach/student shared guide main meals by group, originals intact; snacks classic; mixed food once; macro totals unchanged.");
 console.log("PASS: guided only breakfast/lunch/dinner; mixed plates counted once incl fats; optional skip, all other foods accessible; snacks remain classic; one 5% weekly bar.");

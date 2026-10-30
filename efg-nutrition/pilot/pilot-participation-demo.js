@@ -16,14 +16,14 @@ export const PILOT_PARTICIPATION_TEXT=Object.freeze({
  sharing:"Autorizo que mi coach vea la ficha nutricional que elija compartir para participar en el seguimiento del piloto. Puedo retirar este permiso."
 });
 const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-export function renderPilotParticipationNotice({version=PILOT_PARTICIPATION_VERSION}={}){
+export function renderPilotParticipationNotice({version=PILOT_PARTICIPATION_VERSION,serverReceipts=false}={}){
  if(version!==PILOT_PARTICIPATION_VERSION)throw Error("Versión piloto no verificada.");
  return '<section class="card efg-pilot-participation" aria-labelledby="efgPilotHeading">'+
   '<span class="eyebrow">VERSIÓN DE PRUEBA · DOCUMENTO PROVISIONAL</span>'+
   '<h2 id="efgPilotHeading">'+escapeHTML(PILOT_PARTICIPATION_TEXT.heading)+'</h2>'+
   PILOT_PARTICIPATION_TEXT.paragraphs.map(p=>'<p>'+escapeHTML(p)+'</p>').join("")+
   '<p class="pilot-hint">Para continuar en este piloto Coach tenés que confirmar ambas opciones. Si preferís no compartir la ficha, podés no participar en el seguimiento. Podés retirar el permiso más adelante; las funciones de seguimiento dejarían de estar disponibles.</p>'+ 
-  '<p class="pilot-hint">Esta pantalla es una simulación para validar la experiencia. No equivale a términos legales definitivos ni autoriza tratamientos médicos.</p>'+
+  '<p class="pilot-hint">'+(serverReceipts?'Tus dos decisiones se guardarán en el servidor con tu cuenta y podrás retirarlas. No equivalen a términos legales definitivos ni a consentimiento para tratar datos de salud.':'Esta pantalla es una simulación para validar la experiencia. No equivale a términos legales definitivos ni autoriza tratamientos médicos.')+'</p>'+
   '<label><input type="checkbox" id="efgPilotParticipate" required>'+escapeHTML(PILOT_PARTICIPATION_TEXT.participation)+'</label>'+
   '<label><input type="checkbox" id="efgPilotShare" required>'+escapeHTML(PILOT_PARTICIPATION_TEXT.sharing)+'</label>'+
   '<button type="button" class="btn" id="efgPilotContinue" data-act="pilotDemoContinue" disabled>Continuar con la prueba</button>'+

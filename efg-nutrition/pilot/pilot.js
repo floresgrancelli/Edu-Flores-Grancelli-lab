@@ -29,6 +29,7 @@ import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -2685,6 +2686,8 @@ if(el.dataset.foodbulk){
  }
  if(el.dataset.mealsuggestion){pickMealSearchSuggestion(el.dataset.mealsuggestion);return;}
   const action=el.dataset.act;if(!action)return;
+  if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
+   assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
  if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){

@@ -100,6 +100,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/personal-intake-draft.js
           node efg-nutrition/tests/personal-intake-draft.mjs
+      - name: NUT-60 Personal five-meal group and prepared dish draft (OFF, SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/personal-meal-draft.js
+          node efg-nutrition/tests/personal-meal-draft.mjs
       - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
         run: node efg-nutrition/tests/serotonin-brand-loading.mjs
       - name: Verify major release messages for every role (offline, NO live delivery)

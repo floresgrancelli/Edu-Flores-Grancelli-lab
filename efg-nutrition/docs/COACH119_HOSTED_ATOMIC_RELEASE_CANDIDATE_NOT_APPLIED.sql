@@ -320,7 +320,15 @@ begin
   v_guide,v_goal_id,pg_catalog.clock_timestamp()
  )
  on conflict(student_id) do update set
-  coach_id=excluded.coach_id,approved_food_ids=excluded.approved_food_ids,
+  coach_id=excluded.coach_id,
+  -- The approved guide is not the full food catalog. Preserve all existing
+  -- coach-approved IDs and add the independently reviewed guide items.
+  approved_food_ids=(
+   select pg_catalog.array_agg(distinct food.id)
+   from pg_catalog.unnest(
+     public.efg_food_plans.approved_food_ids || excluded.approved_food_ids
+   ) as food(id)
+  ),
   guided_plan=excluded.guided_plan,guided_goal_id=excluded.guided_goal_id,
   guided_plan_approved_at=excluded.guided_plan_approved_at,
   updated_at=excluded.updated_at;

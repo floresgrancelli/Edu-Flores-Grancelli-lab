@@ -92,7 +92,19 @@ assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_stud
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Student retains private self read').revision,2);
 bad(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:1}),'Stale revocation');
 assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:2}),'Owner erases health data'),true);
-assert.equal(good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Owner no longer sees deleted condition'),null);
+const erased=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Owner sees only nonclinical erasure marker');
+assert.equal(erased.revoked,true);
+assert.equal(erased.revision,3);
+assert.deepEqual(erased.conditions,{});
+assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'Coach cannot read erasure marker'),null);
 assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
-bad(await rpc('efg_revoke_coach_health_intake',u.coachA.token,{p_expected_revision:2}),'Coach cannot erase student conditions');
+assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),3);
+bad(await rpc('efg_submit_coach_health_intake',u.studentA.token,args),'Stale consent cannot resurrect erased diagnoses');
+assert.equal(Number(good(await rpc('efg_submit_coach_health_intake',u.studentA.token,{
+ ...args,p_expected_revision:3,p_share_with_coach:false
+}),'Fresh distinct processing consent may explicitly re-register')),4);
+assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:4}),'Revoke newly registered data'),true);
+assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
+assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),5);
+bad(await rpc('efg_revoke_coach_health_intake',u.coachA.token,{p_expected_revision:4}),'Coach cannot erase student conditions');
 console.log('PASS CLIN-GUT-03 REAL LOCAL JWT: 2 organizations, 4 GoTrue identities, terms/privacy + distinct health document, explicit processing/share, no anon or private API, revision conflicts, independent consent revocation and physical data deletion. NO hosted authorization or clinical sign-off.');

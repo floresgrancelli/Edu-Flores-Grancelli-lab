@@ -16,6 +16,10 @@ begin
  end if;
 end $guard$;
 
+-- The hosted efg_organizations.id uses gen_random_uuid(); the local Coach
+-- facsimile omitted this default. Match it before testing promotion RPC.
+alter table public.efg_organizations alter column id set default gen_random_uuid();
+
 create table public.efg_invitations(
  id uuid primary key default gen_random_uuid(),
  email text not null, nickname text not null,

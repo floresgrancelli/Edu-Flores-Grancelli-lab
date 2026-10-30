@@ -224,7 +224,7 @@ export function createMessagesCenter({sb,context,afterSend}){
  setInterval(()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn);},25000);
  async function replyToWeeklyReport(student,weekEnding){
   resetIfChanged();
-  const c=context(),validWeek=/^\\d{4}-\\d{2}-\\d{2}$/.test(String(weekEnding||""));
+  const c=context(),validWeek=/^\d{4}-\d{2}-\d{2}$/.test(String(weekEnding||""));
   if(c.role!=="student"||student!==c.userId||!validWeek||!contacts().some(x=>x.student===student))
    throw Error("No se pudo abrir el chat con tu coach para responder este informe.");
   // A context-aware draft; never sends any message automatically.

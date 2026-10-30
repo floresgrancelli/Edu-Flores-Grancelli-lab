@@ -23,6 +23,24 @@ for(const pattern of ["vegetarian","vegan","pescatarian","other","unknown"]){
  const v=createCoachCalculatorPrefill({intake:{...sample,dietary_pattern:pattern},studentId:"student_A",coachAuthorized:true});
  assert.equal(coachGuidePreviewAllowed(v,{studentId:"student_A",consent:true}),false,"Never create animal menu for "+pattern);
 }
+// COACH-65 versioned handoff: an old shared intake must not drive the
+// relaunch calculator, even if it still has a shared_at timestamp.
+const versioned={...sample,completed_version:"coach_major_2026_r1",revision:2};
+const relaunch=createCoachCalculatorPrefill({
+ intake:versioned,studentId:"student_A",coachAuthorized:true,
+ requiredIntakeVersion:"coach_major_2026_r1"
+});
+assert.equal(relaunch.sourceVersion,"coach_major_2026_r1");
+assert.equal(relaunch.sourceRevision,2);
+assert.deepEqual(relaunch.fields,x.fields);
+for(const intake of [sample,{...versioned,completed_version:"coach_old_2026"},
+ {...versioned,revision:null},{...versioned,revision:0},
+ {...versioned,shared_at:null}]){
+ assert.throws(()=>createCoachCalculatorPrefill({
+  intake,studentId:"student_A",coachAuthorized:true,
+  requiredIntakeVersion:"coach_major_2026_r1"
+ }),/autorizada/,"Old, unshared or unversioned intake cannot prefill this release.");
+}
 const high=createCoachCalculatorPrefill({intake:{...sample,activity_level:"high"},studentId:"student_A",coachAuthorized:true});
 assert.equal(high.fields.targetActivity,undefined,"High must NOT silently be capped to 1.5");
 assert.ok(high.warnings.some(w=>w.includes("no tiene equivalencia")));
@@ -52,6 +70,8 @@ assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:false}),"Guardar pr
 assert.match(app,/if\(e\.target\.id==="efgIntakeShare"\)/,"Submit label updates on checkbox change");
 assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide preview gets regenerated on goal edits");
 assert.match(app,/await loadStudentDetail\(studentId\); \/\/ Revalidate RLS\/consent/);
+assert.match(app,/requiredIntakeVersion:COACH_RELAUNCH_ONBOARDING_ENABLED\?COACH_RELEASE_INTAKE_VERSION:null/,
+ "New Coach plan must derive exclusively from current verified intake revision.");
 assert.match(app,/Guardar objetivo para revisar guía/,"Goal must not be advertised as published diet");
 
 assert.doesNotMatch(app,/createCoachCalculatorPrefill\([\s\S]{0,150}state\.session\.user\.id\s*\)/);

@@ -7,6 +7,14 @@
 begin;
 do $coach118_staging$
 begin
+ -- HOSTED COACH118 exists as a separate default-OFF release switch and trigger.
+ -- Never apply this older STAGING-ONLY candidate over that migration: it would
+ -- create a SECOND BEFORE trigger and a conflicting enablement switch.
+ if pg_catalog.to_regclass('efg_private.coach_release_switches') is not null
+   or pg_catalog.to_regprocedure('efg_private.coach_diary_write_gate()') is not null then
+  raise exception 'COACH118 STOP: hosted-safe gate installed; do not install duplicate staging gate'
+   using errcode='55000';
+ end if;
  if pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null then
   raise exception 'COACH118 STOP: disposable staging marker missing'
    using errcode='55000';

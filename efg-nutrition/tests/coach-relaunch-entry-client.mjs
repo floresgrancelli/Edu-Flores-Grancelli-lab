@@ -2,12 +2,13 @@
 import assert from "node:assert/strict";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "../pilot/coach-relaunch-onboarding.js";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData,currentCoachRelaunchPayload} from "../pilot/coach-relaunch-entry-client.js";
+import {createCoachCalculatorPrefill} from "../pilot/coach-intake-prefill.js";
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false);
 const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",org="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const profile={user_id:uid,organization_id:org,role:"student",active:true};
 const legal=[{kind:"terms",document_id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",version:"1",sha256:"a".repeat(64),accepted:true},
  {kind:"privacy",document_id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",version:"1",sha256:"b".repeat(64),accepted:true}];
-let status=null,allowed=false,queries=0,writes=0;
+let status=null,allowed=false,queries=0,writes=0,selectedProjection="";
 const sb={
  rpc(name,payload){
   if(name==="efg_legal_current_status")
@@ -17,12 +18,13 @@ const sb={
   assert.equal(payload.p_expected_revision,status?.revision||0);
   const revision=(status?.revision||0)+1;
   status={student_id:uid,organization_id:org,completed_version:COACH_RELEASE_INTAKE_VERSION,
-   revision,shared_at:payload.p_share_with_coach?"2026-10-30T12:00:00Z":null,...payload.p_payload};
+   revision,updated_at:"2026-10-30T12:00:00."+String(revision).padStart(3,"0")+"Z",
+   shared_at:payload.p_share_with_coach?"2026-10-30T12:00:00Z":null,...payload.p_payload};
   return Promise.resolve({data:revision,error:null});
  },
  from(t){
   queries++;assert.equal(t,"efg_coach_relaunch_intakes");
-  return {select(){return this},eq(k,v){assert.ok(k==="student_id"&&v===uid||k==="completed_version"&&v===COACH_RELEASE_INTAKE_VERSION);return this},
+  return {select(columns){selectedProjection=columns;return this},eq(k,v){assert.ok(k==="student_id"&&v===uid||k==="completed_version"&&v===COACH_RELEASE_INTAKE_VERSION);return this},
    maybeSingle(){return Promise.resolve({data:status,error:null})}};
  }
 };
@@ -52,6 +54,19 @@ await assert.rejects(()=>submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:g
 assert.equal(writes,0);
 const done=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:gate,...form,explicitSubmit:true});
 assert.equal(done.route,"ready");
+assert.ok(selectedProjection.split(",").includes("updated_at"),"Coach intake readback MUST request the authoritative timestamp");
+assert.equal(done.status.updated_at,"2026-10-30T12:00:00.001Z");
+const prefill=createCoachCalculatorPrefill({intake:done.status,studentId:uid,
+ coachAuthorized:true,requiredIntakeVersion:COACH_RELEASE_INTAKE_VERSION});
+assert.equal(prefill.sourceRevision,1);
+assert.equal(prefill.sourceUpdatedAt,done.status.updated_at);
+assert.equal(prefill.eligibleForGeneralExample,false,"Vegetarian guide must not be fabricated");
+const goodStatus=status;
+status={...status,updated_at:null};
+const cannotVerifyTimestamp=await loadCoachRelaunchEntry(sb,{profile,userId:uid});
+assert.equal(cannotVerifyTimestamp.route,"retry","Missing timestamp must block Coach release");
+assert.equal(cannotVerifyTimestamp.status,null,"Do not return misleading completed intake");
+status=goodStatus;
 assert.equal(renderCoachRelaunchEntry(done),"");
 assert.equal(writes,1);
 const editView=renderCoachRelaunchEntry(done,{editing:true});

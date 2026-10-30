@@ -10,7 +10,7 @@ const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
 assert.ok(build&&entry&&build===entry,"HTML build identity and PWA entry must match");
-assert.match(build,/coach88-legal-brand78/,"Legal Coach+wellbeing relaunch must have a new build");
+assert.match(build,/coach101-traffic-light/,"Gran Actualización must version the reviewed traffic-light and guided nutrition UI");
 assert.match(appJs,/science-welcome\.js\?v=20261030-brand78-finale/,"Load approved closing slide as a fresh module");
 
 

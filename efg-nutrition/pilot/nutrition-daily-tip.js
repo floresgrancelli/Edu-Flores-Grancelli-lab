@@ -421,7 +421,7 @@ const gnocchi=[
   "Ñoquis, una mesa compartida y una receta que se renueva cada mes."
  ],
  [
-  "Hoy toca tradición argentina",
+  "¡Hoy toca ñoquis del 29!",
   "Probá ñoquis con salsa de vegetales. Si registrás el plato, pesá ñoquis y salsa por separado."
  ],
  [

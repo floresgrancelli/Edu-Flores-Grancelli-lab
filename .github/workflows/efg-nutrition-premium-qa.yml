@@ -57,6 +57,7 @@ jobs:
           node --check efg-nutrition/pilot/weekly-luxury-report.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/weekly-luxury-report.mjs
+          node efg-nutrition/tests/weekly-luxury-integration-contract.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
         run: node efg-nutrition/tests/notifications-messages.mjs
       - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)

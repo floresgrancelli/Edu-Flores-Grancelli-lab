@@ -58,10 +58,11 @@ await assert.rejects(()=>readScienceWelcomeStatus(sb,{profile:{...profile,role:"
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped"}),/explícita/);
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"opened",explicitClick:true}),/explícita/);
 assert.equal(changes,0);
+const readsBeforeAck=queries;
 const confirmed=await acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped",explicitClick:true});
 assert.equal(confirmed.pending,false);
 assert.equal(changes,1);
-assert.ok(queries>=3,"must read back authenticated receipt");
+assert.equal(queries,readsBeforeAck+1,"must read back authenticated receipt after explicit RPC");
 assert.equal((await readScienceWelcomeStatus(sb,{profile,userId:uid})).pending,false);
 await acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"completed",explicitClick:true});
 assert.equal(changes,2);

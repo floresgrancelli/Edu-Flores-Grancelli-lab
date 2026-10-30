@@ -97,5 +97,6 @@ assert.equal(richMeals.daysWithMultipleMeals,5);
 assert.equal(richMeals.evidence.grade,'orientativa');
 
 const bad=buildLuxuryWeeklyReport({...data,studentName:'<img src=x onerror=alert(1)>'});
-assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img/);
+assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img src=x onerror=/,'Student-supplied markup must be escaped; legitimate brand image is allowed');
+assert.match(renderLuxuryWeeklyReport(bad),/&lt;img src=x onerror=alert\(1\)&gt;/);
 console.log('PASS REPORT-LUX: numbers/goal-by-date, top-food-day, low-data, XSS, legacy, privacy-friendly guidance and serialization.');

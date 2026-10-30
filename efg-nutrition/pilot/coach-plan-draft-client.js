@@ -40,9 +40,9 @@ export function validateCoachPlanProposal(goal,guide){
  return {goal:clean,guide:structuredClone(guide)};
 }
 
-export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENABLED,relaunchEnabled=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
+export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENABLED,relaunchEnabled=COACH_RELAUNCH_ONBOARDING_ENABLED,versionedBackendVerified=false}={}){
  const check=()=>{
-  assertCoachReleasePlanWriteAllowed({relaunchEnabled});
+  assertCoachReleasePlanWriteAllowed({relaunchEnabled,versionedBackendVerified});
   if(enabled!==true)throw Error("Borradores seguros aún no habilitados. El objetivo y la guía existentes permanecen intactos.");
   if(typeof sb?.rpc!=="function"||typeof sb?.from!=="function")
    throw Error("No se pudo verificar la conexión segura.");
@@ -109,7 +109,10 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(typeof requestId!=="string"||!UUID.test(requestId))throw Error("Identificador único de publicación inválido.");
   await currentIntake(studentId);
   // The DB rechecks consent, intake/version and reviewed evidence inside ONE transaction.
-  const r=await sb.rpc("efg_publish_coach_plan_draft",{
+  // The major relaunch MUST use COACH119: legacy publishing is not atomic
+  // with the versioned intake, health consent and access ledger.
+  const endpoint=relaunchEnabled?"efg_publish_coach_plan_draft_atomic":"efg_publish_coach_plan_draft";
+  const r=await sb.rpc(endpoint,{
    p_student:studentId,p_expected_revision:expectedRevision,p_request_id:requestId
   });
   if(r.error)throw r.error;

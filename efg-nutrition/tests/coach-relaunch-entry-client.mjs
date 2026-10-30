@@ -97,7 +97,7 @@ assert.ok(roleGuard>0&&welcome>roleGuard,"The new Coach versioned intake precede
 const start=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)',source.indexOf("async function refresh()"));
 const legacy=source.indexOf('await Promise.all([loadPersonalData(),loadOrgAndPayments()])',start);
 assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches for returning students.");
-assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\)/);
+assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\|\|e.target.id==="efgCoachRelaunchManageForm"\)/);
 assert.match(source,/await submitCoachRelaunchEntry\(sb,/);
 assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED\}/);
 const flow=await (await import("node:fs/promises")).readFile(

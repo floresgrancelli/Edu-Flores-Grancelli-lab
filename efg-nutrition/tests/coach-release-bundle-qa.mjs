@@ -85,6 +85,29 @@ if(phase==='failure'){
  sql(`BEGIN; SET LOCAL ROLE authenticated; SET LOCAL request.jwt.claim.sub='${studentA}';
   insert into public.efg_student_intakes(student_id,organization_id)
   values ('${studentA}','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'); ROLLBACK;`);
+ // Regression: updating a legitimate intake must NOT allow moving it into
+ // another organization. Both insert and update must compare the submitted row
+ // against the authenticated student's real organization, not a shadowed name.
+ const foreignUpdate=run(asStudent(studentA,`insert into public.efg_student_intakes(student_id,organization_id)
+  values ('${studentA}','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1');
+  update public.efg_student_intakes set organization_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2'
+   where student_id='${studentA}'`));
+ assert.notEqual(foreignUpdate.status,0,'Student A must not reassign their intake to organization B');
+ assert.match(foreignUpdate.stderr,/row-level security/);
+ assert.equal(sql("select count(*) from public.efg_student_intakes"),'0',
+   'Failed cross-org intake update must roll back initial insert');
+ // A student cannot delete another student's intake, but may withdraw their own
+ // optional intake; none of these actions can erase an existing food diary.
+ sql(asStudent(studentA,`insert into public.efg_student_intakes(student_id,organization_id)
+  values ('${studentA}','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1')`));
+ assert.equal(sql(asStudent(studentB,`delete from public.efg_student_intakes
+  where student_id='${studentA}' returning student_id`)),'',
+  'Student B must never erase the intake of student A');
+ assert.equal(sql("select count(*) from public.efg_student_intakes"),'1');
+ assert.equal(sql(asStudent(studentA,`delete from public.efg_student_intakes
+  where student_id='${studentA}' returning student_id`)),studentA,
+  'Student A must be able to delete only their own optional intake');
+ assert.equal(sql("select count(*) from public.efg_student_intakes"),'0');
  assert.equal(sql(asStudent(studentA,"select public.efg_ack_science_intro('con_ciencia_2026_r1','completed')")),'t');
  const receipt=sql(`select to_jsonb(t)::text from public.efg_science_intro_receipts t`);
  assert.equal(sql(asStudent(studentA,"select public.efg_ack_science_intro('con_ciencia_2026_r1','skipped')")),'t');

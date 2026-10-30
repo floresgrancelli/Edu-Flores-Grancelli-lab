@@ -17,7 +17,7 @@ export async function loadCoachPilotLegal(sb,{profile}={}){
     typeof sb?.from!=='function')throw Error('Servicio legal no disponible.');
  const user=await sb.auth.getUser(),id=user?.data?.user?.id;
  if(user?.error||!UUID.test(id||'')||profile?.user_id!==id||
-    profile?.active!==true||profile?.role!=='student')
+    profile?.active!==true||!['student','coach','admin','personal'].includes(profile?.role))
   throw Error('No pudimos verificar tu cuenta antes de mostrar documentos legales.');
  const sr=await sb.rpc('efg_legal_current_status');
  if(sr.error)throw Error('No pudimos consultar la versión vigente de los documentos.');
@@ -83,7 +83,7 @@ export async function submitCoachPilotLegal(sb,snapshot,selection,{explicitSubmi
   throw Error('La aceptación legal requiere confirmar expresamente ambos documentos.');
  const user=await sb.auth.getUser();
  if(user?.error||!UUID.test(user?.data?.user?.id||'')||
-   profile?.user_id!==user.data.user.id||profile?.role!=='student')
+   profile?.user_id!==user.data.user.id||!['student','coach','admin','personal'].includes(profile?.role))
   throw Error('La sesión ya no está verificada.');
  const response=await sb.rpc('efg_accept_current_legal',selection);
  if(response.error||response.data!==true)

@@ -29,7 +29,7 @@ import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch1";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch1";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2137,7 +2137,8 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={intake:coachIntakeFlow.view,notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={intake:()=>COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
+   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -2686,6 +2687,23 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
  if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
+ if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){
+  if(!COACH_RELAUNCH_ONBOARDING_ENABLED||state.profile?.role!=="student"||
+     state.coachRelaunchEntry?.route!=="ready")throw Error("La ficha nueva no está disponible.");
+  if(action==="revokeCoachRelaunch"&&!state.coachRelaunchEntry.status?.shared_at){
+   notify("Tu ficha nueva ya es privada.");return;
+  }
+  const message=action==="revokeCoachRelaunch"?
+   "¿Retirar el permiso de compartir la ficha nueva con tu coach? Tu historial no se borrará.":
+   "¿Borrar los datos de la ficha nueva y retirar el permiso de compartir? No se borrarán tu plan, comidas, peso ni mensajes. La confirmación de ingreso se conserva.";
+  if(!window.confirm(message))return;
+  const options={profile:state.profile,userId:state.session?.user?.id,entry:state.coachRelaunchEntry,explicitSubmit:true};
+  if(action==="revokeCoachRelaunch")await revokeCoachRelaunchSharing(sb,{...options});
+  else await clearCoachRelaunchData(sb,{...options});
+  await refresh();
+  notify(action==="revokeCoachRelaunch"?"Permiso retirado. La ficha ahora es privada.":"Los datos de esta ficha nueva se borraron; tus registros anteriores permanecen.");
+  return;
+ }
  if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
  if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
  if(action==="prepareCoachPlanFromIntake"){
@@ -2932,7 +2950,7 @@ document.addEventListener("keydown",event=>{
  else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}
 });
 root.addEventListener("submit",e=>{
- if(e.target.id==="efgCoachRelaunchForm"){
+ if(e.target.id==="efgCoachRelaunchForm"||e.target.id==="efgCoachRelaunchManageForm"){
   e.preventDefault();
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED)return;
   (async()=>{

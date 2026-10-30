@@ -1,0 +1,16 @@
+/* COACH101: semáforo de compatibilidad, solo por perfil/revisión. Nunca por calorías. */
+.efg-compat-status{margin:8px 0 12px;font-size:12px;line-height:1.5}
+.efg-food-compatibility{display:inline-flex;align-items:center;min-height:30px;gap:6px;padding:5px 9px;border-radius:10px;font-weight:750;border:1px solid}
+.efg-compat-green{background:#e9f8ee;color:#245839;border-color:#a8dec0}
+.efg-compat-yellow{background:#fff6df;color:#785019;border-color:#efd18c}
+.efg-compat-red{background:#ffedec;color:#843936;border-color:#e7a6a3}
+.efg-compat-green::before{content:"●";color:#318657}
+.efg-compat-yellow::before{content:"▲";color:#b8871d}
+.efg-compat-red::before{content:"!";color:#bf3c40;font-weight:900}
+.efg-in-plan{display:inline-flex;margin-left:6px;border-radius:8px;background:#ebeaff;color:#49418c;padding:5px 8px;font-weight:750}
+.efg-compat-reasons{margin:6px 0 0 0;padding:0 0 0 18px;font-size:12px;color:#4b4c59}
+.efg-compat-sources{display:block;margin:3px 0}
+.efg-compat-sources a{color:#464ca1;text-decoration:underline}
+.efg-compat-status:empty{display:none}
+.efg-compat-status a:focus-visible{outline:3px solid #755bc8;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.efg-food-compatibility{transition:none}}

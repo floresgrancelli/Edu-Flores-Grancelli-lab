@@ -130,6 +130,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql
           test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
           test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
           pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
@@ -230,6 +231,7 @@ jobs:
           test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = 1
           test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql
           echo 'PASS NUT57 B3: COMMIT really persisted in isolated synthetic DB; pre-upgrade backup recreated original schema and exact 12-table history digest after destructive restore. No real data, no hosted connection.'
       - name: State the limits
         if: always()

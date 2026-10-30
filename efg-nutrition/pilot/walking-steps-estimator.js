@@ -41,7 +41,7 @@ export function estimateWalkingSteps({steps,pace=null,heightCm=null,weightKg=nul
 export function estimateStoredWalkingActivity(row){
  if(!row||typeof row!=='object'||row.steps===null||row.steps===undefined)return null;
  const steps=Number(row.steps);
- if(!Number.isSafeInteger(steps)||steps<0||steps>100000)return null;
+ if(!Number.isSafeInteger(steps)||steps<=0||steps>100000)return null; // zero means no walking session
  const pace=Object.hasOwn(WALKING_PACES,row.walking_pace)?row.walking_pace:null;
  const heightCm=row.walking_height_cm===undefined||row.walking_height_cm===null?null:Number(row.walking_height_cm);
  const weightKg=row.walking_weight_kg===undefined||row.walking_weight_kg===null?null:Number(row.walking_weight_kg);

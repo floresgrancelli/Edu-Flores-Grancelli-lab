@@ -2,6 +2,7 @@
 // No local/session storage; signed JWT + server RLS/RPC is authoritative.
 import {COACH_RELEASE_INTAKE_VERSION,COACH_RELAUNCH_ONBOARDING_ENABLED,
  resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js";
+import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=20261030-clingut1";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const accepted=isCurrentCoachLegalAccepted;
@@ -68,6 +69,7 @@ export function renderCoachRelaunchEntry(entry,{editing=false}={}){
  field("weight_kg","Peso (kg)",data.weight_kg,.1,20,400)+'</div>'+
  select("activity_level","Actividad habitual",data.activity_level)+
  select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
+ renderGutClinicalDraft()+
  textarea("preferred_foods","Alimentos que me gustan",data.preferred_foods,400)+
  textarea("disliked_foods","Alimentos que evito por gusto",data.disliked_foods,400)+
  textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+

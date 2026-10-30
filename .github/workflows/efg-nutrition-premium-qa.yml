@@ -44,6 +44,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/dietary-traffic-light.js
           node efg-nutrition/tests/dietary-traffic-light-contract.mjs
+          node --check efg-nutrition/pilot/gut-clinical-workbench.js
+          node efg-nutrition/tests/gut-clinical-workbench.mjs
       - name: Shared food compatibility evidence contracts
         run: node efg-nutrition/tests/food-compatibility.mjs
       - name: Validate role-specific UX contracts

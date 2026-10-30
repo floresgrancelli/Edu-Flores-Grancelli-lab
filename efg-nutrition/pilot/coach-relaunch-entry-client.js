@@ -63,9 +63,9 @@ export function renderCoachRelaunchEntry(entry,{editing=false}={}){
  const data=editing?initialCoachRelaunchIntake({draftVersion:COACH_RELEASE_INTAKE_VERSION,
   currentVersionDraft:entry.status}):initialCoachRelaunchIntake();
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
- '<span class="eyebrow">EFG NUTRITION COACH · NUEVA ETAPA</span>'+
+ '<span class="eyebrow">Nutrición Con-Ciencia COACH · NUEVA ETAPA</span>'+
  '<h2 id="efgCoachRelaunchTitle">'+(editing?'Revisar mi ficha nueva':'Conozcámonos de nuevo')+'</h2>'+ 
- '<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas EFG Nutrition. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>'+
+ '<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>'+
  '<p class="pilot-hint">Los datos son voluntarios y no equivalen a un diagnóstico. No introduzcas información médica sensible en los campos de texto: ese apartado aún requiere revisión legal y profesional.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form">'+ 
  select("objective","Mi objetivo",data.objective)+

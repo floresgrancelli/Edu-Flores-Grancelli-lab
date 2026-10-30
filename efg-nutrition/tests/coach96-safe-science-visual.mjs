@@ -12,7 +12,7 @@ const out=resolve('artifacts/premium-visual-qa');mkdirSync(out,{recursive:true})
 const asset=readFileSync(new URL('../pilot/assets/serotonina-acuarela.avif',import.meta.url));
 const logo='data:image/avif;base64,'+asset.toString('base64');
 const styles=[
- '../../styles.css','../../fresh.css','../pilot/pilot.css',
+ '../styles.css','../fresh.css','../pilot/pilot.css',
  '../pilot/nutrition-science.css','../pilot/science-welcome.css',
  '../pilot/science-wellbeing.css'
 ].map(path=>readFileSync(new URL(path,import.meta.url),'utf8')).join('\n');

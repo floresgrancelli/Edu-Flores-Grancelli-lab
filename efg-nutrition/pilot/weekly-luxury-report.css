@@ -43,6 +43,11 @@
 .lux-report-top li>b,.lux-report-focus li>b{flex:0 0 27px;color:#b18e57;font-size:12px}
 .lux-report-top li span,.lux-report-focus li span{flex:1;font-size:12.5px}
 .lux-report-top li strong{color:#287b73;font-size:10px}
+.lux-report-evidence{margin-top:12px;border:1px solid #d6dfdb;border-radius:12px;background:#edf3f1;padding:11px 17px;color:#253a43}
+.lux-report-evidence summary{font-size:12px;font-weight:850;cursor:pointer;line-height:1.5}
+.lux-report-evidence p{font-size:11px;line-height:1.6;margin:12px 0 5px}
+.lux-report-toolbar button[data-act="replyWeeklyReport"]{background:linear-gradient(130deg,#1b3449,#284e60);color:#fff;border:1px solid #b99459;box-shadow:0 6px 18px #19324825}
+.lux-report-toolbar button[data-act="replyWeeklyReport"]:focus-visible{outline:3px solid #c39545;outline-offset:3px}
 .lux-report-conclusion{margin-top:17px;background:#17283f;border-radius:17px;padding:24px 22px;color:#f8faf9}
 .lux-report-conclusion h3{color:#e8cfa4!important}
 .lux-report-conclusion p{color:#f1f4f4;font-size:13px;white-space:pre-line;line-height:1.8}

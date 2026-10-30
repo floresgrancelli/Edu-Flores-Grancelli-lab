@@ -29,7 +29,7 @@ await assert.rejects(acknowledgeMajorRelease(sb,{profile,release:state,
  /aviso aprobado/);
 assert.equal(await acknowledgeMajorRelease(sb,{profile,release:state,
  kind:'announcement_preview_read',explicitClick:true,explicitlyEnabled:true}),true);
-assert.deepEqual(calls.at(-2),['efg_major_release_ack',{
+assert.deepEqual(calls.at(-1),['efg_major_release_ack',{
  p_release:'major_2026_01',p_event_kind:'announcement_preview_read',p_explicit_click:true
 }]);
 payload={...base,phase:'reauth_required'};

@@ -1,0 +1,86 @@
+/* Nutrición con ciencia · responsive, premium and intentionally read-only. */
+.ns-science{--ns-ink:#1c2f38;--ns-muted:#526575;--ns-line:#dbe4e7;--ns-blue:#b4e5f5;--ns-violet:#dcd5f5;--ns-cream:#f9eedb;max-width:1060px;margin:0 auto 30px;color:var(--ns-ink);font-size:15px;line-height:1.63}
+.ns-science *{box-sizing:border-box}
+.ns-science h1,.ns-science h2,.ns-science h3{font-family:inherit;line-height:1.18;letter-spacing:-.035em;margin:0;color:inherit}
+.ns-science p{line-height:1.65;margin:10px 0 0}
+.ns-science h2{font-size:clamp(24px,3vw,33px);font-weight:820}
+.ns-science h3{font-size:21px;font-weight:820}
+.ns-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:29px;padding:clamp(30px,6vw,61px);color:white;background:radial-gradient(circle at 84% 14%,#6686ac 0%,transparent 32%),radial-gradient(circle at 35% 94%,#43588b 0%,transparent 47%),linear-gradient(117deg,#182e45,#303351 66%,#413f64);box-shadow:0 20px 45px #283b5430;margin-bottom:25px}
+.ns-hero:after{content:"";position:absolute;width:260px;height:260px;right:-60px;bottom:-104px;background:radial-gradient(circle at 45% 45%,#ffe0d666 0 10%,#fff6 11% 12%,transparent 13% 20%,#fff4 21% 22%,transparent 23% 30%,#fff3 31% 33%,transparent 34%);border-radius:50%;z-index:-1;transform:rotate(-25deg)}
+.ns-hero h1{font-size:clamp(37px,6vw,66px);font-weight:800;max-width:610px;color:white;margin:15px 0}
+.ns-hero h1 em{font-weight:500;font-family:Georgia,serif;color:#bdebf1;font-style:italic}
+.ns-hero p{max-width:620px;font-size:clamp(15px,2vw,18px);color:#e5eaf5;margin-bottom:21px}
+.ns-kicker,.ns-eyebrow{display:block;font-size:11px;font-weight:850;letter-spacing:.14em;line-height:1.5}
+.ns-kicker{color:#c6eafa}
+.ns-eyebrow{color:#557d93;margin-bottom:9px}
+.ns-hero-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ns-hero-chips span{display:inline-flex;background:#ffffff19;border:1px solid #ffffff42;border-radius:99px;padding:7px 12px;font-size:12px;font-weight:700;color:#f6f9fe}
+.ns-intro{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(290px,.95fr);gap:30px;align-items:center;padding:clamp(20px,4vw,35px);background:linear-gradient(125deg,#fff,#f0f7fa);border:1px solid var(--ns-line);border-radius:23px;margin-bottom:27px;box-shadow:0 8px 24px #354c6310}
+.ns-intro p{color:#415767}
+.ns-energy{padding:23px 22px;border-radius:18px;background:#fff;border:1px solid #dae5eb;display:grid;gap:11px;box-shadow:0 12px 30px #263d4f12}
+.ns-energy-line{display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:center;font-size:14px;font-weight:800}
+.ns-energy-line strong{font-size:25px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums}
+.ns-energy-line strong small{font-size:12px;color:#6e7f88}
+.ns-energy-line i{grid-column:1/-1;display:block;height:12px;border-radius:99px;background:#e1e6ee;position:relative;overflow:hidden}
+.ns-energy-line i:before{content:"";position:absolute;height:100%;left:0;top:0;border-radius:99px;width:44%}
+.ns-energy-p i:before{background:#aa96e9}
+.ns-energy-c i:before{background:#e4b574}
+.ns-energy-f i:before{background:#7abcb2;width:100%}
+.ns-energy>small{font-size:11px;color:#687987;line-height:1.5}
+.ns-section-head{margin:23px 4px 18px}
+.ns-section-head p{color:var(--ns-muted)}
+.ns-macro-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:0 0 25px}
+.ns-macro{border:1px solid var(--ns-line);border-radius:22px;padding:25px 22px;min-width:0;min-height:300px;display:flex;flex-direction:column;box-shadow:0 10px 22px #30475d12}
+.ns-macro-emoji{display:grid;place-items:center;width:55px;height:55px;font-size:27px;border-radius:16px;background:#fff9;box-shadow:inset 0 1px 1px #fff9;margin-bottom:17px}
+.ns-macro b{display:block;font-size:13px;letter-spacing:.015em;margin-top:7px}
+.ns-macro p{font-size:14px;color:#344f60}
+.ns-macro small{display:block;border-top:1px solid #7892a437;padding-top:12px;margin-top:auto;font-size:12px;line-height:1.55;color:#446276}
+.ns-protein{background:linear-gradient(150deg,#eeeafd,#e1e4f9)}
+.ns-carbs{background:linear-gradient(150deg,#fff5e7,#f7e6c7)}
+.ns-fat{background:linear-gradient(150deg,#e9f6f1,#d9eee8)}
+.ns-myth{position:relative;overflow:hidden;padding:clamp(27px,4vw,41px);border-radius:24px;background:linear-gradient(125deg,#e5f5fb,#eff8f8 64%,#f8f2fa);border:1px solid #cce5ef;margin-bottom:27px}
+.ns-myth h2{max-width:620px;font-size:clamp(29px,4vw,40px)}
+.ns-myth p{max-width:785px;color:#34566a}
+.ns-myth-badge{float:right;transform:rotate(7deg);border:2px solid #3f729b;color:#3f729b;font-size:10px;letter-spacing:.14em;font-weight:900;border-radius:11px;padding:9px 11px;margin:0 0 8px 10px}
+.ns-myth-credit{display:block;font-size:11px;color:#5e7a8b;margin-top:15px}
+.ns-balance{padding:clamp(22px,4vw,34px);background:#fff;border:1px solid var(--ns-line);border-radius:23px;margin-bottom:25px}
+.ns-balance>p{color:#48616f;margin:10px 0 20px}
+.ns-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.ns-compare article{border-radius:16px;padding:21px;border:1px solid #e3e6e9;background:linear-gradient(145deg,#f8f6fd,#fdfcfe)}
+.ns-compare article:nth-child(2){background:linear-gradient(145deg,#f2f8f5,#fafdfc)}
+.ns-compare-badge{display:inline-block;font-size:11px;font-weight:850;letter-spacing:.08em;color:#4f4388;border-radius:99px;background:#e7e1f8;padding:5px 10px;margin-bottom:10px}
+.ns-compare article:nth-child(2) .ns-compare-badge{color:#2a7267;background:#dbeee8}
+.ns-compare h3{font-size:18px}
+.ns-compare p{font-size:14px;color:#4d6470}
+.ns-takeaway{margin-top:17px;border-radius:14px;background:#e6f5f9;padding:15px 17px;color:#245b71;font-size:14px;line-height:1.62}
+.ns-faq{margin:28px 0}
+.ns-faq h2{margin-bottom:15px}
+.ns-faq details{background:#fff;border:1px solid var(--ns-line);border-radius:13px;padding:0 17px;margin:10px 0;box-shadow:0 4px 9px #202e3411}
+.ns-faq summary{display:list-item;cursor:pointer;font-weight:800;padding:16px 2px;color:#2a4454;line-height:1.45;min-height:48px}
+.ns-faq summary:focus-visible{outline:3px solid #4b9cca;outline-offset:4px;border-radius:4px}
+.ns-faq details[open]{background:#f9fbfd}
+.ns-faq details p{margin:0 0 17px;font-size:14px;color:#536b77}
+.ns-sources{border-top:1px solid var(--ns-line);padding:25px 3px 0}
+.ns-sources>p{color:var(--ns-muted)}
+.ns-sources ol{list-style:decimal;margin:18px 0;padding:0 0 0 22px;display:grid;gap:9px}
+.ns-sources li{padding-left:5px}
+.ns-sources a{color:#285e84;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere;font-weight:700;font-size:13px}
+.ns-sources a:hover{color:#5f438c}
+.ns-disclaimer{padding:12px 14px;background:#f1f4f6;border-radius:12px;font-size:12px;color:#596a73!important;line-height:1.65}
+@media(max-width:790px){.ns-intro{grid-template-columns:1fr}.ns-macro-grid{grid-template-columns:1fr 1fr}.ns-macro{min-height:unset}.ns-macro-grid .ns-macro:last-child{grid-column:1/-1}.ns-hero{border-radius:21px}}
+@media(max-width:520px){.ns-science{font-size:14px}.ns-hero{padding:28px 23px;border-radius:18px}.ns-intro,.ns-balance,.ns-myth{padding:22px 18px;border-radius:18px}.ns-macro-grid,.ns-compare{grid-template-columns:1fr;gap:11px}.ns-macro-grid .ns-macro:last-child{grid-column:auto}.ns-macro{padding:22px 19px}.ns-myth-badge{float:none;display:inline-block;transform:rotate(-3deg);margin:0 0 10px}.ns-energy{padding:18px 16px}.ns-science h2{font-size:25px}}
+
+/* Evidence-based strength-training explainer, accessible from both profiles. */
+.ns-protein-focus{border-radius:24px;margin:0 0 27px;padding:clamp(24px,4vw,39px);background:linear-gradient(135deg,#e8e4fa,#edf4fa 70%,#e5f5f0);border:1px solid #d3d6ea}
+.ns-protein-focus>p{max-width:790px;color:#40566c}
+.ns-protein-benefits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}
+.ns-protein-benefits article{border-radius:16px;background:#ffffffb9;border:1px solid #e5e5f2;padding:18px;min-width:0}
+.ns-protein-benefits strong{display:block;color:#302c62;font-size:15px;line-height:1.3}
+.ns-protein-benefits p{font-size:13px;margin-top:7px;color:#506579;line-height:1.5}
+.ns-protein-numbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ns-protein-numbers>div{display:flex;flex-direction:column;background:#1b334a;border-radius:15px;padding:19px;color:#fff}
+.ns-protein-numbers b{font-weight:850;color:#bdebf1;font-size:clamp(21px,3vw,27px);letter-spacing:-.02em}
+.ns-protein-numbers span{color:#e5edf2;font-size:12px;line-height:1.55;margin-top:7px}
+.ns-protein-note{font-size:13px;line-height:1.6;color:#40566c}
+@media(max-width:520px){.ns-protein-focus{padding:22px 18px}.ns-protein-benefits,.ns-protein-numbers{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.ns-science *{scroll-behavior:auto;animation:none!important;transition:none!important}}

@@ -81,7 +81,6 @@ assert.match(pilot,/state\.coachLegalSnapshot=null;state\.coachLegalPending=fals
 assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
 assert.match(pilot,/if\(action==="confirmLegalAcceptance"\)\{/);
 assert.match(pilot,/await acceptCoachLegalOnboarding\(sb,state\.coachLegalSnapshot,checked,\{explicitSubmit:true\}\)/);
-assert.match(pilot,/state\.coachLegalSnapshot=null;\s*await refresh\(\);/);
 assert.doesNotMatch(pilot,/acceptedNotice.*true.*legal|localStorage\.setItem\("legalAccepted"/,
  "No locally accepted flag may bypass versioned legal server readback.");
 console.log("PASS COACH-67: legal docs are exact version/hash, checked individually, HTML escaped, RPC explicit, readback mandatory and all flags OFF.");

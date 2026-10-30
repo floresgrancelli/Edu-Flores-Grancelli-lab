@@ -26,3 +26,10 @@ El resumen `renderPersonalDayBalance()` ofrece una tabla accesible para la futur
 4. Pasar SEC-08, restauración/PITR, pruebas de dispositivo real y clientes PWA antiguos antes de pedir GO.
 
 **Nada se fusionó ni desplegó y no se tocó la base de datos alojada.**
+
+
+## QA visual incorporado (fixture aislado)
+
+Se añadió `tests/personal-visual-qa.mjs` (commit `2a7586e3`) y se conectó al workflow `efg-nutrition-visual-qa.yml` para ejecutar Chromium a 320/390/430/768 px y WebKit a 390 px (commit `f1ab51dd`). Construye **únicamente datos ficticios** y compone el panel Personal, la guía educativa NUT-62 y el balance diario NUT-63 con la identidad de serotonina. Comprueba no-desborde horizontal, cinco comidas, dos tablas desplazables, presencia del logo y ausencia de navegación heredada Coach/Admin. Genera capturas y JSON dentro del artefacto de CI.
+
+La CSS de tablas y balance está agregada en `pilot/personal-workspace.css` (commit `8b7221c9`). Hasta obtener y revisar los informes/snapshots **no se declara QA visual aprobado**. Incluso un 5/5 CI con fixtures NO sustituye iPhone/Android físicos ni un entorno autenticado con JWT para Personal, que permanece OFF.

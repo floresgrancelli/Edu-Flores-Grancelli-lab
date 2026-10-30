@@ -56,11 +56,9 @@ const done=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:gate,...f
 assert.equal(done.route,"ready");
 assert.ok(selectedProjection.split(",").includes("updated_at"),"Coach intake readback MUST request the authoritative timestamp");
 assert.equal(done.status.updated_at,"2026-10-30T12:00:00.001Z");
-const prefill=createCoachCalculatorPrefill({intake:done.status,studentId:uid,
- coachAuthorized:true,requiredIntakeVersion:COACH_RELEASE_INTAKE_VERSION});
-assert.equal(prefill.sourceRevision,1);
-assert.equal(prefill.sourceUpdatedAt,done.status.updated_at);
-assert.equal(prefill.eligibleForGeneralExample,false,"Vegetarian guide must not be fabricated");
+assert.throws(()=>createCoachCalculatorPrefill({intake:done.status,studentId:uid,
+ coachAuthorized:true,requiredIntakeVersion:COACH_RELEASE_INTAKE_VERSION}),
+ /No hay una ficha/,"Coach calculator must DENY unshared intake");
 const goodStatus=status;
 status={...status,updated_at:null};
 const cannotVerifyTimestamp=await loadCoachRelaunchEntry(sb,{profile,userId:uid});
@@ -81,6 +79,11 @@ const updated=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:done,
  payload:{...form.payload,notes:"Horario de comidas editado"},
  shareWithCoach:true,explicitSubmit:true});
 assert.equal(updated.status.revision,2);
+const prefill=createCoachCalculatorPrefill({intake:updated.status,studentId:uid,
+ coachAuthorized:true,requiredIntakeVersion:COACH_RELEASE_INTAKE_VERSION});
+assert.equal(prefill.sourceRevision,2);
+assert.equal(prefill.sourceUpdatedAt,updated.status.updated_at);
+assert.equal(prefill.eligibleForGeneralExample,false,"Vegetarian guide must not be fabricated");
 assert.match(renderCoachRelaunchEntry(updated,{editing:true}),/checked/,
  "Existing explicit share state must remain visible when user edits.");
 const saved=currentCoachRelaunchPayload(updated);

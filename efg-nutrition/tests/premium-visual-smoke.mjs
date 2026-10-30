@@ -2,7 +2,7 @@
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { chromium,webkit } from "playwright";
+import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
 const rootDir=process.cwd();
@@ -28,10 +28,13 @@ const server=createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(0,"127.0.0.1",r));
 const port=server.address().port;
+const androidMode=process.env.EFG_QA_ANDROID==="1";
 const engine=process.env.EFG_QA_ENGINE==="webkit"?"webkit":"chromium";
+if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
+const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -39,7 +42,7 @@ const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],[
 const sbStub='export function createClient(){const b=()=>{const q={saved:null,select(){return q},upsert(value){q.saved=value;return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:q.saved||null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
 try{
  for(const [role,width] of scenarios){
-  const context=await browser.newContext({viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+  const context=await browser.newContext(androidMode?{...devices["Pixel 7"],viewport:{width,height:860}}:{viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
   await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:sbStub}));
   // Layout-only fixtures: live photo availability is tested separately in real browsers.
   await context.route(/^https:\/\/images\.(unsplash|pexels)\.com\//,route=>route.fulfill({
@@ -53,6 +56,11 @@ try{
   const page=await context.newPage();
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
+  if(androidMode){
+   const mobile=await page.evaluate(()=>({ua:navigator.userAgent,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio}));
+   if(!mobile.ua.includes("Android")||mobile.touch<1||mobile.dpr<2||mobile.viewport!==width)
+    errors.push("Android Pixel 7 device emulation not active: "+JSON.stringify(mobile));
+  }
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
   try{await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__,null,{timeout:16000});}
   catch(err){
@@ -174,7 +182,7 @@ try{
     const visual=await bell.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,icon:!!el.querySelector("svg"),w:el.getBoundingClientRect().width}));
     if(visual.bg!=="rgba(0, 0, 0, 0)"||!visual.icon||visual.w<44)errors.push(role+" bell should be floating SVG without tile: "+JSON.stringify(visual));
    }
-   await page.screenshot({path:join(outDir,engine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
+   await page.screenshot({path:join(outDir,captureEngine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
    await page.evaluate(async(role)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=role==="student"?"home":role==="coach"?"coach":"admin";await v.render();},role);
   }
   const pageReport={role,width,pages:[],errors:[]};
@@ -504,7 +512,7 @@ try{
       pageReport.errors.push("Student guide should show educational sections but cannot edit quantities");
     if(await host.locator(".efg-guide-food-group").first().isVisible()!==true)
       pageReport.errors.push("Educational guide sections hidden at "+width+"px");
-    await page.screenshot({path:join(outDir,engine+"-student-"+width+"-guide-education.png"),fullPage:true,animations:"disabled"});
+    await page.screenshot({path:join(outDir,captureEngine+"-student-"+width+"-guide-education.png"),fullPage:true,animations:"disabled"});
     await host.evaluate(el=>el.remove());
    }
    if(role==="student"&&width===390&&dest==="home"){
@@ -714,7 +722,7 @@ try{
     if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
    if(width===390 || width===360 || ((width===320||width===768||width===1280)&&dest===destinations[0])){
-     await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
+     await page.screenshot({path:join(outDir,captureEngine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }
   // Global Luxury includes FIRST-LOGIN, onboarding and OTP; do not treat
@@ -730,7 +738,7 @@ try{
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
     const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
     if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
-    await page.screenshot({path:join(outDir,engine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
+    await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();
     });
@@ -744,7 +752,7 @@ try{
     if((await page.locator("#loginEmail").count())!==1)pageReport.errors.push("Email OTP form lost");
     const loginWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
     if(loginWidth>390+2)pageReport.errors.push("Login horizontal overflow "+loginWidth);
-    await page.screenshot({path:join(outDir,engine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
+    await page.screenshot({path:join(outDir,captureEngine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
   }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
   if(role==="coach"&&width===390){
@@ -826,8 +834,8 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report-"+engine+".json"),JSON.stringify(report,null,2));
+writeFileSync(join(outDir,"report-"+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
-console.log(JSON.stringify({engine,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
+console.log(JSON.stringify({engine,captureEngine,androidMode,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;

@@ -32,7 +32,8 @@ import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-sa
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261029-rpc-off1";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=20261030-review-rev1";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
-import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
+import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentminor1";
+import {signOutCurrentDevice} from "./logout-session.js?v=20261030-session01";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
@@ -731,7 +732,7 @@ function frame(content){
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
- '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -2975,7 +2976,16 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.foodCompatEvidence=[];state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="logout"){
+  const result=await signOutCurrentDevice({
+   auth:sb.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits,
+   confirmDiscard:()=>window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Los registros ya guardados permanecen en tu historial.")
+  });
+  if(!result.signedOut)return;
+  resetPrivateSession();
+  await inbox.refresh();
+  return loginView();
+ }
  if(action==="acceptCoachPilotLegal"){
    if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
       state.coachPilotEntry?.route!=="legal"||!state.coachPilotLegal?.ready)
@@ -3350,6 +3360,33 @@ root.addEventListener("submit",e=>{
 });
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
+function resetPrivateSession(){
+ // Clear role-scoped RAM on every SIGNED_OUT, including external session
+ // invalidation. Never carry another Coach's private data to a fresh OTP user.
+ state.foodCompatEvidence=[];state.habitualSelection={};
+ state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
+ state.coachLegalPending=false;state.coachLegalSnapshot=null;state.coachRelaunchEntry=null;
+ state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;
+ state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakeGoals={};
+ state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;
+ state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
+ state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;
+ state.calculatedGoalBase=null;state.selectedStudent=null;state.consent=null;
+ state.roster=[];state.coachLogs=[];state.coachProgressLogs=[];state.coachGoals=[];
+ state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;
+ state.coachHistory=[];state.testInvitations=[];
+ state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
+ state.goals=[];state.foodPlan=null;state.personalTargets=null;
+ state.org=null;state.orgs=[];state.payments=[];state.platformAlias=null;
+ state.platformAliases=[];state.invitations=[];
+ state.session=null;state.profile=null;
+ state.renderedDay=null;state.activeMeal=null;state.tab="home";state.otpEmail=null;
+ state.welcomePending=false;state.scienceWelcomePending=false;
+ state.scienceWelcomeStep=0;state.scienceWelcomeError="";
+ state.rewardApproval=null;state.rewardFeatureReady=false;
+ state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
+ userHasUnconfirmedEdits=false;lastRenderedViewKey=null;
+}
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
   const user=session?.user;
@@ -3361,8 +3398,7 @@ function handleAuthStateChange(event,session){
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
   state.session={user:session.user};
  }else if(event==="SIGNED_OUT"){
-  state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachIntakeForms={};state.selectedStudent=null;
-  state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
+  resetPrivateSession();loginView();
  }
 }
 // Never auto-reload after a release. Only warn the user, especially when editing.
@@ -3376,14 +3412,16 @@ const meaningfulField=el=>{
 root.addEventListener("input",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 root.addEventListener("change",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 document.addEventListener("input",e=>{if(e.target?.id==="efgMessageText")userHasUnconfirmedEdits=true;},{capture:true});
-const versionNotice=createVersionNotice({
- currentVersion:"20261030-grand-candidate-nut58",
- canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
- hasUnsavedChanges:()=>userHasUnconfirmedEdits||
+const hasPendingUnsavedEdits=()=>userHasUnconfirmedEdits||
   !!state.coachGuidedDraft||!!state.pendingGoal||!!state.pendingGoalRevision||
   Object.keys(state.plannerDraftGrams||{}).length>0||
   !!document.getElementById("efgMessageText")?.value?.trim()||
-  !!document.querySelector('input[type="file"]')?.files?.length
+  !!document.querySelector('input[type="file"]')?.files?.length;
+const versionNotice=createVersionNotice({
+ currentVersion:"20261030-grand-candidate-nut58",
+ canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
+ announceMinorUpdates:false, // UX-35: routine releases have no popups
+ hasUnsavedChanges:hasPendingUnsavedEdits
 });
 const pullRefresh=createPullToRefresh({
  canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,

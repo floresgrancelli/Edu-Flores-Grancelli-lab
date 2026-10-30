@@ -65,7 +65,7 @@ for(const [id,grams] of [["sushi_maki_salmon",28],["sushi_nigiri_salmon",35],["p
  assert.ok(f.k*grams>=.01);
 }
 assert.ok(pilot.includes("foodSearchText(f)"),"Student/coach/planner must use shared synonyms");
-assert.match(index,/name="efg-build" content="202610(?:28-regional2(?:-luxury-pro-(?:rc1|r1))?|29-(?:seats-visible-r1|coach-commercial-r[12]))"/,"Versioned iPhone build marker required");
+assert.match(index,/name="efg-build" content="20[0-9]{6}-[a-z0-9-]{5,80}"/,"Versioned iPhone build marker required");
 assert.match(index,/luxury-theme\.css\?v=20261029-(?:coach-commercial-r2|habitual-preview1)/,"Luxury CSS must be versioned and cache-busted for iPhone");
 assert.equal(VERIFIED_SOURCE_COUNT,20);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));

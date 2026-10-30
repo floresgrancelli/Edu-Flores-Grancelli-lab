@@ -2576,12 +2576,9 @@ async function refresh(){
   state.profile=p.data;
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
   state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
-  // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
-  if(!["student","coach","admin"].includes(state.profile.role))return render();
-  if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
-  // Signed major manifest is independent of app code version. No active
-  // release => no notices and no automatic logout for routine fixes.
+  // All four roles receive the exceptional release sequence, including future
+  // Personal, BEFORE role-specific legacy data fetches. Both release flags OFF.
   state.majorRelease=null;state.majorReleaseLegal=null;
   if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED){
    state.majorRelease=await readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true});
@@ -2589,6 +2586,9 @@ async function refresh(){
     state.majorReleaseLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
    if(state.majorRelease.phase!=="none")return render();
   }
+  // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
+  if(!["student","coach","admin"].includes(state.profile.role))return render();
+  if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;

@@ -437,7 +437,8 @@ const messages=createMessagesCenter({sb,
 });
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
-const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED});
+const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,
+ versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED});
 function compatibilityPattern(){
  const pattern=state.profile?.role==="student"
   ?state.coachRelaunchEntry?.status?.dietary_pattern||state.studentIntake?.dietary_pattern

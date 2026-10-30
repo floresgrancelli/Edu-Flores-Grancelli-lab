@@ -14,13 +14,20 @@ const output=join(process.cwd(),"artifacts/premium-visual-qa");mkdirSync(output,
 const issues=[],results=[];
 try{
  for(const width of (engine==="webkit"?[390]:[320,390,430,768])){
-  for(const route of ["intake","legal","retry"]){
+  for(const route of ["intake","edit","legal","retry"]){
    const context=await browser.newContext({viewport:{width,height:844},isMobile:width<600,
     hasTouch:width<600,deviceScaleFactor:1});
    try{
     const page=await context.newPage();
     page.on("pageerror",e=>issues.push(engine+"/"+width+"/"+route+" JS: "+e.message));
-    const body=renderCoachRelaunchEntry({route,reason:"Reintentar"});
+    const fixture=route==="edit"?{
+     route:"ready",status:{completed_version:"coach_major_2026_r1",revision:2,
+      objective:"recomp",age_years:41,height_cm:174,weight_kg:80.5,
+      activity_level:"moderate",dietary_pattern:"vegetarian",
+      preferred_foods:"Arroz integral",disliked_foods:"",meal_routine:"",
+      notes:"Rutina ficticia",shared_at:"2026-10-30T10:00:00Z"}
+    }:{route,reason:"Reintentar"};
+    const body=renderCoachRelaunchEntry(fixture,{editing:route==="edit"});
     const html='<!doctype html><html lang="es"><head><meta charset="utf-8">'+
       '<meta name="viewport" content="width=device-width, initial-scale=1"><style>'+
       '*,*:before,*:after{box-sizing:border-box}body{margin:0;padding:12px;font:16px system-ui,sans-serif}'+
@@ -34,7 +41,7 @@ try{
      const share=document.getElementById("coachRelaunch_share");
      return {scroll:document.documentElement.scrollWidth,viewport:window.innerWidth,
       panelWidth:panel?.getBoundingClientRect().width,visible:!!title&&title.getBoundingClientRect().height>0,
-      buttons,hasForm:!!document.getElementById("efgCoachRelaunchForm"),
+      buttons,hasForm:!!document.getElementById("efgCoachRelaunchForm")||!!document.getElementById("efgCoachRelaunchManageForm"),
       formInputs:panel.querySelectorAll("input,textarea,select").length,
       hasCheckedShare:share?.checked===true};
     });
@@ -44,7 +51,9 @@ try{
       issues.push(engine+"/"+width+"/"+route+" touch targets too small "+JSON.stringify(data.buttons));
     if(route==="intake"&&(!data.hasForm||data.formInputs<9||data.hasCheckedShare))
       issues.push(engine+"/"+width+"/"+route+" missing fresh form or implicit share");
-    if(route!=="intake"&&data.hasForm)
+    if(route==="edit"&&(!data.hasForm||data.formInputs<9||!data.hasCheckedShare))
+      issues.push(engine+"/"+width+"/"+route+" edit must show saved values and share state");
+    if(!["intake","edit"].includes(route)&&data.hasForm)
       issues.push(engine+"/"+width+"/"+route+" form must not appear before legal verification");
     results.push({engine,width,route,...data,fixtureOnly:true});
     await page.screenshot({path:join(output,"coach-reentry-"+engine+"-"+width+"-"+route+".png"),

@@ -50,4 +50,22 @@ assert.match(legacy,/ISOLATED STAGING ONLY/);
 assert.match(sql,/DO NOT APPLY TO HOSTED DATABASE/);
 const sw=readFileSync(new URL('../migrations/20261030_coach118_diary_write_gate_disabled.sql',import.meta.url),'utf8');
 assert.match(sw,/pilot_student_diary_write_gate/);
+// Regression: publishing a replacement must not erase the previous approved
+// five-meal guide. The archive trigger participates in the SAME transaction.
+const createHistory=sql.indexOf('create table efg_private.coach_guide_history');
+const archiveTrigger=sql.indexOf('create trigger coach119_archive_previous_approved_guide');
+const atomicUpsert=sql.indexOf('on conflict(student_id) do update');
+assert.ok(createHistory>0 && archiveTrigger>createHistory && atomicUpsert>archiveTrigger,
+ 'History schema/trigger must be installed before replacing a published guide');
+for(const guard of [
+ 'old.guided_plan is not null and old.guided_plan_approved_at is not null',
+ 'new.guided_plan is distinct from old.guided_plan',
+ 'old.student_id,old.coach_id,old.guided_goal_id,old.guided_plan',
+ 'alter table efg_private.coach_guide_history enable row level security',
+ 'revoke all on efg_private.coach_guide_history from public,anon,authenticated',
+ "before update of guided_plan,guided_goal_id,guided_plan_approved_at"
+])assert.ok(sql.includes(guard),'Coach guide-history invariant missing: '+guard);
+assert.match(sql,/create function efg_private\.coach119_archive_replaced_guide\(\)[\s\S]*?security definer set search_path=''/);
+assert.doesNotMatch(sql,/delete\s+from\s+efg_private\.coach_guide_history/i);
+
 console.log('PASS COACH119: atomic publish guarded OFF, explicit student/coach/legal/food/consent checks, one notice, retry idempotency; SQL still requires isolated Postgres and real JWT QA.');

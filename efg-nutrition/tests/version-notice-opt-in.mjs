@@ -1,6 +1,18 @@
 // NUT-58: local DOM-only simulation, no browser, network or production data.
 import assert from "node:assert/strict";
 import {createVersionNotice} from "../pilot/version-notice.js";
+import {readFileSync} from "node:fs";
+// A candidate changing Coach permissions and the first-use illustration MUST
+// carry a fresh HTML build and module URL. Otherwise installed PWAs may serve
+// a cached old client while the server expects new versioned authorization.
+const liveHtml=readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8");
+const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
+const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
+const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
+assert.ok(build&&entry&&build===entry,"HTML build identity and PWA entry must match");
+assert.match(build,/coach88-legal-brand78/,"Legal Coach+wellbeing relaunch must have a new build");
+assert.match(appJs,/science-welcome\.js\?v=20261030-brand78-finale/,"Load approved closing slide as a fresh module");
+
 
 function el(tag){
  return {

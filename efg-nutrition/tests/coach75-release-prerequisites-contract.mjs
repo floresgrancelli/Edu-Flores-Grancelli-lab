@@ -12,15 +12,16 @@ assert.doesNotMatch(code,/\b(create|alter|drop|truncate|delete|insert|update|mer
  "Metadata preflight must be read-only, no hidden DDL/DML");
 assert.equal((code.match(/;/g)||[]).length,1,"Exactly one read-only SQL statement");
 const pairs=[...code.matchAll(/\('(table|function)','(public\.[^']+)'\)/g)];
-assert.equal(pairs.length,12,"Seven tables and five exact RPC signatures");
-assert.equal(pairs.filter(x=>x[1]==="table").length,7);
-assert.equal(pairs.filter(x=>x[1]==="function").length,5);
-assert.equal(new Set(pairs.map(x=>x[2])).size,12,"No duplicate or missing dependencies");
+assert.equal(pairs.length,14,"Eight tables and six exact RPC signatures");
+assert.equal(pairs.filter(x=>x[1]==="table").length,8);
+assert.equal(pairs.filter(x=>x[1]==="function").length,6);
+assert.equal(new Set(pairs.map(x=>x[2])).size,14,"No duplicate or missing dependencies");
 for(const name of [
  "public.efg_legal_documents","public.efg_legal_acceptances",
  "public.efg_student_plan_access","public.efg_coach_relaunch_intakes",
  "public.efg_coach_plan_drafts","public.efg_coach_plan_publish_receipts",
- "public.efg_notifications","public.efg_legal_current_status()",
+ "public.efg_notifications","public.efg_science_intro_receipts",
+ "public.efg_ack_science_intro(text,text)","public.efg_legal_current_status()",
  "public.efg_accept_legal_documents(uuid[])",
  "public.efg_submit_coach_relaunch_intake(text,jsonb,integer,boolean)",
  "public.efg_save_coach_plan_draft(uuid,jsonb,jsonb,timestamp with time zone,integer,bigint)",

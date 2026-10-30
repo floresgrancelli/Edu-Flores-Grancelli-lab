@@ -79,6 +79,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
+      - name: COACH122 two-device session cutover proof; no stale second-device bypass
+        run: node efg-nutrition/tests/coach122-major-per-device-cutover.mjs
       - name: COACH120-121 hosted signed major manifest + new OTP session + legal + once-only WhatsNew (OFF)
         run: |
           node --check efg-nutrition/pilot/major-release-client.js

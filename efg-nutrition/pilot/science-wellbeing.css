@@ -65,7 +65,7 @@
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-back{grid-area:back}
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-next{grid-area:next}
 .ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-skip{
- grid-area:skip;justify-self:center;width:auto;min-height:28px;padding:3px 18px;color:#587b69;font-weight:600}
+ grid-area:skip;justify-self:center;width:auto;min-height:44px;padding:9px 18px;color:#587b69;font-weight:600}
 
 @media(min-width:850px){
  .ns-wellbeing{padding:32px 46px 39px}

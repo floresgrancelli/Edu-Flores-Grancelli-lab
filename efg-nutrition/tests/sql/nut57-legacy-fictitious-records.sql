@@ -37,10 +37,10 @@ insert into public.efg_weights(student_id,measured_on,kg) values
  ('22222222-2222-4222-8222-222222222222','2026-10-28',81.2);
 insert into public.efg_activities(student_id,activity_day,steps) values
  ('22222222-2222-4222-8222-222222222222','2026-10-28',8000);
-insert into public.efg_habitual_meals(student_id,meal_slot,items) values
- ('22222222-2222-4222-8222-222222222222','desayuno','[{"id":"egg","qty":2}]'::jsonb);
-insert into public.efg_personal_recipes(student_id,name,ingredients) values
- ('22222222-2222-4222-8222-222222222222','Receta ficticia','[{"id":"rice","qty":70}]'::jsonb);
+insert into public.efg_habitual_meals(student_id,meal_slot,name,items) values
+ ('22222222-2222-4222-8222-222222222222','desayuno','Desayuno ficticio','[{"id":"egg","qty":2}]'::jsonb);
+insert into public.efg_personal_recipes(student_id,name,ingredients,portions,totals) values
+ ('22222222-2222-4222-8222-222222222222','Receta ficticia','[{"id":"rice","qty":70}]'::jsonb,1,'{}'::jsonb);
 do $fixture_validate$
 begin
  if (select count(*) from public.efg_profiles where role='student')<>2

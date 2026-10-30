@@ -10,6 +10,7 @@ import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=202
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
 import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=20261030-lux-r1";
+import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=20261030-lux-review1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
@@ -371,7 +372,9 @@ async function publishWeeklyReport(){
  const model=buildCurrentLuxuryModel();
  const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
  const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
- const reportText=reportAsStoredText(model,conclusion,flexible);
+ // The coach must have viewed the EXACT data and final text that will be sent.
+ const approved=luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),conclusion,flexible);
+ const reportText=reportAsStoredText(approved,approved.conclusion,approved.flexibleNote);
  if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
  if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
  const {error}=await sb.from("efg_weekly_reports").insert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()});
@@ -382,9 +385,11 @@ async function publishWeeklyReport(){
   .order("week_ending",{ascending:false}).limit(52);
  if(latest.error)throw latest.error;
  state.coachHistory=latest.data||[];
+ luxuryWeeklyEditor.reset();
  await render();
  notify("Informe Luxury Pro compartido con el alumno y conservado en su historial.");
 }
+const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
@@ -1703,6 +1708,9 @@ function buildCurrentLuxuryModel(){
   days:report.days,logs:state.coachLogs,goals:state.coachGoals
  });
 }
+function luxuryEditorContext(model){
+ return {coachId:state.session?.user?.id,studentId:state.selectedStudent,weekEnding:model.friday,model};
+}
 function coachLuxuryHistoryPanel(){
  const list=state.coachHistory||[];
  const items=list.map((r,i)=>{
@@ -1716,22 +1724,33 @@ function coachLuxuryHistoryPanel(){
 }
 function weeklyCoachDraft(){
  const window=weeklyReportWindow();
- const model=buildCurrentLuxuryModel();
- const published=(state.coachHistory||[]).some(r=>r.week_ending===window.friday);
+ const generated=buildCurrentLuxuryModel();
+ const sharedRecord=(state.coachHistory||[]).find(r=>r.week_ending===window.friday);
+ const published=!!sharedRecord;
+ const shared=sharedRecord?parseLuxuryWeeklyReport(sharedRecord.report_text):null;
+ const draftState=published?null:luxuryWeeklyEditor.scope(luxuryEditorContext(generated));
+ const model=shared||generated;
+ const conclusion=published?(shared?.conclusion||"Informe anterior ya compartido."):(draftState?.conclusion||generated.conclusion);
+ const flexibleNote=published?(shared?.flexibleNote||""):(draftState?.flexibleNote??generated.flexibleNote);
+ const previewModel=published?model:{...generated,conclusion,flexibleNote};
+ const ready=!!draftState?.ready;
  return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
  '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Conclusiones automáticas, siempre revisadas antes del envío.</p>'+
  '<div class="field"><label for="weeklyCoachConclusion">Conclusión automática · editable por el coach</label>'+
- '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published?'disabled':'')+'>'+escapeHTML(model.conclusion)+'</textarea></div>'+
+ '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
  '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
- '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published?'disabled':'')+'>'+escapeHTML(model.flexibleNote)+'</textarea></div>'+
+ '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published?'disabled':'')+'>'+escapeHTML(flexibleNote)+'</textarea></div>'+
  '<div class="lux-report-toolbar">'+(published?'<span class="pilot-pill">Informe de esta semana ya compartido · historial protegido</span>':
  '<button type="button" class="btn small light" data-act="previewLuxuryReport">Actualizar vista previa del alumno</button>'+
- '<button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>')+
+ '<button type="button" class="btn small" id="weeklyLuxuryPublishButton" data-act="publishWeeklyReport" '+(ready?'':'disabled')+'>Aprobar y compartir con alumno</button>')+
  '<button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="-1">Exportar vista previa a PDF</button></div>'+
  '<h3 class="lux-report-preview-heading">Así lo verá el alumno</h3>'+
- '<p class="pilot-hint">Vista previa privada. No se publica al generarla. Para compartir, el coach debe aprobar expresamente.</p>'+
- '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(model)+'</div>'+
- '<p class="pilot-hint">Las recomendaciones son orientativas y están basadas en el objetivo aprobado por fecha. No se sugieren permisos alimentarios como premio ni indicaciones clínicas automáticas.</p></section>';
+ '<p class="pilot-hint" id="weeklyLuxuryPreviewStatus" role="status">'+(published?'Informe compartido: esta vista muestra la versión enviada.':
+ ready?'Vista previa revisada: podés aprobar el envío.':
+ draftState?.sourceChanged?'Los datos del registro cambiaron. Volvé a revisar y actualizar la vista previa.':
+ 'Revisá el texto y tocá «Actualizar vista previa» antes de compartir.')+'</p>'+
+ '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(previewModel)+'</div>'+
+ '<p class="pilot-hint">El borrador se conserva solo mientras permanezcas en esta sesión del coach; no se guarda en el navegador ni se envía solo. No se indican permisos alimentarios como premios ni recomendaciones clínicas automáticas.</p></section>';
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -2646,12 +2665,18 @@ if(el.dataset.foodbulk){
   return;
  }
  if(el.dataset.act==="previewLuxuryReport"){
+  if(!state.consent?.accepted)throw Error("El alumno ya no autorizó el seguimiento.");
   const model=buildCurrentLuxuryModel();
-  model.conclusion=String(document.getElementById("weeklyCoachConclusion")?.value||"").trim();
-  model.flexibleNote=String(document.getElementById("weeklyCoachFlexibleNote")?.value||"").trim();
+  const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
+  const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
+  const reviewed=luxuryWeeklyEditor.preview(luxuryEditorContext(model),conclusion,flexible);
   const target=document.getElementById("weeklyLuxuryPreview");
   if(!target)throw Error("No se encontró la vista previa.");
-  target.innerHTML=renderLuxuryWeeklyReport(model);
+  target.innerHTML=renderLuxuryWeeklyReport(reviewed);
+  const status=document.getElementById("weeklyLuxuryPreviewStatus");
+  if(status)status.textContent="Vista previa actualizada: exactamente este informe se compartirá al aprobar.";
+  const publish=document.getElementById("weeklyLuxuryPublishButton");
+  if(publish)publish.disabled=false;
   notify("Vista previa actualizada. Todavía no se envió nada.");return;
  }
  if(el.dataset.act==="printLuxuryReport"){
@@ -2659,6 +2684,12 @@ if(el.dataset.foodbulk){
   const reports=state.profile?.role==="student"?myWeeklyReports:state.coachHistory;
   if(index!==-1&&!(reports||[])[index])throw Error("No existe el informe solicitado.");
   if(index===-1&&!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))throw Error("Vista previa exclusiva del coach.");
+  if(index===-1&&!((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))){
+   const model=buildCurrentLuxuryModel();
+   luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),
+    document.getElementById("weeklyCoachConclusion")?.value,
+    document.getElementById("weeklyCoachFlexibleNote")?.value);
+  }
   const source=index===-1?document.querySelector("#weeklyLuxuryPreview .lux-report"):
     el.closest("details")?.querySelector(".lux-report");
   if(!source)throw Error("No se encontró el informe para exportar.");
@@ -2998,7 +3029,18 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  showGuidedEditor();
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
-root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
+root.addEventListener("input",e=>{
+ if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
+  const model=buildCurrentLuxuryModel();
+  luxuryWeeklyEditor.update(luxuryEditorContext(model),
+   e.target.id==="weeklyCoachConclusion"?"conclusion":"flexibleNote",e.target.value);
+  const publish=document.getElementById("weeklyLuxuryPublishButton");
+  if(publish)publish.disabled=true;
+  const status=document.getElementById("weeklyLuxuryPreviewStatus");
+  if(status)status.textContent="Editaste el informe: actualizá la vista previa para habilitar el envío.";
+  return;
+ }
+ invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value);

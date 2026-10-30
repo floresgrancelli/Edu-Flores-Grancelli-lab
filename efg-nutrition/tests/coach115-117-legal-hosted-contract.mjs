@@ -82,8 +82,10 @@ for(const part of ['efg_legal_documents','efg_legal_acceptances',
  'pg_catalog.sha256','for share','enable row level security','from public,anon,authenticated',
  'grant execute on function public.efg_accept_current_legal'])assert.ok(sql.includes(part),part);
 assert.doesNotMatch(sql,/insert into public\.efg_legal_documents/i,'Documents are unseeded until approved');
-assert.doesNotMatch(sql,/insert into public\.efg_legal_acceptances[\s\S]*?values\s*\(/i,
- 'No static insertion of signed consents: inserts are only inside RPC'); // see below
+assert.match(sql,/insert into public\.efg_legal_acceptances\(user_id,document_id\)/i,
+ 'Only authenticated server RPC creates explicit legal receipts');
+assert.equal((sql.match(/insert into public\.efg_legal_acceptances\(/gi)||[]).length,1,
+ 'There is exactly one receipt insertion path in the signed RPC');
 const upgraded=readFileSync(new URL('../migrations/20261030_coach116_legal_first_student_status.sql',import.meta.url),'utf8');
 assert.match(upgraded,/if v_current_legal_count<>2 then/);
 assert.match(upgraded,/\x27route\x27,\x27legal\x27,\x27can_log_meals\x27,false/);

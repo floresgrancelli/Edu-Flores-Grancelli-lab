@@ -587,7 +587,13 @@ async function habitualAction(slot,action){
   if(error)throw error;
   cloudHabituales.push(data);
   state.habitualSelection[slot]=String(data.id);
-  notify("Guardaste «"+clean+"» en tu cuenta.");return render();
+  // Keep this meal expanded after save so the new choice and its ingredient
+  // preview are visible immediately, rather than hidden in a closed <details>.
+  state.lastEditedMeal=slot;
+  await render();
+  document.getElementById("habitualChoice_"+slot)?.focus({preventScroll:true});
+  notify("Guardaste «"+clean+"». Ya podés verlo y elegirlo en Mis habituales.");
+  return;
  }
  const favorites=getHabitualList(slot);
  if(!favorites.length)throw Error("No hay comidas habituales guardadas.");

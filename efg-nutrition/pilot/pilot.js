@@ -2952,7 +2952,7 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.coachPilotEntry=null;state.coachPilotIntake=null;state.foodCompatEvidence=[];state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="logout"){state.foodCompatEvidence=[];state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
  if(action==="pilotDemoContinue"){
   if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
      state.coachPilotEntry?.route!=="participation")

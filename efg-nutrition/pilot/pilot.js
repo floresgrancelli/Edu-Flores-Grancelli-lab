@@ -18,6 +18,7 @@ import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261030-sport-step03";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
@@ -1523,9 +1524,15 @@ async function saveCoachFoods(){
  state.coachFoodPlan=row;await render();notify("Lista alimentaria guardada para este alumno.");
 }
 
+function movementCard(){
+ const todaySaved=(state.activities||[]).find(a=>a.activity_day===today())||null;
+ const latestWeight=(state.weights||[]).find(w=>Number.isFinite(Number(w.kg))&&Number(w.kg)>0)?.kg??null;
+ return renderWalkingActivityCard({todayActivity:todaySaved,lastWeightKg:latestWeight});
+}
 function sportView(){
  let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e));
- return rootText("Hidratación y deporte","La proteína whey se registra en comidas; los demás suplementos están debajo de Cena.")+
+ return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+
+  movementCard()+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar bebida o producto de entrenamiento</h2><p class="pilot-hint">Creatina, colágeno, magnesio y omega-3 están en Suplementos del día, debajo de Cena.</p><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports.filter(x=>!supplementRecord(x)&&x.id!=="whey"))+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
  '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+x._originalIndex+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>¿Qué conviene tomar?</h2><div class="pilot-notice"><strong>💧 Agua o agua gasificada</strong><small>Ambas hidratan; elegí según tolerancia y preferencia.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🥤 Bebidas zero</strong><small>Pueden sustituir bebidas azucaradas cuando se busca reducir calorías, pero no son superiores al agua.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🏃 Geles e isotónicas</strong><small>Más relevantes en entrenamientos prolongados o con necesidades específicas de hidratos y electrolitos.</small></div><p class="pilot-hint" style="margin-top:15px">El scoop no equivale siempre a 30 g. Omega-3 y magnesio necesitan datos reales de etiqueta y pertinencia individual.</p></div></div></div>';
@@ -1577,11 +1584,8 @@ function progressView(){
  '<div class="card"><h2>Historial de pesajes</h2>'+(weights.length?'<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Fecha y hora</th><th>Peso</th></tr></thead><tbody>'+
  weights.map(w=>'<tr><td>'+escapeHTML(weightDateLabel(w))+'</td><td><b>'+num(w.kg,1)+' kg</b></td></tr>').join("")+'</tbody></table></div>':'<div class="empty">Todavía no registraste tu peso.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>Mi evolución del peso</h2>'+weightTrendChart(state.weights)+'</div>'+
- '<div class="card"><h2>Movimiento de hoy</h2><div class="pilot-form"><div class="field"><label>Pasos</label><input id="activitySteps" type="number" min="0" max="100000" placeholder="Ej. 8000"></div>'+
- '<div class="field"><label>Minutos de ejercicio</label><input id="activityMinutes" type="number" min="0" max="1440" placeholder="Ej. 60"></div>'+
- '<div class="field"><label>Tipo</label><select id="activityKind"><option>Entrenamiento de fuerza</option><option>Running</option><option>Cardio</option><option>Caminata</option><option>Otro</option></select></div>'+
- '<button class="btn" data-act="saveActivity">Guardar actividad</button></div></div>'+
- '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
+ movementCard()+
+ '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
@@ -2670,10 +2674,14 @@ async function saveWeight(){
  await loadPersonalData();await render();notify("Pesaje guardado con fecha y hora.");
 }
 async function saveActivity(){
- const steps=Number(document.getElementById("activitySteps").value),mins=Number(document.getElementById("activityMinutes").value),kind=document.getElementById("activityKind").value;
- if(!Number.isFinite(steps)||!Number.isFinite(mins)||steps<0||steps>100000||mins<0||mins>1440)throw new Error("Revisá los valores de pasos y ejercicio.");
- const {error}=await sb.from("efg_activities").upsert({student_id:state.session.user.id,activity_day:today(),steps,exercise_minutes:mins,kind},{onConflict:"student_id,activity_day"});
- if(error)throw error;notify("Actividad registrada.");await loadPersonalData();await render();
+ const {estimate,...entry}=readWalkingActivityForm(document);
+ const {error}=await sb.from("efg_activities").upsert({
+  student_id:state.session.user.id,activity_day:today(),...entry
+ },{onConflict:"student_id,activity_day"});
+ if(error)throw error;
+ await loadPersonalData();await render();
+ notify("Pasos y actividad guardados. "+num(estimate.distanceKm,2)+" km aproximados"+
+  (estimate.activeKcal===null?". Agregá tu peso para estimar calorías.":" · "+num(estimate.activeKcal)+" kcal activas estimadas."));
 }
 async function savePersonalTargets(){
  let n=id=>{const input=document.getElementById(id);return input.value.trim()===''?NaN:Number(input.value);};
@@ -3224,6 +3232,7 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{
+ if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
   const model=buildCurrentLuxuryModel();
   luxuryWeeklyEditor.update(luxuryEditorContext(model),
@@ -3247,6 +3256,7 @@ root.addEventListener("input",e=>{
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{
+ if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(COACH_STUDENT_JOURNEY_ENABLED&&["efgPilotParticipate","efgPilotShare"].includes(e.target.id)){
   syncPilotParticipationContinueButton(document);return;
  }

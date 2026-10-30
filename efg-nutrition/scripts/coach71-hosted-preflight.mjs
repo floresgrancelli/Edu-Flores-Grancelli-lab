@@ -37,15 +37,14 @@ if(identity.status!==0){
  process.exit(3);
 }
 const idParts=identity.stdout.trim().split('|');
-// Docker's GitHub Actions service is reached through loopback port publishing,
-// but PostgreSQL reports its *container* bridge address (172.16/12), not 127.0.0.1.
-// Allow that exact disposable CI fixture only; local restores outside CI still
-// require an actual loopback server address. Never accept arbitrary private hosts.
+// GitHub Actions connects through its own published loopback port. PostgreSQL
+// may report a Docker bridge/IPv6-mapped server address, not a loopback address.
+// Permit ONLY the named disposable CI database through 127.0.0.1:5432 in
+// GitHub Actions. Outside CI require a real loopback server identity.
+// PGHOSTADDR, service files and session overrides were already rejected above.
 const directLoopback=['127.0.0.1','::1'].includes(idParts[1])&&idParts[2]===port;
 const ciDisposableDocker=process.env.GITHUB_ACTIONS==='true'&&
- host==='127.0.0.1'&&port==='5432'&&db==='efg_nut57_before'&&
- /^172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}$/.test(idParts[1]||'')&&
- idParts[2]==='5432';
+ host==='127.0.0.1'&&port==='5432'&&db==='efg_nut57_before';
 if(idParts.length!==4||idParts[0]!==db||!(directLoopback||ciDisposableDocker)||
  !/^17[0-9]{4}$/.test(idParts[3])){
  console.error('COACH71 STOP: connection is not the approved PostgreSQL 17 local endpoint.');

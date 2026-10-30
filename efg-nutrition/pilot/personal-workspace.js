@@ -14,7 +14,7 @@ const validId=v=>typeof v==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,40}$/i.test(v);
 const integer=v=>typeof v==="number"&&Number.isFinite(v)&&v>=0&&Number.isInteger(v);
 const count=v=>integer(v)?v.toLocaleString("es-AR"):"—";
 const one=v=>typeof v==="number"&&Number.isFinite(v)&&v>=0?v.toLocaleString("es-AR",{maximumFractionDigits:1}):"—";
-const validDay=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T12:00:00Z"));
+const validDay=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&new Date(v+"T12:00:00Z").toISOString().slice(0,10)===v;
 export function assertPersonalAccess({profile,userId,account,legalStatus}={}){
  if(!validId(userId)||!profile||profile.user_id!==userId||profile.role!=="personal"||
   profile.active!==true||profile.organization_id!==null)

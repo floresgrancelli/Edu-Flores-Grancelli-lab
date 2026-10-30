@@ -19,6 +19,24 @@ for(const t of m.tables){
   }
 }
 assert.deepEqual(totals,{policies:40,triggers:8,indexes:39,checks:38});
+
+assert.equal(m.totals.foreign_keys,27);
+assert.equal(m.access_tables.length,15);
+assert.equal(new Set(m.access_tables.map(t=>t.tbl)).size,15);
+assert.equal(m.access_tables.reduce((n,t)=>n+t.foreign_keys,0),27);
+const operations=['select','insert','update','delete','truncate','references','trigger'];
+for(const row of m.access_tables){
+  assert.ok(row.foreign_keys>0);
+  assert.match(row.foreign_keys_signature,/^[0-9a-f]{32}$/);
+  for(const op of operations){
+    assert.equal(row['anon_'+op],false,'anonymous direct table grant unexpectedly enabled');
+    assert.equal(typeof row['authenticated_'+op],'boolean');
+  }
+}
+assert.equal(m.access_tables.filter(t=>t.authenticated_select).length,15);
+assert.match(m.access_snapshot_sql,/^\s*select\s/i);
+assert.doesNotMatch(m.access_snapshot_sql,/;/);
+
 assert.match(m.snapshot_sql,/^\s*select\s/i);
 assert.doesNotMatch(m.snapshot_sql,/;\s*(drop|delete|update|insert|alter|create|grant|revoke|copy)\b/i);
 const guard=spawnSync(process.execPath,

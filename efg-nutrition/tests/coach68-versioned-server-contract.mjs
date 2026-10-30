@@ -66,4 +66,16 @@ assert.match(relaunch,/COACH_RELAUNCH_ONBOARDING_ENABLED=false/);
 assert.match(release,/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=false/);
 assert.match(release,/El plan del relanzamiento todavía no puede guardarse ni publicarse/);
 assert.equal(version,"coach_major_2026_r1");
+const {buildCoach68RollbackPreview}=await import("./coach68-stage-rollback.mjs");
+const bundled=buildCoach68RollbackPreview();
+for(const id of ["intake-access","relaunch-intake","versioned-draft","versioned-policy",
+ "notification-compat","versioned-publish"]){
+ assert.match(bundled,new RegExp("COACH68 MODULE "+id));
+}
+assert.match(bundled,/\bROLLBACK;/);
+assert.doesNotMatch(bundled,/^\s*COMMIT\s*;/im);
+assert.match(bundled,/COACH68 STOP: isolation marker absent/);
+assert.match(bundled,/source_intake_revision/);
+assert.match(bundled,/coach_major_2026_r1/);
+assert.match(bundled,/PASS COACH68 INSIDE TRANSACTION/);
 console.log("PASS COACH-68 static contracts: revision+version on draft/save/food-review/publish; legal, role, consent and nutrition evidence still required; OFF. SQL execution and JWT tests pending.");

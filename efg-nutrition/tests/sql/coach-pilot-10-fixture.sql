@@ -2,6 +2,7 @@
 create schema auth;
 create schema efg_private;
 create role authenticated nologin;
+create role anon nologin;
 create function auth.uid() returns uuid language sql stable set search_path=''
 as $body$
 select nullif(pg_catalog.current_setting('request.jwt.claim.sub',true),'')::uuid

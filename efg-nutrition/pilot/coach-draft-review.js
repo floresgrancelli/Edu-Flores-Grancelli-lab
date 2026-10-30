@@ -2,6 +2,24 @@
 // A persisted draft must match the exact currently edited goal and guide.
 // The RPC still revalidates identity, intake revision, evidence and legal consent.
 import {validateCoachPlanProposal} from "./coach-plan-draft-client.js";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+
+// COACH-RELEASE-REV-01: the intake revision is authoritative when the new
+// versioned Coach onboarding is active. Identical timestamps are NOT enough:
+// two edits can share a timestamp or a stale response may be replayed.
+// This is only a UI guard; the server still has to recheck the revision in RPC.
+export function coachDraftSourceCurrent(intake,savedDraft,{
+ versioned=COACH_RELAUNCH_ONBOARDING_ENABLED
+}={}){
+ if(!intake?.shared_at||!intake.updated_at||
+    !savedDraft||savedDraft.source_intake_updated_at!==intake.updated_at)
+  return false;
+ if(!versioned)return true; // Preserve legacy Coach flow while feature is OFF.
+ return intake.completed_version===COACH_RELEASE_INTAKE_VERSION&&
+   Number.isSafeInteger(intake.revision)&&intake.revision>=1&&
+   Number.isSafeInteger(savedDraft.source_intake_revision)&&
+   savedDraft.source_intake_revision===intake.revision;
+}
 
 function canonical(value){
  if(Array.isArray(value))return value.map(canonical);
@@ -14,7 +32,7 @@ export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,gu
  if(!savedDraft||savedDraft.student_id!==studentId||savedDraft.status!=="draft"||
     !Number.isSafeInteger(savedDraft.draft_revision)||savedDraft.draft_revision<1)
   return no("Todavía no existe un borrador privado guardado para este alumno.");
- if(!intake.updated_at||savedDraft.source_intake_updated_at!==intake.updated_at)
+ if(!coachDraftSourceCurrent(intake,savedDraft))
   return no("La ficha del alumno cambió. Volvé a cargarla y revisar el plan.");
  if(!goal||!guide)return no("Primero prepará el objetivo y las cinco comidas.");
  try{

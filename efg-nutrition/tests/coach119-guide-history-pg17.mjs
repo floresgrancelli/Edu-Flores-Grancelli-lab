@@ -75,15 +75,32 @@ exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
  where student_id='${student}'`);
 assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
  'No-op update must not duplicate history');
+// Exercise the EXACT ON CONFLICT clause from the COACH119 hosted candidate.
+// Existing Coach approvals MUST NOT collapse to the few foods in a new guide.
+const upsertMatch=source.match(/on conflict\(student_id\) do update set[\s\S]*?updated_at=excluded\.updated_at;/);
+assert.ok(upsertMatch,'Exact candidate upsert clause unavailable');
+exec(`insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,
+ guided_plan_approved_at,updated_at
+) values(
+ '${student}','${coach}',array['food-c'],'{"version":"C"}'::jsonb,
+ '${goal}','2026-10-30T11:00:00Z',now()
+)
+${upsertMatch[0]}`);
+assert.equal(exec("select array_to_string(approved_food_ids,',') from public.efg_food_plans"),
+ 'food-b,food-c','Coach-approved old foods and verified guide items must both survive');
+assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'C');
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'3',
+ 'Prior approved guide must archive when a new atomic guide publishes');
 const tx=exec(`begin;
- update public.efg_food_plans set guided_plan='{"version":"C"}'::jsonb
+ update public.efg_food_plans set guided_plan='{"version":"D"}'::jsonb
  where student_id='${student}';
  select count(*) from efg_private.coach_guide_history;
  rollback;`);
-assert.match(tx,/3/,'Update must archive inside the transaction');
-assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
+assert.match(tx,/4/,'Update must archive inside the transaction');
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'3',
  'Rollback must also roll back the archive');
-assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'B');
+assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'C');
 exec("set role authenticated; select * from efg_private.coach_guide_history;",false);
 assert.equal(exec("select has_table_privilege('authenticated','efg_private.coach_guide_history','SELECT')"),'f');
 assert.equal(exec("select has_table_privilege('anon','efg_private.coach_guide_history','SELECT')"),'f');

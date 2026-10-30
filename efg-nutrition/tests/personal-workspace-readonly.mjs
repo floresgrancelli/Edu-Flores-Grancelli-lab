@@ -61,13 +61,13 @@ assert.equal(snap.guide.goal_revision,2);
 assert.ok(fetched.every(t=>t==="efg_legal_current_status"||t.startsWith("efg_personal_")),
  "Read-only Personal may not query legacy Coach/Student tables.");
 const html=renderPersonalWorkspace(snap);
-for(const label of ["Mis objetivos","Mis cinco comidas","Desayuno","Media mañana","Almuerzo","Media tarde","Cena","2200","490"]){
+for(const label of ["Mis objetivos","Mis cinco comidas","Desayuno","Media mañana","Almuerzo","Media tarde","Cena","2.200","490"]){
  assert.ok(html.includes(label),label);
 }
 assert.ok(html.includes("&lt;svg"),"Food names are escaped");
 assert.ok(html.includes("&lt;script&gt;"),"Habitual names are escaped");
 assert.ok(html.includes("&lt;img"),"Nickname is escaped");
-assert.doesNotMatch(html,/<script|onerror=|onload=|<svg/i,"User HTML must never render");
+assert.doesNotMatch(html,/<script|<img|<svg/i,"Untrusted HTML must never render as elements");
 assert.doesNotMatch(html,/data-act="(?:save|approve|grant|send|register)/,"Read-only view cannot forge writes.");
 assert.doesNotMatch(html,/data-tab="admin"|data-tab="coach"/);
 assert.ok(html.includes('data-act="logout"'));

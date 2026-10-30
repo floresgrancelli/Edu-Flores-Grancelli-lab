@@ -82,10 +82,16 @@ assert.deepEqual(yes(await read(people.studentB.token),"Other student never read
 no(await request("/rest/v1/efg_coach_relaunch_intakes",{method:"POST",token:people.studentA.token,
  body:{student_id:people.studentA.id,organization_id:orgA,completed_version:version,revision:999}}),
  "Owner cannot bypass RPC through REST writes");
-no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,body),"Repeat expected 0 must conflict");
+const conflict=await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,body);
+no(conflict,"Repeat expected 0 must conflict");
+assert.equal(conflict.status,409,"Stale submissions return HTTP 409, not an implicit retry.");
 no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,{...body,p_expected_revision:1,p_share_with_coach:true}),
  "Unaccepted follow-up may not share even when legal accepted");
-sql("update public.efg_consents set accepted=true where student_id="+uuid(people.studentA.id));
+sql("update public.efg_consents set organization_id="+uuid(orgB)+",accepted=true where student_id="+uuid(people.studentA.id));
+no(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,
+ {...body,p_expected_revision:1,p_share_with_coach:true}),
+ "A consent row for another organization cannot authorize sharing.");
+sql("update public.efg_consents set organization_id="+uuid(orgA)+",accepted=true where student_id="+uuid(people.studentA.id));
 assert.equal(Number(yes(await rpc("efg_submit_coach_relaunch_intake",people.studentA.token,
  {...body,p_expected_revision:1,p_share_with_coach:true}),"Explicit share once consented")),2);
 assert.equal(yes(await read(people.coachA.token),"Coach sees explicitly shared copy").length,1);

@@ -43,7 +43,7 @@ create table public.efg_coach_plan_publish_receipts (
  request_id uuid primary key,
  student_id uuid not null references public.efg_profiles(user_id) on delete cascade,
  organization_id uuid not null references public.efg_organizations(id),
- coach_id uuid not null references auth.users(id),
+ coach_id uuid references auth.users(id) on delete set null,
  draft_revision bigint not null check(draft_revision>0),
  goal_id uuid not null references public.efg_goals(id),
  published_at timestamptz not null default pg_catalog.clock_timestamp(),
@@ -61,9 +61,9 @@ revoke all on public.efg_coach_plan_publish_receipts from public,anon,authentica
 -- Only an audited backend service can later offer an authorized history viewer.
 create table efg_private.coach_guide_history (
  id bigint generated always as identity primary key,
- student_id uuid not null references public.efg_profiles(user_id),
+ student_id uuid not null references public.efg_profiles(user_id) on delete cascade,
  coach_id uuid not null references auth.users(id),
- guided_goal_id uuid references public.efg_goals(id),
+ guided_goal_id uuid references public.efg_goals(id) on delete set null,
  guided_plan jsonb not null,
  approved_food_ids text[] not null,
  guided_plan_approved_at timestamptz not null,

@@ -37,6 +37,11 @@ export function validateArchiveTOC(toc){
  return {essential_table_data_present:REQUIRED.length,has_policies:true,has_triggers:true};
 }
 export function validateModeEnvironment(mode,env){
+ // SUPABASE DOCS 2026: raw pg_dump includes managed internals / role ACLs and
+ // cannot be assumed portable. Never run its legacy capture/restore on project data.
+ // Use COACH94 platform CLI roles/schema/data export + isolated restore instead.
+ if(mode==='capture'||mode==='restore')
+  stop('raw pg_dump/pg_restore for managed Supabase has been retired; use COACH94 platform-aware procedure');
  if(env.CI==='true'||env.GITHUB_ACTIONS==='true')stop('never use real backup credentials in CI');
  if(env.EFG_COACH91_MANUAL_ACK!=='PRIVATE_LOCAL_BACKUP_ONLY')stop('explicit local manual acknowledgment required');
  for(const k of ['PGSERVICE','PGSERVICEFILE','PGHOSTADDR','PGOPTIONS','PGSYSCONFDIR']){

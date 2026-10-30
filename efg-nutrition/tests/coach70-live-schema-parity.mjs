@@ -1,4 +1,4 @@
-// COACH70 · Assert ONLY schema metadata parity for 11 modeled tables.
+// COACH70 · Assert ONLY schema metadata parity for 15 modeled tables.
 // Source: read-only hosted information_schema capture, never actual users/rows.
 // Requires disposable CI PostgreSQL and manifest; never contacts hosted DB.
 import assert from "node:assert/strict";
@@ -42,5 +42,19 @@ for(const table of manifest.fixture_tables){
  for(const col of got)if(!exp.some(e=>e.column===col.column))
    errors.push(table+"."+col.column+" extra synthetic column");
 }
+const controls=JSON.parse(readFileSync(new URL("./sql/coach70-hosted-schema-controls-20261030.json",import.meta.url),"utf8"));
+assert.equal(controls.tables.length,15);
+assert.equal(controls.project,manifest.project);
+const controlsSql=`select coalesce(json_agg(json_build_object('table',c.relname,'rls',c.relrowsecurity)
+ order by c.relname),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace
+ where n.nspname='public' and c.relname in (${names});`;
+const controlResult=spawnSync("psql",["-X","-Atq","-v","ON_ERROR_STOP=1","-c",controlsSql],
+ {encoding:"utf8",timeout:15000,env:process.env});
+assert.equal(controlResult.status,0,(controlResult.stderr||controlResult.stdout||"RLS metadata error").slice(0,900));
+const rlsActual=new Map(JSON.parse(controlResult.stdout.trim()).map(t=>[t.table,t.rls]));
+for(const row of controls.tables){
+ if(rlsActual.get(row.t)!==row.rls)
+  errors.push(row.t+" RLS hosted="+row.rls+" synthetic="+rlsActual.get(row.t));
+}
 assert.deepEqual(errors,[],"COACH70 production-shape metadata mismatch: "+errors.join(" | "));
-console.log("PASS COACH70: "+manifest.fixture_tables.length+" synthetic app tables match 2026-10-30 hosted column names/types/nullability/default presence. Column metadata ONLY: neither full constraint/trigger/policy parity nor actual data/production restoration has been certified.");
+console.log("PASS COACH70: "+manifest.fixture_tables.length+" synthetic app tables match 2026-10-30 hosted column names/types/nullability/default presence. Column + RLS-enable flags ONLY: neither full constraint/trigger/policy parity nor actual data/production restoration has been certified.");

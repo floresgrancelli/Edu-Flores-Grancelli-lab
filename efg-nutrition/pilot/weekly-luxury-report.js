@@ -36,35 +36,74 @@ function foodsFromLogs(logs,from,to,days){
  }
  return [...rank.values()].sort((a,b)=>b.days-a.days||a.name.localeCompare(b.name,'es')).slice(0,5);
 }
+// These are external scientific position statements, not evidence of universal app-specific thresholds.
+// EFG 90% protein, 95% energy/carb and 85% fat are conservative UI review prompts,
+// NOT diagnostic, clinical or population-normal reference cutoffs.
+export const LUXURY_EVIDENCE_SOURCES=Object.freeze([
+ {id:'ACSM-2016',title:'Nutrition and Athletic Performance · Academy/DC/ACSM (2016)',
+  doi:'10.1249/MSS.0000000000000852',url:'https://doi.org/10.1249/MSS.0000000000000852',
+  supports:'Individualizar aporte energético y de macronutrientes según entrenamiento, contexto y profesional.'},
+ {id:'ISSN-PROTEIN-2017',title:'ISSN Position Stand: Protein and Exercise (2017)',
+  doi:'10.1186/s12970-017-0177-8',url:'https://doi.org/10.1186/s12970-017-0177-8',
+  supports:'La proteína se evalúa según actividad, masa corporal, objetivo y contexto; no subirla sin motivo.'}
+]);
+export const LUXURY_REVIEW_RULES=Object.freeze({
+ minRecorded:4,minClosed:3,proteinBelow:.90,energyBelow:.95,energyAbove:1.05,carbBelow:.95,fatBelow:.85
+});
 function recommendations(model){
  const {daysRecorded,daysClosed,averages,targets}=model;
- const focus=[];
- if(daysRecorded<4||daysClosed<3){
-  focus.push('Completar más días de registro antes de interpretar diferencias energéticas.');
-  focus.push('Registrar las comidas que falten sin intentar compensarlas.');
-  focus.push('Consultar al coach para revisar el contexto de la semana.');
-  return {focus,conclusion:'Hay registros insuficientes o parciales para interpretar con confianza tu consumo semanal. Los días sin información no equivalen a cero calorías. Revisemos juntos cómo facilitar el registro.'};
+ const r=LUXURY_REVIEW_RULES;
+ const ratio=key=>targets[key]>0&&averages[key]!==null?averages[key]/targets[key]:null;
+ const p=ratio('p'),k=ratio('k'),f=ratio('f'),carb=ratio('c');
+ const enough=daysRecorded>=r.minRecorded&&daysClosed>=r.minClosed;
+ const comparisons={energyPct:k===null?null:Math.round(k*100),proteinPct:p===null?null:Math.round(p*100),
+  carbsPct:carb===null?null:Math.round(carb*100),fatsPct:f===null?null:Math.round(f*100)};
+ const evidence={
+  grade:enough?'orientativa':'insuficiente',
+  dataBasis:daysRecorded+' de 7 días con ingestas autodeclaradas; '+daysClosed+' días cerrados por fecha (no significa comidas completas).',
+  dailyGoals:'Comparación con objetivos aprobados que estaban vigentes en cada fecha; sin objetivo verificable, no se interpreta un faltante.',
+  rule:'EFG usa límites de revisión internos (90 % proteína; 95 % energía/HC; 85 % grasas), que NO son umbrales clínicos. El coach debe revisar antes de compartir.',
+  scientificSources:LUXURY_EVIDENCE_SOURCES.map(s=>s.id),
+  comparisons
+ };
+ if(!enough){
+  return {focus:[
+   'Registrar más días y las comidas faltantes para interpretar mejor el consumo.',
+   'Revisar con tu coach si hubo comidas sin cargar.',
+   'Elegir una rutina sostenible de registro para la próxima semana.'
+  ],conclusion:'Esta semana hay '+daysRecorded+' de 7 días con alimentos registrados. No contamos con suficiente cobertura para inferir un faltante nutricional. Los días sin registro no representan cero calorías y un día cerrado por fecha puede tener comidas incompletas.',
+   evidence};
  }
- const p=targets.p&&averages.p!==null?averages.p/targets.p:null;
- const k=targets.k&&averages.k!==null?averages.k/targets.k:null;
- const f=targets.f&&averages.f!==null?averages.f/targets.f:null;
- const carb=targets.c&&averages.c!==null?averages.c/targets.c:null;
- if(p!==null&&p<.9)focus.push('Priorizar fuentes de proteína dentro de la guía aprobada por el coach.');
- else if(p!==null)focus.push('Mantener la proteína próxima al objetivo aprobado; no aumentarla por inercia.');
- if(k!==null&&k<.95){
-  if(f!==null&&f<.85)focus.push('Revisar grasas y energía con el coach antes de añadir alimentos.');
-  else if(carb!==null&&carb<.95)focus.push('Revisar las porciones de carbohidratos según el entrenamiento y las metas del plan.');
-  else focus.push('Revisar cómo distribuir el aporte de energía entre las comidas.');
- }else if(k!==null&&k>1.05)focus.push('Revisar la distribución del plan sin convertir una semana en un diagnóstico.');
- else focus.push('Mantener hábitos y analizar la tendencia en varias semanas.');
- focus.push('Intentar registrar más días de la próxima semana, sin penalizaciones por días faltantes.');
- const first='En los '+daysRecorded+' días registrados, tu energía media fue '+(averages.k===null?'no estimable':fmt(averages.k)+' kcal')+
-  (targets.k?' frente a '+fmt(targets.k)+' kcal del objetivo vigente estimado':' (sin meta energética comparable)')+'. ';
- const second=p===null?'No hay objetivo proteico comparable para esta semana. ':
-  p<.9?'La proteína registrada quedó por debajo de la meta del coach. ':
-  'La proteína registrada estuvo cerca de la meta del coach. ';
- const caveat='Los días sin registro no se interpretan como consumo cero y los datos autodeclarados pueden estar incompletos.';
- return {focus:focus.slice(0,3),conclusion:first+second+caveat};
+ const focus=[];
+ // Source-backed principle: compare individual approved plan, never prescribe a population-based dose.
+ if(p!==null&&p<r.proteinBelow)
+  focus.push('Revisar con tu coach cómo acercar la proteína registrada al objetivo del plan, sin cambios automáticos.');
+ else if(p!==null)
+  focus.push('Mantener la proteína próxima al objetivo revisado por el coach; no aumentarla por inercia.');
+ if(k!==null&&k<r.energyBelow){
+  if(f!==null&&f<r.fatBelow)
+   focus.push('Revisar primero la energía y las grasas registradas frente al plan individual.');
+  else if(carb!==null&&carb<r.carbBelow)
+   focus.push('Revisar las porciones de carbohidratos con el coach según tus metas y tipo de entrenamiento.');
+  else focus.push('Revisar la distribución de las comidas para cubrir el objetivo energético acordado.');
+ }else if(k!==null&&k>r.energyAbove)
+  focus.push('Revisar con tu coach las diferencias registradas respecto del plan, sin compensaciones.');
+ else focus.push('Sostener los hábitos y mirar la tendencia antes de modificar el plan.');
+ focus.push('Mejorar la cobertura del registro, especialmente si quedaron comidas sin cargar.');
+ const calories=averages.k===null?'no estimable':fmt(averages.k)+' kcal';
+ const cmp=targets.k>0?' frente a '+fmt(targets.k)+' kcal del objetivo promedio vigente en esos días':' (sin objetivo calórico comparable)';
+ const comparisonsText=[
+  p===null?'No hubo objetivo proteico comparable.':
+    p<r.proteinBelow?'La proteína registrada se ubicó por debajo del objetivo individual.':
+    'La proteína registrada estuvo cerca o por encima de la referencia individual.',
+  k===null?'No corresponde inferir un déficit energético.':
+    k<r.energyBelow?'La energía registrada quedó por debajo del objetivo aprobado; puede reflejar alimentos sin cargar.':
+    k>r.energyAbove?'La energía registrada superó el objetivo aprobado en el promedio de días cargados.':
+    'La energía registrada estuvo próxima a la referencia aprobada.'
+ ];
+ const conclusion='En '+daysRecorded+' días con registros, la energía media declarada fue '+calories+cmp+'. '+
+  comparisonsText.join(' ')+' Este resultado describe registros, no determina ingesta real, estado clínico ni rendimiento; debe interpretarse con el coach.';
+ return {focus:focus.slice(0,3),conclusion,evidence};
 }
 export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,days=[],goals=[],logs=[]}={}){
  if(!date(from)||!date(to)||!date(friday)||from>to||to>=friday)throw Error('Período semanal no válido');
@@ -91,7 +130,7 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  const model={kind:LUXURY_WEEKLY_KIND,studentName:clean(studentName,70)||'Alumno',coachName:clean(coachName,70)||'Entrenador',
   from,to,friday,daysRecorded:valid.length,daysClosed:valid.filter(d=>d.closed).length,
   days:cleanDays,averages,targets,topFoods:foodsFromLogs(logs,from,to,new Set(valid.map(d=>d.date))),focus:[],conclusion:'',flexibleNote:''};
- const advice=recommendations(model);model.focus=advice.focus;model.conclusion=advice.conclusion;
+ const advice=recommendations(model);model.focus=advice.focus;model.conclusion=advice.conclusion;model.evidence=advice.evidence;
  // A flexible eating idea is never an earned reward, prescription or clinical approval.
  model.flexibleNote='Podés planificar una comida que disfrutes según tus preferencias y restricciones conocidas. No necesitás ganártela ni compensarla. Revisalo con tu coach.';
  return model;
@@ -147,6 +186,14 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
   '<section class="lux-report-section"><h3>Tus alimentos más elegidos</h3>'+
   (top?'<ol class="lux-report-top">'+top+'</ol>':'<p>Necesitamos más registros de comidas para construir tu top.</p>')+'</section>'+
   '<section class="lux-report-conclusion"><h3>Conclusión revisada por tu coach</h3><p>'+escape(model.conclusion)+'</p></section>'+
+  '<section class="lux-report-evidence"><details><summary>¿Cómo llegamos a esta conclusión? · Datos y evidencia</summary>'+
+  '<p><strong>Datos de esta semana:</strong> '+escape(model.evidence?.dataBasis||'No hay datos suficientes')+'</p>'+
+  '<p><strong>Comparación:</strong> '+escape(model.evidence?.dailyGoals||'No comparable')+'</p>'+
+  '<p><strong>Criterio:</strong> '+escape(model.evidence?.rule||'Interpretación orientativa')+'</p>'+
+  '<p><strong>Marco científico:</strong> Nutrition and Athletic Performance (Academy/DC/ACSM, 2016; DOI 10.1249/MSS.0000000000000852) e ISSN Protein and Exercise (2017; DOI 10.1186/s12970-017-0177-8).</p>'+
+  '<p>Las recomendaciones generales requieren contextualización profesional; las tolerancias de EFG son avisos internos, no diagnósticos.</p>'+
+  '</details></section>'+
+
   '<section class="lux-report-section"><h3>Tus tres focos para la próxima semana</h3><ol class="lux-report-focus">'+focus+'</ol></section>'+
   (model.flexibleNote?'<section class="lux-report-flex"><h3>Un espacio para disfrutar</h3><p>'+escape(model.flexibleNote)+'</p></section>':'')+
   '<footer>REVISADO POR '+escape(model.coachName).toUpperCase()+

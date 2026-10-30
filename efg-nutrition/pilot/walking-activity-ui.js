@@ -25,8 +25,10 @@ function optionalNumber(doc,id,min,max){
 }
 export function readWalkingActivityForm(doc){
  if(!doc||typeof doc.getElementById!=='function')throw Error('No se puede leer el registro de movimiento.');
- const steps=requiredInt(doc,'activitySteps',0,100000);
- // Empty minutes are allowed: walking steps duration is calculated independently.
+ // Historical workflow also allowed a strength/cardio workout with no steps.
+ // Keep that path: blank steps are zero and do NOT imply a walking session.
+ const steps=val(doc,'activitySteps').trim()===''?0:requiredInt(doc,'activitySteps',0,100000);
+ // Walking duration is calculated independently and never added to exercise_minutes.
  const minutesInput=doc.getElementById('activityMinutes');
  const exerciseMinutes=minutesInput?.value?.trim()?requiredInt(doc,'activityMinutes',0,1440):0;
  const pace=val(doc,'activityPace');
@@ -36,8 +38,11 @@ export function readWalkingActivityForm(doc){
  const kind=val(doc,'activityKind');
  if(!KINDS.includes(kind))throw Error('El tipo de actividad no es válido.');
  return Object.freeze({steps,exercise_minutes:exerciseMinutes,kind,
-  walking_pace:pace,walking_height_cm:heightCm,walking_weight_kg:weightKg,
-  estimate:estimateWalkingSteps({steps,pace,heightCm,weightKg})});
+  walking_pace:steps>0?pace:null,
+  walking_height_cm:steps>0?heightCm:null,
+  walking_weight_kg:steps>0?weightKg:null,
+  estimate:estimateWalkingSteps({steps,pace:steps>0?pace:null,
+   heightCm:steps>0?heightCm:null,weightKg:steps>0?weightKg:null})});
 }
 export function walkingEstimateMarkup(estimate){
  if(!estimate)return '<div class="efg-walk-empty">Completá los pasos para ver la estimación.</div>';

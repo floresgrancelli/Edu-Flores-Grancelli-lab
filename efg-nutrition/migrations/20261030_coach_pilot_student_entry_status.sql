@@ -99,7 +99,6 @@ begin
    end if;
   end if;
  end if;
- end if;
  return pg_catalog.jsonb_build_object(
   'route',v_route,'can_log_meals',v_route='ready',
   'required_intake_version','coach_major_2026_r1',

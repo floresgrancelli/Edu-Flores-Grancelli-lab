@@ -32,7 +32,9 @@ export function renderMajorReleaseAnnouncement(manifest,role){
   '<p>'+esc(m.phase==='preview'?'Estamos preparando una nueva etapa para acompañarte cada día.':'La nueva versión está disponible. Guardá tus cambios antes de volver a ingresar.')+'</p>'+
   '<p>'+esc(roleCopy[role])+'</p>'+
   '<ul class="efg-release-highlights">'+m.highlights.map(t=>'<li><span aria-hidden="true">✦</span>'+esc(t)+'</li>').join("")+'</ul>'+
-  '<p class="pilot-hint">Para completar el cambio tendrás que volver a iniciar sesión. Al regresar, podrás revisar los documentos legales vigentes y aceptar lo que corresponda por separado.</p>'+
+  '<p class="pilot-hint">'+esc(m.phase==='preview'
+   ?'Todavía no es necesario cerrar sesión. Te avisaremos cuando la Gran Actualización esté realmente publicada.'
+   :'Al confirmar el aviso de esta versión mayor, cerrás la sesión solo de este dispositivo. Al volver a ingresar con código podrás revisar y aceptar los documentos legales vigentes por separado.')+'</p>'+
   '<p class="pilot-hint">Leer este aviso no constituye aceptación de Términos ni consentimiento para compartir información de salud.</p>'+
   (m.phase==="preview"
    ?'<button class="btn" type="button" data-act="ackReleasePreview" data-release="'+esc(m.id)+'">Entendido</button>'

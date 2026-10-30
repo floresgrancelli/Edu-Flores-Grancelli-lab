@@ -112,7 +112,7 @@ assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:se
 
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.match(app,/import \{assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent\} from "\.\/coach-draft-review/);
-assert.match(app,/const review=assessCoachDraftPublication\(\{studentId,intake,savedDraft:draft,goal,guide\}\)/);
+assert.match(app,/const review=assessCoachDraftPublication\(\{studentId,intake,savedDraft:draft,goal,guide:finalGuide\}\)/);
 assert.match(app,/if\(!review\.ready\)throw Error\(review\.reason\)/);
 assert.match(app,/state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/);
 assert.match(app,/function activeCoachGuideGoal\(\)\{[\s\S]*?COACH_ATOMIC_PLAN_UI_ENABLED[\s\S]*?state\.pendingGoal\|\|state\.pendingGoalRevision\?\.proposal\|\|null/,
@@ -150,7 +150,7 @@ assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,ses
 assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,coachIntakeForms:{[student]:otherIntake}}}),false,"Ignore result after refreshing the intake");
 assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,coachPlanDraftRecord:null}}),false,"Ignore result after resetting the draft");
 assert.equal(coachDraftWorkspaceCurrent({...token,state:{...currentWorkspace,consent:{accepted:false}}}),false,"Ignore result after revoked tracking");
-assert.match(app,/const snapshot=validateCoachPlanProposal\(goal,guide\)/,"Capture values before network awaits");
+assert.match(app,/const snapshot=validateCoachPlanProposal\(goal,finalGuide\)/,"Capture Coach-approved foods and guide before network awaits");
 assert.match(app,/const serverDraft=await coachDraftClient\.load\(studentId\)/,"Read back server draft after save");
 assert.match(app,/verifyCoachDraftReadback\(\{/,"Verify exact persisted revision");
 assert.match(app,/if\(!coachDraftWorkspaceCurrent\(\{state,studentId,intake,sessionUserId,previousDraft\}\)\)return;/,"Drop async result if another student was selected");

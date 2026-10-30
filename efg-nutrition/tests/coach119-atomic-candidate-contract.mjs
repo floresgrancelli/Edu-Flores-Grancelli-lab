@@ -32,6 +32,16 @@ for(const part of [
 ])assert.ok(sql.includes(part),'Missing atomic candidate invariant: '+part);
 assert.match(sql,/comment on function public\.efg_publish_coach_plan_draft_atomic/);
 assert.match(sql,/on conflict\(student_id\) do update/);
+assert.match(sql,/create function efg_private\.coach119_reviewed_food_ids\(p_guide jsonb\)/);
+assert.match(sql,/v_food_ids:=efg_private\.coach119_reviewed_food_ids\(v_guide\)/);
+assert.match(sql,/food\.evidence_status='reviewed'/);
+assert.match(sql,/food\.expires_at>pg_catalog\.now\(\)/);
+assert.match(sql,/if v_verified<>v_count/);
+assert.match(sql,/if v_item->>'id' is null or not\(v_item->>'id'=any\(v_selected\)\)/);
+assert.match(sql,/revoke all on function efg_private\.coach119_reviewed_food_ids\(jsonb\)/);
+assert.doesNotMatch(sql,/select pg_catalog\.array_agg\(distinct item\.value->>'id'\)\s+into v_food_ids/,
+ "New students cannot receive only the ingredients of the five-meal example");
+
 assert.match(sql,/approved_food_ids=\([\s\S]*?public\.efg_food_plans\.approved_food_ids\s*\|\|\s*excluded\.approved_food_ids[\s\S]*?\)/,
  'Publishing a new five-meal guide must preserve earlier coach-approved food choices');
 assert.doesNotMatch(sql,/approved_food_ids=excluded\.approved_food_ids/,

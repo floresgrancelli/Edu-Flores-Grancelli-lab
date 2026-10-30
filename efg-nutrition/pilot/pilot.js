@@ -1580,7 +1580,7 @@ function coachAvatarLetters(p){return String(coachDisplayName(p)).trim().split(/
 function coachHomeView(){
  const test=!!state.org?.is_test;
  const roster=(state.roster||[]).filter(p=>p.active);
- const pending=(test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
+ const pending=(state.profile.role==="admin"&&test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
  const testOrgSeats=Number(state.org?.seat_limit)||0;
  const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);

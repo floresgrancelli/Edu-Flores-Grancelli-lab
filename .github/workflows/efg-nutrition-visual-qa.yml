@@ -36,6 +36,8 @@ jobs:
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: BRAND77B illustrated intro + vertical library Chromium, Android and desktop (synthetic)
+        run: node efg-nutrition/tests/science-welcome-visual-qa.mjs
       - name: EDUCATION-02 science screen responsive Chromium and Android (synthetic, no production)
         run: |
           node efg-nutrition/tests/nutrition-science-visual-qa.mjs

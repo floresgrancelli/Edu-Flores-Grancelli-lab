@@ -14,6 +14,7 @@ on:
       - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/pilot/coach-plan-draft-client.js'
       - 'efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql'
+      - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
   workflow_dispatch:
 
@@ -66,6 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql

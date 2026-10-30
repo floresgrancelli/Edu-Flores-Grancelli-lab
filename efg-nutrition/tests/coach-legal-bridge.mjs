@@ -62,4 +62,14 @@ assert.deepEqual(refresh.missing,["terms"]);
 misreport=true;
 await assert.rejects(()=>acceptCoachLegalOnboarding(sb,refresh,{terms:true},{...opts,explicitSubmit:true}),/servidor no confirmó/);
 assert.equal(writes,2);
+const pilot=await (await import("node:fs/promises")).readFile(
+ new URL("../pilot/pilot.js",import.meta.url),"utf8");
+assert.match(pilot,/COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding/);
+assert.match(pilot,/state\.coachRelaunchEntry\?\.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED/);
+assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
+assert.match(pilot,/if\(action==="confirmLegalAcceptance"\)\{/);
+assert.match(pilot,/await acceptCoachLegalOnboarding\(sb,state\.coachLegalSnapshot,checked,\{explicitSubmit:true\}\)/);
+assert.match(pilot,/state\.coachLegalSnapshot=null;\s*await refresh\(\);/);
+assert.doesNotMatch(pilot,/acceptedNotice.*true.*legal|localStorage\.setItem\("legalAccepted"/,
+ "No locally accepted flag may bypass versioned legal server readback.");
 console.log("PASS COACH-67: legal docs are exact version/hash, checked individually, HTML escaped, RPC explicit, readback mandatory and all flags OFF.");

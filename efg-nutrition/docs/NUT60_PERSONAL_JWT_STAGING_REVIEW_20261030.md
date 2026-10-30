@@ -25,3 +25,14 @@ La suite también registra y modifica un desayuno propio, comprueba que la perso
 5. Revisar clínica, términos, privacidad, seguridad, accesibilidad y pruebas físicas iPhone/Android/Mac, más checklist de lanzamiento único, para finalmente solicitar GO expreso.
 
 **El prototipo no constituye un producto Autogestión funcional.** No se cargaron ni compartieron datos de usuarios reales, y las condiciones de salud no se utilizaron para generar recomendaciones médicas.
+
+
+## NUT-60 · Bloqueo por cuenta suspendida (30/10, nueva candidata)
+
+Se endurecieron las cuatro políticas **INSERT/UPDATE** de diarios personales y comidas habituales con `efg_personal_write_allowed()`: función `SECURITY DEFINER`, `search_path=''`, sin parámetros de propietario y permiso `EXECUTE` exclusivamente para `authenticated`. Comprueba en **tablas del servidor**, nunca en `user_metadata`, que `auth.uid()` pertenece a una cuenta `personal` activa, sin organización, y que estén aceptadas ambas versiones legales vigentes. La RPC de metas personales ya exigía perfil activo y aceptación por separado.
+
+Para respetar acceso/supresión, el usuario dueño puede **leer y eliminar** sus registros aun si está suspendido o debe reaceptar Términos. No puede insertar ni editar hasta reactivación por procedimiento autorizado; el frontend no controla esa autorización. No se implementó todavía el procedimiento formal de baja y exportación.
+
+Pruebas GoTrue de `tests/personal-auth-local-e2e.mjs`: A y B con JWT locales, función denegada a `anon`, B con consentimiento vencido sin permiso, A suspendido tras poseer JWT válido, bloqueo de meta nueva y de altas/edición REST de diario/habituales, comprobación posterior de no-mutación aunque PATCH responda sin filas, acceso y borrado de sus propios datos, y reactivación administrativa **solo del fixture desechable**. Autenticación local run [41025625722](https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41025625722) **SUCCESS** sobre SHA `24802f3d0d912fa8189085cc2c9eb47ab5d9ef92`. Otros checks de ese SHA deben confirmarse por separado, incluida QA visual.
+
+Sigue **NO GO**: JWT real local es **solo un facsímil de esquema**; falta baja/cancelación formal sin suplantación, protección de más endpoints y operaciones privilegiadas, staging fiel y autorización legal/clínica, experiencia Personal completa, actualizaciones PWA de equipos físicos y recuperación alojada. Nunca se ejecutó este SQL en Supabase productivo.

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {RELEASE_COMMUNICATIONS_ENABLED,releaseVisibleTo,renderMajorReleaseAnnouncement,releaseAcknowledgment,renderWhatsNew,seenVersionRequest} from "../pilot/release-communications.js";
 const base={id:"major_2026_01",version:"2026.11.1",phase:"preview",
- title:'Nueva etapa EFG Nutrition Pro <script>alert(1)</script>',
+ title:'Nueva etapa Nutrición Con-Ciencia <script>alert(1)</script>',
  roles:["admin","coach","student","personal"],
  highlights:["Fichas voluntarias y permisos","Semáforo por restricciones, no calorías","Dietas y guía de cinco comidas"]};
 assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false,"Never send messages or sign out real users via draft");
@@ -30,9 +30,9 @@ assert.equal(releaseVisibleTo(base,"visitor"),false);
 assert.equal(renderMajorReleaseAnnouncement(base,"visitor"),"");
 assert.throws(()=>releaseAcknowledgment(base,"visitor"),/comunicación activa/);
 assert.equal(renderWhatsNew(base,"coach"),"");
-const released={...base,phase:"live",title:"EFG Nutrition Pro renovada"};
+const released={...base,phase:"live",title:"Nutrición Con-Ciencia renovada"};
 assert.equal(renderMajorReleaseAnnouncement(released,"student"),"");
-assert.match(renderWhatsNew(released,"student"),/Novedades de EFG Nutrition Pro/);
+assert.match(renderWhatsNew(released,"student"),/Novedades de Nutrición Con-Ciencia/);
 assert.match(renderWhatsNew(released,"coach"),/Comenzar/);
 assert.match(renderWhatsNew(released,"personal"),/efg-release-art/);
 assert.match(renderWhatsNew(released,"admin"),/efg-release-highlights/);

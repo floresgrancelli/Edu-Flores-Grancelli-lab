@@ -2205,6 +2205,13 @@ async function render(){
    return;
   }
  }
+ // A coach must explicitly accept CURRENT server-owned Términos y Privacidad.
+ // Neither the student's acceptance nor an OTP login authorizes the coach.
+ if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state.coachLegalPending){
+  root.innerHTML=state.coachLegalSnapshot?renderCoachLegalOnboarding(state.coachLegalSnapshot):
+   '<section class="card" role="alert"><h2>Consentimiento del coach pendiente</h2><p>Revisá los documentos vigentes antes de preparar planes.</p><button type="button" class="btn" data-act="retry">Reintentar</button></section>';
+  return;
+ }
  if(state.welcomePending)return welcomeView();
  if(SCIENCE_WELCOME_ENABLED&&state.scienceWelcomePending){
   root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
@@ -2466,11 +2473,16 @@ async function refresh(){
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
   if(p.error)throw p.error;
   state.profile=p.data;
-  state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;
+  state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
+  if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
+   state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+   state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
+   if(state.coachLegalPending)return render();
+  }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
    state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
    if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
@@ -2850,17 +2862,19 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="logout"){state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="confirmLegalAcceptance"){
+  const studentNeedsLegal=state.profile?.role==="student"&&state.coachRelaunchEntry?.route==="legal";
+  const coachNeedsLegal=state.profile?.role==="coach"&&state.coachLegalPending===true;
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||
-     state.profile?.role!=="student"||state.coachRelaunchEntry?.route!=="legal"||
-     !state.coachLegalSnapshot)throw Error("No se pudo verificar el documento legal actual.");
+     (!studentNeedsLegal&&!coachNeedsLegal)||!state.coachLegalSnapshot)
+   throw Error("No se pudo verificar el documento legal actual.");
   const checked={terms:document.getElementById("efgLegalCheck_terms")?.checked===true,
    privacy:document.getElementById("efgLegalCheck_privacy")?.checked===true};
   await acceptCoachLegalOnboarding(sb,state.coachLegalSnapshot,checked,{explicitSubmit:true});
-  state.coachLegalSnapshot=null;
-  await refresh(); // Server must confirm current acceptance before entering intake.
+  state.coachLegalSnapshot=null;state.coachLegalPending=false;
+  await refresh(); // Recheck CURRENT acceptance separately for coach and student.
   return;
  }
  if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){

@@ -40,6 +40,10 @@ jobs:
           node --check efg-nutrition/pilot/progress-charts.js
           node --check efg-nutrition/pilot/fit-recipes.js
           node --check efg-nutrition/pilot/fit-recipe-illustrations.js
+      - name: CLIN-01 conservative restriction colours, no unsourced green or medical claims (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/dietary-traffic-light.js
+          node efg-nutrition/tests/dietary-traffic-light-contract.mjs
       - name: Shared food compatibility evidence contracts
         run: node efg-nutrition/tests/food-compatibility.mjs
       - name: Validate role-specific UX contracts

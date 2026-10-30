@@ -36,6 +36,10 @@ jobs:
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: EDUCATION-02 science screen responsive Chromium and Android (synthetic, no production)
+        run: |
+          node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+          EFG_QA_ANDROID=1 node efg-nutrition/tests/nutrition-science-visual-qa.mjs
       - name: Capture isolated special launch illustration in Chromium (no production data)
         run: node efg-nutrition/tests/release-visual-qa.mjs
       - name: NUT-63 Personal dashboard responsive visual fixture (Chromium, OFF)
@@ -56,6 +60,8 @@ jobs:
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: EDUCATION-02 science screen Safari/WebKit responsive (synthetic)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/nutrition-science-visual-qa.mjs
       - name: Capture isolated special launch illustration in WebKit (no production data)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/release-visual-qa.mjs
       - name: NUT-63 Personal dashboard responsive visual fixture (WebKit, OFF)

@@ -56,12 +56,14 @@ try{
   const page=await context.newPage();
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
+  await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
+  // Android CSS viewport is meaningful only after loading the viewport meta tag.
   if(androidMode){
    const mobile=await page.evaluate(()=>({ua:navigator.userAgent,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio,meta:document.querySelector("meta[name=viewport]")?.getAttribute("content"),documentWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,visualWidth:visualViewport?.width,screenWidth:screen.width,url:location.href}));
    if(!mobile.ua.includes("Android")||mobile.touch<1||mobile.dpr<2||mobile.viewport!==width)
     errors.push("Android Pixel 7 device emulation not active: "+JSON.stringify(mobile));
   }
-  await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
+
   try{await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__,null,{timeout:16000});}
   catch(err){
     const debug=await page.evaluate(()=>({

@@ -19,6 +19,12 @@ Una referencia textual a `auth.uid()` o `is_admin()` **NO demuestra autorizació
 
 Ya hay pruebas de Auth con JWT de usuarios **ficticios** para los nuevos borradores/publicaciones de Coach en Supabase **local** (COACH-69), pero **no** se ha ejecutado una matriz dinámica y reproducible para las **19 funciones reales** con dos organizaciones y roles distintos. No mezclar resultados.
 
+## COACH-74 · Preflight de restauración ampliado (30/10)
+
+Se extendió `scripts/coach71-hosted-preflight.mjs` para incluir un **tercer control de metadatos `READ ONLY`**: las 19 firmas de funciones, sus permisos anon/authenticated, configuración `search_path` y digest del código deben coincidir con el baseline alojado SEC-12. Si falta una función, cambia una firma o se habilita una ejecución anónima, devuelve NO GO por *drift*. Esto opera **solo sobre PostgreSQL local aislado aprobado** y no invoca ninguna RPC de negocio. El ensayo negativo con el fixture PG17 deliberadamente incompleto debe seguir fallando como parte de la prueba satisfactoria.
+
+**Limitación:** una coincidencia exacta de firmas NO prueba que sus condiciones de autorización sean correctas; se requieren JWT firmados con casos negativos y positivos de las 19 funciones sobre staging restaurado desde una copia fiel.
+
 ## Gate pendiente antes de lanzamiento
 
 1. Obtener un staging restaurado y aislado de la estructura real, con protección de datos y costo explícitamente aprobado. No asumir que la rama Supabase replica datos reales ni que un backup existe solo porque el plan es Pro.

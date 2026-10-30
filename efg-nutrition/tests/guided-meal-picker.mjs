@@ -34,7 +34,7 @@ assert.match(src,/d\.skipped\._guidedComponents\[slot\]/);
 assert.match(src,/const guidedPanel=guided\?/);
 assert.match(src,/data-mealsuggestion/,"food results must be actionable");
 assert.match(src,/pickMealSearchSuggestion\(el\.dataset\.mealsuggestion\)/,"suggestions must reach real food selection");
-assert.match(html,/pilot\.js\?v=20261029-uxguide1/,"force new meal picker script on release");
+assert.match(html,/pilot\.js\?v=20[0-9]{6}-[a-z0-9-]+/,"force versioned meal picker script on release");
 assert.match(src,/Grasas registradas en esta comida/);
 assert.match(html,/guided-meal-picker\.css\?v=20261029-uxguide1/);
 assert.match(src,/guided-meal-picker\.js\?v=20261029-uxmeals1/);

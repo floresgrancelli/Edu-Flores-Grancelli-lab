@@ -62,4 +62,38 @@ begin
  end;
 end
 $freeze$;
-select 'PASS LEG-07: immutable legal documents and acceptances, per-user JWT-claim simulation, no automatic consents' as result;
+-- Version change: previous terms remain historical, privacy remains accepted.
+reset role;
+update public.efg_legal_documents
+ set status='retired',retired_at=pg_catalog.now()
+ where id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'::uuid;
+insert into public.efg_legal_documents
+ (id,kind,version,content,sha256,status,published_at,effective_at)
+select 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4'::uuid,'terms','fixture-2',v.content,
+ pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(v.content,'UTF8')),'hex'),
+ 'published',pg_catalog.now(),pg_catalog.now()
+from (select pg_catalog.repeat('Second version of synthetic terms only. ',6) as content) v;
+set role authenticated;
+set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
+do $new_terms$
+declare count_added integer;
+begin
+ if (select count(*) from public.efg_legal_current_status() where accepted)<>1 then
+  raise exception 'New terms should require consent without repeating privacy';
+ end if;
+ begin
+  perform public.efg_accept_legal_documents(array[
+   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'::uuid]);
+  raise exception 'Retired terms accepted as current';
+ exception when sqlstate '22023' then null;
+ end;
+ select public.efg_accept_legal_documents(array[
+   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa4'::uuid]) into count_added;
+ if count_added<>1 or (select count(*) from public.efg_legal_current_status() where accepted)<>2
+  or (select count(*) from public.efg_legal_acceptances)<>3 then
+  raise exception 'Versioned new-only reacceptance failed';
+ end if;
+end
+$new_terms$;
+reset role;
+select 'PASS LEG-07: immutable legal documents and acceptances, per-user JWT-claim simulation, version-specific reacceptance, no automatic consents' as result;

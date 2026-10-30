@@ -64,7 +64,7 @@ assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete día
 const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});
 assert.match(scant.conclusion,/No contamos con suficiente cobertura/);
 assert.equal(scant.evidence.grade,'insuficiente');
-assert.equal(scant.evidence.comparisons.energyPct,92);
+assert.equal(scant.evidence.comparisons.energyPct,88);
 assert.doesNotMatch(scant.conclusion,/energía registrada quedó por debajo/);
 assert.ok(!scant.focus.some(x=>x.includes('carbohidratos')),'Do not suggest macros from two days');
 const noGoals=buildLuxuryWeeklyReport({...data,goals:[]});

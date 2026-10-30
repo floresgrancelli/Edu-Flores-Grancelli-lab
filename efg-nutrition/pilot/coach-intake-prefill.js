@@ -8,9 +8,12 @@ const numberIn=(v,min,max,integer=false)=>{
  if(v===null||v===undefined||v==="")return null;
  const n=Number(v);return Number.isFinite(n)&&n>=min&&n<=max&&(!integer||Number.isInteger(n))?n:null;
 };
-export function createCoachCalculatorPrefill({intake,studentId,coachAuthorized=false}={}){
+export function createCoachCalculatorPrefill({intake,studentId,coachAuthorized=false,requiredIntakeVersion=null}={}){
  if(!coachAuthorized||typeof studentId!=="string"||!studentId||
-    !intake||intake.student_id!==studentId||!intake.shared_at)
+    !intake||intake.student_id!==studentId||!intake.shared_at||
+    (requiredIntakeVersion!==null&&(
+     intake.completed_version!==requiredIntakeVersion||
+     !Number.isInteger(intake.revision)||intake.revision<1)))
   throw Error("No hay una ficha de ese alumno compartida y autorizada para preparar su plan.");
  const warnings=[],fields={};
  const required=[
@@ -42,7 +45,9 @@ export function createCoachCalculatorPrefill({intake,studentId,coachAuthorized=f
    warnings.push("La propuesta automática inicial aún NO incorpora alimentos preferidos, alimentos evitados por gusto ni horarios: el coach debe adaptarla antes de aprobarla.");
  }
  const context={
-  studentId,sourceUpdatedAt:typeof intake.updated_at==="string"&&Number.isFinite(Date.parse(intake.updated_at))?intake.updated_at:null,fields,objective:intake.objective||null,pattern,
+  studentId,sourceUpdatedAt:typeof intake.updated_at==="string"&&Number.isFinite(Date.parse(intake.updated_at))?intake.updated_at:null,
+  sourceVersion:requiredIntakeVersion,sourceRevision:requiredIntakeVersion!==null?intake.revision:null,
+  fields,objective:intake.objective||null,pattern,
   preferredFoods:String(intake.preferred_foods||"").slice(0,400),
   dislikedFoods:String(intake.disliked_foods||"").slice(0,400),
   mealRoutine:String(intake.meal_routine||"").slice(0,400),

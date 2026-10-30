@@ -76,6 +76,15 @@ if(phase==='failure'){
  const studentA='22222222-2222-4222-8222-222222222222';
  const studentB='44444444-4444-4444-8444-444444444444';
  const asStudent=(id,body)=>`BEGIN; SET LOCAL ROLE authenticated; SET LOCAL request.jwt.claim.sub='${id}'; ${body}; COMMIT;`;
+ // The legacy intake remains reachable through REST. Its organization predicate
+ // must compare the submitted row, not resolve both sides to the profile column.
+ const foreignIntake=run(asStudent(studentA,`insert into public.efg_student_intakes(student_id,organization_id)
+  values ('${studentA}','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2')`));
+ assert.notEqual(foreignIntake.status,0,'Student A must not assign their intake to organization B');
+ assert.match(foreignIntake.stderr,/row-level security/);
+ sql(`BEGIN; SET LOCAL ROLE authenticated; SET LOCAL request.jwt.claim.sub='${studentA}';
+  insert into public.efg_student_intakes(student_id,organization_id)
+  values ('${studentA}','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1'); ROLLBACK;`);
  assert.equal(sql(asStudent(studentA,"select public.efg_ack_science_intro('con_ciencia_2026_r1','completed')")),'t');
  const receipt=sql(`select to_jsonb(t)::text from public.efg_science_intro_receipts t`);
  assert.equal(sql(asStudent(studentA,"select public.efg_ack_science_intro('con_ciencia_2026_r1','skipped')")),'t');

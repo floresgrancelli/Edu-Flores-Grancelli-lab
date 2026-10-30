@@ -106,12 +106,12 @@ create policy intake_student_insert on public.efg_student_intakes
  for insert to authenticated with check (
   student_id=(select auth.uid()) and
   exists(select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
-  and p.role='student' and p.active and p.organization_id=organization_id));
+  and p.role='student' and p.active and p.organization_id=efg_student_intakes.organization_id));
 create policy intake_student_update on public.efg_student_intakes
  for update to authenticated using(student_id=(select auth.uid()))
  with check(student_id=(select auth.uid()) and exists(
  select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
- and p.role='student' and p.active and p.organization_id=organization_id));
+ and p.role='student' and p.active and p.organization_id=efg_student_intakes.organization_id));
 
 -- Owner-only erasure of the optional intake. Does not touch nutrition logs,
 -- plans, coach consents, account, or any other student record.
@@ -119,7 +119,7 @@ create policy intake_student_delete on public.efg_student_intakes
  for delete to authenticated using(
   student_id=(select auth.uid()) and exists(
    select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
-   and p.role='student' and p.active and p.organization_id=organization_id));
+   and p.role='student' and p.active and p.organization_id=efg_student_intakes.organization_id));
 
 create function efg_private.student_nutrition_enabled(p_student uuid) returns boolean
 language sql stable security definer set search_path='' as $$

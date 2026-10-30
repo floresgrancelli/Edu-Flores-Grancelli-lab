@@ -27,6 +27,7 @@ import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPla
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent} from "./coach-draft-review.js?v=20261029-review51";
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
+import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2102,9 +2103,21 @@ function restoreViewContinuity(snapshot){
 }
 async function render(){
  if(!state.profile)return loginView();
- // Personal is STAGING ONLY. Never show Coach/Admin/Student screens to a
- // future role until its dedicated account, consent and data flows ship.
+ // Unrecognized roles never inherit legacy Student/Coach/Admin screens.
+ // Read-only Personal stays OFF until schema, legal and clinical approvals.
  if(!["student","coach","admin"].includes(state.profile.role)){
+  if(state.profile.role==="personal"&&PERSONAL_WORKSPACE_ENABLED){
+   try{
+    const personal=await loadPersonalWorkspace(sb,{profile:state.profile,
+     userId:state.session?.user?.id,day:today()});
+    root.innerHTML=renderPersonalWorkspace(personal);
+   }catch(error){
+    // A denied/expired role, legal revision or network failure hides private data.
+    console.warn("No se verificó el espacio Personal:",error?.message);
+    root.innerHTML='<div class="pilot-loader"><h2>No pudimos habilitar tu espacio Personal</h2><p>Revisá tu sesión y los documentos legales vigentes. No mostraremos datos de otros perfiles.</p><button class="btn" data-act="retry">Reintentar</button><button class="btn small ghost" data-act="logout">Cerrar sesión</button></div>';
+   }
+   return;
+  }
   root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
   return;
  }
@@ -2386,6 +2399,8 @@ let refreshingWorkspace=false;
 async function refreshVisibleWorkspace(){
  if(refreshingWorkspace||state.loading)throw Error("Ya hay una actualización en curso.");
  if(!state.profile||!state.session?.user?.id||state.welcomePending)throw Error("Ingresá a tu cuenta para actualizar.");
+  // Unknown/Personal accounts must NEVER refresh legacy Coach/Student tables.
+  if(!["student","coach","admin"].includes(state.profile.role))return refresh();
  refreshingWorkspace=true;
  const id=state.session.user.id,originalView=activeViewKey();
  const selected=state.selectedStudent,goalId=state.coachGoals[0]?.id;

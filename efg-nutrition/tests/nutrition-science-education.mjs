@@ -38,12 +38,12 @@ for(const s of NUTRITION_SCIENCE_SOURCES){
 assert.match(js,/import \{SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep\} from "\.\/science-welcome\.js/);
 assert.match(js,/nutritionScience:renderScienceVerticalView/);
 assert.match(js,/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
-assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,2,"one real tab for student and one for coach");
-assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,2,"discoverable from BOTH more menus");
-assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","privacy","notifications"\]\.includes\(state\.tab\)\)state\.tab="intake"/,
- "pending intake gate must prevent science from bypassing onboarding");
-assert.match(js,/state\.tab=studentPlanPending\(\)&&!\["intake","messages","privacy","notifications"\]\.includes\(el\.dataset\.tab\)\?"intake":el\.dataset\.tab/,
- "pending intake click must not bypass onboarding");
+assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,4,"permanent student ready/pending, coach and admin tabs");
+assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,"discoverable from student, coach and admin More menus");
+assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(state\.tab\)\)state\.tab="intake"/,
+ "pending intake gate preserves MI DÍA lock but allows the educational library");
+assert.match(js,/state\.tab=studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(el\.dataset\.tab\)\?"intake":el\.dataset\.tab/,
+ "pending intake click may open science but cannot reach the locked diary");
 assert.match(html,/nutrition-science\.css\?v=20261030-science-edu1/);
 assert.match(css,/@media\(max-width:520px\)/);
 assert.match(css,/focus-visible/);

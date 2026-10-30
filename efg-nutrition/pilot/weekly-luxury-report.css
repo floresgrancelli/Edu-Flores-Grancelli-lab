@@ -8,6 +8,7 @@
  color:#fff;padding:29px clamp(20px,5vw,42px) 24px}
 .lux-report-kicker{font-size:10px;font-weight:900;letter-spacing:.2em;display:flex;gap:13px;flex-wrap:wrap}
 .lux-report-kicker span{color:#e4c995}
+.lux-report-serotonin{width:43px;height:32px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 4px 8px #101b3088)}
 .lux-report-cover h2{font-family:"Iowan Old Style","Baskerville",Georgia,serif!important;color:#fff!important;
  font-size:clamp(31px,6vw,48px)!important;line-height:1.15;margin:20px 0 11px;letter-spacing:-.03em}
 .lux-report-cover h2 em{font-style:normal;color:#dfc79f}

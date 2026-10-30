@@ -61,7 +61,9 @@ assert.doesNotMatch(policy,/\b(?:insert|upsert)\s+into\s+efg_private\.coach_(?:r
 assert.match(policy,/for v_meal in[\s\S]*return true;\s*end;\s*\$efg_food_policy\$/,"Positive result only after evidence checks");
 assert.match(atomic,/to_regprocedure\([\s\S]*coach_publication_policy_valid\(uuid,jsonb,jsonb,uuid\)/);
 assert.match(atomic,/if efg_private\.coach_publication_policy_valid\([\s\S]*is distinct from true then/);
-assert.match(client,/FOOD_COMPATIBILITY_ENABLED=false/);
+assert.match(client,/FOOD_COMPATIBILITY_ENABLED=true/,'Only the conservative front-end semaforo is enabled; server-side clinical and coach publication policy remain staged and unapproved');
+assert.match(client,/Never consume food\.compatibilityEvidence/,'Untrusted diary items cannot forge the review');
+assert.match(client,/Clinical restrictions remain unknown/,'Clinical rules may never be auto-cleared');
 assert.match(policy,/No clinical\/medical clearance/);
 for(const tag of ["efg_food_policy_preflight","efg_food_policy"])
  assert.equal((policy.match(new RegExp("\\$"+tag+"\\$","g"))||[]).length,2,"Paired $$ delimiters: "+tag);

@@ -2496,7 +2496,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
+  if(switchingUser){state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   state.session={user:result.data.user};
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
@@ -2911,7 +2911,7 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="logout"){state.foodCompatEvidence=[];state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
  if(action==="confirmLegalAcceptance"){
   const studentNeedsLegal=state.profile?.role==="student"&&state.coachRelaunchEntry?.route==="legal";

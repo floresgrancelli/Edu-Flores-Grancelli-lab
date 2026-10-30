@@ -14,7 +14,7 @@ const validId=v=>typeof v==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,40}$/i.test(v);
 const integer=v=>typeof v==="number"&&Number.isFinite(v)&&v>=0&&Number.isInteger(v);
 const count=v=>integer(v)?v.toLocaleString("es-AR"):"—";
 const one=v=>typeof v==="number"&&Number.isFinite(v)&&v>=0?v.toLocaleString("es-AR",{maximumFractionDigits:1}):"—";
-const validDay=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&new Date(v+"T12:00:00Z").toISOString().slice(0,10)===v;
+const validDay=v=>{if(typeof v!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const d=new Date(v+"T12:00:00Z");return !Number.isNaN(d.getTime())&&d.toISOString().slice(0,10)===v;};
 export function assertPersonalAccess({profile,userId,account,legalStatus}={}){
  if(!validId(userId)||!profile||profile.user_id!==userId||profile.role!=="personal"||
   profile.active!==true||profile.organization_id!==null)
@@ -56,7 +56,7 @@ export async function loadPersonalWorkspace(sb,{profile,userId,day}={}){
  return {verified:true,userId,day,profile:{nickname:profile.nickname},goal,guide,diary,habituals};
 }
 export function guideMeals(guideRow,goal){
- if(!goal||!guideRow||guideRow.goal_revision!==goal.revision)return null;
+ if(!goal||!guideRow||guideRow.user_id!==goal.user_id||guideRow.goal_revision!==goal.revision)return null;
  const guide=guideRow.guide,required=PERSONAL_MEALS.map(m=>m.id);
  if(!guide||guide.kind!=="five_meal_example"||!Array.isArray(guide.meals)||
     guide.meals.length!==5)return null;
@@ -77,6 +77,8 @@ export function renderPersonalWorkspace(snapshot){
  if(snapshot?.verified!==true||!validId(snapshot.userId)||!validDay(snapshot.day)||
   !snapshot.profile||!Array.isArray(snapshot.habituals)||
   snapshot.goal&&snapshot.goal.user_id!==snapshot.userId||
+  snapshot.guide&&snapshot.guide.user_id!==snapshot.userId||
+  snapshot.habituals.some(h=>h.user_id!==snapshot.userId)||
   snapshot.diary&&(snapshot.diary.user_id!==snapshot.userId||snapshot.diary.log_day!==snapshot.day))
   throw Error("No existe un estado Personal verificado.");
  const {goal,diary,habituals}=snapshot;

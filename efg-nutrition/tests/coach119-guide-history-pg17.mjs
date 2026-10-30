@@ -27,6 +27,10 @@ const end=source.indexOf('-- Preserve exactly the two existing legacy notificati
 assert.ok(start>0&&end>start,'Exact COACH119 ledger/trigger section not found');
 const actualArchiveSQL=source.slice(start,end);
 assert.ok(actualArchiveSQL.includes('create trigger coach119_archive_previous_approved_guide'));
+const foodFunctionStart=source.indexOf('create function efg_private.coach119_reviewed_food_ids');
+const foodFunctionEnd=source.indexOf('create function public.efg_publish_coach_plan_draft_atomic',foodFunctionStart);
+assert.ok(foodFunctionStart>0&&foodFunctionEnd>foodFunctionStart,'Actual candidate selected-food validator missing');
+const exactFoodFunction=source.slice(foodFunctionStart,foodFunctionEnd);
 const student='11111111-1111-4111-8111-111111111111';
 const coach='22222222-2222-4222-8222-222222222222';
 const goal='33333333-3333-4333-8333-333333333333';
@@ -56,6 +60,54 @@ insert into auth.users(id) values ('${coach}');
 insert into public.efg_profiles(user_id) values ('${student}');
 insert into public.efg_goals(id) values ('${goal}');
 `);
+exec(actualArchiveSQL);
+// Test exact SQL selected-catalog validator on new + existing synthetic students.
+exec(`create table efg_private.coach_reviewed_foods(
+ food_id text not null, evidence_status text not null,
+ reviewed_by uuid,reviewed_at timestamptz,expires_at timestamptz,source_url text
+);
+insert into efg_private.coach_reviewed_foods values
+ ('food-a','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/a'),
+ ('food-b','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/b'),
+ ('food-c','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/c'),
+ ('expired','reviewed','${coach}',now()-interval '2 days',now()-interval '1 day','https://example.org/expired');
+`);
+exec(exactFoodFunction);
+assert.equal(exec("select has_function_privilege('anon','efg_private.coach119_reviewed_food_ids(jsonb)','EXECUTE')"),'f');
+assert.equal(exec("select has_function_privilege('authenticated','efg_private.coach119_reviewed_food_ids(jsonb)','EXECUTE')"),'f');
+const guideSlots=['desayuno','media_manana','almuerzo','merienda','cena'];
+const fixtureGuide=(approvedFoodIds,guideFoodId='food-a')=>JSON.stringify({
+ kind:'five_meal_example',version:1,approvedFoodIds,
+ meals:guideSlots.map(slot=>({slot,items:[{id:guideFoodId}]}))
+});
+const checked=(ids,ingredient='food-a')=>
+ "select array_to_string(efg_private.coach119_reviewed_food_ids('"+
+ fixtureGuide(ids,ingredient)+"'::jsonb),',')";
+assert.equal(exec(checked(['food-a','food-b','food-c'])),'food-a,food-b,food-c');
+for(const bad of [
+ checked(['food-a','unreviewed']),
+ checked(['food-a','expired']),
+ checked(['food-a','food-a']),
+ checked(['food-b']),
+ checked([]),
+ checked(['food-a','food-b'],'food-not-selected'),
+ "select efg_private.coach119_reviewed_food_ids('"+
+ JSON.stringify({kind:'five_meal_example',version:1,meals:[]})+"'::jsonb)"
+])exec(bad,false);
+const newStudent='55555555-5555-4555-8555-555555555555';
+exec(`insert into public.efg_profiles(user_id) values ('${newStudent}');
+insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
+) values (
+ '${newStudent}','${coach}',
+ efg_private.coach119_reviewed_food_ids('${fixtureGuide(['food-a','food-b','food-c'])}'::jsonb),
+ '{"version":"new-student"}'::jsonb,'${goal}',now()
+)`);
+assert.equal(exec("select cardinality(approved_food_ids) from public.efg_food_plans where student_id='"+newStudent+"'"),'3',
+ 'A new student must receive all explicitly Coach-approved reviewed foods, not only one guide ingredient');
+assert.equal(exec("select count(*) from efg_private.coach_guide_history where student_id='"+newStudent+"'"),'0');
+exec(`delete from public.efg_profiles where user_id='${newStudent}'`);
+
 exec(actualArchiveSQL);
 exec(`insert into public.efg_food_plans(
  student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
@@ -107,4 +159,4 @@ assert.equal(exec("select has_table_privilege('anon','efg_private.coach_guide_hi
 exec(`delete from public.efg_profiles where user_id='${student}'`);
 assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
  'Approved deletion of student must remove private historic rows as well');
-console.log('PASS COACH119 REAL PG17: approved guide archive, food changes, no duplicates, rollback, anon/auth deny, authorized student deletion; ONLY synthetic fixtures.');
+console.log('PASS COACH119 REAL PG17: new-student full catalog + reviewed/expired/missing/duplicate denials, approved guide archive, food changes, no duplicates, rollback, anon/auth deny, authorized student deletion; ONLY synthetic fixtures.');

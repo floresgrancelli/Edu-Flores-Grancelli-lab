@@ -1,10 +1,10 @@
-// Shared, side-effect-free compatibility contract. OFF until catalog evidence,
+// Shared, side-effect-free compatibility contract. ON for non-clinical preview only; catalog evidence,
 // consent, server permissions and professional review are validated in staging.
 // Evidence must come from a reviewed server catalog, never user-supplied claims.
 // The frontend cannot authenticate provenance: backend must supply/catalog-authorize
-// catalogEvidence separately from editable food/diary payloads. Feature remains OFF.
+// catalogEvidence separately from editable food/diary payloads. Clinical restrictions remain unverified and yellow.
 import {DIET_PATTERNS} from './diet-pattern-workbench.js';
-export const FOOD_COMPATIBILITY_ENABLED=false;
+export const FOOD_COMPATIBILITY_ENABLED=true;
 const exclusions={vegan:['meat','fish','shellfish','dairy','egg','honey','animal_derivative'],vegetarian:['meat','fish','shellfish','animal_derivative'],pescatarian:['meat','animal_derivative']};
 const neutralPatterns=new Set(['balanced','mediterranean','flexitarian']);
 const labels={neutral:'Sin restricciones excluyentes',green:'Compatible verificado',yellow:'Revisar información',red:'No compatible con tu restricción'};

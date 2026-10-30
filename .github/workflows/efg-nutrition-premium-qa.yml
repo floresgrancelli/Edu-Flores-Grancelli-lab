@@ -125,6 +125,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-pilot-entry-client.js
           node efg-nutrition/tests/coach111-hosted-entry-client.mjs
+      - name: COACH115-117 signed versioned legal receipts and legal-first pilot entry (OFFLINE)
+        run: |
+          node --check efg-nutrition/pilot/coach-pilot-legal-client.js
+          node efg-nutrition/tests/coach115-117-legal-hosted-contract.mjs
       - name: COACH112 signed pilot general intake and explicit sharing (MOCK ONLY)
         run: |
           node --check efg-nutrition/pilot/coach-pilot-intake-client.js

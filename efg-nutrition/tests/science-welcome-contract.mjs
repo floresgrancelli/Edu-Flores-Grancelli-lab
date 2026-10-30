@@ -10,7 +10,7 @@ const panels=sciencePanels();
 assert.equal(panels.length,8);
 const texts=["Nutrición","¿Qué son las calorías?","Los tres macros",
  "¿Por qué importa la proteína","¿Más proteínas que grasas?",
- "Los hidratos no son el villano","Cómo combinar tus alimentos","Conclusiones"];
+ "Los hidratos no son el villano","Cómo combinar tus alimentos","Más que nutrición"];
 for(let i=0;i<8;i++){
  assert.ok(panels[i].includes(texts[i]),"missing content step "+(i+1));
  const html=renderScienceWelcomeStep(i);
@@ -34,6 +34,19 @@ assert.equal((vertical.match(/data-science-step="/g)||[]).length,8);
 assert.match(vertical,/Preguntas que aparecen siempre/);
 assert.match(vertical,/¿De dónde sale esta información/);
 assert.match(vertical,/Conocimiento hoy. Mejores decisiones mañana/);
+assert.ok(vertical.indexOf("Conclusiones para recordar")<vertical.indexOf("Más que nutrición"),"scientific summary precedes approved brand finale");
+const finale=renderScienceWelcomeStep(7);
+assert.match(finale,/data-act="scienceFinish"/);
+assert.match(finale,/Más que nutrición/);
+assert.match(finale,/serotonina-acuarela\.avif/);
+assert.match(finale,/Molécula de serotonina en acuarela/);
+assert.match(finale,/No depende de una sola cosa|no depende de una sola cosa/);
+assert.match(finale,/Nutrirte mejor también puede ayudarte a sentirte mejor/);
+assert.ok(!/cura la ansiedad|aumenta la serotonina cerebral|eleva la serotonina/.test(finale),"no unsupported biochemical promise");
+const wellbeingCss=readFileSync(new URL("../pilot/science-wellbeing.css",import.meta.url),"utf8");
+assert.match(wellbeingCss,/\.ns-wellbeing-logo/);
+assert.match(wellbeingCss,/@media\(max-width:520px\)/);
+assert.match(readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8"),/science-wellbeing\.css\?v=20261030-brand78-final/);
 assert.match(vertical,/La proteína acompaña al entrenamiento/);
 const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",other="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const profile={user_id:uid,active:true,role:"student"};
@@ -81,4 +94,4 @@ assert.match(pilot,/scienceFinish","scienceSkip/);
 assert.match(pilot,/scienceWelcomePending=false;state\.scienceWelcomeStep=0/);
 assert.match(pilot,/nutritionScience:renderScienceVerticalView/);
 assert.match(pilot,/if\(state\.welcomePending\)return welcomeView\(\);/);
-console.log("PASS BRAND77B: 8 shared slide/vertical panels, navigation, escaping, no implicit acceptance, account scoped server readback and staging-only RLS SQL. NO HOSTED RELEASE.");
+console.log("PASS BRAND78: watercolor serotonin closing screen and 8 shared slide/vertical panels, navigation, escaping, no implicit acceptance, account scoped server readback and staging-only RLS SQL. NO HOSTED RELEASE.");

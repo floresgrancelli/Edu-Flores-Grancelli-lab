@@ -99,7 +99,7 @@ const legacy=source.indexOf('await Promise.all([loadPersonalData(),loadOrgAndPay
 assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches for returning students.");
 assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\|\|e.target.id==="efgCoachRelaunchManageForm"\)/);
 assert.match(source,/await submitCoachRelaunchEntry\(sb,/);
-assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED\}/);
+assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION\}/);
 const flow=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(flow,/const currentIntakeTable=/);

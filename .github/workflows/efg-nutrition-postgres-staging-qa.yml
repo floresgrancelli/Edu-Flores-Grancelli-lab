@@ -8,6 +8,10 @@ on:
       - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
       - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/sql/**'
+      - 'efg-nutrition/tests/nut57-*.mjs'
+      - 'efg-nutrition/migrations/20261029_coach_intake_plan_access_DRAFT.sql'
+      - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/docs/NUT57_POSITIVE_STAGING_ROLLBACK_RESTORE_20261029.md'
       - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
   workflow_dispatch:
 

@@ -10,7 +10,7 @@ const browser=await chromium.launch({headless:true});
 const out='artifacts/premium-visual-qa';mkdirSync(out,{recursive:true});
 const read=relative=>readFileSync(new URL(relative,import.meta.url),'utf8');
 const stylesheet=[
- read('../../styles.css'),read('../../fresh.css'),read('../pilot/pilot.css'),
+ read('../styles.css'),read('../fresh.css'),read('../pilot/pilot.css'),
  read('../pilot/pastel-system.css'),read('../pilot/weekly-luxury-report.css'),
  read('../pilot/luxury-theme.css')
 ].join('\n');

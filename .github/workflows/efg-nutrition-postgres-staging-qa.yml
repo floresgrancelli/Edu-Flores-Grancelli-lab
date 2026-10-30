@@ -400,6 +400,21 @@ jobs:
           docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal < "$RUNNER_TEMP/nut57-before.dump"
           export PGDATABASE=efg_coach_release_rehearsal
           node efg-nutrition/tests/coach-release-bundle-qa.mjs restored "$evidence"
+      - name: COACH119 PostgreSQL17 real history regression (disposable synthetic DB)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test "$PGHOST" = '127.0.0.1'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach119_history'
+          export PGDATABASE=efg_coach119_history
+          node efg-nutrition/tests/coach119-guide-history-pg17.mjs
+          echo "PASS COACH119 real PG17 archive test on synthetic data only. No hosted schema touched."
       - name: State the limits
         if: always()
         run: |

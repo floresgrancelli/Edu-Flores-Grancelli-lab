@@ -12,12 +12,14 @@ const sb={auth:{getUser:async()=>({data:{user:{id:authUser}},error:null}),
  signOut:async opts=>{calls.push(['signOut',opts]);return {error:null}}},
  rpc:async(name,data)=>{
   calls.push([name,data]);
-  if(name==='efg_major_release_current')return {data:{
-   phase,release_id:'major_2026_01',build:'20261030-ux35-session1',
-   published,roles:['student','coach','admin','personal']},error:null};
-  if(name==='efg_major_release_acknowledge')return {
-   data:ackGood?{release_id:'major_2026_01',acknowledgment_kind:'reauth_notice_acknowledged'}:null,
-   error:ackGood?null:{message:'not allowed'}};
+  if(name==='efg_major_release_status')return {data:{
+   phase,id:'major_2026_01',version:'2026.11.1',
+   title:'Gran actualización de Nutrition Coach',
+   highlights:['Nueva ficha de ingreso','Guía alimentaria renovada'],
+   build:'20261030-ux35-session1',published,
+   roles:['student','coach','admin','personal']},error:null};
+  if(name==='efg_major_release_ack')return {
+   data:ackGood?true:null,error:ackGood?null:{message:'not allowed'}};
   throw Error('Unexpected RPC '+name);
  }};
 await assert.rejects(confirmMajorRelaunchAndExit(sb,{...args,enabled:false}),/todavía no permite/);
@@ -44,7 +46,7 @@ const yes=await confirmMajorRelaunchAndExit(sb,{...args,
  hasUnsavedChanges:()=>true,confirmDiscard:()=>true});
 assert.equal(yes.signedOut,true);
 assert.deepEqual(calls.at(-1),['signOut',{scope:'local'}]);
-assert.deepEqual(calls.at(-2),['efg_major_release_acknowledge',{
- p_release_id:'major_2026_01',p_kind:'reauth_notice_acknowledged'
+assert.deepEqual(calls.at(-2),['efg_major_release_ack',{
+ p_release:'major_2026_01',p_event_kind:'reauth_notice_acknowledged',p_explicit_click:true
 }]);
 console.log('PASS UX35: signed MAJOR only, no preview/minor/unauthorized/early exit, user confirmation before receipt, local OTP exit.');

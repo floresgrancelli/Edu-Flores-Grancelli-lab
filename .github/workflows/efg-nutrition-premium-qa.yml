@@ -79,6 +79,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
+      - name: UX35 signed MAJOR reauth adapter remains OFF until hosted release receipts
+        run: |
+          node --check efg-nutrition/pilot/major-release-reauth-client.js
+          node efg-nutrition/tests/ux35-major-release-reauth-client.mjs
       - name: UX35 major release exceptional; minor version silent and explicit mobile logout
         run: |
           node --check efg-nutrition/pilot/logout-session.js

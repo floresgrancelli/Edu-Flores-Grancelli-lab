@@ -1,5 +1,6 @@
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js";
 import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
 export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
@@ -11,6 +12,14 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  const activities={low:"Mayormente sentado",light:"Ligera",moderate:"Moderada",high:"Alta"};
  const diets={omnivore:"Omnívoro",vegetarian:"Vegetariano",vegan:"Vegano",pescatarian:"Pescetariano",other:"Otro / aún no definido"};
  const missing=e=>e&&["42P01","PGRST205"].includes(e.code);
+ // Never let a current-release Coach see a formerly shared legacy intake.
+ const currentIntakeTable=()=>COACH_RELAUNCH_ONBOARDING_ENABLED?
+   "efg_coach_relaunch_intakes":"efg_student_intakes";
+ const currentIntakeFields=(includeStudent=false)=>
+   (includeStudent?"student_id,":"")+"objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at"+
+   (COACH_RELAUNCH_ONBOARDING_ENABLED?",completed_version,revision":"");
+ const filterRelease=query=>COACH_RELAUNCH_ONBOARDING_ENABLED?
+   query.eq("completed_version",COACH_RELEASE_INTAKE_VERSION):query;
  const pending=()=>state.profile?.role==="student"&&state.planAccessSupported&&state.planAccess?.status!=="published";
  async function loadStudent(){
   state.studentIntake=null;state.planAccess=null;state.planAccessSupported=false;
@@ -21,7 +30,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.planAccessSupported=true;state.planAccess=a.data||{status:"pending"};
   // Privacy rights continue after publication: retain access to the intake and revoke sharing at any time.
   {
-   const f=await sb.from("efg_student_intakes").select("objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at").eq("student_id",id).maybeSingle();
+   const f=await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle();
    if(f.error)throw f.error;
    state.studentIntake=f.data||null;
   }
@@ -30,7 +39,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   state.coachIntakeForms={};state.coachIntakeAccess={};
   if(!consentedIds.length)return;
   const [a,b]=await Promise.all([
-   sb.from("efg_student_intakes").select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at").in("student_id",consentedIds).not("shared_at","is",null).limit(500),
+   filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields(true)).in("student_id",consentedIds).not("shared_at","is",null)).limit(500),
    sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",consentedIds).limit(500)
   ]);
   if(a.error&&!missing(a.error))throw a.error;
@@ -46,9 +55,9 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   delete state.coachIntakeAccess[studentId];
   if(!consented)return;
   const [a,b]=await Promise.all([
-   sb.from("efg_student_intakes")
-    .select("student_id,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at")
-    .eq("student_id",studentId).not("shared_at","is",null).maybeSingle(),
+   filterRelease(sb.from(currentIntakeTable())
+    .select(currentIntakeFields(true))
+    .eq("student_id",studentId).not("shared_at","is",null)).maybeSingle(),
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
   ]);
@@ -91,6 +100,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
  }
  async function save(){
+  if(COACH_RELAUNCH_ONBOARDING_ENABLED)
+   throw Error("Esta versión utiliza una ficha de relanzamiento que requiere revisión segura por versión.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)throw Error("Tu ficha no está disponible en esta sesión.");
   const get=id=>document.getElementById(id),value=id=>get(id)?.value?.trim()||"";
   const numeric=(id,min,max,integer=false)=>{
@@ -120,6 +131,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   await loadStudent();await render();notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
  async function deleteOwn(){
+  if(COACH_RELAUNCH_ONBOARDING_ENABLED)
+   throw Error("La ficha nueva exige el borrado/versionado seguro; el borrado antiguo está deshabilitado.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)
    throw Error("Tu ficha no está disponible en esta sesión.");
   if(!state.studentIntake)return;

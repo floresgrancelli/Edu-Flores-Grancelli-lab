@@ -48,6 +48,11 @@ jobs:
           node efg-nutrition/tests/gut-clinical-workbench.mjs
       - name: Shared food compatibility evidence contracts
         run: node efg-nutrition/tests/food-compatibility.mjs
+      - name: COACH101 real meal semaforo with reviewed Supabase evidence (offline fixtures)
+        run: |
+          node --check efg-nutrition/pilot/food-compatibility-adapter.js
+          node --check efg-nutrition/pilot/pilot.js
+          node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs
       - name: Validate role-specific UX contracts
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)

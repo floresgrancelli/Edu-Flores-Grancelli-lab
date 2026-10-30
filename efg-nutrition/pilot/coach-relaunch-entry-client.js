@@ -119,7 +119,7 @@ export function readCoachRelaunchForm(doc){
 export async function submitCoachRelaunchEntry(sb,{profile,userId,entry,payload,shareWithCoach,explicitSubmit=false}={}){
  if(explicitSubmit!==true||!sb||!validUid(userId)||profile?.user_id!==userId||
     profile?.role!=="student"||profile?.active!==true||
-    !validUid(profile.organization_id)||entry?.route!=="intake"||
+    !validUid(profile.organization_id)||
     (entry?.route!=="intake"&&entry?.route!=="ready"||entry?.route==="intake"&&entry.status!==null||
      entry?.route==="ready"&&(!Number.isInteger(entry.status?.revision)||entry.status.revision<1||entry.status.completed_version!==COACH_RELEASE_INTAKE_VERSION))||!accepted(entry.legalStatus))
   throw Error("Verificá tu identidad, la ficha nueva y la aceptación legal antes de confirmar.");

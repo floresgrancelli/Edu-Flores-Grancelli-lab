@@ -20,7 +20,9 @@ assert.match(src,/if\(d\.meals\[slot\]\.length&&!confirm/,'Do not silently overw
 assert.match(pull,/Math\.min\(110,Math\.round\(window\.innerHeight\*\.18\)\)/,
  'Android touch refresh must start only from top edge');
 assert.match(pull,/if\(e\.touches\[0\]\.clientY>topEdge\)return;/);
-assert.match(pull,/isEditable\(e\.target\)\|\|hasNestedScroll\(e\.target\)/,'Nested scroll and forms preserve gestures');
+assert.match(pull,/isEditable\(e\.target\)/,'Form edits preserve native scrolling');
+assert.match(pull,/hasNestedScroll\(e\.target\)/,'Nested scroll preserves native gestures');
+assert.match(pull,/isDashboardContent\(e\.target\)/,'Dashboard swipes never trigger reload');
 assert.match(pull,/if\(e\.cancelable\)e\.preventDefault\(\)/,'Only prevent a cancelable gesture');
 const gestureStart=src.indexOf('document.addEventListener("keydown",event=>{');
 assert.ok(gestureStart>=0);

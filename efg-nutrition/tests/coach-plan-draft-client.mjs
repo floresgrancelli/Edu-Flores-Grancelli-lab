@@ -149,4 +149,17 @@ assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&state\.coachPlanDraftRecord\?\.g
  "Reopened private draft must show the same approved catalog");
 assert.match(app,/guide:finalGuide/,
  "Publish must compare the food selection against the saved draft");
+// A server-side commit might succeed while the subsequent UI read fails.
+// The request UUID MUST remain the same until readback/render completes.
+const pubStart=app.indexOf('async function publishCoachAtomicDraft(){');
+const pubEnd=app.indexOf('function activeCoachGuideGoal(){',pubStart);
+assert.ok(pubStart>0&&pubEnd>pubStart);
+const pub=app.slice(pubStart,pubEnd);
+assert.ok(pub.indexOf('await loadStudentDetail(studentId);await render();')>=0);
+assert.ok(pub.indexOf('state.coachPlanPublishRequestId=null;')>
+ pub.indexOf('await loadStudentDetail(studentId);await render();'),
+ "Do not drop an idempotency key before post-commit readback succeeds");
+assert.match(pub,/state\.coachPlanPublishRequestId=state\.coachPlanPublishRequestId\|\|crypto\.randomUUID\(\)/,
+ "Retry must reuse the original request ID");
+
 console.log("PASS: Coach staged draft adapter OFF; validated five meals, versioned save, confirmed atomic publish, denial on revoked/stale/invalid identity; legacy guide and publish blocked under access schema (SYNTHETIC).");

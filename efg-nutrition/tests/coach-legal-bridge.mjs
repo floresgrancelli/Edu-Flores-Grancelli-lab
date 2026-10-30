@@ -81,6 +81,20 @@ assert.match(pilot,/state\.coachLegalSnapshot=null;state\.coachLegalPending=fals
 assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
 assert.match(pilot,/if\(action==="confirmLegalAcceptance"\)\{/);
 assert.match(pilot,/await acceptCoachLegalOnboarding\(sb,state\.coachLegalSnapshot,checked,\{explicitSubmit:true\}\)/);
+// Refresh cannot bypass new legal versions while preserving coach draft edits.
+const pullStart=pilot.indexOf("async function refreshVisibleWorkspace()");
+const pullEnd=pilot.indexOf("async function saveWeight()",pullStart);
+assert.ok(pullStart>0&&pullEnd>pullStart);
+const pull=pilot.slice(pullStart,pullEnd);
+assert.match(pull,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
+assert.match(pull,/state\.coachLegalPending=state\.coachLegalSnapshot\.missing\.length>0/);
+assert.match(pull,/if\(state\.coachLegalPending\)\{[\s\S]*?await render\(\);return;/);
+assert.match(pull,/state\.coachRelaunchEntry=await loadCoachRelaunchEntry\(sb,\{profile:state\.profile,userId:id\}\)/);
+assert.match(pull,/if\(state\.coachRelaunchEntry\.route!=="ready"\)\{await render\(\);return;\}/);
+assert.ok(pull.indexOf("state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb)")<pull.indexOf("await Promise.all([loadPersonalData()"),
+ "Coach legal checks must happen before fetching private workspace data");
+assert.ok(pull.indexOf("state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb")<pull.indexOf("await Promise.all([loadPersonalData()"),
+ "Student intake and current legal versions must be rechecked before private reads");
 assert.doesNotMatch(pilot,/acceptedNotice.*true.*legal|localStorage\.setItem\("legalAccepted"/,
  "No locally accepted flag may bypass versioned legal server readback.");
 console.log("PASS COACH-67: legal docs are exact version/hash, checked individually, HTML escaped, RPC explicit, readback mandatory and all flags OFF.");

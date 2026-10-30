@@ -20,8 +20,49 @@ export function createVersionNotice({
  host.setAttribute("aria-label","Actualización de EFG Nutrition Pro");
  host.hidden=true;
  document.body.append(host);
- // Build changes are silent. Promotional and legal flows have separate server gates.
- function paint(){host.hidden=true;host.innerHTML="";}
+ // Offer the upgrade, but never auto-reload a running food diary or edit.
+ // Build changes are independent of promotional and legal flows.
+ function paint(){
+  host.replaceChildren();
+  const canPresent=!!latest&&dismissed!==latest.key&&canShow()&&!document.hidden;
+  host.hidden=!canPresent;
+  if(!canPresent)return;
+  const icon=document.createElement("span");
+  icon.className="efg-version-icon";
+  icon.textContent="↻";
+  icon.setAttribute("aria-hidden","true");
+  const copy=document.createElement("div");
+  copy.className="efg-version-copy";
+  const title=document.createElement("strong");
+  title.textContent="Hay una actualización disponible";
+  const hint=document.createElement("p");
+  const dirty=!!hasUnsavedChanges();
+  hint.textContent=dirty
+   ?"Guardá tus cambios y volvé a abrir la app para instalarla sin perder lo que estás editando."
+   :"Podés actualizar ahora o seguir usando esta versión.";
+  copy.append(title,hint);
+  const actions=document.createElement("div");
+  actions.className="efg-version-actions";
+  const later=document.createElement("button");
+  later.type="button";later.className="efg-version-later";
+  later.textContent="Más tarde";
+  later.addEventListener("click",()=>{
+   dismissed=latest?.key||null;
+   paint();
+  });
+  const upgrade=document.createElement("button");
+  upgrade.type="button";upgrade.className="efg-version-update";
+  upgrade.textContent="Actualizar";
+  upgrade.disabled=dirty;
+  if(dirty)upgrade.title="Primero guardá los cambios pendientes";
+  upgrade.addEventListener("click",()=>{
+   if(hasUnsavedChanges()){paint();return;}
+   // User gesture ONLY. No automatic refresh on visibility/focus/check.
+   window.location.reload();
+  });
+  actions.append(later,upgrade);
+  host.append(icon,copy,actions);
+ }
  async function check({force=false,reopen=false}={}){
   if(inFlight){
    await inFlight;

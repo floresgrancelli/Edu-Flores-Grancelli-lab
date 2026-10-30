@@ -62,6 +62,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+      - name: SEC08 hosted-readonly privilege inventory and mandatory release gate remain protected
+        run: |
+          node --check efg-nutrition/tests/sec08-live-security-contract.mjs
+          node efg-nutrition/tests/sec08-live-security-contract.mjs
       - name: COACH-68 versioned intake revision on all draft/policy/publish SQL (STATIC ONLY)
         run: |
           node --check efg-nutrition/pilot/coach-plan-draft-client.js

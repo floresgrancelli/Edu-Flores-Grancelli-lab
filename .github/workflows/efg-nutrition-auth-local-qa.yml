@@ -5,6 +5,7 @@ on:
     branches: [efg-nutrition-app]
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
+      - '.github/workflows/efg-nutrition-premium-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
       - 'efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs'
       - 'efg-nutrition/tests/coach-major-release-scope.mjs'

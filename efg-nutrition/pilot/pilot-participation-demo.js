@@ -13,7 +13,7 @@ export const PILOT_PARTICIPATION_TEXT=Object.freeze({
   "No ingreses diagnósticos, resultados médicos, alergias ni otros datos de salud sensibles en esta versión de prueba."
  ]),
  participation:"Quiero participar voluntariamente en las pruebas de Nutrición Con-Ciencia.",
- sharing:"Autorizo que mi coach vea la ficha nutricional que elija compartir. Puedo retirar este permiso."
+ sharing:"Autorizo que mi coach vea la ficha nutricional que elija compartir para participar en el seguimiento del piloto. Puedo retirar este permiso."
 });
 const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 export function renderPilotParticipationNotice({version=PILOT_PARTICIPATION_VERSION}={}){
@@ -22,10 +22,11 @@ export function renderPilotParticipationNotice({version=PILOT_PARTICIPATION_VERS
   '<span class="eyebrow">VERSIÓN DE PRUEBA · DOCUMENTO PROVISIONAL</span>'+
   '<h2 id="efgPilotHeading">'+escapeHTML(PILOT_PARTICIPATION_TEXT.heading)+'</h2>'+
   PILOT_PARTICIPATION_TEXT.paragraphs.map(p=>'<p>'+escapeHTML(p)+'</p>').join("")+
+  '<p class="pilot-hint">Para continuar en este piloto Coach tenés que confirmar ambas opciones. Si preferís no compartir la ficha, podés no participar en el seguimiento. Podés retirar el permiso más adelante; las funciones de seguimiento dejarían de estar disponibles.</p>'+ 
   '<p class="pilot-hint">Esta pantalla es una simulación para validar la experiencia. No equivale a términos legales definitivos ni autoriza tratamientos médicos.</p>'+
-  '<label><input type="checkbox" id="efgPilotParticipate">'+escapeHTML(PILOT_PARTICIPATION_TEXT.participation)+'</label>'+
-  '<label><input type="checkbox" id="efgPilotShare">'+escapeHTML(PILOT_PARTICIPATION_TEXT.sharing)+'</label>'+
-  '<button type="button" class="btn" data-act="pilotDemoContinue">Continuar con la prueba</button>'+
+  '<label><input type="checkbox" id="efgPilotParticipate" required>'+escapeHTML(PILOT_PARTICIPATION_TEXT.participation)+'</label>'+
+  '<label><input type="checkbox" id="efgPilotShare" required>'+escapeHTML(PILOT_PARTICIPATION_TEXT.sharing)+'</label>'+
+  '<button type="button" class="btn" id="efgPilotContinue" data-act="pilotDemoContinue" disabled>Continuar con la prueba</button>'+
   '</section>';
 }
 export function readPilotParticipationSelection(doc,{explicitClick=false}={}){
@@ -36,13 +37,29 @@ export function readPilotParticipationSelection(doc,{explicitClick=false}={}){
  if(!participate||!share||typeof participate.checked!=="boolean"||typeof share.checked!=="boolean")
   throw Error("Faltan las decisiones separadas.");
  if(participate.checked!==true)throw Error("No se confirmó la participación voluntaria.");
+ if(share.checked!==true)throw Error("El piloto Coach requiere autorización expresa para compartir la ficha.");
  // A selection is NOT an acceptance receipt. The authorized hosted API must
  // record the user, version, timestamp and choice once it is built and tested.
  return Object.freeze({
   version:PILOT_PARTICIPATION_VERSION,
   participationRequested:true,
-  sharingRequested:share.checked===true,
+  sharingRequested:true,
   persisted:false,
   legalAcceptance:false
  });
+}
+
+// UI only: no acceptance is saved and no permissions are granted here.
+// Controller must call this on each checkbox change and before enabling Continue.
+export function syncPilotParticipationContinueButton(doc){
+ if(typeof doc?.getElementById!=="function")throw Error("Formulario piloto no disponible.");
+ const participation=doc.getElementById("efgPilotParticipate");
+ const sharing=doc.getElementById("efgPilotShare");
+ const button=doc.getElementById("efgPilotContinue");
+ if(!participation||!sharing||!button||
+    typeof participation.checked!=="boolean"||typeof sharing.checked!=="boolean")
+  throw Error("El formulario piloto está incompleto.");
+ const ready=participation.checked===true&&sharing.checked===true;
+ button.disabled=!ready;
+ return ready;
 }

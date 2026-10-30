@@ -73,8 +73,20 @@ assert.match(app,/if\(action==="publishCoachAtomicDraft"\)return publishCoachAto
 assert.match(app,/await assertCoachGoalWriteSafe\(sb,\{studentId:student,fromSharedIntake:/);
 assert.match(flow,/await assertCoachGoalWriteSafe\(sb,\{studentId:student,fromSharedIntake:/);
 assert.match(app,/state\.coachPlanDraftRecord=null;state\.coachPlanPublishRequestId=null/);
-assert.match(app,/const goal=\(COACH_ATOMIC_PLAN_UI_ENABLED&&proposed\)\|\|state\.coachGoals\[0\]/,
- "Staged GUI must generate five meals from the UNPUBLISHED goal, while legacy retains the approved goal");
+assert.match(app,/function activeCoachGuideGoal\(\)\{[\s\S]*?COACH_ATOMIC_PLAN_UI_ENABLED[\s\S]*?state\.pendingGoal\|\|state\.pendingGoalRevision\?\.proposal\|\|null[\s\S]*?state\.coachGoals\[0\]\|\|null/,
+ "Atomic drafts must choose only an unpublished Coach goal; legacy chooses the approved goal");
+assert.doesNotMatch(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&proposed\)\|\|state\.coachGoals\[0\]/,
+ "Never fall back to an approved goal when atomic draft has no proposal");
+assert.match(app,/const plan=state\.coachGuidedDraft,goal=activeCoachGuideGoal\(\)/,
+ "Live five-meal deviation preview must use the active draft target");
+assert.equal((app.match(/const goal=activeCoachGuideGoal\(\);/g)||[]).length,3,
+ "Coach guide view, generator and rebalancer must share the draft-safe target");
+assert.equal((app.match(/const targetGoal=activeCoachGuideGoal\(\);if\(!targetGoal\)return;/g)||[]).length,2,
+ "Changing a food or quantity must refuse stale/absent atomic goal");
+assert.match(app,/rebalanceGuidedDay\(swapGuidedFood\([\s\S]*?\),targetGoal\)/,
+ "Food changes must rebalance against the current private goal");
+assert.match(app,/state\.coachGuidedDraft=rebalanceGuidedDay\(draft,targetGoal\)/,
+ "Quantity changes must rebalance against the current private goal");
 assert.match(app,/const guide=state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/,
  "Save the edited guide, not the stale auto-generated preview");
 assert.match(app,/const active=saved\?\.status==="draft"&&coachDraftSourceCurrent\(intake,saved\)/,

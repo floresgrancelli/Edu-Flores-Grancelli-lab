@@ -2,7 +2,7 @@
 // Never use it for production SQL, credentials, Storage bytes or an actual restore.
 import {execFileSync} from 'node:child_process';
 import {lstat,mkdir,realpath,stat,statfs} from 'node:fs/promises';
-import {isAbsolute,dirname,resolve,sep} from 'node:path';
+import {isAbsolute,dirname,basename,resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const stop=m=>{throw Error('COACH95 STOP: '+m);};
@@ -35,11 +35,16 @@ function version(cmd,args){
   maxBuffer:4096,stdio:['ignore','pipe','pipe']}).trim();}
  catch{stop('required command is unavailable or service not running: '+cmd);}
 }
+export function validatePrivateDirectoryPlacement(target,repo){
+ if(inside(target,repo)||inside(repo,target))stop('backup cannot overlap repository');
+ return true;
+}
 async function protectedDirectory(path,create){
  if(typeof path!=='string'||!isAbsolute(path))stop('absolute private directory path required');
  const repo=await realpath(fileURLToPath(new URL('../../',import.meta.url)));
  const parent=await realpath(dirname(resolve(path)));
- if(inside(parent,repo)||inside(repo,parent))stop('private data must remain outside repository and parents');
+ const candidate=resolve(parent,basename(resolve(path)));
+ validatePrivateDirectoryPlacement(candidate,repo);
  if(create){
   try{await mkdir(path,{mode:0o700});}
   catch(e){if(e?.code!=='EEXIST')throw e;}
@@ -47,7 +52,7 @@ async function protectedDirectory(path,create){
  const st=await lstat(path);
  if(!st.isDirectory()||st.isSymbolicLink())stop('symlink/non-directory backup path rejected');
  const real=await realpath(path);
- if(inside(real,repo)||inside(repo,real))stop('backup path cannot overlap repository');
+ validatePrivateDirectoryPlacement(real,repo);
  const info=await stat(real);
  if((info.mode&0o077)!==0)stop('backup directory must be private chmod 700');
  const disk=await statfs(real,{bigint:true});

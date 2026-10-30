@@ -99,6 +99,18 @@ create table public.efg_personal_recipes(
  student_id uuid references public.efg_profiles(user_id),id uuid primary key default gen_random_uuid(),
  name text not null,ingredients jsonb not null default '[]'::jsonb
 );
+-- Pre-upgrade log tables already have identity-based RLS in the hosted app.
+-- Recreate ONLY a limited synthetic ownership policy for this test.
+do $old_rls$
+declare t text;
+begin
+ foreach t in array array['efg_daily_logs','efg_weights','efg_activities','efg_habitual_meals','efg_personal_recipes'] loop
+  execute format('alter table public.%I enable row level security',t);
+  execute format('grant select,insert,update,delete on public.%I to authenticated',t);
+  execute format('create policy %I on public.%I for all to authenticated using(student_id=auth.uid()) with check(student_id=auth.uid())',t||'_legacy_owner',t);
+ end loop;
+end
+$old_rls$;
 do $preflight$
 begin
  if pg_catalog.to_regclass('public.efg_student_plan_access') is not null

@@ -34,3 +34,21 @@
 @media(max-width:680px){.efg-self-head{padding:14px 16px;gap:8px}.efg-self-brand{font-size:13px}.efg-self-brand img{width:37px}.efg-self-content{width:calc(100% - 24px);padding:15px 0 30px}.efg-self-hero{padding:28px 22px;border-radius:21px}.efg-self-overview,.efg-self-foods{padding:20px 16px;border-radius:20px}.efg-self-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.efg-self-meal{padding:16px 13px}.efg-self-meal-grid{grid-template-columns:1fr;gap:8px}}
 @media(max-width:375px){.efg-self-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.efg-self-head .btn{font-size:11px;padding:8px}}
 @media(prefers-reduced-motion:reduce){.efg-self-shell *{animation:none!important;transition:none!important}}
+
+/* NUT-62/63 · Educational previews share the same Personal visual language. */
+.efg-self-plan-preview,.efg-self-balance{margin:22px 0 0;border:1px solid #e9dfe8;border-radius:22px;background:#fffdfb;padding:23px 25px;box-shadow:0 6px 25px #5b466b0c;color:#403448}
+.efg-self-plan-preview .eyebrow,.efg-self-balance .eyebrow{color:#876a8e;font-size:11px;font-weight:750;letter-spacing:.13em}
+.efg-self-plan-preview h3,.efg-self-balance h3{color:#3b2d43;font-size:21px;line-height:1.3;margin:9px 0 12px}
+.efg-self-plan-preview p,.efg-self-balance p{line-height:1.55}
+.efg-self-plan-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border-radius:14px;border:1px solid #e9e0e9;-webkit-overflow-scrolling:touch}
+.efg-self-plan-scroll table{width:100%;min-width:560px;border-collapse:collapse;font-size:13px;line-height:1.5;color:#423b48}
+.efg-self-plan-scroll caption{caption-side:top;text-align:left;padding:11px 13px;background:#f5eff8;color:#655368;font-size:12px}
+.efg-self-plan-scroll th,.efg-self-plan-scroll td{padding:11px 10px;border-bottom:1px solid #e9e3eb;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.efg-self-plan-scroll th:first-child,.efg-self-plan-scroll td:first-child{text-align:left}
+.efg-self-plan-scroll thead{background:#f9f5fa;color:#3d3547}
+.efg-self-plan-scroll tbody tr:last-child>*{border-bottom:none}
+.efg-self-plan-disclaimers{padding-left:21px;color:#665d6a;font-size:13px;line-height:1.65}
+.efg-self-balance-suggestions{border-radius:14px;background:#f6f2f8;padding:12px 15px;margin-top:14px}
+.efg-self-balance-suggestions h4{margin:0 0 7px;font-size:14px}
+.efg-self-balance-suggestions p{margin:5px 0;font-size:13px}
+@media(max-width:680px){.efg-self-plan-preview,.efg-self-balance{padding:19px 15px;border-radius:18px}.efg-self-plan-preview h3,.efg-self-balance h3{font-size:19px}.efg-self-plan-scroll table{font-size:12px}.efg-self-plan-scroll th,.efg-self-plan-scroll td{padding:10px 8px}}

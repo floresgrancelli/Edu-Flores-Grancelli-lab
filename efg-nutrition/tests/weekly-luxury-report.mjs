@@ -86,6 +86,16 @@ const withNoGoalForTwoDays=buildLuxuryWeeklyReport({...data,goals:[
 assert.equal(withNoGoalForTwoDays.targets.k,null);
 assert.doesNotMatch(withNoGoalForTwoDays.conclusion,/objetivo promedio vigente en esos días/);
 
+
+const sparseMeals=buildLuxuryWeeklyReport({...data,days:days.map(d=>({...d,mealCount:1}))});
+assert.equal(sparseMeals.daysRecorded,5);
+assert.equal(sparseMeals.daysWithMultipleMeals,0);
+assert.equal(sparseMeals.evidence.grade,'insuficiente');
+assert.doesNotMatch(sparseMeals.conclusion,/La proteína registrada se ubicó/);
+const richMeals=buildLuxuryWeeklyReport({...data,days:days.map(d=>({...d,mealCount:3}))});
+assert.equal(richMeals.daysWithMultipleMeals,5);
+assert.equal(richMeals.evidence.grade,'orientativa');
+
 const bad=buildLuxuryWeeklyReport({...data,studentName:'<img src=x onerror=alert(1)>'});
 assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img/);
 console.log('PASS REPORT-LUX: numbers/goal-by-date, top-food-day, low-data, XSS, legacy, privacy-friendly guidance and serialization.');

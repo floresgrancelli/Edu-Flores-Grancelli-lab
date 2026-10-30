@@ -29,7 +29,8 @@ assert.equal(preview.totals.fiber_g,34);
 assert.deepEqual(preview.meals.map(m=>m.slot),
  ["desayuno","media_manana","almuerzo","media_tarde","cena"]);
 assert.deepEqual(preview.meals.map(m=>m.targets.kcal),[528,312,696,336,528]);
-assert.equal(PERSONAL_PREVIEW_SHARES.reduce((a,m)=>a+m.share,0),1);
+assert.ok(Math.abs(PERSONAL_PREVIEW_SHARES.reduce((a,m)=>a+m.share,0)-1)<1e-12,
+ "Decimal shares must sum to 100% up to floating-point precision.");
 for(const [k,value] of Object.entries(preview.totals)){
  assert.equal(preview.meals.reduce((n,m)=>n+m.targets[k],0),value,"Exact split "+k);
  assert.ok(preview.meals.every(m=>Number.isInteger(m.targets[k])&&m.targets[k]>=0));

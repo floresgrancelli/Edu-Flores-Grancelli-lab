@@ -89,5 +89,5 @@ async function main(){
   "bytes. IMPORTANT: private bucket ACL, DB+Auth parity, hosted RLS and rollback remain unverified.");
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- main().catch(e=>{console.error(String(e.message||e).slice(0,170));process.exitCode=2;});
+ main().catch(()=>{console.error("COACH72 STOP: offline private Storage verification failed; review evidence securely on the local machine.");process.exitCode=2;});
 }

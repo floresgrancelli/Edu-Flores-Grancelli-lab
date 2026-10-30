@@ -108,5 +108,19 @@ buttons()[1].click();
 assert.equal(reloads,0,"Instructions never reload a running PWA");
 notice.dispose();
 assert.equal(host.wasRemoved,true);
+// UX-35 FINAL: the same newer server HTML must NEVER pop a banner on a
+// default minor/daily deployment. Manual version check still reports it.
+const silent=createVersionNotice({
+ currentVersion:current,canShow:()=>loggedIn,
+ hasUnsavedChanges:()=>editing,intervalMs:3600000
+});
+const silentHost=root.children.at(-1);
+await silent.check({force:true});
+assert.equal(silent.getStatus().hasUpdate,true,"Manual check still detects updated code");
+assert.equal(silent.getStatus().automaticNoticeEnabled,false);
+assert.equal(silentHost.hidden,true,"Minor deployments never interrupt a logged-in user");
+await silent.check({force:true,reopen:true});
+assert.equal(silentHost.hidden,true,"Manual checking must not create unwanted minor popup");
+silent.dispose();
 Object.assign(globalThis,original);
 console.log("PASS NUT-58: visible noninterrupting update notice, safe re-opening instructions, never reload, dismissal, new release reopens, login/background hidden.");

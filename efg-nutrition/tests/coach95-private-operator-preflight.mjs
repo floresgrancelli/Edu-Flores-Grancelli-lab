@@ -1,6 +1,9 @@
 // COACH95 — no private data, secrets, Docker or database used in this test.
 import assert from 'node:assert/strict';
-import {assessWorkstation} from '../scripts/coach95-private-operator-preflight.mjs';
+import {assessWorkstation,validatePrivateDirectoryPlacement} from '../scripts/coach95-private-operator-preflight.mjs';
+assert.equal(validatePrivateDirectoryPlacement('/Users/test/efg-coach94-private','/Users/test/EFG-Nutrition-Revision'),true);
+for(const bad of ['/Users/test/EFG-Nutrition-Revision','/Users/test/EFG-Nutrition-Revision/private','/Users/test'])
+ assert.throws(()=>validatePrivateDirectoryPlacement(bad,'/Users/test/EFG-Nutrition-Revision'),/COACH95 STOP/);
 const good={node:'22.16.0',psql:'psql (PostgreSQL) 17.11',
   supabase:'2.84.2',docker:'27.5.1',freeBytes:6*1024**3,
   env:{EFG_COACH95_MANUAL_ACK:'I_AM_ON_MY_PRIVATE_COMPUTER'}};

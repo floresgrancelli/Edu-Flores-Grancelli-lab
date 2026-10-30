@@ -96,6 +96,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/personal-workspace.js
           node efg-nutrition/tests/personal-workspace-readonly.mjs
+      - name: NUT-61 Personal intake voluntary health screening (SYNTHETIC; OFF)
+        run: |
+          node --check efg-nutrition/pilot/personal-intake-draft.js
+          node efg-nutrition/tests/personal-intake-draft.mjs
       - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
         run: node efg-nutrition/tests/serotonin-brand-loading.mjs
       - name: Verify major release messages for every role (offline, NO live delivery)

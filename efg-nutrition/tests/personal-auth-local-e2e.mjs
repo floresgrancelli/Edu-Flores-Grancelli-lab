@@ -45,7 +45,8 @@ const a=await signup("personalA"),b=await signup("personalB");
 const coachBefore={
  goals:sql("select count(*) from public.efg_goals"),
  guides:sql("select count(*) from public.efg_food_plans"),
- notifications:sql("select count(*) from public.efg_notifications")
+ notifications:sql("select count(*) from public.efg_notifications"),
+ studentDaily:sql("select count(*) from public.efg_daily_logs")
 }; // Earlier coach and compatibility QA may legitimately add more than one row.
 
 const rpc=(name,user,body)=>rest("/rest/v1/rpc/"+name,{method:"POST",token:user?.token,body});
@@ -149,6 +150,6 @@ assert.equal(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset rema
 yes(await rest(favPath+"?id=eq."+ownFav[0].id,{method:"DELETE",token:a.token}),"A deletes only own preset");
 assert.deepEqual(yes(await rest(favPath+"?select=id",{token:a.token}),"A preset deleted"),[]);
 assert.equal(sql("select count(*) from public.efg_personal_habitual_meals"),"0");
-assert.equal(sql("select count(*) from public.efg_daily_logs"),"1",
+assert.equal(sql("select count(*) from public.efg_daily_logs"),coachBefore.studentDaily,
  "Personal diary cannot alter historic Student diary");
 console.log("PASS NUT-60 LOCAL: signed JWT A/B, legal-gated enrollment, personal goals revisions, owner RLS diary and meal presets, no Coach/Student cross-writes. No real clinical/legal approval.");

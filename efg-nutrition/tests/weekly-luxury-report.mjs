@@ -40,9 +40,13 @@ assert.deepEqual(model.evidence.scientificSources,['ACSM-2016','ISSN-PROTEIN-201
 assert.equal(model.evidence.comparisons.energyPct,91);
 assert.equal(model.evidence.comparisons.proteinPct,97);
 assert.equal(model.evidence.comparisons.carbsPct,83);
-assert.match(model.conclusion,/En 5 días con registros/);
+assert.match(model.conclusion,/¡Hola, Sofía!/);
+assert.match(model.conclusion,/Registraste comidas en 5 de 7 días/);
 assert.match(model.conclusion,/2\.090 kcal frente a 2\.300 kcal/);
-assert.match(model.conclusion,/registros, no determina ingesta real/);
+assert.match(model.conclusion,/no miden por sí solos todo lo que comiste/);
+assert.doesNotMatch(model.conclusion,/premio|trampa|culpa por comer|te merecés/i);
+assert.match(model.flexibleNote,/helado/);
+assert.match(model.flexibleNote,/No hace falta ganárselos ni compensarlos/);
 
 const html=renderLuxuryWeeklyReport(model,{demo:true});
 assert.match(html,/MODELO · DATOS FICTICIOS/);
@@ -52,6 +56,8 @@ assert.match(html,/Los días sin datos/);
 assert.match(html,/¿Cómo llegamos a esta conclusión\?/);
 assert.match(html,/Academy\/DC\/ACSM/);
 assert.match(html,/10\.1186\/s12970-017-0177-8/);
+assert.match(html,/Espacio para disfrutar/);
+assert.match(html,/lux-report-flex/);
 
 assert.doesNotMatch(html,/<script|javascript:/);
 const payload=reportAsStoredText(model,'Comentario <script>alert(1)</script> del coach','Si disfrutás un postre, es parte de tu flexibilidad.');
@@ -63,7 +69,8 @@ assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,approvedByCoach:f
 assert.throws(()=>reportAsStoredText(model,'',null),/debe revisar/);
 assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete días/);
 const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});
-assert.match(scant.conclusion,/No contamos con suficiente cobertura/);
+assert.match(scant.conclusion,/todavía nos falta información/);
+assert.match(scant.conclusion,/un día vacío no significa que no hayas comido/);
 assert.equal(scant.evidence.grade,'insuficiente');
 assert.equal(scant.evidence.comparisons.energyPct,88);
 assert.doesNotMatch(scant.conclusion,/energía registrada quedó por debajo/);

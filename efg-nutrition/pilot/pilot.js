@@ -683,9 +683,9 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Ciencia"],["studentMore","☷","Más"]])
+  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Con-Ciencia"],["studentMore","☷","Más"]])
   :role==="coach"
-  ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
+  ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]]:[];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
@@ -841,13 +841,13 @@ function coachPersonalMoreView(){
  ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
- ["nutritionScience","🧠","Nutrición con ciencia","mint"],
+ ["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],
  ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"]
  ]);
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
- ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["nutritionScience","🧠","Nutrición con ciencia","lilac"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+ ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["nutritionScience","🧠","Nutrición Con-Ciencia","lilac"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;

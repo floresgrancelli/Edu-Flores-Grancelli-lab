@@ -33,6 +33,17 @@ La versión nueva se serializa con `kind=efg_luxury_weekly_v1` en `report_text` 
 - Academy of Nutrition and Dietetics / Dietitians of Canada / American College of Sports Medicine. *Nutrition and Athletic Performance* (2016). DOI: [10.1249/MSS.0000000000000852](https://doi.org/10.1249/MSS.0000000000000852)
 - International Society of Sports Nutrition. *Position Stand: Protein and Exercise* (2017). DOI: [10.1186/s12970-017-0177-8](https://doi.org/10.1186/s12970-017-0177-8)
 
+## REPORT-LUX-76 · Continuidad de edición y revisión exacta (candidato del 30/10)
+
+Se agregó `pilot/weekly-luxury-editor.js`, memoria volátil por `coachId + studentId + weekEnding`:
+
+- Al editar conclusión o flexibilidad **se deshabilita** el botón «Aprobar y compartir» hasta actualizar la vista previa. El `INSERT` exige además `requirePreview` del mismo modelo nutricional y mismo texto final; un botón deshabilitado por sí solo no es el control de seguridad.
+- Al redibujar la pantalla en la misma sesión conserva el texto editado; no usa `localStorage`, `sessionStorage`, tabla, cookies ni transferencia a servidor mientras se edita. **No conserva borradores al cerrar sesión o recargar el navegador** (queda pendiente un borrador persistente autorizado y versionado, si se decide en otra fase).
+- Si cambian registros, objetivos o el modelo base, invalida la aprobación de vista previa y exige revisarlo otra vez; no descarta silenciosamente el texto del coach. Si cambia coach/alumno/semana, elimina el borrador anterior para evitar mezclar información entre personas.
+- La impresión de una vista previa nueva exige el mismo control de revisión. En un informe **ya publicado**, el PDF muestra la versión histórica guardada y nunca recalcula contenidos a partir de nuevas comidas.
+- Se añadieron `tests/weekly-luxury-editor.mjs` con casos ficticios: primera vista no publicada, edición y render, cambios posteriores, variaciones de calorías, aislamiento por identidad, rechazo de texto vacío/largo, ausencia de almacenamiento persistente. Se ejecuta junto con el contrato Luxury Pro en Premium CI.
+- Las medidas cliente **no reemplazan** RLS/PostgreSQL, pruebas de consentimiento revocado, autorización con JWT, revisión legal/clínica, validación en teléfonos físicos ni aprobación de despliegue.
+
 ## Pruebas y limitaciones
 
 - `tests/weekly-luxury-report.mjs`: promedios matemáticos, objetivos que cambiaron en la semana, top de alimentos por días, no considerar días faltantes como cero, entradas sin suficientes comidas, revisión del coach, datos ficticios, escape de HTML e informes anteriores.

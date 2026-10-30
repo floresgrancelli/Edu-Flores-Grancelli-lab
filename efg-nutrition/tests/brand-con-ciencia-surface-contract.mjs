@@ -17,10 +17,10 @@ for(const file of files){
  assert.doesNotMatch(stripped,/EFG\s+NUTRITION(?:\s+PRO)?/i,file+" retains a visible legacy brand");
 }
 const pilot=read("../pilot/pilot.js");
-assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,2,
- "Both mobile nav bars must show full tab name");
-assert.equal((pilot.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,2,
- "Both More menus must display full name");
+assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,4,
+ "Student ready/pending, Coach and Admin nav must show the permanent science library");
+assert.equal((pilot.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,
+ "Student, Coach and Admin More menus must show the permanent science library");
 assert.match(pilot,/nutritionScience:renderScienceVerticalView/);
 assert.match(pilot,/renderScienceWelcomeStep\(state\.scienceWelcomeStep/);
 const html=read("../pilot/index.html");

@@ -230,6 +230,44 @@ assert.equal(sql("select count(*) from public.efg_notifications"),"1",
 assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1",
  "Legacy writes cannot invent or duplicate atomic receipts");
 
+// NUT-59: an OLD Student PWA may continue saving day-to-day meals.
+// A goal/guide grant revocation must not accidentally revoke diary access.
+const logDate="2026-10-30";
+const diaryBase="/rest/v1/efg_daily_logs";
+const studentLog={student_id:users.studentA.id,log_day:logDate,
+ meals:{desayuno:[{id:"egg",qty:2,unit:"units"}]},sports:[],skipped:{},totals:{}};
+ok(await call(diaryBase,{method:"POST",token:users.studentA.token,body:studentLog}),
+ "Legacy Student may still record own breakfast after Coach atomic publication");
+const diaryA=ok(await call(diaryBase+"?select=student_id,log_day,meals&log_day=eq."+logDate,{
+ token:users.studentA.token
+}),"Student reads own historical-style diary via signed JWT");
+assert.equal(diaryA.length,1);
+assert.equal(diaryA[0].student_id,users.studentA.id);
+assert.equal(diaryA[0].meals.desayuno[0].qty,2);
+const diaryB=ok(await call(diaryBase+"?select=student_id,log_day,meals&log_day=eq."+logDate,{
+ token:users.studentB.token
+}),"Other organization cannot read Student A diary");
+assert.deepEqual(diaryB,[]);
+denied(await call(diaryBase,{method:"POST",token:users.studentB.token,
+ body:{...studentLog,log_day:"2026-10-31"}}),
+ "Student B cannot impersonate A when writing meals through legacy PWA");
+denied(await call(diaryBase+"?student_id=eq."+users.studentA.id+"&log_day=eq."+logDate,{
+ method:"PATCH",token:users.studentB.token,body:{meals:{desayuno:[{id:"egg",qty:99}]}}
+}),"Student B cannot modify A's diary via old REST request");
+ok(await call(diaryBase+"?student_id=eq."+users.studentA.id+"&log_day=eq."+logDate,{
+ method:"PATCH",token:users.studentA.token,body:{meals:{desayuno:[{id:"egg",qty:3,unit:"units"}]}}
+}),"Legacy Student may correct own breakfast");
+const diaryAfter=ok(await call(diaryBase+"?select=student_id,meals&log_day=eq."+logDate,{
+ token:users.studentA.token
+}),"Own diary remains readable after stale PWA edits");
+assert.equal(diaryAfter.length,1);
+assert.equal(diaryAfter[0].meals.desayuno[0].qty,3);
+assert.equal(sql("select count(*) from public.efg_daily_logs"),"1",
+ "Student cross-org spoofing cannot insert or duplicate a diary");
+assert.equal(sql("select count(*) from public.efg_goals"),"1",
+ "Diary writes cannot create a new Coach goal");
+assert.equal(sql("select count(*) from public.efg_notifications"),"1",
+ "Diary writes cannot create a duplicate plan alert");
 const reopened=ok(await rpc("efg_save_coach_plan_draft",users.coachA.token,{...payload,p_expected_revision:2}),"Published plan can be reopened privately");
 assert.equal(Number(reopened),3,"New draft revision 3, old published plan remains active");
 assert.equal(sql("select count(*) from public.efg_goals"),"1","Reopening may not modify active goal");

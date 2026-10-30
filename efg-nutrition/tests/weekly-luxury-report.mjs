@@ -30,11 +30,28 @@ assert.equal(model.topFoods.some(x=>x.name==='Arroz integral'&&x.days===4),true)
 assert.ok(model.focus.some(x=>x.includes('carbohidratos')),'Protein nearly met + carbohydrate deficit => check carbs');
 assert.ok(!model.conclusion.toLowerCase().includes('incumplimiento'));
 assert.ok(!model.flexibleNote.toLowerCase().includes('merec'));
+
+assert.equal(model.evidence.grade,'orientativa');
+assert.match(model.evidence.dataBasis,/5 de 7 días/);
+assert.match(model.evidence.dailyGoals,/vigentes en cada fecha/);
+assert.match(model.evidence.rule,/NO son umbrales clínicos/);
+assert.deepEqual(model.evidence.scientificSources,['ACSM-2016','ISSN-PROTEIN-2017']);
+assert.equal(model.evidence.comparisons.energyPct,91);
+assert.equal(model.evidence.comparisons.proteinPct,97);
+assert.equal(model.evidence.comparisons.carbsPct,83);
+assert.match(model.conclusion,/En 5 días con registros/);
+assert.match(model.conclusion,/2\.090 kcal frente a 2\.300 kcal/);
+assert.match(model.conclusion,/registros, no determina ingesta real/);
+
 const html=renderLuxuryWeeklyReport(model,{demo:true});
 assert.match(html,/MODELO · DATOS FICTICIOS/);
 assert.match(html,/5 \/ 7/);
 assert.match(html,/2\.090/);
 assert.match(html,/Los días sin datos/);
+assert.match(html,/¿Cómo llegamos a esta conclusión\?/);
+assert.match(html,/Academy\/DC\/ACSM/);
+assert.match(html,/10\.1186\/s12970-017-0177-8/);
+
 assert.doesNotMatch(html,/<script|javascript:/);
 const payload=reportAsStoredText(model,'Comentario <script>alert(1)</script> del coach','Si disfrutás un postre, es parte de tu flexibilidad.');
 const parsed=parseLuxuryWeeklyReport(payload);
@@ -45,7 +62,10 @@ assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,approvedByCoach:f
 assert.throws(()=>reportAsStoredText(model,'',null),/debe revisar/);
 assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete días/);
 const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});
-assert.match(scant.conclusion,/insuficientes|parciales/);
+assert.match(scant.conclusion,/No contamos con suficiente cobertura/);
+assert.equal(scant.evidence.grade,'insuficiente');
+assert.equal(scant.evidence.comparisons.energyPct,92);
+assert.doesNotMatch(scant.conclusion,/energía registrada quedó por debajo/);
 assert.ok(!scant.focus.some(x=>x.includes('carbohidratos')),'Do not suggest macros from two days');
 const noGoals=buildLuxuryWeeklyReport({...data,goals:[]});
 assert.equal(noGoals.targets.k,null);
@@ -56,6 +76,16 @@ const changedGoals=buildLuxuryWeeklyReport({...data,goals:[
 ]});
 assert.equal(changedGoals.targets.k,(2300*3+2500*2)/5);
 assert.equal(changedGoals.targets.p,(140*3+160*2)/5);
+
+const incomplete=buildLuxuryWeeklyReport({...data,days:days.map((row,i)=>({...row,closed:i<2}))});
+assert.equal(incomplete.evidence.grade,'insuficiente');
+assert.doesNotMatch(incomplete.conclusion,/proteína registrada se ubicó por debajo/);
+const withNoGoalForTwoDays=buildLuxuryWeeklyReport({...data,goals:[
+ {...goals[0],start_on:'2026-10-27'}
+]});
+assert.equal(withNoGoalForTwoDays.targets.k,null);
+assert.doesNotMatch(withNoGoalForTwoDays.conclusion,/objetivo promedio vigente en esos días/);
+
 const bad=buildLuxuryWeeklyReport({...data,studentName:'<img src=x onerror=alert(1)>'});
 assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img/);
 console.log('PASS REPORT-LUX: numbers/goal-by-date, top-food-day, low-data, XSS, legacy, privacy-friendly guidance and serialization.');

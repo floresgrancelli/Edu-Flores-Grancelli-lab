@@ -32,6 +32,11 @@ for(const part of [
 ])assert.ok(sql.includes(part),'Missing atomic candidate invariant: '+part);
 assert.match(sql,/comment on function public\.efg_publish_coach_plan_draft_atomic/);
 assert.match(sql,/on conflict\(student_id\) do update/);
+assert.match(sql,/approved_food_ids=\([\s\S]*?public\.efg_food_plans\.approved_food_ids\s*\|\|\s*excluded\.approved_food_ids[\s\S]*?\)/,
+ 'Publishing a new five-meal guide must preserve earlier coach-approved food choices');
+assert.doesNotMatch(sql,/approved_food_ids=excluded\.approved_food_ids/,
+ 'Never silently shrink an existing student list to just the guide foods');
+
 assert.match(sql,/where student_id=p_student and organization_id=v_org and coach_id=v_coach/);
 assert.match(sql,/and draft_revision=p_expected_revision and status='draft'/);
 assert.match(sql,/on conflict\(recipient_id,event_key\) do nothing/);

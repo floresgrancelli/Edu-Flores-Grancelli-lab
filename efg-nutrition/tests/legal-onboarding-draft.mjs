@@ -64,3 +64,18 @@ assert.match(pilot,/Este código verifica únicamente tu identidad\. No autoriza
 assert.doesNotMatch(pilot,/ingresar con tu código\. Podés retirar el permiso/,
  "Privacy panel must not represent OTP entry as Coach sharing consent");
 console.log("PASS SEC-10: authentication and Coach health-data sharing are separate opt-in actions.");
+
+
+// NUT-60: until real Personal onboarding is ready, never leak Admin/Coach UI
+// through an unknown future profile role or fetch legacy Coach/Student data.
+const personalGuard='if(!["student","coach","admin"].includes(state.profile.role))return render();';
+assert.ok(refresh.includes(personalGuard),"Future Personal role must short-circuit workspace loading");
+assert.ok(refresh.indexOf(personalGuard)<refresh.indexOf("await Promise.all([loadPersonalData(),loadOrgAndPayments()])"),
+ "The server-verified role gate precedes any legacy data calls");
+const renderFunction=pilot.split("async function render(){")[1]?.split("function updateFoodHint()")[0];
+assert.ok(renderFunction?.includes('if(!["student","coach","admin"].includes(state.profile.role))'),
+ "Render must fail closed for unknown and future roles");
+const frameFunction=pilot.split("function frame(content){")[1]?.split("function welcomeView()")[0];
+assert.ok(frameFunction?.includes(':role==="admin"?'),
+ "Navigation must not grant an Admin-menu fallback to Personal");
+console.log("PASS NUT-60: independent Personal cannot inherit Admin navigation or legacy fetches.");

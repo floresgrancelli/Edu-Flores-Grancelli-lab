@@ -1,6 +1,7 @@
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js";
 import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
 export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
@@ -153,6 +154,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
     '<p class="pilot-hint">Precarga datos autorizados sin aprobar ni publicar objetivos. Confirmá parámetros y restricciones antes de enviar una guía.</p></section>';
  }
  async function publish(){
+  assertCoachReleasePlanWriteAllowed();
   if(COACH_ATOMIC_PLAN_UI_ENABLED)
    throw Error("La publicación anterior está deshabilitada: guardá y revisá el borrador para aprobar objetivo y guía juntos.");
   const student=state.selectedStudent,g=state.coachGoals[0],f=state.coachFoodPlan;

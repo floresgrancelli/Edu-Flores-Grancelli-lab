@@ -33,6 +33,8 @@ const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const flow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(app,/COACH_RELAUNCH_LEGACY_PLAN_ACTIONS\.includes\(action\)/);
 assert.match(app,/assertCoachReleasePlanWriteAllowed\(\); \/\/ Frontend defense/);
+assert.match(app,/COACH_RELAUNCH_ONBOARDING_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED/);
+assert.match(app,/la publicación de objetivo y guía de cinco comidas está detenida/);
 assert.match(flow,/async function publish\(\)\{\s*assertCoachReleasePlanWriteAllowed\(\)/);
 const draftSql=readFileSync(new URL("../docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql",import.meta.url),"utf8");
 const publishSql=readFileSync(new URL("../docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql",import.meta.url),"utf8");

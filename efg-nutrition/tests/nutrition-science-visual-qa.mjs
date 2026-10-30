@@ -34,7 +34,7 @@ try{
      scienceText:main?.textContent?.includes("Los hidratos no son el villano.")};
    });
    if(info.hasHorizontalScroll||info.heroLeft<0||info.heroRight>w+2)issues.push(v.label+": horizontal overflow "+JSON.stringify(info));
-   if(info.macroCards!==3||info.resources!==5||info.faq!==4||info.headings<5||!info.linksSafe||!info.scienceText)issues.push(v.label+": missing science content "+JSON.stringify(info));
+   if(info.macroCards!==3||info.resources!==6||info.faq!==4||info.headings<5||!info.linksSafe||!info.scienceText)issues.push(v.label+": missing science content "+JSON.stringify(info));
    const first=page.locator(".ns-faq details").first();
    await first.locator("summary").click();
    assert.ok(await first.getAttribute("open")!==null,v.label+": FAQ must expand with native control");

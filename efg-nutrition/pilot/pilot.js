@@ -34,6 +34,11 @@ import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
+import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach111";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
+import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
+import {acceptPilotParticipation} from "./pilot-participation-client.js?v=20261030-coach106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
@@ -396,6 +401,7 @@ const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+state.coachPilotEntry=null;state.coachPilotIntake=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -2225,9 +2231,36 @@ async function render(){
   root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
   return;
  }
+ // COACH113: signed, server-authoritative PILOT onboarding, not a local/legal draft.
+ // This route stays OFF until atomic publication and server DML gating pass.
+ if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
+  const pilot=state.coachPilotEntry;
+  if(pilot?.route!=="ready"){
+   if(pilot?.route==="participation")
+    root.innerHTML=renderPilotParticipationNotice({serverReceipts:true});
+   else if(pilot?.route==="intake"){
+    const saved=state.coachPilotIntake;
+    root.innerHTML=renderCoachRelaunchEntry(
+     saved?{route:"ready",status:saved}:{route:"intake",status:null},
+     {editing:!!saved});
+   }else if(pilot?.route==="review"){
+    if(state.tab==="messages"){frame(messagesView());messages.mount();}
+    else root.innerHTML=renderCoachPlanWaiting();
+   }else
+    root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
+   return;
+  }
+ }
  // Returning students with existing plans must complete this major-version intake too.
  // This gate is OFF until the staging, legal and mobile approvals are complete.
- if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
+ if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
+   if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
+   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   if(state.coachPilotEntry.route==="intake")
+    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
+   if(!["ready","review"].includes(state.coachPilotEntry.route))return render();
+  }
+  if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
   if(state.coachRelaunchEntry?.route!=="ready"){
    root.innerHTML=state.coachRelaunchEntry?.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED?
      renderCoachLegalOnboarding(state.coachLegalSnapshot):
@@ -2504,6 +2537,7 @@ async function refresh(){
   if(p.error)throw p.error;
   state.profile=p.data;
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
+  state.coachPilotEntry=null;state.coachPilotIntake=null;
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
@@ -2576,6 +2610,13 @@ async function refreshVisibleWorkspace(){
     state.selectedStudent=null;state.coachPlanDraftRecord=null;state.coachGuidedDraft=null;
     await render();return;
    }
+  }
+  if(COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"){
+   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   state.coachPilotIntake=null;
+   if(state.coachPilotEntry.route==="intake")
+    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
+   if(!["ready","review"].includes(state.coachPilotEntry.route)){await render();return;}
   }
   if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"){
    state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
@@ -2911,7 +2952,18 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="logout"){state.foodCompatEvidence=[];state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="logout"){state.coachPilotEntry=null;state.coachPilotIntake=null;state.foodCompatEvidence=[];state.coachLegalPending=false;state.coachLegalSnapshot=null;state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";await inbox.refresh();return loginView();}
+ if(action==="pilotDemoContinue"){
+  if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
+     state.coachPilotEntry?.route!=="participation")
+   throw Error("La participación del piloto no está disponible.");
+  const choice=readPilotParticipationSelection(document,{explicitClick:true});
+  await acceptPilotParticipation(sb,choice,{explicitSubmit:true});
+  await refresh();return;
+ }
+ if(action==="openMessages"&&COACH_STUDENT_JOURNEY_ENABLED&&state.coachPilotEntry?.route==="review"){
+  state.tab="messages";await render();return;
+ }
  if(action==="completeWelcome")return completeWelcome();
  if(action==="confirmLegalAcceptance"){
   const studentNeedsLegal=state.profile?.role==="student"&&state.coachRelaunchEntry?.route==="legal";
@@ -3194,7 +3246,11 @@ root.addEventListener("input",e=>{
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
-root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
+root.addEventListener("change",e=>{
+ if(COACH_STUDENT_JOURNEY_ENABLED&&["efgPilotParticipate","efgPilotShare"].includes(e.target.id)){
+  syncPilotParticipationContinueButton(document);return;
+ }
+ if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 document.addEventListener("keydown",event=>{
  const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
  if(!dialog)return;
@@ -3220,6 +3276,19 @@ document.addEventListener("keydown",event=>{
 root.addEventListener("submit",e=>{
  if(e.target.id==="efgCoachRelaunchForm"||e.target.id==="efgCoachRelaunchManageForm"){
   e.preventDefault();
+  if(COACH_STUDENT_JOURNEY_ENABLED){
+   (async()=>{
+    if(state.profile?.role!=="student"||state.coachPilotEntry?.route!=="intake")
+     throw Error("La ficha del piloto no está disponible.");
+    const data=readCoachRelaunchForm(document);
+    if(!data.shareWithCoach)throw Error("Para continuar compartí la ficha con el coach; podés retirar el permiso después.");
+    await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
+     shareWithCoach:true,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
+    await refresh();
+    notify("Ficha compartida con tu coach. Conservamos todos tus registros anteriores.");
+   })().catch(fail);
+   return;
+  }
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED)return;
   (async()=>{
    const data=readCoachRelaunchForm(document);

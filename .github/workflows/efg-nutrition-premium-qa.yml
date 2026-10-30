@@ -133,6 +133,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach113-pilot-ui-route-contract.mjs
+      - name: COACH113 signed pilot UI screens, pending coach and safe caches (OFFLINE)
+        run: node efg-nutrition/tests/coach113-pilot-ui-integration.mjs
       - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
         run: |
           node --check efg-nutrition/pilot/coach-student-journey.js

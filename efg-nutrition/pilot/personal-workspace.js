@@ -103,7 +103,7 @@ export function renderPersonalWorkspace(snapshot){
  }).join("");
  return '<div class="efg-self-shell"><header class="efg-self-head">'+
   '<div class="efg-self-brand"><img src="./assets/serotonina-acuarela.avif" width="52" height="34" alt="" aria-hidden="true">'+
-  '<span>EFG NUTRITION <small>Autogestión Personal</small></span></div>'+
+  '<span>Nutrición Con-Ciencia <small>Autogestión Personal</small></span></div>'+
   '<button type="button" class="btn small ghost" data-act="logout">Cerrar sesión</button></header>'+
   '<main class="efg-self-content"><div class="efg-self-hero"><span class="eyebrow">MI ESPACIO · '+esc(snapshot.day)+'</span>'+
   '<h1>Tu alimentación, a tu manera'+(name?", "+name:"")+'.</h1>'+

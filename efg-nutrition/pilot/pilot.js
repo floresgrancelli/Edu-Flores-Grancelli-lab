@@ -29,7 +29,7 @@ import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -1839,6 +1839,10 @@ function guidedDayContents(plan,goal,editable=false){
 }
 function coachAtomicDraftPanel(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
+ if(COACH_RELAUNCH_ONBOARDING_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED)
+  return '<section class="card" aria-label="Plan del relanzamiento en preparación">'+
+   '<h3>Plan de Nutrition Coach en revisión</h3>'+
+   '<p>La ficha nueva está disponible para revisión, pero la publicación de objetivo y guía de cinco comidas está detenida hasta verificar su versión, los permisos y los alimentos directamente en el servidor. El plan anterior del alumno continúa intacto.</p></section>';
  const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
  if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
  const saved=state.coachPlanDraftRecord;

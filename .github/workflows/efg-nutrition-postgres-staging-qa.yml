@@ -143,6 +143,23 @@ jobs:
           test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
           test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_documents') is null")" = 't'
           echo 'PASS CLIN-GUT-03: missing marker blocks health tables before any DDL on PG17.'
+      - name: COACH-PILOT-10 negative markerless promotion must fail before writes
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = 't'
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql > "$RUNNER_TEMP/pilot10-denied.log" 2>&1; then
+            echo 'PILOT10 UNSAFE: accepted nonisolated database' >&2
+            exit 1
+          fi
+          grep -q 'PILOT-10 STOP: isolated staging only' "$RUNNER_TEMP/pilot10-denied.log"
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_pilot_promotions') is null")" = 't'
+          echo 'PASS PILOT-10: no writes and no role conversion without isolated marker.'
       - name: COACH-PILOT-10 admin promotion of existing student and 10 seat trial (PG17 synthetic)
         env:
           PGHOST: 127.0.0.1

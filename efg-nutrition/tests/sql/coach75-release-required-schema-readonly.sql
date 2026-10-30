@@ -12,6 +12,8 @@ with requirements(kind, object_name) as (
   ('table','public.efg_coach_plan_drafts'),
   ('table','public.efg_coach_plan_publish_receipts'),
   ('table','public.efg_notifications'),
+  ('table','public.efg_science_intro_receipts'),
+  ('function','public.efg_ack_science_intro(text,text)'),
   ('function','public.efg_legal_current_status()'),
   ('function','public.efg_accept_legal_documents(uuid[])'),
   ('function','public.efg_submit_coach_relaunch_intake(text,jsonb,integer,boolean)'),

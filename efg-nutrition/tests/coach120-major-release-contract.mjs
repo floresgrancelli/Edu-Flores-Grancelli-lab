@@ -81,8 +81,13 @@ for(const part of [
  'renderWhatsNew(state.majorRelease,state.profile.role)',
  'state.majorReleaseLegal=await loadCoachPilotLegal',
  'await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,',
- 'const out=await signOutCurrentDevice({auth:sb.auth,explicitClick:true});'
+ 'const out=await confirmMajorRelaunchAndExit(sb,{'
 ])assert.ok(app.includes(part),'Missing one-time major UI wiring: '+part);
+const buildSql=readFileSync(new URL('../migrations/20261030_coach121_major_release_published_build_gate.sql',import.meta.url),'utf8');
+assert.match(buildSql,/add column build text not null default 'unconfigured'/);
+assert.match(buildSql,/and build<>'unconfigured'/);
+assert.match(buildSql,/'build',v_release.build/);
+assert.match(buildSql,/'published'/);
 assert.doesNotMatch(app,/MAJOR_RELEASE_FLOW_ENABLED\s*=\s*true/i);
 assert.doesNotMatch(app,/RELEASE_COMMUNICATIONS_ENABLED\s*=\s*true/i);
 console.log('PASS COACH120 UX35: release disabled, signed current preview/reauth/legal/live, explicit per-user ack, no routine logout, non-destructive server default.');

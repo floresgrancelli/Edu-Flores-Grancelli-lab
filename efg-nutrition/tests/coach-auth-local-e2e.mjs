@@ -129,14 +129,51 @@ const fixtureSQL=[
  "insert into efg_private.coach_publication_scope_reviews(student_id,organization_id,coach_id,intake_updated_at,status,reviewed_by,reviewed_at) "+
   "select student_id,organization_id,"+uuid(users.coachA.id)+",updated_at,'general_guidance_reviewed',"+uuid(users.reviewer.id)+",now() "+
   "from public.efg_student_intakes where student_id="+uuid(users.studentA.id),
- "insert into public.efg_legal_documents(id,kind,version,sha256,locale,published_at,effective_at,status) values "+
-  "("+uuid(termsId)+",'terms','synthetic-1','TEST_ONLY_NO_LEGAL_VALUE','es-AR',now()-interval '2 days',now()-interval '1 day','published'),"+
-  "("+uuid(privacyId)+",'privacy','synthetic-1','TEST_ONLY_NO_LEGAL_VALUE','es-AR',now()-interval '2 days',now()-interval '1 day','published')",
- "insert into public.efg_legal_acceptances(user_id,document_id,acceptance_method,document_hash_sha256,version,kind) "+
-  "select u.id,d.id,'explicit_checkbox',d.sha256,d.version,d.kind "+
-  "from (values ("+uuid(users.coachA.id)+"::uuid),("+uuid(users.studentA.id)+"::uuid)) as u(id) cross join public.efg_legal_documents d"
+ "insert into public.efg_legal_documents(id,kind,version,content,sha256,locale,published_at,effective_at,status) "+
+  "select x.id,x.kind,'synthetic-1',x.body,encode(sha256(convert_to(x.body,'UTF8')),'hex'),"+
+  "'es-AR',now()-interval '2 days',now()-interval '1 day','published' from (values "+
+  "("+uuid(termsId)+",'terms',repeat('SYNTHETIC TERMS ONLY; NOT LEGAL ADVICE. ',5)),"+
+  "("+uuid(privacyId)+",'privacy',repeat('SYNTHETIC PRIVACY POLICY; NOT LEGAL CONTENT. ',5))"+
+  ") as x(id,kind,body)"
 ].join(";\n")+";";
 sql(fixtureSQL);
+// LEG-07: REAL signed GoTrue JWT / PostgREST / RLS on the LOCAL Supabase stack.
+// The text, users and dietary review remain fictional. No remote credentials.
+const legalStatus=token=>rpc("efg_legal_current_status",token,{});
+const acceptLegal=(token,ids)=>rpc("efg_accept_legal_documents",token,{p_document_ids:ids});
+const docIds=[termsId,privacyId];
+for(const role of ["coachA","studentA","studentB"]){
+ const entries=ok(await legalStatus(users[role].token),"LEGAL current status for "+role);
+ assert.equal(entries.length,2,"Both current fixture documents must be visible");
+ assert.ok(entries.every(x=>x.accepted===false),"New account must have NO automatic acceptance");
+}
+denied(await legalStatus(null),"Anonymous legal status must be rejected");
+denied(await acceptLegal(null,docIds),"Anonymous legal acceptance must be rejected");
+denied(await acceptLegal(users.coachA.token,[termsId]),"Partial selection is not consent for both current texts");
+denied(await acceptLegal(users.coachA.token,[termsId,termsId]),"Duplicate legal ids must be rejected");
+denied(await acceptLegal(users.coachA.token,[randomUUID(),privacyId]),"Unknown document cannot be accepted");
+denied(await rpc("efg_accept_legal_documents",users.coachA.token,
+ {p_document_ids:docIds,p_user_id:users.studentA.id}),"Browser cannot choose who accepts");
+denied(await call("/rest/v1/efg_legal_acceptances",{
+ method:"POST",token:users.coachA.token,
+ body:{user_id:users.studentA.id,document_id:termsId,document_hash_sha256:"a".repeat(64),
+  version:"synthetic-1",kind:"terms",acceptance_method:"explicit_checkbox",
+  accepted_at:"2000-01-01T00:00:00Z"}
+}),"Direct REST spoofed legal acceptance must be blocked");
+const firstAccept=ok(await acceptLegal(users.coachA.token,docIds),"Coach explicitly accepts legal fixtures via signed JWT");
+assert.equal(Number(firstAccept),2);
+assert.ok(ok(await legalStatus(users.coachA.token),"Coach legal status after accept").every(x=>x.accepted));
+const retry=ok(await acceptLegal(users.coachA.token,[]),"Idempotent legal acceptance retry");
+assert.equal(Number(retry),0);
+const bView=ok(await call("/rest/v1/efg_legal_acceptances?select=user_id,document_id",{token:users.coachB.token}),"Coach B legal records");
+assert.deepEqual(bView,[],"Coach B must not see legal records of Coach A");
+const studentView=ok(await call("/rest/v1/efg_legal_acceptances?select=user_id,document_id",{token:users.studentA.token}),"Student A records before accepting");
+assert.deepEqual(studentView,[],"Student cannot see Coach A's records");
+assert.equal(Number(ok(await acceptLegal(users.studentA.token,docIds),"Student A explicitly accepts via signed JWT")),2);
+assert.ok(ok(await legalStatus(users.studentA.token),"Student A legal status").every(x=>x.accepted));
+assert.ok(ok(await legalStatus(users.studentB.token),"Student B legal status").every(x=>!x.accepted),
+ "Consent of A cannot bind B, even in a different organization");
+assert.equal(sql("select count(*) from public.efg_legal_acceptances"),"4","Exactly four explicit acceptance events; no synthetic backfill");
 const requestId=randomUUID(),pubPayload={p_student:users.studentA.id,p_expected_revision:2,p_request_id:requestId};
 const publishedGoal=ok(await rpc("efg_publish_coach_plan_draft",users.coachA.token,pubPayload),"Coach A publishes five-meal plan atomically with synthetic evidence");
 assert.match(publishedGoal,/^[0-9a-f-]{36}$/i);
@@ -157,4 +194,23 @@ denied(await rpc("efg_publish_coach_plan_draft",users.coachA.token,{p_student:us
 assert.equal(sql("select count(*) from public.efg_goals"),"1","Failed publication cannot append goals");
 assert.equal(sql("select count(*) from public.efg_notifications"),"1","Failed publication cannot create notification");
 assert.equal(sql("select count(*) from public.efg_coach_plan_publish_receipts"),"1","Failed publication cannot create receipt");
-console.log("PASS NUT-53/NUT-54 LOCAL AUTH: signed GoTrue JWT role isolation; private draft CAS 409; synthetic five-meal goal+guide+access+notification+receipt atomic publication, replay idempotence, old-plan preservation, revoked-consent rollback. ALL food/legal fixtures FICTITIOUS. No production, no medical/legal sign-off.");
+// LEG-07: publishing a NEW fictitious Terms version must not reaccept it
+// for existing identities. Their unchanged Privacy history is preserved.
+const nextTermsId=randomUUID();
+sql("update public.efg_legal_documents set status='retired',retired_at=now() where id="+uuid(termsId));
+sql("insert into public.efg_legal_documents(id,kind,version,content,sha256,locale,published_at,effective_at,status) "+
+ "select "+uuid(nextTermsId)+",'terms','synthetic-2',x.body,"+
+ "encode(sha256(convert_to(x.body,'UTF8')),'hex'),'es-AR',now(),now(),'published' "+
+ "from (select repeat('SECOND SYNTHETIC TERMS VERSION ONLY. ',5) as body) x");
+sql("notify pgrst,'reload schema';");
+const renewed=ok(await legalStatus(users.coachA.token),"Fresh Terms version legal status");
+assert.equal(renewed.length,2);
+assert.equal(renewed.find(x=>x.kind==="terms").accepted,false,"New Terms must not be autoconfirmed");
+assert.equal(renewed.find(x=>x.kind==="privacy").accepted,true,"Existing privacy acknowledgment remains valid");
+denied(await acceptLegal(users.coachA.token,[termsId]),"Cannot accept retired Terms through signed RPC");
+assert.equal(Number(ok(await acceptLegal(users.coachA.token,[nextTermsId]),"Reaccept only updated Terms")),1);
+assert.ok(ok(await legalStatus(users.coachA.token),"Terms reaccept status").every(x=>x.accepted));
+assert.equal(sql("select count(*) from public.efg_legal_acceptances"),"5","Never overwrite historical legal acceptance");
+assert.equal(ok(await legalStatus(users.studentA.token),"Student A must reaccept terms").find(x=>x.kind==="terms").accepted,false);
+assert.equal(ok(await legalStatus(users.studentB.token),"Student B remains unaccepted").filter(x=>x.accepted).length,0);
+console.log("PASS NUT-53/NUT-54 LOCAL AUTH: signed GoTrue JWT role isolation; private draft CAS 409; synthetic five-meal goal+guide+access+notification+receipt atomic publication, replay idempotence, old-plan preservation, revoked-consent rollback. Food and legal documents FICTITIOUS, but legal acceptance tested via signed local GoTrue JWT and RLS. No production, no medical/legal sign-off.");

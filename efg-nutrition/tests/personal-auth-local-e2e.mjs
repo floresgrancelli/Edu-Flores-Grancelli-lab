@@ -240,4 +240,32 @@ assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:
 assert.equal(sql("select count(*) from public.efg_personal_habitual_meals"),"0");
 assert.equal(sql("select count(*) from public.efg_daily_logs"),coachBefore.studentDaily,
  "Personal diary cannot alter historic Student diary");
-console.log("PASS NUT-60 LOCAL: signed JWT A/B, legal-gated enrollment, personal goals revisions, owner RLS diary and meal presets, no Coach/Student cross-writes. No real clinical/legal approval.");
+// Strict modality isolation: a Coach and a Coach-linked Student with VALID JWTs
+// cannot impersonate an independent Personal account, even across the same DB.
+const probeCoach=await signup("coachProbe"),probeStudent=await signup("studentProbe");
+const probeOrg=randomUUID();
+sql("insert into public.efg_organizations(id,coach_id,name) values ('"+probeOrg+"','"+probeCoach.id+"','NUT60 fictitious org')");
+sql("insert into public.efg_profiles(user_id,email,nickname,role,organization_id) values "+
+ "('"+probeCoach.id+"','nut60-coachProbe-"+suffix+"@example.invalid','Coach Probe','coach',null),"+
+ "('"+probeStudent.id+"','nut60-studentProbe-"+suffix+"@example.invalid','Student Probe','student','"+probeOrg+"')");
+for(const [who,actor] of [["Coach",probeCoach],["Student",probeStudent]]){
+ assert.equal(yes(await rpc("efg_personal_write_allowed",actor,{}),
+  who+" must not have Personal write rights"),false);
+ no(await reg(actor,who+" re-enroll"),who+" must not convert to Personal role");
+ no(await save(actor,{p_goal:goal,p_expected_revision:null}),who+" cannot save Personal goals");
+ assert.deepEqual(yes(await accounts(actor),who+" Personal accounts RLS isolation"),[]);
+ assert.deepEqual(yes(await goals(actor),who+" Personal goals RLS isolation"),[]);
+ assert.deepEqual(yes(await rest(diaryPath+"?select=user_id",{token:actor.token}),
+  who+" Personal diary RLS isolation"),[]);
+ assert.deepEqual(yes(await rest(favPath+"?select=id",{token:actor.token}),
+  who+" Personal favorites RLS isolation"),[]);
+ no(await rest(diaryPath,{method:"POST",token:actor.token,
+  body:{...todayLog,meals:{desayuno:[{id:"egg",qty:999}]}}),
+  who+" cannot forge Personal A diary insert");
+ no(await rest(favPath,{method:"POST",token:actor.token,body:suspendedFav}),
+  who+" cannot forge Personal A preset");
+}
+assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
+ "Coach/Student probing did not mutate A diary")[0].meals.desayuno[0].qty,5);
+
+console.log("PASS NUT-60 LOCAL: signed JWT Personal A/B + Coach/Student, legal-gated enrollment, personal goals revisions, owner RLS diary and meal presets, no Coach/Student cross-writes. No real clinical/legal approval.");

@@ -126,14 +126,14 @@ begin
    raise exception 'Authenticated user required' using errcode='42501';
  end if;
  if p_document_ids is null or pg_catalog.array_position(p_document_ids,null::uuid) is not null
-  or pg_catalog.coalesce(pg_catalog.array_length(p_document_ids,1),0)>2 then
+  or coalesce(pg_catalog.array_length(p_document_ids,1),0)>2 then
   raise exception 'Invalid legal document selection' using errcode='22023';
  end if;
  -- Deterministic selection with exactly one currently published document per kind.
  select pg_catalog.array_agg(id order by id) into v_current
  from public.efg_legal_documents
  where locale='es-AR' and status='published' and effective_at<=pg_catalog.now();
- if pg_catalog.coalesce(pg_catalog.array_length(v_current,1),0)<>2 then
+ if coalesce(pg_catalog.array_length(v_current,1),0)<>2 then
    raise exception 'Published legal texts are not ready' using errcode='55000';
  end if;
  select pg_catalog.array_agg(d.id order by d.id) into v_missing
@@ -144,12 +144,12 @@ begin
     where a.user_id=v_user and a.document_id=d.id
       and a.document_hash_sha256=d.sha256 and a.version=d.version and a.kind=d.kind
    );
- v_missing:=pg_catalog.coalesce(v_missing,array[]::uuid[]);
+ v_missing:=coalesce(v_missing,array[]::uuid[]);
  select pg_catalog.array_agg(x order by x) into v_supplied
  from (select distinct x from pg_catalog.unnest(p_document_ids) x) q;
- v_supplied:=pg_catalog.coalesce(v_supplied,array[]::uuid[]);
- if pg_catalog.coalesce(pg_catalog.array_length(p_document_ids,1),0)
-  <>pg_catalog.coalesce(pg_catalog.array_length(v_supplied,1),0)
+ v_supplied:=coalesce(v_supplied,array[]::uuid[]);
+ if coalesce(pg_catalog.array_length(p_document_ids,1),0)
+  <>coalesce(pg_catalog.array_length(v_supplied,1),0)
   or v_missing<>v_supplied then
    raise exception 'Only missing current legal versions may be accepted' using errcode='22023';
  end if;

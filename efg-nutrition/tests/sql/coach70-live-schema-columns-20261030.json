@@ -1,5 +1,5 @@
 {
-  "source": "Supabase hosted production, information_schema columns ONLY, read-only capture on 2026-10-30",
+  "source": "Supabase hosted production, information_schema columns ONLY, read-only capture on 2026-10-30; 15/15 public application table column fixtures modeled by COACH70 (no data)",
   "project": "cyjvddhimbsfipjfctsl",
   "schema": "public",
   "fixture_tables": [
@@ -9,18 +9,17 @@
     "efg_food_plans",
     "efg_goals",
     "efg_habitual_meals",
-    "efg_notifications",
-    "efg_organizations",
-    "efg_personal_recipes",
-    "efg_profiles",
-    "efg_weights"
-  ],
-  "not_in_fixture": [
     "efg_invitations",
     "efg_messages",
+    "efg_notifications",
+    "efg_organizations",
     "efg_payments",
-    "efg_weekly_reports"
+    "efg_personal_recipes",
+    "efg_profiles",
+    "efg_weekly_reports",
+    "efg_weights"
   ],
+  "not_in_fixture": [],
   "tables": {
     "efg_activities": [
       {

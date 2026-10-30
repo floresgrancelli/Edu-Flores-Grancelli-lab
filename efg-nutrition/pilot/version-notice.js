@@ -1,4 +1,4 @@
-// EFG Nutrition Pro — opt-in version update notice for the installed /pilot/ PWA.
+// Nutrición Con-Ciencia — opt-in version update notice for the installed /pilot/ PWA.
 // Checks current published HTML only; no execution of remote code until the user chooses to reload.
 export function createVersionNotice({
  currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000
@@ -17,7 +17,7 @@ export function createVersionNotice({
  host.id="efgVersionNotice";
  host.className="efg-version-notice";
  host.setAttribute("aria-live","polite");
- host.setAttribute("aria-label","Actualización de EFG Nutrition Pro");
+ host.setAttribute("aria-label","Actualización de Nutrición Con-Ciencia");
  host.hidden=true;
  document.body.append(host);
  // Offer the upgrade, but never auto-reload a running food diary or edit.

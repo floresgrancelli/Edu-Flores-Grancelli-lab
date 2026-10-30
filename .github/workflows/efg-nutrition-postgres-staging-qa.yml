@@ -10,6 +10,8 @@ on:
       - 'efg-nutrition/tests/sql/**'
       - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/nut57-*.mjs'
+      - 'efg-nutrition/scripts/coach-release-bundle.mjs'
+      - 'efg-nutrition/tests/coach-release-bundle-qa.mjs'
       - 'efg-nutrition/migrations/20261029_coach_intake_plan_access_DRAFT.sql'
       - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/NUT57_POSITIVE_STAGING_ROLLBACK_RESTORE_20261029.md'
@@ -372,6 +374,32 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql
           echo 'PASS NUT57 B3: COMMIT really persisted in isolated synthetic DB; pre-upgrade backup recreated original schema and exact 12-table history digest after destructive restore. No real data, no hosted connection.'
+      - name: Coach complete eight-module installation and recovery on restored PG17 fixture
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test -s "$RUNNER_TEMP/nut57-before.dump"
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach_release_rehearsal'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_coach_release_rehearsal
+          evidence="$RUNNER_TEMP/coach-release-before.json"
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs failure "$evidence"
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs install "$evidence"
+          # Restore only this disposable fictional database; NEVER a hosted target.
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'drop database efg_coach_release_rehearsal with (force)'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach_release_rehearsal'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_coach_release_rehearsal
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs restored "$evidence"
       - name: State the limits
         if: always()
         run: |

@@ -42,6 +42,12 @@ async function signup(name){
  return {id:x.user.id,token:x.access_token};
 }
 const a=await signup("personalA"),b=await signup("personalB");
+const coachBefore={
+ goals:sql("select count(*) from public.efg_goals"),
+ guides:sql("select count(*) from public.efg_food_plans"),
+ notifications:sql("select count(*) from public.efg_notifications")
+}; // Earlier coach and compatibility QA may legitimately add more than one row.
+
 const rpc=(name,user,body)=>rest("/rest/v1/rpc/"+name,{method:"POST",token:user?.token,body});
 const status=user=>rpc("efg_legal_current_status",user,{});
 const reg=(user,name)=>rpc("efg_register_personal",user,{p_nickname:name});
@@ -98,7 +104,7 @@ assert.ok(self.every(x=>x.user_id===a.id));
 assert.equal(Number(yes(await save(b,{p_goal:goal,p_expected_revision:null}),"B saves independent revision")),1);
 assert.equal(yes(await goals(b),"B sees only B").length,1);
 assert.equal(sql("select count(*) from public.efg_personal_goals"),"3");
-assert.equal(sql("select count(*) from public.efg_goals"),"1","Personal goals cannot write coach goal history");
-assert.equal(sql("select count(*) from public.efg_food_plans"),"1","Personal goals cannot write coach guide");
-assert.equal(sql("select count(*) from public.efg_notifications"),"1","Personal goal changes cannot fake Coach notifications");
+assert.equal(sql("select count(*) from public.efg_goals"),coachBefore.goals,"Personal goals cannot write coach goal history");
+assert.equal(sql("select count(*) from public.efg_food_plans"),coachBefore.guides,"Personal goals cannot write coach guide");
+assert.equal(sql("select count(*) from public.efg_notifications"),coachBefore.notifications,"Personal goal changes cannot fake Coach notifications");
 console.log("PASS NUT-60 local: signed JWT personal A/B, legal gating, no auto-acceptance, no role escalation, isolated versioned personal goals, CAS, cross-account RLS. NO hosted, NO plans UI, NO real terms.");

@@ -10,7 +10,7 @@ const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
 assert.ok(build&&entry&&build===entry,"HTML build identity and PWA entry must match");
-assert.match(build,/coach117-legal-first/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
+assert.match(build,/ux35-session1/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
 assert.match(appJs,/science-welcome\.js\?v=20261030-brand78-finale/,"Load approved closing slide as a fresh module");
 
 

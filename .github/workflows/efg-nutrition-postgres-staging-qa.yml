@@ -8,6 +8,7 @@ on:
       - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
       - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/sql/**'
+      - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/nut57-*.mjs'
       - 'efg-nutrition/migrations/20261029_coach_intake_plan_access_DRAFT.sql'
       - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
@@ -99,6 +100,30 @@ jobs:
           test "$before" = "$after"
           test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = "t"
           echo "PASS NUT57 PostgreSQL 17: abort before DDL without isolated staging marker; synthetic goals untouched; preview contains no COMMIT."
+      - name: NUT-60 must STOP before any DDL on PostgreSQL 17 with NO staging marker
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_accounts') is null")" = "t"
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql > "$RUNNER_TEMP/nut60-marker-denial.log" 2>&1; then
+            echo 'NUT60 UNSAFE: accepted non-isolated database' >&2
+            exit 1
+          fi
+          if ! grep -q 'NUT60 STOP: isolated staging marker absent' "$RUNNER_TEMP/nut60-marker-denial.log"; then
+            echo 'NUT60 STOP was not due to the explicit isolation marker' >&2
+            tail -n 15 "$RUNNER_TEMP/nut60-marker-denial.log" >&2
+            exit 1
+          fi
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_accounts') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_goals') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_daily_logs') is null")" = "t"
+          echo 'PASS NUT60: markerless PG17 refuses role/registration/schema changes before any DDL.'
       - name: LEG-07 versioned legal backend on separate disposable PostgreSQL 17 database (SYNTHETIC)
         env:
           PGHOST: 127.0.0.1

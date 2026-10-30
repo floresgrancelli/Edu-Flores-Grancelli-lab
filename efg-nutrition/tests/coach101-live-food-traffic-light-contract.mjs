@@ -36,6 +36,8 @@ await assert.rejects(()=>loadReviewedFoodEvidence(down,{foodIds:['test_food'],pa
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');
 for(const check of [/function foodTrafficLight\(food\)/,/function refreshFoodCompatibilityEvidence\(\)/,/groupedFoodOptions\(displayedWithSignals,slot\)/,/mealCompatibilityStatus/,/foodTrafficLight\(f\)\.symbol/,/await refreshFoodCompatibilityEvidence\(\)/])assert.match(app,check);
+assert.match(app,/if\(switchingUser\)\{state\.foodCompatEvidence=\[\];/, 'No cached reviews from a previous user');
+assert.match(app,/if\(action==="logout"\)\{state\.foodCompatEvidence=\[\];/, 'Logout clears review cache');
 assert.match(app,/Alimentos disponibles para planificar/);
 assert.match(app,/Semáforo por patrón alimentario/);
 assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);

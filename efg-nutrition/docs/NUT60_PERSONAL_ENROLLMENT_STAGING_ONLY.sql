@@ -143,8 +143,13 @@ begin
  end if;
  for v_key in select jsonb_array_elements_text(v_allowed) loop
   if not p_goal ? v_key then raise exception 'Missing objective field %',v_key using errcode='22023'; end if;
-  if v_key<>'goal_type' and jsonb_typeof(p_goal->v_key)<>'number' then
-   raise exception 'Numeric objective field required: %',v_key using errcode='22023';
+  if v_key<>'goal_type' then
+   if jsonb_typeof(p_goal->v_key)<>'number' then
+    raise exception 'Numeric objective field required: %',v_key using errcode='22023';
+   end if;
+   if mod((p_goal->>v_key)::numeric,1)<>0 then
+    raise exception 'Integer objective quantity required: %',v_key using errcode='22023';
+   end if;
   end if;
  end loop;
  if p_goal->>'goal_type' not in ('fat_loss','recomp','muscle_gain','maintenance')

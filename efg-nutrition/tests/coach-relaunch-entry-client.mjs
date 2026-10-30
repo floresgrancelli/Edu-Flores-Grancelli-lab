@@ -1,7 +1,7 @@
 // COACH relaunch client synthetic contract; no real database.
 import assert from "node:assert/strict";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "../pilot/coach-relaunch-onboarding.js";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry} from "../pilot/coach-relaunch-entry-client.js";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData,currentCoachRelaunchPayload} from "../pilot/coach-relaunch-entry-client.js";
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false);
 const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",org="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const profile={user_id:uid,organization_id:org,role:"student",active:true};
@@ -13,9 +13,11 @@ const sb={
    return Promise.resolve({data:allowed?legal:[{...legal[0],accepted:false},legal[1]],error:null});
   assert.equal(name,"efg_submit_coach_relaunch_intake");
   writes++;
-  assert.equal(payload.p_expected_revision,0);
-  status={student_id:uid,organization_id:org,completed_version:COACH_RELEASE_INTAKE_VERSION,revision:1};
-  return Promise.resolve({data:1,error:null});
+  assert.equal(payload.p_expected_revision,status?.revision||0);
+  const revision=(status?.revision||0)+1;
+  status={student_id:uid,organization_id:org,completed_version:COACH_RELEASE_INTAKE_VERSION,
+   revision,shared_at:payload.p_share_with_coach?"2026-10-30T12:00:00Z":null,...payload.p_payload};
+  return Promise.resolve({data:revision,error:null});
  },
  from(t){
   queries++;assert.equal(t,"efg_coach_relaunch_intakes");
@@ -51,7 +53,40 @@ const done=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:gate,...f
 assert.equal(done.route,"ready");
 assert.equal(renderCoachRelaunchEntry(done),"");
 assert.equal(writes,1);
-await assert.rejects(()=>submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:done,...form,explicitSubmit:true}),/Verificá/);
+const editView=renderCoachRelaunchEntry(done,{editing:true});
+assert.match(editView,/Revisar mi ficha nueva/);
+assert.match(editView,/efgCoachRelaunchManageForm/);
+assert.match(editView,/Arroz/);
+assert.match(editView,/Retirar permiso de compartir/);
+assert.match(editView,/Borrar solo los datos/);
+assert.doesNotMatch(editView,/id="coachRelaunch_share"[^>]*checked/,
+ "Private intake must not be shared automatically.");
+const updated=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:done,
+ payload:{...form.payload,notes:"Horario de comidas editado"},
+ shareWithCoach:true,explicitSubmit:true});
+assert.equal(updated.status.revision,2);
+assert.match(renderCoachRelaunchEntry(updated,{editing:true}),/checked/,
+ "Existing explicit share state must remain visible when user edits.");
+const saved=currentCoachRelaunchPayload(updated);
+assert.deepEqual(Object.keys(saved).sort(),Object.keys(form.payload).sort(),
+ "Only whitelisted general fields are preserved; no server IDs.");
+const revoked=await revokeCoachRelaunchSharing(sb,{profile,userId:uid,entry:updated,explicitSubmit:true});
+assert.equal(revoked.status.revision,3);
+assert.equal(revoked.status.shared_at,null);
+assert.equal(revoked.status.notes,"Horario de comidas editado",
+ "Revocation does not erase food preferences/notes.");
+const cleared=await clearCoachRelaunchData(sb,{profile,userId:uid,entry:revoked,explicitSubmit:true});
+assert.equal(cleared.status.revision,4);
+assert.equal(cleared.status.completed_version,COACH_RELEASE_INTAKE_VERSION,
+ "Clearing keeps a version marker to avoid endless re-onboarding.");
+assert.equal(cleared.status.objective,null);
+assert.equal(cleared.status.notes,"");
+assert.equal(cleared.status.shared_at,null);
+assert.equal(cleared.route,"ready");
+assert.equal(writes,4);
+await assert.rejects(()=>clearCoachRelaunchData(sb,{profile,userId:uid,entry:cleared}),/Confirmá/);
+await assert.rejects(()=>revokeCoachRelaunchSharing(sb,{profile,userId:uid,entry:cleared}),/Confirmá/);
+
 fields.age_years.value="17";assert.throws(()=>readCoachRelaunchForm(doc),/Revisá/);fields.age_years.value="41";
 fields.dietary_pattern.value="invalid";assert.throws(()=>readCoachRelaunchForm(doc),/Opción/);
 const source=await (await import("node:fs/promises")).readFile(

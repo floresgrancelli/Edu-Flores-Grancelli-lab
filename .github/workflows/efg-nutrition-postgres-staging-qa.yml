@@ -143,6 +143,25 @@ jobs:
           test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
           test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_documents') is null")" = 't'
           echo 'PASS CLIN-GUT-03: missing marker blocks health tables before any DDL on PG17.'
+      - name: COACH-PILOT-10 admin promotion of existing student and 10 seat trial (PG17 synthetic)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '5432'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_pilot_ephemeral'
+          export PGDATABASE=efg_pilot_ephemeral
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-scenarios.sql
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs where payload='HISTORIC_PERSONAL_MEAL'")" = 1
+          test "$(psql -Atqc "select count(*) from efg_private.efg_pilot_promotions")" = 1
+          echo 'PASS COACH-PILOT-10: fake existing student becomes trial coach with ten seats; prior food history retained.'
       - name: LEG-07 versioned legal backend on separate disposable PostgreSQL 17 database (SYNTHETIC)
         env:
           PGHOST: 127.0.0.1

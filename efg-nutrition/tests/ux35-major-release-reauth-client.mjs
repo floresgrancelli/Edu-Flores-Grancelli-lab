@@ -34,7 +34,7 @@ await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/todavía no fue confi
 published=true;authUser=other;
 await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/identidad/);
 authUser=uid;ackGood=false;
-await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/No se confirmó/);
+await assert.rejects(confirmMajorRelaunchAndExit(sb,args),/No pudimos confirmar/);
 assert.equal(calls.filter(x=>x[0]==='signOut').length,0);
 ackGood=true;
 const before=calls.length;

@@ -108,7 +108,6 @@ assert.equal(exec("select cardinality(approved_food_ids) from public.efg_food_pl
 assert.equal(exec("select count(*) from efg_private.coach_guide_history where student_id='"+newStudent+"'"),'0');
 exec(`delete from public.efg_profiles where user_id='${newStudent}'`);
 
-exec(actualArchiveSQL);
 exec(`insert into public.efg_food_plans(
  student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
 ) values (

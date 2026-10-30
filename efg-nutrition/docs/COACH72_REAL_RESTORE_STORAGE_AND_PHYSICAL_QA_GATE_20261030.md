@@ -4,7 +4,7 @@
 ## Evidencia real a esta fecha
 - Estado de Supabase consultado: `cyjvddhimbsfipjfctsl` ACTIVE_HEALTHY, PostgreSQL 17; **sin branch de staging**. Solo consultas de lectura, ninguna escritura.
 - Inventario read-only de `storage.objects`: bucket `efg-receipts` privado; **3 objetos** y suma de `metadata.size` **1.491.904 bytes** al consultar el 30/10/2026. Es información de catálogo, **no recuperación de bytes**, ni garantía de que la lista siga igual en la fecha de corte.
-- El snapshot COACH71 compara **15 tablas relevantes** de las 20 tablas `public.efg_*` presentes. SEC12/SEC13 se refieren a **19 RPC autenticadas incluidas en ese inventario**, no a todas las funciones SECURITY DEFINER; una inspección general de `pg_catalog` encontró **30 funciones públicas `efg_*` SECURITY DEFINER**. Revisar alcance de las 11 no incluidas antes de declarar autorización de todas las funciones.
+- El snapshot COACH71 compara **15 tablas relevantes** de las 20 tablas `public.efg_*` presentes. SEC12/SEC13 cubren las **19 RPC con permiso EXECUTE para `authenticated`**. Una auditoría de catálogos/ACL alojados confirmó **30 funciones públicas `efg_*` SECURITY DEFINER**: 19 ejecutables por `authenticated`, **11 sin EXECUTE para `authenticated` ni `anon`**, y **0 con EXECUTE para `anon` o `PUBLIC`**. Estas 11 corresponden a funciones internas de notificaciones y correo/cron. Su ACL reduce exposición REST pero no prueba que todas las cadenas de invocación internas sean seguras; deben revisarse por separado. Esta verificación **no es la matriz dinámica de JWT A/B**.
 - El backend local con JWT firmados y ficticios **sí pasó** 30/10; no implica que el clon alojado esté validado.
 
 ## 1. Restauración fiel en entorno **aislado y autorizado**

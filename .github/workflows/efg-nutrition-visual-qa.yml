@@ -42,6 +42,8 @@ jobs:
         run: node efg-nutrition/tests/personal-visual-qa.mjs
       - name: COACH-RELAUNCH legal-first new intake responsive (Chromium, synthetic OFF)
         run: node efg-nutrition/tests/coach-relaunch-visual-qa.mjs
+      - name: REPORT-LUX student report responsive Luxury Pro (Chromium, synthetic)
+        run: node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
       - name: Install Safari-engine WebKit for mobile compatibility
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
@@ -52,6 +54,8 @@ jobs:
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/personal-visual-qa.mjs
       - name: COACH-RELAUNCH legal-first new intake responsive (WebKit, synthetic OFF)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-relaunch-visual-qa.mjs
+      - name: REPORT-LUX student report responsive Luxury Pro (WebKit, synthetic)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
       - name: Preserve screenshots and machine-readable layout report
         if: always()
         uses: actions/upload-artifact@v4

@@ -726,10 +726,10 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
+  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
-  :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]]:[];
+  :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
@@ -959,7 +959,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"]]);
 }
 /* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
    de una fila RLS creada/aprobada por el coach; sin tabla, permiso = NO. */
@@ -2265,6 +2265,17 @@ async function render(){
   root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
   return;
  }
+ // EDUCATION01/02: 8 illustrated slides on the FIRST authenticated login
+ // before plan access, but AFTER versioned Términos/Privacidad checks.
+ const scienceLegalPending=state.profile.role==="student"&&
+   ((COACH_STUDENT_JOURNEY_ENABLED&&state.coachPilotEntry?.route==="legal")||
+    (COACH_RELAUNCH_ONBOARDING_ENABLED&&state.coachRelaunchEntry?.route==="legal"));
+ if(SCIENCE_WELCOME_ENABLED&&state.scienceWelcomePending&&!scienceLegalPending&&
+    !(state.profile.role==="coach"&&state.coachLegalPending)){
+   root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{
+     busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
+   return;
+ }
  // COACH113: signed, server-authoritative PILOT onboarding, not a local/legal draft.
  // This route stays OFF until atomic publication and server DML gating pass.
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
@@ -2280,25 +2291,16 @@ async function render(){
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
      {editing:!!saved});
    }else if(pilot?.route==="review"){
-    if(state.tab==="messages"){frame(messagesView());messages.mount();}
-    else root.innerHTML=renderCoachPlanWaiting();
+    // Reading nutrition education must not allow diary writes before plan.
+    if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
+    else if(state.tab==="messages"){frame(messagesView());messages.mount();}
+    else frame(renderCoachPlanWaiting());
    }else
     root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
    return;
   }
  }
- // Returning students with existing plans must complete this major-version intake too.
- // This gate is OFF until the staging, legal and mobile approvals are complete.
- if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
-   if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
-   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
-   if(state.coachPilotEntry.route==="legal")
-    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
-   if(state.coachPilotEntry.route==="intake")
-    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
-   if(!["ready","review"].includes(state.coachPilotEntry.route))return render();
-  }
-  if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
+ if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
   if(state.coachRelaunchEntry?.route!=="ready"){
    root.innerHTML=state.coachRelaunchEntry?.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED?
      renderCoachLegalOnboarding(state.coachLegalSnapshot):
@@ -2314,11 +2316,7 @@ async function render(){
   return;
  }
  if(state.welcomePending)return welcomeView();
- if(SCIENCE_WELCOME_ENABLED&&state.scienceWelcomePending){
-  root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
-  return;
- }
- if(studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(state.tab))state.tab="intake";
+ if(studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
@@ -2588,11 +2586,31 @@ async function refresh(){
   }
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
+  // EDUCATION01/02: verify the signed user/version receipt before the
+  // early return for students awaiting their Coach's approved plan.
+  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";
+  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)){
+   try{
+    const intro=await readScienceWelcomeStatus(sb,{profile:state.profile,userId:id});
+    state.scienceWelcomePending=intro.pending;
+   }catch(error){
+    // Unavailable educational receipts cannot be interpreted as viewed.
+    console.warn("No se pudo verificar la presentación educativa:",error?.message);
+   }
+  }
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
    if(state.coachLegalPending)return render();
+  }
+  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
+   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   if(state.coachPilotEntry.route==="legal")
+    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
+   if(state.coachPilotEntry.route==="intake")
+    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
+   if(state.coachPilotEntry.route!=="ready")return render();
   }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
    state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
@@ -2611,17 +2629,6 @@ async function refresh(){
   // Signing in is authentication only; coach consent requires the dedicated action.
   sessionStorage.removeItem("efgNutritionCoachConsent:"+id);
   await loadWelcomeStatus();
-  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";
-  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)){
-   try{
-    // Never infer acceptance from sign-in, local storage or another user session.
-    const found=await readScienceWelcomeStatus(sb,{profile:state.profile,userId:id});
-    state.scienceWelcomePending=found.pending;
-   }catch(error){
-    // A temporarily unavailable education module must not lock out nutrition tools.
-    console.warn("No se pudo verificar la presentación educativa:",error?.message);
-   }
-  }
   await render();
  }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
  finally{state.loading=false;}
@@ -2796,7 +2803,7 @@ async function mainClick(event){
   // El primer toque de navegación o de abrir una comida NO se descarta.
   // No continuar acciones que pudieran confirmar formularios antiguos.
   if(el.dataset.setmeal){if(studentPlanPending()){state.tab="intake";await render();return;}openMealDialog(el.dataset.setmeal);return;}
-  if(el.dataset.tab){state.tab=studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  if(el.dataset.tab){state.tab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
   return;
  }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
@@ -2815,7 +2822,7 @@ async function mainClick(event){
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
-  state.tab=studentPlanPending()&&!["intake","messages","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
+  state.tab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
   if(state.tab==="payments")await loadOrgAndPayments();
   if(state.tab==="reports"&&!state.selectedStudent){
    const student=(state.roster||[]).find(p=>p.active);

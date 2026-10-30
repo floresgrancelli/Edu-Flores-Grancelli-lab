@@ -1,7 +1,7 @@
 // COACH72 isolated synthetic QA; no real receipt bytes, names, credentials or network.
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
-import {mkdtemp,mkdir,writeFile,rm,unlink,symlink} from "node:fs/promises";
+import {mkdtemp,mkdir,writeFile,rm,unlink,symlink,link} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {validatePrivateReceiptManifest,verifyPrivateReceiptRestore}
@@ -44,6 +44,10 @@ try{
  await assert.rejects(verifyPrivateReceiptRestore({manifest,sourceDir:src,restoredDir:dst}),/COACH72 STOP/);
  await unlink(join(dst,"unlisted.bin"));
  await unlink(file);await symlink(join(src,examples[0][0]),file);
+ await assert.rejects(verifyPrivateReceiptRestore({manifest,sourceDir:src,restoredDir:dst}),/COACH72 STOP/);
+ await unlink(file);await writeFile(file,examples[0][1]);
+ // Same inode in two folders is not a genuinely restored independent object.
+ await unlink(file);await link(join(src,examples[0][0]),file);
  await assert.rejects(verifyPrivateReceiptRestore({manifest,sourceDir:src,restoredDir:dst}),/COACH72 STOP/);
  await unlink(file);await writeFile(file,examples[0][1]);
  await rm(join(dst,examples[2][0]));

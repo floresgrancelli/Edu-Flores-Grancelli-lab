@@ -28,8 +28,8 @@ function normalizeDocuments(rows,status){
     "Términos y Condiciones completos":"Política de Privacidad completa",body:row.content}]};
  });
 }
-export async function loadCoachLegalOnboarding(sb,{enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED}={}){
- if(enabled!==true||LEGAL_ONBOARDING_ENABLED!==true)
+export async function loadCoachLegalOnboarding(sb,{enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,legalEnabled=LEGAL_ONBOARDING_ENABLED}={}){
+ if(enabled!==true||legalEnabled!==true)
   throw Error("La aceptación legal nueva no puede activarse sin revisión de textos y permisos.");
  if(typeof sb?.rpc!=="function"||typeof sb?.from!=="function)
   throw Error("Conexión legal no disponible.");
@@ -53,20 +53,20 @@ export function renderCoachLegalOnboarding(snapshot){
  return renderLegalOnboarding(snapshot.documents,snapshot.accepted);
 }
 export async function acceptCoachLegalOnboarding(sb,snapshot,checked,{
- explicitSubmit=false,enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED
+ explicitSubmit=false,enabled=COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,legalEnabled=LEGAL_ONBOARDING_ENABLED
 }={}){
- if(explicitSubmit!==true||enabled!==true||LEGAL_ONBOARDING_ENABLED!==true)
+ if(explicitSubmit!==true||enabled!==true||legalEnabled!==true)
   throw Error("No se registró una aceptación legal explícita y habilitada.");
  if(typeof sb?.rpc!=="function)throw Error("No se pudo verificar el servidor.");
  const selections=makeLegalAcceptanceRequest(snapshot.documents,snapshot.accepted,checked);
- if(!selections.length)return loadCoachLegalOnboarding(sb,{enabled:true});
+ if(!selections.length)return loadCoachLegalOnboarding(sb,{enabled:true,legalEnabled:true});
  const ids=selections.map(x=>x.document_id);
  if(ids.some(id=>!uuid.test(id)))throw Error("Identificador legal inválido.");
  const r=await sb.rpc("efg_accept_legal_documents",{p_document_ids:ids});
  if(r.error)throw Error("No se pudo registrar la aceptación legal en el servidor.");
  // Never trust the mutation response alone. Re-read current status + documents,
  // which may have been replaced by a new published version since submission.
- const verified=await loadCoachLegalOnboarding(sb,{enabled:true});
+ const verified=await loadCoachLegalOnboarding(sb,{enabled:true,legalEnabled:true});
  if(verified.missing.length)throw Error("El servidor no confirmó ambas versiones vigentes; volvé a revisarlas.");
  return verified;
 }

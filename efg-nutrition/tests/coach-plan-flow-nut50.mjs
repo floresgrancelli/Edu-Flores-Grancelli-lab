@@ -115,7 +115,8 @@ assert.match(app,/import \{assessCoachDraftPublication,verifyCoachDraftReadback,
 assert.match(app,/const review=assessCoachDraftPublication\(\{studentId,intake,savedDraft:draft,goal,guide\}\)/);
 assert.match(app,/if\(!review\.ready\)throw Error\(review\.reason\)/);
 assert.match(app,/state\.coachGuidedDraft\?readGuidedEditor\(\):state\.coachIntakeGuidePreview/);
-assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&proposed/);
+assert.match(app,/function activeCoachGuideGoal\(\)\{[\s\S]*?COACH_ATOMIC_PLAN_UI_ENABLED[\s\S]*?state\.pendingGoal\|\|state\.pendingGoalRevision\?\.proposal\|\|null/,
+ "Atomic Coach guide must reference the unpublished proposal without falling back to an approved goal");
 assert.match(app,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)/);
 assert.match(app,/const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED/,"Refresh must check current draft and intake before restoring edits");
 assert.match(app,/state\.coachIntakeForms\?\.\[selected\]\?\.updated_at===coachEdits\.intakeUpdatedAt/,"Reject changed intake on refresh");

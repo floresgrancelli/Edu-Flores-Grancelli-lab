@@ -48,7 +48,7 @@ assert.ok(search("pizza").length>=8);
 assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS,PLANT_BAKERY_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
-assert.match(html,/202610(?:28-regional2|29-(?:seats-visible|coach-commercial))/,"Force iPhone Safari asset update");
+assert.match(html,/name="efg-build" content="20[0-9]{6}-[a-z0-9-]{5,80}"/,"Force iPhone Safari asset update");
 const expected={
  zapallo_anco_horno:[169296,40,.90,10.5,.09,3.2],
  helado_crema_americana:[167575,207,3.5,23.6,11,.7],

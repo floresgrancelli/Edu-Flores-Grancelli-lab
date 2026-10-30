@@ -30,6 +30,7 @@ import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -2132,7 +2133,9 @@ async function render(){
  // This gate is OFF until the staging, legal and mobile approvals are complete.
  if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
   if(state.coachRelaunchEntry?.route!=="ready"){
-   root.innerHTML=renderCoachRelaunchEntry(state.coachRelaunchEntry||{route:"retry",reason:"Revalidá tu sesión."});
+   root.innerHTML=state.coachRelaunchEntry?.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED?
+     renderCoachLegalOnboarding(state.coachLegalSnapshot):
+     renderCoachRelaunchEntry(state.coachRelaunchEntry||{route:"retry",reason:"Revalidá tu sesión."});
    return;
   }
  }
@@ -2392,13 +2395,15 @@ async function refresh(){
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
   if(p.error)throw p.error;
   state.profile=p.data;
-  state.coachRelaunchEntry=null;
+  state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
   if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
    state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
+   if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
+    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    if(state.coachRelaunchEntry.route!=="ready")return render();
   }
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
@@ -2694,6 +2699,17 @@ if(el.dataset.foodbulk){
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
  if(action==="logout"){state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;await sb.auth.signOut();state.habitualSelection={};state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
+ if(action==="confirmLegalAcceptance"){
+  if(!COACH_RELAUNCH_ONBOARDING_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||
+     state.profile?.role!=="student"||state.coachRelaunchEntry?.route!=="legal"||
+     !state.coachLegalSnapshot)throw Error("No se pudo verificar el documento legal actual.");
+  const checked={terms:document.getElementById("efgLegalCheck_terms")?.checked===true,
+   privacy:document.getElementById("efgLegalCheck_privacy")?.checked===true};
+  await acceptCoachLegalOnboarding(sb,state.coachLegalSnapshot,checked,{explicitSubmit:true});
+  state.coachLegalSnapshot=null;
+  await refresh(); // Server must confirm current acceptance before entering intake.
+  return;
+ }
  if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED||state.profile?.role!=="student"||
      state.coachRelaunchEntry?.route!=="ready")throw Error("La ficha nueva no está disponible.");

@@ -3135,6 +3135,9 @@ root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const sel
 document.addEventListener("keydown",event=>{
  const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
  if(!dialog)return;
+ // Android Gboard / IMEs: Enter can confirm text composition, not an actual food choice.
+ // Do not preventDefault, select a suggestion or close the dialog until composition ends.
+ if(event.isComposing||event.keyCode===229)return;
   const suggestions=document.getElementById("mealFoodSuggestions"),search=document.getElementById("mealFoodSearch");
   if(dialog.classList.contains("meal-popup")&&suggestions&&!suggestions.hidden){
    const choices=[...suggestions.querySelectorAll("[data-mealsuggestion]")],index=choices.indexOf(document.activeElement);

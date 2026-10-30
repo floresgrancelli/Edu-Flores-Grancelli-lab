@@ -165,3 +165,20 @@
 #coachIntakeGeneratedGuide{margin-top:16px;border-top:1px solid #c9d9d6;padding-top:15px}
 #coachIntakeGeneratedGuide h4{font-size:16px;color:#275665}
 @media(max-width:430px){.efg-intake-prefill{padding:13px 12px}.efg-intake-prefill li{font-size:12px}}
+
+/* COACH-RELAUNCH · student reentry card, isolated and gated OFF. */
+.efg-coach-relaunch{width:min(100%,760px);margin-inline:auto;overflow-wrap:anywhere;
+ background:linear-gradient(145deg,#fffdfa 0%,#faf3fc 100%);border-radius:24px;
+ box-shadow:0 12px 36px rgba(57,37,72,.12)}
+.efg-coach-relaunch .eyebrow{color:#826089;font-size:11px;letter-spacing:.12em}
+.efg-coach-relaunch h2{color:#3b2f43;font-size:clamp(22px,3vw,30px);letter-spacing:-.025em}
+.efg-coach-relaunch p{line-height:1.6;color:#584e60}
+.efg-coach-relaunch .field-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.efg-coach-relaunch .field-row>*{min-width:0}
+.efg-coach-relaunch input,.efg-coach-relaunch select,.efg-coach-relaunch textarea{max-width:100%;min-width:0}
+.efg-coach-relaunch button.btn{min-height:44px;min-width:88px}
+.efg-coach-relaunch .efg-intake-share-label{line-height:1.6}
+@media(max-width:680px){
+ .efg-coach-relaunch{border-radius:18px}
+ .efg-coach-relaunch .field-row{grid-template-columns:1fr;gap:8px}
+}

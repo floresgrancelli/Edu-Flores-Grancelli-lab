@@ -197,6 +197,33 @@ jobs:
           test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
           test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
           echo 'PASS NUT57: restored synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory and injected rollback preserved historical rows. NOT full production parity.'
+      - name: COACH-71 synthetic fixture MUST FAIL strict hosted metadata parity (negative control)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nut57_before
+        run: |
+          set -euo pipefail
+          # Test AFTER generating NUT57 before snapshot. This DB has incomplete
+          # synthetic RLS policies/triggers/keys, even though column parity passed.
+          # COACH71 must REJECT it with drift status 2, not crash (3) or pass (0).
+          test "$(psql -Atqc "select current_database()")" = 'efg_nut57_before'
+          if node efg-nutrition/scripts/coach71-hosted-preflight.mjs > "$RUNNER_TEMP/coach71-negative.out" 2>&1; then
+            echo 'COACH71 UNSAFE: incomplete synthetic database was treated as hosted parity' >&2
+            exit 1
+          else
+            status=$?
+          fi
+          if test "$status" -ne 2; then
+            echo "COACH71 ERROR: expected drift exit 2, got $status (SQL/test crash)" >&2
+            tail -n 35 "$RUNNER_TEMP/coach71-negative.out" >&2
+            exit 1
+          fi
+          grep -q 'COACH71 NO GO: hosted object-shape parity not demonstrated' "$RUNNER_TEMP/coach71-negative.out"
+          grep -q 'policies DIFFERENT' "$RUNNER_TEMP/coach71-negative.out"
+          echo 'PASS COACH71 NEGATIVE: real local PostgreSQL fixture rejected due to hosted policy/object drift. This is NOT a successful full-parity restore.'
       - name: COACH-68 parse and ROLLBACK full version-aware Coach SQL in isolated PG17
         env:
           PGHOST: 127.0.0.1

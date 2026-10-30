@@ -108,6 +108,43 @@ assert.equal(sql("select count(*) from public.efg_personal_goals"),"3");
 assert.equal(sql("select count(*) from public.efg_goals"),coachBefore.goals,"Personal goals cannot write coach goal history");
 assert.equal(sql("select count(*) from public.efg_food_plans"),coachBefore.guides,"Personal goals cannot write coach guide");
 assert.equal(sql("select count(*) from public.efg_notifications"),coachBefore.notifications,"Personal goal changes cannot fake Coach notifications");
+// NUT-60 guide drafts are five required meals, owner-only immutable revisions
+// linked to the CURRENT Personal goal, never clinically/coach approved.
+const guidePath="/rest/v1/efg_personal_guides";
+const guideDraft={kind:"five_meal_example",meals:[
+ {slot:"desayuno",items:[{id:"egg_synthetic",grams:100}]},
+ {slot:"media_manana",items:[]},
+ {slot:"almuerzo",items:[{id:"rice_synthetic",grams:80}]},
+ {slot:"media_tarde",items:[]},
+ {slot:"cena",items:[{id:"fish_synthetic",grams:200}]}
+]};
+const saveGuide=(user,body)=>rpc("efg_save_personal_guide",user,body);
+const ownGuides=user=>rest(guidePath+"?select=user_id,revision,goal_revision,guide&order=revision.asc",{token:user.token});
+no(await saveGuide(null,{p_guide:guideDraft,p_goal_revision:2,p_expected_revision:null}),
+ "Anonymous cannot create Personal guide");
+no(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:1,p_expected_revision:null}),
+ "Personal guide cannot bind a stale objective");
+no(await saveGuide(a,{p_guide:{...guideDraft,meals:guideDraft.meals.slice(1)},p_goal_revision:2,p_expected_revision:null}),
+ "Four-meal guide invalid");
+no(await saveGuide(a,{p_guide:{...guideDraft,meals:[guideDraft.meals[0],guideDraft.meals[0],...guideDraft.meals.slice(2)]},
+ p_goal_revision:2,p_expected_revision:null}),"Duplicate breakfast invalid");
+assert.equal(Number(yes(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:2,p_expected_revision:null}),
+ "A privately saves first draft linked to own goal v2")),1);
+no(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:2,p_expected_revision:null}),
+ "Stale draft CAS must be denied");
+const nextGuide={...guideDraft,notes:"Synthetic educational illustration, not clinical advice"};
+assert.equal(Number(yes(await saveGuide(a,{p_guide:nextGuide,p_goal_revision:2,p_expected_revision:1}),
+ "A preserves immutable draft v2")),2);
+assert.deepEqual(yes(await ownGuides(b),"B cannot read A's Personal guides"),[]);
+assert.deepEqual(yes(await ownGuides(a),"A sees own guide revision history").map(x=>x.revision),[1,2]);
+no(await rest(guidePath,{method:"POST",token:a.token,body:{
+ user_id:a.id,revision:3,goal_revision:2,guide:guideDraft
+}}),"Direct REST guide publication forbidden");
+assert.equal(Number(yes(await saveGuide(b,{p_guide:guideDraft,p_goal_revision:1,p_expected_revision:null}),
+ "B can save only own private draft")),1);
+assert.equal(yes(await ownGuides(b),"B's own drafts").length,1);
+assert.equal(sql("select count(*) from public.efg_personal_guides"),"3");
+
 // NUT-60 step B: isolated Personal diary, meal presets and cross-account RLS.
 // This tests OWNERSHIP only; reconsent gating for old JS writes is still a release blocker.
 const logDay="2026-10-30";
@@ -161,6 +198,8 @@ assert.equal(changed.find(x=>x.kind==="terms").accepted,false);
 assert.equal(changed.find(x=>x.kind==="privacy").accepted,true);
 no(await save(a,{p_goal:{...goal,kcal:2100},p_expected_revision:2}),
  "Personal goal revision must stop until new legal version accepted");
+no(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:2,p_expected_revision:2}),
+ "Personal guide draft blocked until new legal version accepted");
 no(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
  method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:4}]}}
 }),"Personal diary update must be gated by CURRENT legal versions");
@@ -177,6 +216,8 @@ assert.equal(Number(yes(await rpc("efg_accept_legal_documents",a,{p_document_ids
  "A explicitly reaccepts only changed Terms")),1);
 assert.equal(Number(yes(await save(a,{p_goal:{...goal,kcal:2100},p_expected_revision:2}),
  "A can save again after legal reacceptance")),3);
+assert.equal(Number(yes(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:3,p_expected_revision:2}),
+ "New Personal guide draft explicitly follows own latest goal")),3);
 yes(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
  method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:4}]}}
 }),"A can correct own diary after reaccepting new terms");
@@ -204,6 +245,8 @@ assert.equal(yes(await rpc("efg_personal_write_allowed",a,{}),
  "Suspended user must be denied by server-side predicate"),false);
 no(await save(a,{p_goal:{...goal,kcal:2000},p_expected_revision:3}),
  "Suspended JWT must not save goals even after legal acceptance");
+no(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:3,p_expected_revision:3}),
+ "Suspended JWT cannot save personal guide drafts");
 no(await rest(diaryPath,{method:"POST",token:a.token,body:{
  ...todayLog,log_day:"2026-10-31"
 }}),"Suspended JWT cannot create new diary");
@@ -231,6 +274,8 @@ assert.equal(yes(await rpc("efg_personal_write_allowed",a,{}),
  "Explicit fixture reactivation restores valid authorizations"),true);
 assert.equal(Number(yes(await save(a,{p_goal:{...goal,kcal:2000},p_expected_revision:3}),
  "Reactivated personal profile can create the next revision")),4);
+assert.equal(Number(yes(await saveGuide(a,{p_guide:guideDraft,p_goal_revision:4,p_expected_revision:3}),
+ "Reactivated Personal binds guide v4 to goal v4")),4);
 yes(await rest(diaryPath+"?user_id=eq."+a.id+"&log_day=eq."+logDay,{
  method:"PATCH",token:a.token,body:{meals:{desayuno:[{id:"egg",qty:5}]}}
 }),"Reactivated profile can update own diary");
@@ -253,6 +298,8 @@ for(const [who,actor] of [["Coach",probeCoach],["Student",probeStudent]]){
   who+" must not have Personal write rights"),false);
  no(await reg(actor,who+" re-enroll"),who+" must not convert to Personal role");
  no(await save(actor,{p_goal:goal,p_expected_revision:null}),who+" cannot save Personal goals");
+ no(await saveGuide(actor,{p_guide:guideDraft,p_goal_revision:1,p_expected_revision:null}),
+  who+" cannot create Personal guide");
  assert.deepEqual(yes(await accounts(actor),who+" Personal accounts RLS isolation"),[]);
  assert.deepEqual(yes(await goals(actor),who+" Personal goals RLS isolation"),[]);
  assert.deepEqual(yes(await rest(diaryPath+"?select=user_id",{token:actor.token}),
@@ -268,4 +315,4 @@ for(const [who,actor] of [["Coach",probeCoach],["Student",probeStudent]]){
 assert.equal(yes(await rest(diaryPath+"?select=meals&log_day=eq."+logDay,{token:a.token}),
  "Coach/Student probing did not mutate A diary")[0].meals.desayuno[0].qty,5);
 
-console.log("PASS NUT-60 LOCAL: signed JWT Personal A/B + Coach/Student, legal-gated enrollment, personal goals revisions, owner RLS diary and meal presets, no Coach/Student cross-writes. No real clinical/legal approval.");
+console.log("PASS NUT-60 LOCAL: Personal A/B and Coach/Student signed JWT, legal-gated signup, versioned private goal-linked five-meal guide drafts, owner RLS diary/presets, suspended role and no cross-writes. No clinical/legal approval.");

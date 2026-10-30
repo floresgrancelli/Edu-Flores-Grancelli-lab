@@ -38,6 +38,7 @@ assert.match(entry,/value="lactose_intolerance" disabled/);
 const fakeDoc={getElementById(id){
  const key=id.replace('coachRelaunch_','');
  if(key==='share')return {checked:false};
+ if(key==='eating_window')return {value:'regular'};
  if(['objective','activity_level','dietary_pattern','age_years','height_cm','weight_kg',
  'preferred_foods','disliked_foods','meal_routine','notes'].includes(key))return {value:''};
  if(key.startsWith('gut'))throw Error('General RPC must not read health fields');
@@ -45,7 +46,7 @@ const fakeDoc={getElementById(id){
 }};
 const normal=readCoachRelaunchForm(fakeDoc);
 assert.deepEqual(Object.keys(normal.payload).sort(),[
- 'objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern',
+ 'objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern','eating_window',
  'preferred_foods','disliked_foods','meal_routine','notes'].sort());
 assert.ok(!('health_flags' in normal.payload),'Medical data cannot enter nonmedical intake RPC');
 const lactose=buildGutGuideForCoach({condition:'lactose_intolerance',diagnosticStatus:'confirmed'});

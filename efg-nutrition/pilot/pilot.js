@@ -28,7 +28,7 @@ import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspace
 import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
 import {createVersionNotice} from "./version-notice.js?v=20261030-banner-r2";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch1";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
@@ -2713,7 +2713,8 @@ if(el.dataset.foodbulk){
    throw new Error("Solo podés preparar un plan de un alumno activo y autorizado.");
   await loadStudentDetail(studentId); // Revalidate RLS/consent; never trust cached intake.
   state.coachIntakePrefill=createCoachCalculatorPrefill({
-   intake:state.coachIntakeForms?.[studentId],studentId,coachAuthorized:state.consent?.accepted===true
+   intake:state.coachIntakeForms?.[studentId],studentId,coachAuthorized:state.consent?.accepted===true,
+    requiredIntakeVersion:COACH_RELAUNCH_ONBOARDING_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
   });
   state.coachIntakeGuidePreview=null;
   state.tab="coachStudents";await render();

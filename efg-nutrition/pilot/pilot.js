@@ -4,6 +4,8 @@ import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consis
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
+import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=20261030-coach101";
+import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=20261030-coach101";
 import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
 import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261030-brand78-finale";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
@@ -393,7 +395,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -424,6 +426,30 @@ const messages=createMessagesCenter({sb,
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
 const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
 const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED});
+function compatibilityPattern(){
+ const pattern=state.profile?.role==="student"
+  ?state.coachRelaunchEntry?.status?.dietary_pattern||state.studentIntake?.dietary_pattern
+  :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
+ return profilePatternForCompatibility(pattern);
+}
+function foodTrafficLight(food){
+ if(!FOOD_COMPATIBILITY_ENABLED)return {symbol:"",color:"neutral",details:"",canRecord:true};
+ const plan=state.profile?.role==="student"?state.foodPlan:state.coachFoodPlan;
+ const inPlan=Array.isArray(plan?.guided_plan?.meals)&&
+  plan.guided_plan.meals.some(m=>Array.isArray(m.items)&&m.items.some(x=>x.id===food?.id));
+ return describeTrafficLight(food,{pattern:compatibilityPattern(),inPlan,evidence:state.foodCompatEvidence});
+}
+async function refreshFoodCompatibilityEvidence(){
+ const pattern=compatibilityPattern();
+ state.foodCompatEvidence=[];
+ if(!FOOD_COMPATIBILITY_ENABLED||pattern==="balanced")return;
+ try{
+  state.foodCompatEvidence=await loadReviewedFoodEvidence(sb,{foodIds:foods.map(f=>f.id),patterns:[pattern]});
+ }catch(error){
+  state.foodCompatEvidence=[];
+  console.warn("Semáforo: revisiones no disponibles; se mostrará amarillo.",error?.message);
+ }
+}
 const studentPlanPending=()=>coachIntakeFlow.pending();
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
@@ -1309,6 +1335,7 @@ function openMealDialog(slot,initialGroup="protein"){
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
  const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  const displayed=guided?allowed.filter(f=>guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup):allowed;
+  const displayedWithSignals=displayed.map(f=>{const signal=foodTrafficLight(f);return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};});
  const marks=guidedMealMarks(activeDiary()?.skipped,slot),current=guidedMealTotals(activeDiary()?.meals?.[slot]);
  const guidedPanel=guided?'<section class="efg-meal-guidance" aria-label="Armá tu comida por partes">'+
   '<p class="pilot-hint">Elegí qué comiste. Podés agregar más de un alimento por sección o usar un plato preparado. Omitir es opcional: no obliga a consumir ese grupo.</p>'+
@@ -1325,10 +1352,10 @@ function openMealDialog(slot,initialGroup="protein"){
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  guidedPanel+
  '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
- '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayed,slot)+'</select></div>'+
+ '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
- '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div>'+
+ '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div>'+
  (guided?'<div class="efg-guided-save-actions"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button>')+'</div></div></div>';
  updateMealEntryMode(true);
  document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
@@ -1347,7 +1374,7 @@ function renderMealSearchSuggestions(items,term){
  const ranked=items.slice().sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,"es-AR")).slice(0,8);
  panel.innerHTML=ranked.length?
   '<p class="efg-meal-search-count">'+items.length+' coincidencia'+(items.length===1?'':'s')+' · Elegí el alimento para continuar</p>'+
-  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML(f.name)+'</span><small>Elegir</small></button>').join(""):
+  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</span><small>Elegir</small></button>').join(""):
   '<p class="efg-meal-search-count" role="status">No encontramos alimentos con ese nombre. Probá otra palabra o revisá el catálogo habilitado.</p>';
  panel.hidden=false;input.setAttribute("aria-expanded","true");
 }
@@ -1415,7 +1442,9 @@ function updateMealDialogHint(){
  const hint=document.getElementById("mealEditorHint");
  if(!hint)return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
+ const status=document.getElementById("mealCompatibilityStatus");
+  if(status)status.innerHTML=f?foodTrafficLight(f).details:"";
+  if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+foodProvenance(f)+". "+f.source+
@@ -2493,6 +2522,7 @@ async function refresh(){
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
   if(state.profile.role==="student")await coachIntakeFlow.loadStudent();
+  await refreshFoodCompatibilityEvidence();
   if(state.profile.role==="student")await loadSundayPermission(id);
   await inbox.refresh();
   // Legacy OTP auto-consent tokens must never be interpreted as permission.
@@ -2555,6 +2585,7 @@ async function refreshVisibleWorkspace(){
   await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
   await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
   await loadRoleData();
+  await refreshFoodCompatibilityEvidence();
   // No refresh can revive edits based on an intake that was changed or unshared
   // in another device. The staged flow must also match the server draft revision.
   const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(

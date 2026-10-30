@@ -251,9 +251,19 @@ assert.deepEqual(diaryB,[]);
 denied(await call(diaryBase,{method:"POST",token:users.studentB.token,
  body:{...studentLog,log_day:"2026-10-31"}}),
  "Student B cannot impersonate A when writing meals through legacy PWA");
-denied(await call(diaryBase+"?student_id=eq."+users.studentA.id+"&log_day=eq."+logDate,{
+// PostgREST may return 204 for a zero-row RLS UPDATE: enforce data integrity,
+// not an assumed HTTP error.
+const crossOrgPatch=await call(diaryBase+"?student_id=eq."+users.studentA.id+"&log_day=eq."+logDate,{
  method:"PATCH",token:users.studentB.token,body:{meals:{desayuno:[{id:"egg",qty:99}]}}
-}),"Student B cannot modify A's diary via old REST request");
+});
+assert.ok(crossOrgPatch.status===204||crossOrgPatch.status===200||!crossOrgPatch.ok,
+ "Cross-org update must be denied by RLS or have zero visible rows");
+const unchangedLog=ok(await call(diaryBase+"?select=meals&log_day=eq."+logDate,{
+ token:users.studentA.token
+}),"RLS must leave Student A diary unchanged after attempted cross-org PATCH");
+assert.equal(unchangedLog.length,1);
+assert.equal(unchangedLog[0].meals.desayuno[0].qty,2,
+ "Cross-org PATCH must never change another Student's diary");
 ok(await call(diaryBase+"?student_id=eq."+users.studentA.id+"&log_day=eq."+logDate,{
  method:"PATCH",token:users.studentA.token,body:{meals:{desayuno:[{id:"egg",qty:3,unit:"units"}]}}
 }),"Legacy Student may correct own breakfast");

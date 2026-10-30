@@ -2019,8 +2019,11 @@ async function publishCoachAtomicDraft(){
  // The server may have committed even if navigation occurred meanwhile.
  // Never overwrite the currently visible student's workspace or request UUID.
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
- state.coachPlanPublishRequestId=null;
+ // Keep the SAME request UUID until the server state is reloaded and rendered.
+ // A successful commit followed by a failed read must be safely retryable;
+ // clearing the UUID early risks an accidental second publication.
  await loadStudentDetail(studentId);await render();
+ state.coachPlanPublishRequestId=null;
  notify("Meta y guía publicadas conjuntamente por el servidor.");
 }
 function activeCoachGuideGoal(){

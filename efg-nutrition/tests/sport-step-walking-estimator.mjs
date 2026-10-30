@@ -34,6 +34,8 @@ for(const attrs of [{steps:-1},{steps:100001},{steps:4.2},{steps:8000,pace:'runn
  assert.throws(()=>estimateWalkingSteps(attrs));
 const legacy={activity_day:'2026-10-28',steps:6000,exercise_minutes:60,kind:'Caminata'};
 assert.equal(estimateStoredWalkingActivity(legacy).distanceKm,4.2);
+assert.equal(estimateStoredWalkingActivity({steps:null,exercise_minutes:60}),null,
+ 'Older exercise-only rows are not made into fictional walks.');
 assert.equal(estimateStoredWalkingActivity(legacy).activeKcal,null);
 const fields={activitySteps:'8000',activityPace:'moderate',activityHeightCm:'174',
  activityWeightKg:'78',activityMinutes:'60',activityKind:'Entrenamiento de fuerza'};

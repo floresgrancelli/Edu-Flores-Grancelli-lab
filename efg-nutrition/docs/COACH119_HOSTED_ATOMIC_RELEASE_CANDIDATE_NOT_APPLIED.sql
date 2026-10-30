@@ -54,6 +54,53 @@ create index coach119_publication_receipts_student_idx
 alter table public.efg_coach_plan_publish_receipts enable row level security;
 revoke all on public.efg_coach_plan_publish_receipts from public,anon,authenticated;
 
+-- Coach119 retention: efg_food_plans is one row per student. An UPDATE to
+-- its guided_plan would silently destroy the previous approved guide. This
+-- private ledger stores the OLD approved guide in the SAME transaction, before
+-- the ON CONFLICT UPDATE overwrites the current guide. No existing rows move.
+-- Only an audited backend service can later offer an authorized history viewer.
+create table efg_private.coach_guide_history (
+ id bigint generated always as identity primary key,
+ student_id uuid not null references public.efg_profiles(user_id),
+ coach_id uuid not null references auth.users(id),
+ guided_goal_id uuid references public.efg_goals(id),
+ guided_plan jsonb not null,
+ approved_food_ids text[] not null,
+ guided_plan_approved_at timestamptz not null,
+ archived_at timestamptz not null default pg_catalog.clock_timestamp()
+);
+create index coach119_guide_history_student_idx
+ on efg_private.coach_guide_history(student_id,archived_at desc);
+alter table efg_private.coach_guide_history enable row level security;
+revoke all on efg_private.coach_guide_history from public,anon,authenticated;
+
+create function efg_private.coach119_archive_replaced_guide()
+returns trigger language plpgsql security definer set search_path=''
+as $coach119_archive$
+begin
+ if old.guided_plan is not null and old.guided_plan_approved_at is not null
+  and (new.guided_plan is distinct from old.guided_plan
+   or new.guided_goal_id is distinct from old.guided_goal_id
+   or new.guided_plan_approved_at is distinct from old.guided_plan_approved_at)
+ then
+  insert into efg_private.coach_guide_history(
+   student_id,coach_id,guided_goal_id,guided_plan,
+   approved_food_ids,guided_plan_approved_at
+  ) values (
+   old.student_id,old.coach_id,old.guided_goal_id,old.guided_plan,
+   old.approved_food_ids,old.guided_plan_approved_at
+  );
+ end if;
+ return new;
+end;
+$coach119_archive$;
+revoke all on function efg_private.coach119_archive_replaced_guide()
+ from public,anon,authenticated;
+create trigger coach119_archive_previous_approved_guide
+ before update of guided_plan,guided_goal_id,guided_plan_approved_at
+ on public.efg_food_plans
+ for each row execute function efg_private.coach119_archive_replaced_guide();
+
 -- Preserve exactly the two existing legacy notifications during independent
 -- legacy writes, suppressing only within this signed atomic RPC's transaction.
 -- Stage with recorded pg_get_functiondef() before altering these functions.

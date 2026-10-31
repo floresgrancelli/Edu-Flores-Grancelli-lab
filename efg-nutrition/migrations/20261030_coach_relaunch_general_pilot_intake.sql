@@ -71,7 +71,7 @@ create policy efg_coach_relaunch_shared_coach_select on public.efg_coach_relaunc
    where r.student_id=efg_coach_relaunch_intakes.student_id
     and r.organization_id=efg_coach_relaunch_intakes.organization_id
     and r.version='coach_pilot_2026_demo1' and r.participation_accepted
-    and r.revoked_at is null
+    and r.sharing_accepted is true and r.revoked_at is null
   )
  );
 -- No direct PostgREST INSERT/UPDATE/DELETE grant and NO write RLS policies.

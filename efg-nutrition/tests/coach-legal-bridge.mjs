@@ -38,6 +38,10 @@ const off=await assert.rejects(()=>acceptCoachLegalOnboarding(sb,{},{terms:true,
 assert.equal(writes,0);
 const opts={enabled:true,legalEnabled:true};
 const loaded=await loadCoachLegalOnboarding(sb,opts);
+const verifiedDocs=docs;
+docs=verifiedDocs.map((d,i)=>i?d:{...d,body:d.body+" [PENDIENTE: revisión]"});
+await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/versión legal publicada no coincide/);
+docs=verifiedDocs;
 assert.deepEqual(loaded.missing,["terms","privacy"]);
 const ui=renderCoachLegalOnboarding(loaded);
 assert.match(ui,/Confirmar y continuar/);

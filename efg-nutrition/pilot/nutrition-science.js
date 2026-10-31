@@ -5,7 +5,8 @@ export const NUTRITION_SCIENCE_SOURCES=Object.freeze([
  {title:"OMS · Grasas saturadas y trans (2023)",url:"https://www.who.int/publications/i/item/9789240073630"},
  {title:"NIH · Balance energético y calorías",url:"https://www.ncbi.nlm.nih.gov/books/NBK20371/"},
  {title:"ISSN · Proteína y ejercicio, revisión (2017)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/"},
- {title:"Morton et al. · Metaanálisis sobre proteína y entrenamiento de fuerza (2018)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5867436/"}
+ {title:"Morton et al. · Metaanálisis sobre proteína y entrenamiento de fuerza (2018)",url:"https://pmc.ncbi.nlm.nih.gov/articles/PMC5867436/"},
+ {title:"OMS · Actividad física y comportamiento sedentario (2024)",url:"https://www.who.int/news-room/fact-sheets/detail/physical-activity"}
 ]);
 const macro=(grams,kcal)=>Object.freeze({grams,kcal,energy:grams*kcal});
 export function macroEnergy(grams,kind){
@@ -24,7 +25,7 @@ const src=()=>NUTRITION_SCIENCE_SOURCES.map((s,i)=>
 export function renderNutritionScienceView(){
  return '<div class="ns-science" aria-label="Educación nutricional basada en evidencia">'+
  '<header class="ns-hero">'+
- '<span class="ns-kicker">EFG LAB · APRENDÉ EN 5 MINUTOS</span>'+
+ '<span class="ns-kicker">NUTRICIÓN CON-CIENCIA · APRENDÉ EN 5 MINUTOS</span>'+
  '<h1>Nutrición <em>Con-Ciencia.</em></h1>'+
  '<p>Sin dietas mágicas, sin alimentos enemigos. Lo esencial para entender tu plan y elegir con libertad.</p>'+
  '<div class="ns-hero-chips" aria-label="Temas"><span>⚡ Energía</span><span>💪 Proteínas</span><span>🥑 Grasas</span><span>🌾 Hidratos</span></div>'+
@@ -59,6 +60,10 @@ export function renderNutritionScienceView(){
  '<div class="ns-protein-numbers"><div><b>1,4–2,0 g/kg/día</b><span>Rango orientativo de ingesta proteica total para muchos adultos sanos que entrenan. No es una receta universal.</span></div><div><b>20–40 g</b><span>Por comida puede ser una referencia práctica para algunos adultos, con variaciones por edad, peso y contexto.</span></div></div>'+
  '<p class="ns-protein-note">Ejemplo ilustrativo: una persona de 75 kg tendría un rango orientativo de 105–150 g de proteína al día. Más proteína <strong>no asegura</strong> más músculo si ya se alcanza lo suficiente. Un metaanálisis de entrenamiento de fuerza halló que el beneficio adicional tendía a estabilizarse cerca de 1,6 g/kg/día en promedio.</p>'+
  '<p class="ns-protein-note">Huevos, carnes, pescado, lácteos, tofu, soja y legumbres pueden aportar proteína. La whey es una opción práctica, no obligatoria. <strong>Primero importa la cantidad total del día</strong>; no hace falta correr a tomar un batido apenas terminás de entrenar.</p>'+
+ '<aside class="ns-movement" aria-labelledby="ns-mover"><h3 id="ns-mover">🚶 ¿Por qué importa moverse?</h3>'+ 
+ '<p>Moverte no sirve solamente para gastar calorías. Caminar, bailar, andar en bicicleta y entrenar fuerza son formas distintas de actividad física. La evidencia de la OMS asocia la actividad regular con beneficios para la salud física, el sueño y el bienestar.</p>'+ 
+ '<p><strong>Cada movimiento cuenta.</strong> Podés elegir una actividad que disfrutes y adaptarla a tus posibilidades. No hay una cantidad de pasos o rutina universal ni se descuentan calorías automáticamente de tu plan por moverte.</p>'+ 
+ '<small>Fuente: OMS · Actividad física (2024), disponible en la bibliografía de esta página.</small></aside>'+
  '</section>'+
  '<section class="ns-myth" aria-labelledby="ns-mito"><span class="ns-eyebrow">03 · DERRIBANDO UN MITO</span>'+
  '<div class="ns-myth-badge" aria-hidden="true">MITO ≠ CIENCIA</div><h2 id="ns-mito">Los hidratos no son el villano.</h2>'+

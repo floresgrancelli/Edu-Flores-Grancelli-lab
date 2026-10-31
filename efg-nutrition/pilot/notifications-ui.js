@@ -5,7 +5,7 @@ export function createNotificationInbox({sb,getUserId,navigate}){
  let records=[],open=false,loadedUser=null,inFlight=false,pendingRefresh=false,status="ok",failureType="network";
  const host=document.createElement("aside");
  host.id="efgNotifications";host.className="efg-notifications";
- host.setAttribute("aria-label","Notificaciones de EFG");
+ host.setAttribute("aria-label","Notificaciones de Nutrición Con-Ciencia");
  document.body.append(host);
  function listMarkup(){
   return records.length?records.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'"><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR")+'</small></span><span>'+esc(n.body)+'</span></button>').join(""):'<p class="efg-notify-empty">Todavía no hay avisos.</p>';

@@ -79,6 +79,7 @@ await assert.rejects(()=>readScienceWelcomeStatus(sb,{profile:{...profile,role:"
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped"}),/explícita/);
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"opened",explicitClick:true}),/explícita/);
 assert.equal(changes,0);
+await assert.rejects(()=>acknowledgeScienceWelcome({rpc:async()=>({data:false,error:null})},{profile,userId:uid,action:"completed",explicitClick:true}),/no confirmó/);
 const readsBeforeAck=queries;
 const confirmed=await acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped",explicitClick:true});
 assert.equal(confirmed.pending,false);

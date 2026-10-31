@@ -67,8 +67,8 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   ]);
   if(a.error&&!missing(a.error))throw a.error;
   if(b.error&&!missing(b.error))throw b.error;
-  if(!a.error&&a.data?.shared_at)state.coachIntakeForms[studentId]=a.data;
-  if(!b.error&&b.data)state.coachIntakeAccess[studentId]=b.data;
+  if(!a.error&&a.data?.student_id===studentId&&a.data.shared_at)state.coachIntakeForms[studentId]=a.data;
+  if(!b.error&&b.data?.student_id===studentId)state.coachIntakeAccess[studentId]=b.data;
  }
  const opt=(id,label,value,selected)=>'<option value="'+id+'" '+(id===selected?'selected':'')+'>'+label+'</option>';
  function view(){

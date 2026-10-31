@@ -24,6 +24,18 @@ assert.doesNotMatch(sql,/\b(delete from|truncate|drop table|alter table public\.
 assert.match(receipt,/sharing_accepted boolean not null,/);
 assert.doesNotMatch(receipt,/sharing_accepted boolean not null check/);
 assert.match(intake,/r\.participation_accepted and r\.sharing_accepted and r\.revoked_at is null/);
+// A false sharing receipt must allow an owner-only intake. The first
+// participation guard must never demand sharing; the later share=true guard must.
+for(const [name,source] of [['base intake migration',intake],['corrective migration',sql]]){
+ const start=source.indexOf('-- Participation is required; sharing is a separate OPTIONAL choice checked only when requested.');
+ const end=source.indexOf('-- Reject unknown and sensitive keys',start);
+ assert.ok(start>=0&&end>start,name+': participation guard not found');
+ const guard=source.slice(start,end);
+ assert.match(guard,/r\.participation_accepted\s+and r\.revoked_at is null/,name);
+ assert.doesNotMatch(guard,/r\.sharing_accepted/,name+': private intake would be blocked');
+ assert.match(source.slice(end),/if p_share_with_coach then[\s\S]*?r\.sharing_accepted/,name+': sharing requires explicit receipt');
+}
+
 assert.match(entry,/not v_sharing/);
 assert.match(ui,/sharingRequested:share\.checked/);
 assert.match(status,/route==='private'/);

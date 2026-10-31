@@ -1,0 +1,491 @@
+{
+  "project": "EFG Nutrition Pro — Nutrición Con-Ciencia",
+  "effective_date": "2026-10-30",
+  "release": "Gran Actualización integral Nutrition Coach",
+  "canonical_sheet": "https://docs.google.com/spreadsheets/d/17z_Pj8gvYSlxMIbHdJjkrVeHnZp5pVTjp2BnrXxqZqw/edit#gid=2030261001",
+  "production_branch": "efg-nutrition-app",
+  "release_candidate_branch": "efg-major-integration-20261029",
+  "merge_allowed": false,
+  "flags_may_be_enabled_without_go": false,
+  "rule": "Las 51 mejoras son obligatorias. Ninguna pasa a post sin nueva decisión documentada del propietario. Código presente no equivale a prueba física.",
+  "post_release_explicit": [
+    "BKP-19 respaldo/restauración integral Mac",
+    "Endurecimiento adicional (no RLS/autorización base)",
+    "EFG Nutrition Personal/Autogestión",
+    "Distribución en tiendas nativas",
+    "Promoción de Carla a Coach y sus 10 alumnos",
+    "PRO64 calidad nutricional avanzada y micronutrientes"
+  ],
+  "checks": [
+    "Cinco CI mismo SHA",
+    "Revisión documental legal y datos de alimentos",
+    "Dos organizaciones JWT/RLS",
+    "E2E de nuevo/antiguo alumno con ficha y publicación",
+    "iOS Safari PWA real",
+    "Android Chrome Gboard PWA real",
+    "Desktop real",
+    "Baseline histórica/retrocompatibilidad",
+    "GO escrito"
+  ],
+  "requirements": [
+    {
+      "block": "01 INGRESO",
+      "id": "01-01",
+      "requirement": "Todos los alumnos nuevos y existentes completan ficha nueva; sin borrar históricos",
+      "source": "COACH107/111; D27/28; C244/245",
+      "acceptance": "Versión nueva, datos previos intactos, ambos perfiles",
+      "status_at_cutoff": "HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-02",
+      "requirement": "Dos casillas piloto obligatorias, separadas y desmarcadas",
+      "source": "COACH106; QA263",
+      "acceptance": "Recibo real, revocación y NO avanzar con una sola casilla",
+      "status_at_cutoff": "HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-03",
+      "requirement": "Términos y Política Privacidad completos, aceptación independiente",
+      "source": "LEG05; COACH115/117; D43",
+      "acceptance": "Documentos publicados, hash/versión y revisión profesional",
+      "status_at_cutoff": "0 documentos vigentes",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-04",
+      "requirement": "Ficha general nutricional y deportiva, editable/privada/compartida",
+      "source": "PRO52/53/62; COACH107/112",
+      "acceptance": "Peso, talla, actividad, patrón; validación y permisos CAS",
+      "status_at_cutoff": "UI+HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-05",
+      "requirement": "Ficha sanitaria opcional diabetes/celiaquía/SIBO/lactosa/HTA/lípidos/hígado graso",
+      "source": "PRO63; D39/41; QA239",
+      "acceptance": "Consentimiento específico y revisión profesional ANTES de activar",
+      "status_at_cutoff": "CLÍNICA OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-06",
+      "requirement": "Compartir ficha con coach y aviso; esperar sin MI DÍA operativo",
+      "source": "COACH109/110/113; PRO52",
+      "acceptance": "RLS por coach, alerta sin duplicados, REST bloqueada",
+      "status_at_cutoff": "UI+HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-01",
+      "requirement": "Pestaña INGRESOS del coach con cola de tareas y estados reales",
+      "source": "PRO61; D37",
+      "acceptance": "Invitación, ficha, borrador, plan y publicado",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-02",
+      "requirement": "Coach configura meta kcal/macros/fibra y cinco comidas editables",
+      "source": "PRO17/54; D46",
+      "acceptance": "Guía dinámica sin sobrescribir elección coach",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-03",
+      "requirement": "Catálogo completo seleccionado para nuevos alumnos, no solo guía",
+      "source": "COACH119; QA284/285",
+      "acceptance": "Lista integral y alimentos revisados por fuente",
+      "status_at_cutoff": "PR37/PG17 sintético",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-04",
+      "requirement": "Publicación atómica meta+guía+acceso+aviso único, idempotente",
+      "source": "COACH119; QA276",
+      "acceptance": "Última ficha vigente, rollback, 2 org JWT/RLS",
+      "status_at_cutoff": "SQL no instalado",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-05",
+      "requirement": "Conservar guías, objetivos, diarios y listas aprobadas previas",
+      "source": "COACH119-HISTORY; REL-ALL",
+      "acceptance": "Ledger privado, no sobrescribir históricos",
+      "status_at_cutoff": "SQL candidata PG17 sintético",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-06",
+      "requirement": "MI DÍA y API REST solo tras publicación real del coach",
+      "source": "COACH118; QA275",
+      "acceptance": "Estado signed ready, impedir escritura pending, legacy seguro",
+      "status_at_cutoff": "HOSTED gate OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "02 PLAN COACH",
+      "id": "02-07",
+      "requirement": "Coach MI DÍA privado, cupos/licencia y gestión comercial admin",
+      "source": "PRO44/45/46",
+      "acceptance": "Sin fuga de alumnos ni consumo de cupo coach",
+      "status_at_cutoff": "LIVE + regresión",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-01",
+      "requirement": "Patrones keto, DASH, Portfolio, mediterránea, vegana y otros",
+      "source": "D44; QA261",
+      "acceptance": "Patrón consistente con ficha, guía y selección",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-02",
+      "requirement": "Ayuno opcional 12:12, 14:10, 16:8 y preferencias",
+      "source": "QA261",
+      "acceptance": "Sin prescripción universal ni calorías omitidas",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-03",
+      "requirement": "Restricciones médicas celiaquía/SIBO/lactosa/alérgenos",
+      "source": "D39/41; QA239",
+      "acceptance": "Consentimiento específico y fuentes comprobadas",
+      "status_at_cutoff": "CLÍNICA OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-04",
+      "requirement": "Semáforo verde verificado, amarillo revisar, rojo incompatible contextual",
+      "source": "D45; COACH101; QA237/262",
+      "acceptance": "Fuente/motivo/leyenda, nunca verde sin evidencias",
+      "status_at_cutoff": "UI PR37; 0 fuentes revisadas",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-05",
+      "requirement": "Sin restricciones catálogo NEUTRO; sin colores por kcal, incluir en plan azul/violeta",
+      "source": "D45; QA262",
+      "acceptance": "Chocolate no rojo por kcal ni light verde",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "03 DIETAS",
+      "id": "03-06",
+      "requirement": "Catálogo completo regional/crudo/cocido/mariscos/pescados/zapallo",
+      "source": "PRO05/26/27/29/36; COACH114",
+      "acceptance": "Revisado o etiquetado estimado, no inventar marcas",
+      "status_at_cutoff": "LIVE + PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-01",
+      "requirement": "MI DÍA Luxury kcal/macros reales, gráficos anillos y barras vivos",
+      "source": "PRO30/35/40",
+      "acceptance": "Sin metas inventadas ni guía autoguardada",
+      "status_at_cutoff": "LIVE + PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-02",
+      "requirement": "Seis registros históricos y guía de cinco separados; grupos y platos",
+      "source": "PRO14/17/38; QA243",
+      "acceptance": "No duplicar nutrientes en sushi/tartas/pizza",
+      "status_at_cutoff": "LIVE + PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-03",
+      "requirement": "Habituales múltiples por horario, guardar/recargar/seleccionar",
+      "source": "PRO31/47; QA247/260/273",
+      "acceptance": "E2E tras cerrar y reingresar iOS y Android",
+      "status_at_cutoff": "PR37; físico pendiente",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-04",
+      "requirement": "Scroll y gesto Android, Gboard, primer alimento iOS y buscador",
+      "source": "PRO18/51; QA259",
+      "acceptance": "Pruebas móviles físicas, sin pérdida de borradores",
+      "status_at_cutoff": "QA emulada",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-05",
+      "requirement": "Resolver lo que me falta, macros, suplementos y porciones científicas",
+      "source": "PRO01/03/04/06; QA245",
+      "acceptance": "Metas correctas, sin duplicar nutrientes",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-06",
+      "requirement": "Pasos, km y kcal activas según ritmo/peso/altura",
+      "source": "SPORT-STEP-01; QA272",
+      "acceptance": "Sin descontar 2 veces ni borrar historial",
+      "status_at_cutoff": "PR37+BD",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-07",
+      "requirement": "Barras semanales 5%; comida libre domingo solo con coach",
+      "source": "PRO37/41; QA244",
+      "acceptance": "Sin permiso implícito ni culpa",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "05 INFORMES",
+      "id": "05-01",
+      "requirement": "Informe semanal Luxury Pro humano editable y respuesta alumno",
+      "source": "PRO10/21; QA248",
+      "acceptance": "Viernes, publicar, leer, responder, guardar versiones",
+      "status_at_cutoff": "PR37+LIVE",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "05 INFORMES",
+      "id": "05-02",
+      "requirement": "Espacio para disfrutar destacado en CELESTE",
+      "source": "QA248; Continuidad 30/10",
+      "acceptance": "Visible alumno, mensaje positivo no clínico",
+      "status_at_cutoff": "PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "05 INFORMES",
+      "id": "05-03",
+      "requirement": "Gráficos progreso peso/macros/actividad y tendencias",
+      "source": "PRO09/32",
+      "acceptance": "Estimación ≠ diagnóstico",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "06 CONTACTO",
+      "id": "06-01",
+      "requirement": "Chat tipo WhatsApp, búsqueda de contacto y acceso al chat",
+      "source": "PRO20/49/51; QA249",
+      "acceptance": "Borradores, textos largos, aislamiento multirol",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "06 CONTACTO",
+      "id": "06-02",
+      "requirement": "Campana flotante 3D, notificaciones persistentes",
+      "source": "PRO19/49/51",
+      "acceptance": "Sin perder notificaciones con fallos de red",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "07 PAGOS",
+      "id": "07-01",
+      "requirement": "Pagos alumno a coach, alias, comprobantes y reenvío",
+      "source": "PRO12/13/45; QA250",
+      "acceptance": "Storage privado, aceptación/rechazo real",
+      "status_at_cutoff": "LIVE+QA",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "07 PAGOS",
+      "id": "07-02",
+      "requirement": "Pagos coach a EFG, cupos, licencia y validación admin",
+      "source": "PRO44/45/46; QA250",
+      "acceptance": "No inventar precios/alias ni activar sin decisión",
+      "status_at_cutoff": "LIVE+QA",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "07 PAGOS",
+      "id": "07-03",
+      "requirement": "Panel admin ORGANIZACIONES, permisos y cupos",
+      "source": "PRO39/46; SEG15",
+      "acceptance": "Sin fuga cross-org",
+      "status_at_cutoff": "LIVE+QA",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-01",
+      "requirement": "Ocho pantallas de introducción única Siguiente/Anterior/Omitir",
+      "source": "BRAND77B/78; QA253",
+      "acceptance": "Después legal, una vez cuenta/versión",
+      "status_at_cutoff": "PR37 flag OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-02",
+      "requirement": "Pestaña Nutrición Con-Ciencia vertical permanente por rol",
+      "source": "EDUCATION01/02; QA253",
+      "acceptance": "Visible aun pending, no desbloquea MI DÍA",
+      "status_at_cutoff": "PR37 flag OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-03",
+      "requirement": "Serotonina acuarela y explicación de bienestar al final",
+      "source": "D51; BRAND78",
+      "acceptance": "Accesible y sin promesas médicas",
+      "status_at_cutoff": "PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-04",
+      "requirement": "Actividad física por qué importa moverse y fuentes",
+      "source": "PRO59; D33",
+      "acceptance": "Evidencia verificable sin causalidad impropia",
+      "status_at_cutoff": "PR37 por revisar",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-05",
+      "requirement": "Tip premium diario: 72 textos con FOTO contextual, ALT y créditos",
+      "source": "PRO60; D36; QA286",
+      "acceptance": "No repetir idéntico consecutivo, responsive y licencias",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-06",
+      "requirement": "Ñoquis TODOS los 29 reales con recetas/salsas y foto rotativa",
+      "source": "PRO60; D36; QA286",
+      "acceptance": "Calendario ARG, febrero bisiesto, sin kcal inventadas",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-07",
+      "requirement": "Tip separado de mensaje motivacional y CTA solo con plan",
+      "source": "PRO60; D36",
+      "acceptance": "No registro cuando esperando al coach",
+      "status_at_cutoff": "PR37 candidata",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-01",
+      "requirement": "Luxury Night premium global, tipografía, texturas y gráficos vivos",
+      "source": "PRO35/40; QA252",
+      "acceptance": "Responsive y contrastes multirol",
+      "status_at_cutoff": "LIVE+PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-02",
+      "requirement": "PWA Android/iOS/desktop con scroll, navegación estable",
+      "source": "PRO16/18/23/24/51; QA255",
+      "acceptance": "UAT física, Gboard, Safari, sin cierres ni pérdida",
+      "status_at_cutoff": "PENDIENTE FÍSICO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-03",
+      "requirement": "Aviso versión disponible sin recargas involuntarias; menores silenciosas",
+      "source": "PRO25; UX35",
+      "acceptance": "No perder formularios",
+      "status_at_cutoff": "PR37",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-04",
+      "requirement": "PREVIEW Entendido sin logout; GRAN release firmado con cierre consciente",
+      "source": "COACH120/121; UX35",
+      "acceptance": "Solo realmente publicado activa cierre OTP",
+      "status_at_cutoff": "HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-05",
+      "requirement": "OTP por dispositivo, nuevos legales y What's New una sola vez",
+      "source": "COACH122; D49; QA279",
+      "acceptance": "Sin bypass al cambiar de dispositivo",
+      "status_at_cutoff": "HOSTED OFF",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "10 PRUEBAS",
+      "id": "10-01",
+      "requirement": "JWT/RLS cross-org, roles, privacidad y consentimientos mínimos",
+      "source": "SEG01/02/05/07/13/15; QA256",
+      "acceptance": "A/B firmado; no postergar seguridad básica",
+      "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "10 PRUEBAS",
+      "id": "10-02",
+      "requirement": "Preservar alumnos/diarios/recetas/comprobantes/metas/guías",
+      "source": "REL-ALL; QA230",
+      "acceptance": "Baseline y rollback sin pérdida",
+      "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "10 PRUEBAS",
+      "id": "10-03",
+      "requirement": "E2E real ingreso→ficha→coach→publicación→MI DÍA",
+      "source": "QA-COACH1/2; COACH119",
+      "acceptance": "Alumnos nuevos/antiguos, revocación REST",
+      "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "10 PRUEBAS",
+      "id": "10-04",
+      "requirement": "UAT iPhone Safari/PWA, Android Gboard/PWA y desktop",
+      "source": "QA-M01; QA255",
+      "acceptance": "Habituales, chat, fotos, scroll, OTP y guías",
+      "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "10 PRUEBAS",
+      "id": "10-05",
+      "requirement": "Cinco CI mismo HEAD, legales/fuentes verificadas y GO expreso",
+      "source": "OPS01; REL-ALL; LEG05",
+      "acceptance": "No publicar parcialmente ni dar por test lo simulado",
+      "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    }
+  ]
+}

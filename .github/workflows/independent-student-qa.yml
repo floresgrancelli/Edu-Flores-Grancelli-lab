@@ -1,0 +1,44 @@
+name: Independent student QA - no deploy
+on:
+  push:
+    branches: [qa/independent-student-20261031]
+permissions:
+  contents: read
+jobs:
+  student-isolated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Independent offline contracts
+        run: |
+          node efg-nutrition/tests/planner-sushi-first-select.mjs
+          node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
+          node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
+          node efg-nutrition/tests/science-welcome-contract.mjs
+      - name: Chromium actual app with fictitious profiles
+        run: node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Android emulated touch actual app
+        if: always()
+        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: WebKit actual app with fictitious profiles
+        if: always()
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: All eight education screens Chromium
+        if: always()
+        run: node efg-nutrition/tests/independent-eight-science-visual-qa.mjs
+      - name: All eight education screens WebKit
+        if: always()
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/independent-eight-science-visual-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: independent-student-qa
+          path: artifacts/premium-visual-qa/
+          retention-days: 14

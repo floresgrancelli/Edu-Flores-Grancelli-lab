@@ -53,4 +53,9 @@ assert.equal(api.getHabitualList('cena').length,0,'No crossover between meal slo
 assert.match(api.habitualPickerHTML('cena'),/Todavía no guardaste habituales/);
 assert.equal(rendered,2);
 assert.equal(notified.length,2);
+// Both picker paths must restore the previous diary if the remote write fails.
+assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
+assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);
+assert.equal((subsystem.match(/catch\(error\)\{\s*d\.meals\[slot\]=previousItems/g)||[]).length,2,
+ 'Both the selected habitual and legacy action must roll back in-memory meals');
 console.log('PASS UX-HABITUAL-REAL-01: actual app save twice, cloud readback after reset/relogin, both names and foods in picker, no cross-slot leakage. Hosted iPhone/Android UAT pending.');

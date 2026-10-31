@@ -42,7 +42,7 @@ for(const choice of [undefined,null,"true",1]){
   expectedRevision:0,shareWithCoach:choice,explicitSubmit:true}),/Permisos o versión/);
 }
 assert.equal(nRPC,beforeImplicitShare,"No implicit sharing reaches the signed RPC");
-const privateFirst=await submitCoachPilotGeneralIntake(fake(),{
+const privateFirst=await submitCoachPilotGeneralIntake(fake({pilot:{...receipt,sharing_accepted:false}}),{
  profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true});
 assert.equal(privateFirst.shared,false);
 assert.equal(privateFirst.intake.shared_at,null,

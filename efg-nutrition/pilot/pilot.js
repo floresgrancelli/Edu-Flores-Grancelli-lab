@@ -1394,7 +1394,11 @@ async function addPlannedFood(key){
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
- d.meals[slot].push(normItem(row.food,grams,slot));
+ // A planner choice must keep the user-visible sushi piece count after saving.
+ // Nutrition calculation still uses grams; never duplicate the stored item.
+ const item=normItem(row.food,grams,slot),portion=plannerSushiPortion(row.food);
+ if(portion){item.displayQty=shownQty;item.displayUnit=portion.label;item.unitEstimate=true;}
+ d.meals[slot].push(item);
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};

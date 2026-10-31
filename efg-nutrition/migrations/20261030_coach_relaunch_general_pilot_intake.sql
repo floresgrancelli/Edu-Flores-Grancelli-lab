@@ -71,7 +71,7 @@ create policy efg_coach_relaunch_shared_coach_select on public.efg_coach_relaunc
    where r.student_id=efg_coach_relaunch_intakes.student_id
     and r.organization_id=efg_coach_relaunch_intakes.organization_id
     and r.version='coach_pilot_2026_demo1' and r.participation_accepted
-    and r.sharing_accepted and r.revoked_at is null
+    and r.revoked_at is null
   )
  );
 -- No direct PostgREST INSERT/UPDATE/DELETE grant and NO write RLS policies.
@@ -106,7 +106,7 @@ begin
   where p.user_id=v_uid and p.role='student' and p.active is true
   and p.organization_id is not null;
  if v_org is null then raise exception 'Active Coach student required' using errcode='42501'; end if;
- -- Server-owned participation and sharing must still be valid for this release.
+ -- Participation is required; sharing is a separate OPTIONAL choice checked only when requested.
  if not exists(
   select 1 from public.efg_pilot_participation_receipts r
   where r.student_id=v_uid and r.organization_id=v_org
@@ -164,6 +164,15 @@ begin
   raise exception 'Invalid weight' using errcode='22023'; end if;
  -- A consenting Coach cannot be inferred from an invitation or an existing plan.
  if p_share_with_coach then
+  if not exists(
+   select 1 from public.efg_pilot_participation_receipts r
+   where r.student_id=v_uid and r.organization_id=v_org
+     and r.version='coach_pilot_2026_demo1'
+     and r.participation_accepted and r.sharing_accepted and r.revoked_at is null
+  ) then
+   raise exception 'Separate pilot coach-sharing permission required'
+     using errcode='42501';
+  end if;
   if not exists(
    select 1 from public.efg_consents c
    where c.student_id=v_uid and c.organization_id=v_org and c.accepted=true

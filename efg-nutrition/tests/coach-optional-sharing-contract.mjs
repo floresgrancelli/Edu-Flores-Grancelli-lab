@@ -25,6 +25,8 @@ const isolatedSharedPolicy=isolatedIntake.slice(isolatedIntake.indexOf('create p
 for(const [name,source,policy] of [['corrective',sql,sharedPolicy],['hosted baseline',intake,baseSharedPolicy],['isolated staging',isolatedIntake,isolatedSharedPolicy]]){
  assert.match(policy,/efg_private\.coach_pilot_share_active\(student_id,organization_id\)/,name+': RLS must use privileged boolean helper');
  assert.doesNotMatch(policy,/select 1 from public\.efg_pilot_participation_receipts/,name+': Coach cannot SELECT owner-only receipts directly');
+ assert.doesNotMatch(policy,/select 1 from public\.efg_consents/,name+': Coach cannot depend on direct SELECT of private consent rows');
+ assert.match(source,/join public\.efg_consents c on c\.student_id=r\.student_id/,name+': definer must check follow-up consent');
  assert.match(source,/create or replace function efg_private\.coach_pilot_share_active\(/,name);
  assert.match(source,/efg_private\.coach_has_student\(p_student\)/,name);
  assert.match(source,/r\.sharing_accepted is true/,name);

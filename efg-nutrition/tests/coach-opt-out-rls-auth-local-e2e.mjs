@@ -88,6 +88,28 @@ assert.equal(sql('select revision::text||\'|\'||coalesce(shared_at::text,\'NULL\
  'Receipt opt-out must not silently mutate the saved intake or historical revision');
 await receipt(true);
 assert.equal(yes(await read(coach.token),'explicit re-opt-in restores policy visibility').length,1);
+// COACH-OPT-04: a receipt alone must never override independent follow-up
+// consent, account status, or the student's CURRENT organization. Exercise
+// each transition against the already shared row with signed JWTs; changing
+// those records must not mutate the student's saved intake/revision.
+sql('update public.efg_consents set accepted=false where student_id='+qid(student.id));
+assert.deepEqual(yes(await read(coach.token),'follow-up consent revoked: Coach SELECT denied'),[]);
+assert.equal(yes(await read(student.token),'owner retains intake after consent revocation').length,1);
+sql('update public.efg_consents set accepted=true where student_id='+qid(student.id));
+assert.equal(yes(await read(coach.token),'follow-up consent restored: Coach SELECT allowed').length,1);
+sql('update public.efg_profiles set active=false where user_id='+qid(student.id));
+assert.deepEqual(yes(await read(coach.token),'inactive student: Coach SELECT denied'),[]);
+assert.deepEqual(yes(await read(student.token),'inactive owner: SELECT denied'),[]);
+sql('update public.efg_profiles set active=true where user_id='+qid(student.id));
+assert.equal(yes(await read(coach.token),'reactivated student: Coach SELECT allowed').length,1);
+sql('update public.efg_profiles set organization_id='+qid(otherOrg)+' where user_id='+qid(student.id));
+assert.deepEqual(yes(await read(coach.token),'former Coach cannot read after org transfer'),[]);
+assert.deepEqual(yes(await read(outsider.token),'new Coach cannot inherit old-org intake'),[]);
+assert.deepEqual(yes(await read(student.token),'transferred owner cannot read former-org intake'),[]);
+sql('update public.efg_profiles set organization_id='+qid(org)+' where user_id='+qid(student.id));
+assert.equal(yes(await read(coach.token),'return to original org restores valid shared SELECT').length,1);
+assert.equal(sql('select revision::text||\\'|\\'||coalesce(shared_at::text,\\'NULL\\') from public.efg_coach_relaunch_intakes where student_id='+qid(student.id)),before,
+ 'Consent/status/org transitions must not rewrite historical intake revision');
 assert.equal(yes(await rpc('efg_revoke_pilot_participation',student.token,{
  p_version:'coach_pilot_2026_demo1'
 }),'revoke participation'),true);

@@ -24,7 +24,9 @@ create table efg_private.coach_reviewed_foods(
  fi numeric(10,6) not null check(fi between 0 and 1),
  source_kind text not null check(source_kind in
    ('manufacturer_label','official_product','validated_composition')),
- source_url text not null check(source_url ~ '^https://[^[:space:]]{8,1990}$'),
+ -- PostgreSQL bounds regex repetitions at 255; check long URL length separately.
+ source_url text not null check(source_url ~ '^https://[^[:space:]]+$'
+   and pg_catalog.char_length(source_url) between 16 and 1998),
  evidence_id text not null unique check(evidence_id ~ '^[a-zA-Z0-9_-]{8,120}$'),
  evidence_status text not null default 'pending' check(evidence_status in ('pending','reviewed','rejected')),
  reviewed_by uuid references auth.users(id),

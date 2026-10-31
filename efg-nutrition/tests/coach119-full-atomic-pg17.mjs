@@ -36,6 +36,10 @@ create trigger trg_efg_notify_food_guide after insert or update on public.efg_fo
 grant usage on schema efg_private to authenticated;
 grant select on public.efg_consents,public.efg_coach_relaunch_intakes,public.efg_pilot_participation_receipts to authenticated;`);
 for(const f of ['20261030_coach115_versioned_legal_documents_receipts.sql','20261030_coach_versioned_private_plan_drafts.sql','20261030_coach_reviewed_guide_nutrition_source.sql'])sql(read('../migrations/'+f));
+// Reproduce the installed broken constraint on the empty fixture, then test
+// the exact additive repair separately from a clean-schema installation.
+sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check; alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check check(source_url ~ '^https://[^[:space:]]{8,1990}$')");
+sql(read('../migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql'));
 sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
 const coach='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
 const student='33333333-3333-4333-8333-333333333333',studentB='44444444-4444-4444-8444-444444444444';
@@ -69,6 +73,10 @@ insert into public.efg_legal_acceptances(user_id,document_id)
 sql(asUser(coach,publish()),true); // missing food evidence
 sql(`insert into efg_private.coach_reviewed_foods(food_id,catalog_version,unit,k,p,c,f,fi,source_kind,source_url,evidence_id,evidence_status,reviewed_by,reviewed_at,expires_at)
  select id,'synthetic-v1','g',1,.1,.1,.02,.01,'validated_composition','https://example.org/synthetic',id||'_fixture','reviewed','${coach}',now()-interval '1 day',now()+interval '1 day' from unnest(array['food-a','food-b']) id;`);
+// Long HTTPS URLs work, whitespace/HTTP/oversized URLs fail without altering rows.
+sql("update efg_private.coach_reviewed_foods set source_url='https://example.org/'||repeat('a',500)");
+for(const bad of ['http://example.org/source','https://exam ple.org/source','https://example.org/'+ 'a'.repeat(2000)])
+ sql('update efg_private.coach_reviewed_foods set source_url='+quote(bad),true);
 sql(asUser(other,publish()),true);
 sql(asUser(student,publish()),true);
 sql("update public.efg_coach_relaunch_intakes set revision=2");

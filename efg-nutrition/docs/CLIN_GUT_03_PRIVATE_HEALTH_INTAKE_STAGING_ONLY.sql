@@ -47,7 +47,7 @@ create table efg_private.efg_coach_health_intakes(
  consent_accepted_at timestamptz not null,
  revised_at timestamptz not null default pg_catalog.now(),
  revision integer not null check(revision between 1 and 100000),
- -- JSON object keys LIMITED below to lactose_intolerance and sibo, status of each.
+ -- JSON object keys limited to the eight optional self-reported condition codes below.
  conditions jsonb not null check(pg_catalog.jsonb_typeof(conditions)='object'),
  sibo_phase text not null check(sibo_phase in ('none','short_trial','reintroduction','personalized')),
  shared_at timestamptz
@@ -112,12 +112,13 @@ begin
   or p_document_id is null or p_document_sha256 is null then
   raise exception 'Invalid private health intake request' using errcode='22023';
  end if;
- -- Only two reviewed condition code families; never accept arbitrary diagnoses or text.
- if (select count(*) from pg_catalog.jsonb_object_keys(p_conditions))>2 then
+ -- Only the eight optional declaration codes; never accept arbitrary diagnoses or text.
+ if (select count(*) from pg_catalog.jsonb_object_keys(p_conditions))>8 then
   raise exception 'Unexpected conditions' using errcode='22023';
  end if;
  for v_key in select pg_catalog.jsonb_object_keys(p_conditions) loop
-  if v_key not in ('lactose_intolerance','sibo') or
+  if v_key not in ('lactose_intolerance','sibo','diabetes','celiac',
+   'food_allergy','hypertension','dyslipidemia','fatty_liver') or
    pg_catalog.jsonb_typeof(p_conditions->v_key) is distinct from 'string' or
    p_conditions->>v_key not in ('suspected','confirmed','not_reported') then
    raise exception 'Unsupported condition or status' using errcode='22023';

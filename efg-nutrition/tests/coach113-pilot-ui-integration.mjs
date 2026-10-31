@@ -16,7 +16,7 @@ assert.match(renderCoachPlanWaiting(),/Tu coach está preparando tu plan/);
 assert.match(renderCoachPlanWaiting(),/openMessages/);
 for(const token of [
  'import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting}',
- 'import {fetchCoachPilotEntry}', 'import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake}',
+ 'import {fetchCoachPilotEntry}', 'import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake}',
  'import {acceptPilotParticipation}', 'renderPilotParticipationNotice({serverReceipts:true})',
  'state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});',
  'state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;',
@@ -37,5 +37,5 @@ assert.match(pilot,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/,
 assert.match(pilot,/else if\(event==="SIGNED_OUT"\)\{[\s\S]*?resetPrivateSession\(\);loginView\(\);/,
  'Signed-out auth events must clear the same private cache');
 assert.match(pilot,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)throw Error\("Ingreso piloto duplicado/);
-assert.match(pilot,/if\(!data.shareWithCoach\)throw Error\("Para continuar compartí la ficha/);
+assert.match(pilot,/if\(!data.shareWithCoach&&!state.coachPilotIntake\)throw Error\("Para continuar compartí la ficha/);
 console.log('PASS COACH113: signed pilot entry and consent-driven intake UI wired but OFF; waiting preserves messaging; session caches cleared.');

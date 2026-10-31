@@ -11,6 +11,16 @@ export const GUT_CONDITIONS=Object.freeze([
  Object.freeze({id:'sibo',label:'SIBO · sobrecrecimiento bacteriano del intestino delgado',
    note:'No presupone que una dieta baja en FODMAP cure el sobrecrecimiento.'})
 ]);
+// Full optional health declaration scope from requirement 01-05. These are
+// self-reported codes, not diagnoses or permission to prescribe a diet.
+export const COACH_HEALTH_CONDITIONS=Object.freeze([
+ ...GUT_CONDITIONS,
+ ...[
+  ['diabetes','Diabetes'],['celiac','Celiaquía'],
+  ['food_allergy','Alergia alimentaria'],['hypertension','Hipertensión arterial'],
+  ['dyslipidemia','Alteraciones de lípidos'],['fatty_liver','Hígado graso']
+ ].map(([id,label])=>Object.freeze({id,label,note:'Dato opcional para revisión individual por el profesional. No activa una dieta ni certifica alimentos.'}))
+]);
 export const GUT_DIAGNOSTIC_STATUS=Object.freeze([
  Object.freeze({id:'not_reported',label:'Prefiero no informarlo'}),
  Object.freeze({id:'suspected',label:'Lo sospecho / estoy en estudio'}),
@@ -33,6 +43,7 @@ export const GUT_RESEARCH=Object.freeze({
  ])
 });
 const allowed=new Set(GUT_CONDITIONS.map(c=>c.id));
+const clinicalAllowed=new Set(COACH_HEALTH_CONDITIONS.map(c=>c.id));
 const diagnostic=new Set(GUT_DIAGNOSTIC_STATUS.map(c=>c.id));
 const phases=new Set(SIBO_FODMAP_PHASES.map(c=>c.id));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -80,11 +91,11 @@ const guides=Object.freeze({
 export function parseGutClinicalDraft(values={}){
  if(!values||typeof values!=='object'||Array.isArray(values))throw Error('Ficha digestiva inválida.');
  const raw=values.conditions??[];
- if(!Array.isArray(raw)||raw.length>GUT_CONDITIONS.length||new Set(raw).size!==raw.length||
-    !raw.every(x=>allowed.has(x)))throw Error('Condiciones digestivas no reconocidas.');
+ if(!Array.isArray(raw)||raw.length>COACH_HEALTH_CONDITIONS.length||new Set(raw).size!==raw.length||
+    !raw.every(x=>clinicalAllowed.has(x)))throw Error('Condiciones digestivas no reconocidas.');
  const statuses=values.statuses??{};
  if(!statuses||typeof statuses!=='object'||Array.isArray(statuses)||
-    Object.keys(statuses).some(x=>!allowed.has(x)))throw Error('Estado diagnóstico inválido.');
+    Object.keys(statuses).some(x=>!clinicalAllowed.has(x)))throw Error('Estado diagnóstico inválido.');
  for(const key of Object.keys(statuses)){
   if(!raw.includes(key)||!diagnostic.has(statuses[key]))throw Error('Estado diagnóstico no coherente con la condición.');
  }
@@ -104,11 +115,11 @@ export function renderGutClinicalDraft(draft={}, {backendApproved=false}={}){
  // The options stay visible for design review, but cannot be submitted to the
  // general intake endpoint which forbids health_flags.
  const disabled=backendApproved===true&&GUT_CLINICAL_INTAKE_ENABLED===true?'':' disabled';
- return '<fieldset class="efg-gut-intake" aria-describedby="efgGutSafetyNote"><legend>Condiciones digestivas y restricciones alimentarias</legend>'+
- GUT_CONDITIONS.map(c=>'<label class="efg-gut-choice"><input type="checkbox" name="gutClinicalCondition" value="'+c.id+'"'+
+ return '<fieldset class="efg-gut-intake" aria-describedby="efgGutSafetyNote"><legend>Ficha sanitaria opcional · Condiciones digestivas y restricciones alimentarias</legend>'+
+ COACH_HEALTH_CONDITIONS.map(c=>'<label class="efg-gut-choice"><input type="checkbox" name="gutClinicalCondition" value="'+c.id+'"'+
   (selected.conditions.includes(c.id)?' checked':'')+disabled+'><span><strong>'+esc(c.label)+'</strong><small>'+esc(c.note)+'</small></span></label>').join('')+
  '<div class="efg-gut-clinical-status">'+
- GUT_CONDITIONS.map(c=>'<label for="gutStatus_'+c.id+'">Estado informado · '+esc(c.label)+
+ COACH_HEALTH_CONDITIONS.map(c=>'<label for="gutStatus_'+c.id+'">Estado informado · '+esc(c.label)+
  '<select id="gutStatus_'+c.id+'"'+disabled+'>'+
  GUT_DIAGNOSTIC_STATUS.map(v=>'<option value="'+v.id+'"'+
  (selected.statuses[c.id]===v.id?' selected':'')+'>'+esc(v.label)+'</option>').join('')+

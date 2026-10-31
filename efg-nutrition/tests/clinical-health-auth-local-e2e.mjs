@@ -59,7 +59,7 @@ const docIDs=sql("select string_agg(id::text,',') from public.efg_legal_document
 assert.equal(docIDs.length,2);
 good(await rpc('efg_accept_legal_documents',u.studentA.token,{p_document_ids:docIDs}),'Accept current general terms and privacy');
 const healthDoc=randomUUID(),hash='a'.repeat(64);
-const args={p_conditions:{lactose_intolerance:'confirmed',sibo:'suspected'},p_document_id:healthDoc,
+const args={p_conditions:{lactose_intolerance:'confirmed',sibo:'suspected',diabetes:'not_reported',celiac:'suspected',food_allergy:'not_reported',hypertension:'confirmed',dyslipidemia:'confirmed',fatty_liver:'suspected'},p_document_id:healthDoc,
  p_document_sha256:hash,p_expected_revision:0,p_processing_consent:true,p_share_with_coach:false};
 bad(await rpc('efg_submit_coach_health_intake',u.studentA.token,args),'No approved current separate health document');
 bad(await rpc('efg_submit_coach_health_intake',u.studentA.token,{...args,p_processing_consent:false}),'No processing consent');
@@ -73,6 +73,7 @@ assert.equal(published.id,healthDoc);
 assert.equal(published.sha256,hash);
 assert.equal(Number(good(await rpc('efg_submit_coach_health_intake',u.studentA.token,args),'Private health consent')),1);
 const own=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Student reads own');
+assert.deepEqual(own.conditions,args.p_conditions,'All eight optional codes survive private signed readback');
 assert.equal(own.conditions.sibo,'suspected');
 assert.equal(own.sibo_phase,'none','SIBO alone cannot enable FODMAP restriction');
 assert.equal(own.shared_with_coach,false);

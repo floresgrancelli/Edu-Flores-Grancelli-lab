@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake}
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake}
  from '../pilot/coach-pilot-intake-client.js';
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const org='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -70,3 +70,22 @@ await assert.rejects(loadCoachPilotGeneralIntake(fake({pilot:{...receipt,organiz
  'Receipt of a previous organization must never authorize the current intake.');
 assert.equal(nRPC,beforeDenied,'Denied or revoked user cannot submit.');
 console.log('PASS COACH112: two real pilot decisions, owner-only general intake, keto/16:8, revisions and share revoke; sensitive keys denied.');
+
+const privacyDb=fake({stored:{...intake,...payload}});
+const privateResult=await manageCoachPilotGeneralIntake(privacyDb,{profile,expectedRevision:1,action:'unshare',explicitSubmit:true});
+assert.equal(privateResult.shared,false);
+assert.equal(privateResult.intake.dietary_pattern,'keto','Unsharing preserves the data');
+assert.equal(privateResult.intake.age_years,40);
+const erased=await manageCoachPilotGeneralIntake(privacyDb,{profile,expectedRevision:2,action:'clear',explicitSubmit:true});
+assert.equal(erased.intake.age_years,null);
+assert.equal(erased.intake.dietary_pattern,null);
+assert.equal(erased.intake.notes,'');
+assert.equal(erased.intake.eating_window,'regular');
+assert.equal(erased.intake.revision,3);
+assert.equal(erased.shared,false);
+const callsBefore=nRPC;
+for(const change of [{expectedRevision:2,explicitSubmit:true},{expectedRevision:3,explicitSubmit:false}])
+ await assert.rejects(manageCoachPilotGeneralIntake(privacyDb,{profile,action:'clear',...change}));
+await assert.rejects(manageCoachPilotGeneralIntake(fake({signed:org,stored:intake}),{profile,expectedRevision:1,action:'clear',explicitSubmit:true}));
+assert.equal(nRPC,callsBefore,'Stale, unconfirmed and other-account privacy actions cannot write');
+console.log('PASS new-journey privacy: edit/unshare/clear use current revision, explicit confirmation, authenticated owner and readback; no historic plan/diary writes.');

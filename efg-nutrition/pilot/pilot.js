@@ -46,7 +46,7 @@ import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=20261031-intake
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
 import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
 import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
 import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=20261030-coach106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
@@ -963,7 +963,7 @@ function studentPrivacyView(){
  const c=state.consent;
  return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
  '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
- (state.profile.role==="student"&&state.planAccessSupported?
+ (state.profile.role==="student"&&(state.planAccessSupported||state.coachPilotIntake)?
  '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
 }
 function studentPlannerView(){
@@ -2331,6 +2331,8 @@ async function render(){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
+    else if(state.tab==="privacy")frame(studentPrivacyView());
+    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
     else frame(renderCoachPlanWaiting());
    }else
     root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
@@ -2358,7 +2360,8 @@ async function render(){
  await ensureCurrentDay();
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={intake:()=>COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
+ let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
+   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
    renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
@@ -2667,8 +2670,9 @@ async function refresh(){
    state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
-   if(state.coachPilotEntry.route==="intake")
+   if(["intake","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
+   if(state.coachPilotEntry.route==="review")await loadRoleData();
    if(state.coachPilotEntry.route!=="ready")return render();
   }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
@@ -2729,7 +2733,7 @@ async function refreshVisibleWorkspace(){
    state.coachPilotLegal=null;state.coachPilotIntake=null;
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
-   if(state.coachPilotEntry.route==="intake")
+   if(["intake","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
    if(!["ready","review"].includes(state.coachPilotEntry.route)){await render();return;}
   }
@@ -3154,6 +3158,19 @@ if(el.dataset.foodbulk){
   return;
  }
  if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){
+  if(COACH_STUDENT_JOURNEY_ENABLED){
+   if(state.profile?.role!=="student"||!state.coachPilotIntake)
+    throw Error("La ficha nueva no está disponible.");
+   const actionName=action==="revokeCoachRelaunch"?"unshare":"clear";
+   if(!window.confirm(actionName==="unshare"?
+    "¿Dejar de compartir tu ficha con el coach? Tus registros anteriores se conservan.":
+    "¿Borrar los datos de esta ficha y retirar el permiso? Tu cuenta, planes y registros anteriores se conservan."))return;
+   await manageCoachPilotGeneralIntake(sb,{profile:state.profile,
+    expectedRevision:state.coachPilotIntake.revision,action:actionName,explicitSubmit:true});
+   await refresh();
+   notify(actionName==="unshare"?"Tu ficha ahora es privada.":"Datos de la ficha borrados. Se conservaron tus registros anteriores.");
+   return;
+  }
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED||state.profile?.role!=="student"||
      state.coachRelaunchEntry?.route!=="ready")throw Error("La ficha nueva no está disponible.");
   if(action==="revokeCoachRelaunch"&&!state.coachRelaunchEntry.status?.shared_at){
@@ -3455,14 +3472,14 @@ root.addEventListener("submit",e=>{
   e.preventDefault();
   if(COACH_STUDENT_JOURNEY_ENABLED){
    (async()=>{
-    if(state.profile?.role!=="student"||state.coachPilotEntry?.route!=="intake")
+    if(state.profile?.role!=="student"||!["intake","review","ready"].includes(state.coachPilotEntry?.route))
      throw Error("La ficha del piloto no está disponible.");
     const data=readCoachRelaunchForm(document);
-    if(!data.shareWithCoach)throw Error("Para continuar compartí la ficha con el coach; podés retirar el permiso después.");
+    if(!data.shareWithCoach&&!state.coachPilotIntake)throw Error("Para continuar compartí la ficha con el coach; podés retirar el permiso después.");
     await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
-     shareWithCoach:true,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
+     shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
     await refresh();
-    notify("Ficha compartida con tu coach. Conservamos todos tus registros anteriores.");
+    notify(data.shareWithCoach?"Ficha compartida con tu coach. Conservamos todos tus registros anteriores.":"Ficha privada guardada. Conservamos todos tus registros anteriores.");
    })().catch(fail);
    return;
   }

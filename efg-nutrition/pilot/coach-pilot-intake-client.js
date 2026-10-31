@@ -89,3 +89,21 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
   throw Error('No se pudo verificar que la ficha y el permiso quedaron guardados.');
  return {userId,intake:after,shared:shareWithCoach,medicalConsent:false};
 }
+
+// Privacy actions use the same authenticated versioned RPC and CAS as editing.
+// Only the general-intake fields are sent; plans, diaries and messages are untouched.
+export async function manageCoachPilotGeneralIntake(sb,{profile,expectedRevision,
+ action,explicitSubmit=false}={}){
+ if(explicitSubmit!==true||!['unshare','clear'].includes(action))
+  throw Error('Confirmá expresamente el cambio de tu ficha.');
+ const {intake}=await loadCoachPilotGeneralIntake(sb,{profile});
+ if(!intake||intake.revision!==expectedRevision)
+  throw Error('La ficha cambió en otro dispositivo: volvé a cargarla.');
+ const payload={};
+ for(const key of FIELDS){
+  payload[key]=action==='clear'?(key==='eating_window'?'regular':LIMITS[key]?'':null)
+   :(intake[key]??(key==='eating_window'?'regular':LIMITS[key]?'':null));
+ }
+ return submitCoachPilotGeneralIntake(sb,{profile,payload,shareWithCoach:false,
+  expectedRevision,explicitSubmit:true});
+}

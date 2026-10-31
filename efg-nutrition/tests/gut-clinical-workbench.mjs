@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {GUT_CLINICAL_INTAKE_ENABLED,GUT_CONDITIONS,GUT_RESEARCH,GUT_DIAGNOSTIC_STATUS,SIBO_FODMAP_PHASES,
+import {GUT_CLINICAL_INTAKE_ENABLED,GUT_CONDITIONS,COACH_HEALTH_CONDITIONS,GUT_RESEARCH,GUT_DIAGNOSTIC_STATUS,SIBO_FODMAP_PHASES,
  parseGutClinicalDraft,renderGutClinicalDraft,buildGutGuideForCoach} from '../pilot/gut-clinical-workbench.js';
 import {renderCoachRelaunchEntry,readCoachRelaunchForm} from '../pilot/coach-relaunch-entry-client.js';
 assert.equal(GUT_CLINICAL_INTAKE_ENABLED,false,'Sensitive fields must stay disabled before authorized clinical backend');
@@ -83,3 +83,15 @@ const adverse=buildGutGuideForCoach({condition:'lactose_intolerance',diagnosticS
  foodId:'test_food',restrictions:['celiac'],asOf:time,reviewedRows:[fake('lactose_intolerance'),fake('celiac','avoid')]});
 assert.equal(adverse.foodSignal.color,'red','Explicit reviewed incompatibility takes precedence over a green');
 console.log('PASS CLIN-GUT-01: lactose/SIBO intake options isolated and OFF; no health data sent to general RPC; 5-meal coach drafts, diagnostics gate, SIBO reintroduction, multirestriction red/yellow/green evidence precedence.');
+
+assert.deepEqual(COACH_HEALTH_CONDITIONS.map(c=>c.id),[
+ 'lactose_intolerance','sibo','diabetes','celiac','food_allergy','hypertension','dyslipidemia','fatty_liver']);
+const full=parseGutClinicalDraft({conditions:COACH_HEALTH_CONDITIONS.map(c=>c.id)});
+assert.equal(full.canPersist,false);
+for(const c of COACH_HEALTH_CONDITIONS){
+ assert.match(renderGutClinicalDraft(),new RegExp('value="'+c.id+'" disabled'));
+ assert.equal(full.statuses[c.id],'not_reported','No diagnosis preselected');
+}
+for(const id of ['diabetes','celiac','food_allergy','hypertension','dyslipidemia','fatty_liver'])
+ assert.throws(()=>buildGutGuideForCoach({condition:id}),/inválida/,'Declaring health data must not invent a diet template');
+console.log('PASS 01-05: all eight optional health codes visible but disabled, no inferred diagnosis or automatic diet; excluded from general intake.');

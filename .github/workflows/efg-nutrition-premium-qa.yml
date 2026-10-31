@@ -81,7 +81,7 @@ jobs:
         run: |
           node --check efg-nutrition/tests/pro50-access-feedback.mjs
           node efg-nutrition/tests/pro50-access-feedback.mjs
-      - name: REL-ALL dated contract 54 mandatory commitments and GO guardrails (OFFLINE)
+      - name: REL-ALL dated contract 55 mandatory commitments and GO guardrails (OFFLINE)
         run: |
           node --check efg-nutrition/tests/release-contract-20261030.mjs
           node efg-nutrition/tests/release-contract-20261030.mjs

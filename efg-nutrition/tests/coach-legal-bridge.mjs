@@ -72,7 +72,7 @@ const pilot=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.match(pilot,/COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding/);
 assert.match(pilot,/state\.coachRelaunchEntry\?\.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED/);
-assert.match(pilot,/state\.profile\.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state\.coachLegalPending/,
+assert.match(pilot,/state\.profile\.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state\.coachLegalPending/,
  "A coach must be shown their own current legal documents before workspace access");
 assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\);\s*state\.coachLegalPending=state\.coachLegalSnapshot\.missing\.length>0;/,
  "Coach legal state must be server-read, never inferred from student consent or local storage");

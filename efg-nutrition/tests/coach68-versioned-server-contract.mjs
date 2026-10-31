@@ -58,7 +58,7 @@ assert.match(js,/currentIntake\(studentId,sourceUpdatedAt,relaunchEnabled\?sourc
 assert.match(js,/params\.p_intake_revision=sourceRevision/);
 assert.match(js,/efg_coach_relaunch_intakes/);
 assert.match(js,/eq\("completed_version",COACH_RELEASE_INTAKE_VERSION\)/);
-assert.match(ui,/sourceRevision:COACH_RELAUNCH_ONBOARDING_ENABLED\?intake\.revision:null/);
+assert.match(ui,/sourceRevision:COACH_VERSIONED_INTAKE_ENABLED\?intake\.revision:null/);
 assert.match(js,/assertCoachReleasePlanWriteAllowed\(\{relaunchEnabled,versionedBackendVerified\}\)/);
 assert.match(js,/relaunchEnabled\?"efg_publish_coach_plan_draft_atomic":"efg_publish_coach_plan_draft"/,
  "Relaunch must use signed hosted Coach119 contract and not old publication");

@@ -70,7 +70,7 @@ assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:false}),"Guardar pr
 assert.match(app,/if\(e\.target\.id==="efgIntakeShare"\)/,"Submit label updates on checkbox change");
 assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide preview gets regenerated on goal edits");
 assert.match(app,/await loadStudentDetail\(studentId\); \/\/ Revalidate RLS\/consent/);
-assert.match(app,/requiredIntakeVersion:COACH_RELAUNCH_ONBOARDING_ENABLED\?COACH_RELEASE_INTAKE_VERSION:null/,
+assert.match(app,/requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED\?COACH_RELEASE_INTAKE_VERSION:null/,
  "New Coach plan must derive exclusively from current verified intake revision.");
 assert.match(app,/Guardar objetivo para revisar guía/,"Goal must not be advertised as published diet");
 

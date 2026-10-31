@@ -1,6 +1,8 @@
+import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js";
 import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
 import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
@@ -11,15 +13,15 @@ export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
 export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh}){
  const names={fat_loss:"Reducir grasa",recomp:"Recomposición",muscle_gain:"Aumentar masa muscular",maintenance:"Mantenimiento",general:"Organizar mis hábitos"};
  const activities={low:"Mayormente sentado",light:"Ligera",moderate:"Moderada",high:"Alta"};
- const diets={omnivore:"Omnívoro",vegetarian:"Vegetariano",vegan:"Vegano",pescatarian:"Pescetariano",other:"Otro / aún no definido"};
+ const diets={...Object.fromEntries(DIET_PATTERNS.map(p=>[p.id,p.label])),omnivore:"Omnívoro",vegetarian:"Vegetariano",vegan:"Vegano",pescatarian:"Pescetariano",other:"Otro / aún no definido"};
  const missing=e=>e&&["42P01","PGRST205"].includes(e.code);
  // Never let a current-release Coach see a formerly shared legacy intake.
- const currentIntakeTable=()=>COACH_RELAUNCH_ONBOARDING_ENABLED?
+ const currentIntakeTable=()=>COACH_VERSIONED_INTAKE_ENABLED?
    "efg_coach_relaunch_intakes":"efg_student_intakes";
  const currentIntakeFields=(includeStudent=false)=>
    (includeStudent?"student_id,":"")+"objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at"+
-   (COACH_RELAUNCH_ONBOARDING_ENABLED?",completed_version,revision":"");
- const filterRelease=query=>COACH_RELAUNCH_ONBOARDING_ENABLED?
+   (COACH_VERSIONED_INTAKE_ENABLED?",completed_version,revision,eating_window":"");
+ const filterRelease=query=>COACH_VERSIONED_INTAKE_ENABLED?
    query.eq("completed_version",COACH_RELEASE_INTAKE_VERSION):query;
  const pending=()=>state.profile?.role==="student"&&state.planAccessSupported&&state.planAccess?.status!=="published";
  async function loadStudent(){
@@ -101,7 +103,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
  }
  async function save(){
-  if(COACH_RELAUNCH_ONBOARDING_ENABLED)
+  if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("Esta versión utiliza una ficha de relanzamiento que requiere revisión segura por versión.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)throw Error("Tu ficha no está disponible en esta sesión.");
   const get=id=>document.getElementById(id),value=id=>get(id)?.value?.trim()||"";
@@ -132,7 +134,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   await loadStudent();await render();notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
  async function deleteOwn(){
-  if(COACH_RELAUNCH_ONBOARDING_ENABLED)
+  if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("La ficha nueva exige el borrado/versionado seguro; el borrado antiguo está deshabilitado.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)
    throw Error("Tu ficha no está disponible en esta sesión.");
@@ -147,7 +149,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  function details(studentId){
   const v=state.coachIntakeForms[studentId];
   if(!v||!v.shared_at)return "";
-  const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Patrón alimentario",diets[v.dietary_pattern]],["Alimentos preferidos",v.preferred_foods],["Evita por gusto",v.disliked_foods],["Horarios de comida",v.meal_routine],["Observaciones",v.notes]];
+  const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Patrón alimentario",diets[v.dietary_pattern]],["Horario elegido",EATING_WINDOWS.find(w=>w.id===v.eating_window)?.label],["Alimentos preferidos",v.preferred_foods],["Evita por gusto",v.disliked_foods],["Horarios de comida",v.meal_routine],["Observaciones",v.notes]];
   return '<section class="card coach-intake-shared"><h3>Ficha inicial compartida</h3><p class="pilot-hint">Datos autodeclarados por el alumno. Úsalos únicamente para el acompañamiento autorizado.</p>'+
    items.filter(x=>x[1]).map(x=>'<p><strong>'+escapeHTML(x[0])+':</strong> '+escapeHTML(String(x[1]))+'</p>').join("")+
     '<div class="pilot-toolbar"><button class="btn" type="button" data-act="prepareCoachPlanFromIntake">Preparar plan con esta ficha</button></div>'+

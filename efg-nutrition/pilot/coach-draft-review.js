@@ -1,15 +1,16 @@
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
 // EFG Nutrition Pro · Coach NUT-50 review contract (pure; no DB, no medical safety claims).
 // A persisted draft must match the exact currently edited goal and guide.
 // The RPC still revalidates identity, intake revision, evidence and legal consent.
 import {validateCoachPlanProposal} from "./coach-plan-draft-client.js";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
 
 // COACH-RELEASE-REV-01: the intake revision is authoritative when the new
 // versioned Coach onboarding is active. Identical timestamps are NOT enough:
 // two edits can share a timestamp or a stale response may be replayed.
 // This is only a UI guard; the server still has to recheck the revision in RPC.
 export function coachDraftSourceCurrent(intake,savedDraft,{
- versioned=COACH_RELAUNCH_ONBOARDING_ENABLED
+ versioned=COACH_VERSIONED_INTAKE_ENABLED
 }={}){
  if(!intake?.shared_at||!intake.updated_at||
     !savedDraft||savedDraft.source_intake_updated_at!==intake.updated_at)
@@ -27,7 +28,7 @@ function canonical(value){
  return value;
 }
 export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide,
- versioned=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
+ versioned=COACH_VERSIONED_INTAKE_ENABLED}={}){
  const no=(reason)=>({ready:false,reason});
  if(!studentId||!intake?.shared_at)return no("La ficha ya no está compartida con este coach.");
  if(!savedDraft||savedDraft.student_id!==studentId||savedDraft.status!=="draft"||
@@ -49,7 +50,7 @@ export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,gu
 
 /** Confirm the actual server record, never just a local revision counter. */
 export function verifyCoachDraftReadback({studentId,intake,savedDraft,expectedRevision,goal,guide,
- versioned=COACH_RELAUNCH_ONBOARDING_ENABLED}={}){
+ versioned=COACH_VERSIONED_INTAKE_ENABLED}={}){
  const match=assessCoachDraftPublication({studentId,intake,savedDraft,goal,guide,versioned});
  if(!match.ready||match.revision!==expectedRevision)
   throw Error("No se pudo confirmar el contenido y la revisión del borrador en el servidor. Abrí la ficha nuevamente antes de publicar.");

@@ -56,7 +56,12 @@ assert.match(sql,/v_existing\.coach_id is distinct from v_coach/);
 assert.match(sql,/v_existing\.draft_revision is distinct from p_expected_revision/);
 assert.match(sql,/create or replace function public\.efg_notify_goal\(\)/);
 assert.match(sql,/create or replace function public\.efg_notify_food_guide\(\)/);
-assert.equal((sql.match(/if pg_catalog\.current_setting\('efg\.coach_atomic_publish',true\)='on'/g)||[]).length,2);
+assert.equal((sql.match(/if efg_private\.coach119_is_atomic_transaction\(\)/g)||[]).length,2);
+assert.match(sql,/where txid=pg_catalog\.txid_current\(\) and coach_id=auth\.uid\(\)/);
+assert.match(sql,/revoke all on efg_private\.coach119_atomic_transactions from public,anon,authenticated/);
+assert.match(sql,/delete from efg_private\.coach119_atomic_transactions\s+where txid=pg_catalog\.txid_current\(\) and coach_id=v_coach/);
+assert.doesNotMatch(sql,/if pg_catalog\.current_setting\('efg\.coach_atomic_publish',true\)='on'/,
+ 'A client-settable GUC alone must never suppress notifications');
 assert.doesNotMatch(sql,/revoke\s+(?:insert|update|delete)\s+on public\.efg_(?:goals|food_plans)/i,
  'Old production clients cannot lose table write grants before cutover');
 assert.doesNotMatch(sql,/\bupdate\s+public\.efg_daily_logs\b|\bdelete\s+from\s+public\.efg_daily_logs\b/i);

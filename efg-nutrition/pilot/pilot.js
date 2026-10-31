@@ -1,3 +1,4 @@
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261029-5pct1";
@@ -444,7 +445,7 @@ const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_
  versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED});
 function compatibilityPattern(){
  const pattern=state.profile?.role==="student"
-  ?state.coachRelaunchEntry?.status?.dietary_pattern||state.studentIntake?.dietary_pattern
+  ?state.coachPilotIntake?.dietary_pattern||state.coachPilotEntry?.status?.dietary_pattern||state.coachRelaunchEntry?.status?.dietary_pattern||state.studentIntake?.dietary_pattern
   :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
  return profilePatternForCompatibility(pattern);
 }
@@ -1969,7 +1970,7 @@ function guidedDayContents(plan,goal,editable=false){
 }
 function coachAtomicDraftPanel(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
- if(COACH_RELAUNCH_ONBOARDING_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED)
+ if(COACH_VERSIONED_INTAKE_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED)
   return '<section class="card" aria-label="Plan del relanzamiento en preparación">'+
    '<h3>Plan de Nutrition Coach en revisión</h3>'+
    '<p>La ficha nueva está disponible para revisión, pero la publicación de objetivo y guía de cinco comidas está detenida hasta verificar su versión, los permisos y los alimentos directamente en el servidor. El plan anterior del alumno continúa intacto.</p></section>';
@@ -2005,7 +2006,7 @@ async function saveCoachAtomicDraft(){
  const snapshot=validateCoachPlanProposal(goal,finalGuide);
  const r=await coachDraftClient.save({
   studentId,sourceUpdatedAt:intake.updated_at,
-   sourceRevision:COACH_RELAUNCH_ONBOARDING_ENABLED?intake.revision:null,
+   sourceRevision:COACH_VERSIONED_INTAKE_ENABLED?intake.revision:null,
    goal:snapshot.goal,guide:snapshot.guide,
   expectedRevision:previousDraft?.draft_revision??null
  });
@@ -2346,7 +2347,7 @@ async function render(){
  }
  // A coach must explicitly accept CURRENT server-owned Términos y Privacidad.
  // Neither the student's acceptance nor an OTP login authorizes the coach.
- if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state.coachLegalPending){
+ if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state.coachLegalPending){
   root.innerHTML=state.coachLegalSnapshot?renderCoachLegalOnboarding(state.coachLegalSnapshot):
    '<section class="card" role="alert"><h2>Consentimiento del coach pendiente</h2><p>Revisá los documentos vigentes antes de preparar planes.</p><button type="button" class="btn" data-act="retry">Reintentar</button></section>';
   return;
@@ -2656,7 +2657,7 @@ async function refresh(){
    }
   }
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
-  if(state.profile.role==="coach"&&COACH_RELAUNCH_ONBOARDING_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
+  if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
    if(state.coachLegalPending)return render();
@@ -2715,7 +2716,7 @@ async function refreshVisibleWorkspace(){
   // COACH88: refresh is a real server-side legal/intake revalidation.
   // An expired legal version or withdrawn sharing must block new private reads
   // and must not resurrect an edited Coach draft from the previous session.
-  if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="coach"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
+  if(COACH_VERSIONED_INTAKE_ENABLED&&state.profile.role==="coach"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
    if(state.coachLegalPending){
@@ -2747,7 +2748,7 @@ async function refreshVisibleWorkspace(){
   const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(
    !!state.coachIntakeForms?.[selected]?.shared_at&&
    state.coachIntakeForms?.[selected]?.updated_at===coachEdits.intakeUpdatedAt&&
-   (!COACH_RELAUNCH_ONBOARDING_ENABLED||(
+   (!COACH_VERSIONED_INTAKE_ENABLED||(
     Number.isSafeInteger(coachEdits.intakeRevision)&&coachEdits.intakeRevision>=1&&
     state.coachIntakeForms?.[selected]?.revision===coachEdits.intakeRevision&&
     (!state.coachPlanDraftRecord||
@@ -3142,7 +3143,7 @@ if(el.dataset.foodbulk){
  if(action==="confirmLegalAcceptance"){
   const studentNeedsLegal=state.profile?.role==="student"&&state.coachRelaunchEntry?.route==="legal";
   const coachNeedsLegal=state.profile?.role==="coach"&&state.coachLegalPending===true;
-  if(!COACH_RELAUNCH_ONBOARDING_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||
+  if(!COACH_VERSIONED_INTAKE_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||
      (!studentNeedsLegal&&!coachNeedsLegal)||!state.coachLegalSnapshot)
    throw Error("No se pudo verificar el documento legal actual.");
   const checked={terms:document.getElementById("efgLegalCheck_terms")?.checked===true,
@@ -3179,7 +3180,7 @@ if(el.dataset.foodbulk){
   await loadStudentDetail(studentId); // Revalidate RLS/consent; never trust cached intake.
   state.coachIntakePrefill=createCoachCalculatorPrefill({
    intake:state.coachIntakeForms?.[studentId],studentId,coachAuthorized:state.consent?.accepted===true,
-    requiredIntakeVersion:COACH_RELAUNCH_ONBOARDING_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
+    requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
   });
   state.coachIntakeGuidePreview=null;
   state.tab="coachStudents";await render();

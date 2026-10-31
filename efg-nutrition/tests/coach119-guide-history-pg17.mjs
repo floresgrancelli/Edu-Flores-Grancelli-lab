@@ -43,6 +43,8 @@ exec(`do $roles$ begin
  end if;
 end $roles$;
 create schema auth;
+create function auth.uid() returns uuid language sql stable as
+ $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
 create schema efg_private;
 create table auth.users(id uuid primary key);
 create table public.efg_profiles(user_id uuid primary key);
@@ -61,6 +63,27 @@ insert into public.efg_profiles(user_id) values ('${student}');
 insert into public.efg_goals(id) values ('${goal}');
 `);
 exec(actualArchiveSQL);
+// The fixture uses claims, not signed JWT. Execute the exact private marker
+// helper to prove that a user-controlled GUC cannot suppress legacy notices.
+assert.equal(exec(`begin;
+ set local "request.jwt.claim.sub"='${coach}';
+ set local efg.coach_atomic_publish='on';
+ select efg_private.coach119_is_atomic_transaction();
+ rollback;`),'f','Spoofed GUC without a private marker must fail');
+assert.equal(exec(`begin;
+ set local "request.jwt.claim.sub"='${coach}';
+ set local efg.coach_atomic_publish='on';
+ insert into efg_private.coach119_atomic_transactions(txid,coach_id)
+ values(txid_current(),'${coach}');
+ select efg_private.coach119_is_atomic_transaction();
+ set local "request.jwt.claim.sub"='${student}';
+ select efg_private.coach119_is_atomic_transaction();
+ rollback;`),'t\nf','Only the marker owner in the same transaction qualifies');
+assert.equal(exec('select count(*) from efg_private.coach119_atomic_transactions'),'0');
+exec(`set role authenticated;
+ insert into efg_private.coach119_atomic_transactions(txid,coach_id)
+ values(txid_current(),'${coach}');`,false);
+assert.equal(exec("select has_function_privilege('authenticated','efg_private.coach119_is_atomic_transaction()','EXECUTE')"),'f');
 // Test exact SQL selected-catalog validator on new + existing synthetic students.
 exec(`create table efg_private.coach_reviewed_foods(
  food_id text not null, evidence_status text not null,

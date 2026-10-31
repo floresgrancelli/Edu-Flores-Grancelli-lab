@@ -136,10 +136,10 @@ assert.match(source,/COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERS
 const flow=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(flow,/const currentIntakeTable=/);
-assert.match(flow,/COACH_RELAUNCH_ONBOARDING_ENABLED\?/);
+assert.match(flow,/COACH_VERSIONED_INTAKE_ENABLED\?/);
 assert.match(flow,/filterRelease\(sb.from\(currentIntakeTable\(\)\)/,
  "Coach must read only current revision when relaunch enabled.");
-assert.match(flow,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)[\s\S]*?throw Error\("Esta versión utiliza una ficha/,
+assert.match(flow,/if\(COACH_VERSIONED_INTAKE_ENABLED\)[\s\S]*?throw Error\("Esta versión utiliza una ficha/,
  "Legacy student update must not overwrite new release intake.");
 assert.match(flow,/el borrado antiguo está deshabilitado/,
  "Legacy delete must never erase the wrong versioned record.");

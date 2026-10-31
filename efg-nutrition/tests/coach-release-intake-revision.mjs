@@ -47,5 +47,5 @@ assert.match(app,/const active=saved\?\.status==="draft"&&coachDraftSourceCurren
 assert.match(app,/coachDraftSourceCurrent\(state\.coachIntakeForms\[studentId\],savedDraft\)/);
 assert.match(app,/intakeRevision:state\.coachIntakeForms\?\.\[selected\]\?\.revision\?\?null/);
 assert.match(app,/state\.coachIntakeForms\?\.\[selected\]\?\.revision===coachEdits\.intakeRevision/);
-assert.match(app,/!COACH_RELAUNCH_ONBOARDING_ENABLED\|\|\(/);
+assert.match(app,/!COACH_VERSIONED_INTAKE_ENABLED\|\|\(/);
 console.log("PASS COACH-RELEASE-REV-01: same-timestamp newer intake revisions block outdated draft review, publication and readback; shared consent and version enforced in client, flags OFF. Server JWT still required.");

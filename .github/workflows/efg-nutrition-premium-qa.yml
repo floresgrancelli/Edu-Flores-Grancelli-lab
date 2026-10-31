@@ -158,6 +158,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-pilot-entry-client.js
           node efg-nutrition/tests/coach111-hosted-entry-client.mjs
+      - name: New student journey and Coach versioned backend integration (isolated modules)
+        run: node efg-nutrition/tests/coach-versioned-journey-integration.mjs
       - name: COACH119 atomic publication NOT APPLIED, reviewed food/legal prerequisites and no legacy privilege revocation
         run: node efg-nutrition/tests/coach119-atomic-candidate-contract.mjs
       - name: COACH118 default-OFF server student diary write gate and historical compatibility

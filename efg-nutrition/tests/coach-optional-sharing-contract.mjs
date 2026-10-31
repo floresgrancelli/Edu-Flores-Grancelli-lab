@@ -20,11 +20,16 @@ assert.equal((sql.match(/create or replace function public\.efg_(?:accept_pilot_
 // A receipt can be revoked independently after a shared intake was saved.
 assert.match(sql,/alter policy efg_coach_relaunch_shared_coach_select/);
 const sharedPolicy=sql.slice(sql.indexOf('alter policy efg_coach_relaunch_shared_coach_select'),sql.indexOf('create or replace function public.efg_accept_pilot_participation'));
-assert.match(sharedPolicy,/r\.sharing_accepted is true/);
 const baseSharedPolicy=intake.slice(intake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),intake.indexOf('-- No direct PostgREST'));
-assert.match(baseSharedPolicy,/r\.sharing_accepted is true/);
 const isolatedSharedPolicy=isolatedIntake.slice(isolatedIntake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),isolatedIntake.indexOf('-- No direct PostgREST'));
-assert.match(isolatedSharedPolicy,/r\.sharing_accepted is true/);
+for(const [name,source,policy] of [['corrective',sql,sharedPolicy],['hosted baseline',intake,baseSharedPolicy],['isolated staging',isolatedIntake,isolatedSharedPolicy]]){
+ assert.match(policy,/efg_private\.coach_pilot_share_active\(student_id,organization_id\)/,name+': RLS must use privileged boolean helper');
+ assert.doesNotMatch(policy,/select 1 from public\.efg_pilot_participation_receipts/,name+': Coach cannot SELECT owner-only receipts directly');
+ assert.match(source,/create or replace function efg_private\.coach_pilot_share_active\(/,name);
+ assert.match(source,/efg_private\.coach_has_student\(p_student\)/,name);
+ assert.match(source,/r\.sharing_accepted is true/,name);
+ assert.match(source,/p\.organization_id=p_org and p\.role='student' and p\.active/,name);
+}
 assert.match(sql,/p_sharing is null/);
 assert.match(sql,/Separate pilot coach-sharing permission required/);
 assert.match(sql,/v_route:='private'/);

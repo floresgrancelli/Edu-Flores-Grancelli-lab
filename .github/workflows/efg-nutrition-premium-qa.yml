@@ -186,6 +186,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/pilot-participation-client.js
           node efg-nutrition/tests/coach106-pilot-participation-client.mjs
+      - name: COACH-OPT-01 optional private intake and corrective SQL guarded OFF (STATIC)
+        run: node efg-nutrition/tests/coach-optional-sharing-contract.mjs
       - name: COACH106-110 hosted additive participation, general intake, coach draft, pending and notice (STATIC)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach110-hosted-pilot-foundation-contract.mjs

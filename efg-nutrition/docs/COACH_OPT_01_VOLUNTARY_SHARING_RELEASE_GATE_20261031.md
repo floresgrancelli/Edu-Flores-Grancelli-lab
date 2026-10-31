@@ -50,3 +50,27 @@ OTP no pueden interpretarse como autorización de seguimiento.
 
 **Resultado de esta etapa:** corrección candidata preparada, no instalada ni
 certificada para producción. **NO GO**.
+
+## Corrección adicional de auditoría · 31/10/2026 (COACH-OPT-02)
+
+Se detectó una contradicción concreta en **dos** archivos SQL: aunque el
+texto decía que compartir era opcional, el primer guard de
+`efg_submit_coach_relaunch_intake` exigía `r.sharing_accepted` aun cuando
+`p_share_with_coach=false`. Esto impedía guardar una ficha privada con un
+recibo válido de participación y rechazo explícito de compartir.
+
+Corregidos SOLO en PR37 DRAFT:
+- `migrations/20261030_coach_relaunch_general_pilot_intake.sql`.
+- `migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql`.
+
+El guard inicial ahora exige **participación vigente, misma identidad y
+organización, y recibo no revocado**, sin exigir compartir. El segundo guard
+mantiene `sharing_accepted=true` y consentimiento de seguimiento cuando
+`p_share_with_coach=true`. Se agregó regresión estática al test
+`tests/coach-optional-sharing-contract.mjs` para impedir que vuelva a
+introducirse el bloqueo incondicional.
+
+**Alcance de evidencia:** cambio de fuente y prueba estática añadida;
+verificar CI del SHA final y ejecutar ensayo PostgreSQL/JWT sobre la
+migración correctiva y una copia fiel antes de considerar funcional el flujo.
+NO SQL hospedado, NO GO, sin activar banderas ni publicar.

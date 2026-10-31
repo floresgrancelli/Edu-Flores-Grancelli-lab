@@ -15,6 +15,9 @@ for(const f of ["notifications-ui.js","messages-ui.js"])assert.ok(app.includes(f
 for(const f of ["notifications-ui.css","messages-ui.css"])assert.ok(html.includes(f),"Missing stylesheet "+f);
 assert.match(inbox,/setInterval\(/,"Inbox must refresh while page stays open");
 assert.match(inbox,/\.eq\("recipient_id",userId\)/,"Inbox must be user-scoped");
+assert.match(inbox,/clickedUser!==loadedUser/,"Old-account notifications must not be actionable after switching users");
+assert.match(inbox,/\.eq\("recipient_id",clickedUser\)/,"Mark-read must use the identity captured at click time");
+assert.match(inbox,/if\(getUserId\(\)!==clickedUser\)return;/,"Account switch during mark-read must not navigate to a stale alert");
 assert.match(messages,/\.eq\("student_id",x\.student\)/,"Chat must scope student");
 assert.match(messages,/\.eq\("coach_id",x\.coach\)/,"Chat must scope coach");
 assert.match(messages,/\.insert\(/,"Chat must allow sending");

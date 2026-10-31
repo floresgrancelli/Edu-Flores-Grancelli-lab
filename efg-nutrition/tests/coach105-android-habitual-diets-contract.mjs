@@ -16,7 +16,7 @@ assert.match(src,/state\.habitualSelection\[slot\]=String\(data\.id\);[\s\S]*?st
 assert.match(src,/data-habitualchoice/,'User can choose each habitual');
 assert.match(src,/data-habitualapply/,'User can apply selected habitual');
 assert.match(src,/data-habitualdelete/,'User can delete habitual without deleting history');
-assert.match(src,/await saveDiary\(\);notify\('Habitual/,'Only explicit Apply saves into diary');
+assert.match(src,/try\{await saveDiary\(\);\}[\s\S]*?notify\('Habitual/,'Only explicit Apply saves into diary');
 assert.match(src,/if\(d\.meals\[slot\]\.length&&!confirm/,'Do not silently overwrite current meal');
 assert.match(pull,/Math\.min\(110,Math\.round\(window\.innerHeight\*\.18\)\)/,
  'Android touch refresh must start only from top edge');

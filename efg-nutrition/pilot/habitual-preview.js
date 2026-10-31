@@ -3,9 +3,9 @@
 const safeNumber=value=>typeof value==="number"&&Number.isFinite(value);
 const fmt=(v,d=1)=>Number(v).toLocaleString("es-AR",{maximumFractionDigits:d});
 export function habitualShortLabel(habitual){
- const name=String(habitual?.name||"Comida habitual").trim();
+ const name=String(habitual?.name||"Comida habitual").trim().slice(0,100);
  const items=Array.isArray(habitual?.items)?habitual.items:[];
- const names=items.slice(0,2).map(x=>String(x?.name||"Alimento").trim()).filter(Boolean);
+ const names=items.slice(0,2).map(x=>String(x?.name||"Alimento").trim().slice(0,80)).filter(Boolean);
  const summary=names.join(", ")+(items.length>2?" +"+(items.length-2):"");
  return name+(summary?" · "+summary:"");
 }

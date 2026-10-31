@@ -61,4 +61,12 @@ assert.equal(stopped.accepted,false);
 assert.equal(stopped.revoked,true);
 assert.equal((await loadPilotParticipationReceipt(sb)).accepted,false);
 assert.equal(revokeCalls,1);
-console.log('PASS COACH106: signed independent private/share decisions, owner readback, revocation; hosted staging still required.');
+// A session can change while a receipt read or acceptance is in flight.
+const originalGetUser=sb.auth.getUser;
+let checks=0;
+sb.auth.getUser=async()=>({data:{user:{id:++checks===1?studentA:studentB}},error:null});
+await assert.rejects(loadPilotParticipationReceipt(sb),/sesión cambió/);
+checks=0;
+await assert.rejects(acceptPilotParticipation(sb,choice,{explicitSubmit:true}),/sesión cambió/);
+sb.auth.getUser=originalGetUser;
+console.log('PASS COACH106: signed participation and sharing decisions; account changes mid-request fail closed, no clinical permission inferred (synthetic).');

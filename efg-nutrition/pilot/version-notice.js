@@ -82,6 +82,8 @@ export function createVersionNotice({
    const doc=new DOMParser().parseFromString(html,"text/html");
    const serverVersion=doc.querySelector('meta[name="efg-build"]')?.getAttribute("content")||"";
    const serverSignature=signature(doc);
+   // A partial or captive-portal HTML response must not masquerade as a release.
+   if(!serverVersion||!doc.querySelector('script[type="module"][src*="pilot.js"]'))throw Error("Incomplete version manifest");
    const changed=(serverVersion&&serverVersion!==headVersion)||(serverSignature&&serverSignature!==initialSignature);
    // No update banner if the response is ambiguous or the server is unavailable.
    latest=changed?{key:serverVersion||serverSignature,version:serverVersion}:null;

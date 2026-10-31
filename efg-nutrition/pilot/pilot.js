@@ -1382,9 +1382,15 @@ function openPlannedFoodEditor(key){
  picker.value=selected.id;
  updateMealEntryMode(true);
 }
+// Lock a meal slot while a network write is pending. This also protects against
+// an overlapping direct-editor submit or removal triggered by repeated taps.
+const pendingMealRegistrations=new Set();
 async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
  const [slot,category]=pair,shownQty=Number(document.getElementById("planQty_"+key)?.value);
+ if(pendingMealRegistrations.has(slot))return; // Ignore repeated taps, not the first.
+ pendingMealRegistrations.add(slot);
+ try{
  if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
  const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
@@ -1414,6 +1420,7 @@ async function addPlannedFood(key){
   throw error;
  }
  notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
+ }finally{pendingMealRegistrations.delete(slot);}
 }
 let mealDialogReturnFocus=null;
 let activeGuidedMealGroup="protein";
@@ -1547,8 +1554,11 @@ function updateMealDialogHint(){
 }
 async function saveSelectedMeal(continueGuided=false){
  const slot=state.activeMeal;
+ if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ pendingMealRegistrations.add(slot);
+ try{
  const d=activeDiary();d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
  const previousDiary=state.diary,previousActiveMeal=state.activeMeal;
@@ -1572,6 +1582,7 @@ async function saveSelectedMeal(continueGuided=false){
  }
  if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
  notify("Alimento agregado, balance actualizado.");
+ }finally{pendingMealRegistrations.delete(slot);}
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
@@ -3101,10 +3112,21 @@ if(el.dataset.foodbulk){
  if(el.dataset.planopenmeal){return openPlannedFoodEditor(el.dataset.planopenmeal);}
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
+  if(pendingMealRegistrations.has(slot))return;
   const index=Number(indexValue),d=activeDiary();
   if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
-  d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
-  await saveDiary();notify("Alimento eliminado. Los macros se actualizaron.");return;
+  pendingMealRegistrations.add(slot);
+  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
+  const previousDiary=state.diary;
+  try{
+   d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
+   await saveDiary();
+   notify("Alimento eliminado. Los macros se actualizaron.");
+  }catch(error){
+   d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
+   throw error;
+  }finally{pendingMealRegistrations.delete(slot);}
+  return;
  }
  if(el.dataset.removesupp!==undefined){
  const index=Number(el.dataset.removesupp),d=activeDiary(),item=d.sports?.[index];

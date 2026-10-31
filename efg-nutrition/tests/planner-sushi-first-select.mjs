@@ -36,14 +36,14 @@ const plannerState={plannerMode:'dinner',plannerSelections:{},plannerDraftGrams:
 let persisted=0,quantity='3',chosenFood=maki,failNextSave=false;
 const runSave=new Function('parsePlannerKey','document','makePlan','foods','allowedFoods',
  'activeDiary','activeGoal','dailyTotals','state','plannerMeasuredGrams','plannerSushiPortion',
- 'MILK_BEVERAGES','openPlannedFoodEditor','normItem','saveDiary','notify','num',
+ 'MILK_BEVERAGES','openPlannedFoodEditor','normItem','saveDiary','notify','num','pendingMealRegistrations',
  source.slice(saveStart,saveEnd)+';return addPlannedFood;')(
  key=>key.split('|'),{getElementById:id=>id.startsWith('planQty_')?{value:quantity}:null},
  ()=>({meals:[{slot:'cena',rows:[{category:'protein',food:chosenFood}]}]}),
  [maki],()=>[maki.id],()=>diary,()=>({}),()=>({}),plannerState,
  api.plannerMeasuredGrams,api.plannerSushiPortion,{},()=>{throw Error('Unexpected beverage');},
  (food,grams,slot)=>({id:food.id,name:food.name,qty:grams,unit:'g',when:slot}),
- async()=>{if(failNextSave){failNextSave=false;throw Error('network offline')}persisted++},msg=>alerts.push(msg),String
+ async()=>{if(failNextSave){failNextSave=false;throw Error('network offline')}persisted++},msg=>alerts.push(msg),String,new Set()
 );
 await runSave('cena|protein');
 assert.equal(persisted,1,'Sushi planner should persist only once');
@@ -83,14 +83,14 @@ const directState={activeMeal:'cena',diary};
 let failDirect=true,directWrites=0;
 const directSave=new Function('state','measureMealEntry','foodAllowedForMeal','allowedFoods',
  'FOOD_STATE_PAIRS','activeDiary','BEVERAGE_IDS','calculateBeverage','normItem','isGuidedMealSlot',
- 'guidedMealGroupFor','groupIdFor','today','saveDiary','openMealDialog','notify',
+ 'guidedMealGroupFor','groupIdFor','today','saveDiary','openMealDialog','notify','pendingMealRegistrations',
  source.slice(directStart,directEnd)+';return saveSelectedMeal;')(
  directState,()=>({f:maki,qty:2,grams:56,useUnits:true,portion}),
  ()=>true,()=>[maki.id],{},()=>diary,new Set(),()=>{throw Error('not a beverage')},
  (f,grams,slot)=>({id:f.id,name:f.name,qty:grams,unit:'g',when:slot}),
  ()=>false,()=>null,()=>null,()=> '2026-10-31',
  async()=>{if(failDirect)throw Error('network offline');directWrites++;},
- ()=>{throw Error('Unexpected dialog')},msg=>alerts.push(msg)
+ ()=>{throw Error('Unexpected dialog')},msg=>alerts.push(msg),new Set()
 );
 const beforeDirect=structuredClone(diary.meals.cena);
 await assert.rejects(directSave(),/network offline/);
@@ -100,6 +100,46 @@ failDirect=false;
 await directSave();
 assert.equal(directWrites,1);
 assert.equal(diary.meals.cena.length,beforeDirect.length+1,'Manual retry writes only once');
+
+const asyncLocks=new Set(),asyncState={plannerMode:'dinner',plannerSelections:{},plannerDraftGrams:{}};
+let releasePlanner,plannerWrites=0,readPlanner='3';
+const pendingPromise=new Promise(resolve=>{releasePlanner=resolve});
+const pendingAdd=new Function('parsePlannerKey','document','makePlan','foods','allowedFoods',
+ 'activeDiary','activeGoal','dailyTotals','state','plannerMeasuredGrams','plannerSushiPortion',
+ 'MILK_BEVERAGES','openPlannedFoodEditor','normItem','saveDiary','notify','num','pendingMealRegistrations',
+ source.slice(saveStart,saveEnd)+';return addPlannedFood;')(
+ key=>key.split('|'),{getElementById:id=>id.startsWith('planQty_')?{value:readPlanner}:null},
+ ()=>({meals:[{slot:'cena',rows:[{category:'protein',food:maki}]}]}),
+ [maki],()=>[maki.id],()=>diary,()=>({}),()=>({}),asyncState,
+ api.plannerMeasuredGrams,api.plannerSushiPortion,{},()=>{throw Error('Unexpected beverage')},
+ (food,grams,slot)=>({id:food.id,name:food.name,qty:grams,unit:'g',when:slot}),
+ async()=>{plannerWrites++;await pendingPromise},()=>{},String,asyncLocks
+);
+const beforeConcurrent=diary.meals.cena.length;
+const firstPending=pendingAdd('cena|protein');
+await pendingAdd('cena|protein'); // Second tap while the network is still pending.
+assert.equal(plannerWrites,1,'Repeated tap does not launch a second network upsert');
+assert.equal(diary.meals.cena.length,beforeConcurrent+1,'Repeated tap adds one draft');
+releasePlanner();
+await firstPending;
+assert.equal(asyncLocks.size,0,'Lock is always released after response');
+assert.equal(diary.meals.cena.length,beforeConcurrent+1,'No duplicate after concurrent taps');
+
+// Cross-route protection for manual entry and planner on the same slot.
+const crossLocks=new Set(['cena']);
+const guardedSave=new Function('state','measureMealEntry','foodAllowedForMeal','allowedFoods',
+ 'FOOD_STATE_PAIRS','activeDiary','BEVERAGE_IDS','calculateBeverage','normItem','isGuidedMealSlot',
+ 'guidedMealGroupFor','groupIdFor','today','saveDiary','openMealDialog','notify','pendingMealRegistrations',
+ source.slice(directStart,directEnd)+';return saveSelectedMeal;')(
+ {activeMeal:'cena'},()=>{throw Error('Manual editor should be skipped while slot is busy')},
+ ()=>true,()=>[maki.id],{},()=>diary,new Set(),()=>null,()=>null,()=>false,()=>null,()=>null,
+ ()=> '2026-10-31',async()=>{},()=>{},()=>{},crossLocks);
+await guardedSave();
+assert.equal(diary.meals.cena.length,beforeConcurrent+1,'Busy slot cannot accept a simultaneous manual save');
+
+// Removal uses the same meal lock and restores both list and skipped flags on failed upsert.
+assert.match(source,/if\(el\.dataset\.removefood\)\{[\s\S]*?pendingMealRegistrations\.has\(slot\)[\s\S]*?previousItems=structuredClone\(d\.meals\[slot\]\)[\s\S]*?catch\(error\)\{[\s\S]*?d\.meals\[slot\]=previousItems/);
+
 
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 

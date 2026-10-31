@@ -843,8 +843,16 @@ function sessionConnectionRetry(){
  '<div class="pilot-toolbar"><button class="btn" data-act="retry">Reintentar conexión</button>'+
  '<button class="btn small ghost" data-act="logout">Salir e ingresar nuevamente</button></div></div>';
 }
-function unauthorized(msg){
- root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>Nutrición Con-Ciencia protege los datos personales y nutricionales de cada alumno.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><h2>Cuenta pendiente de habilitación</h2><p>'+escapeHTML(msg||"Este correo aún no fue habilitado.")+'</p><div class="pilot-alert" style="margin:20px 0">Tu entrenador debe crear tu usuario antes de que puedas usar la aplicación. Si sos el administrador, ingresá con el correo habilitado por EFG.</div><button class="btn block" data-act="logout">Cerrar sesión</button></div></div></div>';
+function unauthorized(_msg){
+ // Only after authentication: do not echo provider errors, invitation status,
+ // addresses or whether another email is registered in our directory.
+ root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>Nutrición Con-Ciencia muestra únicamente las herramientas autorizadas para tu cuenta.</p></div>'+
+ '<div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">ACCESO PRIVADO · NUTRICIÓN CON-CIENCIA</div><h2>Necesitamos verificar tu habilitación</h2>'+
+ '<p>Por ahora no podemos abrir un espacio de Nutrition Coach en esta sesión. No se muestran datos de ninguna otra persona.</p>'+
+ '<div class="pilot-alert" role="status" style="margin:20px 0">Si recibiste una invitación, consultá con quien te la envió antes de intentar ingresar de nuevo.</div>'+
+ '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions">Cómo solicitar acceso</button>'+
+ '<div id="efgAccessInstructions" class="pilot-hint" hidden><p>Pedile a tu entrenador que verifique la invitación y el cupo de tu cuenta. Si sos coach, contactá al administrador de EFG a través del canal habitual con el que te invitaron. No compartas códigos de ingreso ni contraseñas.</p><p>La aplicación no envía una solicitud automáticamente desde este botón.</p></div>'+
+ '<button class="btn block ghost" data-act="logout" style="margin-top:12px">Salir e ingresar con otro correo</button></div></div></div>';
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 
@@ -3032,6 +3040,14 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
+ if(action==="showAccessInstructions"){
+  const instructions=document.getElementById("efgAccessInstructions");
+  if(instructions){
+   instructions.hidden=!instructions.hidden;
+   el.setAttribute("aria-expanded",String(!instructions.hidden));
+  }
+  return;
+ }
  if(action==="logout"){
   const result=await signOutCurrentDevice({
    auth:sb.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits,

@@ -22,6 +22,17 @@ begin
  ) then raise exception 'COACH-OPT-01: expected legacy sharing CHECK absent; manual review'; end if;
  -- Security repair must be applied FIRST. Do not loosen opt-in if old
  -- organization-ambiguous owner RLS remains installed.
+ if not exists(
+   select 1 from pg_catalog.pg_policies
+   where schemaname='public' and tablename='efg_coach_relaunch_intakes'
+     and policyname='efg_coach_relaunch_owner_select'
+     and qual like '%efg_coach_relaunch_intakes.organization_id%'
+ ) or not exists(
+   select 1 from pg_catalog.pg_policies
+   where schemaname='public' and tablename='efg_pilot_participation_receipts'
+     and policyname='efg_pilot_participation_owner_read'
+     and qual like '%efg_pilot_participation_receipts.organization_id%'
+ ) then raise exception 'COACH-OPT-01: qualified owner policies not confirmed'; end if;
  if exists(
    select 1 from pg_catalog.pg_policies
    where (schemaname,tablename,policyname) in (
@@ -229,6 +240,7 @@ declare
  v_org uuid;
  v_coach uuid;
  v_receipt boolean := false;
+ v_sharing boolean := false;
  v_intake public.efg_coach_relaunch_intakes%rowtype;
  v_plan public.efg_student_plan_access%rowtype;
  v_guide_goal uuid;
@@ -277,6 +289,15 @@ begin
  if not v_receipt then
   v_route:='participation';
  else
+  -- A prior shared intake never authorizes current coach access after
+  -- the independent pilot sharing receipt is changed to FALSE.
+  select exists(
+   select 1 from public.efg_pilot_participation_receipts r
+   where r.student_id=v_uid and r.organization_id=v_org
+     and r.version='coach_pilot_2026_demo1'
+     and r.participation_accepted and r.sharing_accepted
+     and r.revoked_at is null
+  ) into v_sharing;
   select exists(select 1 from public.efg_consents c
     where c.student_id=v_uid and c.organization_id=v_org and c.accepted=true)
     into v_follow_up;
@@ -285,7 +306,7 @@ begin
      and i.completed_version='coach_major_2026_r1';
   if not found then
    v_route:='intake';
-  elsif v_intake.shared_at is null or not v_follow_up then
+  elsif v_intake.shared_at is null or not v_follow_up or not v_sharing then
    v_route:='private'; -- Own current intake saved, without coach sharing.
   else
    v_route:='review';
@@ -324,7 +345,7 @@ begin
   'required_intake_version','coach_major_2026_r1',
   'required_pilot_version','coach_pilot_2026_demo1',
   'participation_confirmed',v_receipt,
-  'general_intake_shared',v_intake.shared_at is not null and v_follow_up,
+  'general_intake_shared',v_intake.shared_at is not null and v_follow_up and v_sharing,
   'legal_current_accepted',true,
   'requires_separate_health_consent',true
  );

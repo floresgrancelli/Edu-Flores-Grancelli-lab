@@ -25,6 +25,8 @@ for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:2
  assert.throws(()=>validateCoachPlanProposal(bad,guide));
 for(const bad of [{...guide,meals:guide.meals.slice(1)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,slot:"desayuno"}:v)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,items:[{...food,qty:0}]}:v)}])
  assert.throws(()=>validateCoachPlanProposal(goal,bad));
+const oversizedGuide={...guide,meals:guide.meals.map((meal,i)=>i===0?{...meal,items:[{...food,k:100001}]}:meal)};
+assert.throws(()=>validateCoachPlanProposal(goal,oversizedGuide),/nutrientes/);
 let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,invalidRevisionResponse=null,returnedStudent=STU,returnedDraftStudent=STU,returnedDraftOrg=ORG,returnedIntakeOrg=ORG;
 const calls=[];
 const db={

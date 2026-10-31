@@ -29,6 +29,7 @@ assert.equal(keto.status,"requires_professional_review");
 assert.equal(evaluatePattern({patternId:"keto",medicationFlags:["sglt2"]}).status,"blocked_pending_clinical_review");
 assert.equal(evaluatePattern({patternId:"keto",healthFlags:["pregnancy"]}).status,"blocked_pending_clinical_review");
 assert.equal(evaluatePattern({patternId:"keto",age:17}).status,"blocked_pending_clinical_review");
+assert.throws(()=>evaluatePattern({patternId:"keto",healthFlags:"pregnancy"}),/inválidos/);
 assert.equal(evaluatePattern({patternId:"balanced"}).requiresReview,false);
 assert.equal(evaluateEatingWindow({windowId:"regular"}).requiresReview,false);
 assert.equal(evaluateEatingWindow({windowId:"14_10"}).requiresReview,false);

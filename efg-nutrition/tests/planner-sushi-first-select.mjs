@@ -363,6 +363,45 @@ assert.equal(commentState.diary.skipped._comment,'Nuevo comentario');
 assert.equal(commentNotice,1,'Confirmed comment creates one notification');
 assert.equal(commentWrites,2);
 
+
+// Exercise the actual supplement form handler, not only the shared transaction
+// helper. An offline error must leave the separate supplement list unchanged.
+const supplementBegin=source.indexOf('async function addDailySupplement(){');
+const supplementEnd=source.indexOf('function dayComment(d){',supplementBegin);
+assert.ok(supplementBegin>=0&&supplementEnd>supplementBegin,'Actual supplement form handler present');
+const supDiary={sports:[],skipped:{_closed:false}},supState={diary:supDiary};
+const supForm={supplementItem:'creatine',supplementQty:'5',supplementMoment:'desayuno'};
+const supDoc={getElementById(id){return {value:supForm[id]||''}}};
+let supWriteFails=true,supWrites=0;
+const formSource=source.slice(sportBegin,supplementEnd);
+const actualSupplement=new Function('activeDiary','state','saveDiary','notify','SUPPLEMENTS','document','normItem',
+ formSource+';return addDailySupplement;')(
+ ()=>supDiary,supState,async()=>{supWrites++;if(supWriteFails)throw Error('offline')},()=>{},
+ [{id:'creatine',name:'Creatina',unit:'g',k:0,p:0,c:0,f:0,fi:0}],supDoc,
+ (food,qty,when)=>({id:food.id,qty,when}));
+await assert.rejects(actualSupplement(),/offline/);
+assert.equal(supDiary.sports.length,0,'Offline supplement cannot create ghost daily intake');
+supWriteFails=false;await actualSupplement();
+assert.equal(supDiary.sports.length,1);
+assert.equal(supDiary.sports[0].kind,'supplement');
+assert.equal(supWrites,2);
+
+// Concurrent comment submissions must not overwrite one another while a
+// previous REST response is pending, and must release the lock afterwards.
+const delayedCommentState={profile:{role:'student'},diary:{skipped:{_comment:'original'}}};
+let finishComment,commentPendingWrites=0;
+const pendingCommentPromise=new Promise(resolve=>{finishComment=resolve});
+const delayedComment=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+ source.slice(commentStart,commentEnd)+';return saveDayComment;')(
+ delayedCommentState,()=> 'Nuevo texto',()=>delayedCommentState.diary,
+ async()=>{commentPendingWrites++;await pendingCommentPromise;},()=>{});
+const firstComment=delayedComment();
+await delayedComment();
+assert.equal(commentPendingWrites,1,'Repeated comment tap must not send a second REST write');
+finishComment();
+await firstComment;
+assert.equal(delayedCommentState.diary.skipped._comment,'Nuevo texto');
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

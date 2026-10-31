@@ -35,6 +35,9 @@ export async function loadCoachPilotLegal(sb,{profile}={}){
   .in('id',status.map(x=>x.document_id)).limit(2);
  if(dr.error||!Array.isArray(dr.data)||dr.data.length!==2)
   throw Error('No pudimos comprobar el contenido completo de los documentos.');
+ const after=await sb.auth.getUser();
+ if(after?.error||after?.data?.user?.id!==id)
+  throw Error('La sesión cambió mientras verificábamos los documentos legales. Volvé a ingresar.');
  const docs=TYPES.map(kind=>{
   const st=status.find(x=>x.kind===kind),doc=dr.data.find(x=>x.id===st.document_id);
   if(!doc||doc.kind!==kind||doc.version!==st.version||doc.sha256!==st.sha256||

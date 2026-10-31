@@ -29,7 +29,7 @@ export async function confirmMajorRelaunchAndExit(sb,{
   throw Error('La Gran Actualización todavía no fue confirmada por el servidor.');
  // If the user cancels the unsaved-changes warning, do not even record
  // acknowledgment. No server signal and no session closure may occur.
- if(hasUnsavedChanges()&&confirmDiscard()!==true)
+ if(hasUnsavedChanges()&&(await confirmDiscard())!==true)
   return Object.freeze({signedOut:false,cancelled:true});
  // Only after a signed, explicit acknowledgment receipt does local OTP exit.
  // This receipt is NOT acceptance of legal documents or medical sharing.

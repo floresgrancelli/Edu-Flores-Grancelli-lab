@@ -116,7 +116,11 @@ jobs:
           test "${PGHOST}" = '127.0.0.1'
           test "${PGPORT}" = '54322'
           test "${PGDATABASE}" = 'postgres'
+          # Install exact COACH106 receipt schema in this disposable stack, then
+          # test both owner policies and the NOT_APPLIED repair transaction.
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach_pilot_participation_server_receipts.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_RELAUNCH_REONBOARDING_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql
           psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
       - name: COACH-RELAUNCH real signed LOCAL JWT, intake version, two orgs, consent and history
         env:

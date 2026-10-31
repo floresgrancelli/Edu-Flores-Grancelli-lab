@@ -117,11 +117,12 @@ export function guideTotals(plan){
  return {perMeal,totals};
 }
 export function guideDeviation(plan,goal){
- const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal||goal?.k)||0,p:Number(goal?.protein_g||goal?.p)||0,c:Number(goal?.carb_g||goal?.c)||0,f:Number(goal?.fat_g||goal?.f)||0};
+ const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal??goal?.k??0)||0,p:Number(goal?.protein_g??goal?.p??0)||0,c:Number(goal?.carb_g??goal?.c??0)||0,f:Number(goal?.fat_g??goal?.f??0)||0,fi:Number(goal?.fiber_g??goal?.fi??0)||0};
  return Object.fromEntries(Object.entries(targets).map(([k,target])=>[k,{target,actual:t[k],difference:t[k]-target,percent:target>0?100*(t[k]-target)/target:null}]));
 }
 function score(plan,goal){
- const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3};
+ // Fiber is part of the coach-approved target when specified; missing data never implies success.
+ const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3,fi:1};
  const macro=Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
  // Encourage a plausible five-meal distribution rather than sending huge fruit portions to snacks.
  const ratios={desayuno:.22,media_manana:.13,almuerzo:.29,merienda:.14,cena:.22};

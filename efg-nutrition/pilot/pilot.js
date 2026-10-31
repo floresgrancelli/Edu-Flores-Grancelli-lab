@@ -1662,7 +1662,7 @@ function coachHomeView(){
  const testOrgSeats=Number(state.org?.seat_limit)||0;
  const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);
  return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Ingresos nuevos, planes por preparar y seguimiento: cada cosa en su lugar.")+
- '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
+ '<section class="efg-coach-banner"><div><span class="eyebrow">NUTRICIÓN CON-CIENCIA · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
@@ -2059,7 +2059,7 @@ function coachGuidedSection(){
  const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
  const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
- return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">EFG · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
+ return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
  (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus cinco comidas privadas.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
@@ -2188,7 +2188,7 @@ function adminView(){
   '<button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button>'+
   '<button class="btn small light" data-activatecoach="'+org.id+'" '+(!org.coach_id?'disabled':'')+'>Activar tras pago</button>'+
   (org.status!=="suspended"?'<button class="btn small ghost" data-orgstatus="'+org.id+'">Suspender</button>':''))+'</div></div></div>').join(""):'<div class="empty">Todavía no se habilitaron entrenadores.</div>')+'</div><div class="card"><h2>Invitaciones de coaches</h2>'+ (state.invitations.length?state.invitations.filter(i=>i.role==="coach").map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+' · '+(i.claimed_by?'Activado':'Pendiente')+'</small>'+(!i.claimed_by&&!i.revoked_at?'<button class="btn small ghost" data-revokeinvite="'+i.id+'" style="margin-top:8px">Cancelar invitación</button>':'')+'</div>').join(""):'<p class="pilot-hint">Sin invitaciones comerciales.</p>')+'</div>'+
- '<div class="card efg-pilot-coach-activation"><div class="eyebrow">EFG LABORATORIO · CUPO GRATUITO</div><h2>Habilitar coach piloto existente</h2>'+
+ '<div class="card efg-pilot-coach-activation"><div class="eyebrow">NUTRICIÓN CON-CIENCIA · CUPO GRATUITO</div><h2>Habilitar coach piloto existente</h2>'+
 '<p class="pilot-hint">Para Carla u otra persona que ya utiliza EFG como alumna: conserva su correo, cuenta y todo el historial de MI DÍA. El administrador EFG cambia el rol y le asigna exactamente 10 cupos de prueba. No crea otra cuenta ni cobra licencia. Sus alumnos necesitarán autorizar el seguimiento.</p>'+
 '<div class="field"><label for="existingPilotCoachEmail">Correo de la cuenta existente</label><input type="email" id="existingPilotCoachEmail" autocomplete="off" placeholder="Correo actual del alumno" maxlength="254" '+(!COACH_PILOT_PROMOTION_ENABLED?'disabled':'')+'></div>'+
 '<button type="button" class="btn block" data-act="promoteExistingPilotCoach" '+(!COACH_PILOT_PROMOTION_ENABLED?'disabled aria-disabled="true"':'')+'>Habilitar como coach piloto · 10 alumnos</button>'+

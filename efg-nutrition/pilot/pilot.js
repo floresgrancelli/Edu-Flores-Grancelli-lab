@@ -1109,7 +1109,14 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div><div id="mealDialogContainer"></div>'+goalForm;
 }
 
-function allowedFoods(){return foods.map(f=>f.id);}
+// Coach-approved food availability is separate from the five-meal example.
+// Existing pilot accounts without a reviewed Coach list keep their legacy catalog.
+function allowedFoods(){
+ const catalog=foods.map(f=>f.id);
+ if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return catalog;
+ const known=new Set(catalog);
+ return [...new Set(state.foodPlan.approved_food_ids)].filter(id=>known.has(id));
+}
 // El sushi se muestra por piezas; el diario conserva gramos equivalentes.
 function plannerSushiPortion(food){
  const portion=food?.id?.startsWith("sushi_")?FOOD_UNIT_PORTIONS[food.id]:null;
@@ -1251,7 +1258,7 @@ function filterPlannerFoods(input){
  if(!select)return;
  const chosenId=select.value;
  const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
- const available=allPlannerFoods(foods,allowedFoods()); // Buscar sobre todo el catálogo.
+ const available=allPlannerFoods(foods,allowedFoods()); // Respetar la selección autorizada por el coach cuando exista.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=plannerNormalizeQuery(foodSearchText(f)+" "+aliases);

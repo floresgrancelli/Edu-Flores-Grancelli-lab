@@ -31,10 +31,10 @@ try{
      macroCards:cards.length,resources:links.length,headings:main?.querySelectorAll("h2").length,
      faq:main?.querySelectorAll("details").length,hasHorizontalScroll:document.documentElement.scrollWidth>innerWidth+2,
      linksSafe:links.every(a=>a.target==="_blank"&&a.rel.includes("noopener")),
-     scienceText:main?.textContent?.includes("Los hidratos no son el villano.")};
+     scienceText:main?.textContent?.includes("Los hidratos no son el villano.")&&main?.textContent?.includes("¿Por qué importa moverse?")};
    });
    if(info.hasHorizontalScroll||info.heroLeft<0||info.heroRight>w+2)issues.push(v.label+": horizontal overflow "+JSON.stringify(info));
-   if(info.macroCards!==3||info.resources!==6||info.faq!==4||info.headings<5||!info.linksSafe||!info.scienceText)issues.push(v.label+": missing science content "+JSON.stringify(info));
+   if(info.macroCards!==3||info.resources!==7||info.faq!==4||info.headings<5||!info.linksSafe||!info.scienceText)issues.push(v.label+": missing science content "+JSON.stringify(info));
    const first=page.locator(".ns-faq details").first();
    await first.locator("summary").click();
    assert.ok(await first.getAttribute("open")!==null,v.label+": FAQ must expand with native control");

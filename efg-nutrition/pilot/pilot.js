@@ -1921,7 +1921,7 @@ function goalRevisionSection(latest){
 }
 
 /* Five-meal guide: draft only on coach until explicit approval; not a diary entry. */
-const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g";
+const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g · Fibra "+num(t.fi,1)+" g";
 function guidedTargetFeedback(deviations){
  const keys=["k","p","c","f"];
  const close=keys.every(k=>Number.isFinite(deviations[k]?.percent)&&Math.abs(deviations[k].percent)<=5);
@@ -1961,7 +1961,7 @@ function guidedDayContents(plan,goal,editable=false){
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
- '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
+ '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+

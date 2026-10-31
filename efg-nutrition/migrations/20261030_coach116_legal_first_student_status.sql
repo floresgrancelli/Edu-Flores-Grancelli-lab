@@ -63,7 +63,7 @@ begin
   where r.student_id=v_uid and r.organization_id=v_org
    and r.version='coach_pilot_2026_demo1'
    and r.acceptance_method='two_explicit_checkboxes'
-   and r.participation_accepted=true and r.sharing_accepted=true
+   and r.participation_accepted=true
    and r.accepted_at is not null and r.revoked_at is null
  ) into v_receipt;
  if not v_receipt then
@@ -75,8 +75,10 @@ begin
   select i.* into v_intake from public.efg_coach_relaunch_intakes i
    where i.student_id=v_uid and i.organization_id=v_org
      and i.completed_version='coach_major_2026_r1';
-  if not found or v_intake.shared_at is null or not v_follow_up then
+  if not found then
    v_route:='intake';
+  elsif v_intake.shared_at is null or not v_follow_up then
+   v_route:='private'; -- Own current intake saved, without coach sharing.
   else
    v_route:='review';
    select a.* into v_plan from public.efg_student_plan_access a

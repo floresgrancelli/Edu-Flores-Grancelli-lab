@@ -16,13 +16,16 @@ const rows={
  efg_payments:[{payer_id:id,created_at:'2026-10-30',amount_ars:5000,status:'pending'}]
 };
 const seen=[];
-const sb={from(table){
+let authId=id;
+let authReads=0;
+const sb={auth:{async getUser(){authReads++;return {data:{user:{id:authId}},error:null};}},from(table){
  const query={select(fields){seen.push({table,fields});return query},eq(key,value){assert.equal(value,id);assert.equal(key,table==='efg_payments'?'payer_id':table==='efg_profiles'?'user_id':'student_id');return query},
  order(){return query},limit(){return Promise.resolve({data:rows[table],error:null})},maybeSingle(){return Promise.resolve({data:rows[table],error:null})}};
  return query;
 }};
 const h=await loadCoachPrivateHistory(sb,{profile,userId:id,entry});
 assert.equal(seen.length,7);
+assert.equal(authReads,2,'Auth identity must be verified before and after the six SELECTs');
 assert.equal(seen[0].table,'efg_profiles');
 assert.equal(h.logs.length,1);
 const html=renderCoachPrivateHistory(h,{userId:id});
@@ -45,6 +48,19 @@ await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/
 rows.efg_profiles={...profile,role:'coach'};
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/perfil vigente/);
 rows.efg_profiles={...profile};
+authId=other;
+await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/sesión cambió/);
+authId=id;
+const switched={
+ ...sb,
+ from(table){
+  const query=sb.from(table);
+  if(table==='efg_payments')authId=other;
+  return query;
+ }
+};
+await assert.rejects(()=>loadCoachPrivateHistory(switched,{profile,userId:id,entry}),/sesión cambió/);
+authId=id;
 rows.efg_weights=[{student_id:other,kg:75}];
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/no autorizado/);
 // The pilot route must not accidentally expose editable diary or payment actions.
@@ -54,4 +70,4 @@ assert.match(ui,/renderCoachPrivateHistory\(state\.coachPrivateHistory,\{userId:
 assert.match(ui,/\["private","review"\]\.includes\(state\.coachPilotEntry\?\.route\)/);
 assert.match(ui,/\["history","⌂","Mi historial"\]/);
 assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
-console.log('PASS COACH-OPT-05: read-only private/review history, fresh server profile (inactive/transfer/role) checks, owner checks, escaped content and signed route integration');
+console.log('PASS COACH-OPT-05: read-only private/review history, fresh Auth identity pre/post reads and server profile (inactive/transfer/role) checks, owner checks, escaped content and signed route integration');

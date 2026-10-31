@@ -16,9 +16,10 @@ const sb={
  async rpc(method,params){
   if(method==='efg_accept_pilot_participation'){
    acceptCalls++;
-   assert.deepEqual(params,{p_version:version,p_participation:true,p_sharing:true});
+   assert.equal(typeof params.p_sharing,'boolean');
+   assert.deepEqual(params,{p_version:version,p_participation:true,p_sharing:params.p_sharing});
    receipt={student_id:studentA,organization_id:org,version,
-    participation_accepted:true,sharing_accepted:true,
+    participation_accepted:true,sharing_accepted:params.p_sharing,
     acceptance_method:'two_explicit_checkboxes',accepted_at:'2026-10-30T21:10:00Z',
     revoked_at:null,updated_at:'2026-10-30T21:10:00Z'};
    return {data:receipt.accepted_at,error:null};
@@ -33,14 +34,19 @@ const sb={
 };
 const choice={version,participationRequested:true,sharingRequested:true,persisted:false,legalAcceptance:false};
 await assert.rejects(acceptPilotParticipation(sb,choice),/clic explícito/);
-await assert.rejects(acceptPilotParticipation(sb,{...choice,sharingRequested:false},{explicitSubmit:true}),/dos autorizaciones/);
+await assert.rejects(acceptPilotParticipation(sb,{...choice,sharingRequested:null},{explicitSubmit:true}),/dos autorizaciones/);
 assert.equal(acceptCalls,0,'Unchecked or automatic accept must never send RPC');
 assert.equal((await loadPilotParticipationReceipt(sb)).accepted,false);
+const privateChoice={...choice,sharingRequested:false};
+const privateOk=await acceptPilotParticipation(sb,privateChoice,{explicitSubmit:true});
+assert.equal(privateOk.accepted,true);
+assert.equal(privateOk.sharingAccepted,false);
+assert.equal((await loadPilotParticipationReceipt(sb)).participation.sharing_accepted,false);
 const ok=await acceptPilotParticipation(sb,choice,{explicitSubmit:true});
 assert.equal(ok.accepted,true);
 assert.equal(ok.healthConsent,false);
 assert.equal(ok.legalAcceptance,false);
-assert.equal(acceptCalls,1);
+assert.equal(acceptCalls,2);
 const loaded=await loadPilotParticipationReceipt(sb,{expectedOrganizationId:org});
 await assert.rejects(loadPilotParticipationReceipt(sb,{expectedOrganizationId:studentB}),/otra organización/);
 assert.equal(loaded.accepted,true);
@@ -55,4 +61,4 @@ assert.equal(stopped.accepted,false);
 assert.equal(stopped.revoked,true);
 assert.equal((await loadPilotParticipationReceipt(sb)).accepted,false);
 assert.equal(revokeCalls,1);
-console.log('PASS COACH106: explicit two-checkbox server save/readback, session ownership, revoked access; hosted JWT A/B still required.');
+console.log('PASS COACH106: signed independent private/share decisions, owner readback, revocation; hosted staging still required.');

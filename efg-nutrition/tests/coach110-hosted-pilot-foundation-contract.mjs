@@ -14,7 +14,9 @@ for(const [name,sql] of Object.entries({receipt,intake,draft,access,notice})){
  assert.doesNotMatch(sql,/nut57_isolated_staging_marker/,'Do not execute staging-only scripts on hosted!');
  assert.doesNotMatch(sql,/\bdelete from public\.efg_(?:daily_logs|goals|habitual_meals|profiles)/i);
 }
-assert.match(receipt,/p_participation is distinct from true or p_sharing is distinct from true/);
+assert.match(receipt,/p_participation is distinct from true or p_sharing is null/);
+assert.doesNotMatch(receipt,/sharing_accepted boolean not null check \(sharing_accepted=true\)/);
+assert.match(intake,/Separate pilot coach-sharing permission required/);
 assert.match(receipt,/revoked_at=null/);
 assert.match(receipt,/auth\.uid\(\)/);
 assert.match(receipt,/revoke all on public\.efg_pilot_participation_receipts from public,anon,authenticated/);
@@ -38,4 +40,4 @@ assert.match(notice,/new\.shared_at is null then return new/);
 assert.match(notice,/r\.revoked_at is null/);
 assert.match(notice,/on conflict\(recipient_id,event_key\) do nothing/);
 assert.doesNotMatch(notice,/new\.conditions|new\.notes/,'No private health or notes in coach notification');
-console.log('PASS COACH106-110 hosted migration contracts: no historic mutation, pending-only access, role checks and explicit sharing. Not signed JWT E2E.');
+console.log('PASS COACH106-110 candidate migrations: private opt-out, explicit coach sharing, pending-only access and RLS; hosted staging not applied.');

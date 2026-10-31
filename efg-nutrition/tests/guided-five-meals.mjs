@@ -75,6 +75,14 @@ assert.equal(exampleEgg.qty,110,"Default breakfast must remain two eggs, not thr
 assert.ok(guidedFoodAlternatives("egg",catalog).includes("ham_cooked"),"Ham replacement must be offered");
 for(const alternative of ["egg_white","ham_cooked","turkey_breast_cooked","yogurt_greek_light","yogurt_high_protein","cottage_cheese","ricotta_light","tofu_firm","tempeh","whey_powder"]){
  const choice=swapGuidedFood(original,"desayuno",0,alternative,catalog);
+ // PRO22 source-specific macros, no mutation and same approved goal.
+ const replacement=catalog.find(item=>item.id===alternative);
+ assert.equal(choice.meals[0].items[0].p,replacement.p,"Replacement must use the selected food's actual protein data");
+ assert.equal(choice.meals[0].items[0].f,replacement.f,"Replacement must use the selected food's actual fat data");
+ assert.equal(original.meals[0].items[0].id,"egg","Protein swaps must NOT mutate the original plan");
+ assert.equal(original.meals[0].items[0].qty,110);
+ assert.notDeepEqual(guideTotals(choice).totals,guideTotals(original).totals,
+  "PRO22 source-specific macro totals must be recalculated after switching protein");
  const result=rebalanceGuidedDay(choice,goal);
  assert.equal(result.meals[0].items[0].id,alternative,"Must retain coach choice");
  assert.ok(result.meals[0].items[0].locked,"Coach food replacement must stay locked");

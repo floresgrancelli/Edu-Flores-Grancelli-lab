@@ -2,11 +2,17 @@ name: EFG Nutrition Supabase Auth local JWT/RLS QA (NUT-53; disposable)
 
 on:
   pull_request:
-    branches: [efg-nutrition-app]
+    branches: [efg-nutrition-app, efg-major-integration-20261029]
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - '.github/workflows/efg-nutrition-premium-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
+      - 'efg-nutrition/tests/coach119-signed-local-*.mjs'
+      - 'efg-nutrition/tests/helpers/coach119-local.mjs'
+      - 'efg-nutrition/tests/sql/coach119-signed-current-overlay.sql'
+      - 'efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'
+      - 'efg-nutrition/migrations/20261030_coach*.sql'
+      - 'efg-nutrition/migrations/20261031_coach*.sql'
       - 'efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs'
       - 'efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql'
       - 'efg-nutrition/migrations/20261030_coach_relaunch_general_pilot_intake.sql'
@@ -42,7 +48,7 @@ permissions:
 jobs:
   local-auth-rls:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node.js
@@ -268,13 +274,36 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
           node efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
+      - name: Start a FRESH disposable stack for CURRENT Coach119 integration
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/efg-nutrition-auth-local"
+          supabase stop --no-backup
+          mkdir -p "$RUNNER_TEMP/efg-nutrition-coach119-local"
+          cd "$RUNNER_TEMP/efg-nutrition-coach119-local"
+          supabase init --yes
+          supabase start
+          supabase status -o env > /tmp/efg-nutrition-coach119-local-status.env
+      - name: Assemble exact CURRENT Coach candidate modules (fresh LOCAL only)
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-coach119-local-status.env
+        run: |
+          node --check efg-nutrition/tests/coach119-signed-local-setup.mjs
+          node efg-nutrition/tests/coach119-signed-local-setup.mjs
+      - name: CURRENT signed JWT full circuit new/returning students and two organizations
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-coach119-local-status.env
+        run: |
+          node --check efg-nutrition/tests/coach119-signed-local-e2e.mjs
+          node efg-nutrition/tests/coach119-signed-local-e2e.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |
-          if command -v supabase >/dev/null 2>&1 && [ -d "$RUNNER_TEMP/efg-nutrition-auth-local/supabase" ]; then
-            cd "$RUNNER_TEMP/efg-nutrition-auth-local"
-            supabase stop --no-backup || true
-          fi
+          for local_stack in "$RUNNER_TEMP/efg-nutrition-auth-local" "$RUNNER_TEMP/efg-nutrition-coach119-local"; do
+            if command -v supabase >/dev/null 2>&1 && [ -d "$local_stack/supabase" ]; then
+              (cd "$local_stack" && supabase stop --no-backup) || true
+            fi
+          done
       - name: Document limitations
         if: always()
         run: |

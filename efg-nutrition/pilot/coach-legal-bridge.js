@@ -21,7 +21,8 @@ function normalizeDocuments(rows,status){
  return status.map(x=>{
   const row=byId.get(x.document_id);
   if(!row||row.kind!==x.kind||row.version!==x.version||row.sha256!==x.sha256||
-    row.is_current!==true||typeof row.published_at!=="string"||!Number.isFinite(Date.parse(row.published_at))||typeof row.body!=="string"||row.body.trim().length<300)
+    row.is_current!==true||typeof row.published_at!=="string"||!Number.isFinite(Date.parse(row.published_at))||typeof row.body!=="string"||row.body.trim().length<300||
+     /\[(?:PENDIENTE|POR COMPLETAR)[^\]]*\]|BORRADOR\s+NO\s+PUBLICAR|NO\s+EN\s+VIGENCIA/i.test(row.body))
    throw Error("La versión legal publicada no coincide con la versión activa.");
   return {kind:row.kind,id:row.id,version:row.version,sha256:row.sha256,
    status:"published",sections:[{heading:row.kind==="terms"?

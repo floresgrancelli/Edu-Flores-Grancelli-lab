@@ -52,5 +52,7 @@ await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,
 const beforeDenied=nRPC;
 await assert.rejects(loadCoachPilotGeneralIntake(fake({signed:org}),{profile}),/identidad/);
 await assert.rejects(loadCoachPilotGeneralIntake(fake({pilot:{...receipt,revoked_at:'2026-10-30T16:00:00Z'}}),{profile}),/dos opciones/);
+await assert.rejects(loadCoachPilotGeneralIntake(fake({pilot:{...receipt,organization_id:uid}}),{profile}),/otra organización/,
+ 'Receipt of a previous organization must never authorize the current intake.');
 assert.equal(nRPC,beforeDenied,'Denied or revoked user cannot submit.');
 console.log('PASS COACH112: two real pilot decisions, owner-only general intake, keto/16:8, revisions and share revoke; sensitive keys denied.');

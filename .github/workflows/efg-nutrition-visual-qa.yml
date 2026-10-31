@@ -36,6 +36,8 @@ jobs:
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: New pilot privacy and versioned intake in actual app (isolated Chromium)
+        run: node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
       - name: BRAND-78 public wordmark responsive Chromium (synthetic)
         run: node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
       - name: BRAND77B illustrated intro + vertical library Chromium, Android and desktop (synthetic)
@@ -68,6 +70,8 @@ jobs:
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: New pilot privacy and versioned intake in actual app (isolated WebKit)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
       - name: BRAND-78 public wordmark responsive WebKit Safari (synthetic)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
       - name: BRAND77B illustrated intro Safari/WebKit and vertical library (synthetic)

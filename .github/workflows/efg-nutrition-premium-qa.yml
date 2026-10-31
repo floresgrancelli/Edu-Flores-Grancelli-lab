@@ -23,10 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure Node.js
+        id: node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Validate JavaScript module syntax
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/pilot.js
           node --check efg-nutrition/tests/premium-ui-smoke.mjs
@@ -41,78 +43,100 @@ jobs:
           node --check efg-nutrition/pilot/fit-recipes.js
           node --check efg-nutrition/pilot/fit-recipe-illustrations.js
       - name: CLIN-01 conservative restriction colours, no unsourced green or medical claims (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/dietary-traffic-light.js
           node efg-nutrition/tests/dietary-traffic-light-contract.mjs
           node --check efg-nutrition/pilot/gut-clinical-workbench.js
           node efg-nutrition/tests/gut-clinical-workbench.mjs
       - name: Shared food compatibility evidence contracts
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/food-compatibility.mjs
       - name: COACH101 real meal semaforo with reviewed Supabase evidence (offline fixtures)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/food-compatibility-adapter.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs
       - name: COACH105 Android pull-to-refresh Gboard, habitual visibility and keto fasting guardrails (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
           node efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
       - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
       - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
       - name: COACH105 keto DASH Portfolio and fasting 12 12, 14 10, 16 8 UI SQL and nutrient targets (synthetic)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach105-patterns-fasting-e2e-contract.mjs
       - name: Validate role-specific UX contracts
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
       - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/brand-con-ciencia-surface-contract.mjs
       - name: BRAND77B eight-step intro, user-scoped receipts and vertical library (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/science-welcome.js
           node efg-nutrition/tests/science-welcome-contract.mjs
       - name: EDUCATION-01 evidence-based macro lessons for BOTH coach and student (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js
           node efg-nutrition/tests/nutrition-science-education.mjs
       - name: PRO50 uninvited login help and no account enumeration (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/pro50-uninvited-access.mjs
       - name: PRO-50 private-access feedback without account enumeration (STATIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/pro50-access-feedback.mjs
           node efg-nutrition/tests/pro50-access-feedback.mjs
       - name: 01-01 reingreso Coach alumno nuevo y existente, históricos preservados (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/release-01-01-new-returning-students.mjs
           node efg-nutrition/tests/release-01-01-new-returning-students.mjs
       - name: REL-ALL dated contract 55 mandatory commitments and GO guardrails (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/release-contract-20261030.mjs
           node efg-nutrition/tests/release-contract-20261030.mjs
       - name: PRO-60 monthly ñoquis 29, 72 illustrated daily tips and gated action (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/nutrition-daily-tip.js
           node efg-nutrition/tests/nutrition-daily-tip.mjs
       - name: NUT-58 PWA visible manual upgrade, no automatic reload while editing
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/version-notice.js
           node efg-nutrition/tests/version-notice-opt-in.mjs
       - name: COACH122 two-device session cutover proof; no stale second-device bypass
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach122-major-per-device-cutover.mjs
       - name: COACH120-121 hosted signed major manifest + new OTP session + legal + once-only WhatsNew (OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/major-release-client.js
           node efg-nutrition/tests/coach120-major-release-contract.mjs
       - name: UX35 signed MAJOR reauth adapter remains OFF until hosted release receipts
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/major-release-reauth-client.js
           node efg-nutrition/tests/ux35-major-release-reauth-client.mjs
       - name: UX35 major release exceptional; minor version silent and explicit mobile logout
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/logout-session.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/ux35-session-release-contract.mjs
       - name: REPORT-LUX weekly student view, editable draft, history, no automatic clinical or reward claims (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/weekly-luxury-report.js
           node --check efg-nutrition/pilot/pilot.js
@@ -121,172 +145,227 @@ jobs:
           node efg-nutrition/tests/weekly-report-reply-to-coach.mjs
           node efg-nutrition/tests/weekly-luxury-integration-contract.mjs
       - name: Check Friday, notifications, messages and per-user security contracts
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/notifications-messages.mjs
       - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/ux-sprint1.mjs
       - name: Coach new arrivals role-safe navigation and honest status states
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-intake-nav.mjs
       - name: Coach voluntary intake and publication gate draft contracts
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
       - name: SEC08 hosted-readonly privilege inventory and mandatory release gate remain protected
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/sec08-live-security-contract.mjs
           node efg-nutrition/tests/sec08-live-security-contract.mjs
       - name: COACH-68 versioned intake revision on all draft/policy/publish SQL (STATIC ONLY)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-plan-draft-client.js
           node efg-nutrition/tests/coach68-versioned-server-contract.mjs
       - name: COACH-67 published legal content, consent and server readback (OFF, SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-legal-bridge.js
           node efg-nutrition/tests/coach-legal-bridge.mjs
       - name: COACH-67 parse disabled legal bridge (STATIC, NO LEGAL GO)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node --check efg-nutrition/pilot/coach-legal-bridge.js
       - name: COACH98 provisional pilot participation demo, no fake legal consent (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/pilot-participation-demo.js
           node efg-nutrition/tests/coach98-pilot-participation-demo.mjs
       - name: COACH106 real pilot two-checkbox server receipt adapter and revoke (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/pilot-participation-client.js
           node efg-nutrition/tests/coach106-pilot-participation-client.mjs
       - name: COACH106-110 hosted additive participation, general intake, coach draft, pending and notice (STATIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach110-hosted-pilot-foundation-contract.mjs
       - name: COACH111 signed hosted entry status + client fail-closed (STATIC/OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-pilot-entry-client.js
           node efg-nutrition/tests/coach111-hosted-entry-client.mjs
       - name: New student journey and Coach versioned backend integration (isolated modules)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-versioned-journey-integration.mjs
       - name: COACH119 atomic publication NOT APPLIED, reviewed food/legal prerequisites and no legacy privilege revocation
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach119-atomic-candidate-contract.mjs
       - name: COACH118 default-OFF server student diary write gate and historical compatibility
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-disabled-diary-write-gate.mjs
       - name: COACH115-117 signed versioned legal receipts and legal-first pilot entry (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-pilot-legal-client.js
           node efg-nutrition/tests/coach115-117-legal-hosted-contract.mjs
       - name: COACH112 signed pilot general intake and explicit sharing (MOCK ONLY)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-pilot-intake-client.js
           node efg-nutrition/tests/coach112-pilot-general-intake.mjs
       - name: COACH114 private reviewed source prerequisite for atomic guides (STATIC; UNSEEDED)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach114-reviewed-guide-source-contract.mjs
       - name: COACH118 staging-only signed diary DML gate (NOT APPLIED)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-diary-write-gate-staging-contract.mjs
       - name: COACH113 signed pilot 2-checkbox, general intake and waiting messages UI (OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach113-pilot-ui-route-contract.mjs
       - name: COACH113 signed pilot UI screens, pending coach and safe caches (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach113-pilot-ui-integration.mjs
       - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-student-journey.js
           node efg-nutrition/tests/coach100-student-journey.mjs
       - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-release-plan-gate.js
           node efg-nutrition/tests/coach-release-plan-gate.mjs
       - name: COACH-RELAUNCH pilot student intake version and legal first (DRAFT, OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-relaunch-onboarding.js
           node efg-nutrition/tests/coach-relaunch-onboarding.mjs
       - name: COACH-RELAUNCH fresh intake form client and legal-first readback (OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-relaunch-entry-client.js
           node efg-nutrition/tests/coach-relaunch-entry-client.mjs
       - name: Coach intake to calculator prefill and safe five-meal preview
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-intake-prefill.js
           node --check efg-nutrition/pilot/pilot.js
           node efg-nutrition/tests/coach-intake-prefill.mjs
       - name: Prevent goals from becoming active before approved Coach guides (synthetic)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-goal-write-gate.js
           node efg-nutrition/tests/coach-goal-write-gate.mjs
       - name: Verify OFF-by-default Coach staged draft adapter and anti-bypass (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-plan-draft-client.mjs
       - name: NUT-50 complete intake to real calculator to five meals, exact private revision (SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-draft-review.js
           node efg-nutrition/tests/coach-plan-flow-nut50.mjs
       - name: COACH-RELEASE-REV-01 same-timestamp intake edit denies stale diet guide (SYNTHETIC, OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/coach-draft-review.js
           node efg-nutrition/tests/coach-release-intake-revision.mjs
       - name: Verify staging-only Coach drafts SQL contract (NO database connection)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-plan-draft-staging-contract.mjs
       - name: Verify staging-only atomic Coach publication contract (NO database connection)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-plan-atomic-publish-contract.mjs
       - name: NUT-57 integrated one-transaction STAGING preview, mandatory ROLLBACK (STATIC ONLY)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/tests/nut57-staging-bundle.mjs
           node --check efg-nutrition/tests/nut57-staging-bundle-contract.mjs
           node efg-nutrition/tests/nut57-staging-bundle-contract.mjs
       - name: Verify server-owned food evidence and legal policy contract (STATIC; NO database)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach-publication-evidence-policy-contract.mjs
       - name: Verify legal onboarding draft (isolated; NO production legal gate)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/legal-onboarding.js
           node efg-nutrition/tests/legal-onboarding-draft.mjs
       - name: NUT-60 Personal read-only and independent role isolation (SYNTHETIC, OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/personal-workspace.js
           node efg-nutrition/tests/personal-workspace-readonly.mjs
       - name: NUT-61 Personal intake voluntary health screening (SYNTHETIC; OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/personal-intake-draft.js
           node efg-nutrition/tests/personal-intake-draft.mjs
       - name: NUT-60 Personal five-meal group and prepared dish draft (OFF, SYNTHETIC)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/personal-meal-draft.js
           node efg-nutrition/tests/personal-meal-draft.mjs
       - name: NUT-62 Personal intake to Mifflin preview, exact five-meal split (SYNTHETIC, OFF)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/personal-planning-preview.js
           node efg-nutrition/tests/personal-planning-preview.mjs
       - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/serotonin-brand-loading.mjs
       - name: Verify major release messages for every role (offline, NO live delivery)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/release-communications.js
           node efg-nutrition/tests/release-communications-draft.mjs
           node efg-nutrition/tests/release-flow.mjs
       - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/food-catalog-expansion.mjs
       - name: Validate expanded Argentine foods, sushi, pizza and sweets
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/food-library-expansion.mjs
       - name: Verify 9 regional recipe models and 6 manufacturer nutrition labels
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/regional-catalog-phase2.mjs
       - name: Check photo labels supplied by user (draft catalog only)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/user-photo-labels-20261028.mjs
       - name: Validate phase 3 pastel preview contracts (no live data)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/pastel-phase3-preview.mjs
       - name: SPORT-STEP pace-aware walking km and active kcal, same student RLS (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/walking-steps-estimator.js
           node --check efg-nutrition/pilot/walking-activity-ui.js
           node efg-nutrition/tests/sport-step-walking-estimator.mjs
       - name: Check one ±5% weekly track, 6/6 reward and discretionary Sunday
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/weekly-consistency.mjs
       - name: Verify guided main-meal picker, mixed dishes, skip and unchanged snacks
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/guided-meal-picker.js
           node efg-nutrition/tests/guided-meal-picker.mjs
       - name: Verify scientific macro engine for men and women
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/scientific-macros.mjs
       - name: Verify guided five-meal day and baseline
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/guided-five-meals.mjs
       - name: Verify real-data chart calculations
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/premium-progress-charts.mjs
       - name: Verify Fit recipes and payment workflow
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/fit-recipes-payments.mjs
       - name: Verify all 12 photo sources are reachable (HTTP image responses)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/fit-photo-live.mjs
       - name: Require real mobile and privacy checks before release
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           echo "Static gate only: NOT permission to deploy."
           echo "Manual iPhone/Android screenshots and Supabase E2E remain required."

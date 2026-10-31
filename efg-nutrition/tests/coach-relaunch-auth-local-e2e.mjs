@@ -81,6 +81,15 @@ assert.equal(owner.length,1);
 assert.equal(owner[0].revision,1);
 assert.equal(owner[0].completed_version,version);
 assert.equal(owner[0].shared_at,null);
+const receiptRead=token=>request("/rest/v1/efg_pilot_participation_receipts?select=student_id,organization_id,version,sharing_accepted",{token});
+yes(await rpc("efg_accept_pilot_participation",people.studentA.token,{
+ p_version:"coach_pilot_2026_demo1",p_participation:true,p_sharing:true
+}),"Student explicitly accepts pilot choices");
+assert.equal(yes(await receiptRead(people.studentA.token),
+ "Student can read own versioned pilot receipt").length,1);
+assert.deepEqual(yes(await receiptRead(people.studentB.token),
+ "Another student cannot read pilot receipt"),[]);
+
 assert.deepEqual(yes(await read(people.coachA.token),"No coach reading private intake"),[]);
 assert.deepEqual(yes(await read(people.coachB.token),"Other organization never reads"),[]);
 assert.deepEqual(yes(await read(people.studentB.token),"Other student never reads"),[]);
@@ -92,12 +101,18 @@ sql("update public.efg_profiles set organization_id="+uuid(orgB)+
  " where user_id="+uuid(people.studentA.id));
 assert.deepEqual(yes(await read(people.studentA.token),
  "Transferred student cannot read private intake from former organization"),[]);
+assert.deepEqual(yes(await receiptRead(people.studentA.token),
+ "Transferred student cannot read former organization pilot receipt"),[]);
+
 assert.deepEqual(yes(await read(people.coachB.token),
  "New organization coach cannot inherit former private intake"),[]);
 sql("update public.efg_profiles set organization_id="+uuid(orgA)+
  " where user_id="+uuid(people.studentA.id));
 assert.equal(yes(await read(people.studentA.token),
  "Returning to original organization restores access to unchanged intake").length,1);
+assert.equal(yes(await receiptRead(people.studentA.token),
+ "Returning to original organization restores receipt visibility").length,1);
+
 
 sql("update public.efg_profiles set active=false where user_id="+uuid(people.studentA.id));
 assert.deepEqual(yes(await read(people.studentA.token),

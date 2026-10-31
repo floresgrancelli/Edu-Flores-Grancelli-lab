@@ -36,6 +36,8 @@ jobs:
           node efg-nutrition/tests/premium-progress-charts.mjs
           node efg-nutrition/tests/fit-recipes-payments.mjs
           node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: BRAND-78 public wordmark responsive Chromium (synthetic)
+        run: node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
       - name: BRAND77B illustrated intro + vertical library Chromium, Android and desktop (synthetic)
         run: node efg-nutrition/tests/science-welcome-visual-qa.mjs
       - name: EDUCATION-02 science screen responsive Chromium and Android (synthetic, no production)
@@ -66,6 +68,8 @@ jobs:
         run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: BRAND-78 public wordmark responsive WebKit Safari (synthetic)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
       - name: BRAND77B illustrated intro Safari/WebKit and vertical library (synthetic)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/science-welcome-visual-qa.mjs
       - name: EDUCATION-02 science screen Safari/WebKit responsive (synthetic)

@@ -24,3 +24,7 @@ El perfil almacenado en memoria al iniciar sesión puede quedar obsoleto si un a
 5. No habilitar flags, publicar, fusionar, contratar ni cambiar usuarios reales sin autorización GO expresa.
 
 **Alcance real:** se añadió una ruta de consulta histórica a la candidata. No implica que el relanzamiento o las 55 mejoras estén terminados.
+
+## COACH-OPT-07 · Identidad Auth vigente y cambio de sesión durante lectura · 31/10/2026
+
+Se detectó un segundo riesgo de contexto obsoleto: el chequeo de perfil vigente de COACH-OPT-06 no comprobaba explícitamente que el JWT actual de Supabase Auth siguiera correspondiendo al usuario que inició la consulta. En una PWA puede producirse un cambio de sesión durante las seis lecturas asíncronas. **Corrección solo candidata:** `loadCoachPrivateHistory` exige `sb.auth.getUser()` y comprueba el UUID autenticado **antes** de consultar el perfil y **después** de terminar las seis consultas; si falta Auth, devuelve error, cambia el usuario o falla la verificación, no entrega historial. Pruebas sintéticas cubren usuario incorrecto inicial y cambio de identidad durante las lecturas. Esto no sustituye RLS, JWT A/B en staging fiel ni revocación inmediata de tokens. La ruta permanece OFF; no se tocó producción.

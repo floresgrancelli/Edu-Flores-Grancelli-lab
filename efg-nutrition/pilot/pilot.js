@@ -746,7 +746,7 @@ function welcomeView(){
  root.innerHTML='<div class="efg-onboard" role="main" aria-labelledby="efg-onboard-heading">'+
   '<section class="efg-onboard-sheet">'+
    '<header class="efg-onboard-brand"><img class="efg-onboard-leaf efg-onboard-serotonin" src="./assets/serotonina-acuarela.avif" width="70" height="42" alt="" aria-hidden="true">'+
-    '<strong>EFG</strong><small>NUTRITION PRO</small></header>'+
+    '<strong>Nutrición Con-Ciencia</strong><small>PRO · PRIVADO</small></header>'+
    '<div class="efg-onboard-photo" role="img" aria-label="Bol de vegetales frescos, palta, tomate, zanahoria, hojas verdes y cereales"></div>'+
    '<div class="efg-onboard-copy">'+
     '<h1 id="efg-onboard-heading">Hoy comienza una <em>nueva forma de cuidarte.</em></h1>'+

@@ -45,6 +45,8 @@ const mustDeny=[
  [{plan:{...plan,organization_id:uid}},'review'],
  [{guide:null},'review'],
  [{guide:{...guide,guided_goal_id:uid}},'review'],
+ [{guide:{...guide,organization_id:uid}},'review'],
+ [{guide:{...guide,organization_id:org}},'ready'],
  [{guide:{...guide,guided_plan_approved_at:'2026-10-30T10:00:00Z'}},'review'],
  [{profile:{...profile,active:false}},'verify'],
  [{profile:{...profile,role:'coach'}},'verify']

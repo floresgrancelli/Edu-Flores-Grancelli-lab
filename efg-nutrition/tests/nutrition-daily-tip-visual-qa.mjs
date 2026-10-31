@@ -22,9 +22,11 @@ try{
    page.on("pageerror",err=>failures.push(v.name+": "+err.message));
    // Explicit photograph placeholder only in CI. Source image URL and licensing
    // were independently confirmed; do not introduce external network dependency.
+   // A verified 8×8 PNG fixture removes flaky third-party image loading from CI.
+   // Real Unsplash photo URL/attribution is checked separately.
+   const png=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8uiCNARtgwio6aCUAdugB68GFYBwAAAAASUVORK5CYII=","base64");
    await page.route("https://images.unsplash.com/**",route=>route.fulfill({
-    status:200,contentType:"image/svg+xml",
-    body:'<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640"><defs><linearGradient id="a"><stop stop-color="#d4a575"/><stop offset="1" stop-color="#778e72"/></linearGradient></defs><rect width="960" height="640" fill="url(#a)"/><circle cx="480" cy="280" r="205" fill="#efe6d2"/><circle cx="480" cy="280" r="160" fill="#c47842"/></svg>'
+    status:200,contentType:"image/png",body:png
    }));
    for(const {label,date,unlocked} of [
     {label:"29-gnocchi",date:new Date("2026-10-29T15:00:00Z"),unlocked:false},

@@ -75,7 +75,7 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js
           node efg-nutrition/tests/nutrition-science-education.mjs
-      - name: REL-ALL dated contract 51 mandatory commitments and GO guardrails (OFFLINE)
+      - name: REL-ALL dated contract 54 mandatory commitments and GO guardrails (OFFLINE)
         run: |
           node --check efg-nutrition/tests/release-contract-20261030.mjs
           node efg-nutrition/tests/release-contract-20261030.mjs

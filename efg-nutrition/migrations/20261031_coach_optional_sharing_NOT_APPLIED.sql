@@ -113,9 +113,9 @@ begin
   select 1 from public.efg_pilot_participation_receipts r
   where r.student_id=v_uid and r.organization_id=v_org
    and r.version='coach_pilot_2026_demo1' and r.participation_accepted
-   and r.sharing_accepted and r.revoked_at is null
+   and r.revoked_at is null
  ) then
-  raise exception 'Current pilot participation and sharing permission required'
+  raise exception 'Current pilot participation required'
    using errcode='42501';
  end if;
  -- Reject unknown and sensitive keys even if a future browser has extra fields.

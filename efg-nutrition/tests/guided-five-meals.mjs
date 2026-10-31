@@ -150,6 +150,6 @@ assert.equal(guideDeviation(fiberPlan,{...goal,fiber_g:0}).fi.percent,null,
  "No fiber target means no fabricated percentage of goal.");
 const readFileSync=(await import("node:fs")).readFileSync;
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
-assert.match(app,/Fibra.*data-guidedeviations|data-guidedeviations[\\s\\S]*?deviations\\.fi/,
+assert.ok(app.includes("data-guidedeviations")&&app.includes("deviations.fi.target>0"),
  "Coach five-meal guide must display the fiber deviation.");
 console.log("PASS: real-food swaps, bounded portions and different calorie targets.");

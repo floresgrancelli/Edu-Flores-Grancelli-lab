@@ -715,3 +715,15 @@ body .pilot-layout .efg-habitual-preview-note{
  body .pilot-layout .efg-habitual-preview-foods li{font-size:12px;gap:7px}
  body .pilot-layout .efg-habitual-food-qty{font-size:12px}
 }
+
+/* BRAND-78 · A longer PUBLIC name must wrap without altering the login,
+   DOM identifiers, JavaScript state, or private database/storage keys. */
+.efg-onboard-brand strong{
+ font-size:clamp(23px,3.1vw,37px)!important;
+ line-height:1.12!important;
+ letter-spacing:-.035em!important;
+ max-width:100%;
+ white-space:normal;
+ overflow-wrap:break-word;
+ text-wrap:balance;
+}

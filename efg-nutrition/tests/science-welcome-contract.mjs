@@ -8,6 +8,14 @@ assert.equal(SCIENCE_WELCOME_ENABLED,false);
 assert.equal(SCIENCE_STEPS.length,8);
 const panels=sciencePanels();
 assert.equal(panels.length,8);
+assert.match(panels[3],/¿Por qué importa moverse\?/);
+assert.match(panels[3],/Caminar, bailar, andar en bicicleta/);
+assert.match(renderScienceVerticalView(),/¿Por qué importa moverse\?/);
+assert.match(renderScienceVerticalView(),/https:\/\/www\.who\.int\/news-room\/fact-sheets\/detail\/physical-activity/);
+const eduSource=readFileSync(new URL("../pilot/nutrition-science.js",import.meta.url),"utf8");
+assert.doesNotMatch(eduSource,/EFG LAB · APRENDÉ/,"Former visible laboratory brand");
+assert.match(eduSource,/NUTRICIÓN CON-CIENCIA · APRENDÉ EN 5 MINUTOS/);
+
 const texts=["Nutrición","¿Qué son las calorías?","Los tres macros",
  "¿Por qué importa la proteína","¿Más proteínas que grasas?",
  "Los hidratos no son el villano","Cómo combinar tus alimentos","Más que nutrición"];

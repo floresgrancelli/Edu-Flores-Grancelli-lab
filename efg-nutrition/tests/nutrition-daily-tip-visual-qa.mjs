@@ -31,7 +31,9 @@ try{
     {label:"ordinary",date:new Date("2026-10-30T15:00:00Z"),unlocked:true}
    ]){
     await page.setContent('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://fixture.test/"><style>body{margin:0;background:#e9e8e4;padding:clamp(10px,3vw,24px);font:16px system-ui,sans-serif}main{max-width:1200px;margin:auto}'+css+'</style></head><body><main>'+nutritionTipCardHTML({now:date,allowExplore:unlocked})+'</main></body></html>',{waitUntil:"load"});
-    // Lazy image loading does not block the page load event. Wait for decode before QA.\n    await page.locator(".efg-daily-tip-photo").evaluate(img=>img.decode());\n    const info=await page.evaluate(()=>{
+    // Lazy images do not block page load. Decode before asserting. 
+    await page.locator(".efg-daily-tip-photo").evaluate(img=>img.decode());
+    const info=await page.evaluate(()=>{
      const panel=document.querySelector(".efg-daily-tip"),img=panel?.querySelector("img"),
       link=panel?.querySelector("a"),btn=panel?.querySelector("button");
      const rect=panel?.getBoundingClientRect(),styles=panel?getComputedStyle(panel):null;

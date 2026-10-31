@@ -185,4 +185,27 @@ assert.equal(exec("select has_table_privilege('anon','efg_private.coach_guide_hi
 exec(`delete from public.efg_profiles where user_id='${student}'`);
 assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
  'Approved deletion of student must remove private historic rows as well');
+// Legal gate: run the exact candidate SELECT against disposable PostgreSQL.
+// Two distinct Terms documents must never substitute for a Privacy acceptance.
+const legalMatch=source.match(/select pg_catalog\\.count\\(distinct d\\.kind\\) into v_legal_count\\s+([\\s\\S]*?);\\s*if v_legal_count<>2/);
+assert.ok(legalMatch,'Exact COACH119 two-kind legal query unavailable');
+const legalQuery='select pg_catalog.count(distinct d.kind) '+legalMatch[1]+';';
+exec(`create table public.efg_legal_documents(
+ id integer primary key,kind text not null,is_current boolean not null,
+ published_at timestamptz,sha256 text not null,body text not null);
+create table public.efg_legal_acceptances(document_id integer not null,user_id uuid not null);
+insert into public.efg_legal_documents(id,kind,is_current,published_at,sha256,body)
+values
+ (1,'terms',true,now(),encode(sha256(convert_to('terms A','UTF8')),'hex'),'terms A'),
+ (2,'terms',true,now(),encode(sha256(convert_to('terms B','UTF8')),'hex'),'terms B'),
+ (3,'privacy',true,now(),encode(sha256(convert_to('privacy','UTF8')),'hex'),'privacy');
+insert into public.efg_legal_acceptances(document_id,user_id)
+values (1,'${student}'),(1,'${coach}'),(2,'${student}'),(2,'${coach}');`);
+assert.equal(exec(legalQuery),'1','Two accepted Terms cannot pass without Privacy');
+exec(`insert into public.efg_legal_acceptances(document_id,user_id)
+ values (3,'${student}'),(3,'${coach}');`);
+assert.equal(exec(legalQuery),'2','Both distinct kinds accepted by student and coach pass');
+exec("update public.efg_legal_documents set sha256='invalid' where id=3");
+assert.equal(exec(legalQuery),'1','Tampered Privacy hash must invalidate legal gate');
+
 console.log('PASS COACH119 REAL PG17: new-student full catalog + reviewed/expired/missing/duplicate denials, approved guide archive, food changes, no duplicates, rollback, anon/auth deny, authorized student deletion; ONLY synthetic fixtures.');

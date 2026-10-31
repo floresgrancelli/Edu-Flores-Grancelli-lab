@@ -67,8 +67,10 @@ rev=2;
 const updated=await enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:1});
 assert.equal(updated.revision,2);
 assert.equal(calls[1].payload.p_expected_revision,1);
-invalidRevisionResponse=true;
-await assert.rejects(()=>enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:2}),/revisión de borrador inválida/);
+for(const invalid of [true,"", " 2", "2.0", "1e2"]){
+ invalidRevisionResponse=invalid;
+ await assert.rejects(()=>enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:2}),/revisión de borrador inválida/);
+}
 invalidRevisionResponse=null;
 const before=calls.length;
 await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:REQ}),/aprobación explícita/);

@@ -14,6 +14,15 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
     entry?.participationConfirmed!==true||entry?.canLogMeals!==false)
   throw Error('No se pudo verificar el permiso de lectura histórica.');
  if(typeof sb?.from!=='function')throw Error('No se pudo consultar el historial.');
+ // A signed entry and a profile loaded at login can become stale after an
+ // admin deactivates/transfers a student in another session. Re-read the
+ // current server-owned profile before any historical SELECT; fail closed.
+ const current=await sb.from('efg_profiles').select('user_id,role,active,organization_id')
+  .eq('user_id',userId).maybeSingle();
+ if(current?.error||!current?.data||current.data.user_id!==userId||
+    current.data.role!=='student'||current.data.active!==true||
+    current.data.organization_id!==profile.organization_id)
+  throw Error('No se pudo verificar el perfil vigente para leer el historial.');
  const own=(table,fields,key='student_id')=>sb.from(table).select(fields).eq(key,userId);
  // Every query is read-only and scoped to the signed owner. RLS is still
  // authoritative. No service role, raw Storage URL, clinical or cross-org data.

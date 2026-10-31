@@ -14,7 +14,7 @@ assert.match(ui,/state\.tab="messages";await render\(\)/);
 assert.match(ui,/submitCoachPilotGeneralIntake\(sb,\{profile:state\.profile,payload:data\.payload/);
 assert.match(ui,/expectedRevision:state\.coachPilotIntake\?\.revision\?\?0/);
 assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
-assert.match(ui,/if\(!\["ready","review"\]\.includes\(state\.coachPilotEntry\.route\)\)\{await render\(\);return;\}/);
+assert.match(ui,/if\(!\["ready","review","private"\]\.includes\(state\.coachPilotEntry\.route\)\)\{await render\(\);return;\}/);
 assert.match(ui,/if\(state\.tab==="nutritionScience"\)frame\(renderScienceVerticalView\(\)\)/,
  'Waiting pupil has access to approved science library without unlocking diaries');
 const server=renderPilotParticipationNotice({serverReceipts:true});

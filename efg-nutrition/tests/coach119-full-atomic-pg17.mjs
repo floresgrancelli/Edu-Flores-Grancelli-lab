@@ -36,6 +36,12 @@ create trigger trg_efg_notify_food_guide after insert or update on public.efg_fo
 grant usage on schema efg_private to authenticated;
 grant select on public.efg_consents,public.efg_coach_relaunch_intakes,public.efg_pilot_participation_receipts to authenticated;`);
 for(const f of ['20261030_coach115_versioned_legal_documents_receipts.sql','20261030_coach_versioned_private_plan_drafts.sql','20261030_coach_reviewed_guide_nutrition_source.sql'])sql(read('../migrations/'+f));
+// The current candidate repairs Coach draft SELECT using the actual existing
+// receipt authorization helper, not public visibility of owner-only receipts.
+const sharedIntake=read('../migrations/20261030_coach_relaunch_general_pilot_intake.sql');
+const shareHelper=sharedIntake.match(/create or replace function efg_private\.coach_pilot_share_active\([\s\S]*?\$share\$;/);
+assert.ok(shareHelper,'Exact current sharing helper required by atomic candidate');
+sql(shareHelper[0]);
 // Reproduce the installed broken constraint on the empty fixture, then test
 // the exact additive repair separately from a clean-schema installation.
 sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check; alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check check(source_url ~ '^https://[^[:space:]]{8,1990}$')");

@@ -2,12 +2,14 @@ name: EFG Nutrition Coach Atomic PostgreSQL QA (ephemeral, synthetic claims)
 
 on:
   pull_request:
-    branches: [efg-nutrition-app]
+    branches: [efg-nutrition-app, efg-major-integration-20261029]
     paths:
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
       - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/sql/**'
+      - 'efg-nutrition/tests/coach119-*.mjs'
+      - 'efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'
       - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
       - 'efg-nutrition/tests/nut57-*.mjs'
       - 'efg-nutrition/scripts/coach-release-bundle.mjs'

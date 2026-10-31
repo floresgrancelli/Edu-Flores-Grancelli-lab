@@ -4,8 +4,9 @@
 import assert from 'node:assert/strict';
 import {randomBytes, randomUUID} from 'node:crypto';
 import {localContext, literal as q, yes, denied} from './helpers/coach119-local.mjs';
+import {createCoachPlanDraftClient} from '../pilot/coach-plan-draft-client.js';
 
-const {sql, request, rpc} = localContext();
+const {sql, request, rpc, asClient} = localContext();
 assert.equal(sql("select local_only from efg_private.nut57_isolated_staging_marker"), 't');
 assert.equal(sql('select count(*) from auth.users'), '0', 'Run only after fresh current-candidate setup');
 const suffix = randomBytes(5).toString('hex');
@@ -122,7 +123,11 @@ const draftBody = (student, intake, expected = null, g = goal, menu = guide()) =
   p_expected_revision: expected
 });
 const save = (actor, body) => rpc('efg_save_coach_plan_draft', actor.token, body);
-assert.equal(Number(yes(await save(users.coachA, draftBody(users.newA, intakeA)), 'Coach A saves current draft')), 1);
+const clientA = createCoachPlanDraftClient({sb: asClient(users.coachA), enabled: true,
+  relaunchEnabled: true, versionedBackendVerified: true});
+const initialSave = await clientA.save({studentId: users.newA.id, sourceUpdatedAt: intakeA.updated_at,
+  sourceRevision: intakeA.revision, goal, guide: guide()});
+assert.equal(initialSave.revision, 1, 'Actual application client saves through signed RPC');
 denied(await save(users.coachB, draftBody(users.newA, intakeA)), 'other organization cannot save draft');
 denied(await save(users.newA, draftBody(users.newA, intakeA)), 'student cannot save coach draft');
 assert.deepEqual(yes(await read('efg_coach_plan_drafts', users.newA), 'student draft privacy'), []);
@@ -130,6 +135,10 @@ assert.deepEqual(yes(await read('efg_coach_plan_drafts', users.coachB), 'other C
 const ownDraft = yes(await read('efg_coach_plan_drafts', users.coachA), 'assigned Coach reads its current draft');
 assert.equal(ownDraft.length, 1, 'A valid Coach must see its draft through REAL receipt/intake RLS');
 assert.equal(ownDraft[0].student_id, users.newA.id);
+assert.equal((await clientA.load(users.newA.id)).draft_revision, 1,
+  'Actual application client can recover the Coach draft');
+assert.deepEqual(yes(await read('efg_pilot_participation_receipts', users.coachA),
+  'draft visibility must not expose private participation receipts'), []);
 denied(await request('/rest/v1/efg_coach_plan_drafts', {method: 'POST', token: users.coachA.token,
   body: {student_id: users.returningA.id, organization_id: orgA, coach_id: users.coachA.id,
     source_intake_updated_at: intakeA.updated_at, source_intake_revision: 1, goal_proposal: goal}}),
@@ -172,8 +181,11 @@ sql(`update public.efg_organizations set is_test=false,status='active',paid_thro
 denied(await publish(users.coachA, body), 'expired Coach license cannot publish');
 sql(`update public.efg_organizations set is_test=true,status='trial',paid_through=null where id=${q(orgA)}`);
 
-const first = await Promise.all([publish(users.coachA, body), publish(users.coachA, body)]);
-const firstGoal = yes(first[0], 'first concurrent publication');
+const first = await Promise.all([
+  clientA.publish({studentId: users.newA.id, expectedRevision: 2, requestId: key, confirmed: true}),
+  publish(users.coachA, body)
+]);
+const firstGoal = first[0].goalId;
 assert.equal(yes(first[1], 'same-key concurrent retry'), firstGoal);
 assert.match(firstGoal, /^[a-f0-9-]{36}$/i);
 assert.equal(sql(`select count(*) from public.efg_goals where student_id=${q(users.newA.id)}`), '1');

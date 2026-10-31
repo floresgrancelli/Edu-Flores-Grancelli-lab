@@ -44,7 +44,31 @@ export function localContext() {
   }
   const rpc = (name, token, body = {}) => request('/rest/v1/rpc/' + name,
     {method: 'POST', token, body});
-  return {sql, request, rpc};
+  // Minimal Supabase-client interface backed by real HTTP, so the production
+  // plan client is exercised too. No database responses are mocked here.
+  const asClient = user => ({
+    async rpc(name, body) {
+      const r = await rpc(name, user.token, body);
+      return {data: r.ok ? r.data : null, error: r.ok ? null : r.data};
+    },
+    from(table) {
+      assert.match(table, /^efg_[a-z_]+$/);
+      const params = new URLSearchParams();
+      const query = {
+        select(columns) { params.set('select', columns); return query; },
+        eq(column, value) { params.set(column, 'eq.' + value); return query; },
+        not(column, operator, value) { params.set(column, `not.${operator}.${value}`); return query; },
+        async maybeSingle() {
+          const r = await request(`/rest/v1/${table}?${params}`, {token: user.token});
+          if (!r.ok) return {data: null, error: r.data};
+          assert.ok(Array.isArray(r.data) && r.data.length <= 1, 'Expected at most one signed row');
+          return {data: r.data[0] || null, error: null};
+        }
+      };
+      return query;
+    }
+  });
+  return {sql, request, rpc, asClient};
 }
 
 export const literal = value => "'" + String(value).replaceAll("'", "''") + "'";

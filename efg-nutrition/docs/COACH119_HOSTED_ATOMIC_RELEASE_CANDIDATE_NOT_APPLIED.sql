@@ -15,6 +15,7 @@ begin
   or pg_catalog.to_regclass('public.efg_student_plan_access') is null
   or pg_catalog.to_regprocedure('efg_private.coach_guide_foods_verified(jsonb)') is null
   or pg_catalog.to_regprocedure('efg_private.coach_has_student(uuid)') is null
+  or pg_catalog.to_regprocedure('efg_private.coach_pilot_share_active(uuid,uuid)') is null
   or pg_catalog.to_regprocedure('public.efg_coach_pilot_entry_status()') is null then
   raise exception 'COACH119 STOP: hosted Coach prerequisites missing' using errcode='55000';
  end if;
@@ -33,6 +34,24 @@ begin
   raise exception 'COACH119 STOP: expected legacy notification triggers missing' using errcode='55000';
  end if;
 end $coach119_preflight$;
+
+-- COACH108's original policy inspected owner-only participation receipts
+-- directly as the Coach JWT. RLS hid those receipts, so a valid Coach could
+-- SAVE a draft but could never SELECT it. Use the existing narrowly scoped
+-- authorization helper instead; do NOT expose private receipts to Coaches.
+alter policy coach_draft_read_own on public.efg_coach_plan_drafts
+using (
+ coach_id=(select auth.uid())
+ and efg_private.coach_has_student(student_id)
+ and efg_private.coach_pilot_share_active(student_id,organization_id)
+ and exists (
+  select 1 from public.efg_coach_relaunch_intakes intake
+  where intake.student_id=efg_coach_plan_drafts.student_id
+   and intake.organization_id=efg_coach_plan_drafts.organization_id
+   and intake.shared_at is not null
+   and intake.completed_version='coach_major_2026_r1'
+ )
+);
 
 -- This switch is PRIVATE; no client can activate publication.
 insert into efg_private.coach_release_switches(switch_key,enabled,notes)

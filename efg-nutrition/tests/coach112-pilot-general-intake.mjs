@@ -32,6 +32,22 @@ function fake({signed=uid,pilot=receipt,stored=null}={}){
 const sb=fake();
 const before=await loadCoachPilotGeneralIntake(sb,{profile});
 assert.equal(before.intake,null);
+
+// An omitted share choice used to default to TRUE. No intake write may
+// disclose a student's general data unless the current form supplied a
+// boolean decision, independently of OTP or pilot participation.
+const beforeImplicitShare=nRPC;
+for(const choice of [undefined,null,"true",1]){
+ await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,
+  expectedRevision:0,shareWithCoach:choice,explicitSubmit:true}),/Permisos o versión/);
+}
+assert.equal(nRPC,beforeImplicitShare,"No implicit sharing reaches the signed RPC");
+const privateFirst=await submitCoachPilotGeneralIntake(fake(),{
+ profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true});
+assert.equal(privateFirst.shared,false);
+assert.equal(privateFirst.intake.shared_at,null,
+ "First intake can remain private after an explicit no-share decision");
+
 const s=await submitCoachPilotGeneralIntake(sb,{profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true});
 assert.equal(s.intake.revision,1);
 assert.equal(s.intake.dietary_pattern,'keto');

@@ -18,7 +18,7 @@ const legal=[{kind:"terms",document_id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",ve
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false,"Do not activate before hosted GO.");
 const existing={
  historical_diary_count:19,historical_goals:[goal],historical_messages:8,
- legacy_intake:{completed_version:"coach_legacy_2026",revision:34,shared_at:"2026-10-01T12:00:00Z"},
+ legacy_intake:{student_id:uid,organization_id:org,completed_version:"coach_legacy_2026",revision:34,shared_at:"2026-10-01T12:00:00Z"},
  legacy_published_plan:{published_goal_id:goal,published_at:"2026-10-25T12:00:00Z"}
 };
 const copy=JSON.stringify(existing);
@@ -47,6 +47,8 @@ assert.equal(gate({student_id:uid,organization_id:org,
  completed_version:COACH_RELEASE_INTAKE_VERSION,revision:2}).route,"ready");
 assert.equal(gate({student_id:uid,organization_id:org,
  completed_version:"coach_legacy_2026",revision:2}).route,"intake");
+assert.equal(gate({completed_version:"coach_legacy_2026",revision:2}).route,"retry",
+ "Malformed or ownerless legacy response should fail closed instead of being trusted.");
 const signedNew={route:"intake",can_log_meals:false,required_pilot_version:"coach_pilot_2026_demo1",
  required_intake_version:COACH_RELEASE_INTAKE_VERSION,
  participation_confirmed:true,general_intake_shared:false,

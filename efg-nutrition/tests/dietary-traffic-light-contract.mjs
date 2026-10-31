@@ -29,6 +29,8 @@ check("Red more conservative than incomplete second restriction",["dummy_a","dum
 check("Review-needed => yellow",["dummy_a"],[fake("dummy_a","verify")],"yellow");
 check("Unknown verdict => yellow",["dummy_a"],[fake("dummy_a","SAFE")],"yellow");
 check("Expired review cannot yield green",["dummy_a"],[fake("dummy_a","allowed",{expires_at:"2026-10-20T00:00:00Z"})],"yellow");
+check("Date-only review cannot yield green",["dummy_a"],[fake("dummy_a","allowed",{reviewed_at:"2026-10-01"})],"yellow");
+check("Date-only expiry cannot yield green",["dummy_a"],[fake("dummy_a","allowed",{expires_at:"2026-11-30"})],"yellow");
 check("Future-dated review cannot yield green",["dummy_a"],[fake("dummy_a","allowed",{reviewed_at:"2026-11-01T00:00:00Z"})],"yellow");
 check("Unreviewed => yellow",["dummy_a"],[fake("dummy_a","allowed",{status:"draft"})],"yellow");
 check("No reviewer => yellow",["dummy_a"],[fake("dummy_a","allowed",{reviewed_by:""})],"yellow");

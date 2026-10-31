@@ -18,6 +18,21 @@ for(const p of photos){
 }
 assert.ok(app.includes("FIT_RECIPE_PHOTOS[recipe.id]"),"Photographs replace SVG illustrations");
 assert.ok(app.includes("Foto ilustrativa"),"Dish photograph is not claimed to be the exact cooked recipe");
+
+// PRO07 accessible image fallback, attribution, ingredient weight and estimated
+// macro disclaimer must remain on every rendered Fit recipe card.
+assert.match(app,/class="efg-fit-photo" src/,"PRO07 photo component");
+assert.match(app,/alt="Fotografía ilustrativa de /,"Recipe photo alt must identify the dish");
+assert.match(app,/onerror="this\.hidden=true;this\.nextElementSibling\.hidden=false"/,
+ "Broken image must reveal fallback rather than leave a blank tile");
+assert.match(app,/Fotografía temporalmente no disponible/);
+assert.match(app,/efg-fit-photo-credit/);
+assert.match(app,/rel="noopener noreferrer"/);
+assert.match(app,/Ingredientes para '\+recipe\.portions\+' porciones/);
+assert.match(app,/Valores orientativos calculados a partir del catálogo/);
+assert.match(app,/data-fitrecipe/);
+console.log("PRO07 accessible photo/fallback/grams/estimated-macro contract verified (not physical device).");
+
 assert.ok(!app.includes("fitRecipeIllustration(recipe.id)"),"Do not render cartoons");
 
 assert.equal(new Set(FIT_RECIPES.map(x=>x.id)).size,12);

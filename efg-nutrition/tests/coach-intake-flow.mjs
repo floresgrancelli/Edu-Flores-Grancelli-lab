@@ -7,6 +7,11 @@ const [app,sql,css]=await Promise.all([
  readFile(new URL("../migrations/20261029_coach_intake_plan_access_DRAFT.sql",import.meta.url),"utf8"),
  readFile(new URL("../pilot/coach-experience.css",import.meta.url),"utf8")
 ]);
+const source=await readFile(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
+assert.match(source,/const authorized=new Set\(consentedIds\)/);
+assert.match(source,/authorized\.has\(v\.student_id\)&&v\.shared_at/);
+assert.match(source,/a\.data\?\.student_id===studentId&&a\.data\.shared_at/);
+assert.match(source,/b\.data\?\.student_id===studentId/);
 const esc=s=>String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const state={profile:{role:"student",organization_id:"org-fixture"},session:{user:{id:"student-fixture"}},
  studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,coachGoals:[],coachFoodPlan:null,coachIntakeForms:{},coachIntakeAccess:{}};

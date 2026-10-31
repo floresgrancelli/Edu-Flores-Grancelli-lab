@@ -18,6 +18,7 @@ check({},'participation');
 check({route:'legal',participation_confirmed:false,general_intake_shared:false,
  legal_current_accepted:false},'legal');
 check({route:'intake',participation_confirmed:true},'intake');
+check({route:'private',participation_confirmed:true,general_intake_shared:false},'private');
 check({route:'review',participation_confirmed:true,general_intake_shared:true},'review');
 check({route:'ready',participation_confirmed:true,general_intake_shared:true,can_log_meals:true},'ready',true);
 for(const bad of [
@@ -25,6 +26,8 @@ for(const bad of [
  {route:'ready',can_log_meals:true,general_intake_shared:true},
  {route:'ready',can_log_meals:true,participation_confirmed:true},
  {route:'review',can_log_meals:true,participation_confirmed:true,general_intake_shared:true},
+ {route:'private',can_log_meals:true,participation_confirmed:true},
+ {route:'private',general_intake_shared:true,participation_confirmed:true},
  {route:'intake',participation_confirmed:false},
  {route:'participation',can_log_meals:true},
  {route:'bad',can_log_meals:true},
@@ -54,6 +57,8 @@ assert.match(legalSql,/'legal_current_accepted',true/);
 assert.match(sql,/v_uid uuid := auth\.uid\(\)/);
 assert.match(sql,/p\.user_id=v_uid and p\.role='student' and p\.active=true/);
 assert.match(sql,/r\.revoked_at is null/);
+assert.match(sql,/v_route:='private'/);
+assert.doesNotMatch(sql,/r\.participation_accepted=true and r\.sharing_accepted=true/);
 assert.match(sql,/v_plan\.published_at >= v_intake\.updated_at/);
 assert.match(sql,/v_guide_goal=v_plan\.published_goal_id/);
 assert.match(sql,/revoke all on function public\.efg_coach_pilot_entry_status\(\) from public,anon,authenticated/);

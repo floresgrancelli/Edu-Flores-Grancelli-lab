@@ -354,6 +354,10 @@ begin
  -- five guide ingredients) before granting food-planning access.
  v_food_ids:=efg_private.coach119_reviewed_food_ids(v_guide);
 
+ -- SECURITY REVIEW: a custom session GUC can be set by arbitrary sessions.
+ -- This trigger suppression is NOT an authorization boundary. Before applying
+ -- COACH119, staging must verify untrusted sessions cannot suppress legacy
+ -- notifications by setting efg.coach_atomic_publish=on. Do not deploy as-is.
  -- Only after every check do legacy notices suppress, for this transaction ONLY.
  perform pg_catalog.set_config('efg.coach_atomic_publish','on',true);
  insert into public.efg_goals(

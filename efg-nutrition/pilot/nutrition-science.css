@@ -82,5 +82,9 @@
 .ns-protein-numbers b{font-weight:850;color:#bdebf1;font-size:clamp(21px,3vw,27px);letter-spacing:-.02em}
 .ns-protein-numbers span{color:#e5edf2;font-size:12px;line-height:1.55;margin-top:7px}
 .ns-protein-note{font-size:13px;line-height:1.6;color:#40566c}
+.ns-movement{margin-top:22px;padding:19px 21px;border:1px solid #b7d6de;border-radius:17px;background:linear-gradient(115deg,#f0faf7,#eff7fc);color:#244759}
+.ns-movement h3{font-size:17px;color:#174e65;margin:0 0 10px;line-height:1.4}
+.ns-movement p{font-size:13px;line-height:1.65;color:#365d70;margin:8px 0}
+.ns-movement small{display:block;font-size:11px;line-height:1.6;color:#4b6877;margin-top:12px}
 @media(max-width:520px){.ns-protein-focus{padding:22px 18px}.ns-protein-benefits,.ns-protein-numbers{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.ns-science *{scroll-behavior:auto;animation:none!important;transition:none!important}}

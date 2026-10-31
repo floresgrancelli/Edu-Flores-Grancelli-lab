@@ -1,0 +1,23 @@
+/* SPORT-STEP · compact premium walking module, accessible in sport/progress. */
+.efg-walk-card{position:relative;overflow:hidden;background:linear-gradient(145deg,#f7fcff 0%,#f5f3fc 60%,#fff7fb 100%);border:1px solid #b9cbd8;margin:14px 0 18px;box-shadow:0 12px 30px #18375813}
+.efg-walk-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:15px}
+.efg-walk-heading h2{font-size:clamp(21px,4vw,29px);margin:3px 0 5px;color:#192c43}
+.efg-walk-heading p{font-size:13px;color:#536577;margin:0;line-height:1.5}
+.efg-walk-emblem{display:grid;place-items:center;flex-shrink:0;border-radius:18px;height:52px;width:52px;background:linear-gradient(125deg,#183e64,#426ba4);color:#fff;font-size:25px;font-weight:800;box-shadow:0 8px 21px #173d6c32}
+.efg-walk-card .field label{font-size:12px;font-weight:750;color:#273d56}
+.efg-walk-card input,.efg-walk-card select{min-height:44px}
+.efg-walk-preview{margin:7px 0 12px;padding:15px;border-radius:20px;background:#fff;border:1px solid #dde9f1;box-shadow:0 4px 14px #29436c0a}
+.efg-walk-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.efg-walk-kpis>div{border:1px solid #e4e9f3;background:linear-gradient(165deg,#f8fbff,#fbfaff);border-radius:15px;padding:14px 9px;min-width:0}
+.efg-walk-kpis span{display:block;font-size:11px;color:#536578;font-weight:700;line-height:1.4}
+.efg-walk-kpis strong{display:block;font-size:clamp(19px,3vw,28px);font-variant-numeric:tabular-nums;letter-spacing:-.035em;color:#1b3b65;white-space:nowrap}
+.efg-walk-kpis strong small{font-size:11px;letter-spacing:0}
+.efg-walk-preview .pilot-hint{font-size:11px;line-height:1.5;margin:9px 0 0;color:#5d6878}
+.efg-walk-details{border-top:1px solid #e1e6ee;border-bottom:1px solid #e1e6ee;padding:10px 0;margin-bottom:16px}
+.efg-walk-details summary{font-size:13px;font-weight:800;color:#21446c;cursor:pointer}
+.efg-walk-details .field-row{margin-top:10px}
+.efg-walk-history{display:block;color:#2c6173;margin-top:6px;font-weight:750}
+.efg-walk-empty{color:#586e83;font-size:13px}
+@media(max-width:560px){.efg-walk-card{padding:17px 13px}.efg-walk-heading p{font-size:12px}.efg-walk-emblem{width:42px;height:42px;font-size:21px}.efg-walk-kpis{gap:5px}.efg-walk-kpis>div{padding:12px 6px}.efg-walk-kpis strong{font-size:20px}.efg-walk-kpis span{font-size:10px}.efg-walk-kpis strong small{font-size:10px}}
+@media(max-width:340px){.efg-walk-kpis strong{font-size:17px}.efg-walk-kpis strong small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.efg-walk-card *{transition:none!important}}

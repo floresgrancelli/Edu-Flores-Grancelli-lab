@@ -1,0 +1,26 @@
+// PRO-50 — authenticated account without Coach entitlement: never enumerate.
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {runInNewContext} from "node:vm";
+const source=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
+const start=source.indexOf("function unauthorized("),end=source.indexOf("\nfunction macroCard(",start);
+assert.ok(start>=0&&end>start);
+const body=source.slice(start,end);
+const root={innerHTML:""};
+runInNewContext(body+"\nunauthorized('Correo usuario.secreto@example.com: cuenta registrada; perfil estudiante no autorizado');",{root});
+const html=root.innerHTML;
+assert.match(html,/Necesitamos verificar tu habilitación/);
+assert.match(html,/data-act="showAccessInstructions"/);
+assert.match(html,/data-act="logout"/);
+assert.match(html,/id="efgAccessInstructions"/);
+assert.match(html,/aria-controls="efgAccessInstructions"/);
+assert.match(html,/no envía una solicitud automáticamente/);
+assert.doesNotMatch(html,/usuario\.secreto@example\.com|cuenta registrada|perfil estudiante no autorizado/i);
+assert.doesNotMatch(html,/Este correo aún no fue habilitado|Usuario no existe|Correo registrado/i);
+const handler=source.slice(source.indexOf("async function mainClick("));
+assert.match(handler,/if\(action==="showAccessInstructions"\)\{/);
+assert.match(handler,/instructions\.hidden=!instructions\.hidden/);
+assert.match(handler,/aria-expanded/);
+const report=source.slice(source.indexOf("async function requestOtp("),source.indexOf("async function requestOtp(")+1600);
+assert.match(report,/Si tu correo está habilitado|Si tu cuenta está habilitada/);
+console.log("PASS PRO-50: unauthorized Coach access message avoids account enumeration, help CTA functional and truthful, logout available; fixture only.");

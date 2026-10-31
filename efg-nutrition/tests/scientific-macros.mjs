@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./diet-pattern-workbench.mjs"; // New nonclinical Coach / Personal contract tests.
 import {readFileSync} from "node:fs";
 const src=readFileSync("efg-nutrition/pilot/macro-engine.js","utf8");
 const {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES}=await import("data:text/javascript;base64,"+Buffer.from(src).toString("base64"));

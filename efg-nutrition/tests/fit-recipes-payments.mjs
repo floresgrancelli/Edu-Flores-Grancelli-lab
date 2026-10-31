@@ -18,6 +18,21 @@ for(const p of photos){
 }
 assert.ok(app.includes("FIT_RECIPE_PHOTOS[recipe.id]"),"Photographs replace SVG illustrations");
 assert.ok(app.includes("Foto ilustrativa"),"Dish photograph is not claimed to be the exact cooked recipe");
+
+// PRO07 accessible image fallback, attribution, ingredient weight and estimated
+// macro disclaimer must remain on every rendered Fit recipe card.
+assert.match(app,/class="efg-fit-photo" src/,"PRO07 photo component");
+assert.match(app,/alt="Fotografía ilustrativa de /,"Recipe photo alt must identify the dish");
+assert.match(app,/onerror="this\.hidden=true;this\.nextElementSibling\.hidden=false"/,
+ "Broken image must reveal fallback rather than leave a blank tile");
+assert.match(app,/Fotografía temporalmente no disponible/);
+assert.match(app,/efg-fit-photo-credit/);
+assert.match(app,/rel="noopener noreferrer"/);
+assert.match(app,/Ingredientes para '\+recipe\.portions\+' porciones/);
+assert.match(app,/Valores orientativos calculados a partir del catálogo/);
+assert.match(app,/data-fitrecipe/);
+console.log("PRO07 accessible photo/fallback/grams/estimated-macro contract verified (not physical device).");
+
 assert.ok(!app.includes("fitRecipeIllustration(recipe.id)"),"Do not render cartoons");
 
 assert.equal(new Set(FIT_RECIPES.map(x=>x.id)).size,12);
@@ -50,7 +65,8 @@ assert.ok(!app.includes('p.sender_id'),"Legacy sender_id does not exist in payme
 assert.ok(app.includes('Comprobantes de licencias EFG'),"Admin billing must be preserved");
 // Contratos comerciales y cuenta nutricional propia del entrenador.
 for(const token of ["COBRAR A MIS ALUMNOS","PAGAR MI LICENCIA A EFG","Cupos contratados","ALTA COMERCIAL DE COACH","ALIAS OFICIAL DE EFG","data-copyplatform","state.platformAlias","studentMore:state.profile.role===\"coach\"?coachPersonalMoreView","function coachPersonalMoreView","personal:isPersonalProfessional","MI ESPACIO"])assert.ok(app.includes(token),"Missing coach personal/commercial UX: "+token);
-assert.ok(app.includes('["coach","⌂","Inicio"],["home","◷","MI DÍA"]'),"Coach has direct MI DÍA access");
+assert.ok(app.includes('["coach","⌂","Inicio"]')&&app.includes('["home","◷","MI DÍA"]'),"Coach has direct MI DÍA access regardless of coach navigation order");
+assert.ok(app.includes('["coachIntake","▣","Ingresos"]'),"Coach has a dedicated new arrivals tab");
 assert.ok(app.includes('state.profile.role==="coach"||state.profile.role==="admin"'),"Professional personal goal eligibility");
 assert.ok(app.includes('if(!["student","coach","admin"].includes(state.profile?.role))'),"Fit recipes register in professional private diary");
 assert.ok(app.includes('commercialReady=isTest||["active","grace"].includes(org?.status)'),"Commercial invitation requires admin activation");

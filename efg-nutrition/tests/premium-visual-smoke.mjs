@@ -2,7 +2,7 @@
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
-import { chromium,webkit } from "playwright";
+import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
 const rootDir=process.cwd();
@@ -20,7 +20,7 @@ const server=createServer((req,res)=>{
   let bytes=readFileSync(file);
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -28,10 +28,13 @@ const server=createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(0,"127.0.0.1",r));
 const port=server.address().port;
+const androidMode=process.env.EFG_QA_ANDROID==="1";
 const engine=process.env.EFG_QA_ENGINE==="webkit"?"webkit":"chromium";
+if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
+const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -39,7 +42,7 @@ const scenarios=engine==="webkit"?[["student",390],["coach",390],["admin",390],[
 const sbStub='export function createClient(){const b=()=>{const q={saved:null,select(){return q},upsert(value){q.saved=value;return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:q.saved||null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
 try{
  for(const [role,width] of scenarios){
-  const context=await browser.newContext({viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+  const context=await browser.newContext(androidMode?{...devices["Pixel 7"],viewport:{width,height:860}}:{viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
   await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:sbStub}));
   // Layout-only fixtures: live photo availability is tested separately in real browsers.
   await context.route(/^https:\/\/images\.(unsplash|pexels)\.com\//,route=>route.fulfill({
@@ -54,6 +57,13 @@ try{
   page.on("pageerror",e=>errors.push(role+"/"+width+": "+e.message));
   page.on("console",msg=>{if(msg.type()==="error")errors.push(role+"/"+width+" console: "+msg.text())});
   await page.goto("http://127.0.0.1:"+port+"/efg-nutrition/pilot/",{waitUntil:"networkidle"});
+  // Android CSS viewport is meaningful only after loading the viewport meta tag.
+  if(androidMode){
+   const mobile=await page.evaluate(()=>({ua:navigator.userAgent,touch:navigator.maxTouchPoints,viewport:innerWidth,dpr:devicePixelRatio,meta:document.querySelector("meta[name=viewport]")?.getAttribute("content"),documentWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth,visualWidth:visualViewport?.width,screenWidth:screen.width,url:location.href}));
+   if(!mobile.ua.includes("Android")||mobile.touch<1||mobile.dpr<2||mobile.viewport!==width)
+    errors.push("Android Pixel 7 device emulation not active: "+JSON.stringify(mobile));
+  }
+
   try{await page.waitForFunction(()=>!!window.__EFG_VISUAL_QA__,null,{timeout:16000});}
   catch(err){
     const debug=await page.evaluate(()=>({
@@ -92,11 +102,18 @@ try{
     const field=document.createElement("textarea");document.body.append(field);
     drag(field,90,270);await new Promise(resolve=>setTimeout(resolve,30));
     const afterInput=count;field.remove();
+    const summary=document.createElement("div");summary.className="efg-pastel-day";document.body.append(summary);
+    const topCardBlocked=drag(summary,90,270); // top MI DÍA card must NOT steal scroll
+    const contentBlocked=drag(summary,340,520); // down: ordinary card must not become refresh
+    const upwardBlocked=drag(summary,340,165); // up: ordinary card must pan normally
+    await new Promise(resolve=>setTimeout(resolve,30));
+    const afterContent=count;summary.remove();
     test.dispose();
-    return {firstBlocked,first,visible,afterShort,afterInput};
+    return {firstBlocked,first,visible,afterShort,afterInput,topCardBlocked,contentBlocked,upwardBlocked,afterContent};
    });
    if(!gesture.firstBlocked||gesture.first!==1||gesture.visible!==1||
-      gesture.afterShort!==1||gesture.afterInput!==1)errors.push("pull-refresh touch gesture failed: "+JSON.stringify(gesture));
+      gesture.afterShort!==1||gesture.afterInput!==1||gesture.topCardBlocked||gesture.contentBlocked||gesture.upwardBlocked||gesture.afterContent!==1)
+      errors.push("pull-refresh must not hijack Android dashboard swipes: "+JSON.stringify(gesture));
   }
   await page.evaluate(async(role)=>{
    const {state,render,today,setConsentMap}=window.__EFG_VISUAL_QA__;
@@ -168,7 +185,7 @@ try{
     const visual=await bell.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,icon:!!el.querySelector("svg"),w:el.getBoundingClientRect().width}));
     if(visual.bg!=="rgba(0, 0, 0, 0)"||!visual.icon||visual.w<44)errors.push(role+" bell should be floating SVG without tile: "+JSON.stringify(visual));
    }
-   await page.screenshot({path:join(outDir,engine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
+   await page.screenshot({path:join(outDir,captureEngine+"-"+role+"-390-messaging-luxury.png"),fullPage:true,animations:"disabled"});
    await page.evaluate(async(role)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=role==="student"?"home":role==="coach"?"coach":"admin";await v.render();},role);
   }
   const pageReport={role,width,pages:[],errors:[]};
@@ -179,6 +196,36 @@ try{
    else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.platformAlias="EFG.ALIAS.DEMO";v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
+   if(role==="student"&&width===390&&dest==="home"&&engine==="chromium"){
+     // Android-like native touch swipe, NOT a synthetic DOM-dispatched TouchEvent.
+     // Swipe starting inside the upper calorie chart must move the document.
+     const card=page.locator(".efg-pastel-day").first();
+     if(!(await card.count()))pageReport.errors.push("MI DÍA summary missing for Android native swipe");
+     else{
+       const details=await card.evaluate(el=>({touchAction:getComputedStyle(el).touchAction,
+         rect:{top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height},
+         scroll:document.documentElement.scrollHeight,viewport:window.innerHeight}));
+       if(!details.touchAction.includes("pan-y"))pageReport.errors.push("Android summary must allow pan-y: "+details.touchAction);
+       if(details.scroll<=details.viewport+100)pageReport.errors.push("Android fixture does not overflow viewport");
+       else{
+         await page.evaluate(()=>window.scrollTo(0,0));
+         const cdp=await context.newCDPSession(page);
+         const x=195,y=Math.max(170,Math.min(460,details.rect.top+Math.min(110,details.rect.height*.35)));
+         try{
+           await cdp.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y,id:11}]});
+           for(let n=1;n<=6;n++){
+             await cdp.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x,y:y-n*31,id:11}]});
+             await page.waitForTimeout(22);
+           }
+           await cdp.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+           await page.waitForTimeout(180);
+           const scrolled=await page.evaluate(()=>window.scrollY);
+           if(scrolled<40)pageReport.errors.push("Android upward swipe from summary did not scroll: "+scrolled+"px");
+         }finally{await cdp.detach();}
+         await page.evaluate(()=>window.scrollTo(0,0));
+       }
+     }
+   }
    if(role==="coach"){
      const content=await page.locator(".pilot-main").innerText();
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
@@ -204,9 +251,21 @@ try{
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
-       await select.selectOption("demo-"+role+"-"+slot+"-1");
+       const firstSelected=await select.inputValue();
+        if(firstSelected!=="demo-"+role+"-"+slot+"-1")
+          pageReport.errors.push("Multiple habitual meals show blank on returning in "+slot);
+        const firstPreview=await block.locator("#habitualPreview_"+slot).innerText();
+        if(!firstPreview.includes("Huevo habitual")||!firstPreview.includes("55 g"))
+          pageReport.errors.push("Returning habitual first preview invisible in "+slot);
+        await select.selectOption("demo-"+role+"-"+slot+"-1");
        if(await select.inputValue()!=="demo-"+role+"-"+slot+"-1")pageReport.errors.push("First habitual choice not accepted for "+slot);
+       const preview=await block.locator("#habitualPreview_"+slot).innerText();
+       if(!preview.includes("Huevo habitual")||!preview.includes("55 g")||!preview.includes("81 kcal"))
+         pageReport.errors.push("Saving habitual name alone is insufficient: preview must show stored food, quantity and kcal in "+slot+": "+preview.slice(0,150));
      }
+     const diaryAfterPreview=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+     if(JSON.stringify(diaryBefore)!==JSON.stringify(diaryAfterPreview))
+       pageReport.errors.push("Previewing a habitual changed the diary before confirming for "+role);
      await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
      await page.locator('[data-habitualapply="media_tarde"]').click();
      await page.waitForTimeout(150);
@@ -334,9 +393,38 @@ try{
    }
    if(role==="student"&&dest==="home"){
      const bars=page.locator(".efg-weekly-streak .efg-streak-track");
-     if(await bars.count()!==2)pageReport.errors.push("Need exactly two weekly tolerance bars");
-     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==12)pageReport.errors.push("Two tracks must show Monday-Saturday only");
+     if(await bars.count()!==1)pageReport.errors.push("Need exactly one ±5% weekly bar");
+     if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==6)pageReport.errors.push("One ±5% track must show Monday-Saturday only");
      if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
+     if(width===390&&engine==="chromium"){
+       const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
+       if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
+       else{
+         if(!(await breakfast.getAttribute("open")))await breakfast.locator("summary").click();
+         await breakfast.locator('[data-setmeal="desayuno"]').click();
+         const guide=page.locator(".efg-meal-guidance");
+         if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
+         else{
+           if(await guide.locator("[data-mealgroup]").count()!==4)pageReport.errors.push("Guided main meal needs 4 food categories");
+           if(await guide.locator("[data-mealomit]").count()!==2)pageReport.errors.push("Guided meal needs independent omit protein and carb controls");
+           if(!(await guide.innerText()).includes("Grasas registradas"))pageReport.errors.push("Automatic fat summary missing");
+           await guide.locator('[data-mealgroup="prepared"]').click();
+           const preparedOptions=await page.locator("#mealEditorFood option").allTextContents();
+           if(!preparedOptions.some(x=>/tarta|pizza|sushi|empanada/i.test(x)))pageReport.errors.push("Plato preparado did not expose mixed dishes");
+           await guide.locator('[data-mealgroup="carb"]').click();
+           const carbOptions=await page.locator("#mealEditorFood option").allTextContents();
+           if(!carbOptions.some(x=>/arroz|pan|avena|papa/i.test(x)))pageReport.errors.push("Hydrate tab did not expose carbohydrate choices");
+         }
+         await page.locator('[data-act="closeMeal"]').click();
+       }
+       const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
+       if(await snack.count()===1){
+         if(!(await snack.getAttribute("open")))await snack.locator("summary").click();
+         await snack.locator('[data-setmeal="media_tarde"]').click();
+         if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
+         await page.locator('[data-act="closeMeal"]').click();
+       }
+     }
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
        const styles=getComputedStyle(el);
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
@@ -344,10 +432,18 @@ try{
      if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
+   // UX35: every authenticated role has a 44px mobile logout in the header;
+   // do not activate it in this synthetic fixture.
+   if(width<=720){
+    const logout=page.locator('button.efg-mobile-logout[data-act="logout"]');
+    const rect=await logout.first().boundingBox();
+    if(await logout.count()!==1||!rect||rect.height<44||rect.width<44)
+     pageReport.errors.push("UX35 "+role+"/"+dest+": mobile logout missing or touch target too small");
+   }
    if(await page.locator(".efg-mobile-monogram,.brand-mark").count())
      pageReport.errors.push("Decorative black E+ / EFG monogram must be absent");
    const brandText=await page.locator(".efg-mobile-brand-text strong").first().textContent();
-   if(!(brandText||"").includes("EFG Nutrition"))pageReport.errors.push("Brand text EFG Nutrition must remain visible");
+   if(!(brandText||"").includes("Nutrición Con-Ciencia"))pageReport.errors.push("Brand text Nutrición Con-Ciencia must remain visible");
    const metrics=await page.evaluate(()=>{
     const viewportWidth=window.innerWidth;
     const nav=[...document.querySelectorAll(".pilot-nav button.navitem")].map(x=>({label:x.textContent.trim(),height:Math.round(x.getBoundingClientRect().height)}));
@@ -370,12 +466,105 @@ try{
      await page.locator('button[data-act="previewMacros"]').click();
      if((await page.locator(".macro-preview").count())!==3)pageReport.errors.push("Calculating macros for women did not return three goals");
    }
+   if(role==="student"&&width===1280&&dest==="home"){
+    // Reproduce MacBook video: typing in the main meal must show a visible list
+    // and choosing an item must update the real native food selector.
+    await page.evaluate(()=>window.__EFG_VISUAL_QA__.openMealDialog("almuerzo"));
+    await page.locator("#mealFoodSearch").fill("lech");
+    const suggestions=page.locator("#mealFoodSuggestions [data-mealsuggestion]");
+    if(!(await suggestions.count()))pageReport.errors.push("MacBook: food search has no visible matches while typing lech");
+    else{
+      const first=suggestions.first(),id=await first.getAttribute("data-mealsuggestion");
+      if(!(await first.isVisible()))pageReport.errors.push("MacBook: food results hidden while typing");
+      await first.click();
+      if(await page.locator("#mealEditorFood").inputValue()!==id)
+        pageReport.errors.push("MacBook: suggestion click did not select catalog food");
+      if(!(await page.locator("#mealEditorHint").innerText()).includes("kcal"))
+        pageReport.errors.push("MacBook: suggestion did not update meal nutrients");
+    }
+    await page.locator('[data-act="closeMeal"]').click();
+   }
+   if(role==="student"&&(width===390||width===1280)&&dest==="home"){
+    // UX-GUIDE-01 actual renderer: same HTML for coach editor and student viewer.
+    // All sample data are in-memory. No hosted DB, no existing user plans.
+    const snapshot=await page.evaluate(()=>{
+      const v=window.__EFG_VISUAL_QA__;
+      const item=(id,qty)=>{const food=v.foods.find(f=>f.id===id);if(!food)throw Error("Missing education fixture food "+id);return {...food,qty};};
+      const plan={version:1,kind:"five_meal_example",supplementNote:"",meals:[
+       {slot:"desayuno",label:"Desayuno",items:[item("egg",110),item("bread",40),item("milk_skim",200)]},
+       {slot:"media_manana",label:"Media mañana",items:[item("yogurt",200),item("apple",120)]},
+       {slot:"almuerzo",label:"Almuerzo",items:[item("tarta_atun_horno",180),item("brownrice",110),item("rocket",60)]},
+       {slot:"merienda",label:"Merienda",items:[item("bread",35),item("cheese",30)]},
+       {slot:"cena",label:"Cena",items:[item("fish_hake",180),item("potato",180),item("pumpkin",150),item("oil",5)]}
+      ]};
+      const goal={kcal:2100,protein_g:140,carb_g:225,fat_g:70};
+      const original=JSON.stringify(plan),totals=JSON.stringify(v.guideTotals(plan));
+      const host=document.createElement("div");
+      host.id="efg-guide-education-qa";
+      host.style.cssText="background:#f5f1ed;padding:14px;margin:22px auto;max-width:980px";
+      host.innerHTML=v.guideEducationHTML(plan,goal,true);
+      document.body.appendChild(host);
+      return {samePlan:original===JSON.stringify(plan),sameMacros:totals===JSON.stringify(v.guideTotals(plan)),
+       foodCount:plan.meals.reduce((n,m)=>n+m.items.length,0),mealCount:plan.meals.length,
+       readonlyHTML:v.guideEducationHTML(plan,goal,false)};
+    });
+    const host=page.locator("#efg-guide-education-qa");
+    if(!snapshot.samePlan||!snapshot.sameMacros)pageReport.errors.push("Rendering education changed the approved guide or its nutrients");
+    if(await host.locator(".efg-guide-food").count()!==snapshot.foodCount)
+      pageReport.errors.push("Guide must render every original food once, without duplication");
+    for(const slot of ["desayuno","almuerzo","cena"]){
+      if(await host.locator('[data-guideslot="'+slot+'"][data-guidefoodgroup="protein"]').count()!==1||
+         await host.locator('[data-guideslot="'+slot+'"][data-guidefoodgroup="carb"]').count()!==1)
+        pageReport.errors.push("Main guide "+slot+" missing protein/carb education");
+    }
+    if(await host.locator('[data-guideslot="media_manana"],[data-guideslot="merienda"]').count())
+      pageReport.errors.push("Guide snacks/merienda were changed to educational sections");
+    if(await host.locator('[data-guideslot="almuerzo"][data-guidefoodgroup="prepared"] .efg-guide-food').count()!==1)
+      pageReport.errors.push("Tuna pie must appear in prepared group ONCE");
+    const editIndices=await host.locator("[data-guideqty]").evaluateAll(els=>els.map(x=>x.dataset.guideqty));
+    if(!editIndices.includes("almuerzo:0")||!editIndices.includes("almuerzo:1")||
+       !editIndices.includes("desayuno:0")||editIndices.length!==snapshot.foodCount)
+      pageReport.errors.push("Coach quantity input must preserve original food index after grouping");
+    if(!snapshot.readonlyHTML.includes("efg-guide-education")||snapshot.readonlyHTML.includes("data-guideqty"))
+      pageReport.errors.push("Student guide should show educational sections but cannot edit quantities");
+    if(await host.locator(".efg-guide-food-group").first().isVisible()!==true)
+      pageReport.errors.push("Educational guide sections hidden at "+width+"px");
+    await page.screenshot({path:join(outDir,captureEngine+"-student-"+width+"-guide-education.png"),fullPage:true,animations:"disabled"});
+    await host.evaluate(el=>el.remove());
+   }
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
+    const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
     const lunch=page.locator(".student-meal-card").nth(2);
     if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();
-    await page.locator("#mealFoodSearch").fill("sushi");
+    if((await page.locator("[data-mealgroup]").count())!==4)
+      pageReport.errors.push("Main meal must offer protein, carb, prepared and other sections");
+    if((await page.locator("[data-mealomit]").count())!==2)
+      pageReport.errors.push("Main meal must offer optional omit for protein and carbs");
+    await page.locator('[data-mealgroup="prepared"]').click();
+    const foodSearch=page.locator("#mealFoodSearch");
+    await foodSearch.fill("lech");
+    const firstSuggestion=page.locator('#mealFoodSuggestions [data-mealsuggestion]').first();
+    if(!(await firstSuggestion.count())||!(await firstSuggestion.innerText()).toLocaleLowerCase("es-AR").includes("lech"))
+      pageReport.errors.push("Typing lech did not reveal visible selectable matches in the lunch modal");
+    else{
+      const firstId=await firstSuggestion.getAttribute("data-mealsuggestion");
+      await firstSuggestion.click();
+      if(await page.locator("#mealEditorFood").inputValue()!==firstId)
+        pageReport.errors.push("Tapping suggested food did not select its real catalog ID");
+      if(await foodSearch.getAttribute("aria-expanded")!=="false")
+        pageReport.errors.push("Suggestions did not collapse after food selection");
+    }
+    await foodSearch.fill("sushi");
+    const firstKeyboard=await page.locator('#mealFoodSuggestions [data-mealsuggestion]').first().getAttribute("data-mealsuggestion");
+    await foodSearch.press("Enter");
+    if(await page.locator("#mealEditorFood").inputValue()!==firstKeyboard)
+      pageReport.errors.push("Pressing Enter did not choose the first visible food suggestion");
+    await foodSearch.fill("sin_coincidencias_nunca_123");
+    if(!(await page.locator("#mealFoodSuggestions").innerText()).includes("No encontramos"))
+      pageReport.errors.push("No-match search did not inform the user");
+    await foodSearch.fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
@@ -383,6 +572,7 @@ try{
     if((await unit.inputValue())!=="units")pageReport.errors.push("Sushi is not defaulting to unit/piece");
     const hint=await page.locator("#mealEditorHint").textContent();
     if(!hint.includes("pieza")||!hint.includes("28 g"))pageReport.errors.push("Sushi piece grams are not disclosed");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("zapallo");
     const squash=await page.locator("#mealEditorFood option").allTextContents();
     if(!squash.some(t=>t.includes("Zapallo anco")))pageReport.errors.push("Zapallo synonyms not searchable");
@@ -409,21 +599,25 @@ try{
     const almondHint=await page.locator("#mealEditorHint").textContent();
     if(!almondHint.includes("FDC 168754"))
       pageReport.errors.push("Third audit batch chocolate almonds source missing");
+    await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("pochoclo");
     await page.locator("#mealEditorFood").selectOption("palomitas_saladas");
     const popcornHint=await page.locator("#mealEditorHint").textContent();
     if(!popcornHint.includes("FDC 170247"))
       pageReport.errors.push("Third audit batch popcorn source missing");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("helado frutilla");
     await page.locator("#mealEditorFood").selectOption("helado_frutilla_crema");
     const strawberryHint=await page.locator("#mealEditorHint").textContent();
     if(!strawberryHint.includes("FDC 168810"))
       pageReport.errors.push("Fourth audit batch strawberry ice cream source missing");
+    await page.locator('[data-mealgroup="carb"]').click();
     await page.locator("#mealFoodSearch").fill("donut");
     await page.locator("#mealEditorFood").selectOption("factura_donut");
     const donutHint=await page.locator("#mealEditorHint").textContent();
     if(!donutHint.includes("FDC 172758"))
       pageReport.errors.push("Fourth audit batch donut source missing");
+    await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("lemon pie");
     await page.locator("#mealEditorFood").selectOption("lemon_pie");
     const lemonHint=await page.locator("#mealEditorHint").textContent();
@@ -434,6 +628,7 @@ try{
     const cookieHint=await page.locator("#mealEditorHint").textContent();
     if(!cookieHint.includes("FDC 172718"))
       pageReport.errors.push("Fourth audit batch sandwich cookies source missing");
+    await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();
@@ -457,6 +652,34 @@ try{
     const hamPie=await page.locator("#mealEditorHint").textContent();
     if(!hamPie.includes("Jamón cocido 260 g")||!hamPie.includes("Mozzarella 260 g"))
       pageReport.errors.push("Ham-cheese pie model ingredient trace is unavailable");
+    // Real browser interaction: omitting an extra protein source must persist,
+    // while a prepared tuna pie still contributes every nutrient exactly ONCE.
+    await page.locator('[data-mealomit="protein"]').click();
+    const marked=await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.diary?.skipped?._guidedComponents?.almuerzo?.protein);
+    if(marked!==true)pageReport.errors.push("Optional protein omission was not persisted");
+    await page.locator('[data-mealgroup="prepared"]').click();
+    await page.locator("#mealFoodSearch").fill("tarta atun");
+    await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
+    await page.locator('[data-act="saveSelectedMealContinue"]').click();
+    const savedMixed=await page.evaluate(()=>{
+      const meals=window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[];
+      const pies=meals.filter(item=>item.id==="tarta_atun_horno");
+      return {count:pies.length,p:pies[0]?.p,c:pies[0]?.c,f:pies[0]?.f,k:pies[0]?.k,
+        omitted:window.__EFG_VISUAL_QA__.state.diary?.skipped?._guidedComponents?.almuerzo?.protein};
+    });
+    if(savedMixed.count!==1||!(savedMixed.p>0&&savedMixed.c>0&&savedMixed.f>0&&savedMixed.k>0)||savedMixed.omitted!==true)
+      pageReport.errors.push("Mixed tuna pie must register once incl protein, carbs, fat after optional omission: "+JSON.stringify(savedMixed));
+    if((await page.locator("[data-mealgroup]").count())!==4)
+      pageReport.errors.push("Add and continue did not reopen guided meal");
+    await page.locator('[data-act="closeMeal"]').click();
+    await page.evaluate(async previous=>{
+      const fixture=window.__EFG_VISUAL_QA__;fixture.state.diary=previous;await fixture.render();
+      fixture.openMealDialog("media_manana");
+    },beforeGuided);
+    if(await page.locator("[data-mealgroup],[data-mealomit]").count())
+      pageReport.errors.push("Media mañana must retain classic food selector");
+    if((await page.locator('#mealEditorFood option').count())<10)
+      pageReport.errors.push("Media mañana classic selector lost food categories");
     await page.locator('[data-act="closeMeal"]').click();
    }
    if(role==="student"&&dest==="recipes"){
@@ -516,7 +739,7 @@ try{
     if(banner.titleW<banner.w*0.6 || banner.titleY<=banner.eyebrowY)pageReport.errors.push("Admin hero is squeezed into columns");
    }
    if(width===390 || width===360 || ((width===320||width===768||width===1280)&&dest===destinations[0])){
-     await page.screenshot({path:join(outDir,engine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
+     await page.screenshot({path:join(outDir,captureEngine+"-"+role+"-"+width+"-"+dest+".png"),fullPage:true,animations:"disabled"});
    }
   }
   // Global Luxury includes FIRST-LOGIN, onboarding and OTP; do not treat
@@ -532,7 +755,7 @@ try{
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
     const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
     if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
-    await page.screenshot({path:join(outDir,engine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
+    await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();
     });
@@ -546,7 +769,7 @@ try{
     if((await page.locator("#loginEmail").count())!==1)pageReport.errors.push("Email OTP form lost");
     const loginWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
     if(loginWidth>390+2)pageReport.errors.push("Login horizontal overflow "+loginWidth);
-    await page.screenshot({path:join(outDir,engine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
+    await page.screenshot({path:join(outDir,captureEngine+"-student-390-login.png"),fullPage:true,animations:"disabled"});
   }
   // Real iPhone regression: silent auth must not close the coach's objectives accordion.
   if(role==="coach"&&width===390){
@@ -591,32 +814,30 @@ try{
     await window.__EFG_VISUAL_QA__.versionNotice.check({force:true});
    });
    const banner=page.locator("#efgVersionNotice");
-   if(!(await banner.isVisible()))pageReport.errors.push("Version notice did not appear for a newer build");
-   if(!(await banner.getByText("Nueva versión disponible").count()))pageReport.errors.push("New-version heading missing");
-   const urlBefore=page.url();
-   await page.locator("#targetAge").fill("42"); // Unsafe to discard without warning.
-   let warningShown=false;
-   page.once("dialog",dialog=>{warningShown=true;void dialog.dismiss()});
-   await banner.locator('[data-version-action="update"]').click();
-   await page.waitForTimeout(90);
-   if(!warningShown||page.url()!==urlBefore)pageReport.errors.push("Draft guard did not prevent a forced version reload");
-   await banner.locator('[data-version-action="later"]').click();
-   if(await banner.isVisible())pageReport.errors.push("Later button did not dismiss update notice");
+   const status=await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.getStatus());
+   if(!status.hasUpdate)pageReport.errors.push("New minor build was not detected");
+   if(status.automaticNoticeEnabled!==false)pageReport.errors.push("Minor build automatic notice unexpectedly enabled");
+   if(await banner.isVisible())pageReport.errors.push("Routine build unexpectedly interrupted coach with an alert");
+   await page.locator("#targetAge").fill("42");
+   await page.evaluate(()=>window.__EFG_VISUAL_QA__.versionNotice.check({force:true,reopen:true}));
+   if(await banner.isVisible())pageReport.errors.push("Manual check reopened a forbidden minor-build popup");
+   if(await page.locator("#targetAge").inputValue()!=="42")pageReport.errors.push("Version check lost unsaved coach draft");
    await page.evaluate(async()=>{
     const x=window.__EFG_VISUAL_QA__;
     x.state.tab="coachTools";await x.render();
    });
    const manualCheck=page.locator('[data-act="checkAppVersion"]');
-   if(!(await manualCheck.count()))pageReport.errors.push("Manual version checker missing from Coach More");
+   if(!(await manualCheck.count()))pageReport.errors.push("Manual version check missing from coach tools");
    else{
     await manualCheck.click();
     await page.waitForFunction(()=>/nueva versión|Estás al día|No se pudo comprobar|La comprobación sigue/.test(
      document.getElementById("efgBuildStatus")?.textContent||""),{timeout:6000});
     const label=await page.locator("#efgBuildStatus").textContent();
-    const visible=await banner.isVisible();
-    if(!label.includes("nueva versión")||!visible)
-     pageReport.errors.push("User-initiated check failed to reopen a postponed release: label="+label+", visible="+visible);
+    if(!label.includes("nueva versión")||!label.includes("Guardá tus cambios"))
+     pageReport.errors.push("Manual version result missing safe-save guidance: "+label);
+    if(await banner.isVisible())pageReport.errors.push("Manual version check showed unwanted popup");
    }
+   // Exceptional major-release CTA is a separate OFF-until-approved flow.
    await page.unroute("**/pilot/index.html?efg_version_check=*");
   }
   results.push(pageReport);
@@ -624,8 +845,8 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report-"+engine+".json"),JSON.stringify(report,null,2));
+writeFileSync(join(outDir,"report-"+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
-console.log(JSON.stringify({engine,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
+console.log(JSON.stringify({engine,captureEngine,androidMode,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;

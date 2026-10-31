@@ -102,20 +102,27 @@ const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
 export const guidedPortionBounds=id=>bounds(id).slice(0,2);
-function source(food,qty){return {id:food.id,name:food.name,unit:food.unit||"g",qty,
- sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
- ...Object.fromEntries(NUTRIENTS.map(k=>[k,Number(food[k])||0]))};}
+function source(food,qty){
+ // A missing nutrient is NOT measured zero. Refuse to generate an approvable
+ // guide if the selected catalog entry lacks any required value.
+ if(!food||typeof food.id!=="string"||!NUTRIENTS.every(k=>valid(food[k])&&food[k]>=0))
+  throw new Error("El alimento "+String(food?.name||food?.id||"sin identificar")+" tiene datos nutricionales incompletos. Revisá su ficha antes de generar la guía.");
+ return {id:food.id,name:food.name,unit:food.unit||"g",qty,
+  sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
+  ...Object.fromEntries(NUTRIENTS.map(k=>[k,food[k]]))};
+}
 export function guideTotals(plan){
  const perMeal=(plan?.meals||[]).map(m=>({slot:m.slot,label:m.label,totals:sum(m.items||[])}));
  const totals=sum((plan?.meals||[]).flatMap(m=>m.items||[]));
  return {perMeal,totals};
 }
 export function guideDeviation(plan,goal){
- const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal||goal?.k)||0,p:Number(goal?.protein_g||goal?.p)||0,c:Number(goal?.carb_g||goal?.c)||0,f:Number(goal?.fat_g||goal?.f)||0};
+ const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal??goal?.k??0)||0,p:Number(goal?.protein_g??goal?.p??0)||0,c:Number(goal?.carb_g??goal?.c??0)||0,f:Number(goal?.fat_g??goal?.f??0)||0,fi:Number(goal?.fiber_g??goal?.fi??0)||0};
  return Object.fromEntries(Object.entries(targets).map(([k,target])=>[k,{target,actual:t[k],difference:t[k]-target,percent:target>0?100*(t[k]-target)/target:null}]));
 }
 function score(plan,goal){
- const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3};
+ // Fiber is part of the coach-approved target when specified; missing data never implies success.
+ const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3,fi:1};
  const macro=Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
  // Encourage a plausible five-meal distribution rather than sending huge fruit portions to snacks.
  const ratios={desayuno:.22,media_manana:.13,almuerzo:.29,merienda:.14,cena:.22};

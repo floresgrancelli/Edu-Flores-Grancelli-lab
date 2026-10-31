@@ -21,6 +21,32 @@ jobs:
           node-version: '22'
       - name: Validate static security contract
         run: node efg-nutrition/tests/security-guardrails.mjs
+      - name: COACH71 metadata inventory and fail-closed local restore preflight (NO hosted DB)
+        run: |
+          node --check efg-nutrition/scripts/coach71-hosted-preflight.mjs
+          node efg-nutrition/tests/coach71-hosted-object-contract.mjs
+      - name: SEC12 hosted privileged RPC definitions and ACL drift (OFFLINE snapshot)
+        run: node efg-nutrition/tests/sec12-hosted-privileged-rpc-contract.mjs
+      - name: SEC13 require exact 19-RPC signed JWT/tenant test matrix (planning only)
+        run: node efg-nutrition/tests/sec13-hosted-rpc-authorization-plan.mjs
+      - name: COACH72 offline SHA-256 private Storage restore integrity (synthetic bytes only)
+        run: |
+          node --check efg-nutrition/scripts/coach72-private-storage-restore-verify.mjs
+          node efg-nutrition/tests/coach72-private-storage-restore.mjs
+      - name: COACH75 verify read-only 12-object hosted release prerequisite gate (OFFLINE)
+        run: node efg-nutrition/tests/coach75-release-prerequisites-contract.mjs
+      - name: COACH91 local private database backup and disposable PG17 restore safeguards (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/scripts/coach91-local-db-backup-rehearsal.mjs
+          node efg-nutrition/tests/coach91-local-db-backup-rehearsal.mjs
+      - name: COACH94 Supabase-aware private roles/schema/data seal and destination guard (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/scripts/coach94-platform-triplet-recovery.mjs
+          node efg-nutrition/tests/coach94-platform-triplet-recovery.mjs
+      - name: COACH95 private operator workstation preflight guard (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/scripts/coach95-private-operator-preflight.mjs
+          node efg-nutrition/tests/coach95-private-operator-preflight.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

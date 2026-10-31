@@ -1,7 +1,8 @@
-// EFG Nutrition Pro — opt-in version update notice for the installed /pilot/ PWA.
+// Nutrición Con-Ciencia — opt-in version update notice for the installed /pilot/ PWA.
 // Checks current published HTML only; no execution of remote code until the user chooses to reload.
 export function createVersionNotice({
- currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000
+ currentVersion,canShow=()=>true,hasUnsavedChanges=()=>false,intervalMs=90000,
+ announceMinorUpdates=false
 }={}){
  const headVersion=document.querySelector('meta[name="efg-build"]')?.content||String(currentVersion||"");
  const stylesheetSignature=(doc)=>[...doc.querySelectorAll('link[rel="stylesheet"]')].map(el=>el.getAttribute("href")||"").sort();
@@ -17,20 +18,50 @@ export function createVersionNotice({
  host.id="efgVersionNotice";
  host.className="efg-version-notice";
  host.setAttribute("aria-live","polite");
- host.setAttribute("aria-label","Actualización de EFG Nutrition Pro");
+ host.setAttribute("aria-label","Actualización de Nutrición Con-Ciencia");
  host.hidden=true;
  document.body.append(host);
- const escapeHTML=value=>String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ // Offer the upgrade, but never auto-reload a running food diary or edit.
+ // Build changes are independent of promotional and legal flows.
  function paint(){
-  const visible=!!latest&&latest.key!==dismissed&&canShow();
-  host.hidden=!visible;
-  if(!visible){host.innerHTML="";return;}
-  host.innerHTML='<div class="efg-version-icon" aria-hidden="true">✦</div>'+
-   '<div class="efg-version-copy"><strong>¡Nueva versión disponible!</strong>'+
-   '<p>Hay mejoras en EFG Nutrition Pro. Elegí cuándo incorporarlas.</p></div>'+
-   '<div class="efg-version-actions">'+
-   '<button type="button" class="efg-version-later" data-version-action="later">Más tarde</button>'+
-   '<button type="button" class="efg-version-update" data-version-action="update">Actualizar ahora</button></div>';
+  host.replaceChildren();
+  // UX-35 definitive 29/10: minor/daily releases are SILENT by default.
+  // Manual check still reports the new code; major reauth has a separate,
+  // server-verified, explicitly approved release workflow.
+  const canPresent=announceMinorUpdates===true&&!!latest&&dismissed!==latest.key&&canShow()&&!document.hidden;
+  host.hidden=!canPresent;
+  if(!canPresent)return;
+  const icon=document.createElement("span");
+  icon.className="efg-version-icon";
+  icon.textContent="↻";
+  icon.setAttribute("aria-hidden","true");
+  const copy=document.createElement("div");
+  copy.className="efg-version-copy";
+  const title=document.createElement("strong");
+  title.textContent="Hay una actualización disponible";
+  const hint=document.createElement("p");
+  const dirty=!!hasUnsavedChanges();
+  hint.textContent=dirty
+   ?"Guardá tus cambios y volvé a abrir la app para instalarla sin perder lo que estás editando."
+   :"Podés actualizar ahora o seguir usando esta versión.";
+  copy.append(title,hint);
+  const actions=document.createElement("div");
+  actions.className="efg-version-actions";
+  const later=document.createElement("button");
+  later.type="button";later.className="efg-version-later";
+  later.textContent="Más tarde";
+  later.addEventListener("click",()=>{
+   dismissed=latest?.key||null;
+   paint();
+  });
+  const instructions=document.createElement("button");
+  instructions.type="button";instructions.className="efg-version-update";
+  instructions.textContent="Cómo actualizar";
+  instructions.addEventListener("click",()=>{
+   hint.textContent="Guardá tus cambios, cerrá la app y volvé a abrirla. La actualización nunca recarga tu sesión de forma automática.";
+  });
+  actions.append(later,instructions);
+  host.append(icon,copy,actions);
  }
  async function check({force=false,reopen=false}={}){
   if(inFlight){
@@ -51,6 +82,8 @@ export function createVersionNotice({
    const doc=new DOMParser().parseFromString(html,"text/html");
    const serverVersion=doc.querySelector('meta[name="efg-build"]')?.getAttribute("content")||"";
    const serverSignature=signature(doc);
+   // A partial or captive-portal HTML response must not masquerade as a release.
+   if(!serverVersion||!doc.querySelector('script[type="module"][src*="pilot.js"]'))throw Error("Incomplete version manifest");
    const changed=(serverVersion&&serverVersion!==headVersion)||(serverSignature&&serverSignature!==initialSignature);
    // No update banner if the response is ambiguous or the server is unavailable.
    latest=changed?{key:serverVersion||serverSignature,version:serverVersion}:null;
@@ -64,19 +97,6 @@ export function createVersionNotice({
    if(finish)finish();
   }
  }
- function onAction(event){
-  const button=event.target.closest("[data-version-action]");
-  if(!button||!host.contains(button))return;
-  if(button.dataset.versionAction==="later"){dismissed=latest?.key||null;paint();return;}
-  if(button.dataset.versionAction!=="update"||!latest)return;
-  if(hasUnsavedChanges()){
-   const agreed=window.confirm("Hay datos que podrías no haber guardado (por ejemplo una dieta o mensaje). Guardalos antes de actualizar. ¿Querés recargar y descartar cualquier edición pendiente?");
-   if(!agreed)return;
-  }
-  // The user's click is the ONLY path that reloads. No forced background updates.
-  window.location.reload();
- }
- host.addEventListener("click",onAction);
  const visibilityHandler=()=>{if(!document.hidden){paint();void check();}};
  const focusHandler=()=>{paint();void check();};
  document.addEventListener("visibilitychange",visibilityHandler);
@@ -84,8 +104,8 @@ export function createVersionNotice({
  const poll=setInterval(()=>{void check();},intervalMs);
  // Do the first fetch promptly after all module initializers have mounted.
  queueMicrotask(()=>{void check({force:true});});
- return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
-  clearInterval(poll);host.removeEventListener("click",onAction);
+ return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,automaticNoticeEnabled:announceMinorUpdates===true,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
+  clearInterval(poll);
   document.removeEventListener("visibilitychange",visibilityHandler);
   window.removeEventListener("focus",focusHandler);host.remove();
  }};

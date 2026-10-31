@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {renderPilotParticipationNotice} from '../pilot/pilot-participation-demo.js';
+import {COACH_STUDENT_JOURNEY_ENABLED} from '../pilot/coach-student-journey.js';
+const ui=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false,'Do not activate without atomic plan publisher and RLS diary write gate');
+assert.match(ui,/fetchCoachPilotEntry\(sb,\{profile:state\.profile\}\)/);
+assert.match(ui,/renderPilotParticipationNotice\(\{serverReceipts:true\}\)/);
+assert.match(ui,/acceptPilotParticipation\(sb,choice,\{explicitSubmit:true\}\)/);
+assert.match(ui,/readPilotParticipationSelection\(document,\{explicitClick:true\}\)/);
+assert.match(ui,/syncPilotParticipationContinueButton\(document\)/);
+assert.match(ui,/renderCoachPlanWaiting\(\)/);
+assert.match(ui,/state\.tab="messages";await render\(\)/);
+assert.match(ui,/submitCoachPilotGeneralIntake\(sb,\{profile:state\.profile,payload:data\.payload/);
+assert.match(ui,/expectedRevision:state\.coachPilotIntake\?\.revision\?\?0/);
+assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
+assert.match(ui,/if\(!\["ready","review"\]\.includes\(state\.coachPilotEntry\.route\)\)\{await render\(\);return;\}/);
+assert.match(ui,/if\(state\.tab==="nutritionScience"\)frame\(renderScienceVerticalView\(\)\)/,
+ 'Waiting pupil has access to approved science library without unlocking diaries');
+const server=renderPilotParticipationNotice({serverReceipts:true});
+assert.match(server,/se guardarán en el servidor/i);
+assert.doesNotMatch(server,/Esta pantalla es una simulación/);
+assert.match(server,/No equivalen a términos legales definitivos/);
+assert.ok(!/checked(?:\s|>)/i.test(server));
+const demo=renderPilotParticipationNotice();
+assert.match(demo,/Esta pantalla es una simulación/,'Existing mock mode must retain its disclaimer');
+console.log('PASS COACH113: complete pilot UI route wired behind OFF flag, real receipts, revised general intake, waiting+messages; no clinical consent pretended.');

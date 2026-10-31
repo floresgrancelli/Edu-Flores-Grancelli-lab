@@ -1,8 +1,8 @@
 // EFG Nutrition Pro · constancia semanal sin persistencia adicional.
 // Basado en ingestas registradas, metas vigentes el día evaluado y horario argentino.
-// ±5% / ±10% son convenciones de esta aplicación: NO umbrales clínicos universales.
+// ±5% es una meta de seguimiento elegida por EFG, no un umbral clínico universal.
 const labels=["L","M","X","J","V","S"];
-export const WEEKLY_RANGES=Object.freeze({ideal:0.05,acceptable:0.10,minProtein:0.90});
+export const WEEKLY_RANGES=Object.freeze({ideal:0.05,minProtein:0.90});
 const n=x=>{const v=Number(x);return Number.isFinite(v)?v:0;};
 const iso=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||""))?String(x):null;
 const move=(day,offset)=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+offset);return d.toISOString().slice(0,10);};
@@ -18,8 +18,9 @@ export function classifyNutritionDay(totals,goal){
  const dev=Math.abs(1-energyPct);
  const proteinOK=proteinPct>=WEEKLY_RANGES.minProtein-1e-10;
  const ideal=proteinOK&&dev<=WEEKLY_RANGES.ideal+1e-10;
- const acceptable=proteinOK&&dev<=WEEKLY_RANGES.acceptable+1e-10;
- return {status:ideal?"ideal":acceptable?"achieved":"outside",
+ // Alias acceptable for existing coach permission / summaries; ONLY ±5% counts.
+ const acceptable=ideal;
+ return {status:ideal?"ideal":"outside",
   ideal,acceptable,energyPct:pct(energyPct*100),proteinPct:pct(proteinPct*100)};
 }
 export function calculateWeeklyConsistency({today,logs,goals,totalOf,goalForDate}){
@@ -39,7 +40,7 @@ export function calculateWeeklyConsistency({today,logs,goals,totalOf,goalForDate
    energyPct:score.energyPct,proteinPct:score.proteinPct};
   return {date:d,label,...score};
  });
- const valid=days.filter(x=>["ideal","achieved","outside"].includes(x.status));
+ const valid=days.filter(x=>["ideal","outside"].includes(x.status));
  return {days,monday,ideal:valid.filter(x=>x.ideal).length,
   acceptable:valid.filter(x=>x.acceptable).length,
   evaluated:valid.length,hasTodaySunday:ref.getUTCDay()===0};
@@ -59,7 +60,7 @@ function slotCell(d,track){
   '</span><span class="efg-streak-dot" aria-hidden="true">'+icon+'</span></span>';
 }
 export function weeklyConsistencyPanel(report,{opened=false,approved=false,verified=false,personal=false}={}){
- const ideal=report?.ideal||0,acceptable=report?.acceptable||0;
+ const ideal=report?.ideal||0;
  const draw=(type,name,detail,count)=>'<div class="efg-streak-track efg-streak-'+type+'">'+
   '<div class="efg-streak-trackhead"><span><strong>'+name+'</strong><small>'+detail+
   '</small></span><b>'+count+'/6</b></div>'+
@@ -69,10 +70,9 @@ export function weeklyConsistencyPanel(report,{opened=false,approved=false,verif
   '<div class="efg-weekly-streak-title"><span class="efg-streak-star" aria-hidden="true">✦</span><div>'+
    '<h2 id="weeklyStreakTitle">MIS LOGROS DE LA SEMANA</h2>'+
    '<p>Lunes a sábado · Cada día cuenta</p></div></div>'+
-  draw("ideal","ZONA IDEAL · ±5%","Calorías en rango y proteína ≥90%",ideal)+
-  draw("acceptable","OBJETIVO CUMPLIDO · ±10%","También suma los días de ±5%",acceptable)+
-  (acceptable===6&&report?.evaluated===6
-   ?'<div class="efg-reward-container"><div class="efg-reward-intro"><span aria-hidden="true">✦</span><strong>¡SEMANA COMPLETA!</strong><small>6 días dentro de la zona cumplida'+(ideal===6?' · Distinción especial: 6 días ideales':'')+'</small></div>'+
+  draw("ideal","OBJETIVO CUMPLIDO · ±5%","Calorías en rango y proteína ≥90%",ideal)+
+  (ideal===6&&report?.evaluated===6
+   ?'<div class="efg-reward-container"><div class="efg-reward-intro"><span aria-hidden="true">✦</span><strong>¡SEMANA COMPLETA!</strong><small>6 días dentro del rango ±5%'+'</small></div>'+
     '<button type="button" class="btn efg-reward-open" data-act="openWeeklyReward" aria-expanded="'+(opened?'true':'false')+'" aria-controls="efgRewardReveal">🎁 ABRIR PREMIO</button>'+
     (opened?'<div id="efgRewardReveal" role="status" aria-live="polite" class="efg-reward-reveal"><strong>✦ ¡Felicitaciones por tu constancia!</strong><p>'+
       (personal?'Reconocimiento personal por tu constancia semanal. Este logro no implica una autorización de comida libre ni un cambio en tus objetivos nutricionales.':verified&&approved?'Tu coach autorizó expresamente una comida libre para este domingo. Respetá las indicaciones acordadas; no hace falta compensar después.':
@@ -81,8 +81,8 @@ export function weeklyConsistencyPanel(report,{opened=false,approved=false,verif
   '<p class="efg-weekly-streak-sunday"><span aria-hidden="true">☀️</span> '+(personal?'Domingo: descanso de la evaluación semanal. No suma ni resta.':'Domingo: alimentación flexible según las indicaciones de tu coach. No suma ni resta.')+'</p>'+
   (report.hasTodaySunday?'<p class="efg-weekly-streak-today">Hoy es domingo: la constancia se retoma el lunes.</p>':
    '<p class="efg-weekly-streak-today">El día de hoy se evalúa al terminar; nunca se premia de forma anticipada.</p>')+
-  '<details class="efg-weekly-streak-science"><summary>¿QUÉ DICE LA CIENCIA?</summary><p>Basado en evidencia científica: los registros alimentarios tienen errores y los estudios evalúan la adherencia con rangos, no con el 100% exacto. EFG utiliza ±5% y ±10% como bandas prácticas inspiradas en esos hallazgos, no como límites clínicos universales.</p>'+
+  '<details class="efg-weekly-streak-science"><summary>¿QUÉ DICE LA CIENCIA?</summary><p>Basado en evidencia científica: los registros alimentarios tienen errores y los estudios evalúan la adherencia con rangos, no con el 100% exacto. EFG utiliza un único rango de ±5% para mostrar su seguimiento semanal; es una elección de producto y no un límite clínico universal.</p>'+
   '<small>Referencias: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6928130/" target="_blank" rel="noopener noreferrer">Revisión sistemática de registros nutricionales (2019)</a> · <a href="https://onlinelibrary.wiley.com/doi/10.1111/obr.70066" target="_blank" rel="noopener noreferrer">Revisión sobre adherencia (2026)</a>.</small></details>'+
-  '<p class="efg-weekly-streak-note">Premio visual por constancia, sin diagnóstico ni penalización por días sin datos. Las calorías y la proteína se evalúan respecto de las metas aprobadas para cada fecha.</p>'+
+  '<p class="efg-weekly-streak-note">Premio visual por constancia dentro del rango ±5%, sin diagnóstico ni penalización por días sin datos. Las calorías y la proteína se evalúan respecto de las metas aprobadas para cada fecha.</p>'+
  '</section>';
 }

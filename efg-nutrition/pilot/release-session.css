@@ -1,0 +1,27 @@
+/* UX-35: touch-accessible manual sign-out for every signed-in Coach/Student/Admin.
+   Automatic release checks never trigger this action. */
+.efg-mobile-logout{display:none}
+@media(max-width:720px){
+ .pilot-layout .efg-mobile-header{gap:8px;max-width:100%;box-sizing:border-box}
+ .pilot-layout .efg-mobile-brand{min-width:0;flex:1 1 auto}
+ .pilot-layout .efg-mobile-brand-text{min-width:0}
+ .pilot-layout .efg-mobile-person{display:flex;flex:0 0 auto;gap:8px;align-items:center}
+ .pilot-layout .efg-mobile-logout{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;min-width:54px;min-height:44px;
+  padding:8px 11px;box-sizing:border-box;
+  border:1px solid rgba(117,84,166,.38);border-radius:13px;
+  background:linear-gradient(150deg,#fff,#f4ebff);color:#503c77;
+  box-shadow:0 3px 9px rgba(51,38,85,.07);
+  font:700 12px/1.2 system-ui,-apple-system,sans-serif;
+  cursor:pointer;
+ }
+ .pilot-layout .efg-mobile-logout:focus-visible{outline:3px solid #9b84d8;outline-offset:3px}
+}
+@media(max-width:375px){
+ .pilot-layout .efg-mobile-header{padding-inline:10px;gap:6px}
+ .pilot-layout .efg-mobile-person{gap:5px}
+ .pilot-layout .efg-mobile-person .efg-mobile-avatar{width:33px;height:33px;flex-basis:33px}
+ .pilot-layout .efg-mobile-brand-text strong{font-size:12px;line-height:1.2}
+ .pilot-layout .efg-mobile-logout{padding-inline:8px;min-width:50px}
+}

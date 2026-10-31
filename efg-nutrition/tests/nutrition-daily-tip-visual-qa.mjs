@@ -23,7 +23,7 @@ try{
    // The browser fixture must never contact Unsplash. Keep the authored URL
    // and verify visual geometry with a known-good local PNG data URI.
    await page.route("https://images.unsplash.com/**",route=>route.abort());
-   const fixturePng="iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAFElEQVR4nGO8uiCNARtgwio6aCUAdugB68GFYBwAAAAASUVORK5CYII=";
+   const fixturePng="iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAG0lEQVR4nGOclhfAy8CCiVgY+FgYGLCgwSkBANu2AyvaoCItAAAAAElFTkSuQmCC";
    for(const {label,date,unlocked} of [
     {label:"29-gnocchi",date:new Date("2026-10-29T15:00:00Z"),unlocked:false},
     {label:"ordinary",date:new Date("2026-10-30T15:00:00Z"),unlocked:true}

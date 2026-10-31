@@ -78,6 +78,8 @@ as $share$
  select efg_private.coach_has_student(p_student) and exists(
   select 1 from public.efg_pilot_participation_receipts r
   join public.efg_profiles p on p.user_id=r.student_id
+  join public.efg_consents c on c.student_id=r.student_id
+    and c.organization_id=r.organization_id and c.accepted=true
   where r.student_id=p_student and r.organization_id=p_org
    and p.organization_id=p_org and p.role='student' and p.active
    and r.version='coach_pilot_2026_demo1'
@@ -93,11 +95,7 @@ grant execute on function efg_private.coach_pilot_share_active(uuid,uuid)
 create policy efg_coach_relaunch_shared_coach_select on public.efg_coach_relaunch_intakes
  for select to authenticated using (
   shared_at is not null and efg_private.coach_pilot_share_active(student_id,organization_id)
-  and exists (
-   select 1 from public.efg_consents c
-   where c.student_id=efg_coach_relaunch_intakes.student_id
-    and c.organization_id=efg_coach_relaunch_intakes.organization_id and c.accepted=true
-  )
+
  );
 -- No direct PostgREST INSERT/UPDATE/DELETE grant and NO write RLS policies.
 -- Use the limited transactional RPC below. It is NOT a clinical intake endpoint.

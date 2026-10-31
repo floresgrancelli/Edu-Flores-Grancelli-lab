@@ -52,11 +52,11 @@ export function evaluatePattern({patternId,healthFlags=[],medicationFlags=[],age
 export function evaluateEatingWindow({windowId,healthFlags=[],medicationFlags=[],age=null}={}){
  const window=EATING_WINDOWS.find(w=>w.id===windowId);
  if(!window)throw Error("Ventana horaria desconocida.");
- if(windowId==="regular")return {status:"general",requiresReview:false,reasons:[]};
  if(!Array.isArray(healthFlags)||!Array.isArray(medicationFlags)||
   !healthFlags.every(x=>typeof x==="string")||!medicationFlags.every(x=>typeof x==="string"))
   throw Error("Indicadores de salud o medicación inválidos.");
  const h=new Set(healthFlags),m=new Set(medicationFlags);
+ if(windowId==="regular")return {status:"general",requiresReview:false,reasons:[]};
  const reasons=[];
  if(age!==null&&(!Number.isFinite(age)||age<18))reasons.push("Menores de edad: no habilitar ayuno automáticamente.");
  for(const flag of ["pregnancy","lactation","eating_disorder"]){

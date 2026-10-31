@@ -42,10 +42,13 @@ assert.match(sql,/revoke all on function efg_private\.coach119_reviewed_food_ids
 assert.doesNotMatch(sql,/select pg_catalog\.array_agg\(distinct item\.value->>'id'\)\s+into v_food_ids/,
  "New students cannot receive only the ingredients of the five-meal example");
 
-assert.match(sql,/approved_food_ids=\([\s\S]*?public\.efg_food_plans\.approved_food_ids\s*\|\|\s*excluded\.approved_food_ids[\s\S]*?\)/,
- 'Publishing a new five-meal guide must preserve earlier coach-approved food choices');
-assert.doesNotMatch(sql,/approved_food_ids=excluded\.approved_food_ids/,
- 'Never silently shrink an existing student list to just the guide foods');
+// New Coach-approvedFoodIds is a FULL explicit reviewed catalog, not merely
+// the five guide ingredients. Carrying forward old IDs without re-review
+// would silently preserve expired/unreviewed choices across an intake change.
+assert.match(sql,/approved_food_ids=excluded\.approved_food_ids/,
+ 'Atomic publication must replace old approvals with the full newly reviewed Coach selection');
+assert.doesNotMatch(sql,/public\.efg_food_plans\.approved_food_ids\s*\|\|\s*excluded\.approved_food_ids/,
+ 'Never implicitly union stale legacy food approvals into a new plan');
 
 assert.match(sql,/where student_id=p_student and organization_id=v_org and coach_id=v_coach/);
 assert.match(sql,/and draft_revision=p_expected_revision and status='draft'/);

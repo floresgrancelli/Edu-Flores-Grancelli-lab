@@ -4,7 +4,7 @@ import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js';
 import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js';
 export const COACH_PILOT_ENTRY_BACKEND_VERSION='coach116';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const ROUTES=new Set(['legal','participation','intake','review','ready','verify']);
+const ROUTES=new Set(['legal','participation','intake','private','review','ready','verify']);
 const deny=()=>Object.freeze({route:'verify',canLogMeals:false,reason:'No pudimos verificar tu acceso actual. Reintentá.'});
 export function validateCoachPilotEntryResponse(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw)||!ROUTES.has(raw.route)||
@@ -21,6 +21,7 @@ export function validateCoachPilotEntryResponse(raw){
  if(raw.route!=='legal'&&raw.legal_current_accepted!==true)return deny();
  if(raw.route==='participation'&&(raw.participation_confirmed!==false||raw.can_log_meals))return deny();
  if(raw.route==='intake'&&(raw.participation_confirmed!==true||raw.can_log_meals))return deny();
+ if(raw.route==='private'&&(!raw.participation_confirmed||raw.general_intake_shared||raw.can_log_meals))return deny();
  if(raw.route==='review'&&(!raw.participation_confirmed||!raw.general_intake_shared||raw.can_log_meals))return deny();
  if(raw.route==='ready'&&(!raw.participation_confirmed||!raw.general_intake_shared||!raw.can_log_meals))return deny();
  return Object.freeze({route:raw.route,canLogMeals:raw.route==='ready',
@@ -29,9 +30,10 @@ export function validateCoachPilotEntryResponse(raw){
   generalIntakeShared:raw.general_intake_shared,
   medicalPermission:false,
   reason:raw.route==='legal'?'Leé y aceptá los Términos y Privacidad actuales para continuar.':
+   raw.route==='private'?'Tu ficha está guardada de forma privada. El coach no puede consultarla.':
    raw.route==='review'?'Tu coach está preparando tu plan.':
-   raw.route==='intake'?'Completá y compartí tu ficha general.':
-   raw.route==='participation'?'Confirmá las dos autorizaciones del piloto.':
+   raw.route==='intake'?'Completá tu ficha general. Compartirla es opcional.':
+   raw.route==='participation'?'Confirmá tu participación; compartir datos es opcional.':
    'Tu acceso está listo.'});
 }
 export async function fetchCoachPilotEntry(sb,{profile}={}){

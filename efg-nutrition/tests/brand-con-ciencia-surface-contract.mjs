@@ -31,8 +31,8 @@ for(const name of candidateAssets){
   "Old visible brand in pilot/"+name+"; DO NOT rename technical IDs, files or keys");
 }
 const pilot=read("../pilot/pilot.js");
-assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,4,
- "Student ready/pending, Coach and Admin nav must show the permanent science library");
+assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,5,
+ "Student ready/pending/private, Coach and Admin nav must show the permanent science library");
 assert.equal((pilot.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,
  "Student, Coach and Admin More menus must show the permanent science library");
 assert.match(pilot,/nutritionScience:renderScienceVerticalView/);

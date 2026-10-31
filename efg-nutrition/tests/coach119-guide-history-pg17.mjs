@@ -187,7 +187,7 @@ assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
  'Approved deletion of student must remove private historic rows as well');
 // Legal gate: run the exact candidate SELECT against disposable PostgreSQL.
 // Two distinct Terms documents must never substitute for a Privacy acceptance.
-const legalMatch=source.match(/select pg_catalog\\.count\\(distinct d\\.kind\\) into v_legal_count\\s+([\\s\\S]*?);\\s*if v_legal_count<>2/);
+const legalMatch=source.match(/select pg_catalog\.count\(distinct d\.kind\) into v_legal_count\s+([\s\S]*?);\s*if v_legal_count<>2/);
 assert.ok(legalMatch,'Exact COACH119 two-kind legal query unavailable');
 const legalQuery='select pg_catalog.count(distinct d.kind) '+legalMatch[1]+';';
 exec(`create table public.efg_legal_documents(

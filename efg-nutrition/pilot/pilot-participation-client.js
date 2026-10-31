@@ -8,12 +8,15 @@ async function signedUser(sb){
  if(error||!uuid(data?.user?.id))throw Error('Sesión autenticada no verificada.');
  return data.user.id;
 }
-async function receiptReadback(sb,userId){
+async function receiptReadback(sb,userId,{expectedOrganizationId=null}={}){
  const r=await sb.from('efg_pilot_participation_receipts')
   .select('student_id,organization_id,version,participation_accepted,sharing_accepted,acceptance_method,accepted_at,revoked_at,updated_at')
   .eq('student_id',userId).eq('version',PILOT_PARTICIPATION_VERSION).maybeSingle();
  if(r.error)throw Error('No pudimos verificar las decisiones guardadas.');
  if(r.data&&r.data.student_id!==userId)throw Error('La autorización corresponde a otra cuenta.');
+ if(expectedOrganizationId!==null&&(!uuid(expectedOrganizationId)||
+  r.data&&r.data.organization_id!==expectedOrganizationId))
+  throw Error('La autorización corresponde a otra organización.');
  return r.data||null;
 }
 const complete=(r,userId)=>r?.student_id===userId&&
@@ -22,9 +25,9 @@ const complete=(r,userId)=>r?.student_id===userId&&
  r.participation_accepted===true&&r.sharing_accepted===true&&
  r.revoked_at===null&&typeof r.accepted_at==='string'&&
  Number.isFinite(Date.parse(r.accepted_at));
-export async function loadPilotParticipationReceipt(sb){
+export async function loadPilotParticipationReceipt(sb,{expectedOrganizationId=null}={}){
  const userId=await signedUser(sb);
- const receipt=await receiptReadback(sb,userId);
+ const receipt=await receiptReadback(sb,userId,{expectedOrganizationId});
  return {userId,receipt,participation:receipt?{
   user_id:userId,version:receipt.version,
   participation_accepted:complete(receipt,userId),

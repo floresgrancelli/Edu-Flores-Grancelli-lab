@@ -279,6 +279,69 @@ recipeFailure=false;await clearHandler();
 assert.equal(recipeDiary.meals.cena.length,0,'Confirmed clear removes foods');
 assert.equal(recipeLocks.size,0,'Clear release lock after confirmation');
 
+
+// Sports and supplements are stored together; a rejected write cannot silently
+// remove or duplicate entries or grant a second concurrent tap.
+const sportBegin=source.indexOf('let pendingSportDiaryMutation=false;');
+const sportEnd=source.indexOf('async function addDailySupplement(){',sportBegin);
+assert.ok(sportBegin>0&&sportEnd>sportBegin,'Real sport diary transaction helper exists');
+const sportsDiary={sports:[{id:'whey',name:'Whey',kind:'supplement',qty:30}],skipped:{_closed:true}};
+const sportsState={diary:sportsDiary},sportsNotices=[];
+let sportsFail=true,sportsWrites=0,sportsWait=null;
+const sportMutation=new Function('activeDiary','state','saveDiary','notify',
+ source.slice(sportBegin,sportEnd)+';return mutateSportDiary;')(
+ ()=>sportsDiary,sportsState,async()=>{sportsWrites++;if(sportsFail)throw Error('offline');if(sportsWait)await sportsWait;},
+ message=>sportsNotices.push(message));
+const sportsBefore=structuredClone(sportsDiary);
+await assert.rejects(sportMutation(d=>d.sports.splice(0,1),'removed'),/offline/);
+assert.deepEqual(sportsDiary,sportsBefore,'Failed supplement delete restores sport diary and closed flag');
+assert.equal(sportsNotices.length,0,'Failed supplement delete cannot notify success');
+sportsFail=false;
+let unlockSport;
+sportsWait=new Promise(resolve=>{unlockSport=resolve});
+const firstSport=sportMutation(d=>d.sports.push({id:'coffee',qty:100}),'recorded');
+await sportMutation(d=>d.sports.push({id:'duplicate',qty:1}),'duplicate');
+assert.equal(sportsDiary.sports.length,2,'Repeated sport tap must not create a second entry');
+assert.equal(sportsWrites,2,'Only one pending sport mutation starts a REST write');
+unlockSport();
+await firstSport;
+assert.equal(sportsNotices.length,1);
+sportsWait=null;
+await sportMutation(d=>d.sports.splice(1,1),'removed');
+assert.equal(sportsDiary.sports.length,1,'Confirmed sport removal mutates once');
+assert.equal(sportsWrites,3);
+assert.match(source,/if\(el\.dataset\.removesupp!==undefined\)[\s\S]*?mutateSportDiary/,'Supplement removal shares lock');
+assert.match(source,/if\(el\.dataset\.removesport!==undefined\)[\s\S]*?mutateSportDiary/,'Sport removal shares lock');
+assert.match(source,/if\(action==="addSport"\)[\s\S]*?mutateSportDiary/,'Sport addition shares lock');
+
+// The real guided-meal "Omitir protein/carb" action must roll back a denied
+// diary write and never race another food mutation in the same meal slot.
+const omitStart=source.indexOf('if(el.dataset.mealomit){');
+const omitEnd=source.indexOf('if(action==="closeMeal")',omitStart);
+assert.ok(omitStart>=0&&omitEnd>omitStart,'Guided meal omit handler exists');
+const guidedDiary={meals:{desayuno:[]},skipped:{_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
+const guidedState={activeMeal:'desayuno',diary:guidedDiary};
+const guidedLock=new Set(),guidedNotices=[];let guidedFail=true,guidedWrites=0,guidedOpened=0;
+const guidedClick=new Function('el','state','isGuidedMealSlot','pendingMealRegistrations',
+ 'activeDiary','today','saveDiary','openMealDialog','notify',
+ 'return async function run(){'+source.slice(omitStart,omitEnd)+'}')( 
+ {dataset:{mealomit:'protein'}},guidedState,slot=>slot==='desayuno',guidedLock,
+ ()=>guidedDiary,()=> '2026-10-31',
+ async()=>{guidedWrites++;if(guidedFail)throw Error('offline')},
+ ()=>{guidedOpened++},m=>guidedNotices.push(m));
+const guidedBefore=structuredClone(guidedDiary);
+await assert.rejects(guidedClick(),/offline/);
+assert.deepEqual(guidedDiary,guidedBefore,'Failed guided omit restores previous component flags');
+assert.equal(guidedOpened,0,'Failed guided omit cannot move user to next section');
+assert.equal(guidedLock.size,0,'Failed guided omit releases meal slot');
+guidedFail=false;guidedLock.add('desayuno');
+await guidedClick();assert.equal(guidedWrites,1,'Busy meal cannot double-toggle guided component');
+guidedLock.delete('desayuno');
+await guidedClick();
+assert.equal(guidedDiary.skipped._guidedComponents.desayuno.protein,true);
+assert.equal(guidedOpened,1);
+assert.equal(guidedNotices.length,1);
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

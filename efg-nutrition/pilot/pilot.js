@@ -333,16 +333,30 @@ function updateSupplementHint(){
  if(label)label.textContent="Cantidad consumida ("+(item?.unit||"según envase")+")";
  if(hint)hint.textContent=item?.source||"Elegí un suplemento.";
 }
+// Supplements and sports share the same JSONB diary list. Protect it from
+// repeated taps and restore the previous list when REST rejects the write.
+let pendingSportDiaryMutation=false;
+async function mutateSportDiary(mutate,message){
+ if(pendingSportDiaryMutation)return;
+ pendingSportDiaryMutation=true;
+ const d=activeDiary(),previousSports=structuredClone(d.sports||[]);
+ const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ try{
+  d.sports ||= [];d.skipped ||= {};
+  mutate(d);
+  d.skipped._closed=false;
+  try{await saveDiary();}
+  catch(error){d.sports=previousSports;d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
+  if(message)notify(message);
+ }finally{pendingSportDiaryMutation=false;}
+}
 async function addDailySupplement(){
  const item=SUPPLEMENTS.find(x=>x.id===document.getElementById("supplementItem")?.value);
  const qty=Number(document.getElementById("supplementQty")?.value);
  const moment=document.getElementById("supplementMoment")?.value||"otro";
  if(!item||!Number.isFinite(qty)||qty<=0||qty>100000||!document.getElementById("supplementQty")?.value?.trim())throw new Error("Ingresá el suplemento y una cantidad positiva de su etiqueta.");
- const d=activeDiary();
- d.sports ||= [];
  const entry=normItem(item,qty,moment);entry.kind="supplement";
- d.sports.push(entry);d.skipped=d.skipped||{};d.skipped._closed=false;
- await saveDiary();notify("Suplemento guardado por separado; balance actualizado cuando corresponde.");
+ return mutateSportDiary(d=>d.sports.push(entry),"Suplemento guardado por separado; balance actualizado cuando corresponde.");
 }
 function dayComment(d){return String(d?.skipped?._comment||"").slice(0,1000);}
 function readDayComment(){
@@ -3178,11 +3192,12 @@ if(el.dataset.foodbulk){
   return;
  }
  if(el.dataset.removesupp!==undefined){
- const index=Number(el.dataset.removesupp),d=activeDiary(),item=d.sports?.[index];
- if(!Number.isInteger(index)||!item||!supplementRecord(item))throw new Error("No encontramos ese suplemento.");
- d.sports.splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
- await saveDiary();notify("Suplemento eliminado.");return;
-}
+  const index=Number(el.dataset.removesupp);
+  await mutateSportDiary(d=>{
+   if(!Number.isInteger(index)||index<0||!supplementRecord(d.sports[index]))throw new Error("No encontramos ese suplemento.");
+   d.sports.splice(index,1);
+  },"Suplemento eliminado.");return;
+ }
  if(el.dataset.clearm){
   const slot=el.dataset.clearm;
   if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
@@ -3196,7 +3211,14 @@ if(el.dataset.foodbulk){
   }finally{pendingMealRegistrations.delete(slot);}
   return;
  }
- if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
+ if(el.dataset.removesport!==undefined){
+  const index=Number(el.dataset.removesport);
+  return mutateSportDiary(d=>{
+   if(!Number.isInteger(index)||index<0||index>=d.sports.length||supplementRecord(d.sports[index]))
+    throw new Error("Consumo deportivo no encontrado.");
+   d.sports.splice(index,1);
+  },"Consumo deportivo eliminado.");
+ }
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
  if(el.dataset.reject)return onePaymentAction(el.dataset.reject,"rejected");
  if(el.dataset.proof)return showProof(el.dataset.proof);
@@ -3402,14 +3424,20 @@ if(el.dataset.foodbulk){
  if(el.dataset.mealomit){
   const slot=state.activeMeal,group=el.dataset.mealomit;
   if(!isGuidedMealSlot(slot)||!["protein","carb"].includes(group))return;
-  const d=activeDiary();d.skipped ||= {};d.skipped._guidedComponents ||= {};
-  d.skipped._guidedComponents[slot] ||= {};
-  d.skipped._guidedComponents[slot][group]=!d.skipped._guidedComponents[slot][group];
-  const omitted=d.skipped._guidedComponents[slot][group];
-  if(!state.diary||state.diary.log_day!==today())state.diary=d;
-  await saveDiary();
-  openMealDialog(slot,group==="protein"?"carb":"prepared");
-  notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+  if(pendingMealRegistrations.has(slot))return;
+  pendingMealRegistrations.add(slot);
+  const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+  try{
+   d.skipped ||= {};d.skipped._guidedComponents ||= {};
+   d.skipped._guidedComponents[slot] ||= {};
+   d.skipped._guidedComponents[slot][group]=!d.skipped._guidedComponents[slot][group];
+   const omitted=d.skipped._guidedComponents[slot][group];
+   if(!state.diary||state.diary.log_day!==today())state.diary=d;
+   try{await saveDiary();}
+   catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
+   openMealDialog(slot,group==="protein"?"carb":"prepared");
+   notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+  }finally{pendingMealRegistrations.delete(slot);}
   return;
  }
  if(action==="closeMeal"){closeMealDialog();return;}
@@ -3417,7 +3445,14 @@ if(el.dataset.foodbulk){
  if(action==="saveSelectedMealContinue"){return saveSelectedMeal(true);}
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
- if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
+ if(action==="addSport"){
+  const id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value);
+  const when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);
+  if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");
+  if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");
+  await mutateSportDiary(d=>d.sports.push(normItem(product,qty,when)),"Consumo registrado.");
+  return;
+ }
  if(action==="revokeConsent"||action==="grantConsent"){
  const accepted=action==="grantConsent";
  if(state.profile?.role!=="student"||!state.consent)throw Error("Permiso de seguimiento exclusivo del alumno.");

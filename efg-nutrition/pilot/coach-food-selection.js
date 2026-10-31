@@ -8,6 +8,8 @@ export function approvedFoodGuide(guide,selectedIds,{knownIds=null}={}){
   throw Error("Prepará primero la guía de cinco comidas.");
  if(!Array.isArray(selectedIds)||selectedIds.length<1||selectedIds.length>300)
   throw Error("Seleccioná los alimentos que el alumno podrá utilizar (máximo 300).");
+ if(knownIds!==null&&(!Array.isArray(knownIds)||!knownIds.every(id=>typeof id==="string"&&ID.test(id))))
+  throw Error("El catálogo autorizado no tiene identificadores válidos.");
  const known=knownIds===null?null:new Set(knownIds);
  const unique=new Set();
  for(const id of selectedIds){

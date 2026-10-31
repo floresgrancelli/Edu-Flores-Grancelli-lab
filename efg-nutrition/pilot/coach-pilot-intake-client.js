@@ -29,7 +29,7 @@ async function check(sb,profile){
  const userId=u?.data?.user?.id;
  if(u?.error)throw Error('No se verificó la sesión.');
  identity(profile,userId);
- const pilot=await loadPilotParticipationReceipt(sb);
+ const pilot=await loadPilotParticipationReceipt(sb,{expectedOrganizationId:profile.organization_id});
  if(!pilot.accepted||pilot.userId!==userId)throw Error('Confirmá antes las dos opciones del piloto.');
  return userId;
 }

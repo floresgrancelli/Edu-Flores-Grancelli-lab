@@ -150,7 +150,7 @@ assert.ok(realSaveStart>=0&&realSaveEnd>realSaveStart,'Real daily persister exis
 const persistedDiary={log_day:'2026-10-31',student_id:null,meals:{cena:[]},
  sports:[],skipped:{},totals:{k:123,p:9,c:12,f:4,fi:3}};
 const persistedState={session:{user:{id:'student-test-id'}},diary:persistedDiary,progressLogs:[]};
-let pendingWrite,rejectWrite=true,renderCalls=0;
+let pendingWrite,rejectWrite=true,renderCalls=0,renderShouldFail=false;const diaryNotices=[];
 const fakeDailySb={from(table){
  assert.equal(table,'efg_daily_logs');
  return {upsert(row,options){
@@ -161,11 +161,12 @@ const fakeDailySb={from(table){
    {data:{...structuredClone(row)},error:null}}}};
  }};
 }};
-const actualSave=new Function('activeDiary','today','isNutritionDayClosed','dailyTotals','state','sb','render',
+const actualSave=new Function('activeDiary','today','isNutritionDayClosed','dailyTotals','state','sb','render','notify',
  source.slice(realSaveStart,realSaveEnd)+';return saveDiary;')(
  ()=>persistedDiary,()=> '2026-10-31',()=>false,
  ()=>({k:250,p:15,c:30,f:6,fi:4}),persistedState,fakeDailySb,
- async()=>{renderCalls++}
+ async()=>{renderCalls++;if(renderShouldFail)throw Error('render failed')},
+ msg=>diaryNotices.push(msg)
 );
 await assert.rejects(actualSave(),/network offline/);
 assert.equal(pendingWrite.totals.k,250,'Supabase receives freshly calculated macros');
@@ -176,6 +177,12 @@ rejectWrite=false;
 await actualSave();
 assert.equal(persistedState.diary.totals.k,250,'Confirmed totals reach the diary only after REST success');
 assert.equal(renderCalls,1,'Successful write triggers one render');
+renderShouldFail=true;
+await actualSave();
+assert.equal(renderCalls,2,'Render failure happens after server confirmed the diary');
+assert.equal(persistedState.diary.totals.k,250,'UI error cannot roll back confirmed daily totals');
+assert.match(diaryNotices.at(-1),/registro se guardó/,'UI error gives honest recovery notice');
+
 
 
 // A skipped-meal checkbox must not claim a persisted omission when the

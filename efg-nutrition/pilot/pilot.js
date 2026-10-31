@@ -2591,7 +2591,13 @@ async function saveDiary(){
  state.diary=data;
  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
  if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
- await render();
+ // Rendering is NOT the database commit point. Do not make callers roll back a
+ // successfully persisted diary if the UI fails after a confirmed REST response.
+ try{await render();}
+ catch(error){
+  console.error("Diario confirmado en servidor; falló la actualización visual:",error);
+  try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
+ }
 }
 async function loadPersonalData(){
  const id=state.session.user.id;

@@ -25,7 +25,7 @@ for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:2
  assert.throws(()=>validateCoachPlanProposal(bad,guide));
 for(const bad of [{...guide,meals:guide.meals.slice(1)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,slot:"desayuno"}:v)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,items:[{...food,qty:0}]}:v)}])
  assert.throws(()=>validateCoachPlanProposal(goal,bad));
-let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,returnedStudent=STU,returnedDraftStudent=STU,returnedDraftOrg=ORG,returnedIntakeOrg=ORG;
+let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,invalidRevisionResponse=null,returnedStudent=STU,returnedDraftStudent=STU,returnedDraftOrg=ORG,returnedIntakeOrg=ORG;
 const calls=[];
 const db={
  from(table){operations++;return {
@@ -38,7 +38,7 @@ const db={
    throw Error("Unrecognized table "+table);
   }
  };},
- async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:rev,error:null};if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
+ async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:invalidRevisionResponse===null?rev:invalidRevisionResponse,error:null};if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
 };
 const disabled=createCoachPlanDraftClient({sb:db});
 await assert.rejects(()=>disabled.load(STU),/aún no habilitados/);
@@ -67,6 +67,9 @@ rev=2;
 const updated=await enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:1});
 assert.equal(updated.revision,2);
 assert.equal(calls[1].payload.p_expected_revision,1);
+invalidRevisionResponse=true;
+await assert.rejects(()=>enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide,expectedRevision:2}),/revisión de borrador inválida/);
+invalidRevisionResponse=null;
 const before=calls.length;
 await assert.rejects(()=>enabled.publish({studentId:STU,expectedRevision:2,requestId:REQ}),/aprobación explícita/);
 assert.equal(calls.length,before);

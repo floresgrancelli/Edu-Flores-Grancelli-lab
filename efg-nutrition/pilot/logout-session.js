@@ -8,7 +8,8 @@ export async function signOutCurrentDevice({
 }={}){
  if(explicitClick!==true||typeof auth?.signOut!=='function')
   throw Error('El cierre requiere una acción explícita del usuario.');
- if(hasUnsavedChanges()&&confirmDiscard()!==true)
+ // Confirmation may be asynchronous (e.g. a custom mobile modal).
+ if(hasUnsavedChanges()&&(await confirmDiscard())!==true)
   return Object.freeze({signedOut:false,cancelled:true});
  // Supabase local scope signs out only the device that requested it. Never
  // invalidate other people's accounts or force remote sessions on a minor patch.

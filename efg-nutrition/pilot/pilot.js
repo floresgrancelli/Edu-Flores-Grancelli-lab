@@ -1110,6 +1110,25 @@ const cons=state.consent,showConsent=state.profile.role==="student";
 }
 
 function allowedFoods(){return foods.map(f=>f.id);}
+// El sushi se muestra por piezas; el diario conserva gramos equivalentes.
+function plannerSushiPortion(food){
+ const portion=food?.id?.startsWith("sushi_")?FOOD_UNIT_PORTIONS[food.id]:null;
+ return Number(portion?.grams)>0?portion:null;
+}
+function plannerShownQty(food,grams){
+ const portion=plannerSushiPortion(food);
+ return portion?Math.max(1,Math.round(Number(grams||0)/portion.grams)):grams;
+}
+function plannerMeasuredGrams(food,shownQty){
+ const portion=plannerSushiPortion(food);
+ if(portion&&(!Number.isInteger(shownQty)||shownQty<1||shownQty>100))
+  throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
+ return portion?shownQty*portion.grams:shownQty;
+}
+function plannerQtyLabel(food,unit){
+ const portion=plannerSushiPortion(food);
+ return portion?"piezas (≈ "+num(portion.grams)+" g cada una, estimados)":unit;
+}
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
  const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
@@ -1163,18 +1182,18 @@ function plannerCard(){
    out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
-    const qty=row.grams;
+    const qty=row.grams,portion=plannerSushiPortion(row.food),shownQty=plannerShownQty(row.food,qty);
     const nutrientLabel=row.targetNutrient==="p"?"proteínas":row.targetNutrient==="c"?"hidratos":"calorías";
     const targetExplanation=row.capped?' <small>'+(meal.split==="snack-third"?"Se sugiere una porción moderada de merienda. Lo que falte pasará a la cena.":"Para cubrir el objetivo solo con este alimento harían falta aproximadamente "+num(row.neededGrams)+" "+escapeHTML(row.unit)+". Se recomienda una porción limitada; el resto quedará indicado abajo.")+'</small>':"";
     out+='<div class="planner-qty"><div class="planner-recommendation">'+
-      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>'+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
+      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(shownQty)+' '+escapeHTML(portion?"piezas":row.unit)+'</b>'+(portion?' <small>(≈ '+num(shownQty*portion.grams)+' g estimados)</small>':'')+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
       (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+
       (["egg","egg_boiled","huevo_frito","huevo_frito_fritolim"].includes(row.food.id)&&qty>0?' <small>(≈ '+num(qty/50)+' huevos de 50 g)</small>':"")+
       '</div>';
     if(unsupported){
       out+='<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">Registrar con ingredientes</button>';
     }else{
-      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+qty+'" inputmode="decimal"></label>'+
+      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(plannerQtyLabel(row.food,row.unit))+')<input type="number" min="'+(portion?"1":"0.1")+'" max="'+(portion?"100":"3000")+'" step="'+(portion?"1":"any")+'" id="planQty_'+escapeHTML(key)+'" value="'+shownQty+'" inputmode="'+(portion?"numeric":"decimal")+'" placeholder="'+(portion?"Piezas consumidas":"Gramos consumidos")+'"></label>'+
        '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button>';
     }
     out+='</div>';
@@ -1216,13 +1235,13 @@ function syncPlannerSearchActions(key){
     '<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">REGISTRAR CON INGREDIENTES</button></div>';
   return;
  }
- const suggested=Number(row.grams);
+ const suggested=Number(row.grams),portion=plannerSushiPortion(row.food),shownQty=plannerShownQty(row.food,suggested);
  const hint=suggested>0?
-  'Cantidad sugerida: <b>'+num(suggested)+' '+escapeHTML(row.unit)+'</b>. Modificala por la que realmente comiste.':
+  'Cantidad sugerida: <b>'+num(shownQty)+' '+escapeHTML(portion?"piezas":row.unit)+'</b>'+(portion?' (≈ '+num(shownQty*portion.grams)+' g estimados).':'.')+' Modificala por la que realmente comiste.':
   'No necesitás este extra para el objetivo, pero podés registrar la cantidad que realmente comiste.';
  mount.innerHTML='<div class="planner-qty"><div class="planner-recommendation">'+hint+'</div>'+
-  '<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')'+
-  '<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+(suggested>0?num(suggested):'')+'" inputmode="decimal" placeholder="Gramos consumidos"></label>'+
+  '<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(plannerQtyLabel(row.food,row.unit))+')'+
+  '<input type="number" min="'+(portion?"1":"0.1")+'" max="'+(portion?"100":"3000")+'" step="'+(portion?"1":"any")+'" id="planQty_'+escapeHTML(key)+'" value="'+(suggested>0?num(shownQty):'')+'" inputmode="'+(portion?"numeric":"decimal")+'" placeholder="'+(portion?"Piezas consumidas":"Gramos consumidos")+'"></label>'+
   '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">AGREGAR AL REGISTRO</button></div>';
 }
 function filterPlannerFoods(input){
@@ -1265,7 +1284,8 @@ function updatePlannerPreview(){
   const food=foods.find(f=>f.id===select.value);
   if(!food)continue;
   if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,food.id)){hasUnsupported=true;gramChoices[key]=0;continue;}
-  const grams=Number(document.getElementById("planQty_"+key)?.value)||0;
+  const shownQty=Number(document.getElementById("planQty_"+key)?.value)||0;
+  const grams=plannerMeasuredGrams(food,shownQty);
   if(grams<0||!Number.isFinite(grams))continue;
   gramChoices[key]=grams;
   chosenFoods.push({food,grams});
@@ -1357,18 +1377,20 @@ function openPlannedFoodEditor(key){
 }
 async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
- const [slot,category]=pair, grams=Number(document.getElementById("planQty_"+key)?.value);
- if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Ingresá el peso real.");
+ const [slot,category]=pair,shownQty=Number(document.getElementById("planQty_"+key)?.value);
+ if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
  const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
  if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
+ const grams=plannerMeasuredGrams(row.food,shownQty);
+ if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
  d.meals[slot].push(normItem(row.food,grams,slot));
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
- await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
+ await saveDiary();notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
 }
 let mealDialogReturnFocus=null;
 let activeGuidedMealGroup="protein";
@@ -3437,7 +3459,7 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
-}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
 root.addEventListener("input",e=>{
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){

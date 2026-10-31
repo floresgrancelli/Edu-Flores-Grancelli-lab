@@ -41,6 +41,7 @@ import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} fro
 import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=20261030-coach121";
 import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
 import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
+import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=20261031-intake1";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
 import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
 import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
@@ -408,7 +409,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
@@ -1680,8 +1681,15 @@ function coachIntakeView(){
  const waitingConsent=active.filter(p=>coachRosterConsent[p.user_id]!==true);
  const submitted=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeForms[p.user_id]);
  const activated=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeAccess[p.user_id]?.status==="published");
- const waitingPlan=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&!state.coachIntakeGoals[p.user_id]&&!activated.some(x=>x.user_id===p.user_id));
- const existingGoal=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&state.coachIntakeGoals[p.user_id]&&!activated.some(x=>x.user_id===p.user_id));
+ const drafted=active.filter(p=>coachRosterConsent[p.user_id]===true&&
+  state.coachIntakeDraftVerified&&
+  state.coachIntakeAccess[p.user_id]?.status!=="published"&&
+  currentCoachIntakeDraft(state.coachIntakeDraftStatuses[p.user_id],
+   state.coachIntakeForms[p.user_id],{studentId:p.user_id,
+    organizationId:state.org?.id,coachId:state.session?.user?.id}));
+ const draftedIds=new Set(drafted.map(p=>p.user_id));
+ const waitingPlan=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&!state.coachIntakeGoals[p.user_id]&&!draftedIds.has(p.user_id)&&!activated.some(x=>x.user_id===p.user_id));
+ const existingGoal=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&state.coachIntakeGoals[p.user_id]&&!draftedIds.has(p.user_id)&&!activated.some(x=>x.user_id===p.user_id));
  const remaining=active.filter(p=>coachRosterConsent[p.user_id]===true&&!state.coachIntakeVerified);
  const invitationCard=i=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">✉</span><div><strong>'+escapeHTML(i.nickname)+'</strong><small>Invitación enviada · todavía no ingresó</small></div><span class="efg-intake-status">Pendiente</span></div>';
  const profileCard=(p,stage)=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+stage+'</small></div><div class="coach-intake-actions"><button type="button" class="btn small light" data-student="'+p.user_id+'">Ver alumno</button><button type="button" class="btn small ghost" data-intake-message="'+p.user_id+'">Mensaje</button></div></div>';
@@ -1698,9 +1706,10 @@ function coachIntakeView(){
  section("01 · Invitaciones por aceptar","Todavía no ingresaron a Nutrición Con-Ciencia.",pending,invitationCard,"No hay invitaciones pendientes.")+
  section("02 · Esperando autorización","El coach todavía no cuenta con permiso para consultar el seguimiento del alumno.",waitingConsent,p=>profileCard(p,"Acceso confirmado · autorización pendiente"),"Todos los alumnos activos autorizaron o todavía no hay alumnos.")+
  section("03 · Fichas recibidas","La ficha llega cuando el alumno decide compartirla y autoriza el seguimiento.",submitted,p=>profileCard(p,"Ficha compartida voluntariamente · lista para revisar"),"Todavía no hay fichas compartidas.")+
- section("04 · Plan por preparar","Alumnos autorizados que todavía no tienen un objetivo configurado.",waitingPlan,p=>profileCard(p,"Seguimiento autorizado · sin objetivo cargado"),"No hay alumnos en esta etapa.")+
- section("05 · Objetivos existentes","Una meta guardada no habilita por sí sola la app; falta publicar el plan.",existingGoal,p=>profileCard(p,"Objetivo configurado · publicación aún no verificable"),"No se encontraron objetivos en este grupo.")+
- section("06 · Plan publicado","Estado confirmado por el servidor; el alumno tiene las funciones habilitadas.",activated,p=>profileCard(p,"Plan publicado · acceso completo"),"Todavía no hay planes publicados en el nuevo circuito.")+
+ section("04 · Borrador en preparación","Solo borradores privados confirmados por el servidor, nunca metas históricas.",drafted,p=>profileCard(p,"Borrador privado del coach · todavía sin publicar"),state.coachIntakeDraftVerified?"No hay borradores vigentes.":"Borradores no verificables hasta habilitar el circuito de publicación.")+
+ section("05 · Plan por preparar","Alumnos autorizados que todavía no tienen un objetivo configurado.",waitingPlan,p=>profileCard(p,"Seguimiento autorizado · sin objetivo cargado"),"No hay alumnos en esta etapa.")+
+ section("06 · Objetivos existentes","Una meta guardada no habilita por sí sola la app; falta publicar el plan.",existingGoal,p=>profileCard(p,"Objetivo configurado · publicación aún no verificable"),"No se encontraron objetivos en este grupo.")+
+ section("07 · Plan publicado","Estado confirmado por el servidor; el alumno tiene las funciones habilitadas.",activated,p=>profileCard(p,"Plan publicado · acceso completo"),"Todavía no hay planes publicados en el nuevo circuito.")+
  (remaining.length?'<section class="card coach-intake-group"><h2>Estado temporalmente no disponible</h2><p class="pilot-hint">No fue posible comprobar algunos objetivos. No se muestran estados inventados.</p>'+remaining.map(p=>profileCard(p,"Estado del objetivo sin verificar")).join("")+'</section>':"")+
  '<section class="card coach-intake-privacy"><h2>Privacidad y próximos pasos</h2><p>Las futuras fichas deben ser compartidas voluntariamente. Sin consentimiento, el entrenador no debe acceder a datos sensibles. El bloqueo nutricional de alumnos nuevos también deberá aplicarse en el servidor, nunca únicamente ocultando botones.</p><button class="btn light" data-tab="coachStudents">Administrar mis alumnos e invitaciones</button></section>';
 }
@@ -2496,6 +2505,25 @@ async function loadCoachIntakeGoals(){
   state.coachIntakeVerified=true;
  }catch(error){console.warn("EFG intake goal summary unavailable:",error.message);}
 }
+async function loadCoachIntakeDraftStatuses(){
+ state.coachIntakeDraftStatuses={};state.coachIntakeDraftVerified=false;
+ // Until the entire atomic release is approved, do not claim private drafts.
+ if(!COACH_ATOMIC_PLAN_UI_ENABLED)return;
+ const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true&&
+  state.coachIntakeForms?.[p.user_id]?.shared_at).map(p=>p.user_id);
+ if(!ids.length){state.coachIntakeDraftVerified=true;return;}
+ const result=await sb.from("efg_coach_plan_drafts")
+  .select("student_id,organization_id,coach_id,status,draft_revision,source_intake_revision")
+  .in("student_id",ids).limit(500);
+ if(result.error){console.warn("Coach draft summary unavailable:",result.error.message);return;}
+ const authorized=new Set(ids);
+ for(const row of result.data||[]){
+  if(authorized.has(row.student_id)&&row.coach_id===state.session?.user?.id&&
+    row.organization_id===state.org?.id)
+   state.coachIntakeDraftStatuses[row.student_id]=row;
+ }
+ state.coachIntakeDraftVerified=true;
+}
 async function loadCoachRosterConsent(){
  // One source of truth for real coaches AND the admin's test-coach workspace.
  // Read only; never infer consent from enrollment or modify a student's decision.
@@ -2519,6 +2547,7 @@ async function loadRoleData(){
    await loadCoachRosterConsent();
    await loadCoachIntakeGoals();
    await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
+   await loadCoachIntakeDraftStatuses();
    if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
   }
  }
@@ -2531,6 +2560,7 @@ async function loadRoleData(){
   await loadCoachRosterConsent();
   await loadCoachIntakeGoals();
    await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
+   await loadCoachIntakeDraftStatuses();
 
   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }

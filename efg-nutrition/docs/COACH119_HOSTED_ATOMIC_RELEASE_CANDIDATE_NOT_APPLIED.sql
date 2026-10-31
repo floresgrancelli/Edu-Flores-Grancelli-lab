@@ -102,6 +102,29 @@ create trigger coach119_archive_previous_approved_guide
  on public.efg_food_plans
  for each row execute function efg_private.coach119_archive_replaced_guide();
 
+-- Prevent spoofing of the atomic-notification suppression flag. A caller can
+-- SET a custom GUC, so triggers MUST additionally verify a private, signed
+-- transaction marker that only this SECURITY DEFINER RPC can insert.
+create table efg_private.coach119_atomic_transactions (
+ txid bigint primary key,
+ coach_id uuid not null,
+ created_at timestamptz not null default pg_catalog.clock_timestamp()
+);
+revoke all on efg_private.coach119_atomic_transactions from public,anon,authenticated;
+alter table efg_private.coach119_atomic_transactions enable row level security;
+
+create function efg_private.coach119_is_atomic_transaction()
+returns boolean language sql volatile security definer set search_path=''
+as $coach119_is_atomic$
+ select pg_catalog.current_setting('efg.coach_atomic_publish',true)='on'
+ and exists(
+  select 1 from efg_private.coach119_atomic_transactions
+  where txid=pg_catalog.txid_current() and coach_id=auth.uid()
+ );
+$coach119_is_atomic$;
+revoke all on function efg_private.coach119_is_atomic_transaction()
+ from public,anon,authenticated;
+
 -- Preserve exactly the two existing legacy notifications during independent
 -- legacy writes, suppressing only within this signed atomic RPC's transaction.
 -- Stage with recorded pg_get_functiondef() before altering these functions.
@@ -109,7 +132,7 @@ create or replace function public.efg_notify_goal()
 returns trigger language plpgsql security definer set search_path=''
 as $coach119_legacy_goal$
 begin
- if pg_catalog.current_setting('efg.coach_atomic_publish',true)='on'
+ if efg_private.coach119_is_atomic_transaction()
   then return new; end if;
  insert into public.efg_notifications(recipient_id,actor_id,kind,event_key,title,body,target_tab)
  values (new.student_id,new.approved_by,'plan_update','goal:'||new.id::text,
@@ -123,7 +146,7 @@ create or replace function public.efg_notify_food_guide()
 returns trigger language plpgsql security definer set search_path=''
 as $coach119_legacy_guide$
 begin
- if pg_catalog.current_setting('efg.coach_atomic_publish',true)='on'
+ if efg_private.coach119_is_atomic_transaction()
   then return new; end if;
  if tg_op='INSERT' then
   if new.guided_plan is null or new.guided_plan_approved_at is null then return new; end if;
@@ -354,11 +377,11 @@ begin
  -- five guide ingredients) before granting food-planning access.
  v_food_ids:=efg_private.coach119_reviewed_food_ids(v_guide);
 
- -- SECURITY REVIEW: a custom session GUC can be set by arbitrary sessions.
- -- This trigger suppression is NOT an authorization boundary. Before applying
- -- COACH119, staging must verify untrusted sessions cannot suppress legacy
- -- notifications by setting efg.coach_atomic_publish=on. Do not deploy as-is.
+ -- The private transaction marker, not the client-settable GUC alone,
+ -- authorizes suppression. Verify spoofing and rollback in isolated staging.
  -- Only after every check do legacy notices suppress, for this transaction ONLY.
+ insert into efg_private.coach119_atomic_transactions(txid,coach_id)
+ values(pg_catalog.txid_current(),v_coach);
  perform pg_catalog.set_config('efg.coach_atomic_publish','on',true);
  insert into public.efg_goals(
   student_id,approved_by,goal_type,kcal,protein_g,carb_g,fat_g,fiber_g,
@@ -417,6 +440,8 @@ begin
  where student_id=p_student and coach_id=v_coach and organization_id=v_org
   and draft_revision=p_expected_revision and status='draft';
  if not found then raise exception 'Concurrent draft change' using errcode='PT409'; end if;
+ delete from efg_private.coach119_atomic_transactions
+ where txid=pg_catalog.txid_current() and coach_id=v_coach;
  perform pg_catalog.set_config('efg.coach_atomic_publish','off',true);
  return v_goal_id;
 end;

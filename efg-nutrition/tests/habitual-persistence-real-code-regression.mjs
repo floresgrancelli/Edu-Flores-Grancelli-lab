@@ -28,15 +28,16 @@ const mealSlots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almu
 const localStorage={getItem(){return null},removeItem(){}};
 const diary={meals:{desayuno:[{id:'egg',name:'Huevos',qty:100,unit:'g',k:140,p:12,c:2,f:8}]},skipped:{}};
 const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
+const pendingMealRegistrations=new Set();
 const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',
- 'foods','FOOD_STATE_PAIRS','allowedFoods','document',
+ 'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations',
  subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,applyChosenHabitual,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
  sb,state,mealSlots,localStorage,()=>diary,
  msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
  msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),
- [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument
+ [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations
 );
 await api.loadCloudHabituales();
 assert.equal(api.getHabitualList('desayuno').length,0);
@@ -69,12 +70,20 @@ holdNextInsert=true;
 const firstTap=api.habitualAction('desayuno','save');
 await api.habitualAction('desayuno','save');
 assert.equal(rows.length,beforeFastTaps+1,'Rapid duplicate save must insert one favorite only');
+assert.equal(pendingMealRegistrations.has('desayuno'),true,'A pending favorite also locks direct meal registration');
+assert.equal(pendingMealRegistrations.has('almuerzo'),false,'Other meal slots remain independent');
 assert.ok(typeof releaseHeldInsert==='function','Mock must hold first network response');
 releaseHeldInsert();
 await firstTap;
+assert.equal(pendingMealRegistrations.has('desayuno'),false,'Favorite lock is released when remote insert resolves');
 assert.equal(api.getHabitualList('desayuno').length,3);
 await api.habitualAction('desayuno','save');
 assert.equal(rows.length,beforeFastTaps+2,'A later independent favorite can still be saved');
+pendingMealRegistrations.add('desayuno'); // Simulated direct editor currently saving to diary.
+const blockedBefore=rows.length;
+await api.habitualAction('desayuno','save');
+assert.equal(rows.length,blockedBefore,'Favorite action cannot race a manual food save in same slot');
+pendingMealRegistrations.delete('desayuno');
 
 state.foodPlan={approved_food_ids:['oats']};
 approvedIds=['oats'];state.habitualSelection.desayuno=rows[0].id;

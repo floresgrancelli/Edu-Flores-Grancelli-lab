@@ -494,10 +494,12 @@ let cloudHabituales=[];
 // register/delete a favorite while another operation for that slot is pending.
 const pendingHabitualSlots=new Set();
 async function runHabitualSlotAction(slot,work){
- if(pendingHabitualSlots.has(slot))return;
- pendingHabitualSlots.add(slot);
+ // Favorite writes and diary additions affect the SAME meal slot. Share the
+ // per-slot lock so neither can race the other across asynchronous REST writes.
+ if(pendingHabitualSlots.has(slot)||pendingMealRegistrations.has(slot))return;
+ pendingHabitualSlots.add(slot);pendingMealRegistrations.add(slot);
  try{return await work();}
- finally{pendingHabitualSlots.delete(slot);}
+ finally{pendingHabitualSlots.delete(slot);pendingMealRegistrations.delete(slot);}
 }
 async function loadCloudHabituales(){
  if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}

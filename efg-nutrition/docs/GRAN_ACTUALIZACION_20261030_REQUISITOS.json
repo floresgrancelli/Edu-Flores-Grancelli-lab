@@ -7,7 +7,7 @@
   "release_candidate_branch": "efg-major-integration-20261029",
   "merge_allowed": false,
   "flags_may_be_enabled_without_go": false,
-  "rule": "Las 51 mejoras son obligatorias. Ninguna pasa a post sin nueva decisión documentada del propietario. Código presente no equivale a prueba física.",
+  "rule": "Los 54 requisitos explícitos (51 iniciales + 3 brechas reconciliadas PRO-50, PRO-22, PRO-07) son obligatorios. Ninguno se posterga sin nueva decisión documentada del propietario. Código no equivale a UAT.",
   "post_release_explicit": [
     "BKP-19 respaldo/restauración integral Mac",
     "Endurecimiento adicional (no RLS/autorización base)",
@@ -485,6 +485,33 @@
       "source": "OPS01; REL-ALL; LEG05",
       "acceptance": "No publicar parcialmente ni dar por test lo simulado",
       "status_at_cutoff": "NO GO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "01 INGRESO",
+      "id": "01-07",
+      "requirement": "Correo no invitado: mensaje Luxury claro, sin enumerar usuarios ni revelar cuentas; opción de contacto",
+      "source": "PRO-50; D-22",
+      "acceptance": "No confirma si cuenta existe; botón de contacto seguro; OTP sin bypass",
+      "status_at_cutoff": "AUDITORÍA: NO MODIFICADO",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "04 MI DÍA",
+      "id": "04-08",
+      "requirement": "Sustituciones de huevo en desayuno por claras, jamón, pavo, yogur proteico u otras alternativas acordes al plan",
+      "source": "PRO-22; D-15",
+      "acceptance": "Recalcular kcal/macros; respetar patrón y restricciones; no cambiar meta sin coach",
+      "status_at_cutoff": "LIVE; regresión pendiente",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "08 EDUCACIÓN",
+      "id": "08-08",
+      "requirement": "Biblioteca Fit existente con fotografías gastronómicas y receta/gramos/raciones/macros explicados",
+      "source": "PRO-07; QA224",
+      "acceptance": "Mínimo biblioteca actual 12 recetas, fotos verificadas/alt/fuente; datos reales o marcados estimados",
+      "status_at_cutoff": "LIVE; regresión pendiente",
       "mandatory_for_coach_go": true
     }
   ]

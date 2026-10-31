@@ -14,7 +14,8 @@ assert.match(html,/no reemplazan la atención/i);
 assert.match(html,/No ingreses diagnósticos/i);
 assert.match(html,/No equivale a términos legales definitivos/i);
 assert.match(html,/id="efgPilotParticipate"/);
-assert.match(html,/id="efgPilotShare" required/);
+assert.match(html,/id="efgPilotShare"/);
+assert.doesNotMatch(html,/id="efgPilotShare" required/,"Coach sharing must be optional");
 assert.match(html,/id="efgPilotParticipate" required/);
 assert.match(html,/id="efgPilotContinue"[^>]*disabled/);
 assert.ok(!/checked(?:\s|>)/i.test(html),'No checkbox can be preselected');
@@ -24,15 +25,15 @@ const doc=(participate,share)=>({getElementById:id=>
  id==='efgPilotShare'?{checked:share}:null});
 assert.throws(()=>readPilotParticipationSelection(doc(true,true)),/acción expresa/);
 assert.throws(()=>readPilotParticipationSelection(doc(false,true),{explicitClick:true}),/No se confirmó/);
-assert.throws(()=>readPilotParticipationSelection(doc(true,false),{explicitClick:true}),/requiere autorización expresa/);
+assert.equal(readPilotParticipationSelection(doc(true,false),{explicitClick:true}).sharingRequested,false,"A private first intake is allowed");
 for(const a of [false,true]) for(const b of [false,true]){
  const button={disabled:false};
  const fixture={getElementById:id=>
  id==='efgPilotParticipate'?{checked:a}:
  id==='efgPilotShare'?{checked:b}:
  id==='efgPilotContinue'?button:null};
- assert.equal(syncPilotParticipationContinueButton(fixture),a&&b);
- assert.equal(button.disabled,!(a&&b));
+ assert.equal(syncPilotParticipationContinueButton(fixture),a);
+ assert.equal(button.disabled,!a);
 }
 assert.deepEqual(readPilotParticipationSelection(doc(true,true),{explicitClick:true}),{
  version:PILOT_PARTICIPATION_VERSION,participationRequested:true,
@@ -54,20 +55,22 @@ bindPilotParticipationDemo(fakeDoc,{onContinue:value=>acceptedEvents.push(value)
 assert.equal(controls.efgPilotContinue.disabled,true);
 controls.efgPilotParticipate.checked=true;
 listeners['efgPilotParticipate:change']();
-assert.equal(controls.efgPilotContinue.disabled,true);
-assert.throws(()=>listeners['efgPilotContinue:click'](),/requiere autorización expresa/);
+assert.equal(controls.efgPilotContinue.disabled,false);
+listeners['efgPilotContinue:click']();
+assert.equal(acceptedEvents[0].sharingRequested,false);
 controls.efgPilotShare.checked=true;
 listeners['efgPilotShare:change']();
 assert.equal(controls.efgPilotContinue.disabled,false);
 listeners['efgPilotContinue:click']();
-assert.equal(acceptedEvents.length,1);
-assert.deepEqual(acceptedEvents[0],{
+assert.equal(acceptedEvents.length,2);
+assert.deepEqual(acceptedEvents[1],{
  version:PILOT_PARTICIPATION_VERSION,participationRequested:true,
  sharingRequested:true,persisted:false,legalAcceptance:false
 });
 controls.efgPilotShare.checked=false;
 listeners['efgPilotShare:change']();
-assert.equal(controls.efgPilotContinue.disabled,true);
-assert.throws(()=>listeners['efgPilotContinue:click'](),/requiere autorización expresa/);
-assert.equal(acceptedEvents.length,1);
-console.log('PASS COACH99: both pilot and coach-sharing boxes mandatory and unchecked, Continue disabled unless both checked; no fictitious acceptance or persistence.');
+assert.equal(controls.efgPilotContinue.disabled,false);
+listeners['efgPilotContinue:click']();
+assert.equal(acceptedEvents.length,3);
+assert.equal(acceptedEvents[2].sharingRequested,false);
+console.log('PASS COACH99: participation required, coach sharing independent/optional and unchecked, no fictitious acceptance.');

@@ -14,6 +14,12 @@ begin
     or pg_catalog.to_regprocedure('public.efg_coach_pilot_entry_status()') is null then
   raise exception 'COACH-OPT-01: expected installed backend missing; abort';
  end if;
+ if not exists (
+   select 1 from pg_catalog.pg_policy p
+   where p.polrelid='public.efg_coach_relaunch_intakes'::regclass
+     and p.polname='efg_coach_relaunch_shared_coach_select'
+     and p.polcmd='r' and p.polpermissive
+ ) then raise exception 'COACH-OPT-01: shared Coach SELECT policy missing; manual review'; end if;
  if not exists(
    select 1 from pg_catalog.pg_constraint
    where conrelid='public.efg_pilot_participation_receipts'::regclass
@@ -44,6 +50,30 @@ end
 $preflight$;
 alter table public.efg_pilot_participation_receipts
  drop constraint efg_pilot_participation_receipts_sharing_accepted_check;
+
+-- A previously shared row must become unreadable to the Coach immediately
+-- when the student updates the independent receipt to sharing_accepted=false,
+-- even if shared_at has not yet been cleared by an intake edit.
+alter policy efg_coach_relaunch_shared_coach_select
+ on public.efg_coach_relaunch_intakes
+ using (
+  shared_at is not null and efg_private.coach_has_student(student_id)
+  and exists (
+   select 1 from public.efg_consents c
+   where c.student_id=efg_coach_relaunch_intakes.student_id
+    and c.organization_id=efg_coach_relaunch_intakes.organization_id
+    and c.accepted=true
+  )
+  and exists (
+   select 1 from public.efg_pilot_participation_receipts r
+   where r.student_id=efg_coach_relaunch_intakes.student_id
+    and r.organization_id=efg_coach_relaunch_intakes.organization_id
+    and r.version='coach_pilot_2026_demo1'
+    and r.participation_accepted and r.sharing_accepted is true
+    and r.revoked_at is null
+  )
+ );
+
 
 create or replace function public.efg_accept_pilot_participation(
  p_version text, p_participation boolean, p_sharing boolean

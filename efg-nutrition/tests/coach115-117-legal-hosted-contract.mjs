@@ -16,7 +16,7 @@ let statuses=[
  {kind:'terms',document_id:terms,version,sha256:hash,accepted:false},
  {kind:'privacy',document_id:privacy,version,sha256:hash,accepted:false}
 ];
-const docs=[
+let docs=[
  {id:terms,kind:'terms',version,sha256:hash,body,is_current:true,published_at:'2026-10-30T00:00:00Z'},
  {id:privacy,kind:'privacy',version,sha256:hash,body,is_current:true,published_at:'2026-10-30T00:00:00Z'}
 ];
@@ -45,6 +45,16 @@ function mocked(user=id){
 let sb=mocked();
 let snapshot=await loadCoachPilotLegal(sb,{profile});
 assert.equal(snapshot.ready,true);assert.equal(snapshot.accepted,false);
+// Even if an operator accidentally marks a draft as current, the client
+// must refuse to present it for acceptance or record a receipt.
+const baselineDocs=structuredClone(docs);
+for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN VIGENCIA', 'ESTADO: NO APROBADO']){
+ docs=structuredClone(baselineDocs);
+ docs[0].body=marker+' '+body;
+ await assert.rejects(loadCoachPilotLegal(mocked(),{profile}),/borradores no aprobados/);
+}
+docs=baselineDocs;
+assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,0);
 const html=renderCoachPilotLegal(snapshot);
 assert.match(html,/Términos y Condiciones/);
 assert.match(html,/Política de Privacidad/);

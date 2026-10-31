@@ -177,7 +177,8 @@ sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 da
 sql(`update public.efg_profiles set active=false where user_id=${q(users.coachA.id)}`);
 denied(await publish(users.coachA, body), 'inactive Coach JWT cannot publish');
 sql(`update public.efg_profiles set active=true where user_id=${q(users.coachA.id)}`);
-sql(`update public.efg_organizations set is_test=false,status='active',paid_through=current_date-1 where id=${q(orgA)}`);
+sql(`update public.efg_organizations set is_test=false,status='active',
+ paid_through=(now() at time zone 'America/Argentina/Buenos_Aires')::date-1 where id=${q(orgA)}`);
 denied(await publish(users.coachA, body), 'expired Coach license cannot publish');
 sql(`update public.efg_organizations set is_test=true,status='trial',paid_through=null where id=${q(orgA)}`);
 

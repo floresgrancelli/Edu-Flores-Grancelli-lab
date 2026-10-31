@@ -127,3 +127,28 @@ migración inicial, staging local y correctiva NOT_APPLIED. Es una función
 privilegiada nueva que deberá sumarse a la matriz SEC-08 y auditarse con
 JWT A/B en staging fiel antes de cualquier GO. **La corrección dinámica
 continúa pendiente del CI del SHA final; no afirmar PASS anticipado.**
+
+
+## COACH-OPT-04 · Matriz dinámica de revocación ampliada (31/10/2026)
+
+En `tests/coach-opt-out-rls-auth-local-e2e.mjs` se agregaron
+aserciones sobre **una misma ficha ya compartida**, con JWT GoTrue
+ficticios en Supabase local descartable:
+
+- `efg_consents.accepted=true→false→true`: el coach pierde acceso
+  inmediatamente al retirar el consentimiento de seguimiento; el
+  propietario conserva la ficha.
+- `efg_profiles.active=true→false→true`: una cuenta de alumno
+  inactiva no debe ser legible por el coach ni por el propio JWT;
+  la reactivación no reescribe la ficha.
+- Cambio de organización A→B→A: ni el coach anterior ni el coach de
+  destino pueden heredar la ficha de A durante el traslado; el
+  propietario tampoco puede consultar el registro de A desde B.
+- La revisión y `shared_at` originales deben permanecer intactos
+  durante estos cambios de autorización; la revocación explícita
+  de participación sigue negando el acceso al final.
+
+**Estado de evidencia:** test añadido en la rama candidata; verificar
+el resultado del workflow de autenticación JWT/RLS y los cinco checks
+sobre el **mismo HEAD** antes de marcarlo PASS. No implica ejecución
+sobre Supabase alojado ni auditoría completa SEC-08. Sin GO ni deploy.

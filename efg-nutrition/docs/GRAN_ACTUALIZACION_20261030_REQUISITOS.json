@@ -493,7 +493,7 @@
       "requirement": "Correo no invitado: mensaje Luxury claro, sin enumerar usuarios ni revelar cuentas; opción de contacto",
       "source": "PRO-50; D-22",
       "acceptance": "No confirma si cuenta existe; botón de contacto seguro; OTP sin bypass",
-      "status_at_cutoff": "AUDITORÍA: NO MODIFICADO",
+      "status_at_cutoff": "PRO-50 IMPLEMENTADO EN PR37 (ayuda activa sin enumerar correos); CI PREMIUM PASS en SHA da0be96; E2E móvil/desktop todavía pendiente",
       "mandatory_for_coach_go": true
     },
     {

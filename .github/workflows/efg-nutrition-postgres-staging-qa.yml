@@ -415,6 +415,8 @@ jobs:
           export PGDATABASE=efg_coach119_history
           node efg-nutrition/tests/coach119-guide-history-pg17.mjs
           echo "PASS COACH119 real PG17 archive test on synthetic data only. No hosted schema touched."
+          PGDATABASE=postgres psql -v ON_ERROR_STOP=1 -c 'create database efg_coach119_atomic'
+          PGDATABASE=efg_coach119_atomic node efg-nutrition/tests/coach119-full-atomic-pg17.mjs
       - name: State the limits
         if: always()
         run: |

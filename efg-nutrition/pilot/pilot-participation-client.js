@@ -8,6 +8,10 @@ async function signedUser(sb){
  if(error||!uuid(data?.user?.id))throw Error('Sesión autenticada no verificada.');
  return data.user.id;
 }
+async function requireSameUser(sb,expectedUserId){
+ const current=await signedUser(sb);
+ if(current!==expectedUserId)throw Error('La sesión cambió durante la comprobación del permiso. Volvé a verificar tu cuenta.');
+}
 async function receiptReadback(sb,userId,{expectedOrganizationId=null}={}){
  const r=await sb.from('efg_pilot_participation_receipts')
   .select('student_id,organization_id,version,participation_accepted,sharing_accepted,acceptance_method,accepted_at,revoked_at,updated_at')
@@ -28,6 +32,7 @@ const complete=(r,userId)=>r?.student_id===userId&&
 export async function loadPilotParticipationReceipt(sb,{expectedOrganizationId=null}={}){
  const userId=await signedUser(sb);
  const receipt=await receiptReadback(sb,userId,{expectedOrganizationId});
+ await requireSameUser(sb,userId);
  return {userId,receipt,participation:receipt?{
   user_id:userId,version:receipt.version,
   participation_accepted:complete(receipt,userId),
@@ -47,6 +52,7 @@ export async function acceptPilotParticipation(sb,choice,{explicitSubmit=false}=
  if(r.error||!Number.isFinite(Date.parse(r.data)))
   throw Error('No fue posible guardar las autorizaciones del piloto.');
  const receipt=await receiptReadback(sb,userId);
+ await requireSameUser(sb,userId);
  if(!complete(receipt,userId)||receipt.sharing_accepted!==choice.sharingRequested)
   throw Error('El servidor no confirmó las dos autorizaciones.');
  return {userId,receipt,accepted:true,sharingAccepted:receipt.sharing_accepted,legalAcceptance:false,healthConsent:false};
@@ -59,6 +65,7 @@ export async function revokePilotParticipation(sb,{explicitSubmit=false}={}){
  });
  if(r.error)throw Error('No fue posible retirar el permiso.');
  const receipt=await receiptReadback(sb,userId);
+ await requireSameUser(sb,userId);
  if(complete(receipt,userId)||r.data===true&&!receipt?.revoked_at)
   throw Error('La revocación no fue confirmada por el servidor.');
  return {userId,revoked:r.data===true,accepted:false};

@@ -61,13 +61,16 @@ export function createNotificationInbox({sb,getUserId,navigate}){
   const button=event.target.closest("button");if(!button)return;
   if(button.dataset.efgAction==="toggle"){open=!open;paint();return;}
   if(button.dataset.efgAction==="retry"){await refresh();return;}
+  const clickedUser=getUserId();
+  if(!clickedUser||clickedUser!==loadedUser)return;
   const n=records.find(x=>x.id===button.dataset.efgId);if(!n)return;
   try{
    if(!n.is_read){
-    const {error}=await sb.from("efg_notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",n.id).eq("recipient_id",getUserId());
+    const {error}=await sb.from("efg_notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",n.id).eq("recipient_id",clickedUser);
     if(error)throw error;
     n.is_read=true;
    }
+   if(getUserId()!==clickedUser)return;
    open=false;paint();
    await navigate(n);
    await refresh();

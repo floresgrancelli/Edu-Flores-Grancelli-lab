@@ -33,6 +33,17 @@ assert.equal(await acknowledgeMajorRelease(sb,{profile,release:state,
 assert.deepEqual(calls.at(-1),['efg_major_release_ack',{
  p_release:'major_2026_01',p_event_kind:'announcement_preview_read',p_explicit_click:true
 }]);
+// The preview RPC may finish after the device signs in with a different user.
+let checked=0;
+const switched={auth:{getUser:async()=>({data:{user:{id:++checked===1?uid:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'}},error:null})},rpc:sb.rpc};
+await assert.rejects(readMajorRelease(switched,{profile,explicitlyEnabled:true}),/sesión cambió/);
+assert.equal(checked,2);
+await assert.rejects(acknowledgeMajorRelease(sb,{profile:{...profile,active:false},release:state,
+ kind:'announcement_preview_read',explicitClick:true,explicitlyEnabled:true}),/aviso aprobado/);
+let receiptChecks=0;
+const failedReadback={auth:{getUser:async()=>({data:{user:{id:uid}},error:++receiptChecks===2?{message:'auth offline'}:null})},rpc:sb.rpc};
+await assert.rejects(acknowledgeMajorRelease(failedReadback,{profile,release:state,
+ kind:'announcement_preview_read',explicitClick:true,explicitlyEnabled:true}),/cuenta cambió/);
 payload={...base,phase:'reauth_required',published:true};
 state=await readMajorRelease(sb,{profile,explicitlyEnabled:true});
 assert.match(renderMajorReleaseAnnouncement(state,'student'),/Entendido, cerrar sesión/);

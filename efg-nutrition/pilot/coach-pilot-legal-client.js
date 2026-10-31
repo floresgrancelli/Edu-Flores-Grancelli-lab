@@ -4,6 +4,12 @@
 // IMPORTANT: these legal receipts are NOT medical-data authorization.
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const HASH=/^[a-f0-9]{64}$/i;
+// Defense in depth: a mistakenly marked current document must not turn a
+// clearly labelled internal draft into a user acceptance flow.
+const UNAPPROVED_LEGAL=/\[(?:PENDIENTE|POR COMPLETAR)[^\]]*\]|BORRADOR\s+NO\s+PUBLICAR|NO\s+EN\s+VIGENCIA|ESTADO:\s*NO\s+APROBADO/i;
+function reviewedBody(body){
+ return typeof body==='string'&&body.trim().length>=300&&!UNAPPROVED_LEGAL.test(body);
+}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TYPES=['terms','privacy'];
 function validStatus(rows){
@@ -33,7 +39,7 @@ export async function loadCoachPilotLegal(sb,{profile}={}){
   const st=status.find(x=>x.kind===kind),doc=dr.data.find(x=>x.id===st.document_id);
   if(!doc||doc.kind!==kind||doc.version!==st.version||doc.sha256!==st.sha256||
     doc.is_current!==true||!doc.published_at||typeof doc.body!=='string'||
-    doc.body.trim().length<300)throw Error('Las versiones legales no coinciden. Volvé a consultar.');
+    !reviewedBody(doc.body))throw Error('Las versiones legales no coinciden o todavía son borradores no aprobados.');
   return Object.freeze({...doc,accepted:st.accepted});
  });
  return Object.freeze({ready:true,documents:Object.freeze(docs),

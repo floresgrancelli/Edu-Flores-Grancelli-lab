@@ -58,6 +58,8 @@ assert.match(sql,/v_uid uuid := auth\.uid\(\)/);
 assert.match(sql,/p\.user_id=v_uid and p\.role='student' and p\.active=true/);
 assert.match(sql,/r\.revoked_at is null/);
 assert.match(sql,/v_route:='private'/);
+assert.match(sql,/not v_sharing/);
+assert.match(sql,/v_intake.shared_at is not null and v_follow_up and v_sharing/);
 assert.doesNotMatch(sql,/r\.participation_accepted=true and r\.sharing_accepted=true/);
 assert.match(sql,/v_plan\.published_at >= v_intake\.updated_at/);
 assert.match(sql,/v_guide_goal=v_plan\.published_goal_id/);

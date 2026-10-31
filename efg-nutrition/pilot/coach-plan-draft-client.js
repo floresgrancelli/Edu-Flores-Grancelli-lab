@@ -64,7 +64,7 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(relaunchEnabled)query=query.eq("completed_version",COACH_RELEASE_INTAKE_VERSION);
   const r=await query.maybeSingle();
   if(r.error)throw r.error;
-  if(!r.data?.shared_at||!r.data.updated_at||r.data.student_id!==studentId)
+  if(!r.data?.shared_at||!r.data.updated_at||!r.data.organization_id||r.data.student_id!==studentId)
    throw Error("El alumno no compartió una ficha vigente.");
   if(relaunchEnabled&&(
     r.data.completed_version!==COACH_RELEASE_INTAKE_VERSION||

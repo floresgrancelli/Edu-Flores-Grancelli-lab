@@ -83,10 +83,17 @@ assert.equal(owner[0].completed_version,version);
 assert.equal(owner[0].shared_at,null);
 const receiptRead=token=>request("/rest/v1/efg_pilot_participation_receipts?select=student_id,organization_id,version,sharing_accepted",{token});
 yes(await rpc("efg_accept_pilot_participation",people.studentA.token,{
- p_version:"coach_pilot_2026_demo1",p_participation:true,p_sharing:true
+ p_version:"coach_pilot_2026_demo1",p_participation:true,p_sharing:false
 }),"Student explicitly accepts pilot choices");
-assert.equal(yes(await receiptRead(people.studentA.token),
- "Student can read own versioned pilot receipt").length,1);
+const privateReceipt=yes(await receiptRead(people.studentA.token),
+ "Student can read own private pilot receipt");
+assert.equal(privateReceipt.length,1);
+assert.equal(privateReceipt[0].sharing_accepted,false,"Opt-out must persist as false, never coerced to true");
+assert.deepEqual(yes(await read(people.coachA.token),"No coach reads private intake after opt-out"),[]);
+yes(await rpc("efg_accept_pilot_participation",people.studentA.token,{
+ p_version:"coach_pilot_2026_demo1",p_participation:true,p_sharing:true
+}),"Student independently opts in to coach sharing");
+assert.equal(yes(await receiptRead(people.studentA.token),"Updated sharing receipt")[0].sharing_accepted,true);
 assert.deepEqual(yes(await receiptRead(people.studentB.token),
  "Another student cannot read pilot receipt"),[]);
 

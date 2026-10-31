@@ -45,6 +45,20 @@ for(const bad of [{...payload,health_flags:['sibo']},{...payload,diagnosis:'diab
  await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload:bad,
   expectedRevision:2,explicitSubmit:true}),/campo no pertenece/);
 }
+// Reject invalid values before calling the signed RPC; DB keeps final authority.
+const rpcBeforeValidation=nRPC;
+for(const bad of [
+ {...payload,age_years:17}, {...payload,age_years:40.5},
+ {...payload,height_cm:99}, {...payload,weight_kg:401},
+ {...payload,weight_kg:Infinity}, {...payload,age_years:'40'},
+ {...payload,dietary_pattern:'unsupported'}, {...payload,eating_window:'18_6'},
+ {...payload,activity_level:'extreme'}, {...payload,objective:'diagnosis'},
+ {...payload,preferred_foods:'x'.repeat(401)}, {...payload,notes:'x'.repeat(1001)}
+]){
+ await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload:bad,
+  expectedRevision:2,explicitSubmit:true}),/ficha inválido/);
+}
+assert.equal(nRPC,rpcBeforeValidation,'Invalid general-intake data never reaches the RPC');
 await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,
  expectedRevision:0,explicitSubmit:true}),/otro dispositivo/);
 await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,

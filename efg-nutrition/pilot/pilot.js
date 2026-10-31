@@ -45,6 +45,7 @@ import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./
 import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=20261031-intake1";
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
 import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
+import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=20261031-coachopt05";
 import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
 import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
 import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
@@ -411,7 +412,7 @@ const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
-state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.majorRelease=null;state.majorReleaseLegal=null;
+state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -747,7 +748,7 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
+  ?(COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route)?[["history","⌂","Mi historial"],["intake","▣","Mi ficha"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
@@ -2349,8 +2350,8 @@ async function render(){
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
-    else if(pilot.route==="private")frame('<section class="card"><h2>Tu ficha es privada</h2><p>Guardamos tu ficha sin compartirla con tu coach. Tus datos históricos se conservan. Podés revisar la ficha, cambiar tu permiso o consultar tus mensajes y la sección Con-Ciencia.</p><button type="button" class="btn" data-tab="intake">Revisar mi ficha</button><button type="button" class="btn light" data-tab="messages">Mensajes</button></section>');
-     else frame(renderCoachPlanWaiting());
+    else if(["history","home","summaries"].includes(state.tab)||pilot.route==="private")frame(renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
+     else frame(renderCoachPlanWaiting()+renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
    }else
     root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
    return;
@@ -2651,7 +2652,7 @@ async function refresh(){
   if(p.error)throw p.error;
   state.profile=p.data;
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
-  state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
+  state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
   // All four roles receive the exceptional release sequence, including future
   // Personal, BEFORE role-specific legacy data fetches. Both release flags OFF.
@@ -2689,7 +2690,12 @@ async function refresh(){
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
-   if(["review","private"].includes(state.coachPilotEntry.route))await loadRoleData();
+   if(["review","private"].includes(state.coachPilotEntry.route)){
+    await loadRoleData();
+    // The signed private/review route does not authorize new diary writes,
+    // but must not erase the student’s ability to READ their own history.
+    state.coachPrivateHistory=await loadCoachPrivateHistory(sb,{profile:state.profile,userId:id,entry:state.coachPilotEntry});
+   }
    if(state.coachPilotEntry.route!=="ready")return render();
   }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){

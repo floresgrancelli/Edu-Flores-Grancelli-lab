@@ -65,7 +65,10 @@ begin
   select i.* into v_intake from public.efg_coach_relaunch_intakes i
    where i.student_id=v_uid and i.organization_id=v_org
      and i.completed_version='coach_major_2026_r1';
-  if not found or v_intake.shared_at is null or not v_follow_up then
+  if not found or v_intake.shared_at is null or not v_follow_up
+     or v_intake.completed_at is null or v_intake.updated_at is null
+     or v_intake.revision is null or v_intake.revision<1
+     or v_intake.updated_at<v_intake.completed_at then
    v_route:='intake';
   else
    v_route:='review';

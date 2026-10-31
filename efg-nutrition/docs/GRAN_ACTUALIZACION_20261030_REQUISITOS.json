@@ -7,7 +7,7 @@
   "release_candidate_branch": "efg-major-integration-20261029",
   "merge_allowed": false,
   "flags_may_be_enabled_without_go": false,
-  "rule": "Los 54 requisitos explícitos (51 iniciales + 3 brechas reconciliadas PRO-50, PRO-22, PRO-07) son obligatorios. Ninguno se posterga sin nueva decisión documentada del propietario. Código no equivale a UAT.",
+  "rule": "Los 55 requisitos individuales (54 previos + 09-06 rebranding exclusivamente visual del 30/10) son obligatorios. No se modifican URLs, IDs de backend, tablas, carpetas ni claves técnicas. Ninguno se posterga sin decisión documentada; código no equivale a UAT.",
   "post_release_explicit": [
     "BKP-19 respaldo/restauración integral Mac",
     "Endurecimiento adicional (no RLS/autorización base)",
@@ -512,6 +512,15 @@
       "source": "PRO-07; QA224",
       "acceptance": "Mínimo biblioteca actual 12 recetas, fotos verificadas/alt/fuente; datos reales o marcados estimados",
       "status_at_cutoff": "IMPLEMENTADO LIVE: biblioteca de 12 recetas Fit con fotos ilustrativas acreditadas y macros por ración; tests/fit-recipes-payments.mjs + fit-photo-live.mjs existen. Prueba de enlaces reales y dispositivo físico pendiente.",
+      "mandatory_for_coach_go": true
+    },
+    {
+      "block": "09 PWA",
+      "id": "09-06",
+      "requirement": "Reemplazar visualmente TODAS las marcas antiguas «EFG Nutrition»/«EFG Nutrition Pro» por «Nutrición Con-Ciencia» en sidebar, login, introducción, títulos, informes diarios/semanales, gráficos y avisos. Conservar logo serotonina.",
+      "source": "BRAND-78; instrucción expresa 30/10; foto de sidebar",
+      "acceptance": "SOLO texto visible/alt/meta; NO cambiar URLs, repos, ramas, rutas, IDs técnicos, claves localStorage, tablas, hashes, dominios ni operaciones",
+      "status_at_cutoff": "En rama candidata: sidebar/login/títulos, intro, informe diario, evolución y reportes; verificación de todas las superficies en CI; no publicada",
       "mandatory_for_coach_go": true
     }
   ]

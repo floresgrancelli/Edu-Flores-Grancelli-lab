@@ -85,6 +85,8 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
     (relaunchEnabled?",source_intake_revision":""))
    .eq("student_id",studentId).maybeSingle();
   if(r.error)throw r.error;
+  if(r.data&&r.data.student_id!==studentId)
+   throw Error("El borrador recuperado no corresponde al alumno seleccionado.");
   return r.data||null;
  }
  async function save({studentId,sourceUpdatedAt,sourceRevision=null,goal,guide,expectedRevision=null}={}){

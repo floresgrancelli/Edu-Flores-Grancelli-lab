@@ -131,36 +131,6 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
           node efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
-      - name: COACH-OPT-03 apply faithful legacy CHECK and opt-out corrective SQL ONLY locally
-        env:
-          PGHOST: 127.0.0.1
-          PGPORT: '54322'
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGDATABASE: postgres
-        run: |
-          set -euo pipefail
-          test "${PGHOST}" = '127.0.0.1'
-          test "${PGPORT}" = '54322'
-          test "${PGDATABASE}" = 'postgres'
-          # Install the real status RPC versions in dependency order, only
-          # after the previous signed-JWT baseline scenario has completed.
-          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach_pilot_student_entry_status.sql
-          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach116_legal_first_student_status.sql
-          # Reproduce the legacy hosted sharing=true CHECK without validating
-          # unrelated synthetic receipts created by the preceding E2E.
-          psql -v ON_ERROR_STOP=1 -c "alter table public.efg_pilot_participation_receipts add constraint efg_pilot_participation_receipts_sharing_accepted_check check (sharing_accepted=true) not valid;"
-          test "$(psql -Atqc "select count(*) from pg_constraint where conrelid='public.efg_pilot_participation_receipts'::regclass and conname='efg_pilot_participation_receipts_sharing_accepted_check'")" = '1'
-          # This corrective migration must remove the legacy CHECK and
-          # tighten the Coach SELECT policy; it NEVER runs on hosted Supabase.
-          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql
-          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
-      - name: COACH-OPT-03 signed LOCAL JWT immediate opt-out revokes Coach RLS visibility
-        env:
-          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
-        run: |
-          node --check efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
-          node efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
       - name: CLIN-GUT-03 apply private health schema ONLY to disposable local Postgres
         env:
           PGHOST: 127.0.0.1
@@ -268,6 +238,36 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
           node efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
+      - name: COACH-OPT-03 apply faithful legacy CHECK and opt-out corrective SQL ONLY locally
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '54322'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: postgres
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '54322'
+          test "${PGDATABASE}" = 'postgres'
+          # Install the real status RPC versions in dependency order, only
+          # after the previous signed-JWT baseline scenario has completed.
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach_pilot_student_entry_status.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach116_legal_first_student_status.sql
+          # Reproduce the legacy hosted sharing=true CHECK without validating
+          # unrelated synthetic receipts created by the preceding E2E.
+          psql -v ON_ERROR_STOP=1 -c "alter table public.efg_pilot_participation_receipts add constraint efg_pilot_participation_receipts_sharing_accepted_check check (sharing_accepted=true) not valid;"
+          test "$(psql -Atqc "select count(*) from pg_constraint where conrelid='public.efg_pilot_participation_receipts'::regclass and conname='efg_pilot_participation_receipts_sharing_accepted_check'")" = '1'
+          # This corrective migration must remove the legacy CHECK and
+          # tighten the Coach SELECT policy; it NEVER runs on hosted Supabase.
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: COACH-OPT-03 signed LOCAL JWT immediate opt-out revokes Coach RLS visibility
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+        run: |
+          node --check efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
+          node efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

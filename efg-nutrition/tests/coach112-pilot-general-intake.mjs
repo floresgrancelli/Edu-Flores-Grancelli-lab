@@ -14,9 +14,9 @@ const payload={objective:'recomp',age_years:40,height_cm:174.0,weight_kg:79.3,
  activity_level:'moderate',dietary_pattern:'keto',eating_window:'16_8',
  notes:'Entreno 5 días por semana'};
 let nRPC=0;
-function fake({signed=uid,pilot=receipt,stored=null}={}){
- let row=stored;
- return {auth:{getUser:async()=>({data:{user:{id:signed}},error:null})},
+function fake({signed=uid,pilot=receipt,stored=null,switchAt=null}={}){
+ let row=stored,authReads=0;
+ return {auth:{getUser:async()=>({data:{user:{id:switchAt!==null&&++authReads>=switchAt?org:signed}},error:null})},
  from:name=>({select:()=>({eq(){return this},maybeSingle:async()=>({data:name==='efg_pilot_participation_receipts'?pilot:row,error:null})})}),
  rpc:async(name,params)=>{
   nRPC++;
@@ -104,4 +104,16 @@ for(const change of [{expectedRevision:2,explicitSubmit:true},{expectedRevision:
  await assert.rejects(manageCoachPilotGeneralIntake(privacyDb,{profile,action:'clear',...change}));
 await assert.rejects(manageCoachPilotGeneralIntake(fake({signed:org,stored:intake}),{profile,expectedRevision:1,action:'clear',explicitSubmit:true}));
 assert.equal(nRPC,callsBefore,'Stale, unconfirmed and other-account privacy actions cannot write');
-console.log('PASS new-journey privacy: edit/unshare/clear use current revision, explicit confirmation, authenticated owner and readback; no historic plan/diary writes.');
+// The participation receipt and intake SELECT may complete after a user swap.
+const beforeAccountSwap=nRPC;
+await assert.rejects(loadCoachPilotGeneralIntake(fake({switchAt:3}),{profile}),/sesión cambió/);
+await assert.rejects(loadCoachPilotGeneralIntake(fake({switchAt:5}),{profile}),/sesión cambió/);
+await assert.rejects(submitCoachPilotGeneralIntake(fake({switchAt:5}),{
+ profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true
+}),/sesión cambió/);
+assert.equal(nRPC,beforeAccountSwap,'Switched identity cannot reach intake-write RPC');
+await assert.rejects(submitCoachPilotGeneralIntake(fake({switchAt:6}),{
+ profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true
+}),/sesión cambió/);
+assert.equal(nRPC,beforeAccountSwap+1,'Server commit followed by account change must not display stale write success');
+console.log('PASS new-journey privacy: edit/unshare/clear with CAS and signed readback; session swaps fail closed, without historic diary writes (synthetic).');

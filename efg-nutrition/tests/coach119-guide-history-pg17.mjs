@@ -150,7 +150,9 @@ exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
 assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
  'No-op update must not duplicate history');
 // Exercise the EXACT ON CONFLICT clause from the COACH119 hosted candidate.
-// Existing Coach approvals MUST NOT collapse to the few foods in a new guide.
+// A replacement must use the full explicitly reviewed Coach selection, not
+// silently retain old foods that may be expired or unsuitable. The previous
+// approved list remains in the private history ledger.
 const upsertMatch=source.match(/on conflict\(student_id\) do update set[\s\S]*?updated_at=excluded\.updated_at;/);
 assert.ok(upsertMatch,'Exact candidate upsert clause unavailable');
 exec(`insert into public.efg_food_plans(
@@ -162,7 +164,9 @@ exec(`insert into public.efg_food_plans(
 )
 ${upsertMatch[0]}`);
 assert.equal(exec("select array_to_string(approved_food_ids,',') from public.efg_food_plans"),
- 'food-b,food-c','Coach-approved old foods and verified guide items must both survive');
+ 'food-c','New full Coach selection must not inherit unreviewed legacy IDs');
+assert.equal(exec("select array_to_string(approved_food_ids,',') from efg_private.coach_guide_history order by id desc limit 1"),
+ 'food-b','Prior Coach-approved list must remain in the private archive');
 assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'C');
 assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'3',
  'Prior approved guide must archive when a new atomic guide publishes');

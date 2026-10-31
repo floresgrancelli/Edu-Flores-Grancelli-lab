@@ -62,6 +62,7 @@ returnedDraftOrg=ORG;
 returnedIntakeOrg=null;
 await assert.rejects(()=>enabled.load(STU),/no compartió/,"Missing organization in shared intake must fail closed");
 returnedIntakeOrg=ORG;
+await assert.rejects(()=>enabled.save({studentId:STU,sourceUpdatedAt:"2026-10-29",goal,guide}),/Recargá la ficha/);
 const saved=await enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide});
 assert.deepEqual(saved,{studentId:STU,revision:1,sourceUpdatedAt:WHEN});
 assert.deepEqual(calls[0],{name:"efg_save_coach_plan_draft",payload:{p_student:STU,p_goal:goal,p_guide:guide,p_intake_updated_at:WHEN,p_expected_revision:null}});

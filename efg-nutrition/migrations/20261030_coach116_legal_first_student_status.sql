@@ -21,6 +21,7 @@ declare
  v_org uuid;
  v_coach uuid;
  v_receipt boolean := false;
+ v_sharing boolean := false;
  v_intake public.efg_coach_relaunch_intakes%rowtype;
  v_plan public.efg_student_plan_access%rowtype;
  v_guide_goal uuid;
@@ -69,6 +70,15 @@ begin
  if not v_receipt then
   v_route:='participation';
  else
+  -- A prior shared intake never authorizes current coach access after
+  -- the independent pilot sharing receipt is changed to FALSE.
+  select exists(
+   select 1 from public.efg_pilot_participation_receipts r
+   where r.student_id=v_uid and r.organization_id=v_org
+     and r.version='coach_pilot_2026_demo1'
+     and r.participation_accepted and r.sharing_accepted
+     and r.revoked_at is null
+  ) into v_sharing;
   select exists(select 1 from public.efg_consents c
     where c.student_id=v_uid and c.organization_id=v_org and c.accepted=true)
     into v_follow_up;
@@ -77,7 +87,7 @@ begin
      and i.completed_version='coach_major_2026_r1';
   if not found then
    v_route:='intake';
-  elsif v_intake.shared_at is null or not v_follow_up then
+  elsif v_intake.shared_at is null or not v_follow_up or not v_sharing then
    v_route:='private'; -- Own current intake saved, without coach sharing.
   else
    v_route:='review';
@@ -116,7 +126,7 @@ begin
   'required_intake_version','coach_major_2026_r1',
   'required_pilot_version','coach_pilot_2026_demo1',
   'participation_confirmed',v_receipt,
-  'general_intake_shared',v_intake.shared_at is not null and v_follow_up,
+  'general_intake_shared',v_intake.shared_at is not null and v_follow_up and v_sharing,
   'legal_current_accepted',true,
   'requires_separate_health_consent',true
  );

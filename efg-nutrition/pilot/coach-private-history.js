@@ -13,7 +13,15 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
     !['private','review'].includes(entry?.route)||entry?.currentLegalAccepted!==true||
     entry?.participationConfirmed!==true||entry?.canLogMeals!==false)
   throw Error('No se pudo verificar el permiso de lectura histórica.');
- if(typeof sb?.from!=='function')throw Error('No se pudo consultar el historial.');
+ if(typeof sb?.from!=='function'||typeof sb?.auth?.getUser!=='function')throw Error('No se pudo verificar la sesión para leer el historial.');
+ // A PWA may switch Supabase identities while an asynchronous history read is
+ // pending. getUser verifies the active JWT with Auth, not a cached profile.
+ const assertCurrentIdentity=async()=>{
+  const verified=await sb.auth.getUser();
+  if(verified?.error||verified?.data?.user?.id!==userId)
+   throw Error('La sesión cambió durante la lectura del historial.');
+ };
+ await assertCurrentIdentity();
  // A signed entry and a profile loaded at login can become stale after an
  // admin deactivates/transfers a student in another session. Re-read the
  // current server-owned profile before any historical SELECT; fail closed.
@@ -43,6 +51,8 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
   if(rows.some(row=>!row||row[key]!==userId))throw Error('Historial no autorizado.');
   return rows;
  });
+ // Do not return sensitive history to a different identity after an async switch.
+ await assertCurrentIdentity();
  return {userId,logs:data[0],weights:data[1],goals:data[2],plan:data[3][0]||null,
   reports:data[4],payments:data[5]};
 }

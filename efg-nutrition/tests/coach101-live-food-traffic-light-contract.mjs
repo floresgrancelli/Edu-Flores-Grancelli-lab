@@ -20,6 +20,7 @@ const row={food_id:'test_food',rule:'pattern:vegan',status:'reviewed',
  reviewed_at:'2026-10-01T00:00:00Z',expires_at:'2026-12-01T00:00:00Z'};
 const evidence=reviewedRowsToCatalogEvidence([row]);
 assert.equal(describeTrafficLight(food,{pattern:'vegan',evidence}).color,'green');
+assert.equal(describeTrafficLight(food,{pattern:'vegan',evidence:[...evidence,...evidence]}).color,'yellow');
 assert.equal(describeTrafficLight(food,{pattern:'vegan',restrictions:['celiac'],evidence}).color,'yellow');
 assert.equal(describeTrafficLight(food,{pattern:'vegan',evidence:[{...evidence[0],ingredientClasses:['meat']}]}).color,'red');
 assert.match(describeTrafficLight(food,{pattern:'vegan',inPlan:true,evidence}).details,/Incluido en mi plan/);

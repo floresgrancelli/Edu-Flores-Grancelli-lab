@@ -25,7 +25,7 @@ const studentId="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const organizationId="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const coachId="cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 const ctx={studentId,organizationId,coachId};
-const intake={revision:3,shared_at:"2026-10-31T12:00:00Z"};
+const intake={student_id:studentId,organization_id:organizationId,revision:3,shared_at:"2026-10-31T12:00:00Z"};
 const draft={student_id:studentId,organization_id:organizationId,coach_id:coachId,
  status:"draft",draft_revision:2,source_intake_revision:3};
 assert.equal(currentCoachIntakeDraft(draft,intake,ctx),true);

@@ -69,7 +69,12 @@ const body={p_completed_version:'coach_major_2026_r1',
  p_expected_revision:0,p_share_with_coach:true};
 assert.equal(Number(yes(await rpc('efg_submit_coach_relaunch_intake',student.token,body),
  'initial explicit shared intake')),1);
-assert.equal(yes(await read(coach.token),'coach initially sees shared intake').length,1);
+// Local-only diagnostics distinguish missing receipt/consent from an RLS
+// helper/role problem without logging user information or access tokens.
+const localEvidence=sql('select (i.shared_at is not null)::text||\'|\'||coalesce(r.sharing_accepted::text,\'null\')||\'|\'||coalesce(c.accepted::text,\'null\')||\'|\'||(o.coach_id='+qid(coach.id)+')::text from public.efg_coach_relaunch_intakes i join public.efg_pilot_participation_receipts r on r.student_id=i.student_id and r.organization_id=i.organization_id join public.efg_consents c on c.student_id=i.student_id and c.organization_id=i.organization_id join public.efg_organizations o on o.id=i.organization_id where i.student_id='+qid(student.id));
+assert.equal(localEvidence,'true|true|true|true','Local row, receipt, consent and coach relationship must be intact');
+const firstCoachRead=yes(await read(coach.token),'coach initially sees shared intake');
+assert.equal(firstCoachRead.length,1,'Coach RLS denied a shared row despite local consent/receipt: '+localEvidence);
 assert.deepEqual(yes(await read(outsider.token),'other coach cannot read'),[]);
 const before=sql('select revision::text||\'|\'||coalesce(shared_at::text,\'NULL\') from public.efg_coach_relaunch_intakes where student_id='+qid(student.id));
 await receipt(false);

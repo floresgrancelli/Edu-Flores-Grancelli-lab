@@ -241,11 +241,11 @@ const personalDocument={getElementById(id){return {value:id==='efgRecipeRegister
 const personalState={diary:recipeDiary};
 const ownHandler=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
  'activeDiary','state','saveDiary','closeRecipeRegistration','notify',
- 'recipeRegistrationBusy','setBusy',
+ 'busy',
  source.slice(recipeStart,recipeEnd).replaceAll('recipeRegistrationBusy','busy.value')+
  ';return confirmRecipeRegistration;')(
  ()=>[chosenOwn],personalDocument,[['cena','Cena']],recipeLocks,()=>recipeDiary,personalState,
- writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),false,{value:false});
+ writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),{value:false});
 const beforeOwn=structuredClone(recipeDiary);
 await assert.rejects(ownHandler(),/network offline/);
 assert.deepEqual(recipeDiary,beforeOwn,'Rejected personal recipe restores previous diary');

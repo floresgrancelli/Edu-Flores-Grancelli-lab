@@ -68,7 +68,8 @@ export async function loadCoachPilotGeneralIntake(sb,{profile}={}){
  const userId=await check(sb,profile);
  return {userId,intake:await readCurrent(sb,userId,profile.organization_id)};
 }
-export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWithCoach=true,
+// Sharing must be an explicit boolean from the current form, never an API default.
+export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWithCoach,
  expectedRevision=0,explicitSubmit=false}={}){
  if(explicitSubmit!==true)throw Error('La ficha requiere confirmación expresa.');
  const general=fieldsOnly(payload);

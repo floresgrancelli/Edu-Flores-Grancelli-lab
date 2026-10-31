@@ -578,9 +578,18 @@ async function applyChosenHabitual(slot){
  const fav=chosenHabitual(slot);
  const d=activeDiary();d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
+ const previousItems=structuredClone(d.meals[slot]);
+ const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
+ const previousEdited=state.lastEditedMeal;
  d.meals[slot]=structuredClone(fav.items);
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
- await saveDiary();notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+ try{await saveDiary();}
+ catch(error){
+  d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;
+  d.skipped._closed=previousClosed;state.lastEditedMeal=previousEdited;
+  throw error;
+ }
+ notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
 }
 async function habitualAction(slot,action){
  if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");

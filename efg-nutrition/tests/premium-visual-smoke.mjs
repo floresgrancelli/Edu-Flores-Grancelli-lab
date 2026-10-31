@@ -682,6 +682,38 @@ try{
       pageReport.errors.push("Media mañana classic selector lost food categories");
     await page.locator('[data-act="closeMeal"]').click();
    }
+   // COACH119 02-03 + sushi pieces: actual meal editor with synthetic Coach selection,
+// not hosted login, not a physical device, no production connection.
+   if(role==="student"&&width===390&&dest==="home"){
+    const previousDiary=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+    await page.evaluate(async()=>{
+     const v=window.__EFG_VISUAL_QA__;
+     v.state.foodPlan={approved_food_ids:["egg","sushi_maki_salmon"]};
+     await v.render();
+     v.openMealDialog("almuerzo","prepared");
+    });
+    await page.locator("#mealFoodSearch").fill("sushi");
+    const allowedIds=await page.locator('#mealEditorFood option[value]:not([value=""])')
+     .evaluateAll(options=>options.filter(o=>!o.disabled).map(o=>o.value));
+    if(allowedIds.length!==1||allowedIds[0]!=="sushi_maki_salmon")
+     pageReport.errors.push("Coach-approved catalog leaked unselected foods: "+JSON.stringify(allowedIds));
+    await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
+    if(await page.locator("#mealEntryMode").inputValue()!=="units")
+     pageReport.errors.push("Approved sushi should default to counting pieces");
+    await page.locator("#mealEditorQty").fill("3");
+    await page.locator('[data-act="saveSelectedMealContinue"]').click();
+    const savedSushi=await page.evaluate(()=>
+     (window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[])
+      .filter(x=>x.id==="sushi_maki_salmon")
+      .map(x=>({qty:x.qty,displayQty:x.displayQty,displayUnit:x.displayUnit})));
+    if(savedSushi.length!==1||savedSushi[0].qty!==84||
+       savedSushi[0].displayQty!==3||!String(savedSushi[0].displayUnit).includes("pieza"))
+     pageReport.errors.push("Sushi three pieces must persist once as estimated 84 g: "+JSON.stringify(savedSushi));
+    await page.evaluate(async prior=>{
+     const v=window.__EFG_VISUAL_QA__;v.state.diary=prior;
+     v.state.foodPlan=null;await v.render();
+    },previousDiary);
+   }
    if(role==="student"&&dest==="recipes"){
      if((await page.locator(".efg-fit-card").count())!==12)pageReport.errors.push("Fit recipe library should show 12 cards");
      if(!(await page.getByText("Budín de avena y manzana de Edu",{exact:true}).count()))pageReport.errors.push("Edu budin missing");

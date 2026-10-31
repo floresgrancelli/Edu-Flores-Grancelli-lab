@@ -46,7 +46,6 @@ const mustDeny=[
  [{guide:null},'review'],
  [{guide:{...guide,guided_goal_id:uid}},'review'],
  [{guide:{...guide,organization_id:uid}},'review'],
- [{guide:{...guide,organization_id:org}},'ready'],
  [{guide:{...guide,guided_plan_approved_at:'2026-10-30T10:00:00Z'}},'review'],
  [{profile:{...profile,active:false}},'verify'],
  [{profile:{...profile,role:'coach'}},'verify']
@@ -56,6 +55,8 @@ for(const [change,expected]of mustDeny){
  assert.equal(value.route,expected,'Unexpected access for '+JSON.stringify(change));
  assert.equal(value.canLogMeals,false,'Unauthorized students cannot log meals');
 }
+assert.equal(gate({guide:{...guide,organization_id:org}}).route,'ready',
+ 'Matching guide organization must preserve diary access');
 assert.match(renderCoachPlanWaiting(),/Tu coach está preparando tu plan/);
 assert.match(renderCoachPlanWaiting(),/una guía de cinco comidas/);
 assert.match(renderCoachPlanWaiting(),/mensajería/i);

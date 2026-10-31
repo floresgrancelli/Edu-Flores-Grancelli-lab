@@ -42,6 +42,7 @@ export function resolveCoachStudentJourney({
    plan.status!=='published'||!uuid(plan.published_goal_id)||!stamp(plan.published_at)||
    Date.parse(plan.published_at)<Date.parse(intake.updated_at)||
    !guide||guide.student_id!==userId||
+   (guide.organization_id!=null&&guide.organization_id!==profile.organization_id)||
    guide.guided_goal_id!==plan.published_goal_id||!stamp(guide.guided_plan_approved_at)||
    Date.parse(guide.guided_plan_approved_at)<Date.parse(intake.updated_at))
   return result('review','Tu coach recibió la ficha y está preparando tu plan de alimentación.');

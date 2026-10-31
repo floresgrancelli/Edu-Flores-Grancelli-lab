@@ -20,7 +20,7 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
  const results=await Promise.all([
   own('efg_daily_logs','student_id,log_day,meals,skipped').order('log_day',{ascending:false}).limit(90),
   own('efg_weights','student_id,measured_on,kg').order('measured_on',{ascending:false}).limit(40),
-  own('efg_goals','student_id,id,approved_at,kcal,protein_g,carbs_g,fat_g,fiber_g').order('approved_at',{ascending:false}).limit(20),
+  own('efg_goals','student_id,id,approved_at,kcal,protein_g,carb_g,fat_g,fiber_g').order('approved_at',{ascending:false}).limit(20),
   own('efg_food_plans','student_id,guided_goal_id,guided_plan,guided_plan_approved_at').maybeSingle(),
   own('efg_weekly_reports','student_id,week_ending,report_text').order('week_ending',{ascending:false}).limit(12),
   own('efg_payments','payer_id,created_at,amount_ars,status,payment_kind','payer_id').order('created_at',{ascending:false}).limit(30)
@@ -54,7 +54,7 @@ export function renderCoachPrivateHistory(history,{userId}={}){
   ' · '+esc(numeric(w.kg)??'—')+' kg</li>');
  const goal=history.goals[0];
  const goalLine=goal?'<p>Objetivo aprobado: '+esc(numeric(goal.kcal)??'—')+' kcal · Proteínas '+
-  esc(numeric(goal.protein_g)??'—')+' g · Hidratos '+esc(numeric(goal.carbs_g)??'—')+
+  esc(numeric(goal.protein_g)??'—')+' g · Hidratos '+esc(numeric(goal.carb_g)??'—')+
   ' g · Grasas '+esc(numeric(goal.fat_g)??'—')+' g</p>':
   '<p class="pilot-hint">Todavía no hay objetivos aprobados.</p>';
  const guide=history.plan?.guided_plan;

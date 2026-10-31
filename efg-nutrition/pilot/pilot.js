@@ -3527,6 +3527,22 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  showGuidedEditor();
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+// Prevent Gboard IME input before compositionend from rebuilding native selects.
+const composingFoodSearchTargets=new WeakSet();
+root.addEventListener("compositionstart",event=>{
+ const target=event.target;
+ if(target?.id==="mealFoodSearch"||target?.dataset?.plansearch)composingFoodSearchTargets.add(target);
+});
+root.addEventListener("compositionend",event=>{
+ const target=event.target;
+ if(!target||!composingFoodSearchTargets.has(target))return;
+ composingFoodSearchTargets.delete(target);
+ if(target.id==="mealFoodSearch")filterMealFoods();
+ else if(target.dataset?.plansearch)filterPlannerFoods(target);
+});
+function foodSearchReadyForInput(event){
+ return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
+}
 root.addEventListener("input",e=>{
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
@@ -3545,7 +3561,7 @@ root.addEventListener("input",e=>{
   const qty=Number(e.target.value);
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
  }
- if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
+ if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch"&&foodSearchReadyForInput(e))filterMealFoods();if(e.target.dataset.plansearch&&foodSearchReadyForInput(e))filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
  const key=e.target.id.slice("planQty_".length);
  const select=[...root.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===key);
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};

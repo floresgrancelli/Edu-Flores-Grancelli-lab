@@ -29,6 +29,29 @@ const gestureStart=src.indexOf('document.addEventListener("keydown",event=>{');
 assert.ok(gestureStart>=0);
 const keyboard=src.slice(gestureStart,src.indexOf('root.addEventListener("submit"',gestureStart));
 assert.match(keyboard,/if\(event\.isComposing\|\|event\.keyCode===229\)return;/,'Android Gboard composition must not pick first food');
+
+const compStart=src.indexOf('const composingFoodSearchTargets=new WeakSet();');
+const compEnd=src.indexOf('root.addEventListener("input",e=>{',compStart);
+assert.ok(compStart>0&&compEnd>compStart,'The real app must guard composition before filtering');
+const listeners={},calls={meal:0,planner:0};
+const fakeRoot={addEventListener(name,cb){listeners[name]=cb;}};
+const gate=new Function('root','filterMealFoods','filterPlannerFoods',
+ src.slice(compStart,compEnd)+';return {foodSearchReadyForInput};')(
+ fakeRoot,()=>{calls.meal++},()=>{calls.planner++});
+const mealInput={id:'mealFoodSearch',dataset:{}},plannerInput={id:'',dataset:{plansearch:'cena|protein'}};
+listeners.compositionstart({target:mealInput});
+assert.equal(gate.foodSearchReadyForInput({target:mealInput,isComposing:false}),false,'Gboard can emit input before its composition ends');
+assert.equal(gate.foodSearchReadyForInput({target:mealInput,isComposing:true}),false);
+listeners.compositionend({target:mealInput});
+assert.equal(calls.meal,1,'A completed food name should filter exactly once');
+assert.equal(gate.foodSearchReadyForInput({target:mealInput,isComposing:false}),true);
+listeners.compositionstart({target:plannerInput});
+assert.equal(gate.foodSearchReadyForInput({target:plannerInput,isComposing:false}),false);
+listeners.compositionend({target:plannerInput});
+assert.equal(calls.planner,1,'Planner search must wait until the IME composition ends');
+assert.match(src,/if\(e\.target\.id==="mealFoodSearch"&&foodSearchReadyForInput\(e\)\)filterMealFoods\(\)/);
+assert.match(src,/if\(e\.target\.dataset\.plansearch&&foodSearchReadyForInput\(e\)\)filterPlannerFoods\(e\.target\)/);
+
 for(const diet of ['balanced','mediterranean','dash','vegetarian','vegan','pescatarian','flexitarian','portfolio','low_carb','keto']){
  assert.ok(DIET_PATTERNS.some(x=>x.id===diet),'Missing diet '+diet);
 }

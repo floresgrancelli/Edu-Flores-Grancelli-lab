@@ -564,6 +564,16 @@ function updateHabitualPreview(slot){
  const host=document.getElementById('habitualPreview_'+slot);
  if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
 }
+function validateHabitualCatalog(habitual){
+ // Older favorites stay visible as historical records, but a recognized catalog
+ // food removed by the Coach must not be re-added through a saved-meal shortcut.
+ if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return;
+ const approved=new Set(allowedFoods());
+ for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(approved.has(cooked))approved.add(raw);
+ const catalogIds=new Set(foods.map(food=>food.id));
+ const forbidden=(habitual?.items||[]).filter(item=>catalogIds.has(item?.id)&&!approved.has(item.id));
+ if(forbidden.length)throw Error('Este habitual contiene alimentos que tu coach ya no incluyó en tu catálogo. Revisá tu plan antes de registrarlo.');
+}
 function chosenHabitual(slot){
  const id=document.getElementById('habitualChoice_'+slot)?.value;
  if(!id)throw Error('Primero elegí una comida habitual de la lista.');
@@ -589,6 +599,7 @@ async function applyChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
+ validateHabitualCatalog(fav);
  const d=activeDiary();d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
  const previousItems=structuredClone(d.meals[slot]);
@@ -636,6 +647,7 @@ async function habitualAction(slot,action){
  if(!/^[0-9]+$/.test(answer.trim()))throw Error("Ingresá un número de la lista.");
  const index=Number(answer.trim())-1,fav=favorites[index];
  if(!fav)throw Error("Número de comida habitual inválido.");
+ validateHabitualCatalog(fav);
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;

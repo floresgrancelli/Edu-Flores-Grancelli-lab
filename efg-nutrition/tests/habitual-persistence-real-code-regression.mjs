@@ -8,8 +8,8 @@ const begin=app.indexOf('let cloudHabituales=[];');
 const end=app.indexOf('function recipeStoreKey(){',begin);
 assert.ok(begin>0&&end>begin,'The actual cloud habitual subsystem must remain discoverable');
 const subsystem=app.slice(begin,end);
-let rows=[],seq=0,rendered=0,notified=[];
-let holdNextInsert=false,releaseHeldInsert=null;
+let rows=[],seq=0,rendered=0,notified=[],diaryWrites=0;
+let holdNextInsert=false,releaseHeldInsert=null,approvedIds=['egg','oats'];
 const userId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const sb={from(table){
  assert.equal(table,'efg_habitual_meals');
@@ -27,12 +27,16 @@ const mealSlots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almu
  ['media_tarde','Media tarde'],['merienda','Merienda'],['cena','Cena']];
 const localStorage={getItem(){return null},removeItem(){}};
 const diary={meals:{desayuno:[{id:'egg',name:'Huevos',qty:100,unit:'g',k:140,p:12,c:2,f:8}]},skipped:{}};
+const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
 const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',
- subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
- sb,state,mealSlots,localStorage,()=>diary,()=>seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
+ 'foods','FOOD_STATE_PAIRS','allowedFoods','document',
+ subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,applyChosenHabitual,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
+ sb,state,mealSlots,localStorage,()=>diary,
+ msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
- msg=>notified.push(msg),async()=>{rendered++},async()=>{},x=>String(x)
+ msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),
+ [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument
 );
 await api.loadCloudHabituales();
 assert.equal(api.getHabitualList('desayuno').length,0);
@@ -71,6 +75,24 @@ await firstTap;
 assert.equal(api.getHabitualList('desayuno').length,3);
 await api.habitualAction('desayuno','save');
 assert.equal(rows.length,beforeFastTaps+2,'A later independent favorite can still be saved');
+
+state.foodPlan={approved_food_ids:['oats']};
+approvedIds=['oats'];state.habitualSelection.desayuno=rows[0].id;
+const unchanged=structuredClone(diary.meals.desayuno);
+const prevWrites=diaryWrites;
+await assert.rejects(api.applyChosenHabitual('desayuno'),/coach ya no incluyó/);
+assert.equal(diaryWrites,prevWrites,'Disallowed historical foods cannot bypass Coach approval via favorites');
+assert.deepEqual(diary.meals.desayuno,unchanged,'Rejected favorite must not change diary');
+assert.ok(api.getHabitualList('desayuno').some(x=>x.id===rows[0].id),
+ 'Historical favorite remains available for review, not erased');
+approvedIds=['egg'];state.foodPlan.approved_food_ids=['egg'];
+await api.applyChosenHabitual('desayuno');
+assert.equal(diaryWrites,prevWrites+1,'Coach-approved favorite remains reusable');
+assert.equal(diary.meals.desayuno[0].id,'egg');
+state.foodPlan=null;approvedIds=[];
+await api.habitualAction('desayuno','use');
+assert.equal(diaryWrites,prevWrites+2,'Legacy account without approval list keeps habitual behavior');
+
 // Both picker paths must restore the previous diary if the remote write fails.
 assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
 assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);

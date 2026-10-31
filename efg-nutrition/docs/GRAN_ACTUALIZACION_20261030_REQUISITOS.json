@@ -330,7 +330,7 @@
       "id": "07-03",
       "requirement": "Panel admin ORGANIZACIONES, permisos y cupos",
       "source": "PRO39/46; SEG15",
-      "acceptance": "Sin fuga cross-org",
+      "acceptance": "Coach de organización A NO puede leer alumnos de B; permisos del administrador y cupos respetados.",
       "status_at_cutoff": "LIVE+QA",
       "mandatory_for_coach_go": true
     },

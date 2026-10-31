@@ -221,6 +221,11 @@ jobs:
       - name: COACH118 staging-only signed diary DML gate (NOT APPLIED)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-diary-write-gate-staging-contract.mjs
+      - name: COACH-OPT-05 private intake retains owner read-only history, no diary writes (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/pilot/coach-private-history.js
+          node efg-nutrition/tests/coach-private-history.mjs
       - name: COACH113 signed pilot 2-checkbox, general intake and waiting messages UI (OFF)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

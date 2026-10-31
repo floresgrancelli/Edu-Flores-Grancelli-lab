@@ -10,7 +10,7 @@ import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspace
 
 const student="00000000-0000-4000-8000-000000000011",other="00000000-0000-4000-8000-000000000022";
 const stamp="2026-10-29T18:00:00.000Z",requestId="30000000-0000-4000-8000-000000000001",goalId="40000000-0000-4000-8000-000000000001";
-const intake={student_id:student,shared_at:stamp,updated_at:stamp,age_years:41,height_cm:174,weight_kg:80,
+const intake={student_id:student,organization_id:'50000000-0000-4000-8000-000000000001',shared_at:stamp,updated_at:stamp,age_years:41,height_cm:174,weight_kg:80,
  activity_level:"moderate",dietary_pattern:"omnivore",objective:"recomp",
  preferred_foods:"arroz",disliked_foods:"",meal_routine:"desayuno 7, cena 20"};
 const prefill=createCoachCalculatorPrefill({studentId:student,intake,coachAuthorized:true});
@@ -53,7 +53,7 @@ const sb={
    maybeSingle(){
     calls.push({type:"read",table});
     if(table==="efg_consents")return Promise.resolve({data:{accepted:consent},error:null});
-    if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:student,shared_at:stamp,updated_at:source}:null,error:null});
+    if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:student,organization_id:intake.organization_id,shared_at:stamp,updated_at:source}:null,error:null});
     if(table==="efg_coach_plan_drafts")return Promise.resolve({data:serverDraft,error:null});
     throw Error("Forbidden query "+table);
    }};
@@ -62,7 +62,7 @@ const sb={
   calls.push({type:"rpc",name,args});
   if(name==="efg_save_coach_plan_draft"){
    const revision=(serverDraft?.draft_revision||0)+1;
-   serverDraft={student_id:student,source_intake_updated_at:source,status:"draft",
+   serverDraft={student_id:student,organization_id:intake.organization_id,source_intake_updated_at:source,status:"draft",
     draft_revision:revision,goal_proposal:structuredClone(args.p_goal),guide_proposal:structuredClone(args.p_guide)};
    return {data:revision,error:null};
   }

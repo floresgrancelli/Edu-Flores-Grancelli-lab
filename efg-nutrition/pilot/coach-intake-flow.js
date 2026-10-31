@@ -47,8 +47,9 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   ]);
   if(a.error&&!missing(a.error))throw a.error;
   if(b.error&&!missing(b.error))throw b.error;
-  if(!a.error)for(const v of a.data||[])state.coachIntakeForms[v.student_id]=v;
-  if(!b.error)for(const v of b.data||[])state.coachIntakeAccess[v.student_id]=v;
+  const authorized=new Set(consentedIds);
+  if(!a.error)for(const v of a.data||[])if(authorized.has(v.student_id)&&v.shared_at)state.coachIntakeForms[v.student_id]=v;
+  if(!b.error)for(const v of b.data||[])if(authorized.has(v.student_id))state.coachIntakeAccess[v.student_id]=v;
  }
  // Reload before opening a coach's student detail: permission may have been revoked
  // or the optional intake deleted in another session since the roster last loaded.

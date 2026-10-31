@@ -850,7 +850,7 @@ function unauthorized(_msg){
  '<div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">ACCESO PRIVADO · NUTRICIÓN CON-CIENCIA</div><h2>Necesitamos verificar tu habilitación</h2>'+
  '<p>Por ahora no podemos abrir un espacio de Nutrition Coach en esta sesión. No se muestran datos de ninguna otra persona.</p>'+
  '<div class="pilot-alert" role="status" style="margin:20px 0">Si recibiste una invitación, consultá con quien te la envió antes de intentar ingresar de nuevo.</div>'+
- '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions">Cómo solicitar acceso</button>'+
+ '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions" aria-expanded="false">Cómo solicitar acceso</button>'+
  '<div id="efgAccessInstructions" class="pilot-hint" hidden><p>Pedile a tu entrenador que verifique la invitación y el cupo de tu cuenta. Si sos coach, contactá al administrador de EFG a través del canal habitual con el que te invitaron. No compartas códigos de ingreso ni contraseñas.</p><p>La aplicación no envía una solicitud automáticamente desde este botón.</p></div>'+
  '<button class="btn block ghost" data-act="logout" style="margin-top:12px">Salir e ingresar con otro correo</button></div></div></div>';
 }

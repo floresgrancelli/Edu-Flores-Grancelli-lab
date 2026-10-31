@@ -66,6 +66,11 @@ jobs:
       - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
+      - name: UX-SUSHI-PIECES and first food selection (offline regression)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tests/planner-sushi-first-select.mjs
+          node efg-nutrition/tests/planner-sushi-first-select.mjs
       - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs

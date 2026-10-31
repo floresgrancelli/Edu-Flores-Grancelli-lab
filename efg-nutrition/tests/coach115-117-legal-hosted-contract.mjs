@@ -72,6 +72,12 @@ await assert.rejects(submitCoachPilotLegal(sb,snapshot,sel,{explicitSubmit:false
 const accepted=await submitCoachPilotLegal(sb,snapshot,sel,{explicitSubmit:true,profile});
 assert.equal(accepted.accepted,true);
 assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,1);
+// Do not render A's consent receipt to B after a session switch mid-fetch.
+const switched=mocked();
+let legalAuthChecks=0;
+switched.auth.getUser=async()=>({data:{user:{id:++legalAuthChecks===1?id:privacy}},error:null});
+await assert.rejects(loadCoachPilotLegal(switched,{profile}),/sesión cambió/);
+assert.equal(legalAuthChecks,2);
 await assert.rejects(loadCoachPilotLegal(mocked(privacy),{profile}),/verificar tu cuenta/);
 statuses=[];
 const absent=await loadCoachPilotLegal(mocked(),{profile});

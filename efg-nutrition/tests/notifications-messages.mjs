@@ -21,6 +21,8 @@ assert.match(inbox,/if\(getUserId\(\)!==clickedUser\)return;/,"Account switch du
 assert.match(messages,/\.eq\("student_id",x\.student\)/,"Chat must scope student");
 assert.match(messages,/\.eq\("coach_id",x\.coach\)/,"Chat must scope coach");
 assert.match(messages,/\.insert\(/,"Chat must allow sending");
+assert.match(messages,/if\(busy\)throw Error/,"Chat must reject duplicate submissions while sending");
+assert.match(messages,/epoch!==sendEpoch\|\|context\(\)\.userId!==c\.userId/,"Old-account send completion must not clear another conversation draft");
 assert.match(notificationSQL,/enable row level security/i);
 assert.match(chatSQL,/enable row level security/i);
 assert.match(chatSQL,/sender_id=\(select auth\.uid\(\)\)/i);

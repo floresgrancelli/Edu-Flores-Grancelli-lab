@@ -24,7 +24,7 @@ try{
  const request='22222222-2222-4222-8222-222222222222';
  const goalId='33333333-3333-4333-8333-333333333333';
  const stamp='2026-10-31T10:00:00Z';
- const intake={student_id:student,shared_at:stamp,updated_at:stamp,completed_version:'coach_major_2026_r1',revision:4,dietary_pattern:'keto',eating_window:'14_10'};
+ const intake={student_id:student,organization_id:'44444444-4444-4444-8444-444444444444',shared_at:stamp,updated_at:stamp,completed_version:'coach_major_2026_r1',revision:4,dietary_pattern:'keto',eating_window:'14_10'};
  const draft={source_intake_updated_at:stamp,source_intake_revision:4};
  assert.equal(coachDraftSourceCurrent(intake,draft),true);
  assert.equal(coachDraftSourceCurrent({...intake,revision:5},draft),false,'Same timestamp cannot hide a revision change');

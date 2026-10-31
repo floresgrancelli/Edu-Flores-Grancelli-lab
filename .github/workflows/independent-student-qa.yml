@@ -23,13 +23,13 @@ jobs:
           node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
           node efg-nutrition/tests/science-welcome-contract.mjs
       - name: Chromium actual app with fictitious profiles
-        run: node efg-nutrition/tests/premium-visual-smoke.mjs
+        run: node efg-nutrition/tests/independent-student-browser-qa.mjs
       - name: Android emulated touch actual app
         if: always()
-        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+        run: EFG_QA_ANDROID=1 node efg-nutrition/tests/independent-student-browser-qa.mjs
       - name: WebKit actual app with fictitious profiles
         if: always()
-        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/independent-student-browser-qa.mjs
       - name: All eight education screens Chromium
         if: always()
         run: node efg-nutrition/tests/independent-eight-science-visual-qa.mjs

@@ -2687,9 +2687,9 @@ async function refresh(){
    state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
-   if(["intake","review","ready"].includes(state.coachPilotEntry.route))
+   if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
-   if(state.coachPilotEntry.route==="review")await loadRoleData();
+   if(["review","private"].includes(state.coachPilotEntry.route))await loadRoleData();
    if(state.coachPilotEntry.route!=="ready")return render();
   }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
@@ -2750,9 +2750,9 @@ async function refreshVisibleWorkspace(){
    state.coachPilotLegal=null;state.coachPilotIntake=null;
    if(state.coachPilotEntry.route==="legal")
     state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
-   if(["intake","review","ready"].includes(state.coachPilotEntry.route))
+   if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
-   if(!["ready","review"].includes(state.coachPilotEntry.route)){await render();return;}
+   if(!["ready","review","private"].includes(state.coachPilotEntry.route)){await render();return;}
   }
   if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"){
    state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});

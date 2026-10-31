@@ -58,20 +58,34 @@ create policy efg_coach_relaunch_owner_select on public.efg_coach_relaunch_intak
     and p.active and p.organization_id=efg_coach_relaunch_intakes.organization_id
   )
  );
+-- COACH-OPT-03: a Coach may learn only the boolean authorization for
+-- their OWN active student; no direct SELECT on private receipt rows.
+create or replace function efg_private.coach_pilot_share_active(
+ p_student uuid,p_org uuid
+) returns boolean language sql stable security definer set search_path=''
+as $share$
+ select efg_private.coach_has_student(p_student) and exists(
+  select 1 from public.efg_pilot_participation_receipts r
+  join public.efg_profiles p on p.user_id=r.student_id
+  where r.student_id=p_student and r.organization_id=p_org
+   and p.organization_id=p_org and p.role='student' and p.active
+   and r.version='coach_pilot_2026_demo1'
+   and r.participation_accepted and r.sharing_accepted is true
+   and r.revoked_at is null
+ )
+$share$;
+revoke all on function efg_private.coach_pilot_share_active(uuid,uuid)
+ from public,anon,authenticated;
+grant execute on function efg_private.coach_pilot_share_active(uuid,uuid)
+ to authenticated;
+
 create policy efg_coach_relaunch_shared_coach_select on public.efg_coach_relaunch_intakes
  for select to authenticated using (
-  shared_at is not null and efg_private.coach_has_student(student_id)
+  shared_at is not null and efg_private.coach_pilot_share_active(student_id,organization_id)
   and exists (
    select 1 from public.efg_consents c
    where c.student_id=efg_coach_relaunch_intakes.student_id
     and c.organization_id=efg_coach_relaunch_intakes.organization_id and c.accepted=true
-  )
-  and exists (
-   select 1 from public.efg_pilot_participation_receipts r
-   where r.student_id=efg_coach_relaunch_intakes.student_id
-    and r.organization_id=efg_coach_relaunch_intakes.organization_id
-    and r.version='coach_pilot_2026_demo1' and r.participation_accepted
-    and r.sharing_accepted is true and r.revoked_at is null
   )
  );
 -- No direct PostgREST INSERT/UPDATE/DELETE grant and NO write RLS policies.

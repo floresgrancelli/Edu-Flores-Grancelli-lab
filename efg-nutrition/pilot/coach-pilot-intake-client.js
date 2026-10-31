@@ -42,6 +42,11 @@ function fieldsOnly(payload){
  if(Object.keys(out).length===0)throw Error('La ficha no contiene datos.');
  return out;
 }
+async function requireSameSession(sb,userId){
+ const current=await sb.auth.getUser();
+ if(current?.error||current?.data?.user?.id!==userId)
+  throw Error('La sesión cambió mientras gestionabas la ficha. Volvé a verificar tu cuenta.');
+}
 async function check(sb,profile){
  if(typeof sb?.auth?.getUser!=='function')throw Error('Falta una sesión autenticada.');
  const u=await sb.auth.getUser();
@@ -50,6 +55,7 @@ async function check(sb,profile){
  identity(profile,userId);
  const pilot=await loadPilotParticipationReceipt(sb,{expectedOrganizationId:profile.organization_id});
  if(!pilot.accepted||pilot.userId!==userId)throw Error('Confirmá antes las dos opciones del piloto.');
+ await requireSameSession(sb,userId);
  return userId;
 }
 async function readCurrent(sb,userId,org){
@@ -66,7 +72,9 @@ async function readCurrent(sb,userId,org){
 }
 export async function loadCoachPilotGeneralIntake(sb,{profile}={}){
  const userId=await check(sb,profile);
- return {userId,intake:await readCurrent(sb,userId,profile.organization_id)};
+ const intake=await readCurrent(sb,userId,profile.organization_id);
+ await requireSameSession(sb,userId);
+ return {userId,intake};
 }
 // Sharing must be an explicit boolean from the current form, never an API default.
 export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWithCoach,
@@ -79,6 +87,7 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
  const before=await readCurrent(sb,userId,profile.organization_id);
  if((before?.revision??0)!==expectedRevision)
   throw Error('La ficha cambió en otro dispositivo: volvé a cargarla.');
+ await requireSameSession(sb,userId);
  const res=await sb.rpc('efg_submit_coach_relaunch_intake',{
   p_completed_version:COACH_RELEASE_INTAKE_VERSION,p_payload:general,
   p_expected_revision:expectedRevision,p_share_with_coach:shareWithCoach
@@ -86,6 +95,7 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
  if(res.error)throw Error(res.error.code==='PT409'?'La ficha cambió mientras la editabas. Volvé a cargarla.':'No fue posible guardar la ficha nueva.');
  if(res.data!==expectedRevision+1)throw Error('El servidor no confirmó la nueva revisión.');
  const after=await readCurrent(sb,userId,profile.organization_id);
+ await requireSameSession(sb,userId);
  if(after?.revision!==res.data||Boolean(after.shared_at)!==shareWithCoach)
   throw Error('No se pudo verificar que la ficha y el permiso quedaron guardados.');
  return {userId,intake:after,shared:shareWithCoach,medicalConsent:false};

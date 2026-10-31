@@ -40,7 +40,7 @@ await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/
 const ui=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 assert.match(ui,/loadCoachPrivateHistory\(sb,\{profile:state\.profile,userId:id,entry:state\.coachPilotEntry\}\)/);
 assert.match(ui,/renderCoachPrivateHistory\(state\.coachPrivateHistory,\{userId:state\.session\.user\.id\}\)/);
-assert.match(ui,/state\.coachPilotEntry\?\.route==="private"\|\|state\.coachPilotEntry\?\.route==="review"/);
+assert.match(ui,/\["private","review"\]\.includes\(state\.coachPilotEntry\?\.route\)/);
 assert.match(ui,/\["history","⌂","Mi historial"\]/);
 assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
 console.log('PASS COACH-OPT-05: read-only private/review history, owner checks, escaped content and signed route integration');

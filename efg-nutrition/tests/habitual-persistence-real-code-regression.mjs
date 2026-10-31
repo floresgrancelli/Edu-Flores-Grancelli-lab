@@ -51,6 +51,8 @@ assert.match(html,/Elegí una de tus 2 comidas habituales/);
 assert.match(html,/data-habitualapply="desayuno"/);
 assert.equal(api.getHabitualList('cena').length,0,'No crossover between meal slots');
 assert.match(api.habitualPickerHTML('cena'),/Todavía no guardaste habituales/);
+// Saved meal summaries must remain readable after a simulated session reload.
+assert.match(api.habitualPickerHTML('desayuno'),/Desayuno de avena/);
 assert.equal(rendered,2);
 assert.equal(notified.length,2);
 // Both picker paths must restore the previous diary if the remote write fails.

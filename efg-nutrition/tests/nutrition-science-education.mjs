@@ -30,7 +30,11 @@ assert.equal((page.match(/<details>/g)||[]).length,4,"native accessible FAQs");
 assert.equal((page.match(/<summary>/g)||[]).length,4,"each FAQ has keyboard-friendly summary");
 assert.match(page,/aria-label="Proteína e hidratos: 4 kilocalorías/);
 assert.ok(!/data-act=|sb\.from|service_role|pg_catalog/.test(page),"no privileged food or role mutation");
-assert.equal(NUTRITION_SCIENCE_SOURCES.length,6);
+assert.equal(NUTRITION_SCIENCE_SOURCES.length,7);
+assert.match(page,/¿Por qué importa moverse\?/);
+assert.match(page,/Cada movimiento cuenta/);
+assert.match(css,/\.ns-movement\{/);
+assert.ok(NUTRITION_SCIENCE_SOURCES.some(s=>s.url==='https://www.who.int/news-room/fact-sheets/detail/physical-activity'), 'Verified WHO movement source is cited');
 for(const s of NUTRITION_SCIENCE_SOURCES){
  assert.ok(/^https:\/\/(www\.)?(who\.int|ncbi\.nlm\.nih\.gov|pmc\.ncbi\.nlm\.nih\.gov)\//.test(s.url),s.title+" scientific link");
  assert.ok(page.includes(s.url),"cited source missing");

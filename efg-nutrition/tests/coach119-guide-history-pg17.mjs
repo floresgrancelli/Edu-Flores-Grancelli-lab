@@ -189,7 +189,9 @@ assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
 // Two distinct Terms documents must never substitute for a Privacy acceptance.
 const legalMatch=source.match(/select pg_catalog\.count\(distinct d\.kind\) into v_legal_count\s+([\s\S]*?);\s*if v_legal_count<>2/);
 assert.ok(legalMatch,'Exact COACH119 two-kind legal query unavailable');
-const legalQuery='select pg_catalog.count(distinct d.kind) '+legalMatch[1]+';';
+const legalQuery='select pg_catalog.count(distinct d.kind) '+legalMatch[1]
+ .replaceAll('p_student',"'"+student+"'::uuid")
+ .replaceAll('v_coach',"'"+coach+"'::uuid")+';';
 exec(`create table public.efg_legal_documents(
  id integer primary key,kind text not null,is_current boolean not null,
  published_at timestamptz,sha256 text not null,body text not null);

@@ -4,6 +4,7 @@ import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPla
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
 const STU="00000000-0000-4000-8000-000000000011",REQ="30000000-0000-4000-8000-000000000001",GOAL="40000000-0000-4000-8000-000000000001";
 const WHEN="2026-10-29T12:00:00.000Z";
+const ORG="50000000-0000-4000-8000-000000000001";
 const goal={goal_type:"recomp",kcal:2100,protein_g:140,carb_g:230,fat_g:70,fiber_g:28};
 const food={id:"tofu_firm",unit:"g",qty:100,k:0.8,p:0.1,c:0.03,f:0.04,fi:0.02};
 const guide={kind:"five_meal_example",version:1,meals:["desayuno","media_manana","almuerzo","merienda","cena"].map(slot=>({slot,items:[{...food}]})),supplementNote:""};
@@ -24,16 +25,16 @@ for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:2
  assert.throws(()=>validateCoachPlanProposal(bad,guide));
 for(const bad of [{...guide,meals:guide.meals.slice(1)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,slot:"desayuno"}:v)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,items:[{...food,qty:0}]}:v)}])
  assert.throws(()=>validateCoachPlanProposal(goal,bad));
-let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,returnedStudent=STU,returnedDraftStudent=STU;
+let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,returnedStudent=STU,returnedDraftStudent=STU,returnedDraftOrg=ORG;
 const calls=[];
 const db={
  from(table){operations++;return {
   select(){return this;},eq(){return this;},not(){return this;},
   maybeSingle(){
    if(table==="efg_consents")return Promise.resolve({data:{accepted:consent},error:null});
-   if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore"}:null,error:null});
-   if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
-   if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:returnedDraftStudent,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
+   if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,organization_id:ORG,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore"}:null,error:null});
+   if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,organization_id:ORG,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
+   if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:returnedDraftStudent,organization_id:returnedDraftOrg,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
    throw Error("Unrecognized table "+table);
   }
  };},
@@ -53,6 +54,9 @@ returnedStudent=STU;
 returnedDraftStudent="00000000-0000-4000-8000-000000000099";
 await assert.rejects(()=>enabled.load(STU),/no corresponde al alumno/,"Wrong-student draft must fail closed");
 returnedDraftStudent=STU;
+returnedDraftOrg="50000000-0000-4000-8000-000000000099";
+await assert.rejects(()=>enabled.load(STU),/organización seleccionados/,"Wrong-organization draft must fail closed");
+returnedDraftOrg=ORG;
 const saved=await enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide});
 assert.deepEqual(saved,{studentId:STU,revision:1,sourceUpdatedAt:WHEN});
 assert.deepEqual(calls[0],{name:"efg_save_coach_plan_draft",payload:{p_student:STU,p_goal:goal,p_guide:guide,p_intake_updated_at:WHEN,p_expected_revision:null}});

@@ -107,6 +107,8 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(relaunchEnabled)params.p_intake_revision=sourceRevision;
   const r=await sb.rpc("efg_save_coach_plan_draft",params);
   if(r.error)throw r.error;
+  if(typeof r.data!=="number"&&typeof r.data!=="string")
+   throw Error("El servidor devolvió una revisión de borrador inválida.");
   const revision=Number(r.data);
   if(!Number.isSafeInteger(revision)||revision<1)throw Error("El servidor no confirmó la revisión. Volvé a consultar el borrador.");
   return {studentId,revision,sourceUpdatedAt,...(relaunchEnabled?{sourceRevision}:{})};

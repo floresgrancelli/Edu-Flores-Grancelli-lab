@@ -26,6 +26,8 @@ assert.equal(h.logs.length,1);
 const html=renderCoachPrivateHistory(h,{userId:id});
 assert.match(html,/Mi historial, sin compartir la ficha/);
 assert.match(html,/Huevos/);
+assert.doesNotMatch(html,/corresponde a un objetivo anterior/);
+assert.match(renderCoachPrivateHistory({...h,plan:{...h.plan,guided_goal_id:org}},{userId:id}),/corresponde a un objetivo anterior/);
 assert.match(html,/5\.000/);
 assert.match(html,/&lt;script&gt;/);
 assert.doesNotMatch(html,/<script>|<img src=x|data-act=|data-tab=|type="file"/);

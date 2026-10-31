@@ -342,6 +342,27 @@ assert.equal(guidedDiary.skipped._guidedComponents.desayuno.protein,true);
 assert.equal(guidedOpened,1);
 assert.equal(guidedNotices.length,1);
 
+
+// Daily coach-report comments share the skipped JSONB payload. On a failed
+// write, do not leave the new note in memory or show false success.
+const commentStart=source.indexOf('let pendingDayCommentSave=false;');
+const commentEnd=source.indexOf('let coachRosterConsent={};',commentStart);
+assert.ok(commentStart>0&&commentEnd>commentStart,'Real student day-comment handler exists');
+const commentState={profile:{role:'student'},diary:{skipped:{_comment:'Texto anterior',_closed:false}}};
+let commentRejected=true,commentWrites=0,commentNotice=0;
+const commentRun=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+ source.slice(commentStart,commentEnd)+';return saveDayComment;')(
+ commentState,()=> 'Nuevo comentario',()=>commentState.diary,
+ async()=>{commentWrites++;if(commentRejected)throw Error('offline')},
+ ()=>{commentNotice++});
+await assert.rejects(commentRun(),/offline/);
+assert.equal(commentState.diary.skipped._comment,'Texto anterior','Offline comment cannot replace persisted note');
+assert.equal(commentNotice,0,'Rejected comment may not tell student it was saved');
+commentRejected=false;await commentRun();
+assert.equal(commentState.diary.skipped._comment,'Nuevo comentario');
+assert.equal(commentNotice,1,'Confirmed comment creates one notification');
+assert.equal(commentWrites,2);
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

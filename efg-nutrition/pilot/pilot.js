@@ -364,12 +364,20 @@ function readDayComment(){
  if(text.length>1000)throw new Error("El comentario puede tener hasta 1000 caracteres.");
  return text;
 }
+let pendingDayCommentSave=false;
 async function saveDayComment(){
  if(state.profile?.role!=="student")throw new Error("Solo el alumno puede escribir comentarios del día.");
- const d=activeDiary();
- d.skipped=d.skipped||{};
- d.skipped._comment=readDayComment();
- await saveDiary();notify("Comentario guardado para el informe de tu coach.");
+ if(pendingDayCommentSave)return;
+ const comment=readDayComment(); // Read the draft before acquiring the write lock.
+ pendingDayCommentSave=true;
+ const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ try{
+  d.skipped=d.skipped||{};
+  d.skipped._comment=comment;
+  try{await saveDiary();}
+  catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
+  notify("Comentario guardado para el informe de tu coach.");
+ }finally{pendingDayCommentSave=false;}
 }
 let coachRosterConsent={};
 let myWeeklyReports=[];

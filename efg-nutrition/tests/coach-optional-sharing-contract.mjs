@@ -19,9 +19,9 @@ assert.equal((sql.match(/create or replace function public\.efg_(?:accept_pilot_
 // A receipt can be revoked independently after a shared intake was saved.
 assert.match(sql,/alter policy efg_coach_relaunch_shared_coach_select/);
 const sharedPolicy=sql.slice(sql.indexOf('alter policy efg_coach_relaunch_shared_coach_select'),sql.indexOf('create or replace function public.efg_accept_pilot_participation'));
-assert.match(sharedPolicy,/r\\.sharing_accepted is true/);
+assert.match(sharedPolicy,/r\.sharing_accepted is true/);
 const baseSharedPolicy=intake.slice(intake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),intake.indexOf('-- No direct PostgREST'));
-assert.match(baseSharedPolicy,/r\\.sharing_accepted is true/);
+assert.match(baseSharedPolicy,/r\.sharing_accepted is true/);
 assert.match(sql,/p_sharing is null/);
 assert.match(sql,/Separate pilot coach-sharing permission required/);
 assert.match(sql,/v_route:='private'/);

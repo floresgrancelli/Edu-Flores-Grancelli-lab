@@ -49,6 +49,12 @@ assert.equal((await fetchCoachPilotEntry(client(org,ready),{profile})).canLogMea
 assert.equal(calls,0,'Wrong signed user must not read private status.');
 assert.equal((await fetchCoachPilotEntry(client(uid,ready),{profile:{...profile,role:'coach'}})).canLogMeals,false);
 assert.equal((await fetchCoachPilotEntry(client(uid,ready,'timeout'),{profile})).canLogMeals,false);
+// The RPC started under A but the shared device signed in as B before readback.
+const switched=client(uid,ready);
+let who=0;
+switched.auth.getUser=async()=>({data:{user:{id:++who===1?uid:org}},error:null});
+assert.equal((await fetchCoachPilotEntry(switched,{profile})).canLogMeals,false);
+assert.equal(who,2,'Recheck actual signed user AFTER the readiness RPC');
 const sql=readFileSync(new URL('../migrations/20261030_coach_pilot_student_entry_status.sql',import.meta.url),'utf8');
 const legalSql=readFileSync(new URL('../migrations/20261030_coach116_legal_first_student_status.sql',import.meta.url),'utf8');
 assert.match(legalSql,/v_current_legal_count<>2/);

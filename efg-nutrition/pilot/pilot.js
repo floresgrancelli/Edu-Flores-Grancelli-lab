@@ -1122,7 +1122,7 @@ function plannerShownQty(food,grams){
 function plannerMeasuredGrams(food,shownQty){
  const portion=plannerSushiPortion(food);
  if(portion&&(!Number.isInteger(shownQty)||shownQty<1||shownQty>100))
-  throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
+  return NaN; // No interrumpir la vista previa mientras se edita el número.
  return portion?shownQty*portion.grams:shownQty;
 }
 function plannerQtyLabel(food,unit){
@@ -1383,6 +1383,7 @@ async function addPlannedFood(key){
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
  if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
  const grams=plannerMeasuredGrams(row.food,shownQty);
+ if(plannerSushiPortion(row.food)&&!Number.isFinite(grams))throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;

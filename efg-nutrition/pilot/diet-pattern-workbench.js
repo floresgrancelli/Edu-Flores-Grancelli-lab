@@ -33,6 +33,9 @@ export function capabilitiesFor({role,mode,serverVerifiedPersonal=false}={}){
 export function evaluatePattern({patternId,healthFlags=[],medicationFlags=[],age=null}={}){
  const pattern=DIET_PATTERNS.find(x=>x.id===patternId);
  if(!pattern)throw Error("Patrón alimentario no reconocido.");
+ if(!Array.isArray(healthFlags)||!Array.isArray(medicationFlags)||
+  !healthFlags.every(x=>typeof x==="string")||!medicationFlags.every(x=>typeof x==="string"))
+  throw Error("Indicadores de salud o medicación inválidos.");
  const h=new Set(healthFlags),m=new Set(medicationFlags);
  if(pattern.id!=="keto")return {status:pattern.review,requiresReview:pattern.review!=="general",reasons:[]};
  const reasons=[];
@@ -50,6 +53,9 @@ export function evaluateEatingWindow({windowId,healthFlags=[],medicationFlags=[]
  const window=EATING_WINDOWS.find(w=>w.id===windowId);
  if(!window)throw Error("Ventana horaria desconocida.");
  if(windowId==="regular")return {status:"general",requiresReview:false,reasons:[]};
+ if(!Array.isArray(healthFlags)||!Array.isArray(medicationFlags)||
+  !healthFlags.every(x=>typeof x==="string")||!medicationFlags.every(x=>typeof x==="string"))
+  throw Error("Indicadores de salud o medicación inválidos.");
  const h=new Set(healthFlags),m=new Set(medicationFlags);
  const reasons=[];
  if(age!==null&&(!Number.isFinite(age)||age<18))reasons.push("Menores de edad: no habilitar ayuno automáticamente.");

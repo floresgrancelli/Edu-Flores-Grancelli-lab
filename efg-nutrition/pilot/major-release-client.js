@@ -37,11 +37,14 @@ export async function readMajorRelease(sb,{profile,explicitlyEnabled=MAJOR_RELEA
   throw Error('Tu sesión necesita verificarse antes de continuar.');
  const r=await sb.rpc('efg_major_release_status');
  if(r.error)throw Error('No pudimos comprobar el estado actual del relanzamiento.');
+ const after=await sb.auth.getUser();
+ if(after?.error||after?.data?.user?.id!==profile.user_id)
+  throw Error('La sesión cambió mientras comprobábamos el relanzamiento.');
  return validRelease(r.data,profile.role);
 }
 export async function acknowledgeMajorRelease(sb,{profile,release,kind,
  explicitClick=false,explicitlyEnabled=MAJOR_RELEASE_FLOW_ENABLED}={}){
- if(!explicitClick||!explicitlyEnabled||!ROLES.has(profile?.role)||
+ if(!explicitClick||!explicitlyEnabled||!ROLES.has(profile?.role)||profile?.active!==true||
     !release||!ID.test(release.id||'')||
     !['announcement_preview_read','reauth_notice_acknowledged','whats_new_seen'].includes(kind)||
     (release.phase!=='preview'&&kind==='announcement_preview_read')||
@@ -56,7 +59,8 @@ export async function acknowledgeMajorRelease(sb,{profile,release,kind,
   p_release:release.id,p_event_kind:kind,p_explicit_click:true
  });
  if(ack.error||ack.data!==true)throw Error('No pudimos confirmar el aviso con el servidor.');
- if((await sb.auth.getUser()).data?.user?.id!==original)
+ const after=await sb.auth.getUser();
+ if(after?.error||after?.data?.user?.id!==original)
   throw Error('La cuenta cambió durante la confirmación. Cerrá esta pantalla.');
  return true;
 }

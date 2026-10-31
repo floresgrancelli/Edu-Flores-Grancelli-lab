@@ -108,7 +108,7 @@ assert.deepEqual(yes(await read(outsider.token),'new Coach cannot inherit old-or
 assert.deepEqual(yes(await read(student.token),'transferred owner cannot read former-org intake'),[]);
 sql('update public.efg_profiles set organization_id='+qid(org)+' where user_id='+qid(student.id));
 assert.equal(yes(await read(coach.token),'return to original org restores valid shared SELECT').length,1);
-assert.equal(sql('select revision::text||\\'|\\'||coalesce(shared_at::text,\\'NULL\\') from public.efg_coach_relaunch_intakes where student_id='+qid(student.id)),before,
+assert.equal(sql(`select revision::text||'|'||coalesce(shared_at::text,'NULL') from public.efg_coach_relaunch_intakes where student_id=`+qid(student.id)),before,
  'Consent/status/org transitions must not rewrite historical intake revision');
 assert.equal(yes(await rpc('efg_revoke_pilot_participation',student.token,{
  p_version:'coach_pilot_2026_demo1'

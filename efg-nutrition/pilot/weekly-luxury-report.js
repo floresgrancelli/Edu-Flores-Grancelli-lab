@@ -120,6 +120,7 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  });
  if(all[6]!==to)throw Error('La ventana debe abarcar siete días');
  const recorded=(days||[]).filter(d=>date(d?.date)&&d.date>=from&&d.date<=to&&d.hasData&&safeEnergy(d));
+ if(new Set(recorded.map(d=>d.date)).size!==recorded.length)throw Error('Hay registros diarios duplicados; revisá la semana antes de publicar.');
  const byDate=new Map(recorded.map(d=>[d.date,d]));
  const cleanDays=all.map(key=>{
   const d=byDate.get(key);

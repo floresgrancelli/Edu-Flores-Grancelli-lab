@@ -37,6 +37,9 @@ for(const [d,i,c] of [
  [{...draft,draft_revision:0},intake,ctx],
  [{...draft,source_intake_revision:2},intake,ctx],
  [draft,{...intake,shared_at:null},ctx],
+ [draft,{...intake,student_id:coachId},ctx],
+ [draft,{...intake,organization_id:coachId},ctx],
+ [draft,{...intake,revision:0},ctx],
  [draft,intake,{...ctx,coachId:organizationId}],
  [null,intake,ctx]
 ])assert.equal(currentCoachIntakeDraft(d,i,c),false,

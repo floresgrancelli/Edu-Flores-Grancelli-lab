@@ -189,14 +189,18 @@ export function createMessagesCenter({sb,context,afterSend}){
   await load(true);
  }
  async function send(value){
-  const x=pair(),c=context(),body=String(value??"").trim();
-  if(!x||!threadOpen)throw Error("Elegí una conversación activa.");
+  resetIfChanged();
+  const x=pair(),c=context(),body=String(value??"").trim(),sendEpoch=epoch;
+  if(busy)throw Error("Esperá a que termine el envío anterior.");
+  if(!x||!threadOpen||!c.userId)throw Error("Elegí una conversación activa.");
   if(body.length<1||body.length>2000)throw Error("Escribí un mensaje de hasta 2000 caracteres.");
   busy=true;
   try{
    const {error}=await sb.from("efg_messages").insert({student_id:x.student,coach_id:x.coach,sender_id:c.userId,body});
    if(error)throw error;
-   formDraft="";drafts.delete(x.student);await load(true);afterSend?.();
+   if(epoch!==sendEpoch||context().userId!==c.userId)return;
+   formDraft="";drafts.delete(x.student);await load(true);
+   if(epoch===sendEpoch&&context().userId===c.userId)afterSend?.();
   }finally{busy=false;paint({force:true});}
  }
  document.addEventListener("click",event=>{

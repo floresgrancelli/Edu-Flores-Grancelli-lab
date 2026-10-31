@@ -75,6 +75,10 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js
           node efg-nutrition/tests/nutrition-science-education.mjs
+      - name: REL-ALL dated contract 51 mandatory commitments and GO guardrails (OFFLINE)
+        run: |
+          node --check efg-nutrition/tests/release-contract-20261030.mjs
+          node efg-nutrition/tests/release-contract-20261030.mjs
       - name: PRO-60 monthly ñoquis 29, 72 illustrated daily tips and gated action (OFFLINE)
         run: |
           node --check efg-nutrition/pilot/nutrition-daily-tip.js

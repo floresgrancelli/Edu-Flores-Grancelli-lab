@@ -246,11 +246,12 @@ for (const [student, coach] of [[users.returningA, users.coachA], [users.student
 }
 await verifyHabitualSignedRoundTrip({request,asClient,users,password});
 assert.deepEqual(yes(await read('efg_daily_logs', users.returningA), 'old meal after full release circuit'), originalHistory);
+const historyBeforeOptOut=yes(await read('efg_daily_logs',users.newA),'history before opt-out');
 yes(await receipt(users.newA, false), 'withdraw sharing');
 assert.equal((await status(users.newA)).route, 'private');
 denied(await request(`/rest/v1/efg_daily_logs?student_id=eq.${users.newA.id}`, {
   method: 'PATCH', token: users.newA.token, body: {totals: {kcal: 999}}}), 'opt-out prevents new diary writes');
-assert.equal(yes(await read('efg_daily_logs', users.newA), 'opt-out preserves own history').length, 1);
+assert.deepEqual(yes(await read('efg_daily_logs', users.newA), 'opt-out preserves own history'),historyBeforeOptOut);
 assert.equal(yes(await read('efg_coach_plan_drafts', users.coachA), 'withdrawn student draft hidden').some(x => x.student_id === users.newA.id), false);
 yes(await receipt(users.newA), 'restore explicit sharing');
 assert.equal(Number(yes(await rpc('efg_submit_coach_relaunch_intake', users.newA.token, {

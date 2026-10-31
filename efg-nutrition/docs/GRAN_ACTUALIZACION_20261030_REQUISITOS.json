@@ -502,7 +502,7 @@
       "requirement": "Sustituciones de huevo en desayuno por claras, jamón, pavo, yogur proteico u otras alternativas acordes al plan",
       "source": "PRO-22; D-15",
       "acceptance": "Recalcular kcal/macros; respetar patrón y restricciones; no cambiar meta sin coach",
-      "status_at_cutoff": "LIVE; regresión pendiente",
+      "status_at_cutoff": "IMPLEMENTADO en guided-day.js (claras/jamón/pavo/yogures/tofu) y cubierto por tests/guided-five-meals.mjs; motor/porciones sintéticos PASS en CI Premium anterior. E2E real coach y Android/iPhone pendiente.",
       "mandatory_for_coach_go": true
     },
     {
@@ -511,7 +511,7 @@
       "requirement": "Biblioteca Fit existente con fotografías gastronómicas y receta/gramos/raciones/macros explicados",
       "source": "PRO-07; QA224",
       "acceptance": "Mínimo biblioteca actual 12 recetas, fotos verificadas/alt/fuente; datos reales o marcados estimados",
-      "status_at_cutoff": "LIVE; regresión pendiente",
+      "status_at_cutoff": "IMPLEMENTADO LIVE: biblioteca de 12 recetas Fit con fotos ilustrativas acreditadas y macros por ración; tests/fit-recipes-payments.mjs + fit-photo-live.mjs existen. Prueba de enlaces reales y dispositivo físico pendiente.",
       "mandatory_for_coach_go": true
     }
   ]

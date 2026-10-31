@@ -31,7 +31,7 @@ export function validateCoachPlanProposal(goal,guide){
   for(const item of meal.items){
    if(typeof item?.id!=="string"||!/^[a-z0-9_-]{1,100}$/i.test(item.id)||
       !["g","ml"].includes(item.unit)||!Number.isFinite(item.qty)||item.qty<=0||item.qty>1000||
-      ["k","p","c","f","fi"].some(k=>!Number.isFinite(item[k])||item[k]<0))
+      ["k","p","c","f","fi"].some(k=>!Number.isFinite(item[k])||item[k]<0||item[k]>100000))
     throw Error("Revisá cantidades, unidades y nutrientes de los alimentos.");
   }
  }

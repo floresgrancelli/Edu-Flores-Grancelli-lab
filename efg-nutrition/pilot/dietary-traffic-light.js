@@ -5,7 +5,7 @@
 const VERDICTS=new Set(["allowed","verify","avoid"]);
 const HEX=/^[a-z0-9][a-z0-9_-]{1,99}$/i;
 const safeCode=s=>typeof s==="string"&&HEX.test(s);
-const validDate=s=>typeof s==="string"&&/^\\d{4}-\\d{2}-\\d{2}T/.test(s)&&Number.isFinite(Date.parse(s));
+const validDate=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}T/.test(s)&&Number.isFinite(Date.parse(s));
 export const DIETARY_COLORS=Object.freeze({
  neutral:"neutral",green:"green",yellow:"yellow",red:"red"
 });

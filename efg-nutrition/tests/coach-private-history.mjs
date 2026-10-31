@@ -9,7 +9,7 @@ const entry={route:'private',currentLegalAccepted:true,participationConfirmed:tr
 const rows={
  efg_daily_logs:[{student_id:id,log_day:'2026-10-30',meals:{desayuno:[{name:'<img src=x onerror=alert(1)>',qty:2,unit:'unidades'}]},skipped:{}}],
  efg_weights:[{student_id:id,measured_on:'2026-10-29',kg:78.5}],
- efg_goals:[{student_id:id,id:other,kcal:2200,protein_g:140,carbs_g:240,fat_g:75}],
+ efg_goals:[{student_id:id,id:other,kcal:2200,protein_g:140,carb_g:240,fat_g:75}],
  efg_food_plans:{student_id:id,guided_goal_id:other,guided_plan:{meals:[{label:'Desayuno',items:[{name:'Huevos',qty:2,unit:'u'}]}]}},
  efg_weekly_reports:[{student_id:id,week_ending:'2026-10-30',report_text:'<script>alert(1)</script>'}],
  efg_payments:[{payer_id:id,created_at:'2026-10-30',amount_ars:5000,status:'pending'}]

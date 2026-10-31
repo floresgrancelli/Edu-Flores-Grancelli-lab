@@ -1,7 +1,7 @@
 // BRAND-78: user-visible rebranding on critical app, report, release and PWA surfaces.
 // Not a declaration that every legacy file or native store listing has been renamed.
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,readdirSync} from "node:fs";
 const files=[
  "../index.html","../pilot/index.html","../pilot/pilot.js",
  "../pilot/weekly-luxury-report.js","../pilot/daily-report.js",
@@ -16,6 +16,19 @@ for(const file of files){
  const text=read(file);
  const stripped=text.replace(/^\s*(?:\/\/|\/\*|\*).*$/gm,"");
  assert.doesNotMatch(stripped,/EFG\s+NUTRITION(?:\s+PRO)?/i,file+" retains a visible legacy brand");
+}
+// Scan every direct pilot UI asset, not just a short hand-picked checklist.
+// Source comments are not visible; keep their technical EFG project identifiers.
+const uiDir=new URL("../pilot/",import.meta.url);
+const candidateAssets=readdirSync(uiDir).filter(name=>
+ /\.(?:js|html|css|json|webmanifest)$/i.test(name));
+assert.ok(candidateAssets.length>=80,"Expected full pilot UI asset coverage");
+for(const name of candidateAssets){
+ const raw=readFileSync(new URL(name,uiDir),"utf8");
+ const noBlockComments=raw.replace(/\/\*[\s\S]*?\*\//g,"");
+ const visibleSource=noBlockComments.replace(/^\s*\/\/[^\n]*$/gm,"");
+ assert.doesNotMatch(visibleSource,/\bEFG\s+NUTRITION(?:\s+PRO)?\b/i,
+  "Old visible brand in pilot/"+name+"; DO NOT rename technical IDs, files or keys");
 }
 const pilot=read("../pilot/pilot.js");
 assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,4,
@@ -51,4 +64,4 @@ const intro=read("../pilot/science-welcome.js");
 assert.match(intro,/serotonina-acuarela\.avif/);
 assert.match(intro,/SCIENCE_WELCOME_ENABLED=false/);
 assert.match(read("../pilot/index.html"),/science-welcome\.css\?v=/);
-console.log("PASS BRAND-78: 14 user-visible files use Nutrición Con-Ciencia, with original serotonin logo in app and report. Static only, no host rebrand certification.");
+console.log("PASS BRAND-78: all direct pilot UI assets and 14 critical files use Nutrición Con-Ciencia, with original serotonin logo in app and report. Static only, no host rebrand certification.");

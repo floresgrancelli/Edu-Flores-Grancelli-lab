@@ -98,4 +98,24 @@ for(const guard of [
 assert.match(sql,/create function efg_private\.coach119_archive_replaced_guide\(\)[\s\S]*?security definer set search_path=''/);
 assert.doesNotMatch(sql,/delete\s+from\s+efg_private\.coach_guide_history/i);
 
+// COACH119 / requirement 02-03: exercise the ACTUAL food list restriction.
+const pilotSource=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+const foodFilterStart=pilotSource.indexOf('function allowedFoods(){');
+const foodFilterEnd=pilotSource.indexOf('// El sushi se muestra por piezas;',foodFilterStart);
+assert.ok(foodFilterStart>=0&&foodFilterEnd>foodFilterStart,'Student food filter must exist');
+const catalogFixture=['egg','sushi_maki_salmon','pizza_muzzarella','rice'].map(id=>({id}));
+const allowedFor=(role,foodPlan)=>new Function('state','foods',
+ pilotSource.slice(foodFilterStart,foodFilterEnd)+';return allowedFoods();')
+ ({profile:{role},foodPlan},catalogFixture);
+const wholeCatalog=catalogFixture.map(f=>f.id);
+assert.deepEqual(allowedFor('student',{approved_food_ids:['sushi_maki_salmon','egg','egg','invalid_food']}),
+ ['sushi_maki_salmon','egg'],'Explicit Coach list must control the student catalog');
+assert.deepEqual(allowedFor('student',{approved_food_ids:[]}),[],
+ 'Explicit empty list must not fall back to the full catalog');
+assert.deepEqual(allowedFor('student',null),wholeCatalog,'Keep legacy student catalog');
+assert.deepEqual(allowedFor('student',{approved_food_ids:null}),wholeCatalog,'Keep legacy unmigrated plans');
+assert.deepEqual(allowedFor('coach',{approved_food_ids:['egg']}),wholeCatalog,'Coach personal log is independent');
+assert.deepEqual(allowedFor('admin',{approved_food_ids:[]}),wholeCatalog,'Admin personal log is independent');
+console.log('PASS COACH119 02-03: real student catalog filter respects Coach-approved full food set.');
+
 console.log('PASS COACH119: atomic publish guarded OFF, explicit student/coach/legal/food/consent checks, one notice, retry idempotency; SQL still requires isolated Postgres and real JWT QA.');

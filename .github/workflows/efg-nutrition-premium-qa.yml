@@ -75,6 +75,8 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/nutrition-science.js
           node efg-nutrition/tests/nutrition-science-education.mjs
+      - name: PRO50 uninvited login help and no account enumeration (OFFLINE)
+        run: node efg-nutrition/tests/pro50-uninvited-access.mjs
       - name: REL-ALL dated contract 54 mandatory commitments and GO guardrails (OFFLINE)
         run: |
           node --check efg-nutrition/tests/release-contract-20261030.mjs

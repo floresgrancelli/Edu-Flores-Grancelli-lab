@@ -95,7 +95,7 @@ export async function acknowledgeScienceWelcome(sb,{profile,userId,action,explic
  if(!["completed","skipped"].includes(action)||explicitClick!==true||typeof sb?.rpc!=="function")
   throw Error("La bienvenida requiere una acción explícita.");
  const r=await sb.rpc("efg_ack_science_intro",{p_version:SCIENCE_WELCOME_VERSION,p_action:action});
- if(r.error)throw Error("No pudimos guardar la bienvenida; intentá nuevamente.");
+ if(r.error||r.data!==true)throw Error("El servidor no confirmó el registro de la bienvenida.");
  const status=await readScienceWelcomeStatus(sb,{profile,userId});
  if(status.pending)throw Error("El servidor no confirmó todavía tu bienvenida.");
  return status;

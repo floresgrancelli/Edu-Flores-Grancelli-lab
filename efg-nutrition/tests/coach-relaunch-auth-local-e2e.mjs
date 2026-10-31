@@ -99,6 +99,14 @@ sql("update public.efg_profiles set organization_id="+uuid(orgA)+
 assert.equal(yes(await read(people.studentA.token),
  "Returning to original organization restores access to unchanged intake").length,1);
 
+sql("update public.efg_profiles set active=false where user_id="+uuid(people.studentA.id));
+assert.deepEqual(yes(await read(people.studentA.token),
+ "Inactive student cannot read formerly owned private intake"),[]);
+sql("update public.efg_profiles set active=true where user_id="+uuid(people.studentA.id));
+assert.equal(yes(await read(people.studentA.token),
+ "Reactivated owner can read same untouched private intake").length,1);
+
+
 no(await request("/rest/v1/efg_coach_relaunch_intakes",{method:"POST",token:people.studentA.token,
  body:{student_id:people.studentA.id,organization_id:orgA,completed_version:version,revision:999}}),
  "Owner cannot bypass RPC through REST writes");

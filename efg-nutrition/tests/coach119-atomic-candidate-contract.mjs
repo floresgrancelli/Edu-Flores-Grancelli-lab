@@ -56,6 +56,12 @@ assert.match(sql,/on conflict\(recipient_id,event_key\) do nothing/);
 assert.match(sql,/on conflict[\s\S]*?set[\s\S]*?guided_goal_id=excluded.guided_goal_id/);
 assert.match(sql,/if v_existing\.student_id is distinct from p_student/);
 assert.match(sql,/v_existing\.coach_id is distinct from v_coach/);
+assert.match(sql,/v_existing\.organization_id is distinct from v_org/,
+ 'An idempotency receipt cannot be replayed across a changed organization');
+assert.match(sql,/select pg_catalog\.count\(distinct d\.kind\) into v_legal_count/,
+ 'Two Terms documents must never substitute for Terms AND Privacy');
+assert.doesNotMatch(sql,/select pg_catalog\.count\(\*\) into v_legal_count/,
+ 'Counting accepted rows instead of distinct document kinds permits legal bypass');
 assert.match(sql,/v_existing\.draft_revision is distinct from p_expected_revision/);
 assert.match(sql,/create or replace function public\.efg_notify_goal\(\)/);
 assert.match(sql,/create or replace function public\.efg_notify_food_guide\(\)/);

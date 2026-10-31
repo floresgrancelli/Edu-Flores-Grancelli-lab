@@ -57,6 +57,20 @@ for(const [change,expected]of mustDeny){
 }
 assert.equal(gate({guide:{...guide,organization_id:org}}).route,'ready',
  'Matching guide organization must preserve diary access');
+// Coach inbox must not show a draft as current for a different student or tenant.
+const {currentCoachIntakeDraft}=await import('../pilot/coach-intake-queue.js');
+const coach='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+const queueDraft={student_id:uid,organization_id:org,coach_id:coach,status:'draft',
+ draft_revision:2,source_intake_revision:1};
+const ids={studentId:uid,organizationId:org,coachId:coach};
+assert.equal(currentCoachIntakeDraft(queueDraft,intake,ids),true);
+for(const wrongIntake of [
+ {...intake,student_id:coach},
+ {...intake,organization_id:coach},
+ {...intake,revision:0},
+ {...intake,shared_at:null}
+])assert.equal(currentCoachIntakeDraft(queueDraft,wrongIntake,ids),false,
+ 'A mismatched or unshared intake cannot be marked as current in the Coach inbox');
 assert.match(renderCoachPlanWaiting(),/Tu coach está preparando tu plan/);
 assert.match(renderCoachPlanWaiting(),/una guía de cinco comidas/);
 assert.match(renderCoachPlanWaiting(),/mensajería/i);

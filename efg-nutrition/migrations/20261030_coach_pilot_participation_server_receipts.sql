@@ -19,7 +19,7 @@ create table public.efg_pilot_participation_receipts (
  organization_id uuid not null references public.efg_organizations(id),
  version text not null check (version='coach_pilot_2026_demo1'),
  participation_accepted boolean not null check (participation_accepted=true),
- sharing_accepted boolean not null check (sharing_accepted=true),
+ sharing_accepted boolean not null,
  acceptance_method text not null default 'two_explicit_checkboxes'
   check (acceptance_method='two_explicit_checkboxes'),
  accepted_at timestamptz not null default pg_catalog.clock_timestamp(),
@@ -55,8 +55,8 @@ declare
  v_accepted timestamptz := pg_catalog.clock_timestamp();
 begin
  if v_student is null or p_version is distinct from 'coach_pilot_2026_demo1'
-    or p_participation is distinct from true or p_sharing is distinct from true then
-  raise exception 'Both pilot choices require an explicit authenticated action'
+    or p_participation is distinct from true or p_sharing is null then
+  raise exception 'Pilot participation requires an explicit sharing decision'
     using errcode='42501';
  end if;
  select p.organization_id into v_org
@@ -69,10 +69,10 @@ begin
  insert into public.efg_pilot_participation_receipts
   (student_id,organization_id,version,participation_accepted,sharing_accepted,
    accepted_at,revoked_at,updated_at)
- values (v_student,v_org,p_version,true,true,v_accepted,null,v_accepted)
+ values (v_student,v_org,p_version,true,p_sharing,v_accepted,null,v_accepted)
  on conflict(student_id,version) do update set
   organization_id=excluded.organization_id,
-  participation_accepted=true,sharing_accepted=true,
+  participation_accepted=true,sharing_accepted=excluded.sharing_accepted,
   acceptance_method='two_explicit_checkboxes',
   accepted_at=excluded.accepted_at,revoked_at=null,updated_at=excluded.updated_at;
  return v_accepted;

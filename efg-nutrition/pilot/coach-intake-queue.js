@@ -7,5 +7,7 @@ export function currentCoachIntakeDraft(draft,intake,{studentId,organizationId,c
   draft.draft_revision>=1&&Number.isSafeInteger(draft.source_intake_revision)&&
   draft.source_intake_revision===intake.revision&&
   draft.student_id===studentId&&draft.organization_id===organizationId&&
-  draft.coach_id===coachId&&intake.shared_at!=null;
+  draft.coach_id===coachId&&intake.student_id===studentId&&
+  intake.organization_id===organizationId&&intake.shared_at!=null&&
+  Number.isSafeInteger(intake.revision)&&intake.revision>=1;
 }

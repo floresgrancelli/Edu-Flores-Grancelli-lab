@@ -135,4 +135,21 @@ for(const variant of [
  assert.equal(generated.meals.length,5);
  assert.doesNotThrow(()=>validateGuidedDay(generated,variant),"Reasonable target must yield plausible five meals");
 }
+// 02-02: the five-meal model must account for the coach's actual fiber target.
+const fiberGoal={...goal,fiber_g:28};
+const fiberPlan=structuredClone(original);
+fiberPlan.meals[2].items[0].fi=0.035;
+const fiberBefore=guideDeviation(fiberPlan,fiberGoal);
+assert.equal(fiberBefore.fi.target,28);
+assert.ok(fiberBefore.fi.actual>0&&Number.isFinite(fiberBefore.fi.percent));
+const fiberAdjustment=structuredClone(fiberPlan);
+fiberAdjustment.meals[2].items[0].qty+=10;
+assert.notEqual(guideDeviation(fiberAdjustment,fiberGoal).fi.actual,fiberBefore.fi.actual,
+ "Fiber must recalculate when the coach changes ingredient grams.");
+assert.equal(guideDeviation(fiberPlan,{...goal,fiber_g:0}).fi.percent,null,
+ "No fiber target means no fabricated percentage of goal.");
+const readFileSync=(await import("node:fs")).readFileSync;
+const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
+assert.match(app,/Fibra.*data-guidedeviations|data-guidedeviations[\\s\\S]*?deviations\\.fi/,
+ "Coach five-meal guide must display the fiber deviation.");
 console.log("PASS: real-food swaps, bounded portions and different calorie targets.");

@@ -9,6 +9,7 @@ const end=app.indexOf('function recipeStoreKey(){',begin);
 assert.ok(begin>0&&end>begin,'The actual cloud habitual subsystem must remain discoverable');
 const subsystem=app.slice(begin,end);
 let rows=[],seq=0,rendered=0,notified=[];
+let holdNextInsert=false,releaseHeldInsert=null;
 const userId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const sb={from(table){
  assert.equal(table,'efg_habitual_meals');
@@ -16,7 +17,9 @@ const sb={from(table){
   select(){return this;},eq(){return this;},order(){return Promise.resolve({data:structuredClone(rows),error:null})},
   insert(value){this.value=value;return this;},
   single(){const data={...structuredClone(this.value),id:'id-'+(++seq),created_at:'2026-10-30T00:00:00Z'};
-   rows.push(data);return Promise.resolve({data,error:null})}
+   rows.push(data);
+   if(holdNextInsert){holdNextInsert=false;return new Promise(resolve=>{releaseHeldInsert=()=>resolve({data,error:null})})}
+   return Promise.resolve({data,error:null})}
  };
 }};
 const state={profile:{role:'student'},session:{user:{id:userId}},habitualSelection:{}};
@@ -55,6 +58,19 @@ assert.match(api.habitualPickerHTML('cena'),/Todavía no guardaste habituales/);
 assert.match(api.habitualPickerHTML('desayuno'),/Desayuno de avena/);
 assert.equal(rendered,2);
 assert.equal(notified.length,2);
+// Simulate two rapid save taps while Supabase has not answered the first insert.
+// They must not create duplicate favorites; sequential saves remain supported.
+const beforeFastTaps=rows.length;
+holdNextInsert=true;
+const firstTap=api.habitualAction('desayuno','save');
+await api.habitualAction('desayuno','save');
+assert.equal(rows.length,beforeFastTaps+1,'Rapid duplicate save must insert one favorite only');
+assert.ok(typeof releaseHeldInsert==='function','Mock must hold first network response');
+releaseHeldInsert();
+await firstTap;
+assert.equal(api.getHabitualList('desayuno').length,3);
+await api.habitualAction('desayuno','save');
+assert.equal(rows.length,beforeFastTaps+2,'A later independent favorite can still be saved');
 // Both picker paths must restore the previous diary if the remote write fails.
 assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
 assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);

@@ -490,6 +490,15 @@ function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"sho
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 let cloudHabituales=[];
+// Per-slot lock: repeated taps must not create duplicate cloud meals or
+// register/delete a favorite while another operation for that slot is pending.
+const pendingHabitualSlots=new Set();
+async function runHabitualSlotAction(slot,work){
+ if(pendingHabitualSlots.has(slot))return;
+ pendingHabitualSlots.add(slot);
+ try{return await work();}
+ finally{pendingHabitualSlots.delete(slot);}
+}
 async function loadCloudHabituales(){
  if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}
  const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
@@ -564,6 +573,7 @@ function chosenHabitual(slot){
 }
 async function deleteChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
  if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
@@ -573,9 +583,11 @@ async function deleteChosenHabitual(slot){
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
  state.habitualSelection[slot]="";
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
+ });
 }
 async function applyChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
+ return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  const d=activeDiary();d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
@@ -591,9 +603,11 @@ async function applyChosenHabitual(slot){
   throw error;
  }
  notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+ });
 }
 async function habitualAction(slot,action){
  if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");
+ return runHabitualSlotAction(slot,async()=>{
  const d=activeDiary();d.meals[slot] ||= [];
  if(action==="save"){
   if(!d.meals[slot].length)throw Error("Primero registrá alimentos en esta comida.");
@@ -632,6 +646,7 @@ async function habitualAction(slot,action){
   throw error;
  }
  notify("Comida habitual registrada; balance recalculado.");
+ });
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];

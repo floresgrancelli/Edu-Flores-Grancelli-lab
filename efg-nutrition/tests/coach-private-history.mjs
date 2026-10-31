@@ -7,6 +7,7 @@ const org='33333333-3333-4333-8333-333333333333';
 const profile={user_id:id,role:'student',active:true,organization_id:org};
 const entry={route:'private',currentLegalAccepted:true,participationConfirmed:true,canLogMeals:false};
 const rows={
+ efg_profiles:{...profile},
  efg_daily_logs:[{student_id:id,log_day:'2026-10-30',meals:{desayuno:[{name:'<img src=x onerror=alert(1)>',qty:2,unit:'unidades'}]},skipped:{}}],
  efg_weights:[{student_id:id,measured_on:'2026-10-29',kg:78.5}],
  efg_goals:[{student_id:id,id:other,kcal:2200,protein_g:140,carb_g:240,fat_g:75}],
@@ -16,12 +17,13 @@ const rows={
 };
 const seen=[];
 const sb={from(table){
- const query={select(fields){seen.push({table,fields});return query},eq(key,value){assert.equal(value,id);assert.equal(key,table==='efg_payments'?'payer_id':'student_id');return query},
+ const query={select(fields){seen.push({table,fields});return query},eq(key,value){assert.equal(value,id);assert.equal(key,table==='efg_payments'?'payer_id':table==='efg_profiles'?'user_id':'student_id');return query},
  order(){return query},limit(){return Promise.resolve({data:rows[table],error:null})},maybeSingle(){return Promise.resolve({data:rows[table],error:null})}};
  return query;
 }};
 const h=await loadCoachPrivateHistory(sb,{profile,userId:id,entry});
-assert.equal(seen.length,6);
+assert.equal(seen.length,7);
+assert.equal(seen[0].table,'efg_profiles');
 assert.equal(h.logs.length,1);
 const html=renderCoachPrivateHistory(h,{userId:id});
 assert.match(html,/Mi historial, sin compartir la ficha/);
@@ -36,6 +38,13 @@ await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry:{..
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile:{...profile,role:'coach'},userId:id,entry}),/permiso/);
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry:{...entry,currentLegalAccepted:false}}),/permiso/);
 assert.throws(()=>renderCoachPrivateHistory(h,{userId:other}),/verificado/);
+rows.efg_profiles={...profile,active:false};
+await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/perfil vigente/);
+rows.efg_profiles={...profile,organization_id:other};
+await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/perfil vigente/);
+rows.efg_profiles={...profile,role:'coach'};
+await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/perfil vigente/);
+rows.efg_profiles={...profile};
 rows.efg_weights=[{student_id:other,kg:75}];
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/no autorizado/);
 // The pilot route must not accidentally expose editable diary or payment actions.
@@ -45,4 +54,4 @@ assert.match(ui,/renderCoachPrivateHistory\(state\.coachPrivateHistory,\{userId:
 assert.match(ui,/\["private","review"\]\.includes\(state\.coachPilotEntry\?\.route\)/);
 assert.match(ui,/\["history","⌂","Mi historial"\]/);
 assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
-console.log('PASS COACH-OPT-05: read-only private/review history, owner checks, escaped content and signed route integration');
+console.log('PASS COACH-OPT-05: read-only private/review history, fresh server profile (inactive/transfer/role) checks, owner checks, escaped content and signed route integration');

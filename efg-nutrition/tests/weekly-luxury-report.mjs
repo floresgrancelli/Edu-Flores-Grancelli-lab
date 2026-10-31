@@ -17,6 +17,7 @@ const logs=inputs.map(([log_day],i)=>({log_day,meals:{
  cena:i<3?[{id:'banana',name:'Banana'}]:[]
 }}));
 const data={from,to,friday,studentName:'Sofía DEMO',coachName:'Coach EFG DEMO',days,goals,logs};
+assert.throws(()=>buildLuxuryWeeklyReport({...data,days:[...days,{...days[0],k:9999}]}),/registros diarios duplicados/);
 const model=buildLuxuryWeeklyReport(data);
 assert.equal(model.daysRecorded,5);
 assert.equal(model.daysClosed,5);

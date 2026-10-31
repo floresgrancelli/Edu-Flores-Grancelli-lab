@@ -42,7 +42,7 @@ for(const s of NUTRITION_SCIENCE_SOURCES){
 assert.match(js,/import \{SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep\} from "\.\/science-welcome\.js/);
 assert.match(js,/nutritionScience:renderScienceVerticalView/);
 assert.match(js,/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
-assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,4,"permanent student ready/pending, coach and admin tabs");
+assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,5,"permanent student ready/pending/private, coach and admin tabs");
 assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,"discoverable from student, coach and admin More menus");
 assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(state\.tab\)\)state\.tab="intake"/,
  "pending intake gate preserves MI DÍA lock but allows the educational library");

@@ -7,6 +7,15 @@ const FIELDS=new Set(['objective','age_years','height_cm','weight_kg','activity_
  'dietary_pattern','eating_window','preferred_foods','disliked_foods','meal_routine','notes']);
 const SENSITIVE=new Set(['health_flags','allergy_details','diagnosis','conditions',
  'sibo','lactose_intolerance','celiac','glucose','cholesterol','medications']);
+// Mirror the COACH107 server contract for immediate feedback. PostgreSQL
+// remains authoritative for ranges, RLS and concurrent revisions.
+const OPTIONS={objective:new Set(['fat_loss','recomp','muscle_gain','maintenance','general']),
+ activity_level:new Set(['low','light','moderate','high']),
+ dietary_pattern:new Set(['omnivore','mediterranean','dash','vegetarian','vegan',
+ 'pescatarian','flexitarian','portfolio','low_carb','keto','other']),
+ eating_window:new Set(['regular','12_12','14_10','16_8'])};
+const NUMERIC={age_years:[18,100,true],height_cm:[100,250,false],weight_kg:[20,400,false]};
+const LIMITS={preferred_foods:400,disliked_foods:400,meal_routine:400,notes:1000};
 function identity(profile,userId){
  if(!UUID.test(userId||'')||profile?.role!=='student'||!profile.active||
    profile.user_id!==userId||!UUID.test(profile.organization_id||''))
@@ -17,7 +26,17 @@ function fieldsOnly(payload){
  const out={};
  for(const [key,value] of Object.entries(payload)){
   if(SENSITIVE.has(key)||!FIELDS.has(key))throw Error('Este campo no pertenece a la ficha nutricional general.');
-  if(value!==null&&typeof value!=='string'&&typeof value!=='number')throw Error('Campo de ficha inválido.');
+  if(value!==null){
+   if(Object.hasOwn(NUMERIC,key)){
+    const [min,max,integer]=NUMERIC[key];
+    if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max||
+       (integer&&!Number.isInteger(value)))throw Error('Valor numérico de ficha inválido: '+key);
+   }else{
+    if(typeof value!=='string'||(OPTIONS[key]&&value!==''&&!OPTIONS[key].has(value))||
+      (LIMITS[key]!==undefined&&value.length>LIMITS[key]))
+      throw Error('Opción o texto de ficha inválido: '+key);
+   }
+  }
   out[key]=value;
  }
  if(Object.keys(out).length===0)throw Error('La ficha no contiene datos.');

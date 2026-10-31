@@ -92,7 +92,7 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
  }
  async function save({studentId,sourceUpdatedAt,sourceRevision=null,goal,guide,expectedRevision=null}={}){
   check();idCheck(studentId);
-  if(typeof sourceUpdatedAt!=="string"||!Number.isFinite(Date.parse(sourceUpdatedAt)))
+  if(typeof sourceUpdatedAt!=="string"||!/^\d{4}-\d{2}-\d{2}T/.test(sourceUpdatedAt)||!Number.isFinite(Date.parse(sourceUpdatedAt)))
    throw Error("Recargá la ficha compartida antes de preparar el borrador.");
   if(expectedRevision!==null&&(!Number.isSafeInteger(expectedRevision)||expectedRevision<1))
    throw Error("Revisión de borrador inválida.");

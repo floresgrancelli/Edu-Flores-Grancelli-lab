@@ -3489,7 +3489,7 @@ root.addEventListener("submit",e=>{
   e.preventDefault();
   if(COACH_STUDENT_JOURNEY_ENABLED){
    (async()=>{
-    if(state.profile?.role!=="student"||!["intake","review","ready"].includes(state.coachPilotEntry?.route))
+    if(state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))
      throw Error("La ficha del piloto no está disponible.");
     const data=readCoachRelaunchForm(document);
     // A private first intake is valid; no coach sharing is inferred.

@@ -82,13 +82,13 @@ for(const path of [
 ]){
  const source=await (await import("node:fs/promises")).readFile(
   new URL(path,import.meta.url),"utf8");
- assert.match(source,/p\\.organization_id=efg_coach_relaunch_intakes\\.organization_id/,
+ assert.match(source,/p\.organization_id=efg_coach_relaunch_intakes\.organization_id/,
   "Owner SELECT must compare profile org with the OUTER intake org: "+path);
- assert.doesNotMatch(source,/p\\.organization_id=organization_id\\b/,
+ assert.doesNotMatch(source,/p\.organization_id=organization_id\b/,
   "Ambiguous self-comparison is forbidden: "+path);
 }
 const ownerRepair=await (await import("node:fs/promises")).readFile(
  new URL("../migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql",import.meta.url),"utf8");
 assert.match(ownerRepair,/alter policy efg_coach_relaunch_owner_select/);
-assert.match(ownerRepair,/p\\.organization_id=efg_coach_relaunch_intakes\\.organization_id/);
+assert.match(ownerRepair,/p\.organization_id=efg_coach_relaunch_intakes\.organization_id/);
 console.log("PASS Coach relaunch DRAFT: returning pilot must repeat CURRENT version even when previously onboarded; Terms first, no cross-role, no stale sharing, owner isolation and no data deletion.");

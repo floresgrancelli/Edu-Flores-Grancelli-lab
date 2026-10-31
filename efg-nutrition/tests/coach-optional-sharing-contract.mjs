@@ -16,6 +16,12 @@ assert.match(sql,/COACH-SEC-09 RLS repair required first/);
 assert.match(sql,/qualified owner policies not confirmed/);
 assert.match(sql,/drop constraint efg_pilot_participation_receipts_sharing_accepted_check/);
 assert.equal((sql.match(/create or replace function public\.efg_(?:accept_pilot_participation|submit_coach_relaunch_intake|coach_pilot_entry_status)\(/g)||[]).length,3);
+// A receipt can be revoked independently after a shared intake was saved.
+assert.match(sql,/alter policy efg_coach_relaunch_shared_coach_select/);
+const sharedPolicy=sql.slice(sql.indexOf('alter policy efg_coach_relaunch_shared_coach_select'),sql.indexOf('create or replace function public.efg_accept_pilot_participation'));
+assert.match(sharedPolicy,/r\\.sharing_accepted is true/);
+const baseSharedPolicy=intake.slice(intake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),intake.indexOf('-- No direct PostgREST'));
+assert.match(baseSharedPolicy,/r\\.sharing_accepted is true/);
 assert.match(sql,/p_sharing is null/);
 assert.match(sql,/Separate pilot coach-sharing permission required/);
 assert.match(sql,/v_route:='private'/);

@@ -56,9 +56,10 @@ alter table public.efg_pilot_participation_receipts
 -- student must remain active in the SAME organization as the intake row.
 create or replace function efg_private.coach_pilot_share_active(
  p_student uuid,p_org uuid
-) returns boolean language sql stable security definer set search_path=''
+) returns boolean language plpgsql stable security definer set search_path=''
 as $share$
- select efg_private.coach_has_student(p_student) and exists(
+begin
+ return (select efg_private.coach_has_student(p_student) and exists(
   select 1 from public.efg_pilot_participation_receipts r
   join public.efg_profiles p on p.user_id=r.student_id
   join public.efg_consents c on c.student_id=r.student_id
@@ -68,7 +69,8 @@ as $share$
    and r.version='coach_pilot_2026_demo1'
    and r.participation_accepted and r.sharing_accepted is true
    and r.revoked_at is null
- )
+ ));
+end
 $share$;
 revoke all on function efg_private.coach_pilot_share_active(uuid,uuid)
  from public,anon,authenticated;

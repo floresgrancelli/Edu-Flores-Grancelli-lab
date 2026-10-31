@@ -104,3 +104,26 @@ SHA CI por confirmar. La reproducción de CHECK en una base sintética
 NO equivale a una restauración fiel de DB/Auth/Storage ni a autorización
 para ejecutar la migración alojada. COACH-SEC-09, legal, clínica, UAT y
 COACH119 siguen siendo bloqueantes. NO GO.
+
+### Ajuste de aislamiento RLS detectado durante CI
+
+La primera versión del test dinámico COACH-OPT-03 falló en el caso positivo:
+el Coach no podía leer una ficha explícitamente compartida. La causa de
+diseño es que las tablas de recibos son **solo legibles por el propietario**;
+una subconsulta directa de la policy SELECT del Coach no puede leer esos
+recibos bajo RLS. El test detectó la contradicción; no se ocultó ni se
+consideró aprobado.
+
+Se sustituyó la subconsulta por
+`efg_private.coach_pilot_share_active(student_id,organization_id)`, una
+función SECURITY DEFINER con `search_path` vacío que devuelve únicamente
+un booleano y comprueba: relación Coach autorizada, perfil alumno activo,
+misma organización, consentimiento de seguimiento vigente, recibo de
+participación no revocado y `sharing_accepted=true`. No concede lectura
+directa de recibos o consentimientos al Coach.
+
+La definición y el test de contrato se actualizaron en las rutas de
+migración inicial, staging local y correctiva NOT_APPLIED. Es una función
+privilegiada nueva que deberá sumarse a la matriz SEC-08 y auditarse con
+JWT A/B en staging fiel antes de cualquier GO. **La corrección dinámica
+continúa pendiente del CI del SHA final; no afirmar PASS anticipado.**

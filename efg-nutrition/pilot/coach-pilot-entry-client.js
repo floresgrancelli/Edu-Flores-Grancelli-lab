@@ -45,5 +45,9 @@ export async function fetchCoachPilotEntry(sb,{profile}={}){
    profile?.active!==true||!UUID.test(profile?.organization_id||''))return deny();
  const res=await sb.rpc('efg_coach_pilot_entry_status');
  if(res.error)return deny();
+ // The current PWA user can change while the server verifies readiness.
+ // Never disclose the former pupil's ready/MI DIA status to a new session.
+ const after=await sb.auth.getUser();
+ if(after?.error||after?.data?.user?.id!==userId)return deny();
  return validateCoachPilotEntryResponse(res.data);
 }

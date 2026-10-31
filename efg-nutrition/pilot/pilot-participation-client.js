@@ -22,7 +22,7 @@ async function receiptReadback(sb,userId,{expectedOrganizationId=null}={}){
 const complete=(r,userId)=>r?.student_id===userId&&
  r.version===PILOT_PARTICIPATION_VERSION&&
  r.acceptance_method==='two_explicit_checkboxes'&&
- r.participation_accepted===true&&r.sharing_accepted===true&&
+ r.participation_accepted===true&&typeof r.sharing_accepted==='boolean'&&
  r.revoked_at===null&&typeof r.accepted_at==='string'&&
  Number.isFinite(Date.parse(r.accepted_at));
 export async function loadPilotParticipationReceipt(sb,{expectedOrganizationId=null}={}){
@@ -31,25 +31,25 @@ export async function loadPilotParticipationReceipt(sb,{expectedOrganizationId=n
  return {userId,receipt,participation:receipt?{
   user_id:userId,version:receipt.version,
   participation_accepted:complete(receipt,userId),
-  sharing_accepted:complete(receipt,userId),
+  sharing_accepted:receipt.sharing_accepted,
   accepted_at:receipt.accepted_at,revoked_at:receipt.revoked_at
  }:null,accepted:complete(receipt,userId)};
 }
 export async function acceptPilotParticipation(sb,choice,{explicitSubmit=false}={}){
  if(explicitSubmit!==true||choice?.version!==PILOT_PARTICIPATION_VERSION||
-   choice.participationRequested!==true||choice.sharingRequested!==true||
+   choice.participationRequested!==true||typeof choice.sharingRequested!=='boolean'||
    choice.legalAcceptance!==false||choice.persisted!==false)
   throw Error('Las dos autorizaciones requieren clic explícito.');
  const userId=await signedUser(sb);
  const r=await sb.rpc('efg_accept_pilot_participation',{
-  p_version:PILOT_PARTICIPATION_VERSION,p_participation:true,p_sharing:true
+  p_version:PILOT_PARTICIPATION_VERSION,p_participation:true,p_sharing:choice.sharingRequested
  });
  if(r.error||!Number.isFinite(Date.parse(r.data)))
   throw Error('No fue posible guardar las autorizaciones del piloto.');
  const receipt=await receiptReadback(sb,userId);
- if(!complete(receipt,userId))
+ if(!complete(receipt,userId)||receipt.sharing_accepted!==choice.sharingRequested)
   throw Error('El servidor no confirmó las dos autorizaciones.');
- return {userId,receipt,accepted:true,legalAcceptance:false,healthConsent:false};
+ return {userId,receipt,accepted:true,sharingAccepted:receipt.sharing_accepted,legalAcceptance:false,healthConsent:false};
 }
 export async function revokePilotParticipation(sb,{explicitSubmit=false}={}){
  if(explicitSubmit!==true)throw Error('La revocación requiere confirmación expresa.');

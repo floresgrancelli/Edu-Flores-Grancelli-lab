@@ -301,9 +301,10 @@ begin
  if not found then raise exception 'Current general intake not shared'
   using errcode='42501'; end if;
 
+ -- Require BOTH distinct document kinds (not two accepted copies of Terms).
  -- ALL CURRENT text versions must be cryptographically verifiable and accepted
  -- separately by both student and Coach. Never mistake these for medical consent.
- select pg_catalog.count(*) into v_legal_count
+ select pg_catalog.count(distinct d.kind) into v_legal_count
  from public.efg_legal_documents d
  join public.efg_legal_acceptances student_rec
   on student_rec.document_id=d.id and student_rec.user_id=p_student
@@ -334,6 +335,7 @@ begin
  if found then
   if v_existing.student_id is distinct from p_student or
     v_existing.coach_id is distinct from v_coach or
+    v_existing.organization_id is distinct from v_org or
     v_existing.draft_revision is distinct from p_expected_revision then
    raise exception 'Publication key reused with different owner/revision'
     using errcode='23505'; end if;

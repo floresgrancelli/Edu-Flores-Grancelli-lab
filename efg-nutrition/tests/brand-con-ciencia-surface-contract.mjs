@@ -60,6 +60,11 @@ assert.match(daily,/NUTRICIÓN CON-CIENCIA \| INFORME DIARIO/,
  "Daily report must not retain legacy visible title");
 assert.match(pilot,/class="pilot-logo"/,
  "Do not replace the existing sidebar layout or technical class");
+const brandCSS=read("../pilot/premium-system.css");
+assert.match(brandCSS,/BRAND-78 responsive visible-name fit/,
+ "The longer visible name must have a responsive layout");
+assert.match(brandCSS,/\.efg-mobile-brand-text\{min-width:0;white-space:normal\}/,
+ "The longer public name must wrap instead of overflowing narrow iPhones");
 const intro=read("../pilot/science-welcome.js");
 assert.match(intro,/serotonina-acuarela\.avif/);
 assert.match(intro,/SCIENCE_WELCOME_ENABLED=false/);

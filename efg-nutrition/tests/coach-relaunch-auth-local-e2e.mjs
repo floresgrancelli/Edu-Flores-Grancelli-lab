@@ -84,6 +84,21 @@ assert.equal(owner[0].shared_at,null);
 assert.deepEqual(yes(await read(people.coachA.token),"No coach reading private intake"),[]);
 assert.deepEqual(yes(await read(people.coachB.token),"Other organization never reads"),[]);
 assert.deepEqual(yes(await read(people.studentB.token),"Other student never reads"),[]);
+
+// COACH-SEC-09: a formerly linked student must not read an org A intake
+// after moving to org B. The old owner policy used an ambiguous inner-column
+// comparison and would have returned the stale private row.
+sql("update public.efg_profiles set organization_id="+uuid(orgB)+
+ " where user_id="+uuid(people.studentA.id));
+assert.deepEqual(yes(await read(people.studentA.token),
+ "Transferred student cannot read private intake from former organization"),[]);
+assert.deepEqual(yes(await read(people.coachB.token),
+ "New organization coach cannot inherit former private intake"),[]);
+sql("update public.efg_profiles set organization_id="+uuid(orgA)+
+ " where user_id="+uuid(people.studentA.id));
+assert.equal(yes(await read(people.studentA.token),
+ "Returning to original organization restores access to unchanged intake").length,1);
+
 no(await request("/rest/v1/efg_coach_relaunch_intakes",{method:"POST",token:people.studentA.token,
  body:{student_id:people.studentA.id,organization_id:orgA,completed_version:version,revision:999}}),
  "Owner cannot bypass RPC through REST writes");

@@ -33,7 +33,8 @@ export function classifyFood(food,{patternId='balanced',restrictions=[],inPlan=f
   if(!denied){results.push({rule,color:'yellow',reason:'Requiere información y revisión individual; no se infieren prohibiciones.',sources:[]});continue;}
   const valid=evidence.filter(e=>Array.isArray(e.ingredientClasses)&&e.ingredientClasses.every(c=>['plant','meat','fish','shellfish','dairy','egg','honey','animal_derivative','mineral','microbial'].includes(c)));
   const incompatible=valid.find(e=>e.ingredientClasses.some(c=>denied.includes(c)));
-  const complete=valid.find(e=>e.completeIngredients===true&&e.ingredientClasses.length>0);
+  // Conflicting or duplicated catalog reviews cannot authorize a green label.
+  const complete=valid.length===1&&valid[0].completeIngredients===true&&valid[0].ingredientClasses.length>0?valid[0]:null;
   results.push({rule,color:incompatible?'red':complete?'green':'yellow',reason:incompatible?'Ingrediente incompatible documentado.':complete?'Ingredientes completos revisados para este patrón.':'Ingredientes incompletos, desconocidos o evidencia vencida.',sources:[...new Set(valid.map(e=>e.sourceUrl))]});
  }
  const color=!results.length?'neutral':results.some(r=>r.color==='red')?'red':results.some(r=>r.color==='yellow')?'yellow':'green';

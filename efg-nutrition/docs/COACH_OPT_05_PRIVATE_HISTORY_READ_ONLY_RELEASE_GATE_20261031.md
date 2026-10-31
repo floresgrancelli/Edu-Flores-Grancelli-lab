@@ -13,6 +13,9 @@ El circuito COACH111/116 diferenciaba `private` y `review` y no habilitaba nueva
 ## Pruebas
 `tests/coach-private-history.mjs` con fixture sintético: seis SELECT filtrados al titular, HTML escapado frente a nombres y reportes maliciosos, rechazo de identidad ajena, ruta legal, rol incorrecto, escritura no habilitada, y comprobación de integración en `pilot.js`. Se agregó al workflow Premium QA. **No es una prueba de dispositivos reales, RLS de hospedaje ni paridad de staging.**
 
+## Refuerzo de sesión vigente · 31/10/2026 (candidata)
+El perfil almacenado en memoria al iniciar sesión puede quedar obsoleto si un administrador desactiva, cambia de rol o traslada a un alumno mientras conserva su PWA abierta. Antes de consultar las seis fuentes históricas, el cliente ahora relee `efg_profiles` con el JWT actual y exige `user_id`, rol alumno, `active=true` y organización iguales al contexto firmado. Ante error o discrepancia falla cerrado y no consulta historial. Se añadieron regresiones sintéticas para inactivación, traslado y cambio de rol. **Esto es defensa en profundidad del cliente, NO sustituye RLS ni revocación inmediata de JWT, y requiere validación con JWT en staging fiel.**
+
 ## Pendientes obligatorios
 1. Verificar 5/5 CI en el mismo SHA final y que Premium ejecute COACH-OPT-05; corregir cualquier fallo.
 2. En staging fiel restaurado: JWT A/B y verificación de RLS para las seis lecturas, incluso tras traslado/inactivación y revocación de permisos, preservando historial del titular.

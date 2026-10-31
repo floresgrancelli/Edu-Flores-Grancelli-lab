@@ -60,6 +60,14 @@ assert.match(daily,/NUTRICIÓN CON-CIENCIA \| INFORME DIARIO/,
  "Daily report must not retain legacy visible title");
 assert.match(pilot,/class="pilot-logo"/,
  "Do not replace the existing sidebar layout or technical class");
+const notifications=read("../pilot/notifications-ui.js");
+assert.match(notifications,/Notificaciones de Nutrición Con-Ciencia/,
+ "Screen-reader labels must use the new public brand.");
+for(const former of ["EFG · ESPACIO DEL ENTRENADOR",
+ "EFG · DE LOS MACROS A LA COMIDA REAL","EFG LABORATORIO · CUPO GRATUITO"])
+ assert.ok(!pilot.includes(former),"Old visible Coach label remains: "+former);
+assert.match(pilot,/NUTRICIÓN CON-CIENCIA · ESPACIO DEL ENTRENADOR/);
+assert.match(pilot,/NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL/);
 const brandCSS=read("../pilot/premium-system.css");
 assert.match(brandCSS,/BRAND-78 responsive visible-name fit/,
  "The longer visible name must have a responsive layout");

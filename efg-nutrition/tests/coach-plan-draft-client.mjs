@@ -24,7 +24,7 @@ for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:2
  assert.throws(()=>validateCoachPlanProposal(bad,guide));
 for(const bad of [{...guide,meals:guide.meals.slice(1)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,slot:"desayuno"}:v)},{...guide,meals:guide.meals.map((v,i)=>i===1?{...v,items:[{...food,qty:0}]}:v)}])
  assert.throws(()=>validateCoachPlanProposal(goal,bad));
-let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,returnedStudent=STU;
+let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,returnedStudent=STU,returnedDraftStudent=STU;
 const calls=[];
 const db={
  from(table){operations++;return {
@@ -33,7 +33,7 @@ const db={
    if(table==="efg_consents")return Promise.resolve({data:{accepted:consent},error:null});
    if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore"}:null,error:null});
    if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
-   if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:returnedStudent,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
+   if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:returnedDraftStudent,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
    throw Error("Unrecognized table "+table);
   }
  };},
@@ -50,6 +50,9 @@ assert.equal(loaded.draft_revision,1);
 returnedStudent="00000000-0000-4000-8000-000000000099";
 await assert.rejects(()=>enabled.load(STU),/no compartió/,"Wrong-student intake must fail closed");
 returnedStudent=STU;
+returnedDraftStudent="00000000-0000-4000-8000-000000000099";
+await assert.rejects(()=>enabled.load(STU),/no corresponde al alumno/,"Wrong-student draft must fail closed");
+returnedDraftStudent=STU;
 const saved=await enabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide});
 assert.deepEqual(saved,{studentId:STU,revision:1,sourceUpdatedAt:WHEN});
 assert.deepEqual(calls[0],{name:"efg_save_coach_plan_draft",payload:{p_student:STU,p_goal:goal,p_guide:guide,p_intake_updated_at:WHEN,p_expected_revision:null}});

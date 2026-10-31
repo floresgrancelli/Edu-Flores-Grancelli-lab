@@ -2343,13 +2343,14 @@ async function render(){
     root.innerHTML=renderCoachRelaunchEntry(
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
      {editing:!!saved});
-   }else if(pilot?.route==="review"){
+   }else if(pilot?.route==="review"||pilot?.route==="private"){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
-    else frame(renderCoachPlanWaiting());
+    else if(pilot.route==="private")frame('<section class="card"><h2>Tu ficha es privada</h2><p>Guardamos tu ficha sin compartirla con tu coach. Tus datos históricos se conservan. Podés revisar la ficha, cambiar tu permiso o consultar tus mensajes y la sección Con-Ciencia.</p><button type="button" class="btn" data-tab="intake">Revisar mi ficha</button><button type="button" class="btn light" data-tab="messages">Mensajes</button></section>');
+     else frame(renderCoachPlanWaiting());
    }else
     root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
    return;
@@ -3491,7 +3492,7 @@ root.addEventListener("submit",e=>{
     if(state.profile?.role!=="student"||!["intake","review","ready"].includes(state.coachPilotEntry?.route))
      throw Error("La ficha del piloto no está disponible.");
     const data=readCoachRelaunchForm(document);
-    if(!data.shareWithCoach&&!state.coachPilotIntake)throw Error("Para continuar compartí la ficha con el coach; podés retirar el permiso después.");
+    // A private first intake is valid; no coach sharing is inferred.
     await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
      shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
     await refresh();

@@ -67,12 +67,17 @@ bad(await rpc("efg_submit_coach_relaunch_intake",users.coachA.token,{
  p_expected_revision:0,p_share_with_coach:false}),"Coach cannot impersonate student");
 assert.ok(good(await legal(users.studentA.token),"legal before").every(x=>x.accepted===false));
 good(await accept(users.studentA.token),"student explicitly accepts current legal docs");
+good(await rpc("efg_accept_pilot_participation",users.studentA.token,{
+ p_version:"coach_pilot_2026_demo1",p_participation:true,p_sharing:true
+}),"student separately accepts pilot sharing before Coach draft");
 const intakePayload={p_completed_version:"coach_major_2026_r1",
  p_payload:{objective:"maintenance",dietary_pattern:"vegetarian",age_years:40,
   height_cm:172,weight_kg:80.2,activity_level:"moderate",preferred_foods:"Legumbres"},
  p_expected_revision:0,p_share_with_coach:true};
 assert.equal(Number(good(await rpc("efg_submit_coach_relaunch_intake",
  users.studentA.token,intakePayload),"student chooses to share")),1);
+const sharedIntake=good(await request("/rest/v1/efg_coach_relaunch_intakes?select=revision,shared_at",{token:users.coachA.token}),"Coach sees consented current intake");
+assert.ok(sharedIntake.some(x=>x.revision===1&&x.shared_at),"Coach SELECT requires current independent sharing receipt");
 const intake=sql("select updated_at from public.efg_coach_relaunch_intakes where student_id="+quote(users.studentA.id));
 assert.ok(intake.includes("2026")||intake.includes("2027"));
 const goal={goal_type:"maintenance",kcal:2000,protein_g:120,carb_g:250,fat_g:70,fiber_g:30};

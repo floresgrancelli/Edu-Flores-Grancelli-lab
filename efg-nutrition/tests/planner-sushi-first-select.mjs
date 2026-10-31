@@ -208,6 +208,70 @@ assert.equal(skipWrites,2,'Retry saves once after slot is free');
 assert.equal(skipDiary.skipped.desayuno,true,'Successful retry applies omitted state');
 assert.equal(skipLock.size,0,'Successful write releases slot');
 
+
+// Real Fit recipe and private recipe handlers must not leave phantom food when
+// offline. They also use the common meal-slot gate and retry safely.
+const fitStart=source.indexOf('async function registerFitRecipe(id){');
+const fitEnd=source.indexOf('function studentSupplementsView(){',fitStart);
+const recipeStart=source.indexOf('async function confirmRecipeRegistration(){');
+const recipeEnd=source.indexOf('function rootText(title,sub){',recipeStart);
+assert.ok(fitStart>=0&&fitEnd>fitStart&&recipeStart>=0&&recipeEnd>recipeStart);
+const recipeDiary={meals:{cena:[{id:'egg',name:'Huevos',qty:100}]},skipped:{cena:true,_closed:false}};
+const recipeState={profile:{role:'student'},diary:recipeDiary};
+const recipeLocks=new Set(),recipeAlerts=[];
+let recipeWrites=0,recipeFailure=true,recipeClosed=0;
+const writeRecipe=async()=>{recipeWrites++;if(recipeFailure)throw Error('network offline')};
+const fitRecipe={id:'fit001',name:'Budín Fit',ingredients:[['egg',100]],portions:2};
+const fitRun=new Function('state','FIT_RECIPES','prompt','mealSlots','recipeTotals','foods',
+ 'activeDiary','saveDiary','notify','num','pendingMealRegistrations',
+ source.slice(fitStart,fitEnd)+';return registerFitRecipe;')(
+ recipeState,[fitRecipe],()=>'1',[['cena','Cena']],()=>({perPortion:{k:120,p:8,c:10,f:4,fi:1}}),
+ [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks);
+const beforeFit=structuredClone(recipeDiary);
+await assert.rejects(fitRun('fit001'),/network offline/);
+assert.deepEqual(recipeDiary,beforeFit,'Rejected Fit recipe restores foods and skipped flags');
+assert.equal(recipeLocks.size,0,'Rejected Fit recipe releases meal-slot lock');
+recipeFailure=false;
+await fitRun('fit001');
+assert.equal(recipeDiary.meals.cena.length,2,'Successful Fit recipe retry adds exactly one item');
+assert.equal(recipeDiary.meals.cena[1].k,120,'Fit recipe macros are retained');
+recipeFailure=true;
+const chosenOwn={id:'mine',name:'Tarta casera',portions:2,totals:{k:500,p:20,c:40,f:20,fi:6}};
+const personalDocument={getElementById(id){return {value:id==='efgRecipeRegisterId'?'mine':id==='efgRecipeRegisterSlot'?'cena':'1'}}};
+const personalState={diary:recipeDiary};
+const ownHandler=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
+ 'activeDiary','state','saveDiary','closeRecipeRegistration','notify',
+ 'recipeRegistrationBusy','setBusy',
+ source.slice(recipeStart,recipeEnd).replaceAll('recipeRegistrationBusy','busy.value')+
+ ';return confirmRecipeRegistration;')(
+ ()=>[chosenOwn],personalDocument,[['cena','Cena']],recipeLocks,()=>recipeDiary,personalState,
+ writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),false,{value:false});
+const beforeOwn=structuredClone(recipeDiary);
+await assert.rejects(ownHandler(),/network offline/);
+assert.deepEqual(recipeDiary,beforeOwn,'Rejected personal recipe restores previous diary');
+assert.equal(recipeClosed,0,'Failed personal recipe keeps dialog open for retry');
+recipeFailure=false;
+await ownHandler();
+assert.equal(recipeClosed,1,'Successful personal recipe closes dialog');
+assert.equal(recipeDiary.meals.cena.length,beforeOwn.meals.cena.length+1,'Personal recipe writes only once');
+assert.equal(recipeLocks.size,0,'Personal recipe releases lock');
+
+// The clear meal action must also roll back a rejected REST request.
+// It should never discard an existing list just because the user lost signal.
+const clearStart=source.indexOf('if(el.dataset.clearm){');
+const clearEnd=source.indexOf('if(el.dataset.removesport!==undefined)',clearStart);
+assert.ok(clearStart>0&&clearEnd>clearStart,'Actual clear meal branch must exist');
+const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots',
+ 'return async()=>{'+source.slice(clearStart,clearEnd)+'};')(
+ {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']]);
+const beforeClear=structuredClone(recipeDiary);
+recipeFailure=true;
+await assert.rejects(clearHandler(),/network offline/);
+assert.deepEqual(recipeDiary,beforeClear,'Rejected clear restores all food and skipped state');
+recipeFailure=false;await clearHandler();
+assert.equal(recipeDiary.meals.cena.length,0,'Confirmed clear removes foods');
+assert.equal(recipeLocks.size,0,'Clear release lock after confirmation');
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

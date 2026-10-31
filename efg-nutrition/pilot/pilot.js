@@ -740,14 +740,18 @@ async function confirmRecipeRegistration(){
  const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
  const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
  if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
- recipeRegistrationBusy=true;
+ if(pendingMealRegistrations.has(slot))return;
+ recipeRegistrationBusy=true;pendingMealRegistrations.add(slot);
  try{
   const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
   for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
-  const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;
-  await saveDiary();
+  const d=activeDiary();d.meals[slot] ||= [];
+  const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
+  d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;
+  try{await saveDiary();}
+  catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
   closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
- }finally{recipeRegistrationBusy=false;}
+ }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot);}
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">Nutrición Con-Ciencia</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
@@ -983,11 +987,19 @@ async function registerFitRecipe(id){
  if(answer===null)return;
  const qty=Number(answer.replace(",","."));
  if(!Number.isFinite(qty)||qty<=0||qty>20)throw new Error("Ingresá entre 0,1 y 20 porciones.");
- const {perPortion}=recipeTotals(recipe,foods);
- const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
- for(const key of ["k","p","c","f","fi"])item[key]=Math.round(perPortion[key]*qty*100)/100;
- const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;d.skipped._closed=false;
- await saveDiary();notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
+ if(pendingMealRegistrations.has(slot))return; // Avoid racing a manual/favorite diary write.
+ pendingMealRegistrations.add(slot);
+ try{
+  const {perPortion}=recipeTotals(recipe,foods);
+  const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+  for(const key of ["k","p","c","f","fi"])item[key]=Math.round(perPortion[key]*qty*100)/100;
+  const d=activeDiary();d.meals[slot] ||= [];
+  const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
+  d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;d.skipped._closed=false;
+  try{await saveDiary();}
+  catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
+  notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
+ }finally{pendingMealRegistrations.delete(slot);}
 }
 function studentSupplementsView(){
  return rootText("Suplementos","Registrá tus suplementos del día independientemente de las comidas.")+
@@ -3165,7 +3177,19 @@ if(el.dataset.foodbulk){
  d.sports.splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
  await saveDiary();notify("Suplemento eliminado.");return;
 }
- if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
+ if(el.dataset.clearm){
+  const slot=el.dataset.clearm;
+  if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
+  if(pendingMealRegistrations.has(slot))return;
+  const d=activeDiary(),beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
+  pendingMealRegistrations.add(slot);
+  try{
+   d.meals[slot]=[];d.skipped=d.skipped||{};d.skipped._closed=false;
+   try{await saveDiary();}
+   catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
+  }finally{pendingMealRegistrations.delete(slot);}
+  return;
+ }
  if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
  if(el.dataset.reject)return onePaymentAction(el.dataset.reject,"rejected");

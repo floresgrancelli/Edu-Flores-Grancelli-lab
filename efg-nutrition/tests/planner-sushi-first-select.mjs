@@ -141,6 +141,42 @@ assert.equal(diary.meals.cena.length,beforeConcurrent+1,'Busy slot cannot accept
 assert.match(source,/if\(el\.dataset\.removefood\)\{[\s\S]*?pendingMealRegistrations\.has\(slot\)[\s\S]*?previousItems=structuredClone\(d\.meals\[slot\]\)[\s\S]*?catch\(error\)\{[\s\S]*?d\.meals\[slot\]=previousItems/);
 
 
+
+// Run the actual diary persister with a failed REST upsert. A stale calorie
+// total must not survive a rejected write when the UI retries.
+const realSaveStart=source.indexOf('async function saveDiary(){');
+const realSaveEnd=source.indexOf('async function loadPersonalData(){',realSaveStart);
+assert.ok(realSaveStart>=0&&realSaveEnd>realSaveStart,'Real daily persister exists');
+const persistedDiary={log_day:'2026-10-31',student_id:null,meals:{cena:[]},
+ sports:[],skipped:{},totals:{k:123,p:9,c:12,f:4,fi:3}};
+const persistedState={session:{user:{id:'student-test-id'}},diary:persistedDiary,progressLogs:[]};
+let pendingWrite,rejectWrite=true,renderCalls=0;
+const fakeDailySb={from(table){
+ assert.equal(table,'efg_daily_logs');
+ return {upsert(row,options){
+  assert.equal(options.onConflict,'student_id,log_day');
+  pendingWrite=structuredClone(row);
+  return {select(){return {single:async()=>rejectWrite?
+   {data:null,error:Error('network offline')}:
+   {data:{...structuredClone(row)},error:null}}}};
+ }};
+}};
+const actualSave=new Function('activeDiary','today','isNutritionDayClosed','dailyTotals','state','sb','render',
+ source.slice(realSaveStart,realSaveEnd)+';return saveDiary;')(
+ ()=>persistedDiary,()=> '2026-10-31',()=>false,
+ ()=>({k:250,p:15,c:30,f:6,fi:4}),persistedState,fakeDailySb,
+ async()=>{renderCalls++}
+);
+await assert.rejects(actualSave(),/network offline/);
+assert.equal(pendingWrite.totals.k,250,'Supabase receives freshly calculated macros');
+assert.equal(persistedDiary.totals.k,123,'Unconfirmed totals cannot remain in the diary');
+assert.equal(persistedState.diary,persistedDiary,'Failed write retains previous diary state');
+assert.equal(renderCalls,0,'Failed write cannot signal a successful render');
+rejectWrite=false;
+await actualSave();
+assert.equal(persistedState.diary.totals.k,250,'Confirmed totals reach the diary only after REST success');
+assert.equal(renderCalls,1,'Successful write triggers one render');
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

@@ -2571,8 +2571,10 @@ async function saveDiary(){
  if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
  d.skipped=d.skipped||{};
  d.skipped._closed=false; // El día vigente permanece abierto hasta el horario automático.
- d.totals=dailyTotals(d);d.student_id=state.session.user.id;
- const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:d.student_id,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:d.totals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
+ // The server response is the commit point for calculated daily totals.
+ // On network/REST failure do not leave unconfirmed calories/macros cached.
+ const confirmedTotals=dailyTotals(d),studentId=state.session.user.id;
+ const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:confirmedTotals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
  if(error)throw error;
  state.diary=data;
  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);

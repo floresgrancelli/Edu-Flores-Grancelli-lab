@@ -27,6 +27,14 @@ const discarded=await signOutCurrentDevice({auth,explicitClick:true,
 assert.equal(discarded.signedOut,true);
 assert.equal(confirmCalls,2);
 assert.equal(calls.length,2);
+const asyncCancelled=await signOutCurrentDevice({auth,explicitClick:true,
+ hasUnsavedChanges:()=>true,confirmDiscard:async()=>false});
+assert.equal(asyncCancelled.cancelled,true);
+assert.equal(calls.length,2,'Async cancelled confirmation cannot sign out');
+const asyncApproved=await signOutCurrentDevice({auth,explicitClick:true,
+ hasUnsavedChanges:()=>true,confirmDiscard:async()=>true});
+assert.equal(asyncApproved.signedOut,true);
+assert.equal(calls.length,3,'Async approval can sign out the current device');
 await assert.rejects(signOutCurrentDevice({auth:{signOut:async()=>({error:{message:'offline'}})},explicitClick:true}),/No pudimos cerrar/);
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');

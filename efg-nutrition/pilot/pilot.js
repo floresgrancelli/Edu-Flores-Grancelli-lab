@@ -1393,7 +1393,12 @@ async function addPlannedFood(key){
  if(plannerSushiPortion(row.food)&&!Number.isFinite(grams))throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
- const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
+ const d=activeDiary();d.meals[slot] ||= [];
+ // Guard the draft against a denied/offline diary write: never show phantom meals.
+ const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
+ const previousDiary=state.diary,previousSelection=state.plannerSelections[key];
+ const previousDraft=state.plannerDraftGrams;
+ d.skipped[slot]=false;
  // A planner choice must keep the user-visible sushi piece count after saving.
  // Nutrition calculation still uses grams; never duplicate the stored item.
  const item=normItem(row.food,grams,slot),portion=plannerSushiPortion(row.food);
@@ -1402,7 +1407,13 @@ async function addPlannedFood(key){
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
- await saveDiary();notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
+ try{await saveDiary();}
+ catch(error){
+  d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
+  state.plannerSelections[key]=previousSelection;state.plannerDraftGrams=previousDraft;
+  throw error;
+ }
+ notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
 }
 let mealDialogReturnFocus=null;
 let activeGuidedMealGroup="protein";
@@ -1539,6 +1550,8 @@ async function saveSelectedMeal(continueGuided=false){
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const d=activeDiary();d.meals[slot] ||= [];
+ const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
+ const previousDiary=state.diary,previousActiveMeal=state.activeMeal;
  const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
  const entry=normItem(f,grams,slot);
  if(drink){entry.name=drink.name;entry.source=drink.source;entry.ingredients=drink.ingredients;Object.assign(entry,drink.totals);}
@@ -1551,7 +1564,12 @@ async function saveSelectedMeal(continueGuided=false){
  }
  if(!state.diary||state.diary.log_day!==today())state.diary=d;
  state.activeMeal=null;
- await saveDiary();
+ try{await saveDiary();}
+ catch(error){
+  d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
+  state.activeMeal=previousActiveMeal; // Keep the editor open for a safe retry.
+  throw error;
+ }
  if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
  notify("Alimento agregado, balance actualizado.");
 }

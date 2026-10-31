@@ -33,7 +33,7 @@ const saveEnd=source.indexOf('let mealDialogReturnFocus=null;',saveStart);
 assert.ok(saveStart>=0&&saveEnd>saveStart,'Actual planner save handler must exist');
 const diary={meals:{},skipped:{}},alerts=[];
 const plannerState={plannerMode:'dinner',plannerSelections:{},plannerDraftGrams:{}};
-let persisted=0,quantity='3',chosenFood=maki;
+let persisted=0,quantity='3',chosenFood=maki,failNextSave=false;
 const runSave=new Function('parsePlannerKey','document','makePlan','foods','allowedFoods',
  'activeDiary','activeGoal','dailyTotals','state','plannerMeasuredGrams','plannerSushiPortion',
  'MILK_BEVERAGES','openPlannedFoodEditor','normItem','saveDiary','notify','num',
@@ -43,7 +43,7 @@ const runSave=new Function('parsePlannerKey','document','makePlan','foods','allo
  [maki],()=>[maki.id],()=>diary,()=>({}),()=>({}),plannerState,
  api.plannerMeasuredGrams,api.plannerSushiPortion,{},()=>{throw Error('Unexpected beverage');},
  (food,grams,slot)=>({id:food.id,name:food.name,qty:grams,unit:'g',when:slot}),
- async()=>{persisted++},msg=>alerts.push(msg),String
+ async()=>{if(failNextSave){failNextSave=false;throw Error('network offline')}persisted++},msg=>alerts.push(msg),String
 );
 await runSave('cena|protein');
 assert.equal(persisted,1,'Sushi planner should persist only once');
@@ -60,6 +60,47 @@ quantity='2';chosenFood={id:'rice',name:'Arroz',unit:'g'};
 await runSave('cena|protein');
 assert.equal(diary.meals.cena[1].qty,2,'Ordinary food still records grams');
 assert.equal(diary.meals.cena[1].displayQty,undefined,'Ordinary food has no piece metadata');
+
+const beforeFailure=structuredClone(diary.meals.cena);
+quantity='4';chosenFood=maki;plannerState.plannerSelections['cena|protein']='sushi_maki_salmon';
+plannerState.plannerDraftGrams={'cena|protein':112};
+const beforeDraft=plannerState.plannerDraftGrams;
+failNextSave=true;
+await assert.rejects(runSave('cena|protein'),/network offline/);
+assert.deepEqual(diary.meals.cena,beforeFailure,'Rejected planner write leaves no phantom food');
+assert.equal(plannerState.plannerSelections['cena|protein'],'sushi_maki_salmon');
+assert.strictEqual(plannerState.plannerDraftGrams,beforeDraft,'Failed write restores quantity draft');
+assert.equal(persisted,2);
+await runSave('cena|protein');
+assert.equal(diary.meals.cena.length,3,'A successful retry must not double-register');
+assert.equal(diary.meals.cena[2].displayQty,4);
+assert.equal(persisted,3);
+
+const directStart=source.indexOf('async function saveSelectedMeal(continueGuided=false){');
+const directEnd=source.indexOf('function coachFoodChoices(',directStart);
+assert.ok(directStart>=0&&directEnd>directStart,'Actual direct meal editor exists');
+const directState={activeMeal:'cena',diary};
+let failDirect=true,directWrites=0;
+const directSave=new Function('state','measureMealEntry','foodAllowedForMeal','allowedFoods',
+ 'FOOD_STATE_PAIRS','activeDiary','BEVERAGE_IDS','calculateBeverage','normItem','isGuidedMealSlot',
+ 'guidedMealGroupFor','groupIdFor','today','saveDiary','openMealDialog','notify',
+ source.slice(directStart,directEnd)+';return saveSelectedMeal;')(
+ directState,()=>({f:maki,qty:2,grams:56,useUnits:true,portion}),
+ ()=>true,()=>[maki.id],{},()=>diary,new Set(),()=>{throw Error('not a beverage')},
+ (f,grams,slot)=>({id:f.id,name:f.name,qty:grams,unit:'g',when:slot}),
+ ()=>false,()=>null,()=>null,()=> '2026-10-31',
+ async()=>{if(failDirect)throw Error('network offline');directWrites++;},
+ ()=>{throw Error('Unexpected dialog')},msg=>alerts.push(msg)
+);
+const beforeDirect=structuredClone(diary.meals.cena);
+await assert.rejects(directSave(),/network offline/);
+assert.deepEqual(diary.meals.cena,beforeDirect,'Rejected direct write leaves no phantom food');
+assert.equal(directState.activeMeal,'cena','Editor must remain open on failure');
+failDirect=false;
+await directSave();
+assert.equal(directWrites,1);
+assert.equal(diary.meals.cena.length,beforeDirect.length+1,'Manual retry writes only once');
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

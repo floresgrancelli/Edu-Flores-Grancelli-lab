@@ -39,6 +39,7 @@ assert.match(html,/version-notice\.css/,"Release banner CSS must load");
 assert.match(app,/version-notice\.js/,"Version checker must be imported");
 assert.match(app,/hasUnsavedChanges/,"Updating must check unsaved user input");
 assert.match(versions,/cache:"no-store"/,"Release comparison must bypass HTML cache");
+assert.match(versions,/if\(!serverVersion\|\|!doc\.querySelector\(/,"Incomplete HTML must not be interpreted as a release");
 assert.doesNotMatch(versions,/window\.location\.reload|window\.confirm|Nueva versión disponible/,"Minor updates never interrupt or reload a draft");
 assert.match(versions,/announceMinorUpdates=false/,"Routine releases must be silent by default");
 assert.match(versions,/const canPresent=announceMinorUpdates===true&&!!latest&&dismissed!==latest.key&&canShow\(\)/,"Notice only when explicitly enabled and user is eligible");

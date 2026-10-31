@@ -3516,6 +3516,26 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDa
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
 const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;state.coachIntakeGuidePreview=null;document.getElementById("coachIntakeGeneratedGuide")?.remove();const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
+// Persist omitted-meal toggles through the same per-slot write gate as foods.
+async function saveSkippedMealChoice(slot,checked,checkbox){
+ if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Horario de comida inválido.");
+ const d=activeDiary();
+ if(pendingMealRegistrations.has(slot)){
+  if(checkbox)checkbox.checked=!!d.skipped?.[slot];
+  return;
+ }
+ pendingMealRegistrations.add(slot);
+ const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ try{
+  d.skipped=d.skipped||{};
+  d.skipped[slot]=!!checked;d.skipped._closed=false;
+  await saveDiary();
+ }catch(error){
+  d.skipped=previousSkipped;state.diary=previousDiary;
+  if(checkbox)checkbox.checked=!!previousSkipped[slot];
+  throw error;
+ }finally{pendingMealRegistrations.delete(slot);}
+}
 root.addEventListener("change",e=>{invalidateCoachDraft(e);
   if(e.target.id==="efgIntakeShare"){
    const btn=document.getElementById("efgIntakeSubmitButton");
@@ -3542,7 +3562,7 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
  notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
-}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
 // Prevent Gboard IME input before compositionend from rebuilding native selects.
 const composingFoodSearchTargets=new WeakSet();
 root.addEventListener("compositionstart",event=>{

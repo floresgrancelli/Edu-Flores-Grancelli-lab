@@ -177,6 +177,37 @@ await actualSave();
 assert.equal(persistedState.diary.totals.k,250,'Confirmed totals reach the diary only after REST success');
 assert.equal(renderCalls,1,'Successful write triggers one render');
 
+
+// A skipped-meal checkbox must not claim a persisted omission when the
+// PostgREST write rejects. Test the actual toggle handler, including a
+// concurrent write on the same meal and a later successful retry.
+const skipStart=source.indexOf('async function saveSkippedMealChoice(slot,checked,checkbox){');
+const skipEnd=source.indexOf('root.addEventListener("change",e=>{invalidateCoachDraft(e);',skipStart);
+assert.ok(skipStart>=0&&skipEnd>skipStart,'Real skipped-meal persist handler exists');
+const skipDiary={skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
+const skipState={diary:skipDiary},skipLock=new Set();
+let skipFail=true,skipWrites=0;
+const skipAction=new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary',
+ source.slice(skipStart,skipEnd)+';return saveSkippedMealChoice;')(
+ [['desayuno','Desayuno']],()=>skipDiary,skipLock,skipState,async()=>{
+  skipWrites++;if(skipFail)throw Error('offline');
+ });
+const checkbox={checked:true};
+await assert.rejects(skipAction('desayuno',true,checkbox),/offline/);
+assert.equal(skipDiary.skipped.desayuno,false,'Failed omit must restore original diary state');
+assert.equal(checkbox.checked,false,'Failed omit must restore actual checkbox');
+assert.equal(skipLock.size,0,'Rejected write must release slot');
+skipLock.add('desayuno');checkbox.checked=true;
+await skipAction('desayuno',true,checkbox);
+assert.equal(skipWrites,1,'Busy slot cannot start an overlapping skipped-meal write');
+assert.equal(checkbox.checked,false,'Busy slot must reset checkbox to committed state');
+skipLock.delete('desayuno');
+skipFail=false;checkbox.checked=true;
+await skipAction('desayuno',true,checkbox);
+assert.equal(skipWrites,2,'Retry saves once after slot is free');
+assert.equal(skipDiary.skipped.desayuno,true,'Successful retry applies omitted state');
+assert.equal(skipLock.size,0,'Successful write releases slot');
+
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");

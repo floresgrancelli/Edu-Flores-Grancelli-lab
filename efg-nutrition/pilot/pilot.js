@@ -473,7 +473,13 @@ const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un pr
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
-const activeDiary=()=>state.diary?.log_day===today()?state.diary:blankDiary();
+const activeDiary=()=>{
+ // All first-write paths must edit the same current-day draft that saveDiary
+ // persists. A fresh object on each call silently discarded the first entry.
+ if(state.diary?.log_day!==today()||state.diary?.student_id!==state.session?.user?.id)
+  state.diary=blankDiary();
+ return state.diary;
+};
 async function ensureCurrentDay(){
  if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
  if(state.daySwitching)return state.daySwitching;
@@ -1387,7 +1393,9 @@ async function addPlannedFood(key){
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
- d.meals[slot].push(normItem(row.food,grams,slot));
+ const entry=normItem(row.food,grams,slot),piece=plannerSushiPortion(row.food);
+ if(piece){entry.displayQty=shownQty;entry.displayUnit=piece.label;entry.unitEstimate=true;}
+ d.meals[slot].push(entry);
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};

@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {randomBytes, randomUUID} from 'node:crypto';
 import {localContext, literal as q, yes, denied} from './helpers/coach119-local.mjs';
 import {createCoachPlanDraftClient} from '../pilot/coach-plan-draft-client.js';
+import {verifyHabitualSignedRoundTrip} from './helpers/habitual-signed-roundtrip.mjs';
 
 const {sql, request, rpc, asClient} = localContext();
 assert.equal(sql("select local_only from efg_private.nut57_isolated_staging_marker"), 't');
@@ -18,7 +19,7 @@ async function signup(role) {
   assert.ok(result.access_token && result.user?.id);
   const user = yes(await request('/auth/v1/user', {token: result.access_token}), role + ' verified identity');
   assert.equal(user.id, result.user.id);
-  return {id: user.id, email: user.email, token: result.access_token};
+  return {id: user.id, email: user.email, token: result.access_token, refreshToken:result.refresh_token};
 }
 const users = {};
 for (const role of ['coachA', 'coachB', 'newA', 'returningA', 'studentB', 'admin']) users[role] = await signup(role);
@@ -243,6 +244,7 @@ for (const [student, coach] of [[users.returningA, users.coachA], [users.student
   yes(await publish(coach, publishBody(student, 1, randomUUID())), 'independent valid publication');
   assert.equal((await status(student)).route, 'ready');
 }
+await verifyHabitualSignedRoundTrip({request,asClient,users,password});
 assert.deepEqual(yes(await read('efg_daily_logs', users.returningA), 'old meal after full release circuit'), originalHistory);
 yes(await receipt(users.newA, false), 'withdraw sharing');
 assert.equal((await status(users.newA)).route, 'private');

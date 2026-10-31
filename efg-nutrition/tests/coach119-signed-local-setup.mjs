@@ -12,6 +12,7 @@ const files = [
   './sql/coach-auth-local-bootstrap.sql',
   './sql/nut56-prodshape-local-overlay.sql',
   './sql/coach119-signed-current-overlay.sql',
+  '../migrations/etapas12_habituales.sql',
   '../migrations/20261030_coach_pilot_participation_server_receipts.sql',
   '../migrations/20261030_coach_relaunch_general_pilot_intake.sql',
   '../migrations/20261030_coach_versioned_private_plan_drafts.sql',

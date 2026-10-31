@@ -54,10 +54,21 @@ export function localContext() {
     from(table) {
       assert.match(table, /^efg_[a-z_]+$/);
       const params = new URLSearchParams();
+      let method='GET',body,prefer;
+      const execute=async()=>{
+        const r=await request(`/rest/v1/${table}?${params}`,{token:user.token,method,body,prefer});
+        return {data:r.ok?r.data:null,error:r.ok?null:r.data};
+      };
       const query = {
-        select(columns) { params.set('select', columns); return query; },
+        select(columns='*') { params.set('select', columns); return query; },
         eq(column, value) { params.set(column, 'eq.' + value); return query; },
         not(column, operator, value) { params.set(column, `not.${operator}.${value}`); return query; },
+        order(column,{ascending=true}={}){params.set('order',column+(ascending?'.asc':'.desc'));return query;},
+        insert(value){method='POST';body=value;prefer='return=representation';return query;},
+        upsert(value,{onConflict}={}){method='POST';body=value;prefer='resolution=merge-duplicates,return=representation';if(onConflict)params.set('on_conflict',onConflict);return query;},
+        delete(){method='DELETE';prefer='return=representation';return query;},
+        then(resolve,reject){return execute().then(resolve,reject);},
+        async single(){const r=await execute();if(r.error)return r;assert.equal(r.data.length,1);return {data:r.data[0],error:null};},
         async maybeSingle() {
           const r = await request(`/rest/v1/${table}?${params}`, {token: user.token});
           if (!r.ok) return {data: null, error: r.data};

@@ -23,7 +23,7 @@ try{
    await page.route("**/assets/serotonina-acuarela.avif",route=>route.fulfill({status:200,contentType:"image/avif",body:watercolorLogo}));
    page.on("pageerror",e=>failures.push(target.name+": "+e.message));
    const width=page.viewportSize().width;
-   for(const step of [0,3,7]){
+   for(const step of [0,1,2,3,4,5,6,7]){
     const body=renderScienceWelcomeStep(step);
     await page.setContent('<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><base href="http://fixture.test/"><style>body{margin:0;font:16px system-ui,sans-serif}'+css+'</style></head><body>'+body+'</body></html>',{waitUntil:"domcontentloaded"});
     if(step===7)await page.locator(".ns-wellbeing-logo").evaluate(img=>img.decode());

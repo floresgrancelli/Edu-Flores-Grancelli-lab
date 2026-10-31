@@ -1,0 +1,1348 @@
+name: "Nutrition Coach independent QA \u2014 isolated proposal"
+'on':
+  push:
+    branches:
+    - qa-work-nutrition-coach
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  security-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Validate static security contract
+      run: node efg-nutrition/tests/security-guardrails.mjs
+    - name: COACH71 metadata inventory and fail-closed local restore preflight (NO hosted DB)
+      run: 'node --check efg-nutrition/scripts/coach71-hosted-preflight.mjs
+
+        node efg-nutrition/tests/coach71-hosted-object-contract.mjs
+
+        '
+    - name: SEC12 hosted privileged RPC definitions and ACL drift (OFFLINE snapshot)
+      run: node efg-nutrition/tests/sec12-hosted-privileged-rpc-contract.mjs
+    - name: SEC13 require exact 19-RPC signed JWT/tenant test matrix (planning only)
+      run: node efg-nutrition/tests/sec13-hosted-rpc-authorization-plan.mjs
+    - name: COACH72 offline SHA-256 private Storage restore integrity (synthetic bytes only)
+      run: 'node --check efg-nutrition/scripts/coach72-private-storage-restore-verify.mjs
+
+        node efg-nutrition/tests/coach72-private-storage-restore.mjs
+
+        '
+    - name: COACH75 verify read-only 12-object hosted release prerequisite gate (OFFLINE)
+      run: node efg-nutrition/tests/coach75-release-prerequisites-contract.mjs
+    - name: COACH91 local private database backup and disposable PG17 restore safeguards (SYNTHETIC)
+      run: 'node --check efg-nutrition/scripts/coach91-local-db-backup-rehearsal.mjs
+
+        node efg-nutrition/tests/coach91-local-db-backup-rehearsal.mjs
+
+        '
+    - name: COACH94 Supabase-aware private roles/schema/data seal and destination guard (SYNTHETIC)
+      run: 'node --check efg-nutrition/scripts/coach94-platform-triplet-recovery.mjs
+
+        node efg-nutrition/tests/coach94-platform-triplet-recovery.mjs
+
+        '
+    - name: COACH95 private operator workstation preflight guard (SYNTHETIC)
+      run: 'node --check efg-nutrition/scripts/coach95-private-operator-preflight.mjs
+
+        node efg-nutrition/tests/coach95-private-operator-preflight.mjs
+
+        '
+    - name: Declare coverage limitations
+      run: 'echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."
+
+        '
+  static-ux-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configure Node.js
+      id: node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Validate JavaScript module syntax
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/pilot.js
+
+        node --check efg-nutrition/tests/premium-ui-smoke.mjs
+
+        node --check efg-nutrition/pilot/macro-engine.js
+
+        node --check efg-nutrition/pilot/guided-day.js
+
+        node --check efg-nutrition/pilot/food-catalog.js
+
+        node --check efg-nutrition/pilot/food-expansion.js
+
+        node --check efg-nutrition/pilot/food-source-audit.js
+
+        node --check efg-nutrition/pilot/notifications-ui.js
+
+        node --check efg-nutrition/pilot/messages-ui.js
+
+        node --check efg-nutrition/pilot/progress-charts.js
+
+        node --check efg-nutrition/pilot/fit-recipes.js
+
+        node --check efg-nutrition/pilot/fit-recipe-illustrations.js
+
+        '
+    - name: CLIN-01 conservative restriction colours, no unsourced green or medical claims (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/dietary-traffic-light.js
+
+        node efg-nutrition/tests/dietary-traffic-light-contract.mjs
+
+        node --check efg-nutrition/pilot/gut-clinical-workbench.js
+
+        node efg-nutrition/tests/gut-clinical-workbench.mjs
+
+        '
+    - name: Shared food compatibility evidence contracts
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/food-compatibility.mjs
+    - name: COACH101 real meal semaforo with reviewed Supabase evidence (offline fixtures)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/food-compatibility-adapter.js
+
+        node --check efg-nutrition/pilot/pilot.js
+
+        node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs
+
+        '
+    - name: COACH105 Android pull-to-refresh Gboard, habitual visibility and keto fasting guardrails (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
+
+        node efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
+
+        '
+    - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs
+    - name: UX-SUSHI-PIECES and first food selection (offline regression)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/planner-sushi-first-select.mjs
+
+        node efg-nutrition/tests/planner-sushi-first-select.mjs
+
+        '
+    - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
+    - name: First daily write through actual habitual, planner, supplement and comment handlers
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/first-diary-write-regression.mjs
+    - name: COACH105 keto DASH Portfolio and fasting 12 12, 14 10, 16 8 UI SQL and nutrient targets (synthetic)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach105-patterns-fasting-e2e-contract.mjs
+    - name: Validate role-specific UX contracts
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/premium-ui-smoke.mjs
+    - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/brand-con-ciencia-surface-contract.mjs
+    - name: BRAND77B eight-step intro, user-scoped receipts and vertical library (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/science-welcome.js
+
+        node efg-nutrition/tests/science-welcome-contract.mjs
+
+        '
+    - name: EDUCATION-01 evidence-based macro lessons for BOTH coach and student (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/nutrition-science.js
+
+        node efg-nutrition/tests/nutrition-science-education.mjs
+
+        '
+    - name: PRO50 uninvited login help and no account enumeration (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/pro50-uninvited-access.mjs
+    - name: PRO-50 private-access feedback without account enumeration (STATIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/pro50-access-feedback.mjs
+
+        node efg-nutrition/tests/pro50-access-feedback.mjs
+
+        '
+    - name: "01-01 reingreso Coach alumno nuevo y existente, hist\xF3ricos preservados (SYNTHETIC)"
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/release-01-01-new-returning-students.mjs
+
+        node efg-nutrition/tests/release-01-01-new-returning-students.mjs
+
+        '
+    - name: REL-ALL dated contract 55 mandatory commitments and GO guardrails (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/release-contract-20261030.mjs
+
+        node efg-nutrition/tests/release-contract-20261030.mjs
+
+        '
+    - name: "PRO-60 monthly \xF1oquis 29, 72 illustrated daily tips and gated action (OFFLINE)"
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/nutrition-daily-tip.js
+
+        node efg-nutrition/tests/nutrition-daily-tip.mjs
+
+        '
+    - name: NUT-58 PWA visible manual upgrade, no automatic reload while editing
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/version-notice.js
+
+        node efg-nutrition/tests/version-notice-opt-in.mjs
+
+        '
+    - name: COACH122 two-device session cutover proof; no stale second-device bypass
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach122-major-per-device-cutover.mjs
+    - name: COACH120-121 hosted signed major manifest + new OTP session + legal + once-only WhatsNew (OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/major-release-client.js
+
+        node efg-nutrition/tests/coach120-major-release-contract.mjs
+
+        '
+    - name: UX35 signed MAJOR reauth adapter remains OFF until hosted release receipts
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/major-release-reauth-client.js
+
+        node efg-nutrition/tests/ux35-major-release-reauth-client.mjs
+
+        '
+    - name: UX35 major release exceptional; minor version silent and explicit mobile logout
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/logout-session.js
+
+        node --check efg-nutrition/pilot/pilot.js
+
+        node efg-nutrition/tests/ux35-session-release-contract.mjs
+
+        '
+    - name: REPORT-LUX weekly student view, editable draft, history, no automatic clinical or reward claims (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/weekly-luxury-report.js
+
+        node --check efg-nutrition/pilot/pilot.js
+
+        node efg-nutrition/tests/weekly-luxury-report.mjs
+
+        node efg-nutrition/tests/coach-pilot-10-and-human-report.mjs
+
+        node efg-nutrition/tests/weekly-report-reply-to-coach.mjs
+
+        node efg-nutrition/tests/weekly-luxury-integration-contract.mjs
+
+        '
+    - name: Check Friday, notifications, messages and per-user security contracts
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/notifications-messages.mjs
+    - name: UX Sprint 1 regression (synthetic chat, offline notifications, mobile forms)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/ux-sprint1.mjs
+    - name: Coach new arrivals role-safe navigation and honest status states
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-intake-nav.mjs
+    - name: Coach voluntary intake and publication gate draft contracts
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-intake-flow.js
+
+        node efg-nutrition/tests/coach-intake-flow.mjs
+
+        '
+    - name: SEC08 hosted-readonly privilege inventory and mandatory release gate remain protected
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/sec08-live-security-contract.mjs
+
+        node efg-nutrition/tests/sec08-live-security-contract.mjs
+
+        '
+    - name: COACH-68 versioned intake revision on all draft/policy/publish SQL (STATIC ONLY)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-plan-draft-client.js
+
+        node efg-nutrition/tests/coach68-versioned-server-contract.mjs
+
+        '
+    - name: COACH-67 published legal content, consent and server readback (OFF, SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-legal-bridge.js
+
+        node efg-nutrition/tests/coach-legal-bridge.mjs
+
+        '
+    - name: COACH-67 parse disabled legal bridge (STATIC, NO LEGAL GO)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node --check efg-nutrition/pilot/coach-legal-bridge.js
+    - name: COACH98 provisional pilot participation demo, no fake legal consent (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/pilot-participation-demo.js
+
+        node efg-nutrition/tests/coach98-pilot-participation-demo.mjs
+
+        '
+    - name: COACH106 real pilot two-checkbox server receipt adapter and revoke (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/pilot-participation-client.js
+
+        node efg-nutrition/tests/coach106-pilot-participation-client.mjs
+
+        '
+    - name: COACH-OPT-01 optional private intake and corrective SQL guarded OFF (STATIC)
+      run: node efg-nutrition/tests/coach-optional-sharing-contract.mjs
+    - name: COACH106-110 hosted additive participation, general intake, coach draft, pending and notice (STATIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach110-hosted-pilot-foundation-contract.mjs
+    - name: COACH111 signed hosted entry status + client fail-closed (STATIC/OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-pilot-entry-client.js
+
+        node efg-nutrition/tests/coach111-hosted-entry-client.mjs
+
+        '
+    - name: New student journey and Coach versioned backend integration (isolated modules)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-versioned-journey-integration.mjs
+    - name: COACH119 atomic publication NOT APPLIED, reviewed food/legal prerequisites and no legacy privilege revocation
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach119-atomic-candidate-contract.mjs
+    - name: COACH118 default-OFF server student diary write gate and historical compatibility
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach118-disabled-diary-write-gate.mjs
+    - name: COACH115-117 signed versioned legal receipts and legal-first pilot entry (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-pilot-legal-client.js
+
+        node efg-nutrition/tests/coach115-117-legal-hosted-contract.mjs
+
+        '
+    - name: COACH112 signed pilot general intake and explicit sharing (MOCK ONLY)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-pilot-intake-client.js
+
+        node efg-nutrition/tests/coach112-pilot-general-intake.mjs
+
+        '
+    - name: COACH114 private reviewed source prerequisite for atomic guides (STATIC; UNSEEDED)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach114-reviewed-guide-source-contract.mjs
+    - name: COACH118 staging-only signed diary DML gate (NOT APPLIED)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach118-diary-write-gate-staging-contract.mjs
+    - name: COACH-OPT-05 private intake retains owner read-only history, no diary writes (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-private-history.js
+
+        node efg-nutrition/tests/coach-private-history.mjs
+
+        '
+    - name: COACH113 signed pilot 2-checkbox, general intake and waiting messages UI (OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/pilot.js
+
+        node efg-nutrition/tests/coach113-pilot-ui-route-contract.mjs
+
+        '
+    - name: COACH113 signed pilot UI screens, pending coach and safe caches (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach113-pilot-ui-integration.mjs
+    - name: COACH100 new student health intake and coach published goal+guide sequence (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-student-journey.js
+
+        node efg-nutrition/tests/coach100-student-journey.mjs
+
+        '
+    - name: COACH-66 relaunch publishes only after version-aware server RPC audit (FAIL CLOSED)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-release-plan-gate.js
+
+        node efg-nutrition/tests/coach-release-plan-gate.mjs
+
+        '
+    - name: COACH-RELAUNCH pilot student intake version and legal first (DRAFT, OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-relaunch-onboarding.js
+
+        node efg-nutrition/tests/coach-relaunch-onboarding.mjs
+
+        '
+    - name: COACH-RELAUNCH fresh intake form client and legal-first readback (OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-relaunch-entry-client.js
+
+        node efg-nutrition/tests/coach-relaunch-entry-client.mjs
+
+        '
+    - name: Coach intake to calculator prefill and safe five-meal preview
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-intake-prefill.js
+
+        node --check efg-nutrition/pilot/pilot.js
+
+        node efg-nutrition/tests/coach-intake-prefill.mjs
+
+        '
+    - name: Prevent goals from becoming active before approved Coach guides (synthetic)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-goal-write-gate.js
+
+        node efg-nutrition/tests/coach-goal-write-gate.mjs
+
+        '
+    - name: Verify OFF-by-default Coach staged draft adapter and anti-bypass (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-plan-draft-client.mjs
+    - name: NUT-50 complete intake to real calculator to five meals, exact private revision (SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-draft-review.js
+
+        node efg-nutrition/tests/coach-plan-flow-nut50.mjs
+
+        '
+    - name: COACH-RELEASE-REV-01 same-timestamp intake edit denies stale diet guide (SYNTHETIC, OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/coach-draft-review.js
+
+        node efg-nutrition/tests/coach-release-intake-revision.mjs
+
+        '
+    - name: Verify staging-only Coach drafts SQL contract (NO database connection)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-plan-draft-staging-contract.mjs
+    - name: Verify staging-only atomic Coach publication contract (NO database connection)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-plan-atomic-publish-contract.mjs
+    - name: NUT-57 integrated one-transaction STAGING preview, mandatory ROLLBACK (STATIC ONLY)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/tests/nut57-staging-bundle.mjs
+
+        node --check efg-nutrition/tests/nut57-staging-bundle-contract.mjs
+
+        node efg-nutrition/tests/nut57-staging-bundle-contract.mjs
+
+        '
+    - name: Verify server-owned food evidence and legal policy contract (STATIC; NO database)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/coach-publication-evidence-policy-contract.mjs
+    - name: Verify legal onboarding draft (isolated; NO production legal gate)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/legal-onboarding.js
+
+        node efg-nutrition/tests/legal-onboarding-draft.mjs
+
+        '
+    - name: NUT-60 Personal read-only and independent role isolation (SYNTHETIC, OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/personal-workspace.js
+
+        node efg-nutrition/tests/personal-workspace-readonly.mjs
+
+        '
+    - name: NUT-61 Personal intake voluntary health screening (SYNTHETIC; OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/personal-intake-draft.js
+
+        node efg-nutrition/tests/personal-intake-draft.mjs
+
+        '
+    - name: NUT-60 Personal five-meal group and prepared dish draft (OFF, SYNTHETIC)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/personal-meal-draft.js
+
+        node efg-nutrition/tests/personal-meal-draft.mjs
+
+        '
+    - name: NUT-62 Personal intake to Mifflin preview, exact five-meal split (SYNTHETIC, OFF)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/personal-planning-preview.js
+
+        node efg-nutrition/tests/personal-planning-preview.mjs
+
+        '
+    - name: Verify serotonin brand loaders, a11y, reduced motion and inactive launch (STATIC ONLY)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/serotonin-brand-loading.mjs
+    - name: Verify major release messages for every role (offline, NO live delivery)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/release-communications.js
+
+        node efg-nutrition/tests/release-communications-draft.mjs
+
+        node efg-nutrition/tests/release-flow.mjs
+
+        '
+    - name: Validate expanded nutrition catalog, real portion units, aliases and source transparency
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/food-catalog-expansion.mjs
+    - name: Validate expanded Argentine foods, sushi, pizza and sweets
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/food-library-expansion.mjs
+    - name: Verify 9 regional recipe models and 6 manufacturer nutrition labels
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/regional-catalog-phase2.mjs
+    - name: Check photo labels supplied by user (draft catalog only)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/user-photo-labels-20261028.mjs
+    - name: Validate phase 3 pastel preview contracts (no live data)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/pastel-phase3-preview.mjs
+    - name: SPORT-STEP pace-aware walking km and active kcal, same student RLS (OFFLINE)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/walking-steps-estimator.js
+
+        node --check efg-nutrition/pilot/walking-activity-ui.js
+
+        node efg-nutrition/tests/sport-step-walking-estimator.mjs
+
+        '
+    - name: "Check one \xB15% weekly track, 6/6 reward and discretionary Sunday"
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/weekly-consistency.mjs
+    - name: Verify guided main-meal picker, mixed dishes, skip and unchanged snacks
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'node --check efg-nutrition/pilot/guided-meal-picker.js
+
+        node efg-nutrition/tests/guided-meal-picker.mjs
+
+        '
+    - name: Verify scientific macro engine for men and women
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/scientific-macros.mjs
+    - name: Verify guided five-meal day and baseline
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/guided-five-meals.mjs
+    - name: Verify real-data chart calculations
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/premium-progress-charts.mjs
+    - name: Verify Fit recipes and payment workflow
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/fit-recipes-payments.mjs
+    - name: Verify all 12 photo sources are reachable (HTTP image responses)
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: node efg-nutrition/tests/fit-photo-live.mjs
+    - name: Require real mobile and privacy checks before release
+      if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+      run: 'echo "Static gate only: NOT permission to deploy."
+
+        echo "Manual iPhone/Android screenshots and Supabase E2E remain required."
+
+        '
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: efg_nutrition_ephemeral
+        ports:
+        - 5432:5432
+        options: --health-cmd "pg_isready -U postgres -d efg_nutrition_ephemeral" --health-interval 5s --health-timeout
+          5s --health-retries 12
+    steps:
+    - uses: actions/checkout@v4
+    - name: Ensure PostgreSQL client present
+      run: "if ! command -v psql >/dev/null 2>&1; then\n  sudo apt-get update -qq\n  sudo apt-get install -y -qq\
+        \ postgresql-client\nfi\npsql --version\n"
+    - name: Run full schema and real PostgreSQL transaction scenarios (NO SUPABASE)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\n# Production is PostgreSQL 17 (Supabase read-only project metadata).\n# Assert the\
+        \ SERVER major, not the potentially different psql client.\nserver_num=\"$(psql -Atqc 'SHOW server_version_num')\"\
+        \nif ! [[ \"$server_num\" =~ ^17[0-9]{4}$ ]]; then\n  echo \"Expected isolated PostgreSQL 17 server; found:\
+        \ $server_num\" >&2\n  exit 1\nfi\necho \"Ephemeral PostgreSQL 17 verified; all data and claims below are\
+        \ synthetic.\"\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-bootstrap.sql\npsql -v\
+        \ ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql\npsql -v ON_ERROR_STOP=1\
+        \ -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql\n\
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql\npsql -v\
+        \ ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql\npsql -v ON_ERROR_STOP=1\
+        \ -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql\n\
+        echo \"PASS: ephemeral PostgreSQL 17 syntax and synthetic transaction scenarios.\"\n"
+    - name: NUT-57 real PostgreSQL 17 abort-before-DDL when stage marker is absent (SYNTHETIC)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\n# This DB is a disposable synthetic fixture; stage authorization marker\n# is deliberately\
+        \ ABSENT. The preview has NO COMMIT and ends ROLLBACK.\nnode efg-nutrition/tests/nut57-staging-bundle.mjs\
+        \ --preview-sql > \"$RUNNER_TEMP/nut57-rollback-only.sql\"\nif grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;'\
+        \ \"$RUNNER_TEMP/nut57-rollback-only.sql\"; then\n  echo \"NUT57 unsafe: COMMIT detected\" >&2\n  exit 1\n\
+        fi\nbefore=\"$(psql -Atqc 'select count(*) from public.efg_goals')\"\nif psql -v ON_ERROR_STOP=1 -f \"$RUNNER_TEMP/nut57-rollback-only.sql\"\
+        \ > \"$RUNNER_TEMP/nut57-stage-probe.log\" 2>&1; then\n  echo \"NUT57 unsafe: preview did not reject absent\
+        \ staging marker\" >&2\n  exit 1\nfi\nif ! grep -q \"NUT57 STOP: not an approved isolated staging database\"\
+        \ \"$RUNNER_TEMP/nut57-stage-probe.log\"; then\n  echo \"NUT57 unexpected failure (not verified safe gate)\"\
+        \ >&2\n  tail -n 12 \"$RUNNER_TEMP/nut57-stage-probe.log\" >&2\n  exit 1\nfi\nafter=\"$(psql -Atqc 'select\
+        \ count(*) from public.efg_goals')\"\ntest \"$before\" = \"$after\"\ntest \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker')\
+        \ is null\")\" = \"t\"\necho \"PASS NUT57 PostgreSQL 17: abort before DDL without isolated staging marker;\
+        \ synthetic goals untouched; preview contains no COMMIT.\"\n"
+    - name: NUT-60 must STOP before any DDL on PostgreSQL 17 with NO staging marker
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\ntest \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker')\
+        \ is null\")\" = \"t\"\ntest \"$(psql -Atqc \"select to_regclass('public.efg_personal_accounts') is null\"\
+        )\" = \"t\"\nif psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql\
+        \ > \"$RUNNER_TEMP/nut60-marker-denial.log\" 2>&1; then\n  echo 'NUT60 UNSAFE: accepted non-isolated database'\
+        \ >&2\n  exit 1\nfi\nif ! grep -q 'NUT60 STOP: isolated staging marker absent' \"$RUNNER_TEMP/nut60-marker-denial.log\"\
+        ; then\n  echo 'NUT60 STOP was not due to the explicit isolation marker' >&2\n  tail -n 15 \"$RUNNER_TEMP/nut60-marker-denial.log\"\
+        \ >&2\n  exit 1\nfi\ntest \"$(psql -Atqc \"select to_regclass('public.efg_personal_accounts') is null\"\
+        )\" = \"t\"\ntest \"$(psql -Atqc \"select to_regclass('public.efg_personal_goals') is null\")\" = \"t\"\n\
+        test \"$(psql -Atqc \"select to_regclass('public.efg_personal_daily_logs') is null\")\" = \"t\"\necho 'PASS\
+        \ NUT60: markerless PG17 refuses role/registration/schema changes before any DDL.'\n"
+    - name: CLIN-GUT-03 refuse health schema without isolated marker (negative control)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\ntest \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker')\
+        \ is null\")\" = 't'\ntest \"$(psql -Atqc \"select to_regclass('efg_private.efg_coach_health_intakes') is\
+        \ null\")\" = 't'\nif psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql\
+        \ > \"$RUNNER_TEMP/gut03-negative.log\" 2>&1; then\n  echo 'CLIN-GUT-03 UNSAFE: accepted missing stage marker'\
+        \ >&2\n  exit 1\nfi\ngrep -q 'CLIN-GUT-03 STOP: only isolated fixture database' \"$RUNNER_TEMP/gut03-negative.log\"\
+        \ntest \"$(psql -Atqc \"select to_regclass('efg_private.efg_coach_health_intakes') is null\")\" = 't'\n\
+        test \"$(psql -Atqc \"select to_regclass('efg_private.efg_coach_health_documents') is null\")\" = 't'\n\
+        echo 'PASS CLIN-GUT-03: missing marker blocks health tables before any DDL on PG17.'\n"
+    - name: COACH-PILOT-10 negative markerless promotion must fail before writes
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\ntest \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker')\
+        \ is null\")\" = 't'\nif psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql\
+        \ > \"$RUNNER_TEMP/pilot10-denied.log\" 2>&1; then\n  echo 'PILOT10 UNSAFE: accepted nonisolated database'\
+        \ >&2\n  exit 1\nfi\ngrep -q 'PILOT-10 STOP: isolated staging only' \"$RUNNER_TEMP/pilot10-denied.log\"\n\
+        test \"$(psql -Atqc \"select to_regclass('efg_private.efg_pilot_promotions') is null\")\" = 't'\necho 'PASS\
+        \ PILOT-10: no writes and no role conversion without isolated marker.'\n"
+    - name: COACH-PILOT-10 admin promotion of existing student and 10 seat trial (PG17 synthetic)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''5432''
+
+        psql -v ON_ERROR_STOP=1 -c ''create database efg_pilot_ephemeral''
+
+        export PGDATABASE=efg_pilot_ephemeral
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-fixture.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-scenarios.sql
+
+        test "$(psql -Atqc "select count(*) from public.efg_daily_logs where payload=''HISTORIC_PERSONAL_MEAL''")"
+        = 1
+
+        test "$(psql -Atqc "select count(*) from efg_private.efg_pilot_promotions")" = 1
+
+        echo ''PASS COACH-PILOT-10: fake existing student becomes trial coach with ten seats; prior food history
+        retained.''
+
+        '
+    - name: LEG-07 versioned legal backend on separate disposable PostgreSQL 17 database (SYNTHETIC)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: 'set -euo pipefail
+
+        psql -v ON_ERROR_STOP=1 -c ''create database efg_legal_ephemeral''
+
+        export PGDATABASE=efg_legal_ephemeral
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legal-pg17-bootstrap.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legal-pg17-scenarios.sql
+
+        echo ''PASS LEG-07: separate isolated database, synthetic documents and simulated claim roles; no real consent.''
+
+        '
+    - name: NUT-57 full FIVE-module transaction + restored preupgrade snapshot, always ROLLBACK (SYNTHETIC PG17)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: "set -euo pipefail\n# SEPARATE empty databases; do NOT connect, link, or export any hosted database.\n\
+        psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_before'\nexport PGDATABASE=efg_nut57_before\npsql\
+        \ -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-preupgrade-fixture.sql\npsql -v ON_ERROR_STOP=1 -f\
+        \ efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql\nnode efg-nutrition/tests/coach70-live-schema-parity.mjs\n\
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql\npsql -v ON_ERROR_STOP=1\
+        \ -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql\n\
+        test \"$(psql -Atqc \"select count(*) from public.efg_profiles\")\" = \"4\"\ntest \"$(psql -Atqc \"select\
+        \ to_regclass('public.efg_student_plan_access') is null\")\" = \"t\"\npg_container=\"$(docker ps --filter\
+        \ ancestor=postgres:17 --format '{{.ID}}' | head -n1)\"\ntest -n \"$pg_container\"\ndocker exec \"$pg_container\"\
+        \ pg_dump -U postgres -Fc efg_nut57_before > \"$RUNNER_TEMP/nut57-before.dump\"\nexport PGDATABASE=efg_nutrition_ephemeral\n\
+        psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_restored'\ndocker exec -i \"$pg_container\" pg_restore\
+        \ -U postgres --exit-on-error -d efg_nut57_restored < \"$RUNNER_TEMP/nut57-before.dump\"\nexport PGDATABASE=efg_nut57_restored\n\
+        test \"$(psql -Atqc \"select count(*) from public.efg_daily_logs\")\" = \"1\"\ntest \"$(psql -Atqc \"select\
+        \ count(*) from public.efg_food_plans\")\" = \"1\"\n# The real legal backend design is created only on this\
+        \ isolated restore.\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql\n\
+        node efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --assert-preview-sql > \"$RUNNER_TEMP/nut57-five-asserted.sql\"\
+        \nif grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' \"$RUNNER_TEMP/nut57-five-asserted.sql\"; then\n  echo\
+        \ 'NUT57 STOP: full staging preview must not contain COMMIT' >&2\n  exit 1\nfi\npsql -v ON_ERROR_STOP=1\
+        \ -f \"$RUNNER_TEMP/nut57-five-asserted.sql\" > \"$RUNNER_TEMP/nut57-five-success.log\" 2>&1 || {\n  tail\
+        \ -n 45 \"$RUNNER_TEMP/nut57-five-success.log\" >&2\n  exit 1\n}\ngrep -q \"PASS NUT57 INSIDE TRANSACTION\"\
+        \ \"$RUNNER_TEMP/nut57-five-success.log\"\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_plan_access')\
+        \ is null\")\" = \"t\"\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_intakes') is null\"\
+        )\" = \"t\"\ntest \"$(psql -Atqc \"select count(*) from public.efg_profiles\")\" = \"4\"\ntest \"$(psql\
+        \ -Atqc \"select count(*) from public.efg_goals\")\" = \"1\"\ntest \"$(psql -Atqc \"select count(*) from\
+        \ public.efg_daily_logs\")\" = \"1\"\ntest \"$(psql -Atqc \"select count(*) from public.efg_notifications\"\
+        )\" = \"1\"\ntest \"$(psql -Atqc \"select count(*) from public.efg_legal_acceptances\")\" = \"0\"\nnode\
+        \ efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --inject-failure-sql > \"$RUNNER_TEMP/nut57-five-failure.sql\"\
+        \nif psql -v ON_ERROR_STOP=1 -f \"$RUNNER_TEMP/nut57-five-failure.sql\" > \"$RUNNER_TEMP/nut57-five-failure.log\"\
+        \ 2>&1; then\n  echo 'NUT57 STOP: failure injection did not abort' >&2\n  exit 1\nfi\ngrep -q \"NUT57 SYNTHETIC\
+        \ INJECTED FAILURE\" \"$RUNNER_TEMP/nut57-five-failure.log\"\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_plan_access')\
+        \ is null\")\" = \"t\"\ntest \"$(psql -Atqc \"select count(*) from public.efg_daily_logs\")\" = \"1\"\n\
+        test \"$(psql -Atqc \"select count(*) from public.efg_notifications\")\" = \"1\"\necho 'PASS NUT57: restored\
+        \ synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory\
+        \ and injected rollback preserved historical rows. NOT full production parity.'\n"
+    - name: COACH-71 synthetic fixture MUST FAIL strict hosted metadata parity (negative control)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nut57_before
+      run: "set -euo pipefail\n# Test AFTER generating NUT57 before snapshot. This DB has incomplete\n# synthetic\
+        \ RLS policies/triggers/keys, even though column parity passed.\n# COACH71 must REJECT it with drift status\
+        \ 2, not crash (3) or pass (0).\ntest \"$(psql -Atqc \"select current_database()\")\" = 'efg_nut57_before'\n\
+        if node efg-nutrition/scripts/coach71-hosted-preflight.mjs > \"$RUNNER_TEMP/coach71-negative.out\" 2>&1;\
+        \ then\n  echo 'COACH71 UNSAFE: incomplete synthetic database was treated as hosted parity' >&2\n  exit\
+        \ 1\nelse\n  status=$?\nfi\nif test \"$status\" -ne 2; then\n  echo \"COACH71 ERROR: expected drift exit\
+        \ 2, got $status (SQL/test crash)\" >&2\n  tail -n 35 \"$RUNNER_TEMP/coach71-negative.out\" >&2\n  exit\
+        \ 1\nfi\ngrep -q 'COACH71 NO GO: hosted object-shape parity not demonstrated' \"$RUNNER_TEMP/coach71-negative.out\"\
+        \ngrep -q 'policies DIFFERENT' \"$RUNNER_TEMP/coach71-negative.out\"\necho 'PASS COACH71 NEGATIVE: real\
+        \ local PostgreSQL fixture rejected due to hosted policy/object drift. This is NOT a successful full-parity\
+        \ restore.'\n"
+    - name: COACH-68 parse and ROLLBACK full version-aware Coach SQL in isolated PG17
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nut57_restored
+      run: "set -euo pipefail\ntest \"${PGHOST}\" = '127.0.0.1'\ntest \"${PGPORT}\" = '5432'\ntest \"${PGDATABASE}\"\
+        \ = 'efg_nut57_restored'\ntest \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker')\
+        \ is not null\")\" = 't'\ntest \"$(psql -Atqc \"select to_regclass('public.efg_coach_plan_drafts') is null\"\
+        )\" = 't'\nnode efg-nutrition/tests/coach68-stage-rollback.mjs --preview-sql > \"$RUNNER_TEMP/coach68-only-rollback.sql\"\
+        \ntest \"$(grep -Eic '^[[:space:]]*ROLLBACK[[:space:]]*;' \"$RUNNER_TEMP/coach68-only-rollback.sql\")\"\
+        \ = 1\nif grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' \"$RUNNER_TEMP/coach68-only-rollback.sql\"; then\n\
+        \  echo 'COACH68 STOP: generated SQL may not COMMIT' >&2\n  exit 1\nfi\npsql -v ON_ERROR_STOP=1 -f \"$RUNNER_TEMP/coach68-only-rollback.sql\"\
+        \ > \"$RUNNER_TEMP/coach68-parsed.log\" 2>&1 || {\n  tail -n 70 \"$RUNNER_TEMP/coach68-parsed.log\" >&2\n\
+        \  exit 1\n}\ngrep -q 'PASS COACH68 INSIDE TRANSACTION' \"$RUNNER_TEMP/coach68-parsed.log\"\ntest \"$(psql\
+        \ -Atqc \"select to_regclass('public.efg_coach_plan_drafts') is null\")\" = 't'\ntest \"$(psql -Atqc \"\
+        select to_regclass('public.efg_coach_relaunch_intakes') is null\")\" = 't'\ntest \"$(psql -Atqc \"select\
+        \ to_regclass('public.efg_coach_plan_publish_receipts') is null\")\" = 't'\ntest \"$(psql -Atqc \"select\
+        \ count(*) from public.efg_goals\")\" = 1\ntest \"$(psql -Atqc \"select count(*) from public.efg_notifications\"\
+        )\" = 1\necho 'PASS COACH68: real PG17 parsed all six version-aware modules inside transaction, rollback\
+        \ preserved synthetic historical records. NOT JWT or production parity.'\n"
+    - name: NUT-57 B3 committed fixture disaster-restore from BEFORE snapshot (CI ONLY, never hosted)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+        NUT57_SYNTHETIC_RESTORE_TEST: 'true'
+      run: "set -euo pipefail\ntest \"${GITHUB_ACTIONS:-}\" = 'true'\ntest \"$PGHOST\" = '127.0.0.1'\ntest \"$PGDATABASE\"\
+        \ = 'efg_nutrition_ephemeral'\n# The original preupgrade database was created with FAKE profiles and foods.\n\
+        fingerprint_file='efg-nutrition/tests/sql/nut57-synthetic-history-fingerprint.sql'\nbefore_digest=\"$(PGDATABASE=efg_nut57_before\
+        \ psql -Atq -v ON_ERROR_STOP=1 -f \"$fingerprint_file\")\"\ntest \"${#before_digest}\" -eq 32\ntest -s \"\
+        $RUNNER_TEMP/nut57-before.dump\"\npsql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'\npg_container=\"\
+        $(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)\"\ntest -n \"$pg_container\"\n\
+        docker exec -i \"$pg_container\" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < \"$RUNNER_TEMP/nut57-before.dump\"\
+        \nexport PGDATABASE=efg_nut57_postcommit\ntest \"$(psql -Atqc \"select current_database()\")\" = 'efg_nut57_postcommit'\n\
+        test \"$(psql -Atqc \"select to_regclass('efg_private.nut57_isolated_staging_marker') is not null\")\" =\
+        \ 't'\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_plan_access') is null\")\" = 't'\ntest\
+        \ \"$(psql -Atq -v ON_ERROR_STOP=1 -f \"$fingerprint_file\")\" = \"$before_digest\"\npsql -v ON_ERROR_STOP=1\
+        \ -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql > \"$RUNNER_TEMP/nut57-b3-legal.log\"\
+        \n# Only this ephemeral GitHub Actions job may convert the ROLLBACK\n# preview to a COMMIT scenario. The\
+        \ project bundle itself has NO apply.\nnode efg-nutrition/tests/nut57-staging-bundle.mjs --preview-sql |\n\
+        \  node efg-nutrition/tests/nut57-ci-fixture-commit.mjs > \"$RUNNER_TEMP/nut57-b3-synthetic-commit.sql\"\
+        \ntest \"$(grep -Eic '^[[:space:]]*COMMIT[[:space:]]*;' \"$RUNNER_TEMP/nut57-b3-synthetic-commit.sql\")\"\
+        \ = 1\nif grep -Eiq '^[[:space:]]*ROLLBACK[[:space:]]*;' \"$RUNNER_TEMP/nut57-b3-synthetic-commit.sql\"\
+        ; then\n  echo 'B3 STOP: unexpected ROLLBACK inside commit-only synthetic SQL' >&2\n  exit 1\nfi\npsql -v\
+        \ ON_ERROR_STOP=1 -f \"$RUNNER_TEMP/nut57-b3-synthetic-commit.sql\" > \"$RUNNER_TEMP/nut57-b3-commit.log\"\
+        \ 2>&1 || {\n  tail -n 40 \"$RUNNER_TEMP/nut57-b3-commit.log\" >&2\n  exit 1\n}\n# Confirm the migration\
+        \ really COMMITTED while all historic rows stayed intact.\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_plan_access')\
+        \ is not null\")\" = 't'\ntest \"$(psql -Atqc \"select to_regclass('public.efg_coach_plan_publish_receipts')\
+        \ is not null\")\" = 't'\ntest \"$(psql -Atqc \"select count(*) from public.efg_student_plan_access where\
+        \ status='published'\")\" = 2\ntest \"$(psql -Atq -v ON_ERROR_STOP=1 -f \"$fingerprint_file\")\" = \"$before_digest\"\
+        \n# Simulate a restore decision: destroy ONLY the dedicated fake CI DB.\n# Real recovery requires PITR/concurrent\
+        \ write handling, NOT proven here.\nexport PGDATABASE=efg_nutrition_ephemeral\npsql -v ON_ERROR_STOP=1 -c\
+        \ 'drop database efg_nut57_postcommit with (force)'\npsql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'\n\
+        docker exec -i \"$pg_container\" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < \"$RUNNER_TEMP/nut57-before.dump\"\
+        \nexport PGDATABASE=efg_nut57_postcommit\ntest \"$(psql -Atqc \"select to_regclass('public.efg_student_plan_access')\
+        \ is null\")\" = 't'\ntest \"$(psql -Atqc \"select to_regclass('public.efg_legal_documents') is null\")\"\
+        \ = 't'\ntest \"$(psql -Atqc \"select to_regclass('public.efg_coach_plan_drafts') is null\")\" = 't'\ntest\
+        \ \"$(psql -Atqc \"select count(*) from public.efg_profiles\")\" = 4\ntest \"$(psql -Atqc \"select count(*)\
+        \ from public.efg_daily_logs\")\" = 1\ntest \"$(psql -Atq -v ON_ERROR_STOP=1 -f \"$fingerprint_file\")\"\
+        \ = \"$before_digest\"\npsql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql\n\
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql\necho 'PASS NUT57 B3:\
+        \ COMMIT really persisted in isolated synthetic DB; pre-upgrade backup recreated original schema and exact\
+        \ 12-table history digest after destructive restore. No real data, no hosted connection.'\n"
+    - name: Coach complete eight-module installation and recovery on restored PG17 fixture
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: 'set -euo pipefail
+
+        test "${GITHUB_ACTIONS:-}" = ''true''
+
+        test -s "$RUNNER_TEMP/nut57-before.dump"
+
+        pg_container="$(docker ps --filter ancestor=postgres:17 --format ''{{.ID}}'' | head -n1)"
+
+        test -n "$pg_container"
+
+        psql -v ON_ERROR_STOP=1 -c ''create database efg_coach_release_rehearsal''
+
+        docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal
+        < "$RUNNER_TEMP/nut57-before.dump"
+
+        export PGDATABASE=efg_coach_release_rehearsal
+
+        evidence="$RUNNER_TEMP/coach-release-before.json"
+
+        node efg-nutrition/tests/coach-release-bundle-qa.mjs failure "$evidence"
+
+        node efg-nutrition/tests/coach-release-bundle-qa.mjs install "$evidence"
+
+        # Restore only this disposable fictional database; NEVER a hosted target.
+
+        export PGDATABASE=efg_nutrition_ephemeral
+
+        psql -v ON_ERROR_STOP=1 -c ''drop database efg_coach_release_rehearsal with (force)''
+
+        psql -v ON_ERROR_STOP=1 -c ''create database efg_coach_release_rehearsal''
+
+        docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal
+        < "$RUNNER_TEMP/nut57-before.dump"
+
+        export PGDATABASE=efg_coach_release_rehearsal
+
+        node efg-nutrition/tests/coach-release-bundle-qa.mjs restored "$evidence"
+
+        '
+    - name: COACH119 PostgreSQL17 real history regression (disposable synthetic DB)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '5432'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: efg_nutrition_ephemeral
+      run: 'set -euo pipefail
+
+        test "${GITHUB_ACTIONS:-}" = ''true''
+
+        test "$PGHOST" = ''127.0.0.1''
+
+        psql -v ON_ERROR_STOP=1 -c ''create database efg_coach119_history''
+
+        export PGDATABASE=efg_coach119_history
+
+        node efg-nutrition/tests/coach119-guide-history-pg17.mjs
+
+        echo "PASS COACH119 real PG17 archive test on synthetic data only. No hosted schema touched."
+
+        PGDATABASE=postgres psql -v ON_ERROR_STOP=1 -c ''create database efg_coach119_atomic''
+
+        PGDATABASE=efg_coach119_atomic node efg-nutrition/tests/coach119-full-atomic-pg17.mjs
+
+        '
+    - name: State the limits
+      if: always()
+      run: 'echo "No production Supabase connection, real JWT, real patient or clinical data."
+
+        echo "The health/legal inputs are SYNTHETIC, not verified evidence."
+
+        echo "A passed test is NOT authorization for migration or deploy."
+
+        '
+  local-auth-rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Audit legacy Coach writes before starting containers
+      run: node efg-nutrition/tests/coach-legacy-write-audit-nut55.mjs
+    - name: 'COACH-GO-01 defend scope: Carla promotion AFTER release, not admin'
+      run: node efg-nutrition/tests/coach-major-release-scope.mjs
+    - name: Install Supabase CLI (pinned; LOCAL only)
+      uses: supabase/setup-cli@v3
+      with:
+        version: 2.84.2
+    - name: Start disposable local Supabase Auth/PostgREST/Postgres
+      run: "set -euo pipefail\nmkdir -p \"$RUNNER_TEMP/efg-nutrition-auth-local\"\ncd \"$RUNNER_TEMP/efg-nutrition-auth-local\"\
+        \nsupabase init --yes\n# NEVER link or push remote databases. No access token or hosted project ref.\nif\
+        \ [[ -n \"$(printenv SUPABASE_ACCESS_TOKEN || true)\" || -n \"$(printenv SUPABASE_DB_PASSWORD || true)\"\
+        \ ]]; then\n  echo \"Hosted Supabase credentials are prohibited in local QA\" >&2\n  exit 1\nfi\nsupabase\
+        \ start\nsupabase status -o env > \"/tmp/efg-nutrition-auth-local-status.env\"\necho \"Local Supabase stack\
+        \ available; credentials are ephemeral and not printed.\"\n"
+    - name: Install PostgreSQL client if needed
+      run: "if ! command -v psql >/dev/null 2>&1; then\n  sudo apt-get update -qq\n  sudo apt-get install -y -qq\
+        \ postgresql-client\nfi\n"
+    - name: Create disposable Coach schema and server-owned RPCs (NO REMOTE DATABASE)
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: Test real LOCAL signed JWTs and A/B organization authorization
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: node efg-nutrition/tests/coach-auth-local-e2e.mjs
+    - name: Backup and restore LOCAL fictional Coach rows with pg_dump/pg_restore
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: node efg-nutrition/tests/coach-local-backup-restore-nut55.mjs
+    - name: Check independent legacy notices survive atomic publication
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: node efg-nutrition/tests/coach-notification-compat-nut56.mjs
+    - name: COACH-RELAUNCH apply versioned intake ONLY to disposable local database
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        # Install exact COACH106 receipt schema in this disposable stack, then
+
+        # test both owner policies and the NOT_APPLIED repair transaction.
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach_pilot_participation_server_receipts.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_RELAUNCH_REONBOARDING_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: COACH-RELAUNCH real signed LOCAL JWT, intake version, two orgs, consent and history
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
+
+        node efg-nutrition/tests/coach-relaunch-auth-local-e2e.mjs
+
+        '
+    - name: CLIN-GUT-03 apply private health schema ONLY to disposable local Postgres
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        test "$(psql -Atqc "select to_regclass(''efg_private.nut57_isolated_staging_marker'') is not null")" = ''t''
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: CLIN-GUT-03 signed GoTrue LOCAL JWT health processing and coach sharing
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/clinical-health-auth-local-e2e.mjs
+
+        node efg-nutrition/tests/clinical-health-auth-local-e2e.mjs
+
+        '
+    - name: COACH-69 switch ONLY disposable local stack from legacy RPCs to versioned schema
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        test "$(psql -Atqc "select to_regclass(''efg_private.nut57_isolated_staging_marker'') is not null")" = ''t''
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach69-disposable-local-version-switch.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH68_VERSIONED_DRAFT_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH68_VERSIONED_POLICY_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH68_VERSIONED_ATOMIC_PUBLISH_STAGING_ONLY.sql
+
+        test "$(psql -Atqc "select count(*) from pg_attribute where attrelid=''public.efg_coach_plan_drafts''::regclass
+        and attname=''source_intake_revision'' and not attisdropped")" = ''1''
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: COACH-69 signed LOCAL JWT A/B versioned Coach draft and atomic guide publish
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/coach69-versioned-auth-local-e2e.mjs
+
+        node efg-nutrition/tests/coach69-versioned-auth-local-e2e.mjs
+
+        '
+    - name: BRAND77B create one-time per-user receipt ONLY on disposable local Supabase
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        test "$(psql -Atqc "select to_regclass(''efg_private.nut57_isolated_staging_marker'') is not null")" = ''t''
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: BRAND77B real signed LOCAL JWT student A/B and coach science intro persistence
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: node efg-nutrition/tests/science-welcome-auth-local-e2e.mjs
+    - name: NUT-60 apply STRICTLY LOCAL isolated Personal enrollment and goal revision prototype
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: NUT-60 Authenticated Personal A/B isolated goals (synthetic JWT; no real legal docs)
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/personal-auth-local-e2e.mjs
+
+        node efg-nutrition/tests/personal-auth-local-e2e.mjs
+
+        '
+    - name: COACH-PILOT-10 prepare strictly LOCAL disposable role and invitation fixtures
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        test "$(psql -Atqc "select to_regclass(''efg_private.nut57_isolated_staging_marker'') is not null")" = ''t''
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-local-jwt-overlay.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: COACH-PILOT-10 signed LOCAL GoTrue JWT and ten-seat promotion test
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
+
+        node efg-nutrition/tests/coach-pilot-local-jwt-e2e.mjs
+
+        '
+    - name: COACH-OPT-03 apply faithful legacy CHECK and opt-out corrective SQL ONLY locally
+      env:
+        PGHOST: 127.0.0.1
+        PGPORT: '54322'
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: postgres
+      run: 'set -euo pipefail
+
+        test "${PGHOST}" = ''127.0.0.1''
+
+        test "${PGPORT}" = ''54322''
+
+        test "${PGDATABASE}" = ''postgres''
+
+        # Install the real status RPC versions in dependency order, only
+
+        # after the previous signed-JWT baseline scenario has completed.
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach_pilot_student_entry_status.sql
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261030_coach116_legal_first_student_status.sql
+
+        # Reproduce the legacy hosted sharing=true CHECK without validating
+
+        # unrelated synthetic receipts created by the preceding E2E.
+
+        psql -v ON_ERROR_STOP=1 -c "alter table public.efg_pilot_participation_receipts add constraint efg_pilot_participation_receipts_sharing_accepted_check
+        check (sharing_accepted=true) not valid;"
+
+        test "$(psql -Atqc "select count(*) from pg_constraint where conrelid=''public.efg_pilot_participation_receipts''::regclass
+        and conname=''efg_pilot_participation_receipts_sharing_accepted_check''")" = ''1''
+
+        # This corrective migration must remove the legacy CHECK and
+
+        # tighten the Coach SELECT policy; it NEVER runs on hosted Supabase.
+
+        psql -v ON_ERROR_STOP=1 -f efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql
+
+        psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, ''reload schema'';"
+
+        '
+    - name: COACH-OPT-03 signed LOCAL JWT immediate opt-out revokes Coach RLS visibility
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-auth-local-status.env
+      run: 'node --check efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
+
+        node efg-nutrition/tests/coach-opt-out-rls-auth-local-e2e.mjs
+
+        '
+    - name: Start a FRESH disposable stack for CURRENT Coach119 integration
+      run: 'set -euo pipefail
+
+        cd "$RUNNER_TEMP/efg-nutrition-auth-local"
+
+        supabase stop --no-backup
+
+        mkdir -p "$RUNNER_TEMP/efg-nutrition-coach119-local"
+
+        cd "$RUNNER_TEMP/efg-nutrition-coach119-local"
+
+        supabase init --yes
+
+        supabase start
+
+        supabase status -o env > /tmp/efg-nutrition-coach119-local-status.env
+
+        '
+    - name: Assemble exact CURRENT Coach candidate modules (fresh LOCAL only)
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-coach119-local-status.env
+      run: 'node --check efg-nutrition/tests/coach119-signed-local-setup.mjs
+
+        node efg-nutrition/tests/coach119-signed-local-setup.mjs
+
+        '
+    - name: CURRENT signed JWT full circuit new/returning students and two organizations
+      env:
+        EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-coach119-local-status.env
+      run: 'node --check efg-nutrition/tests/coach119-signed-local-e2e.mjs
+
+        node efg-nutrition/tests/coach119-signed-local-e2e.mjs
+
+        '
+    - name: Stop disposable environment (no backup or remote action)
+      if: always()
+      run: "for local_stack in \"$RUNNER_TEMP/efg-nutrition-auth-local\" \"$RUNNER_TEMP/efg-nutrition-coach119-local\"\
+        ; do\n  if command -v supabase >/dev/null 2>&1 && [ -d \"$local_stack/supabase\" ]; then\n    (cd \"$local_stack\"\
+        \ && supabase stop --no-backup) || true\n  fi\ndone\n"
+    - name: Document limitations
+      if: always()
+      run: 'echo "LOCAL GoTrue JWT checks (if completed) do NOT certify hosted Supabase, exact production schema,
+        approved legal text, clinical food evidence, OTP email delivery, production RLS or iOS/Android."
+
+        echo "No production SQL, no new hosted project, no preview branch, no project linking and no deployment.
+        RELEASE NO GO."
+
+        '
+  browser-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - name: Install Playwright and Chromium
+      run: 'npm install --no-save --no-package-lock playwright@1.56.1
+
+        npx playwright install --with-deps chromium
+
+        '
+    - name: Test actual UI with mock profiles only (no production connectivity)
+      run: 'node efg-nutrition/tests/scientific-macros.mjs
+
+        node efg-nutrition/tests/guided-five-meals.mjs
+
+        node efg-nutrition/tests/premium-progress-charts.mjs
+
+        node efg-nutrition/tests/fit-recipes-payments.mjs
+
+        node efg-nutrition/tests/independent-student-browser-qa.mjs
+
+        '
+    - name: New pilot privacy and versioned intake in actual app (isolated Chromium)
+      run: node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
+    - name: BRAND-78 public wordmark responsive Chromium (synthetic)
+      run: node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
+    - name: BRAND77B illustrated intro + vertical library Chromium, Android and desktop (synthetic)
+      run: node efg-nutrition/tests/science-welcome-visual-qa.mjs
+    - name: EDUCATION-02 science screen responsive Chromium and Android (synthetic, no production)
+      run: 'node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+
+        EFG_QA_ANDROID=1 node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+
+        '
+    - name: "PRO-60 monthly \xF1oquis premium card Chromium iPhone Pixel desktop (synthetic photo)"
+      run: node efg-nutrition/tests/nutrition-daily-tip-visual-qa.mjs
+    - name: COACH101 semaforo labels and vetted-source badges Chromium, iPhone/Pixel/desktop (synthetic)
+      run: node efg-nutrition/tests/coach101-semaforo-visual-qa.mjs
+    - name: Capture isolated special launch illustration in Chromium (no production data)
+      run: node efg-nutrition/tests/release-visual-qa.mjs
+    - name: NUT-63 Personal dashboard responsive visual fixture (Chromium, OFF)
+      run: node efg-nutrition/tests/personal-visual-qa.mjs
+    - name: COACH-RELAUNCH legal-first new intake responsive (Chromium, synthetic OFF)
+      run: node efg-nutrition/tests/coach-relaunch-visual-qa.mjs
+    - name: REPORT-LUX student report responsive Luxury Pro (Chromium, synthetic)
+      run: node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
+    - name: ANDROID-QA Pixel 7 full app student coach admin with touch and food search (Chromium emulation; synthetic)
+      run: EFG_QA_ANDROID=1 node efg-nutrition/tests/independent-student-browser-qa.mjs
+    - name: ANDROID-QA Pixel 7 + Galaxy S9+ Luxury Pro report and tap-to-reply (Chromium emulation; synthetic)
+      run: EFG_QA_ANDROID=1 node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
+    - name: ANDROID Pixel and Galaxy Chrome touch targets, report and reply CTA (synthetic)
+      run: node efg-nutrition/tests/weekly-luxury-android-qa.mjs
+    - name: CLIN-GUT-02 lactose + SIBO options in responsive intake (SYNTHETIC, collection OFF)
+      run: node efg-nutrition/tests/gut-clinical-visual-qa.mjs
+    - name: Install Safari-engine WebKit for mobile compatibility
+      run: npx playwright install --with-deps webkit
+    - name: Check Safari-engine responsive UI (isolated role fixtures)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/independent-student-browser-qa.mjs
+    - name: New pilot privacy and versioned intake in actual app (isolated WebKit)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
+    - name: BRAND-78 public wordmark responsive WebKit Safari (synthetic)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/brand-con-ciencia-visual-qa.mjs
+    - name: BRAND77B illustrated intro Safari/WebKit and vertical library (synthetic)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/science-welcome-visual-qa.mjs
+    - name: EDUCATION-02 science screen Safari/WebKit responsive (synthetic)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/nutrition-science-visual-qa.mjs
+    - name: PRO-60 illustrated tip WebKit Safari mobile (synthetic photo)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/nutrition-daily-tip-visual-qa.mjs
+    - name: COACH101 semaforo in mobile Safari/WebKit (synthetic)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach101-semaforo-visual-qa.mjs
+    - name: Capture isolated special launch illustration in WebKit (no production data)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/release-visual-qa.mjs
+    - name: NUT-63 Personal dashboard responsive visual fixture (WebKit, OFF)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/personal-visual-qa.mjs
+    - name: COACH-RELAUNCH legal-first new intake responsive (WebKit, synthetic OFF)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-relaunch-visual-qa.mjs
+    - name: REPORT-LUX student report responsive Luxury Pro (WebKit, synthetic)
+      run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/weekly-luxury-visual-qa.mjs
+    - name: Preserve screenshots and machine-readable layout report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: efg-nutrition-premium-visual-qa
+        path: artifacts/premium-visual-qa/
+        if-no-files-found: warn
+        retention-days: 14
+    - name: Confirm release remains manual
+      run: echo "This test does not publish to Render, Supabase or main."

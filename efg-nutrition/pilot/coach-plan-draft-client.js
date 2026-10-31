@@ -79,14 +79,15 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
  };
  async function load(studentId){
   check();idCheck(studentId);
-  await currentIntake(studentId);
+  const intake=await currentIntake(studentId);
   const r=await sb.from("efg_coach_plan_drafts")
    .select("student_id,coach_id,organization_id,source_intake_updated_at,goal_proposal,guide_proposal,draft_revision,status,updated_at"+
     (relaunchEnabled?",source_intake_revision":""))
    .eq("student_id",studentId).maybeSingle();
   if(r.error)throw r.error;
-  if(r.data&&r.data.student_id!==studentId)
-   throw Error("El borrador recuperado no corresponde al alumno seleccionado.");
+  if(r.data&&(r.data.student_id!==studentId||
+    r.data.organization_id!==intake.organization_id))
+   throw Error("El borrador recuperado no corresponde al alumno y organización seleccionados.");
   return r.data||null;
  }
  async function save({studentId,sourceUpdatedAt,sourceRevision=null,goal,guide,expectedRevision=null}={}){

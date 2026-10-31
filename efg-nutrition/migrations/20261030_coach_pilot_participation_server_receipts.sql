@@ -40,7 +40,7 @@ create policy efg_pilot_participation_owner_read
  student_id=(select auth.uid()) and exists (
   select 1 from public.efg_profiles p
    where p.user_id=(select auth.uid()) and p.role='student'
-    and p.active and p.organization_id=organization_id
+    and p.active and p.organization_id=efg_pilot_participation_receipts.organization_id
  )
 );
 -- No direct INSERT/UPDATE/DELETE rights or policies. All mutations are server-owned.

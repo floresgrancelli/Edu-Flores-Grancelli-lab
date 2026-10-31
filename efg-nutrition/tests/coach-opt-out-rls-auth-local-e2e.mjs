@@ -115,4 +115,4 @@ assert.equal(yes(await rpc('efg_revoke_pilot_participation',student.token,{
 }),'revoke participation'),true);
 assert.deepEqual(yes(await read(coach.token),'revoked participation denies coach SELECT'),[]);
 assert.equal(yes(await read(student.token),'owner still owns intake').length,1);
-console.log('PASS COACH-OPT-03: signed local JWT opt-out immediately denies Coach SELECT; own revision/history retained. No hosted writes.');
+console.log('PASS COACH-OPT-03/04: signed local JWT opt-out, follow-up consent revocation, inactive student and org transfer deny Coach SELECT; own revision/history retained. No hosted writes.');

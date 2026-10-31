@@ -73,4 +73,22 @@ const appSource=await (await import("node:fs/promises")).readFile(
  new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.match(appSource,/await coachIntakeFlow\.loadStudent\(\)/);
 assert.match(appSource,/if\(!\["student","coach","admin"\]\.includes\(state\.profile\.role\)\)return render\(\)/);
+// COACH-SEC-09: an unqualified organization_id inside the profile subquery
+// resolves to that same profile row. That tautology would let a student
+// transferred to another organization see a former private intake.
+for(const path of [
+ "../docs/COACH_RELAUNCH_REONBOARDING_STAGING_ONLY.sql",
+ "../migrations/20261030_coach_relaunch_general_pilot_intake.sql"
+]){
+ const source=await (await import("node:fs/promises")).readFile(
+  new URL(path,import.meta.url),"utf8");
+ assert.match(source,/p\\.organization_id=efg_coach_relaunch_intakes\\.organization_id/,
+  "Owner SELECT must compare profile org with the OUTER intake org: "+path);
+ assert.doesNotMatch(source,/p\\.organization_id=organization_id\\b/,
+  "Ambiguous self-comparison is forbidden: "+path);
+}
+const ownerRepair=await (await import("node:fs/promises")).readFile(
+ new URL("../migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql",import.meta.url),"utf8");
+assert.match(ownerRepair,/alter policy efg_coach_relaunch_owner_select/);
+assert.match(ownerRepair,/p\\.organization_id=efg_coach_relaunch_intakes\\.organization_id/);
 console.log("PASS Coach relaunch DRAFT: returning pilot must repeat CURRENT version even when previously onboarded; Terms first, no cross-role, no stale sharing, owner isolation and no data deletion.");

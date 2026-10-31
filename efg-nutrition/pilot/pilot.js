@@ -622,8 +622,15 @@ async function habitualAction(slot,action){
  const index=Number(answer.trim())-1,fav=favorites[index];
  if(!fav)throw Error("Número de comida habitual inválido.");
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
+ const previousItems=structuredClone(d.meals[slot]);
+ const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
- await saveDiary();notify("Comida habitual registrada; balance recalculado.");
+ try{await saveDiary();}
+ catch(error){
+  d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;d.skipped._closed=previousClosed;
+  throw error;
+ }
+ notify("Comida habitual registrada; balance recalculado.");
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];

@@ -74,3 +74,33 @@ introducirse el bloqueo incondicional.
 verificar CI del SHA final y ejecutar ensayo PostgreSQL/JWT sobre la
 migración correctiva y una copia fiel antes de considerar funcional el flujo.
 NO SQL hospedado, NO GO, sin activar banderas ni publicar.
+
+## Corrección de seguridad adicional · COACH-OPT-03 · 31/10/2026
+
+Hallazgo de lectura: la policy `efg_coach_relaunch_shared_coach_select`
+permitía SELECT al coach cuando `shared_at` seguía presente y el permiso de
+seguimiento estaba vigente, aunque el alumno ya hubiera cambiado el recibo
+independiente a `sharing_accepted=false`. La ruta privada COACH116 sí
+bloqueaba `ready`, pero eso NO revocaba por sí solo la visibilidad SQL.
+
+- La definición de la policy en
+  `migrations/20261030_coach_relaunch_general_pilot_intake.sql` ahora
+  exige `r.sharing_accepted is true`, además de identidad, organización,
+  participación y seguimiento.
+- La migración correctiva
+  `migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql`
+  incluye `ALTER POLICY` transaccional para instalaciones anteriores, con
+  preflight de la policy. No borra `shared_at`, fichas ni historial.
+- `tests/coach-opt-out-rls-auth-local-e2e.mjs` verifica con GoTrue/JWT
+  ficticios: coach puede leer tras compartir; opt-out del recibo impide
+  SELECT **inmediatamente**, sin reescribir la ficha; propietario conserva
+  revisión; re-opt-in restaura permiso y revocación de participación lo
+  retira otra vez. La nueva etapa del workflow aplica COACH111/116 y
+  el correctivo sobre un Supabase LOCAL descartable con CHECK legacy
+  reproducido; NO sobre el proyecto alojado.
+
+**Estado:** código y prueba incorporados a PR37 DRAFT; resultado del nuevo
+SHA CI por confirmar. La reproducción de CHECK en una base sintética
+NO equivale a una restauración fiel de DB/Auth/Storage ni a autorización
+para ejecutar la migración alojada. COACH-SEC-09, legal, clínica, UAT y
+COACH119 siguen siendo bloqueantes. NO GO.

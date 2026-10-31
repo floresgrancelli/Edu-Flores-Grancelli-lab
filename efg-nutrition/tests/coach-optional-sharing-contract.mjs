@@ -6,6 +6,7 @@ const read=path=>readFileSync(new URL(path,root),'utf8');
 const sql=read('migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql');
 const receipt=read('migrations/20261030_coach_pilot_participation_server_receipts.sql');
 const intake=read('migrations/20261030_coach_relaunch_general_pilot_intake.sql');
+const isolatedIntake=read('docs/COACH_RELAUNCH_REONBOARDING_STAGING_ONLY.sql');
 const entry=read('migrations/20261030_coach116_legal_first_student_status.sql');
 const ui=read('pilot/pilot-participation-demo.js');
 const app=read('pilot/pilot.js');
@@ -22,6 +23,8 @@ const sharedPolicy=sql.slice(sql.indexOf('alter policy efg_coach_relaunch_shared
 assert.match(sharedPolicy,/r\.sharing_accepted is true/);
 const baseSharedPolicy=intake.slice(intake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),intake.indexOf('-- No direct PostgREST'));
 assert.match(baseSharedPolicy,/r\.sharing_accepted is true/);
+const isolatedSharedPolicy=isolatedIntake.slice(isolatedIntake.indexOf('create policy efg_coach_relaunch_shared_coach_select'),isolatedIntake.indexOf('-- No direct PostgREST'));
+assert.match(isolatedSharedPolicy,/r\.sharing_accepted is true/);
 assert.match(sql,/p_sharing is null/);
 assert.match(sql,/Separate pilot coach-sharing permission required/);
 assert.match(sql,/v_route:='private'/);

@@ -65,6 +65,7 @@ create policy efg_coach_relaunch_owner_select on public.efg_coach_relaunch_intak
   student_id=(select auth.uid()) and exists (
    select 1 from public.efg_profiles p
    where p.user_id=(select auth.uid()) and p.role='student'
+    and p.active is true
     and p.organization_id=efg_coach_relaunch_intakes.organization_id
   )
  );

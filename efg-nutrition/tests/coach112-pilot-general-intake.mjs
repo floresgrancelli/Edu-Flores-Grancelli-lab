@@ -76,7 +76,7 @@ for(const bad of [
 }
 assert.equal(nRPC,rpcBeforeValidation,'Invalid general-intake data never reaches the RPC');
 await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,
- expectedRevision:0,explicitSubmit:true}),/otro dispositivo/);
+ expectedRevision:0,shareWithCoach:false,explicitSubmit:true}),/otro dispositivo/);
 await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload,
  expectedRevision:2,explicitSubmit:false}),/confirmación expresa/);
 const beforeDenied=nRPC;

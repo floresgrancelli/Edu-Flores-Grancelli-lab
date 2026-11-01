@@ -545,8 +545,12 @@ async function loadCloudHabituales(){
   let local=[];
   try{
    const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-   if(Array.isArray(saved)&&saved.length)local=saved;
-   else {const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");if(Array.isArray(older)&&older.length)local=[{name:"Mi habitual anterior",items:older}];}
+   if(Array.isArray(saved)&&saved.length)local=saved.slice();
+   // v1 and v2 can coexist after an update. Preserve both before cleanup.
+   // Never delete the legacy copy just because a newer favorites list exists.
+   const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+   if(Array.isArray(older)&&older.length&&!local.some(item=>JSON.stringify(item?.items)===JSON.stringify(older)))
+    local.push({name:"Mi habitual anterior",items:older});
   }catch(_){} 
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){

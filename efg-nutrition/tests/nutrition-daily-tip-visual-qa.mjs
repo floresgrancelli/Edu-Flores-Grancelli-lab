@@ -36,6 +36,20 @@ try{
      img.src="data:image/png;base64,"+png;
      await img.decode();
     },fixturePng);
+    // 08-05 / 08-06: the offline branded fallback exists even without a
+    // remote photo; the real 29th recipe must open on a 320px/390px screen
+    // without requiring a plan or touching the diary. Browser emulation only.
+    const fallback=await page.locator(".efg-daily-tip-photo-placeholder").count();
+    if(fallback!==1)failures.push(v.name+" "+label+" missing photo fallback");
+    const recipe=page.locator(".efg-gnocchi-recipe");
+    const recipeCount=await recipe.count();
+    if(label==="29-gnocchi"){
+     if(recipeCount!==1)failures.push(v.name+" missing real 29th recipe");
+     else {
+      await recipe.locator("summary").click();
+      if(!await recipe.evaluate(el=>el.open))failures.push(v.name+" 29th recipe not accessible by summary");
+     }
+    }else if(recipeCount!==0)failures.push(v.name+" ordinary day incorrectly shows 29th recipe");
     const info=await page.evaluate(()=>{
      const panel=document.querySelector(".efg-daily-tip"),img=panel?.querySelector("img"),
       link=panel?.querySelector("a"),btn=panel?.querySelector("button");

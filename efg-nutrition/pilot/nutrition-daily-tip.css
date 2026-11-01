@@ -3,7 +3,7 @@
 .efg-daily-tip{isolation:isolate;display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1fr);align-items:stretch;overflow:hidden;margin:18px 0 22px;border-radius:25px;border:1px solid rgba(193,169,131,.38);background:linear-gradient(135deg,#fffaf2 0%,#f5eee5 51%,#e7e6eb 100%);box-shadow:0 15px 32px rgba(20,31,48,.13),inset 0 1px rgba(255,255,255,.89);color:#1b293c}
 .efg-daily-tip-media{min-height:270px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 43% 37%,#d0bda8,#657b78 85%)}
 .efg-daily-tip-photo-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font:700 clamp(18px,2vw,28px)/1.25 Georgia,serif;letter-spacing:.03em;color:#fffaf0;background:radial-gradient(ellipse at 45% 35%,#678983,#29485b);text-shadow:0 2px 7px rgba(15,29,44,.4)}
-.efg-daily-tip-photo{position:relative;z-index:1;display:block;width:100%;height:100%;min-height:270px;object-fit:cover;object-position:center;transition:transform .45s ease}
+.efg-daily-tip-photo{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;min-height:0;object-fit:cover;object-position:center;color:transparent;font-size:0;transition:transform .45s ease}
 .efg-daily-tip-overlay{z-index:2}
 .efg-daily-tip:hover .efg-daily-tip-photo{transform:scale(1.018)}
 .efg-daily-tip-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:16px;background:linear-gradient(180deg,rgba(9,19,35,.56),transparent 45%,rgba(9,19,35,.24))}

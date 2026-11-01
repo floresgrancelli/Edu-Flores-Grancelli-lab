@@ -98,7 +98,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
    s.profile={role:'coach',user_id:'demo-coach',nickname:'Coach ficticio',active:true,organization_id:'demo-org'};
    s.tab='messages';await v.render();v.messages.selectStudent('demo-student-a');
   });
-  await page.locator('#efgMessagesContent').getByText('Respuesta ficticia: gracias, quiero revisar mi próxima semana.',{exact:true}).last().waitFor();
+  await page.locator('#efgMessagesContent .efg-message-bubble').filter({hasText:'Respuesta ficticia: gracias, quiero revisar mi próxima semana.'}).waitFor();
   await capture('coach-received');
   // A late successful INSERT for B must never replace A's current history/draft.
   await page.evaluate(async()=>{

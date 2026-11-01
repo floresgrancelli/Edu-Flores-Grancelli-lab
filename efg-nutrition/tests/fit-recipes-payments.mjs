@@ -364,3 +364,60 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
  assert.deepEqual(api.myRecipes(),[],'Account B cannot view offline A recipe');
  console.log('PASS UX-08-08: rejected SELECT/INSERT preserve offline recipe and user isolation.');
 }
+
+
+// UX-OFFLINE-NEW-RECIPE-01: execute the REAL createPersonalRecipe() flow
+// against a rejecting transport, a 503 response, a successful retry, and RLS 403.
+{
+ const uid='student-new-recipe-offline',local=new Map(),messages=[];
+ const storage={getItem:k=>local.get(k)||null,setItem:(k,v)=>local.set(k,v),removeItem:k=>local.delete(k)};
+ const st={profile:{role:'student'},session:{user:{id:uid}}};
+ const cloud=[],queue=[];let failure='reject',inserts=0;
+ const inputFood=[{id:'egg',name:'Huevo',k:1.5,p:0.12,c:0.01,f:0.1,fi:0}];
+ const askRecipe=name=>queue.push(name,'huevo','1','100','','2');
+ const db={from(table){
+  assert.equal(table,'efg_personal_recipes');
+  return {select(){return this;},eq(){return this;},
+   order(){return Promise.resolve({data:structuredClone(cloud),error:null});},
+   insert(value){this.value=value;return this;},
+   single(){
+    inserts++;
+    if(failure==='reject')return Promise.reject(new TypeError('Failed to fetch'));
+    if(failure==='returned')return Promise.resolve({data:null,error:{status:503,message:'Service unavailable'}});
+    if(failure==='forbidden')return Promise.resolve({data:null,error:{status:403,code:'42501',message:'RLS denied'}});
+    const row={...structuredClone(this.value),id:'remote-'+inserts,created_at:'2026-11-01T07:00:00Z'};
+    cloud.push(row);return Promise.resolve({data:row,error:null});
+   }};
+ }};
+ const recoveryBegin=app.indexOf('function recoverableOfflineWrite(');
+ const recoveryEnd=app.indexOf('async function loadCloudHabituales(){',recoveryBegin);
+ const createBegin=app.indexOf('function recipeStoreKey(){');
+ const createEnd=app.indexOf('let recipeDialogReturnFocus=',createBegin);
+ assert.ok(recoveryBegin>=0&&recoveryEnd>recoveryBegin&&createBegin>=0&&createEnd>createBegin);
+ const runtime=new Function('sb','state','localStorage','foods','prompt','notify','render','num',
+  app.slice(recoveryBegin,recoveryEnd)+app.slice(createBegin,createEnd)+
+  ';return {createPersonalRecipe,myRecipes,loadCloudRecipes};')(
+  db,st,storage,inputFood,()=>queue.shift(),message=>messages.push(message),async()=>{},x=>String(x));
+ askRecipe('Tortilla pendiente');await runtime.createPersonalRecipe();
+ failure='returned';askRecipe('Panqueque pendiente');await runtime.createPersonalRecipe();
+ const key='efg-nutrition-custom-recipes:'+uid;
+ assert.deepEqual(JSON.parse(local.get(key)).map(x=>x.name),['Tortilla pendiente','Panqueque pendiente']);
+ assert.equal(cloud.length,0);
+ assert.equal(runtime.myRecipes().filter(r=>r.pendingLocal).length,2);
+ assert.equal(messages.filter(m=>m.includes('pendiente de sincronizar')).length,2);
+ failure='success';await runtime.loadCloudRecipes();await runtime.loadCloudRecipes();
+ assert.equal(cloud.length,2,'Each offline recipe must be imported only once');
+ assert.equal(runtime.myRecipes().length,2);
+ assert.equal(local.has(key),false,'Verified import clears only corresponding recoverable backups');
+ st.session={user:{id:'student-new-recipe-B'}};
+ assert.deepEqual(runtime.myRecipes(),[],'Switching account cannot expose original recipes');
+ st.session={user:{id:uid}};
+ failure='forbidden';askRecipe('Receta denegada');
+ await assert.rejects(runtime.createPersonalRecipe(),error=>error.code==='42501');
+ assert.equal(local.has(key),false,'RLS 403 must not create a local recipe bypass');
+ local.set(key,'{invalid-json');failure='reject';askRecipe('No sobrescribir');
+ await assert.rejects(runtime.createPersonalRecipe(),/respaldo local/);
+ assert.equal(local.get(key),'{invalid-json','Corrupt JSON must remain recoverable');
+ assert.equal(messages.length,2,'Only real local saves report success');
+ console.log('PASS UX-OFFLINE-NEW-RECIPE-01: offline creation, 503, retry import, account isolation, RLS denial and malformed JSON.');
+}

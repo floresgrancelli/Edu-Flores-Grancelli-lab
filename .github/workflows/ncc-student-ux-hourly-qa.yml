@@ -32,10 +32,17 @@ jobs:
           node --check efg-nutrition/tests/fit-recipes-payments.mjs
       - name: Real student handlers — synthetic transport, no hosted credentials
         run: |
-          node efg-nutrition/tests/student-diary-catalog-gates.mjs
-          node efg-nutrition/tests/planner-sushi-first-select.mjs
-          node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
-          node efg-nutrition/tests/fit-recipes-payments.mjs
+          result=0
+          for test in \
+            efg-nutrition/tests/student-diary-catalog-gates.mjs \
+            efg-nutrition/tests/planner-sushi-first-select.mjs \
+            efg-nutrition/tests/habitual-persistence-real-code-regression.mjs \
+            efg-nutrition/tests/fit-recipes-payments.mjs; do
+            echo "::group::Regression $test"
+            node "$test" || result=1
+            echo "::endgroup::"
+          done
+          exit "$result"
       - name: Coverage boundary
         run: |
           echo "Only isolated V8/Node regressions. Not hosted Supabase, Android Gboard, iPhone, Mac or five release CIs."

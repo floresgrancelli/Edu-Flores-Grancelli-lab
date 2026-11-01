@@ -68,7 +68,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
    s.tab='summaries';await v.loadMyWeeklyReports();await v.render();
   });
   const published=page.locator('details.pilot-record').filter({has:page.locator('.lux-report')});
-  await published.locator('summary').click();
+  await published.locator(':scope > summary').click();
   await published.getByText('Fibra: sin dato consolidado en este informe. No se interpreta como cero.',{exact:true}).waitFor();
   assert.match(await published.locator('.lux-report-conclusion p').innerText(),/Conclusión editada/);
   const color=await published.locator('.lux-report-flex').evaluate(el=>getComputedStyle(el).backgroundImage);

@@ -31,6 +31,17 @@ assert.equal(model.targets.k,2300);
 assert.equal(model.topFoods[0].days,5);
 assert.equal(model.topFoods.some(x=>x.name==='Arroz integral'&&x.days===4),true);
 assert.ok(model.focus.some(x=>x.includes('carbohidratos')),'Protein nearly met + carbohydrate deficit => check carbs');
+// A skipped/omitted historical slot can retain foods in the JSON diary, but
+// those foods are not choices consumed and must never inflate top foods.
+const allBreakfastSkipped=buildLuxuryWeeklyReport({...data,logs:logs.map(log=>({
+ ...log,skipped:{desayuno:true}
+}))});
+assert.equal(allBreakfastSkipped.topFoods.some(x=>['Huevos','Pan integral'].includes(x.name)),false,
+ 'Meals deliberately marked Omitir must not count as top choices.');
+const oneBreakfastSkipped=buildLuxuryWeeklyReport({...data,logs:logs.map((log,i)=>
+ i===0?{...log,skipped:{desayuno:true}}:log)});
+assert.equal(oneBreakfastSkipped.topFoods.find(x=>x.name==='Huevos')?.days,4,
+ 'Skipped meals must reduce the number of days food is counted, not delete other dates.');
 assert.ok(!model.conclusion.toLowerCase().includes('incumplimiento'));
 assert.ok(!model.flexibleNote.toLowerCase().includes('merec'));
 
@@ -80,6 +91,10 @@ const duplicateIncomplete={...data,days:[...days,{...days[0],k:null}]};
 assert.throws(()=>buildLuxuryWeeklyReport(duplicateIncomplete),/registros diarios duplicados/,
  'Incomplete second copy must not conceal a duplicate date');
 assert.throws(()=>reportAsStoredText(model,'',null),/debe revisar/);
+assert.throws(()=>reportAsStoredText(model,'x'.repeat(2201),'Nota revisada'),/límite/,
+ 'The approved Coach conclusion must never be silently cut at serialization.');
+assert.throws(()=>reportAsStoredText(model,'Texto revisado','y'.repeat(751)),/límite/,
+ 'The flexible-note review must never be truncated without informing the Coach.');
 assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete días/);
 const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});
 assert.match(scant.conclusion,/todavía nos falta información/);

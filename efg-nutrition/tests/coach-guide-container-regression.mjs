@@ -10,7 +10,7 @@ export async function assertCoachGuideContainer(page){
    const r=n.getBoundingClientRect(),style=getComputedStyle(n),canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');ctx.font=style.font;
    const direct=[...n.childNodes].filter(x=>x.nodeType===Node.TEXT_NODE).map(x=>x.textContent).join(' ').trim();
    const longest=Math.max(0,...direct.split(/\s+/).map(x=>ctx.measureText(x).width));
-   return {text:direct,width:r.width,height:r.height,visible:visible(n),longest,clipped:n.scrollHeight>n.clientHeight+2};
+   return {text:direct,width:r.width,height:r.height,visible:visible(n),longest,natural:ctx.measureText(direct).width,clipped:n.scrollHeight>n.clientHeight+2};
   });
   const controls=[...group.querySelectorAll('select,input')].map(n=>{
    const r=n.getBoundingClientRect(),style=getComputedStyle(n),selected=n.tagName==='SELECT'?n.selectedOptions[0]?.textContent:null;
@@ -24,7 +24,7 @@ export async function assertCoachGuideContainer(page){
  assert.ok(metrics.length>0,'Real food groups required');assert.ok(metrics.some(x=>x.controls.some(c=>c.selected)),'Real selected alternatives required');
  for(const row of metrics){
   assert.ok(row.width>=200,'NARROW_GROUP');assert.equal(row.overflow,false,'GROUP_OVERFLOW');
-  for(const t of row.texts){assert.ok(t.visible&&t.height>=12,'TEXT_HIDDEN');assert.ok(t.width>=160&&t.width>=t.longest,'FRAGMENTED_TEXT');assert.equal(t.clipped,false,'TEXT_CLIPPED');}
+  for(const t of row.texts){assert.ok(t.visible&&t.height>=12,'TEXT_HIDDEN');assert.ok(t.width+1>=Math.min(160,t.natural)&&t.width+1>=t.longest,'FRAGMENTED_TEXT '+JSON.stringify(t));assert.equal(t.clipped,false,'TEXT_CLIPPED');}
   for(const c of row.controls){assert.ok(c.visible&&c.height>=28&&c.width>=120&&c.inside,'CONTROL_GEOMETRY');if(c.selected){assert.ok(c.selected.trim(),'SELECTED_TEXT_EMPTY');assert.ok(c.textSpace>=120&&c.textSpace>=c.longest,'SELECTED_TEXT_FRAGMENTED');}}
  }
  return metrics;

@@ -1534,7 +1534,9 @@ function filterPlannerFoods(input){
  });
  const hasQuery=words.length>0;
  const selectedMatch=matched.find(f=>f.id===chosenId);
- const nextId=hasQuery?(selectedMatch?.id||matched[0]?.id||"none"):chosenId;
+ // A query filters the choices; it must not silently select the first match
+ // and change the simulated day before the student chooses a food.
+ const nextId=hasQuery?(selectedMatch?.id||"none"):chosenId;
  // El resultado visible debe coincidir con el texto ingresado, también en iOS.
  select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
  select.value=nextId;
@@ -1777,7 +1779,8 @@ function filterMealFoods(){
  renderMealSearchSuggestions(filtered,term);
  // No autoseleccionar la primera opción: iOS no emite "change" si el
  // usuario elige un valor que el select ya consideraba seleccionado.
- updateMealEntryMode(true);
+ // When a typed query keeps the same selection, do not reset its custom quantity.
+ updateMealEntryMode(previous!==selector.value);
 }
 function updateMealEntryMode(foodChanged=false){
  const id=document.getElementById("mealEditorFood")?.value;

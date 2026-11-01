@@ -41,6 +41,28 @@ for(let i=0;i<365;i++){
  last=t;
 }
 assert.equal(regular.size,72,"All 72 editorial tips must circulate across a year");
+// EDU-01 · The regular calendar and the monthly ñoquis calendar are selected
+// independently. Detect actual photograph collisions, not merely different IDs
+// or altered query strings. This runs every day in ART from 2026 through 2040.
+const photoIdentity=src=>new URL(src).pathname;
+let yesterday=null,specialDays=0;
+for(let ts=Date.UTC(2026,0,1,16);ts<=Date.UTC(2040,11,31,16);ts+=86400000){
+ const tip=nutritionTipForDate(new Date(ts));
+ if(tip.special)specialDays++;
+ if(yesterday)assert.notEqual(photoIdentity(tip.src),photoIdentity(yesterday.src),
+  `Consecutive tips must use different real photos: ${yesterday.date} → ${tip.date}`);
+ if(tip.special)assert.match(tip.title,/ñoquis/i,"The 29th tradition remains unchanged");
+ assert.match(tip.page,/^https:\/\/unsplash\.com\/photos\//);
+ assert.ok(tip.by&&tip.alt,"Every rotated photograph retains author and ALT");
+ yesterday=tip;
+}
+assert.ok(specialDays>165,"All real 29ths, including leap years, keep the special editorial card");
+for(const [a,b] of [['2026-12-28','2026-12-29'],
+ ['2027-03-28','2027-03-29'],['2029-12-29','2029-12-30']]){
+ const x=nutritionTipForDate(new Date(a+'T16:00:00Z'));
+ const y=nutritionTipForDate(new Date(b+'T16:00:00Z'));
+ assert.notEqual(photoIdentity(x.src),photoIdentity(y.src),a+' / '+b);
+}
 const locked=nutritionTipCardHTML({now:localDate(2026,10,29),allowExplore:false});
 const unlocked=nutritionTipCardHTML({now:localDate(2026,10,29),allowExplore:true});
 assert.match(locked,/TIP NUTRICIONAL DEL DÍA/);

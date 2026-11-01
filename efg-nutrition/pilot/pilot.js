@@ -582,14 +582,30 @@ async function loadCloudHabituales(){
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
+ // A local backup that cannot yet be imported (20 cloud favorites reached,
+ // network unavailable, or migration pending) must remain SELECTABLE. Showing
+ // only cloud entries hid those saved meals even while the local backup survived.
  try{
-  const remote=(state.cloudHabitualesUserId===state.session?.user?.id?cloudHabituales:[]).filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
-  if(remote.length)return remote;
-  let saved=null,legacy=null;
-  try{saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");}catch(_){}
-  if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
-  try{legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");}catch(_){}
-  return Array.isArray(legacy)&&legacy.length?[{name:"Mi habitual anterior",items:legacy}]:[];
+  const entries=(state.cloudHabitualesUserId===state.session?.user?.id?cloudHabituales:[])
+   .filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length)
+   .map(x=>({id:x.id,name:x.name,items:x.items}));
+  const exists=(item)=>entries.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items));
+  const append=(item)=>{
+   if(item&&Array.isArray(item.items)&&item.items.length&&!exists(item))
+    entries.push({name:String(item.name||"Habitual"),items:item.items,pendingLocal:true});
+  };
+  // Both legacy backup formats coexist until each is safely migrated.
+  // Independently parse them so corrupt v2 never hides a recoverable v1.
+  try{
+   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+   if(Array.isArray(saved))for(const item of saved)append(item);
+  }catch(_){}
+  try{
+   const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+   if(Array.isArray(legacy)&&legacy.length&&!entries.some(x=>JSON.stringify(x.items)===JSON.stringify(legacy)))
+    append({name:"Mi habitual anterior",items:legacy});
+  }catch(_){}
+  return entries;
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
@@ -605,7 +621,7 @@ function habitualPickerHTML(slot){
  state.habitualSelection[slot]=selectedKey;
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
- list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item))+'</option>').join('')+'</select>'+
+ list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
  '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
@@ -2666,6 +2682,8 @@ async function saveDiary(){
  // rolls back) must not leak into the payload of the already started write.
  const payload=structuredClone({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:dailyTotals(d),updated_at:new Date().toISOString()});
  state.diaryWritePending=true;
+ state.diaryWriteOwner=studentId;
+ state.diaryWriteRevision=(state.diaryWriteRevision||0)+1;
  try{
   const {data,error}=await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
   if(error)throw error;
@@ -2682,13 +2700,18 @@ async function saveDiary(){
    console.error("Diario confirmado en servidor; falló la actualización visual:",error);
    try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
   }
- }finally{state.diaryWritePending=false;}
+ }finally{state.diaryWritePending=false;if(state.diaryWriteOwner===studentId)state.diaryWriteOwner=null;}
 }
 async function loadPersonalData(){
- const id=state.session.user.id;
+ const id=state.session.user.id,requestedDay=today();
+ // An earlier tab load must not rehydrate another account, a previous date,
+ // or an older response over a newer refresh / confirmed diary write.
+ const loadToken=Symbol("personal-data-load");
+ state.personalDataLoadToken=loadToken;
+ const writeRevision=state.diaryWriteRevision||0;
  const results=await Promise.all([
- sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",today()).maybeSingle(),
- sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
+ sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",requestedDay).maybeSingle(),
+ sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(requestedDay+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
@@ -2696,8 +2719,11 @@ async function loadPersonalData(){
  sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
  ]);
  const error=results.find(x=>x.error)?.error;
+ if(state.session?.user?.id!==id||today()!==requestedDay||state.personalDataLoadToken!==loadToken)return;
+ if((state.diaryWriteRevision||0)!==writeRevision||
+   (state.diaryWritePending&&state.diaryWriteOwner===id))return;
  if(error)throw error;
- state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
+ state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;

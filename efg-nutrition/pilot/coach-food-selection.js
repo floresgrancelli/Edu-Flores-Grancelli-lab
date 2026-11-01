@@ -3,8 +3,11 @@
 // verifies every selected ID against reviewed evidence before it grants access.
 // Never derive "medical safety" from this selection or from calories.
 const ID=/^[A-Za-z0-9_-]{1,100}$/;
+const SLOTS=new Set(['desayuno','media_manana','almuerzo','merienda','cena']);
 export function approvedFoodGuide(guide,selectedIds,{knownIds=null}={}){
- if(!guide||guide.kind!=="five_meal_example"||!Array.isArray(guide.meals))
+ if(!guide||guide.kind!=="five_meal_example"||!Array.isArray(guide.meals)||
+    guide.meals.length!==5||new Set(guide.meals.map(meal=>meal?.slot)).size!==5||
+    guide.meals.some(meal=>!SLOTS.has(meal?.slot)))
   throw Error("Prepará primero la guía de cinco comidas.");
  if(!Array.isArray(selectedIds)||selectedIds.length<1||selectedIds.length>300)
   throw Error("Seleccioná los alimentos que el alumno podrá utilizar (máximo 300).");
@@ -21,7 +24,8 @@ export function approvedFoodGuide(guide,selectedIds,{knownIds=null}={}){
   throw Error("La selección de alimentos contiene duplicados.");
  const guideFoodIds=new Set();
  for(const meal of guide.meals){
-  if(!Array.isArray(meal.items))throw Error("Revisá los alimentos de la guía.");
+  if(!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)
+   throw Error("Revisá los alimentos de la guía.");
   for(const item of meal.items){
    if(typeof item?.id!=="string"||!ID.test(item.id))throw Error("Alimento de guía inválido.");
    guideFoodIds.add(item.id);

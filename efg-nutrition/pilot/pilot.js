@@ -563,7 +563,10 @@ async function loadCloudHabituales(){
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
  const sameUser=()=>state.session?.user?.id===userId;
- const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true});
+ // Offline fetch can reject, not just resolve with {error}; preserve backup.
+ let data,error;
+ try{({data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
+ catch(networkError){error=networkError;}
  if(!sameUser())return; // Ignore late response belonging to a previous account.
  if(error){
   // Offline reads must preserve this account's cached and local favorites.
@@ -596,7 +599,10 @@ async function loadCloudHabituales(){
    if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
    if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
    if(!sameUser())return;
-   const created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   // Rejected best-effort migration must not erase the local copy.
+   let created;
+   try{created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();}
+   catch(networkError){created={error:networkError};}
    if(!sameUser())return; // Keep local backup after account switch.
    if(created.error){
     // Migration is best-effort; network failure must not erase local meals.
@@ -819,7 +825,10 @@ async function loadCloudRecipes(){
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
  const sameUser=()=>state.session?.user?.id===userId;
- const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true});
+ // Lost transport must not hide a recoverable recipe stored on this device.
+ let data,error;
+ try{({data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
+ catch(networkError){error=networkError;}
  if(!sameUser())return;
  if(error){
   // Offline recipes remain usable; never display another account's cache.
@@ -842,7 +851,9 @@ async function loadCloudRecipes(){
   if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
   if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
   if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
-  const created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  let created;
+  try{created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
+  catch(networkError){created={error:networkError};}
   if(!sameUser())return; // Keep backup if import returned after user switch.
   if(created.error){
    // Keep unsynchronized backups intact for next login or reconnect.

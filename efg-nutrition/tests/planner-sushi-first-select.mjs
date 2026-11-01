@@ -756,3 +756,104 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
 }
 console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quantity survives incremental typing (real handlers).");
 
+
+
+// 04-04: keyboard action / IME must require explicit choice; repeated same-food
+// suggestion must preserve the student's edited grams instead of resetting to 100.
+{
+ const begin=source.indexOf("function pickMealSearchSuggestion(foodId){");
+ const end=source.indexOf("function filterMealFoods(){",begin);
+ assert.ok(begin>=0&&end>begin,"Real meal suggestion handler must be present");
+ const selector={value:"egg",options:[{value:"egg",disabled:false},{value:"rice",disabled:false}]};
+ const search={value:"",focus(){}};
+ const changes=[];
+ const pick=new Function("document","foods","hideMealSearchSuggestions","updateMealEntryMode",
+  source.slice(begin,end)+";return pickMealSearchSuggestion;")(
+  {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
+  [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
+ );
+ pick("egg");
+ assert.equal(changes.at(-1),false,"Re-choosing same item cannot reset edited grams");
+ pick("rice");
+ assert.equal(changes.at(-1),true,"Changing actual food must reset portion controls");
+ assert.equal(selector.value,"rice");
+ const keyStart=source.indexOf('document.addEventListener("keydown",event=>{');
+ const keyEnd=source.indexOf('root.addEventListener("submit",e=>{',keyStart);
+ assert.ok(keyStart>=0&&keyEnd>keyStart,"Actual IME keyboard handler must exist");
+ let onKeydown,focuses=0,implicitPicks=0,prevented=0;
+ const searchInput={id:"mealFoodSearch"};
+ const choice={dataset:{mealsuggestion:"egg"},focus(){focuses++;}};
+ const suggestions={hidden:false,querySelectorAll:()=>[choice]};
+ const dialog={classList:{contains:name=>name==="meal-popup"}};
+ const fakeDocument={
+  addEventListener(name,handler){if(name==="keydown")onKeydown=handler;},
+  querySelector:()=>dialog,
+  getElementById:id=>id==="mealFoodSuggestions"?suggestions:id==="mealFoodSearch"?searchInput:null,
+  activeElement:searchInput
+ };
+ runInNewContext(source.slice(keyStart,keyEnd),{
+  document:fakeDocument,closeMealDialog(){},closeRecipeRegistration(){},
+  hideMealSearchSuggestions(){},pickMealSearchSuggestion(){implicitPicks++}
+ });
+ assert.equal(typeof onKeydown,"function");
+ const emit=(isComposing,keyCode)=>onKeydown({
+  key:"Enter",isComposing,keyCode,target:searchInput,
+  preventDefault(){prevented++;}
+ });
+ emit(true,229);
+ emit(false,229);
+ assert.equal(focuses,0,"Gboard composition never selects/focuses a food");
+ emit(false,13);
+ assert.equal(focuses,1,"Keyboard action focuses the first explicit option");
+ assert.equal(implicitPicks,0,"Enter in search must never automatically register first suggestion");
+ assert.equal(prevented,1,"Non-composing Enter stops unintended form submission");
+}
+console.log("PASS UX-KEYBOARD-ACCOUNT-RACE: explicit meal search selection and unchanged-food quantity (real code).");
+
+// 04-05: a slow rejected/successful supplement or comment save must never
+// replace another logged-in account's diary or announce a false confirmation.
+{
+ const wait=()=>{
+  let resolve,reject;
+  const promise=new Promise((a,b)=>{resolve=a;reject=b;});
+  return {promise,resolve,reject};
+ };
+ const sportStart=source.indexOf("let pendingSportDiaryMutation=false;");
+ const sportEnd=source.indexOf("async function addDailySupplement(){",sportStart);
+ const noteStart=source.indexOf("let pendingDayCommentSave=false;");
+ const noteEnd=source.indexOf("let coachRosterConsent=",noteStart);
+ assert.ok(sportStart>=0&&sportEnd>sportStart&&noteStart>=0&&noteEnd>noteStart);
+ for(const kind of ["sport","comment"]){
+  const oldDiary={log_day:"2026-11-01",student_id:"A",sports:[],skipped:{}};
+  const newDiary={log_day:"2026-11-01",student_id:"B",sports:[],skipped:{}};
+  const state={session:{user:{id:"A"}},profile:{role:"student"},diary:oldDiary};
+  let inFlight=null;
+  const notices=[];
+  const saveDiary=()=>{inFlight=wait();return inFlight.promise;};
+  const actual=kind==="sport"?
+   new Function("activeDiary","state","saveDiary","notify","today",
+    source.slice(sportStart,sportEnd)+";return mutateSportDiary;")(
+    ()=>state.diary,state,saveDiary,text=>notices.push(text),()=> "2026-11-01"
+   ):
+   new Function("activeDiary","state","saveDiary","notify","today","readDayComment",
+    source.slice(noteStart,noteEnd)+";return saveDayComment;")(
+    ()=>state.diary,state,saveDiary,text=>notices.push(text),()=> "2026-11-01",()=> "Comentario A"
+   );
+  const start=()=>kind==="sport"?actual(d=>d.sports.push({name:"Whey",qty:30}),"Suplemento guardado"):actual();
+  let job=start();
+  assert.ok(inFlight,"First write must reach transport");
+  state.session={user:{id:"B"}};state.diary=newDiary;
+  inFlight.reject(new Error("connection interrupted"));
+  await assert.rejects(job,/connection interrupted/);
+  assert.strictEqual(state.diary,newDiary,kind+": rejected A must not restore A into B");
+  assert.equal(notices.length,0);
+  state.session={user:{id:"A"}};state.diary=oldDiary;
+  job=start();
+  state.session={user:{id:"B"}};state.diary=newDiary;
+  inFlight.resolve();
+  await job;
+  assert.strictEqual(state.diary,newDiary,kind+": resolved A must not overwrite B");
+  assert.equal(notices.length,0,kind+": no A confirmation toast in B");
+ }
+}
+console.log("PASS UX-04-05: delayed sports/supplements and comments cannot restore or notify an unrelated user.");

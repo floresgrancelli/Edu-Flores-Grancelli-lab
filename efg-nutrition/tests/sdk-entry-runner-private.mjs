@@ -137,10 +137,20 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    await coach.screenshot({path:join(out,'sdk-coach-readback-'+width+'.png'),fullPage:true});
    // Hold an actual successful HTTP response, sign out through real SDK handler, release it.
    phase='late-response-switch-'+width;const priorSession=(await snapshot(coach)).sessionId;
-   await mount.getByRole('button',{name:'Cerrar vista de prueba',exact:true}).click();let release,entered;const started=new Promise(r=>entered=r);
-   await coach.route(env.API_URL+'/rest/v1/rpc/efg_read_bound_guide',async route=>{const response=await route.fetch();entered();await new Promise(r=>release=r);await route.fulfill({response});});
+   await mount.getByRole('button',{name:'Cerrar vista de prueba',exact:true}).click();let release,entered,complete,held=false;
+   const started=new Promise(r=>entered=r),finished=new Promise(r=>complete=r);
+   await coach.route(env.API_URL+'/rest/v1/rpc/efg_read_bound_guide',async route=>{
+    if(route.request().method()!=='POST'||held){await route.continue();return;}held=true;
+    try{const response=await route.fetch();assert.equal(response.status(),200);
+     const gate=new Promise(r=>release=r);entered();await gate;await route.fulfill({response});complete(null);
+    }catch(error){complete(error);entered();}
+   });
    await coach.locator('[data-act="openCoachAdaptedPreview"]').click();await Promise.race([started,new Promise((_,r)=>setTimeout(()=>r(Error('Real delayed RPC not reached')),15000))]);
-   try{await logout(coach);}finally{release();}await coach.unroute(env.API_URL+'/rest/v1/rpc/efg_read_bound_guide');
+   try{await logout(coach);}finally{
+    release?.();const routeError=await finished;
+    await coach.unroute(env.API_URL+'/rest/v1/rpc/efg_read_bound_guide');
+    if(routeError)throw Error('Delayed real RPC delivery failed');
+   }
    assert.equal(await coach.locator('[data-guide-totals]').count(),0);
    const other=users['coach'+(side==='A'?'B':'A')];await login(coach,other);await legalAndIntro(coach,'coach');
    const deniedOtherCoach=await coach.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedOtherCoach.rows,0);assert.ok(deniedOtherCoach.code===null||deniedOtherCoach.code==='42501');

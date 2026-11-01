@@ -1,9 +1,18 @@
 // Nutrición Con-Ciencia · Luxury Pro weekly report (nutrition-coach only).
 // Deterministic educational summaries. No AI, diagnosis, automatic publication or moral food grading.
 export const LUXURY_WEEKLY_KIND='efg_luxury_weekly_v1';
-const finite=x=>Number.isFinite(Number(x))?Number(x):null;
+const finite=x=>{
+ // Missing metrics are unknown, never silently interpreted as zero intake.
+ if(x===null||x===undefined||typeof x==='boolean'||(typeof x==='string'&&!x.trim()))return null;
+ const n=Number(x);return Number.isFinite(n)?n:null;
+};
 const money=x=>Number.isFinite(x)?Math.round(x):null;
-const date=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||''))?String(s):null;
+const date=s=>{
+ const value=String(s??'');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;
+ const actual=new Date(value+'T12:00:00Z');
+ return !Number.isNaN(actual.getTime())&&actual.toISOString().slice(0,10)===value?value:null;
+};
 const clean=(s,max=300)=>String(s??'').replace(/[\x00-\x08\x0b-\x1f]/g,' ').trim().slice(0,max);
 const escape=s=>clean(s,9000).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(x,dec=0)=>Number.isFinite(x)?x.toLocaleString('es-AR',{minimumFractionDigits:dec,maximumFractionDigits:dec}):'—';
@@ -12,7 +21,9 @@ const dailyGoal=(goals,day)=>{
  return active||null;
 };
 const goalKey={k:'kcal',p:'protein_g',c:'carb_g',f:'fat_g'};
-const safeEnergy=(d)=>['k','p','c','f'].every(key=>Number.isFinite(Number(d?.[key]))&&Number(d[key])>=0);
+const safeEnergy=(d)=>['k','p','c','f'].every(key=>{
+ const value=finite(d?.[key]);return value!==null&&value>=0;
+});
 function foodsFromLogs(logs,from,to,days){
  const byDay=new Map();
  for(const log of logs||[]){

@@ -1,3 +1,4 @@
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
@@ -2491,7 +2492,9 @@ function adaptedCoachScope(){
   consent:state.consent?.accepted,consentStudentId:state.consent?.student_id,
   consentOrganizationId:state.consent?.organization_id};
 }
-const coachAdaptedWorkspace=createCoachAdaptedWorkspace({
+const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
+const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
+const coachAdaptedWorkspace=coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
  enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
 });
 function coachGuidedSection(){

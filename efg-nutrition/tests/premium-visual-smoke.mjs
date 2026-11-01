@@ -1,3 +1,4 @@
+import {runOfficialCoachFlow} from './coach-official-flow-private.mjs';
 import {weeklyReportTransportSource} from './weekly-report-transport-private.mjs';
 import {runWeeklyReportFlow} from './weekly-report-flow-private.mjs';
 import {assertCoachReportLayout} from './coach-report-layout-private.mjs';
@@ -8,6 +9,15 @@ import { extname, join, resolve } from "node:path";
 import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
+const officialCoachMode=process.env.EFG_QA_OFFICIAL_COACH==='1';
+let officialInput=null;
+if(officialCoachMode){
+ assert.equal(process.env.GITHUB_ACTIONS,'true','Private official coach test requires real CI');
+ const result=JSON.parse(readFileSync('artifacts/official-guide-private/result-with-input.json','utf8'));
+ assert.equal(result.status,'PASS_OFFICIAL_NINE_PRIVATE_SCENARIO');
+ assert.equal(result.qaInput?.synthetic,true);assert.equal(result.qaInput.catalog.length,9);
+ officialInput=result.qaInput;
+}
 const weeklyReportMode=process.env.EFG_QA_WEEKLY_REPORT==="1";
 if(weeklyReportMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private report fixture requires real CI");
 const adaptedCoachMode=process.env.EFG_QA_ADAPTED_COACH==="1";
@@ -25,10 +35,18 @@ const server=createServer((req,res)=>{
   if(!local.startsWith(rootDir+"/"))throw Error("Illegal path");
   let file=pathname.endsWith("/")?join(local,"index.html"):local;
   let bytes=readFileSync(file);
-  if(adaptedCoachMode&&pathname==="/efg-nutrition/pilot/coach-adapted-workspace.js"){
+  if((adaptedCoachMode||officialCoachMode)&&pathname==="/efg-nutrition/pilot/coach-adapted-workspace.js"){
    bytes=Buffer.from(bytes.toString().replace('COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=true'));
   }
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
+   if(officialCoachMode){
+    const marker='const coachGuideProviders=null;';
+    assert.equal(bytes.toString().split(marker).length,2,'Exact private injection point required');
+    bytes=Buffer.from("import {createOfficialTestProvider} from '../tests/coach-official-provider-private.mjs';\n"+
+     bytes.toString().replace(marker,'const coachGuideProviders=createOfficialTestProvider(adaptedCoachScope,'+JSON.stringify(officialInput)+');')+
+     '\nwindow.__EFG_OFFICIAL_PROVIDER__=coachGuideProviders;\n');
+   }
+
    if(adaptedCoachMode)bytes=Buffer.from(bytes.toString().replace('readScope:adaptedCoachScope,loadInput:null',
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
@@ -47,7 +65,7 @@ if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
 const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=(adaptedCoachMode||weeklyReportMode)?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=(adaptedCoachMode||weeklyReportMode||officialCoachMode)?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -175,6 +193,9 @@ try{
    await page.evaluate(()=>Object.assign(window.__EFG_VISUAL_QA__,window.__EFG_WEEKLY_HOOKS__));
    results.push(await runWeeklyReportFlow(page,width,outDir));
    await context.close();continue;
+  }
+  if(officialCoachMode){
+   results.push(await runOfficialCoachFlow(page,width,outDir,errors));await context.close();continue;
   }
   if(adaptedCoachMode){
    await page.evaluate(async()=>{
@@ -948,7 +969,7 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report-"+(weeklyReportMode?"weekly-flow-":"")+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
+writeFileSync(join(outDir,"report-"+(officialCoachMode?"official-connected-":weeklyReportMode?"weekly-flow-":"")+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
 console.log(JSON.stringify({engine,captureEngine,androidMode,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");

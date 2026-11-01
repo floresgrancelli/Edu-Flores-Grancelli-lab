@@ -31,13 +31,24 @@ export function prepareGuideIntake(bundle,scope){
  const health=row(bundle.health,scope,'declaración separada');
  if(health.revoked||health.shared_with_coach!==true||!id(health.document_id))
   throw fail('no_permission','La declaración no está compartida con el coach.');
- const declaration=parseGutClinicalDraft({conditions:Object.keys(health.conditions||{}),statuses:health.conditions,
-  siboPhase:health.sibo_phase,explicitHealthDataConsent:true});
- if(!declaration.conditions.length)throw fail('unknown_declaration','La ficha no demuestra ausencia de restricciones.');
- if(declaration.conditions.some(c=>c!=='celiac')||declaration.statuses.celiac==='not_reported')
-  throw fail('unsupported_declaration','Esta declaración requiere revisión individual; no hay regla adaptada implementada.');
- // A declared condition requests an exclusion; it never certifies any food.
- const restrictions=['gluten'];
+ let restrictions;
+ const none=health.restriction_declaration;
+ if(none!==undefined){
+  if(none?.version!==1||none.kind!=='none_declared'||none.declared_by!==scope.studentId||
+   none.source_revision!==health.revision||!id(none.confirmed_at)||!Number.isFinite(Date.parse(none.confirmed_at))||
+   !Number.isFinite(bundle.now)||Date.parse(none.confirmed_at)>bundle.now||
+   health.processing_consent!==true||health.followup_consent!==true||
+   !health.conditions||Object.keys(health.conditions).length)
+   throw fail('unknown_declaration','Revisá la declaración explícita y vigente de restricciones.');
+  restrictions=[];
+ }else{
+  const declaration=parseGutClinicalDraft({conditions:Object.keys(health.conditions||{}),statuses:health.conditions,
+   siboPhase:health.sibo_phase,explicitHealthDataConsent:true});
+  if(!declaration.conditions.length)throw fail('unknown_declaration','La ficha no demuestra ausencia de restricciones.');
+  if(declaration.conditions.some(c=>c!=='celiac')||declaration.statuses.celiac==='not_reported')
+   throw fail('unsupported_declaration','Esta declaración requiere revisión individual; no hay regla adaptada implementada.');
+  restrictions=['gluten'];
+ }
  const goals=row(bundle.goals,scope,'metas calculadas');
  if(goals.confirmed_by!==scope.userId||goals.source_intake_revision!==general.revision)
   throw fail('goals_stale','El coach debe revisar metas de la ficha vigente.');
@@ -46,8 +57,10 @@ export function prepareGuideIntake(bundle,scope){
   preferences.preferred_text!==(general.preferred_foods||'')||preferences.disliked_text!==(general.disliked_foods||''))
   throw fail('preferences_stale','Vinculá gustos y alimentos evitados con opciones del catálogo vigente.');
  const catalog=row(bundle.catalog,scope,'catálogo con procedencia');
- if(catalog.origin!=='synthetic_fixture'||!Array.isArray(catalog.foods)||!catalog.foods.length)
+ if(!['synthetic_fixture','private_official_capture_replay'].includes(catalog.origin)||!Array.isArray(catalog.foods)||!catalog.foods.length)
   throw fail('evidence_missing','Falta el adaptador de fuentes verificables.');
+ if(catalog.origin==='private_official_capture_replay'&&catalog.foods.some(f=>f.composition?.verificationScope!=='PRIVATE_OFFICIAL_CAPTURE_REPLAY'||f.composition?.reviewedBy!=null))
+  throw fail('evidence_missing','La reproducción oficial privada no corresponde al contrato de prueba.');
  if(preferences.catalog_revision!==catalog.revision)throw fail('preferences_stale','Cambió el catálogo: revisá las preferencias.');
  const ids=new Set(catalog.foods.map(f=>f.id));
  for(const list of [preferences.preferred_ids,preferences.disliked_ids])
@@ -65,7 +78,7 @@ export function prepareGuideIntake(bundle,scope){
   context:{now:bundle.now,restrictions,dislikedIds:[...preferences.disliked_ids],pattern:structuredClone(pattern)},
   provenance:{generalRevision:general.revision,healthRevision:health.revision,goalRevision:goals.revision,
    catalogRevision:catalog.revision,preferenceRevision:preferences.revision,declared:true,
-   foodEvidence:'synthetic_only',planApproval:'not_approved',publishable:false}};
+   foodEvidence:catalog.origin==='synthetic_fixture'?'synthetic_only':'official_capture_private_replay',planApproval:'not_approved',publishable:false}};
  const proposal=proposeAdaptedGuide(input);
  if(!proposal.ok)throw fail(proposal.code,proposal.message);
  return input;

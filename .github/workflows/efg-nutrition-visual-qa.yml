@@ -99,6 +99,27 @@ jobs:
           path: artifacts/official-guide-private/
           if-no-files-found: warn
           retention-days: 7
+      - name: Official composition connected to real coach UI (private RAM provider)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-coach]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "ea088c8c4e30729a10aa0512cfe57365f91c5d0c53e83490a1ec296a4f5ebcae  efg-nutrition/tests/evidence/fdc-official-20261101.zip" | sha256sum -c -
+          echo "a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39  efg-nutrition/tests/evidence/fdc-additional-five-20261101.json" | sha256sum -c -
+          mkdir -p artifacts/official-guide-private
+          EFG_EXPORT_PRIVATE_GUIDE_INPUT=1 node --experimental-default-type=module efg-nutrition/tests/official-complete-guide-private.mjs efg-nutrition/tests/evidence/fdc-official-20261101.zip efg-nutrition/tests/evidence/fdc-additional-five-20261101.json a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39 > artifacts/official-guide-private/result-with-input.json
+          node --experimental-default-type=module efg-nutrition/tests/coach-guide-connection-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-official-connection-private.mjs artifacts/official-guide-private/result-with-input.json
+          EFG_QA_OFFICIAL_COACH=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Preserve official coach connection evidence even on failure
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-coach]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-coach-connected-private
+          path: |
+            artifacts/premium-visual-qa/coach-official-connected-*.png
+            artifacts/premium-visual-qa/report-official-connected-*.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs

@@ -142,6 +142,7 @@ assert.ok(catalog.every(f=>{const d=evaluateGuideFood(f,{...clinicalEnv.context,
 assert.equal(generate({context:clinicalEnv.context}).code,'no_candidates');
 assert.deepEqual(goal,{kcal:2100,protein_g:190,carb_g:240,fat_g:45,fiber_g:32});
 console.log(JSON.stringify({status:'PASS_OFFICIAL_NINE_PRIVATE_SCENARIO',sourceRecords:catalog.length,
+ ...(process.env.EFG_EXPORT_PRIVATE_GUIDE_INPUT==='1'?{qaInput:{synthetic:true,catalog,template,goal,context,now}}:{}),
  originalTemplateCoverage:'alternative five-meal template; not full16/43 coverage',completeDraft:initial,
  excludedAppleDraft:withoutApple,editSubstitutionRecalculationCancelRestore:'PASS',
  targetTolerance:GUIDE_TARGET_TOLERANCE,initialMaxDeviation:maxDeviation(initial),withoutAppleMaxDeviation:maxDeviation(withoutApple),

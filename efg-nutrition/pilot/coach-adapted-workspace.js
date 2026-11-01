@@ -31,7 +31,7 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
    row.querySelectorAll('select').forEach(node=>{node.style.width='100%';});
   });
   const doc=mount.ownerDocument;
-  const note=doc.createElement('p');note.className='pilot-notice';note.textContent='Vista de prueba con alimentos ficticios. No guarda ni publica planes.';mount.prepend(note);
+  const note=doc.createElement('p');note.className='pilot-notice';note.textContent='Vista de prueba con datos de alumno ficticios. La composición puede provenir de capturas oficiales de prueba; no acredita compatibilidad clínica. No guarda ni publica planes.';mount.prepend(note);
   const label=doc.createElement('label');label.textContent='Preferido para la próxima propuesta';
   const select=doc.createElement('select');select.dataset.adaptedPreference='';
   for(const [id,name] of [['','Sin preferido'],...input.catalog.map(f=>[f.id,f.name])]){
@@ -74,4 +74,5 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
  };
  return api;
 }
+
 

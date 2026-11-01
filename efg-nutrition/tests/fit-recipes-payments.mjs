@@ -78,3 +78,51 @@ assert.match(licenseMigration,/v_org.status not in \('active','grace'\)/);
 assert.match(licenseMigration,/v_org.is_test/,"Admin's lab is exempt from commercial trial restriction");
 assert.ok(!app.includes('EJEMPLO.ALIAS')&&!app.includes('efg-default-placeholder.invalid'),"Never assign a fictitious payment alias");
 console.log("PASS: 12 Fit recipes, 12 credited real photographs, budins, macros and payment UI.");
+
+// UX-08-08 / 04-02: full recipe slots must NOT erase local recipes that
+// could not migrate. Execute the real importer against a synthetic DB.
+const recipeBegin=app.indexOf('async function loadCloudRecipes(){');
+const recipeEnd=app.indexOf('async function createPersonalRecipe(){',recipeBegin);
+assert.ok(recipeBegin>0&&recipeEnd>recipeBegin);
+const recipeStore=new Map(),recipeKey='legacy-recipes:test-user';
+const mkRecipe=(name,i)=>({name,ingredients:[{foodId:'egg',grams:10+i}],portions:1,totals:{k:20+i}});
+const localSaved=[mkRecipe('Primera pendiente',1),mkRecipe('Segunda pendiente',2),{name:'Receta inválida recuperable',ingredients:[],portions:1,totals:{k:10}}];
+recipeStore.set(recipeKey,JSON.stringify(localSaved));
+const remoteRecipes=Array.from({length:29},(_,i)=>({...mkRecipe('Remota '+i,100+i),id:'remote-'+i}));
+let recipeInserts=0;
+const recipeSB={from(table){
+ assert.equal(table,'efg_personal_recipes');
+ return {
+  select(){return this;},eq(){return this;},
+  order(){return Promise.resolve({data:remoteRecipes.slice(),error:null});},
+  insert(row){return {select(){return {single(){
+   recipeInserts++;
+   const saved={...row,id:'migrated-'+recipeInserts};
+   remoteRecipes.push(saved);
+   return Promise.resolve({data:saved,error:null});
+  }}}};}
+ };
+}};
+const localAPI={
+ getItem:k=>recipeStore.has(k)?recipeStore.get(k):null,
+ setItem:(k,v)=>recipeStore.set(k,v),
+ removeItem:k=>recipeStore.delete(k)
+};
+const recipeRuntime=new Function('sb','state','localStorage','recipeStoreKey',
+ 'let cloudRecipes=[];'+app.slice(recipeBegin,recipeEnd)+';return {loadCloudRecipes, getRecipes:()=>cloudRecipes};')(
+ recipeSB,{profile:{role:'student'},session:{user:{id:'test-user'}}},localAPI,()=>recipeKey);
+await recipeRuntime.loadCloudRecipes();
+assert.equal(recipeInserts,1,'One remaining server slot imports only one recipe');
+assert.equal(recipeRuntime.getRecipes().length,30);
+assert.deepEqual(JSON.parse(recipeStore.get(recipeKey)).map(x=>x.name),
+ ['Segunda pendiente','Receta inválida recuperable'],
+ 'Capacity limit cannot erase local backups for remaining recipes');
+await recipeRuntime.loadCloudRecipes();
+assert.equal(recipeInserts,1,'No duplicate import while cap remains full');
+remoteRecipes.pop(); // Free a single slot in the synthetic DB.
+await recipeRuntime.loadCloudRecipes();
+assert.equal(recipeInserts,2,'Deferred valid recipe imports when capacity permits');
+assert.deepEqual(JSON.parse(recipeStore.get(recipeKey)).map(x=>x.name),['Receta inválida recuperable'],
+ 'Invalid legacy data is preserved for explicit recovery rather than silently deleted');
+console.log('PASS UX-08-08 personal recipes: partial import never discards remaining local backup (offline).');
+

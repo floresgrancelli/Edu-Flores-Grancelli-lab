@@ -405,3 +405,59 @@ assert.equal(delayedCommentState.diary.skipped._comment,'Nuevo texto');
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");
+
+// UX-04-04 FIRST FOOD: run the real day initializer and REST persister together.
+// On a new day state.diary=null, two calls must see the SAME pending draft.
+// This reproduces the user-reported first selection not being registered.
+const dayBegin=source.indexOf('const blankDiary=()=>');
+const dayEnd=source.indexOf('async function ensureCurrentDay(){',dayBegin);
+const saveBegin=source.indexOf('async function saveDiary(){');
+const saveEnd=source.indexOf('async function loadPersonalData(){',saveBegin);
+assert.ok(dayBegin>0&&dayEnd>dayBegin&&saveBegin>0&&saveEnd>saveBegin);
+const dayState={session:{user:{id:'test-student-a'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
+let day='2026-10-31',denyOnce=true;
+const dayWrites=[];
+const dbStub={from(table){
+ assert.equal(table,'efg_daily_logs');
+ return {upsert(payload,options){
+  assert.equal(options.onConflict,'student_id,log_day');
+  const snapshot=structuredClone(payload);
+  return {select(){return {async single(){
+   dayWrites.push(snapshot);
+   if(denyOnce){denyOnce=false;return {data:null,error:new Error('offline')}};
+   return {data:{...snapshot,id:'persisted-day'}};
+  }}}};
+ }};
+}};
+const calcTotals=d=>({
+ k:Object.values(d.meals||{}).flat().reduce((n,x)=>n+Number(x.k||0),0),
+ p:0,c:0,f:0,fi:0
+});
+const dailyRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,saveEnd)+';return {activeDiary,saveDiary};')(
+ dayState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
+ dbStub,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
+const firstDay=dailyRuntime.activeDiary();
+assert.strictEqual(dailyRuntime.activeDiary(),firstDay,'First diary draft must retain object identity');
+firstDay.meals.desayuno.push({id:'egg',name:'Huevos',qty:100,k:150});
+firstDay.meals.almuerzo.push({id:'rice',name:'Arroz',qty:80,k:105});
+await assert.rejects(dailyRuntime.saveDiary(),/offline/);
+assert.equal(dayState.diary,null,'Denied first write cannot be mistaken for a confirmed diary');
+assert.strictEqual(dayState.pendingDiaryDraft,firstDay,'Failed write keeps the draft for caller rollback');
+assert.equal(dayWrites[0].meals.desayuno.length,1,'FIRST submission must include the first food');
+assert.equal(dayWrites[0].meals.almuerzo.length,1,'Other pending slot remains included in same draft');
+await dailyRuntime.saveDiary();
+assert.equal(dayWrites.length,2);
+assert.equal(dayWrites[1].totals.k,255,'First successful write includes both slots and correct totals');
+assert.equal(dayState.diary.meals.desayuno[0].id,'egg');
+assert.equal(dayState.pendingDiaryDraft,null,'Only confirmed REST response clears the draft');
+assert.strictEqual(dailyRuntime.activeDiary(),dayState.diary,'Next item uses confirmed daily row');
+day='2026-11-01';
+const tomorrow=dailyRuntime.activeDiary();
+assert.equal(tomorrow.log_day,day);
+assert.notStrictEqual(tomorrow,dayState.diary,'Tomorrow must not reuse yesterday');
+dayState.session.user.id='test-student-b';
+assert.equal(dailyRuntime.activeDiary().student_id,'test-student-b','Drafts must never cross accounts');
+assert.notStrictEqual(dailyRuntime.activeDiary(),tomorrow);
+console.log('PASS UX-04-04 first-food: stable empty-day draft, one REST entry, retries, day/account isolation (offline real source).');
+

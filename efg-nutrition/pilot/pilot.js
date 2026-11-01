@@ -433,7 +433,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
@@ -495,7 +495,19 @@ const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un pr
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
-const activeDiary=()=>state.diary?.log_day===today()?state.diary:blankDiary();
+// Keep the first, not-yet-persisted day's diary as a stable draft. Previously
+// activeDiary() returned a NEW blank object on each call: the first food was
+// added to object A, while saveDiary() persisted empty object B. This made the
+// first selection appear lost until the user registered it a second time.
+const activeDiary=()=>{
+ const day=today();
+ if(state.diary?.log_day===day&&state.diary.student_id===state.session?.user?.id)return state.diary;
+ const uid=state.session?.user?.id;
+ if(!uid)return blankDiary();
+ if(!state.pendingDiaryDraft||state.pendingDiaryDraft.student_id!==uid||state.pendingDiaryDraft.log_day!==day)
+  state.pendingDiaryDraft=blankDiary();
+ return state.pendingDiaryDraft;
+};
 async function ensureCurrentDay(){
  if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
  if(state.daySwitching)return state.daySwitching;
@@ -503,7 +515,7 @@ async function ensureCurrentDay(){
  state.daySwitching=(async()=>{
   const {data,error}=await sb.from("efg_daily_logs").select("*").eq("student_id",uid).eq("log_day",nowDay).maybeSingle();
   if(error)throw error;
-  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.renderedDay=nowDay;state.activeMeal=null;}
+  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.pendingDiaryDraft=null;state.renderedDay=nowDay;state.activeMeal=null;}
  })();
  try{await state.daySwitching;}finally{state.daySwitching=null;}
 }
@@ -694,16 +706,22 @@ async function loadCloudRecipes(){
  cloudRecipes=data||[];
  let saved=[];
  try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
+ // Remove only recipes confirmed remotely (including existing duplicates).
+ // Keep capacity-limited or malformed local backups for recovery; the old code
+ // discarded ALL local recipes after importing only the first free slots.
+ const pendingLocal=[];
  if(Array.isArray(saved))for(const recipe of saved){
-  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals)continue;
+  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
   if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
-  if(cloudRecipes.length>=30)break;
+  if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
   const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
   if(created.error)throw created.error;
   cloudRecipes.push(created.data);
  }
- // Al completar la importación, retirar el respaldo local para no recrear recetas eliminadas.
- if(Array.isArray(saved)&&saved.length)localStorage.removeItem(recipeStoreKey());
+ if(Array.isArray(saved)&&saved.length){
+  if(pendingLocal.length)localStorage.setItem(recipeStoreKey(),JSON.stringify(pendingLocal));
+  else localStorage.removeItem(recipeStoreKey());
+ }
 }
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
@@ -2611,6 +2629,7 @@ async function saveDiary(){
  const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:confirmedTotals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
  if(error)throw error;
  state.diary=data;
+ if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
  if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
  // Rendering is NOT the database commit point. Do not make callers roll back a
@@ -2634,7 +2653,7 @@ async function loadPersonalData(){
  ]);
  const error=results.find(x=>x.error)?.error;
  if(error)throw error;
- state.diary=results[0].data||null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
+ state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./student-diary-catalog-gates.mjs";
 import {readFileSync} from "node:fs";
 import {runInNewContext} from "node:vm";
 import {FOOD_UNIT_PORTIONS,EXTRA_FOODS} from "../pilot/food-catalog.js";
@@ -230,10 +231,10 @@ let recipeWrites=0,recipeFailure=true,recipeClosed=0;
 const writeRecipe=async()=>{recipeWrites++;if(recipeFailure)throw Error('network offline')};
 const fitRecipe={id:'fit001',name:'Budín Fit',ingredients:[['egg',100]],portions:2};
 const fitRun=new Function('state','FIT_RECIPES','prompt','mealSlots','recipeTotals','foods',
- 'activeDiary','saveDiary','notify','num','pendingMealRegistrations',
+ 'activeDiary','saveDiary','notify','num','pendingMealRegistrations','validateRecipeIngredientAccess',
  source.slice(fitStart,fitEnd)+';return registerFitRecipe;')(
  recipeState,[fitRecipe],()=>'1',[['cena','Cena']],()=>({perPortion:{k:120,p:8,c:10,f:4,fi:1}}),
- [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks);
+ [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks,()=>{});
 const beforeFit=structuredClone(recipeDiary);
 await assert.rejects(fitRun('fit001'),/network offline/);
 assert.deepEqual(recipeDiary,beforeFit,'Rejected Fit recipe restores foods and skipped flags');
@@ -247,12 +248,12 @@ const chosenOwn={id:'mine',name:'Tarta casera',portions:2,totals:{k:500,p:20,c:4
 const personalDocument={getElementById(id){return {value:id==='efgRecipeRegisterId'?'mine':id==='efgRecipeRegisterSlot'?'cena':'1'}}};
 const personalState={diary:recipeDiary};
 const ownHandler=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
- 'activeDiary','state','saveDiary','closeRecipeRegistration','notify',
+ 'activeDiary','state','saveDiary','closeRecipeRegistration','notify','validateRecipeIngredientAccess',
  'busy',
  source.slice(recipeStart,recipeEnd).replaceAll('recipeRegistrationBusy','busy.value')+
  ';return confirmRecipeRegistration;')(
  ()=>[chosenOwn],personalDocument,[['cena','Cena']],recipeLocks,()=>recipeDiary,personalState,
- writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),{value:false});
+ writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),()=>{},{value:false});
 const beforeOwn=structuredClone(recipeDiary);
 await assert.rejects(ownHandler(),/network offline/);
 assert.deepEqual(recipeDiary,beforeOwn,'Rejected personal recipe restores previous diary');
@@ -268,9 +269,9 @@ assert.equal(recipeLocks.size,0,'Personal recipe releases lock');
 const clearStart=source.indexOf('if(el.dataset.clearm){');
 const clearEnd=source.indexOf('if(el.dataset.removesport!==undefined)',clearStart);
 assert.ok(clearStart>0&&clearEnd>clearStart,'Actual clear meal branch must exist');
-const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots',
+const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots','today',
  'return async()=>{'+source.slice(clearStart,clearEnd)+'};')(
- {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']]);
+ {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']],()=>recipeDiary.log_day);
 const beforeClear=structuredClone(recipeDiary);
 recipeFailure=true;
 await assert.rejects(clearHandler(),/network offline/);
@@ -894,7 +895,8 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
     const handler=extract("async function registerFitRecipe(id){","function studentSupplementsView(){","registerFitRecipe",{
      state,FIT_RECIPES:[recipe],prompt:()=>prompts.shift(),mealSlots:[["cena","Cena"]],
      pendingMealRegistrations,recipeTotals:()=>({perPortion:{k:120,p:8,c:10,f:4,fi:2}}),
-     foods:[],activeDiary:()=>state.diary,saveDiary,notify,num:x=>String(x),today
+     foods:[],activeDiary:()=>state.diary,saveDiary,notify,num:x=>String(x),today,
+     validateRecipeIngredientAccess:()=>{}
     });
     operation=handler("fit-case");
    }else if(kind==="personal"){
@@ -902,7 +904,8 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
     const handler=extract("async function confirmRecipeRegistration(){","function rootText(","confirmRecipeRegistration",{
      myRecipes:()=>[recipe],document:{getElementById:id=>({value:id==="efgRecipeRegisterId"?"rec1":id==="efgRecipeRegisterSlot"?"cena":"1"})},
      mealSlots:[["cena","Cena"]],pendingMealRegistrations,activeDiary:()=>state.diary,
-     state,saveDiary,closeRecipeRegistration:()=>dialogActions.push("close"),notify,today
+     state,saveDiary,closeRecipeRegistration:()=>dialogActions.push("close"),notify,today,
+     validateRecipeIngredientAccess:()=>{}
     },"let recipeRegistrationBusy=false;");
     operation=handler();
    }else{

@@ -120,6 +120,11 @@ jobs:
             artifacts/premium-visual-qa/report-official-connected-*.json
           if-no-files-found: warn
           retention-days: 7
+      - name: Coach narrow guide OLD versus FIXED (focused real renderer)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[coach-layout]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          EFG_QA_COACH_GUIDE_LAYOUT=1 node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs

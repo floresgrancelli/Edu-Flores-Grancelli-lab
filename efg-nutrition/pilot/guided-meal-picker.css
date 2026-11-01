@@ -49,3 +49,12 @@
 .efg-guide-student .efg-guide-food-group .efg-guide-food-name{min-width:0;white-space:normal;overflow-wrap:anywhere}
 .efg-guide-student .efg-guide-food-group .efg-guide-food>b{justify-self:end;white-space:nowrap}
 
+
+/* Coach nested cards: use available width, not the desktop viewport breakpoint. */
+.efg-role-coach .efg-guide-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))}
+.efg-role-coach .efg-guide-education{grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))}
+.efg-role-coach .efg-guide-food-group .efg-guide-food{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.efg-role-coach .efg-guide-food-group .efg-guide-food-name,
+.efg-role-coach .efg-guide-food-group .efg-guide-select-label{display:block;min-width:0;width:100%;white-space:normal;overflow-wrap:normal;word-break:normal}
+.efg-role-coach .efg-guide-food-group :is(select,input){display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.efg-role-coach .efg-guide-food-group h4{word-break:normal;overflow-wrap:normal}

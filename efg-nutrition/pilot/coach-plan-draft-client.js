@@ -108,6 +108,17 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(r.data&&(r.data.student_id!==studentId||
     !intake.organization_id||r.data.organization_id!==intake.organization_id))
    throw Error("El borrador recuperado no corresponde al alumno y organización seleccionados.");
+  // A shared browser can switch coaches without changing the selected student.
+  // Never show a draft belonging to the previous signed coach, even if a
+  // stale cache or an incorrect hosted policy returned that row.
+  if(r.data&&relaunchEnabled&&r.data.coach_id!==coachSession)
+   throw Error("El borrador recuperado no pertenece a la cuenta del coach actual.");
+  // A new student revision invalidates the coach's unpublished proposal.
+  // A server-side CAS still protects publish; this guards the actual UI read.
+  if(r.data&&relaunchEnabled&&r.data.status==="draft"&&(
+    r.data.source_intake_revision!==intake.revision||
+    r.data.source_intake_updated_at!==intake.updated_at))
+   throw Error("El borrador corresponde a una ficha anterior. Recargá la ficha compartida.");
   return r.data||null;
  }
  async function save({studentId,sourceUpdatedAt,sourceRevision=null,goal,guide,expectedRevision=null}={}){

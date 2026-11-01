@@ -349,13 +349,13 @@ assert.equal(guidedNotices.length,1);
 const commentStart=source.indexOf('let pendingDayCommentSave=false;');
 const commentEnd=source.indexOf('let coachRosterConsent={};',commentStart);
 assert.ok(commentStart>0&&commentEnd>commentStart,'Real student day-comment handler exists');
-const commentState={profile:{role:'student'},diary:{skipped:{_comment:'Texto anterior',_closed:false}}};
+const commentState={profile:{role:'student'},session:{user:{id:'comment-user'}},diary:{student_id:'comment-user',log_day:'2026-10-31',skipped:{_comment:'Texto anterior',_closed:false}}};
 let commentRejected=true,commentWrites=0,commentNotice=0;
-const commentRun=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+const commentRun=new Function('state','readDayComment','activeDiary','saveDiary','notify','today',
  source.slice(commentStart,commentEnd)+';return saveDayComment;')(
  commentState,()=> 'Nuevo comentario',()=>commentState.diary,
  async()=>{commentWrites++;if(commentRejected)throw Error('offline')},
- ()=>{commentNotice++});
+ ()=>{commentNotice++},()=> '2026-10-31');
 await assert.rejects(commentRun(),/offline/);
 assert.equal(commentState.diary.skipped._comment,'Texto anterior','Offline comment cannot replace persisted note');
 assert.equal(commentNotice,0,'Rejected comment may not tell student it was saved');
@@ -370,16 +370,16 @@ assert.equal(commentWrites,2);
 const supplementBegin=source.indexOf('async function addDailySupplement(){');
 const supplementEnd=source.indexOf('function dayComment(d){',supplementBegin);
 assert.ok(supplementBegin>=0&&supplementEnd>supplementBegin,'Actual supplement form handler present');
-const supDiary={sports:[],skipped:{_closed:false}},supState={diary:supDiary};
+const supDiary={student_id:'supp-user',log_day:'2026-10-31',sports:[],skipped:{_closed:false}},supState={session:{user:{id:'supp-user'}},diary:supDiary};
 const supForm={supplementItem:'creatine',supplementQty:'5',supplementMoment:'desayuno'};
 const supDoc={getElementById(id){return {value:supForm[id]||''}}};
 let supWriteFails=true,supWrites=0;
 const formSource=source.slice(sportBegin,supplementEnd);
-const actualSupplement=new Function('activeDiary','state','saveDiary','notify','SUPPLEMENTS','document','normItem',
+const actualSupplement=new Function('activeDiary','state','saveDiary','notify','SUPPLEMENTS','document','normItem','today',
  formSource+';return addDailySupplement;')(
  ()=>supDiary,supState,async()=>{supWrites++;if(supWriteFails)throw Error('offline')},()=>{},
  [{id:'creatine',name:'Creatina',unit:'g',k:0,p:0,c:0,f:0,fi:0}],supDoc,
- (food,qty,when)=>({id:food.id,qty,when}));
+ (food,qty,when)=>({id:food.id,qty,when}),()=> '2026-10-31');
 await assert.rejects(actualSupplement(),/offline/);
 assert.equal(supDiary.sports.length,0,'Offline supplement cannot create ghost daily intake');
 supWriteFails=false;await actualSupplement();

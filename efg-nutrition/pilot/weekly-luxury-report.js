@@ -132,6 +132,9 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
   const d=new Date(from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);
  });
  if(all[6]!==to)throw Error('La ventana debe abarcar siete días');
+ const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+ if(next.toISOString().slice(0,10)!==friday)
+  throw Error('El informe semanal debe corresponder al viernes inmediatamente posterior.');
  // Identify duplicates BEFORE filtering incomplete values: an incomplete
  // second row must not silently conceal a conflicting diary record.
  const candidates=(days||[]).filter(d=>date(d?.date)&&d.date>=from&&d.date<=to&&d.hasData===true);
@@ -170,6 +173,11 @@ function validReportShape(m){
    !date(m.from)||!date(m.to)||!date(m.friday)||
    typeof m.studentName!=='string'||typeof m.coachName!=='string'||
    !Number.isSafeInteger(m.daysRecorded)||m.daysRecorded<0||m.daysRecorded>7||
+   !Number.isSafeInteger(m.daysClosed)||m.daysClosed<0||m.daysClosed>m.daysRecorded||
+   (m.daysWithMeasuredMeals!==undefined&&(!Number.isSafeInteger(m.daysWithMeasuredMeals)||
+     m.daysWithMeasuredMeals<0||m.daysWithMeasuredMeals>m.daysRecorded))||
+   (m.daysWithMultipleMeals!==undefined&&(!Number.isSafeInteger(m.daysWithMultipleMeals)||
+     m.daysWithMultipleMeals<0||m.daysWithMultipleMeals>(m.daysWithMeasuredMeals??m.daysRecorded)))||
    !Array.isArray(m.days)||m.days.length!==7||!m.averages||!m.targets||
    !['k','p','c','f'].every(k=>validMetric(m.averages[k])&&validMetric(m.targets[k]))||
    !Array.isArray(m.focus)||m.focus.length>3||m.focus.some(x=>typeof x!=='string')||
@@ -181,7 +189,19 @@ function validReportShape(m){
   const d=new Date(m.from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);
  });
  if(expected[6]!==m.to)return false;
+ const next=new Date(m.to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+ if(next.toISOString().slice(0,10)!==m.friday)return false;
+ const observed=m.days.filter(d=>d?.hasData===true);
+ if(observed.length!==m.daysRecorded||
+    observed.filter(d=>d.closed===true).length!==m.daysClosed)return false;
+ const measuredMeals=observed.filter(d=>d.mealCount!==null&&d.mealCount!==undefined).length;
+ const multipleMeals=observed.filter(d=>Number.isFinite(d.mealCount)&&d.mealCount>=2).length;
+ if(m.daysWithMeasuredMeals!==undefined&&m.daysWithMeasuredMeals!==measuredMeals)return false;
+ if(m.daysWithMultipleMeals!==undefined&&m.daysWithMultipleMeals!==multipleMeals)return false;
  return m.days.every((d,i)=>d&&typeof d==='object'&&d.date===expected[i]&&
+  (d.hasData||d.closed===false)&&
+  (d.mealCount===undefined||d.mealCount===null||
+   (Number.isSafeInteger(d.mealCount)&&d.mealCount>=0))&&
   typeof d.hasData==='boolean'&&typeof d.closed==='boolean'&&
   ['k','p','c','f'].every(k=>d.hasData?
    (typeof d[k]==='number'&&Number.isFinite(d[k])&&d[k]>=0):d[k]===null));

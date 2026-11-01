@@ -147,6 +147,24 @@ const richMeals=buildLuxuryWeeklyReport({...data,days:days.map(d=>({...d,mealCou
 assert.equal(richMeals.daysWithMultipleMeals,5);
 assert.equal(richMeals.evidence.grade,'orientativa');
 
+// Stored history is untrusted: a malformed aggregate cannot overstate
+// a student's registered days, closure or meal coverage in a coach report.
+const badArchived=[
+ {...parsed,daysRecorded:7},
+ {...parsed,daysClosed:6},
+ {...parsed,daysWithMeasuredMeals:8},
+ {...parsed,daysWithMultipleMeals:8},
+ {...parsed,friday:'2026-11-06'},
+ {...parsed,days:parsed.days.map((day,i)=>i===5?{...day,closed:true}:day)}
+];
+for(const archive of badArchived){
+ assert.equal(parseLuxuryWeeklyReport(JSON.stringify(archive)),null,
+  'Broken historical report summaries must fail closed');
+ assert.equal(renderLuxuryWeeklyReport(archive),'',
+  'A damaged report must not display reassuring but false totals');
+}
+assert.throws(()=>buildLuxuryWeeklyReport({...data,friday:'2026-11-06'}),
+ /viernes inmediatamente posterior/,'Friday must be the day after the seven-day week');
 const bad=buildLuxuryWeeklyReport({...data,studentName:'<img src=x onerror=alert(1)>'});
 assert.doesNotMatch(renderLuxuryWeeklyReport(bad),/<img src=x onerror=/,'Student-supplied markup must be escaped; legitimate brand image is allowed');
 assert.match(renderLuxuryWeeklyReport(bad),/&lt;img src=x onerror=alert\(1\)&gt;/);

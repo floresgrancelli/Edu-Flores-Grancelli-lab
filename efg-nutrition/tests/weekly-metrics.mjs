@@ -31,4 +31,16 @@ const unknown=weeklyNumbers([{date:'2026-10-28',hasData:true,closed:false,k:null
 assert.deepEqual(unknown.averages,{k:null,p:null,c:null,f:null,fi:null});
 assert.equal(unknown.proteinDaysCompared,0);
 assert.equal(weeklyNumbers([],[],[]).weightDelta,null);
-console.log('PASS WEEKLY-METRICS: unique dates, historic goals, unknown macros, immutable weights.');
+// Duplicate conflict: contradictory revisions cannot overwrite an entire day
+// merely because the API changed row ordering.
+const ambiguous=weeklyNumbers([...rows,{...rows[0],p:999}],goals,weights);
+assert.equal(ambiguous.daysRecorded,1,'Conflicting 29th logs must be excluded from aggregates');
+assert.equal(ambiguous.averages.k,1900,'28th must stay available');
+const future=weeklyNumbers(rows,goals,[...weights,
+ {measured_on:'2026-11-20',kg:65},{measured_on:'2026-10-01',kg:92}]);
+assert.ok(Math.abs(future.weightDelta+0.4)<1e-9,
+ 'Future and stale weights must not leak into a past weekly change');
+assert.equal(weeklyNumbers([{date:'2026-10-29',hasData:true,k:2100,p:100,c:200,f:70}],[],
+ [{measured_on:'2026-10-01',kg:89},{measured_on:'2026-10-29',kg:80}]).weightDelta,null,
+ 'A weight from outside the reported dates cannot invent weekly progress');
+console.log('PASS WEEKLY-METRICS: unique dates, conflicts, dated weights, historic goals, unknown macros, immutable inputs.');

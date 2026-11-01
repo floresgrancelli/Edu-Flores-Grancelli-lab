@@ -29,16 +29,27 @@ try{
     {label:"ordinary",date:new Date("2026-10-30T15:00:00Z"),unlocked:true}
    ]){
     await page.setContent('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://fixture.test/"><style>body{margin:0;background:#e9e8e4;padding:clamp(10px,3vw,24px);font:16px system-ui,sans-serif}main{max-width:1200px;margin:auto}'+css+'</style></head><body><main>'+nutritionTipCardHTML({now:date,allowExplore:unlocked})+'</main></body></html>',{waitUntil:"load"});
-    // Lazy images do not block page load. Decode before asserting. 
-    await page.locator(".efg-daily-tip-photo").evaluate(async(img,png)=>{
-     img.dataset.originalSrc=img.getAttribute("src");
-     img.loading="eager";
-     img.src="data:image/png;base64,"+png;
-     await img.decode();
-    },fixturePng);
-    // 08-05 / 08-06: the offline branded fallback exists even without a
-    // remote photo; the real 29th recipe must open on a 320px/390px screen
-    // without requiring a plan or touching the diary. Browser emulation only.
+    // 08-05: actively test offline photo failure before synthetic recovery.
+    // Keep the authored URL, never contact Unsplash or mutate a real account.
+    const photo=page.locator(".efg-daily-tip-photo");
+    await photo.evaluate(img=>{img.loading="eager";});
+    await page.waitForFunction(()=>{const img=document.querySelector(".efg-daily-tip-photo");
+      return img?.complete&&img.naturalWidth===0;},{timeout:10000});
+    const measure=()=>page.evaluate(()=>{
+     const card=document.querySelector(".efg-daily-tip"),rect=card.getBoundingClientRect(),
+      photo=card.querySelector("img"),credit=card.querySelector(".efg-daily-tip-credit");
+     const placeholder=card.querySelector(".efg-daily-tip-photo-placeholder");
+     return {height:rect.height,left:rect.left,right:rect.right,
+      title:card.querySelector("h2").textContent,body:card.querySelector(".efg-daily-tip-description").textContent,
+      credit:credit.textContent,alt:photo.alt,placeholderHeight:placeholder.getBoundingClientRect().height,
+      scroll:document.documentElement.scrollWidth,view:innerWidth};
+    });
+    const offline=await measure();
+    if(!offline.title||!offline.body||!offline.credit||!offline.alt||offline.placeholderHeight<100||
+      offline.scroll>offline.view+2)
+     failures.push(v.name+" "+label+" offline media/credit/geometry "+JSON.stringify(offline));
+    await page.screenshot({path:join(out,"pro60-tip-"+engine+"-"+v.name+"-"+label+"-offline.png"),
+      fullPage:true,animations:"disabled"});
     const fallback=await page.locator(".efg-daily-tip-photo-placeholder").count();
     if(fallback!==1)failures.push(v.name+" "+label+" missing photo fallback");
     const recipe=page.locator(".efg-gnocchi-recipe");
@@ -46,10 +57,41 @@ try{
     if(label==="29-gnocchi"){
      if(recipeCount!==1)failures.push(v.name+" missing real 29th recipe");
      else {
-      await recipe.locator("summary").click();
-      if(!await recipe.evaluate(el=>el.open))failures.push(v.name+" 29th recipe not accessible by summary");
+      await page.keyboard.press("Tab");
+      if(!await page.evaluate(()=>document.activeElement?.tagName==="SUMMARY"))
+       failures.push(v.name+" 29th recipe not reachable as first keyboard stop");
+      await page.keyboard.press("Enter");
+      if(!await recipe.evaluate(el=>el.open))failures.push(v.name+" 29th recipe did not open by Enter");
+      const sauces=await recipe.innerText();
+      if(!sauces.includes("Salsa de tomate y albahaca")||!sauces.includes("Salsa de zapallo"))
+       failures.push(v.name+" 29th recipe lacks both sauces");
+      await page.keyboard.press("Space");
+      if(await recipe.evaluate(el=>el.open))failures.push(v.name+" 29th recipe did not close by Space");
+      await page.keyboard.press("Tab");
+      if(!await page.evaluate(()=>document.activeElement?.closest(".efg-daily-tip-credit")))
+       failures.push(v.name+" keyboard cannot reach photo credit after recipe");
+      await page.keyboard.press("Shift+Tab");
+      if(!await page.evaluate(()=>document.activeElement?.tagName==="SUMMARY"))
+       failures.push(v.name+" keyboard cannot return from credit to recipe");
      }
     }else if(recipeCount!==0)failures.push(v.name+" ordinary day incorrectly shows 29th recipe");
+    // An existing photo should recover without moving the tip, text or focus.
+    await photo.evaluate(async(img,png)=>{
+     img.dataset.originalSrc=img.getAttribute("src");
+     img.src="data:image/png;base64,"+png;
+     await img.decode();
+    },fixturePng);
+    const recovered=await measure();
+    if(Math.abs(offline.height-recovered.height)>2||
+      Math.abs(offline.left-recovered.left)>2||Math.abs(offline.right-recovered.right)>2||
+      offline.title!==recovered.title||offline.body!==recovered.body||
+      offline.credit!==recovered.credit||offline.alt!==recovered.alt||
+      recovered.scroll>recovered.view+2)
+     failures.push(v.name+" "+label+" photo recovery changed layout/text "+
+      JSON.stringify({offline,recovered}));
+    if(label==="29-gnocchi"&&recipeCount===1&&
+      !await page.evaluate(()=>document.activeElement?.tagName==="SUMMARY"))
+     failures.push(v.name+" photo recovery stole keyboard focus");
     const info=await page.evaluate(()=>{
      const panel=document.querySelector(".efg-daily-tip"),img=panel?.querySelector("img"),
       link=panel?.querySelector("a"),btn=panel?.querySelector("button");

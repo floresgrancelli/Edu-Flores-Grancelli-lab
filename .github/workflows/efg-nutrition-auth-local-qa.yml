@@ -96,7 +96,10 @@ jobs:
             echo "Hosted Supabase credentials are prohibited in local QA" >&2
             exit 1
           fi
-          supabase start
+          if ! supabase start > "$RUNNER_TEMP/supabase-start-private.log" 2>&1; then
+            echo "Disposable Supabase startup failed; private startup output is not uploaded."
+            exit 1
+          fi
           supabase status -o env > "/tmp/efg-nutrition-auth-local-status.env"
           echo "Local Supabase stack available; credentials are ephemeral and not printed."
       - name: Install PostgreSQL client if needed
@@ -322,7 +325,10 @@ jobs:
           mkdir -p "$RUNNER_TEMP/efg-nutrition-coach119-local"
           cd "$RUNNER_TEMP/efg-nutrition-coach119-local"
           supabase init --yes
-          supabase start
+          if ! supabase start > "$RUNNER_TEMP/supabase-start-private.log" 2>&1; then
+            echo "Disposable Supabase startup failed; private startup output is not uploaded."
+            exit 1
+          fi
           supabase status -o env > /tmp/efg-nutrition-coach119-local-status.env
       - name: Assemble exact CURRENT Coach candidate modules (fresh LOCAL only)
         env:
@@ -348,7 +354,7 @@ jobs:
           test -z "${SUPABASE_DB_PASSWORD:-}"
           test -f "$EFG_OFFICIAL_FDC_ARCHIVE"
           node --check efg-nutrition/tests/automatic-composition-local.mjs
-          node efg-nutrition/tests/automatic-composition-local.mjs | tee "$RUNNER_TEMP/v10-composition-result.txt"
+          node efg-nutrition/tests/automatic-composition-local.mjs 2>&1 | tee "$RUNNER_TEMP/v10-composition-result.txt"
       - name: V10 isolated result log
         if: always() && env.EFG_QA_AUTO_COMPOSITION == '1'
         uses: actions/upload-artifact@v4

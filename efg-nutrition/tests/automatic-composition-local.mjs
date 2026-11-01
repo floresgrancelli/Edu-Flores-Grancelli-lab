@@ -69,15 +69,15 @@ const checks=`
 do $checks$
 declare saved efg_private.coach_reviewed_foods%rowtype; good boolean; edit jsonb;
 begin
- if (select count(*) from efg_private.coach_reviewed_foods f where food_id in ('apple','oats_raw','spinach_cooked')
-  and efg_private.coach_food_evidence_current(f))<>3 then raise exception 'three official rows not eligible'; end if;
+ if (select count(*) from efg_private.coach_reviewed_foods source_row where food_id in ('apple','oats_raw','spinach_cooked')
+  and efg_private.coach_food_evidence_current(source_row))<>3 then raise exception 'three official rows not eligible'; end if;
  if efg_private.coach_guide_foods_verified(${probeSql}) is distinct from true then raise exception 'automatic guide source gate failed'; end if;
  if cardinality(efg_private.coach119_reviewed_food_ids(${probeSql}))<>3 then raise exception 'automatic selected-food gate failed'; end if;
  -- Existing manual records must retain exactly their previous eligibility.
  if not exists(select 1 from efg_private.coach_reviewed_foods where evidence_status='reviewed')
  then raise exception 'manual regression fixture missing'; end if;
- if exists(select 1 from efg_private.coach_reviewed_foods f where evidence_status='reviewed'
-  and efg_private.coach_food_evidence_current(f) is distinct from
+ if exists(select 1 from efg_private.coach_reviewed_foods source_row where evidence_status='reviewed'
+  and efg_private.coach_food_evidence_current(source_row) is distinct from
    (reviewed_by is not null and reviewed_at is not null and reviewed_at<=now() and expires_at>now()))
  then raise exception 'manual evidence changed'; end if;
  select * into saved from efg_private.coach_reviewed_foods where food_id='apple';

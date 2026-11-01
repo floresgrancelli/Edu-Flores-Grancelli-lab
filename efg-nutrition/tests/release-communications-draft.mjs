@@ -38,6 +38,11 @@ assert.match(renderWhatsNew(released,"personal"),/efg-release-art/);
 assert.match(renderWhatsNew(released,"admin"),/efg-release-highlights/);
 
 assert.equal(renderWhatsNew(released,"coach",[base.version]),"");
+assert.match(renderWhatsNew(released,"coach",[base.version+"-older"]),/Comenzar/,"Only an exact version receipt hides What's New");
+for(const broken of [null,false,"2026.11.1",{version:base.version},42]){
+ assert.doesNotThrow(()=>renderWhatsNew(released,"student",broken),"Damaged receipt data must not crash the release screen");
+ assert.equal(renderWhatsNew(released,"student",broken),"","An unverified receipt list must not imply first-time visibility");
+}
 assert.deepEqual(seenVersionRequest(released,"personal"),{release_id:base.id,view_kind:"whats_new_seen"});
 assert.throws(()=>seenVersionRequest(base,"student"),/no está publicada/);
 for(const bad of [

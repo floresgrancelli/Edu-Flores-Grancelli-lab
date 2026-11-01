@@ -3757,7 +3757,8 @@ if(el.dataset.foodbulk){
   if(!isGuidedMealSlot(slot)||!["protein","carb"].includes(group))return;
   if(pendingMealRegistrations.has(slot))return;
   pendingMealRegistrations.add(slot);
-  const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
   try{
    d.skipped ||= {};d.skipped._guidedComponents ||= {};
    d.skipped._guidedComponents[slot] ||= {};
@@ -3765,9 +3766,16 @@ if(el.dataset.foodbulk){
    const omitted=d.skipped._guidedComponents[slot][group];
    if(!state.diary||state.diary.log_day!==today())state.diary=d;
    try{await saveDiary();}
-   catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-   openMealDialog(slot,group==="protein"?"carb":"prepared");
-   notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+   catch(error){
+    d.skipped=previousSkipped;
+    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+    throw error;
+   }
+   // Late completion from A must not open a guided editor or notify B.
+   if(state.session?.user?.id===ownerId&&today()===ownerDay){
+    openMealDialog(slot,group==="protein"?"carb":"prepared");
+    notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+   }
   }finally{pendingMealRegistrations.delete(slot);}
   return;
  }
@@ -3921,14 +3929,19 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
   return;
  }
  pendingMealRegistrations.add(slot);
+ const ownerId=state.session?.user?.id,ownerDay=d.log_day;
  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.skipped=d.skipped||{};
   d.skipped[slot]=!!checked;d.skipped._closed=false;
   await saveDiary();
  }catch(error){
-  d.skipped=previousSkipped;state.diary=previousDiary;
-  if(checkbox)checkbox.checked=!!previousSkipped[slot];
+  d.skipped=previousSkipped;
+  // An old A failure cannot restore B's diary or a new account's checkbox.
+  if(state.session?.user?.id===ownerId&&today()===ownerDay){
+   state.diary=previousDiary;
+   if(checkbox)checkbox.checked=!!previousSkipped[slot];
+  }
   throw error;
  }finally{pendingMealRegistrations.delete(slot);}
 }

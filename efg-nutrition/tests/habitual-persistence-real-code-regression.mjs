@@ -35,13 +35,13 @@ const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','
 const pendingMealRegistrations=new Set();
 const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',
- 'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations',
+ 'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations','today',
  subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,applyChosenHabitual,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
  sb,state,mealSlots,localStorage,()=>diary,
  msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
  msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),
- [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations
+ [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations,()=>diary.log_day
 );
 await api.loadCloudHabituales();
 assert.equal(api.getHabitualList('desayuno').length,0);

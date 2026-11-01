@@ -79,11 +79,24 @@ const identity=({profile,userId})=>{
     profile?.active!==true||!["student","coach"].includes(profile.role))
   throw Error("No pudimos validar tu cuenta para la presentación educativa.");
 };
+// Identity must be checked around asynchronous read/write operations: a stale
+// PWA request for account A must not update the welcome screen for account B.
+async function verifyScienceSession(sb,userId){
+ if(typeof sb?.auth?.getUser!=="function")
+  throw Error("No pudimos verificar tu sesión para la presentación educativa.");
+ let response;
+ try{response=await sb.auth.getUser();}
+ catch{throw Error("No pudimos verificar tu sesión para la presentación educativa.");}
+ if(response?.error||response?.data?.user?.id!==userId)
+  throw Error("La sesión cambió durante la bienvenida educativa. Volvé a ingresar.");
+}
 export async function readScienceWelcomeStatus(sb,{profile,userId}={}){
  identity({profile,userId});
+ await verifyScienceSession(sb,userId);
  if(typeof sb?.from!=="function")throw Error("Servicio de bienvenida no disponible.");
  const r=await sb.from("efg_science_intro_receipts").select("user_id,version,seen_at")
   .eq("user_id",userId).eq("version",SCIENCE_WELCOME_VERSION).maybeSingle();
+ await verifyScienceSession(sb,userId);
  if(r.error)throw Error("No pudimos comprobar la bienvenida; podés continuar usando tu cuenta.");
  if(r.data&&(r.data.user_id!==userId||r.data.version!==SCIENCE_WELCOME_VERSION||
    typeof r.data.seen_at!=="string"||!Number.isFinite(Date.parse(r.data.seen_at))))
@@ -94,7 +107,9 @@ export async function acknowledgeScienceWelcome(sb,{profile,userId,action,explic
  identity({profile,userId});
  if(!["completed","skipped"].includes(action)||explicitClick!==true||typeof sb?.rpc!=="function")
   throw Error("La bienvenida requiere una acción explícita.");
+ await verifyScienceSession(sb,userId);
  const r=await sb.rpc("efg_ack_science_intro",{p_version:SCIENCE_WELCOME_VERSION,p_action:action});
+ await verifyScienceSession(sb,userId);
  if(r.error||r.data!==true)throw Error("El servidor no confirmó el registro de la bienvenida.");
  const status=await readScienceWelcomeStatus(sb,{profile,userId});
  if(status.pending)throw Error("El servidor no confirmó todavía tu bienvenida.");

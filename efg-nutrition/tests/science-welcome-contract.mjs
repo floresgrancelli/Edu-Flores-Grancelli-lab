@@ -60,6 +60,7 @@ const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",other="bbbbbbbb-bbbb-4bbb-8bbb-
 const profile={user_id:uid,active:true,role:"student"};
 let stored=null,queries=0,changes=0;
 const sb={
+ auth:{getUser:async()=>({data:{user:{id:uid}},error:null})},
  from(table){assert.equal(table,"efg_science_intro_receipts");
   return {select(cols){assert.equal(cols,"user_id,version,seen_at");return this},
    eq(k,v){assert.ok(k==="user_id"&&v===uid||k==="version"&&v===SCIENCE_WELCOME_VERSION);return this},
@@ -79,7 +80,7 @@ await assert.rejects(()=>readScienceWelcomeStatus(sb,{profile:{...profile,role:"
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped"}),/explícita/);
 await assert.rejects(()=>acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"opened",explicitClick:true}),/explícita/);
 assert.equal(changes,0);
-await assert.rejects(()=>acknowledgeScienceWelcome({rpc:async()=>({data:false,error:null})},{profile,userId:uid,action:"completed",explicitClick:true}),/no confirmó/);
+await assert.rejects(()=>acknowledgeScienceWelcome({auth:sb.auth,rpc:async()=>({data:false,error:null})},{profile,userId:uid,action:"completed",explicitClick:true}),/no confirmó/);
 const readsBeforeAck=queries;
 const confirmed=await acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"skipped",explicitClick:true});
 assert.equal(confirmed.pending,false);
@@ -88,6 +89,31 @@ assert.equal(queries,readsBeforeAck+1,"must read back authenticated receipt afte
 assert.equal((await readScienceWelcomeStatus(sb,{profile,userId:uid})).pending,false);
 await acknowledgeScienceWelcome(sb,{profile,userId:uid,action:"completed",explicitClick:true});
 assert.equal(changes,2);
+// Regression: an old network response must not show account A's receipt to B.
+let statusIdentityReads=0;
+const changedDuringStatus={...sb,auth:{getUser:async()=>({
+ data:{user:{id:++statusIdentityReads===1?uid:other}},error:null
+})}};
+await assert.rejects(
+ ()=>readScienceWelcomeStatus(changedDuringStatus,{profile,userId:uid}),
+ /La sesión cambió/);
+assert.equal(statusIdentityReads,2,"Read result must verify session again");
+// An explicit receipt sent during account switching cannot be presented as confirmed.
+let ackIdentityReads=0,ackRpcCalls=0;
+const changedDuringAck={auth:{getUser:async()=>({
+ data:{user:{id:++ackIdentityReads===1?uid:other}},error:null
+})},rpc:async()=>{ackRpcCalls++;return {data:true,error:null}}};
+await assert.rejects(
+ ()=>acknowledgeScienceWelcome(changedDuringAck,{profile,userId:uid,
+  action:"completed",explicitClick:true}),/La sesión cambió/);
+assert.equal(ackRpcCalls,1);
+assert.equal(ackIdentityReads,2,"Receipt RPC must be followed by identity re-check");
+await assert.rejects(
+ ()=>readScienceWelcomeStatus({...sb,auth:{getUser:async()=>({data:{user:null},error:null})}},
+ {profile,userId:uid}),/La sesión cambió/);
+await assert.rejects(
+ ()=>acknowledgeScienceWelcome({rpc:async()=>({data:true,error:null})},
+ {profile,userId:uid,action:"skipped",explicitClick:true}),/verificar tu sesión/);
 const sql=readFileSync(new URL("../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql",import.meta.url),"utf8");
 assert.match(sql,/nut57_isolated_staging_marker/);
 assert.match(sql,/alter table public\.efg_science_intro_receipts enable row level security/);

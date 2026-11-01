@@ -355,3 +355,56 @@ console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key p
  assert.equal(store.get(key),JSON.stringify([pending]),'Rejected INSERT leaves exact bytes for retry');
  console.log('PASS UX-04-03: rejected SELECT and rejected INSERT retain offline favorite.');
 }
+
+
+// UX-OFFLINE-NEW-HABITUAL-01: run REAL habitualAction() with rejected and
+// resolved transport errors; local pending -> readback -> retry -> cloud once.
+// Permission denial or malformed backup must never be reported as saved.
+{
+ const uid='student-new-habitual-offline';
+ const cache=new Map(),notices=[];
+ const storage={getItem:k=>cache.get(k)||null,setItem:(k,v)=>cache.set(k,v),removeItem:k=>cache.delete(k)};
+ const st={profile:{role:'student'},session:{user:{id:uid}},habitualSelection:{}};
+ const diary={meals:{desayuno:[{id:'egg',name:'Huevo',qty:100,k:150,p:12,c:1,f:10}]},skipped:{}};
+ const names=['Desayuno primera red caída','Desayuno segunda red caída','Intento sin permisos','Intento sobre respaldo roto'];
+ let failure='reject',inserts=0;
+ const hosted=[];
+ const db={from(table){
+  assert.equal(table,'efg_habitual_meals');
+  return {select(){return this;},eq(){return this;},
+   order(){return Promise.resolve({data:structuredClone(hosted),error:null});},
+   insert(v){this.value=v;return this;},
+   single(){
+    inserts++;
+    if(failure==='reject')return Promise.reject(new TypeError('Failed to fetch'));
+    if(failure==='returned')return Promise.resolve({data:null,error:{status:503,message:'Service temporarily unavailable'}});
+    if(failure==='forbidden')return Promise.resolve({data:null,error:{status:403,code:'42501',message:'RLS denied'}});
+    const row={...structuredClone(this.value),id:'cloud-'+inserts,created_at:'2026-11-01T07:00:00Z'};
+    hosted.push(row);return Promise.resolve({data:row,error:null});
+   }};
+ }};
+ const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','activeDiary','prompt','notify','render','console',
+  subsystem+';return {habitualAction,getHabitualList,loadCloudHabituales};')(
+  db,st,mealSlots,storage,new Set(),()=>diary,()=>names.shift(),
+  msg=>notices.push(msg),async()=>{},{warn(){}});
+ await api.habitualAction('desayuno','save');
+ failure='returned';await api.habitualAction('desayuno','save');
+ const key='efg-nutrition-habitual-v2:'+uid+':desayuno';
+ assert.equal(JSON.parse(cache.get(key)).length,2);
+ assert.equal(hosted.length,0);
+ assert.equal(api.getHabitualList('desayuno').filter(r=>r.pendingLocal).length,2);
+ assert.equal(notices.filter(n=>n.includes('pendiente de sincronizar')).length,2);
+ failure='success';await api.loadCloudHabituales();await api.loadCloudHabituales();
+ assert.equal(hosted.length,2,'Reconnect must migrate each pending meal exactly once');
+ assert.equal(api.getHabitualList('desayuno').length,2);
+ assert.equal(cache.has(key),false,'Remove backup only when cloud accepted both meals');
+ failure='forbidden';
+ await assert.rejects(api.habitualAction('desayuno','save'),error=>error.code==='42501');
+ assert.equal(hosted.length,2);
+ assert.equal(cache.has(key),false,'RLS 403 must not be bypassed into local backup');
+ cache.set(key,'{broken-json');failure='reject';
+ await assert.rejects(api.habitualAction('desayuno','save'),/respaldo local/);
+ assert.equal(cache.get(key),'{broken-json','Never overwrite malformed local JSON');
+ assert.equal(notices.length,2,'Failed writes must not claim success');
+ console.log('PASS UX-OFFLINE-NEW-HABITUAL-01: two offline saves, import once, 403 denies local write, damaged backups preserved.');
+}

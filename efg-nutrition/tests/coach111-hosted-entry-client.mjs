@@ -29,6 +29,8 @@ for(const bad of [
  {route:'private',can_log_meals:true,participation_confirmed:true},
  {route:'private',general_intake_shared:true,participation_confirmed:true},
  {route:'intake',participation_confirmed:false},
+ {route:'intake',participation_confirmed:true,general_intake_shared:true},
+ {route:'participation',general_intake_shared:true},
  {route:'participation',can_log_meals:true},
  {route:'bad',can_log_meals:true},
  {requires_separate_health_consent:false},

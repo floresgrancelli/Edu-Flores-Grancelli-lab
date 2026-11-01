@@ -64,7 +64,7 @@ create policy guide_bound_draft_current on public.efg_coach_plan_drafts as restr
 create function public.efg_prepare_bound_guide(p_student uuid,p_goal jsonb,p_intake_revision integer,
  p_health_revision integer,p_preferred text[],p_disliked text[],p_food_ids text[],p_expected_draft bigint)
 returns bigint language plpgsql security definer set search_path='' as $f$
-declare i record; h record; r bigint; begin
+declare i record; h record; r bigint; d record; b record; expected bigint:=p_expected_draft; begin
  if auth.uid() is null or not efg_private.coach_has_student(p_student) then
   raise exception 'Denied' using errcode='42501'; end if;
  select * into i from public.efg_coach_relaunch_intakes where student_id=p_student
@@ -87,7 +87,23 @@ declare i record; h record; r bigint; begin
  if (select count(*) from efg_private.coach_reviewed_foods source_food where source_food.food_id=any(p_food_ids)
   and efg_private.coach_food_evidence_current(source_food))<>cardinality(p_food_ids) then
   raise exception 'Source evidence unavailable' using errcode='42501'; end if;
- r:=public.efg_save_coach_plan_draft(p_student,p_goal,null,i.updated_at,i.revision,p_expected_draft);
+ -- PRIVATE REVIEW PROPOSAL, NOT EXECUTED: RLS deliberately hides stale drafts.
+ -- Rebind only after the explicit prepare operation verified NEW current sources.
+ -- Never expose the stale body, overwrite a current draft, or relax its read policy.
+ if expected is null then
+  select * into d from public.efg_coach_plan_drafts where student_id=p_student for update;
+  if found then
+   select * into b from efg_private.guide_source_bindings where student_id=p_student for update;
+   if b.student_id is null or d.coach_id is distinct from auth.uid()
+    or b.coach_id is distinct from auth.uid() or d.organization_id is distinct from i.organization_id
+    or b.organization_id is distinct from i.organization_id or d.status is distinct from 'draft'
+    or b.draft_revision is distinct from d.draft_revision
+    or (b.intake_revision is not distinct from i.revision and b.health_revision is not distinct from h.revision)
+   then raise exception 'Draft already exists or version changed; reload before editing' using errcode='PT409'; end if;
+   expected:=d.draft_revision;
+  end if;
+ end if;
+ r:=public.efg_save_coach_plan_draft(p_student,p_goal,null,i.updated_at,i.revision,expected);
  insert into efg_private.guide_source_bindings values(p_student,auth.uid(),i.organization_id,i.revision,h.revision,r,
   p_preferred,p_disliked,p_food_ids,efg_private.guide_catalog_digest(p_food_ids),clock_timestamp())
  on conflict(student_id) do update set coach_id=excluded.coach_id,organization_id=excluded.organization_id,

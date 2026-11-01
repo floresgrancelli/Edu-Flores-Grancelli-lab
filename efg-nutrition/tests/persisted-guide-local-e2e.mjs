@@ -14,6 +14,7 @@ if(process.argv.includes('--pilot-scope-regression')){
  await runProviderRegression();
 }else{
 assert.equal(process.env.EFG_QA_PERSISTED_GUIDE,'1');
+if(process.env.EFG_QA_GUIDE_RECOVERY==='1')assert.notEqual(process.env.EFG_QA_PERSISTED_UI,'1','Recovery negatives require the non-browser suite');
 assert.match(process.env.GITHUB_RUN_ID||'',/^\d+$/);
 const {sql,request,rpc,asClient}=localContext();
 assert.equal(sql('select count(*) from auth.users'),'0','Fresh CURRENT setup only');
@@ -110,6 +111,12 @@ const item=edit.working.meals[0].items[0];edit=updateGuideEditor(edit,{type:'rep
 assert.equal(edit.review.readyForReview,true);edit=updateGuideEditor(edit,{type:'save'},env);
 const saved=await provider.save(edit.committed);assert.equal(saved.row.draft_revision,2);assert.deepEqual(saved.row.guide,edit.committed);
 assert.deepEqual(saved.goal,input.goal);assert.equal(saved.publishable,false);
+if(process.env.EFG_QA_GUIDE_RECOVERY==='1'){
+ assert.notEqual(process.env.EFG_QA_PERSISTED_UI,'1','Recovery negatives use the existing non-browser fixture');
+ const {runBoundRecoveryNegatives}=await import('./sdk-entry-bound-recovery-private.mjs');
+ await runBoundRecoveryNegatives({sql,request,rpc,users,orgs,official,intake,prep});
+}
+
 const getDraft=token=>request('/rest/v1/efg_coach_plan_drafts?student_id=eq.'+users.studentA.id,{token});
 assert.equal(yes(await getDraft(users.coachA.token),'RLS readback').length,1);
 assert.equal(yes(await getDraft(users.coachB.token),'foreign RLS').length,0);

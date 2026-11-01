@@ -407,6 +407,7 @@ jobs:
         env:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-persisted-guide-local-status.env
           EFG_QA_PERSISTED_GUIDE: '1'
+          EFG_QA_GUIDE_RECOVERY: ${{ contains(github.event.head_commit.message, '[bound-recovery]') && '1' || '0' }}
           EFG_QA_PERSISTED_UI: ${{ contains(github.event.head_commit.message, '[persisted-coach-ui]') && '1' || '0' }}
           EFG_QA_BOUND_PUBLICATION: ${{ contains(github.event.head_commit.message, '[bound-publication]') && contains(github.event.head_commit.message, '[persisted-coach-ui]') && '1' || '0' }}
         run: |
@@ -450,7 +451,8 @@ jobs:
 
 
   sdk-entry-local:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[sdk-entry]')
+    needs: local-auth-rls
+    if: always() && (needs.local-auth-rls.result == 'success' || needs.local-auth-rls.result == 'skipped') && github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[sdk-entry]')
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:

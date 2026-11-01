@@ -6,6 +6,12 @@ on:
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/persisted-guide-*.mjs'
+      - 'efg-nutrition/tests/sdk-entry-*'
+      - 'efg-nutrition/tests/coach-bound-guide-preparation-private.mjs'
+      - 'efg-nutrition/pilot/student-restriction-declaration.js'
+      - 'efg-nutrition/pilot/coach-bound-guide-preparation.js'
+      - 'efg-nutrition/tests/sql/sdk-entry-declaration-readback-local.sql'
+      - 'efg-nutrition/tests/sql/coach119-browser-current-overlay.sql'
       - 'efg-nutrition/tests/persisted-coach-*.mjs'
       - 'efg-nutrition/tests/bound-publication-*.mjs'
       - 'efg-nutrition/tests/sql/bound-publication-local-*.sql'
@@ -442,3 +448,78 @@ jobs:
           echo "No production SQL, no new hosted project, no preview branch, no project linking and no deployment. RELEASE NO GO."
 
 
+
+  sdk-entry-local:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[sdk-entry]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      EFG_QA_SDK_ENTRY: '1'
+      EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-sdk-entry-local-status.env
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: New unit regressions before starting any stack
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --check efg-nutrition/pilot/pilot.js
+          node --check efg-nutrition/tests/sdk-entry-local-e2e.mjs
+          node --check efg-nutrition/tests/sdk-entry-runner-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/student-restriction-declaration-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/sdk-entry-source-contract-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/sdk-entry-mail-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-bound-guide-preparation-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/sdk-entry-goal-hydration-private.mjs
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Existing pinned browser tooling
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+      - name: Fresh SDK-only local stack with captured OTP mail
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          mkdir -p "$RUNNER_TEMP/efg-nutrition-sdk-entry-local"
+          cd "$RUNNER_TEMP/efg-nutrition-sdk-entry-local"
+          supabase init --yes
+          python3 "$GITHUB_WORKSPACE/efg-nutrition/tests/sdk-entry-config-private.py" "$PWD"
+          if ! supabase start > "$RUNNER_TEMP/sdk-start-private.log" 2>&1; then
+            echo "Local start failed; private startup log is not uploaded"; exit 1
+          fi
+          supabase status -o env > "$EFG_LOCAL_STATUS_ENV"
+      - name: Actual SDK and forms through existing bound publication
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node efg-nutrition/tests/coach119-signed-local-setup.mjs
+          node --experimental-default-type=module efg-nutrition/tests/sdk-entry-local-e2e.mjs
+      - name: SDK safe screenshots and redacted result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-entry-local-${{ github.sha }}
+          path: artifacts/sdk-entry/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Delete SDK local stack and verify no running containers remain
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/efg-nutrition-sdk-entry-local/supabase" ]; then
+            cd "$RUNNER_TEMP/efg-nutrition-sdk-entry-local"
+            supabase stop --no-backup
+            if docker ps -a --format '{{.Names}}' | grep -q '_efg-nutrition-sdk-entry-local$'; then
+              echo "SDK stack cleanup incomplete"; exit 1
+            fi
+            echo "PASS SDK disposable stack stopped without backup; no matching containers"
+          fi

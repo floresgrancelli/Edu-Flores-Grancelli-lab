@@ -3117,9 +3117,9 @@ async function loadStudentDetail(studentId){
   // Restore only a server-authorized draft based on the CURRENT shared intake.
   // Never treat this proposal as an approved goal or a student diary entry.
   if(savedDraft?.status==="draft"&&coachDraftSourceCurrent(state.coachIntakeForms[studentId],savedDraft)
-    &&savedDraft.goal_proposal&&savedDraft.guide_proposal){
+    &&savedDraft.goal_proposal){
    state.pendingGoal={...savedDraft.goal_proposal,student_id:studentId};
-   state.coachGuidedDraft=structuredClone(savedDraft.guide_proposal);
+   state.coachGuidedDraft=savedDraft.guide_proposal?structuredClone(savedDraft.guide_proposal):null;
   }
  }
  await loadSundayPermission(studentId);

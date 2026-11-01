@@ -29,6 +29,11 @@ sql('alter table public.efg_pilot_participation_receipts add constraint ' +
 sql(read('../migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql'));
 sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
+if(process.env.EFG_QA_SDK_ENTRY==='1'){
+ sql(read('./sql/coach119-browser-current-overlay.sql'));
+ sql(read('../migrations/etapas12_habituales.sql'));
+ sql(read('../migrations/etapas12_informes_semanales.sql'));
+}
 assert.equal(sql('select count(*) from public.efg_legal_documents'), '0');
 assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'), '0');
 assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'), '0');

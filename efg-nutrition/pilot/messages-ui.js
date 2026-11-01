@@ -1,8 +1,19 @@
 // EFG Nutrition Pro · inbox responsive for student, coach, and admin test-coach.
 // RLS on efg_messages is the source of truth; this UI NEVER grants chat access.
+export function conversationSessionKey(c={}){
+ const id=String(c.userId||"");
+ const role=String(c.role||"");
+ const mode=c.testCoach===true?"test":"regular";
+ const coach=role==="student"?String(c.orgCoachId||""):"";
+ return [id,role,mode,coach].join("|");
+}
 export function createMessagesCenter({sb,context,afterSend}){
  let selectedStudent=null,threadOpen=false,thread=[],overview=[],filter="",listMode="all";
- let busy=false,refreshing=false,formDraft="",epoch=0,knownUser=null,knownRole=null;
+ let busy=false,refreshing=false,pendingLoad=false,loadingOlder=false,threadHasMore=false,formDraft="",deliveryNotice="",epoch=0,knownUser=null;
+ const drafts=new Map();
+ const PAGE_SIZE=200;
+ const messageOrder=(a,b)=>String(a.created_at).localeCompare(String(b.created_at))||String(a.id).localeCompare(String(b.id));
+ const mergeMessages=(oldRows,newRows)=>[...new Map([...oldRows,...newRows].map(row=>[row.id,row])).values()].sort(messageOrder);
  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const shortTime=v=>{if(!v)return "";const d=new Date(v);const now=new Date();
   return d.toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})===now.toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})?
@@ -19,12 +30,17 @@ export function createMessagesCenter({sb,context,afterSend}){
     [{student:c.userId,coach:c.orgCoachId,name:c.coachName||"Mi coach",role:"Entrenador"}]:[];
  };
  const identity=x=>x?.student+"::"+x?.coach;
+ const sameCurrentPair=(x,sessionEpoch)=>{
+  if(!x||sessionEpoch!==epoch)return false;
+  const current=pair();
+  return !!current&&identity(current)===identity(x);
+ };
  const pair=()=>contacts().find(x=>x.student===selectedStudent)||null;
  function resetIfChanged(){
-  const c=context(),key=c.userId+"|"+c.role+"|"+(c.testCoach?"test":"");
-  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";filter="";listMode="all";epoch++;}
+  const c=context(),key=conversationSessionKey(c);
+  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";drafts.clear();threadHasMore=false;filter="";listMode="all";deliveryNotice="";epoch++;}
   const ids=new Set(contacts().map(x=>x.student));
-  if(selectedStudent&&!ids.has(selectedStudent)){selectedStudent=null;threadOpen=false;thread=[];formDraft="";epoch++;}
+  if(selectedStudent&&!ids.has(selectedStudent)){drafts.delete(selectedStudent);selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;deliveryNotice="";epoch++;}
  }
  function previews(){
   const latest=new Map(),unread=new Map(),self=context().userId;
@@ -69,26 +85,52 @@ export function createMessagesCenter({sb,context,afterSend}){
    '<span class="efg-chat-avatar small" aria-hidden="true">'+esc(x.name.trim().slice(0,1).toUpperCase())+'</span>'+
    '<div><h3>'+esc(x.name)+'</h3><small>Conversación privada · '+esc(x.role)+'</small></div></div>'+
    '<div class="efg-message-history" aria-label="Mensajes" role="log" aria-live="polite">'+
+    (threadHasMore?'<button type="button" class="efg-chat-load-more" data-chat-older="1" '+(loadingOlder?"disabled":"")+'>'+(loadingOlder?"Cargando mensajes…":"Ver mensajes anteriores")+"</button>":"")+
     (bubbles||'<p class="efg-chat-empty">Todavía no hay mensajes. Podés iniciar la conversación.</p>')+'</div>'+
    '<form class="efg-message-compose" id="efgMessageForm"><textarea id="efgMessageText" required maxlength="2000" placeholder="Escribí un mensaje…" aria-label="Escribir mensaje">'+esc(formDraft)+'</textarea>'+
    '<button type="submit" '+(busy?'disabled':'')+' aria-label="Enviar mensaje"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg><span>Enviar</span></button></form>'+
+   (deliveryNotice?'<p role="status" class="efg-chat-delivery-notice">'+esc(deliveryNotice)+'</p>':'')+
    '<p class="efg-chat-privacy">Solo las personas vinculadas y autorizadas pueden conversar. Para emergencias usá los canales correspondientes.</p>';
  }
- function paint({force=false}={}){
+ function paint({force=false,prepend=false}={}){
   resetIfChanged();const host=document.getElementById("efgMessagesContent");if(!host)return;
-  const composer=host.querySelector("#efgMessageText");
-  if(!force&&composer===document.activeElement){
-   const history=host.querySelector(".efg-message-history");
-   if(history){const temp=document.createElement("div");temp.innerHTML=threadHTML();const fresh=temp.querySelector(".efg-message-history");
-    if(fresh){const bottom=history.scrollHeight-history.scrollTop-history.clientHeight<60;history.innerHTML=fresh.innerHTML;if(bottom)history.scrollTop=history.scrollHeight;}
+  const current=host.querySelector(".efg-message-history");
+  const oldPosition=current?{top:current.scrollTop,height:current.scrollHeight,atBottom:current.scrollHeight-current.scrollTop-current.clientHeight<65}:null;
+  const focused=host.contains(document.activeElement)?document.activeElement:null;
+  const focusId=focused?.id||null;
+  const selection=focusId&&typeof focused.selectionStart==="number"?[focused.selectionStart,focused.selectionEnd]:null;
+  // Preserve active text controls in place: repainting them closes some iOS keyboards.
+  if(!force&&(focusId==="efgMessageText"||focusId==="efgChatSearch")){
+   const list=host.querySelector(".efg-chat-contacts");
+   if(list)list.innerHTML=cardsHTML();
+   const oldHistory=host.querySelector(".efg-message-history");
+   if(oldHistory){
+    const tmp=document.createElement("div");tmp.innerHTML=threadHTML();
+    const next=tmp.querySelector(".efg-message-history");
+    if(next){
+     const atBottom=oldHistory.scrollHeight-oldHistory.scrollTop-oldHistory.clientHeight<65;
+     const top=oldHistory.scrollTop,previousHeight=oldHistory.scrollHeight;
+     oldHistory.innerHTML=next.innerHTML;
+     oldHistory.scrollTop=prepend?top+oldHistory.scrollHeight-previousHeight:atBottom?oldHistory.scrollHeight:top;
+    }
    }
-   const list=host.querySelector(".efg-chat-contacts");if(list)list.innerHTML=cardsHTML();
    return;
   }
+  // Refreshes should not close the mobile keyboard, reset a search, or jump while reading history.
   host.innerHTML='<section class="efg-chat-layout'+(threadOpen?" show-thread":"")+'">'+
     '<aside class="efg-chat-list">'+headerHTML()+'<div class="efg-chat-contacts" aria-label="Conversaciones">'+cardsHTML()+'</div></aside>'+
     '<section class="efg-chat-thread">'+threadHTML()+'</section></section>';
-  const history=host.querySelector(".efg-message-history");if(history)history.scrollTop=history.scrollHeight;
+  const history=host.querySelector(".efg-message-history");
+  if(history){
+   if(force||!oldPosition)history.scrollTop=history.scrollHeight;
+   else if(prepend)history.scrollTop=oldPosition.top+(history.scrollHeight-oldPosition.height);
+   else if(oldPosition.atBottom)history.scrollTop=history.scrollHeight;
+   else history.scrollTop=oldPosition.top;
+  }
+  if(focusId&&!force){
+   const replacement=host.querySelector("#"+focusId);
+   if(replacement){replacement.focus({preventScroll:true});if(selection&&typeof replacement.setSelectionRange==="function")replacement.setSelectionRange(...selection);}
+  }
  }
  async function refreshOverview(){
   const c=context(),people=contacts(),key=knownUser;
@@ -99,58 +141,118 @@ export function createMessagesCenter({sb,context,afterSend}){
   else request=request.eq("student_id",c.userId).eq("coach_id",people[0].coach);
   const {data,error}=await request.order("created_at",{ascending:false}).limit(1000);
   if(error)throw error;
-  if(knownUser!==key)return;
-  overview=data||[];paint();
+  if(knownUser!==key||conversationSessionKey(context())!==key)return;
+  // UI defense-in-depth: show only currently authorized student/coach pairs.
+  const allowed=new Set(contacts().map(identity));
+  overview=(data||[]).filter(m=>allowed.has(m.student_id+"::"+m.coach_id));paint();
+ }
+ async function markRead(rows,x,sessionEpoch){
+  if(!sameCurrentPair(x,sessionEpoch))return rows;
+  const user=context().userId;
+  const unread=rows.filter(m=>m.student_id===x.student&&m.coach_id===x.coach&&m.sender_id!==user&&!m.read_at).map(m=>m.id);
+  if(!unread.length)return rows;
+  const readAt=new Date().toISOString();
+  // RLS may silently affect ZERO rows without a PostgREST error. Only a
+  // returned, persisted read_at is authoritative; never hide unread messages
+  // on the strength of the request alone (06-01).
+  const {data:confirmed,error}=await sb.from("efg_messages").update({read_at:readAt})
+   .eq("student_id",x.student).eq("coach_id",x.coach).in("id",unread)
+   .select("id,read_at");
+  if(error){console.warn("Message receipt",error.message);return rows;}
+  if(context().userId!==user||!sameCurrentPair(x,sessionEpoch))return rows;
+  const acknowledged=new Map((Array.isArray(confirmed)?confirmed:[])
+   .filter(item=>unread.includes(item?.id)&&typeof item.read_at==="string"&&item.read_at.length>0)
+   .map(item=>[item.id,item.read_at]));
+  if(!acknowledged.size)return rows;
+  return rows.map(m=>acknowledged.has(m.id)?{...m,read_at:acknowledged.get(m.id)}:m);
  }
  async function load(force=false){
   resetIfChanged();const x=pair(),key=epoch;
-  if(refreshing)return;
+  if(refreshing){pendingLoad=true;return;}
   refreshing=true;
   try{
    if(x&&threadOpen){
+    // Newest-first pagination avoids the old first-200-messages cutoff.
     const {data,error}=await sb.from("efg_messages")
       .select("id,student_id,coach_id,sender_id,body,created_at,read_at")
-      .eq("student_id",x.student).eq("coach_id",x.coach).order("created_at",{ascending:true}).limit(200);
+      .eq("student_id",x.student).eq("coach_id",x.coach)
+      .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
     if(error)throw error;
-    if(epoch!==key)return;
-    thread=data||[];
-    const unread=thread.filter(m=>m.sender_id!==context().userId&&!m.read_at).map(m=>m.id);
-    if(unread.length){
-     const {error:receiptError}=await sb.from("efg_messages").update({read_at:new Date().toISOString()}).in("id",unread);
-     if(receiptError)console.warn("Message receipt",receiptError.message);
-     else thread=thread.map(m=>unread.includes(m.id)?{...m,read_at:new Date().toISOString()}:m);
-    }
+    if(!sameCurrentPair(x,key))return;
+    const scoped=(data||[]).filter(m=>m.student_id===x.student&&m.coach_id===x.coach);
+    const incoming=await markRead(scoped,x,key);
+    if(!sameCurrentPair(x,key))return;
+    thread=mergeMessages(thread,incoming);
+    if(!thread.length||thread.length===incoming.length)threadHasMore=incoming.length===PAGE_SIZE;
    }
    await refreshOverview();
-  }finally{refreshing=false;paint({force});}
+   if(x&&sameCurrentPair(x,key))deliveryNotice="";
+  }finally{
+   refreshing=false;paint({force});
+   if(pendingLoad){pendingLoad=false;queueMicrotask(()=>load(force).catch(console.warn));}
+  }
+ }
+ async function loadOlder(){
+  resetIfChanged();const x=pair(),oldest=thread[0],key=epoch;
+  if(!x||!threadOpen||!oldest||!threadHasMore||loadingOlder)return;
+  loadingOlder=true;paint();
+  try{
+   // Timestamp + UUID cursor: stable when new messages arrive while paging.
+   const cursor="created_at.lt."+oldest.created_at+",and(created_at.eq."+oldest.created_at+",id.lt."+oldest.id+")";
+   const {data,error}=await sb.from("efg_messages")
+     .select("id,student_id,coach_id,sender_id,body,created_at,read_at")
+     .eq("student_id",x.student).eq("coach_id",x.coach).or(cursor)
+     .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
+   if(error)throw error;
+   if(!sameCurrentPair(x,key))return;
+   const scoped=(data||[]).filter(m=>m.student_id===x.student&&m.coach_id===x.coach);
+   const older=await markRead(scoped,x,key);
+   if(!sameCurrentPair(x,key))return;
+   thread=mergeMessages(thread,older);
+   threadHasMore=older.length===PAGE_SIZE;
+  }finally{loadingOlder=false;if(key===epoch)paint({prepend:true});}
  }
  async function openStudent(student){
   resetIfChanged();if(!contacts().some(x=>x.student===student))return;
-  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft="";epoch++;}
+  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft=drafts.get(student)||"";threadHasMore=false;deliveryNotice="";epoch++;}
   threadOpen=true;paint({force:true});
   await load(true);
  }
  async function send(value){
-  const x=pair(),c=context(),body=String(value??"").trim();
-  if(!x||!threadOpen)throw Error("Elegí una conversación activa.");
+  resetIfChanged();
+  const x=pair(),c=context(),body=String(value??"").trim(),sendEpoch=epoch;
+  if(busy)throw Error("Esperá a que termine el envío anterior.");
+  if(!x||!threadOpen||!c.userId)throw Error("Elegí una conversación activa.");
   if(body.length<1||body.length>2000)throw Error("Escribí un mensaje de hasta 2000 caracteres.");
   busy=true;
   try{
    const {error}=await sb.from("efg_messages").insert({student_id:x.student,coach_id:x.coach,sender_id:c.userId,body});
    if(error)throw error;
-   formDraft="";await load(true);afterSend?.();
+   if(epoch!==sendEpoch||context().userId!==c.userId||!sameCurrentPair(x,sendEpoch))return;
+   // A confirmed INSERT must not be reported as failed if subsequent SELECT fails.
+   formDraft="";drafts.delete(x.student);deliveryNotice="";
+   try{await load(true);}
+   catch(refreshError){
+    console.warn("Mensaje enviado; actualización del chat pendiente:",refreshError?.message);
+    if(sameCurrentPair(x,sendEpoch))
+     deliveryNotice="Mensaje enviado. No pudimos actualizar la conversación; reabrila para verlo.";
+   }
+   if(sameCurrentPair(x,sendEpoch)&&context().userId===c.userId){
+    try{await afterSend?.();}catch(callbackError){console.warn("Aviso posterior al envío:",callbackError?.message);}
+   }
   }finally{busy=false;paint({force:true});}
  }
  document.addEventListener("click",event=>{
   const host=document.getElementById("efgMessagesContent");if(!host||!host.contains(event.target))return;
   const contact=event.target.closest("[data-chat-contact]");
   if(contact){openStudent(contact.dataset.chatContact).catch(console.warn);return;}
-  if(event.target.closest("[data-chat-back]")){threadOpen=false;formDraft="";paint({force:true});return;}
+  if(event.target.closest("[data-chat-back]")){threadOpen=false;paint({force:true});return;}
+  if(event.target.closest("[data-chat-older]")){loadOlder().catch(console.warn);return;}
   const tab=event.target.closest("[data-chat-filter]");
   if(tab){listMode=tab.dataset.chatFilter;paint({force:true});}
  });
  document.addEventListener("input",event=>{
-  if(event.target?.id==="efgMessageText"){formDraft=event.target.value;return;}
+  if(event.target?.id==="efgMessageText"){formDraft=event.target.value;if(selectedStudent)drafts.set(selectedStudent,formDraft);return;}
   if(event.target?.id==="efgChatSearch"){
    filter=event.target.value;const list=document.querySelector("#efgMessagesContent .efg-chat-contacts");
    if(list)list.innerHTML=cardsHTML();
@@ -163,6 +265,21 @@ export function createMessagesCenter({sb,context,afterSend}){
  });
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn);});
  setInterval(()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn);},25000);
+ async function replyToWeeklyReport(student,weekEnding){
+  resetIfChanged();
+  const c=context(),validWeek=/^\d{4}-\d{2}-\d{2}$/.test(String(weekEnding||""));
+  if(c.role!=="student"||student!==c.userId||!validWeek||!contacts().some(x=>x.student===student))
+   throw Error("No se pudo abrir el chat con tu coach para responder este informe.");
+  // A context-aware draft; never sends any message automatically.
+  const intro="Hola, quería comentarte el informe de la semana hasta el "+weekEnding.split("-").reverse().join("/") + ": ";
+  const saved=drafts.get(student)|| (selectedStudent===student?formDraft:"");
+  if(!String(saved||"").trim()){drafts.set(student,intro);formDraft=intro;}
+  await openStudent(student);
+  const compose=document.getElementById("efgMessageText");
+  if(compose){compose.focus({preventScroll:true});compose.setSelectionRange(compose.value.length,compose.value.length);}
+ }
  return {mount:()=>{resetIfChanged();paint({force:true});load().catch(console.warn);},
-  selectStudent:student=>{openStudent(student).catch(console.warn);},refresh:load};
+  selectStudent:student=>{openStudent(student).catch(console.warn);},
+  replyToWeeklyReport,
+  refresh:load};
 }

@@ -55,3 +55,193 @@
 .coach-report-students .btn{min-height:44px;border-radius:14px}
 @media(max-width:600px){.coach-report-students{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.coach-report-students .btn{min-width:0;white-space:normal;overflow-wrap:anywhere}.coach-inbox-item button{min-height:44px}}
 @media(max-width:360px){.coach-report-students{grid-template-columns:1fr}}
+
+/* EFG Nutrition con Coach: new arrivals intake workspace, UI-only until RLS workflow ships. */
+.coach-intake-intro{margin-bottom:18px;padding:clamp(20px,4vw,30px);border:1px solid #baaf96;border-radius:24px;background:linear-gradient(136deg,#e7e4e8 0%,#f8ecdf 56%,#d9eae4 100%);color:#23394c;box-shadow:0 14px 28px rgba(24,38,56,.08)}
+.coach-intake-intro h2{font-family:Georgia,serif;font-size:clamp(24px,5vw,34px);margin:8px 0 12px;color:#1e3852}
+.coach-intake-intro p{line-height:1.6;max-width:760px;margin-bottom:0}
+.coach-intake-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.coach-intake-summary>div{padding:16px 12px;border:1px solid #d1d8d7;border-radius:16px;background:#f7faf8;min-width:0}
+.coach-intake-summary strong{display:block;font-size:clamp(23px,4vw,32px);line-height:1.25;color:#223f55;font-variant-numeric:tabular-nums}
+.coach-intake-summary span{display:block;font-size:12px;line-height:1.4;color:#536a73;font-weight:650;margin-top:4px}
+.coach-intake-steps{margin-bottom:18px}.coach-intake-steps ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));list-style:none;padding:0;margin:16px 0 0;gap:10px;counter-reset:intake}
+.coach-intake-steps li{counter-increment:intake;padding:16px 13px;border-radius:15px;background:#eef3f0;min-width:0}
+.coach-intake-steps li:before{content:counter(intake,decimal-leading-zero);display:block;font-size:18px;font-weight:800;color:#8d784e;margin-bottom:8px}
+.coach-intake-steps li strong,.coach-intake-steps li small{display:block}.coach-intake-steps li strong{color:#284458}.coach-intake-steps li small{font-size:12px;line-height:1.5;color:#586a73;margin-top:6px}
+.coach-intake-group{margin-bottom:16px}.coach-intake-group .section-head{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.coach-intake-person{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #dce5e2}
+.coach-intake-person:last-child{border-bottom:0}.coach-intake-person>div:nth-child(2){flex:1;min-width:0}
+.coach-intake-person strong,.coach-intake-person small{display:block;overflow-wrap:anywhere}
+.coach-intake-person strong{color:#233b4d}.coach-intake-person small{font-size:12px;margin-top:4px;color:#66777d}
+.coach-intake-actions{display:flex;gap:6px;flex-wrap:wrap}.coach-intake-actions button{min-height:44px}
+.efg-intake-status{display:inline-flex;align-items:center;min-height:30px;padding:4px 10px;border-radius:999px;background:#e5eef0;color:#355268;font-size:12px;font-weight:750}
+.efg-intake-empty{padding:14px 0;color:#62737c;font-size:14px}
+.coach-intake-privacy{border:1px solid #d1d8d7}.coach-intake-privacy p{line-height:1.6}
+@media(max-width:810px){.coach-intake-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.coach-intake-steps ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.coach-intake-person{flex-wrap:wrap}.coach-intake-actions{width:100%;padding-left:58px}.coach-intake-actions button{flex:1 1 auto}.coach-intake-summary{gap:7px}.coach-intake-steps ol{gap:8px}.coach-intake-intro{padding:18px}}
+@media(max-width:350px){.coach-intake-steps ol{grid-template-columns:1fr}.coach-intake-actions{padding-left:0}}
+
+/* Student onboarding is visible only for server-confirmed pending plans. */
+.efg-student-intake-card .pilot-form{display:grid;gap:14px}
+.efg-student-intake-card input,.efg-student-intake-card select,.efg-student-intake-card textarea{min-height:45px;max-width:100%;font-size:16px}
+.efg-intake-share-label{display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid #c7b99c;border-radius:16px;background:linear-gradient(120deg,#f3f0e9,#e8eff0);color:#284459;font-weight:650;line-height:1.5}
+.efg-intake-share-label input{flex:0 0 auto;width:20px;height:20px;min-height:20px;margin:2px 0 0;accent-color:#766e53}
+.efg-intake-share-label:focus-within{outline:3px solid #ba9b6b;outline-offset:3px}
+.coach-intake-shared{margin:14px 0;border:1px solid #d6d8c9;background:#f8f8f4}
+.coach-intake-shared p{overflow-wrap:anywhere}
+@media(max-width:560px){.efg-student-intake-card .field-row{grid-template-columns:1fr}}
+
+/* Voluntary intake: explicit status without implying a medical completion score. */
+.efg-student-intake-state{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;padding:14px 16px;margin:10px 0 18px;border:1px solid #c4d7d5;border-radius:16px;background:linear-gradient(135deg,#e9f2ef,#f5f0ec);color:#264a50}
+.efg-student-intake-state strong{font-weight:780;font-size:14px}
+.efg-student-intake-state span{font-size:12px;line-height:1.45;color:#546b71}
+.efg-legal-entry{max-width:860px;margin-inline:auto;padding:clamp(18px,4vw,30px);border:1px solid #c6b59c;border-radius:22px;background:linear-gradient(135deg,#fffaf5,#eef2f0)}
+.efg-legal-entry h2{color:#253e53}
+.efg-legal-document{margin:16px 0;border:1px solid #d6d7d3;border-radius:14px;padding:12px;background:#fff}
+.efg-legal-document summary{cursor:pointer;font-weight:750;color:#294456}
+.efg-legal-readable{max-height:360px;overflow:auto;padding:8px 10px;line-height:1.6;color:#3b505a}
+.efg-legal-readable h3{margin:14px 0 5px;font-size:15px}
+.efg-legal-readable p{white-space:pre-wrap;overflow-wrap:anywhere}
+.efg-legal-check{display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px 14px;border-radius:12px;background:#eef2f2;line-height:1.5}
+.efg-legal-check input{flex:0 0 auto;width:20px;height:20px;accent-color:#385e65}
+@media(max-width:420px){.efg-student-intake-state{display:grid}.efg-legal-entry{padding:16px}}
+
+
+/* EFG NUTRITION — Special launch experience prototype. Disabled in production.
+   Original bowl/vegetable vector illustration, no third-party image rights. */
+.efg-release-announcement.card,.efg-release-whatsnew.card{
+ position:relative;overflow:hidden;isolation:isolate;text-align:center;
+ width:min(100%,680px);margin-inline:auto;border:1px solid #b8bfd1;border-radius:28px;
+ padding:clamp(20px,4.5vw,38px);
+ background:radial-gradient(circle at 8% 9%,#f8c6d7 0,transparent 32%),
+            radial-gradient(circle at 93% 21%,#b8dad4 0,transparent 34%),
+            radial-gradient(circle at 14% 95%,#ffe4aa 0,transparent 32%),
+            linear-gradient(145deg,#fbf8fc,#e8eefa);
+ color:#243950;box-shadow:0 16px 34px rgba(26,44,75,.15);
+}
+.efg-release-announcement h2,.efg-release-whatsnew h2{
+ color:#203950;font-family:Georgia,serif;font-size:clamp(26px,6.5vw,39px);
+ line-height:1.11;letter-spacing:-.015em;margin:4px 0 13px;
+}
+.efg-release-announcement p,.efg-release-whatsnew p{
+ line-height:1.62;color:#40566b;margin:10px auto;max-width:54ch;
+}
+.efg-release-announcement .eyebrow,.efg-release-whatsnew .eyebrow{
+ display:inline-flex;align-items:center;border-radius:999px;
+ background:#f6e2f0;border:1px solid #d3add0;color:#6a3976;
+ padding:8px 13px;font-size:11px;letter-spacing:.10em;font-weight:800;
+}
+.efg-release-art{display:grid;place-items:center;position:relative;max-height:198px;min-height:158px;margin:0 auto 13px}
+.efg-release-art svg{display:block;width:min(100%,256px);height:auto;max-height:187px;filter:drop-shadow(0 10px 14px rgba(19,46,64,.14))}
+.efg-release-highlights{display:grid;gap:11px;list-style:none;padding:0;margin:24px 0;text-align:left}
+.efg-release-highlights li{
+ display:flex;align-items:center;gap:11px;border-radius:15px;padding:13px 14px;
+ background:#fffdfd;border:1px solid #d4dce3;color:#264456;
+ font-weight:680;font-size:14px;line-height:1.42;
+ box-shadow:0 2px 8px rgba(35,61,82,.04);
+}
+.efg-release-highlights li:nth-child(3n + 1){background:#edf5fc;border-color:#bdd6ec}
+.efg-release-highlights li:nth-child(3n + 2){background:#fff1e1;border-color:#efd2ac}
+.efg-release-highlights li:nth-child(3n + 3){background:#f0f0fa;border-color:#cecaef}
+.efg-release-highlights span{font-size:18px;flex:0 0 20px;color:#8765af}
+.efg-release-announcement .btn,.efg-release-whatsnew .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin:8px 5px 0;padding:13px 21px}
+.efg-release-announcement .btn:focus-visible,.efg-release-whatsnew .btn:focus-visible{outline:3px solid #255c86;outline-offset:4px}
+@media(max-width:430px){
+ .efg-release-announcement.card,.efg-release-whatsnew.card{border-radius:20px;padding:17px 15px 23px}
+ .efg-release-highlights li{padding:12px 11px;font-size:13px}
+ .efg-release-announcement .btn,.efg-release-whatsnew .btn{width:100%;margin:8px 0 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .efg-release-art svg,.efg-release-announcement,.efg-release-whatsnew{animation:none;transition:none}
+}
+
+/* Coach-only: visible provenance, incomplete-field warnings and no auto approval. */
+.efg-intake-prefill{margin:16px 0;padding:15px 17px;border:1px solid #abc9cb;
+ border-radius:16px;background:linear-gradient(135deg,#e4f0ee,#f2edfa);color:#2a4f5e;line-height:1.55}
+.efg-intake-prefill strong{font-size:15px}
+.efg-intake-prefill p{margin:8px 0;font-size:13px}
+.efg-intake-prefill ul{margin:9px 0 13px;padding-left:23px;display:grid;gap:6px}
+.efg-intake-prefill li{font-size:13px;line-height:1.45}
+#coachIntakeGeneratedGuide{margin-top:16px;border-top:1px solid #c9d9d6;padding-top:15px}
+#coachIntakeGeneratedGuide h4{font-size:16px;color:#275665}
+@media(max-width:430px){.efg-intake-prefill{padding:13px 12px}.efg-intake-prefill li{font-size:12px}}
+
+/* COACH-RELAUNCH · student reentry card, isolated and gated OFF. */
+.efg-coach-relaunch{width:min(100%,760px);margin-inline:auto;overflow-wrap:anywhere;
+ background:linear-gradient(145deg,#fffdfa 0%,#faf3fc 100%);border-radius:24px;
+ box-shadow:0 12px 36px rgba(57,37,72,.12)}
+/* COACH-RELAUNCH responsive: nested fieldsets are min-content-sized by
+   default inside display:grid. Safari/WebKit could expand the form 25px
+   beyond a 390px viewport when the long share/clinical labels wrap. */
+.efg-coach-relaunch,.efg-coach-relaunch form{min-width:0;max-width:100%;box-sizing:border-box}
+.efg-coach-relaunch .pilot-form{grid-template-columns:minmax(0,1fr)}
+.efg-coach-relaunch .pilot-form>*,
+.efg-coach-relaunch .pilot-form fieldset,
+.efg-coach-relaunch .efg-gut-intake,
+.efg-coach-relaunch .efg-intake-share-label{min-width:0;max-width:100%;box-sizing:border-box}
+.efg-coach-relaunch .pilot-form button.btn{width:100%;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.efg-coach-relaunch .efg-gut-choice{min-width:0;max-width:100%}
+.efg-coach-relaunch .eyebrow{color:#826089;font-size:11px;letter-spacing:.12em}
+.efg-coach-relaunch h2{color:#3b2f43;font-size:clamp(22px,3vw,30px);letter-spacing:-.025em}
+.efg-coach-relaunch p{line-height:1.6;color:#584e60}
+.efg-coach-relaunch .field-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.efg-coach-relaunch .field-row>*{min-width:0}
+.efg-coach-relaunch input,.efg-coach-relaunch select,.efg-coach-relaunch textarea{max-width:100%;min-width:0}
+.efg-coach-relaunch button.btn{min-height:44px;min-width:88px}
+.efg-coach-relaunch .efg-intake-share-label{line-height:1.6}
+@media(max-width:680px){
+ .efg-coach-relaunch{border-radius:18px}
+ .efg-coach-relaunch .field-row{grid-template-columns:1fr;gap:8px}
+}
+
+
+/* CLIN-GUT-02 | Premium restrained clinical section in new Coach intake.
+   Disabled until sensitive-data permissions, review and evidence are verified. */
+.efg-coach-relaunch .efg-gut-intake{margin:18px 0;padding:clamp(15px,3vw,24px);
+ border:1px solid #b7c7c5;border-radius:20px;
+ background:linear-gradient(145deg,#f8fbfa,#e8eee9);
+ box-shadow:inset 0 1px 0 #fff,0 7px 20px #243a4420}
+.efg-coach-relaunch .efg-gut-intake legend{padding:0 9px;color:#1d3c46;
+ font-size:13px;font-weight:900;letter-spacing:.01em}
+.efg-coach-relaunch .efg-gut-choice{display:flex;align-items:flex-start;gap:12px;
+ margin:10px 0;padding:15px;background:#fff;border-radius:14px;border:1px solid #dbe5e1}
+.efg-coach-relaunch .efg-gut-choice input{width:18px;height:18px;flex:0 0 18px;
+ margin-top:3px;accent-color:#278579}
+.efg-coach-relaunch .efg-gut-choice span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.efg-coach-relaunch .efg-gut-choice strong{color:#213b46;font-size:13px}
+.efg-coach-relaunch .efg-gut-choice small{color:#5c7079;font-size:11px;line-height:1.55}
+.efg-coach-relaunch .efg-gut-clinical-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.efg-coach-relaunch .efg-gut-clinical-status label{display:flex;flex-direction:column;gap:7px;
+ color:#405b62;font-weight:700;font-size:11px;min-width:0}
+.efg-coach-relaunch .efg-gut-clinical-status label:last-child{grid-column:1 / -1}
+.efg-coach-relaunch .efg-gut-clinical-status select{width:100%;min-height:44px;
+ border:1px solid #cbd8d3;background:#fff;border-radius:11px;padding:9px 11px;color:#354e59}
+.efg-coach-relaunch .efg-gut-consent{display:flex;align-items:flex-start;gap:10px;
+ border-radius:13px;padding:13px;background:#e1e9e5;color:#435d64;font-size:11px;line-height:1.55}
+.efg-coach-relaunch .efg-gut-consent input{margin-top:3px;accent-color:#288377}
+.efg-coach-relaunch .efg-gut-intake :disabled{cursor:not-allowed;opacity:.62}
+@media(max-width:560px){.efg-coach-relaunch .efg-gut-clinical-status{grid-template-columns:1fr}
+ .efg-coach-relaunch .efg-gut-intake{padding:13px}
+ .efg-coach-relaunch .efg-gut-choice{padding:12px}}
+
+/* COACH117 legal-first student welcome: actual current text stays complete,
+   two distinct unselected checkboxes, readable on 320px Android and iPhone. */
+.efg-coach-legal{width:min(100%,760px);min-width:0;box-sizing:border-box;margin-inline:auto;
+ background:linear-gradient(150deg,#fffdfa,#f6f1fb);border:1px solid #d8ccd9;
+ box-shadow:0 12px 32px #45334d13;overflow-wrap:anywhere}
+.efg-coach-legal h2{color:#35465b;font-size:clamp(23px,4.8vw,31px)}
+.efg-coach-legal .pilot-form{grid-template-columns:minmax(0,1fr)}
+.efg-coach-legal .pilot-form>*,.efg-coach-legal details{min-width:0;max-width:100%}
+.efg-legal-document{border:1px solid #d9e1e7;border-radius:17px;padding:14px;
+ background:#fff;min-width:0;box-sizing:border-box}
+.efg-legal-document summary{cursor:pointer;font-size:14px;font-weight:800;color:#284f64;
+ padding:6px 0;overflow-wrap:anywhere}
+.efg-legal-body{font-size:12px;line-height:1.75;color:#475966;padding:14px 0;
+ max-height:320px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.efg-legal-confirm{display:flex;align-items:flex-start;gap:12px;margin-top:12px;
+ color:#384c62;font-size:13px;font-weight:700;line-height:1.55}
+.efg-legal-confirm input{accent-color:#386c87;flex:none;width:19px;height:19px;
+ margin:1px 0 0}
+.efg-coach-legal .btn.block{width:100%;max-width:100%;white-space:normal}
+@media(max-width:560px){.efg-coach-legal{padding:18px 13px}
+ .efg-legal-document{padding:12px}.efg-coach-legal .pilot-form{gap:12px}}

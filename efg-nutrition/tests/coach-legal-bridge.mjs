@@ -1,0 +1,123 @@
+// COACH-67 · Legal bridge synthetic verified-doc source; NO real user/server.
+import assert from "node:assert/strict";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,
+ renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "../pilot/coach-legal-bridge.js";
+import {LEGAL_ONBOARDING_ENABLED} from "../pilot/legal-onboarding.js";
+assert.equal(COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,false);
+assert.equal(LEGAL_ONBOARDING_ENABLED,false);
+const terms="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const privacy="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+const hash="a".repeat(64);
+const userId="dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+let signedUserId=userId;
+const text="Documento hipotético exclusivamente para pruebas: "+("Explica derechos, alcance, privacidad y condiciones en detalle. ").repeat(6)+"<script>alert('bad')</script>";
+let docs=[
+ {id:terms,kind:"terms",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"},
+ {id:privacy,kind:"privacy",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"}
+],accepted=new Set(),writes=0,queries=0,misreport=false;
+const sb={
+ auth:{getUser:async()=>({data:{user:{id:signedUserId}},error:null})},
+ rpc(name,payload){
+  if(name==="efg_legal_current_status")
+   return Promise.resolve({data:docs.map(d=>({kind:d.kind,document_id:d.id,version:d.version,sha256:d.sha256,
+    accepted:accepted.has(d.id)})),error:null});
+  assert.equal(name,"efg_accept_current_legal");
+  writes++;
+  assert.deepEqual(payload,{p_terms_id:docs.find(d=>d.kind==="terms").id,
+   p_privacy_id:docs.find(d=>d.kind==="privacy").id,
+   p_terms_checked:true,p_privacy_checked:true});
+  if(!misreport)for(const id of [payload.p_terms_id,payload.p_privacy_id])accepted.add(id);
+  return Promise.resolve({data:true,error:null});
+ },
+ from(name){
+  assert.equal(name,"efg_legal_documents");queries++;
+  return {select(columns){assert.equal(columns,"id,kind,version,sha256,body,is_current,published_at");return this;},in(k,values){assert.equal(k,"id");assert.deepEqual([...values].sort(),docs.map(d=>d.id).sort());return this},
+   limit(n){assert.equal(n,2);return Promise.resolve({data:docs,error:null})}};
+ }
+};
+await assert.rejects(()=>loadCoachLegalOnboarding(sb),/no puede activarse/);
+assert.equal(queries,0);assert.equal(writes,0);
+const off=await assert.rejects(()=>acceptCoachLegalOnboarding(sb,{},{terms:true,privacy:true}),/aceptación legal explícita/);
+assert.equal(writes,0);
+const opts={enabled:true,legalEnabled:true};
+const loaded=await loadCoachLegalOnboarding(sb,opts);
+assert.equal(loaded.userId,userId,"Server-read legal snapshot is bound to the account that fetched it.");
+const verifiedDocs=docs;
+docs=verifiedDocs.map((d,i)=>i?d:{...d,body:d.body+" [PENDIENTE: revisión]"});
+await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/versión legal publicada no coincide/);
+docs=verifiedDocs;
+assert.deepEqual(loaded.missing,["terms","privacy"]);
+const ui=renderCoachLegalOnboarding(loaded);
+assert.match(ui,/Confirmar y continuar/);
+assert.match(ui,/Términos y Condiciones completos/);
+assert.match(ui,/Política de Privacidad completa/);
+assert.match(ui,/&lt;script&gt;/);
+assert.doesNotMatch(ui,/<script>/);
+assert.doesNotMatch(ui,/checked(?=>|\s)/);
+await assert.rejects(()=>acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:false},
+ {...opts,explicitSubmit:true}),/por separado/);
+assert.equal(writes,0);
+await assert.rejects(()=>acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:true},opts),
+ /aceptación legal explícita/);
+assert.equal(writes,0);
+const yes=await acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:true},
+ {...opts,explicitSubmit:true});
+assert.deepEqual(yes.missing,[]);
+assert.equal(renderCoachLegalOnboarding(yes),"");
+assert.equal(writes,1);
+// The old accepted document ID cannot authorize a newly published version.
+docs=docs.map((d,i)=>i===0?{...d,id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",version:"2026.11"}:d);
+const refresh=await loadCoachLegalOnboarding(sb,opts);
+assert.deepEqual(refresh.missing,["terms"]);
+misreport=true;
+await assert.rejects(()=>acceptCoachLegalOnboarding(sb,refresh,{terms:true},{...opts,explicitSubmit:true}),/servidor no confirmó/);
+assert.equal(writes,2);
+const pilot=await (await import("node:fs/promises")).readFile(
+ new URL("../pilot/pilot.js",import.meta.url),"utf8");
+assert.match(pilot,/COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding/);
+assert.match(pilot,/state\.coachRelaunchEntry\?\.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED/);
+assert.match(pilot,/state\.profile\.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state\.coachLegalPending/,
+ "A coach must be shown their own current legal documents before workspace access");
+assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\);\s*state\.coachLegalPending=state\.coachLegalSnapshot\.missing\.length>0;/,
+ "Coach legal state must be server-read, never inferred from student consent or local storage");
+assert.match(pilot,/if\(state\.coachLegalPending\)return render\(\)/,
+ "Unaccepted coach must not load student/plan details");
+assert.match(pilot,/const studentNeedsLegal=state\.profile\?\.role==="student"/);
+assert.match(pilot,/const coachNeedsLegal=state\.profile\?\.role==="coach"&&state\.coachLegalPending===true/);
+assert.match(pilot,/\(!studentNeedsLegal&&!coachNeedsLegal\)/,
+ "Legal submit action must be authorized by the current role's outstanding docs");
+assert.match(pilot,/state\.coachLegalSnapshot=null;state\.coachLegalPending=false;\s*await refresh\(\)/,
+ "After coach/student acceptance, read back current legal versions before proceeding");
+assert.match(pilot,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
+assert.match(pilot,/if\(action==="confirmLegalAcceptance"\)\{/);
+assert.match(pilot,/await acceptCoachLegalOnboarding\(sb,state\.coachLegalSnapshot,checked,\{explicitSubmit:true\}\)/);
+// Refresh cannot bypass new legal versions while preserving coach draft edits.
+const pullStart=pilot.indexOf("async function refreshVisibleWorkspace()");
+const pullEnd=pilot.indexOf("async function saveWeight()",pullStart);
+assert.ok(pullStart>0&&pullEnd>pullStart);
+const pull=pilot.slice(pullStart,pullEnd);
+assert.match(pull,/state\.coachLegalSnapshot=await loadCoachLegalOnboarding\(sb\)/);
+assert.match(pull,/state\.coachLegalPending=state\.coachLegalSnapshot\.missing\.length>0/);
+assert.match(pull,/if\(state\.coachLegalPending\)\{[\s\S]*?await render\(\);return;/);
+assert.match(pull,/state\.coachRelaunchEntry=await loadCoachRelaunchEntry\(sb,\{profile:state\.profile,userId:id\}\)/);
+assert.match(pull,/if\(state\.coachRelaunchEntry\.route!=="ready"\)\{await render\(\);return;\}/);
+assert.ok(pull.indexOf("state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb)")<pull.indexOf("await Promise.all([loadPersonalData()"),
+ "Coach legal checks must happen before fetching private workspace data");
+assert.ok(pull.indexOf("state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb")<pull.indexOf("await Promise.all([loadPersonalData()"),
+ "Student intake and current legal versions must be rechecked before private reads");
+assert.doesNotMatch(pilot,/acceptedNotice.*true.*legal|localStorage\.setItem\("legalAccepted"/,
+ "No locally accepted flag may bypass versioned legal server readback.");
+// Switching accounts between preview and clicking Accept must not write a
+// receipt in account B using the snapshot displayed to account A.
+const beforeSwitchWrites=writes;
+signedUserId=privacy;
+await assert.rejects(()=>acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:true},
+ {...opts,explicitSubmit:true}),/sesión cambió/);
+assert.equal(writes,beforeSwitchWrites,"Account switch must not invoke the legal receipt RPC.");
+signedUserId=userId;
+let switchedChecks=0;
+const switchedSb={...sb,auth:{getUser:async()=>({data:{user:{id:++switchedChecks===1?userId:privacy}},error:null})}};
+await assert.rejects(()=>loadCoachLegalOnboarding(switchedSb,opts),/sesión cambió/);
+assert.equal(switchedChecks,2,"Late response for A is rejected before legal documents are shown to B.");
+assert.throws(()=>renderCoachLegalOnboarding({...loaded,userId:null}),/no verificados/);
+console.log("PASS COACH-67: legal docs are exact version/hash, checked individually, HTML escaped, RPC explicit, readback mandatory and all flags OFF.");

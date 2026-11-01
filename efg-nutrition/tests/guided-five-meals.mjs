@@ -50,12 +50,39 @@ assert.equal(baseline.average.k,625);
 assert.match(baseline.warning,/no el consumo habitual/);
 console.log("PASS: five-meal educational guide, bounded portions, optional whey, assessment, sample intake, no auto-prescribing.");
 
+// An unknown measurement must never turn into an invented numeric zero.
+for(const nutrient of ["k","p","c","f","fi"]){
+ const incomplete=catalog.map(food=>({...food}));
+ const ingredient=incomplete.find(food=>food.id==="chicken");
+ delete ingredient[nutrient];
+ assert.throws(()=>generateGuidedDay(incomplete,goal),/datos nutricionales incompletos/,
+  "Guide generation must stop when "+nutrient+" is missing");
+}
+for(const badValue of [null,NaN,-1]){
+ const invalid=catalog.map(food=>({...food}));
+ invalid.find(food=>food.id==="chicken").p=badValue;
+ assert.throws(()=>generateGuidedDay(invalid,goal),/datos nutricionales incompletos/,
+  "Unknown, nonfinite or negative protein cannot become 0");
+}
+const explicitlyZero=catalog.map(food=>({...food}));
+assert.equal(explicitlyZero.find(food=>food.id==="coffee_black").c,0);
+assert.doesNotThrow(()=>generateGuidedDay(explicitlyZero,goal),
+ "An explicit measured/estimated zero is different from a missing value");
+
 const original=generateGuidedDay(catalog,goal);
 const exampleEgg=original.meals[0].items.find(x=>x.id==="egg");
 assert.equal(exampleEgg.qty,110,"Default breakfast must remain two eggs, not three");
 assert.ok(guidedFoodAlternatives("egg",catalog).includes("ham_cooked"),"Ham replacement must be offered");
 for(const alternative of ["egg_white","ham_cooked","turkey_breast_cooked","yogurt_greek_light","yogurt_high_protein","cottage_cheese","ricotta_light","tofu_firm","tempeh","whey_powder"]){
  const choice=swapGuidedFood(original,"desayuno",0,alternative,catalog);
+ // PRO22 source-specific macros, no mutation and same approved goal.
+ const replacement=catalog.find(item=>item.id===alternative);
+ assert.equal(choice.meals[0].items[0].p,replacement.p,"Replacement must use the selected food's actual protein data");
+ assert.equal(choice.meals[0].items[0].f,replacement.f,"Replacement must use the selected food's actual fat data");
+ assert.equal(original.meals[0].items[0].id,"egg","Protein swaps must NOT mutate the original plan");
+ assert.equal(original.meals[0].items[0].qty,110);
+ assert.notDeepEqual(guideTotals(choice).totals,guideTotals(original).totals,
+  "PRO22 source-specific macro totals must be recalculated after switching protein");
  const result=rebalanceGuidedDay(choice,goal);
  assert.equal(result.meals[0].items[0].id,alternative,"Must retain coach choice");
  assert.ok(result.meals[0].items[0].locked,"Coach food replacement must stay locked");
@@ -80,6 +107,20 @@ const adjusted=structuredClone(swapped);
 adjusted.meals[2].items[1].qty=200;adjusted.meals[2].items[1].locked=true;
 const protectedEdit=rebalanceGuidedDay(adjusted,goal);
 assert.equal(protectedEdit.meals[2].items[1].qty,200,"Coach-entered portion must survive automatic rebalancing");
+
+// Coach changes a quantity: keep that choice, recalculate other meals globally.
+// A 340 g cooked rice portion intentionally stresses the original daily balance.
+const chosen=structuredClone(original),fixedRice=chosen.meals.find(m=>m.slot==="almuerzo").items.find(i=>i.id==="brownrice");
+fixedRice.qty=340;fixedRice.locked=true;
+const automatic=rebalanceGuidedDay(chosen,goal);
+assert.equal(automatic.meals.find(m=>m.slot==="almuerzo").items.find(i=>i.id==="brownrice").qty,340,
+ "Coach-set grams must not be changed by automatic optimization");
+const beforeFlexible=chosen.meals.flatMap(m=>m.items.filter(i=>!i.locked).map(i=>m.slot+":"+i.id+":"+i.qty));
+const afterFlexible=automatic.meals.flatMap(m=>m.items.filter(i=>!i.locked).map(i=>m.slot+":"+i.id+":"+i.qty));
+assert.ok(beforeFlexible.some((x,i)=>x!==afterFlexible[i]),
+ "At least one other adjustable ingredient must rebalance when coach significantly changes a portion");
+assert.equal(automatic.meals.length,5,"Recalculation must cover the whole daily guide, not one isolated meal");
+
 const balanced=rebalanceGuidedDay(swapped,goal);
 assert.equal(balanced.meals[2].items[1].id,"rice","Rebalancing preserves chosen foods");
 assert.doesNotThrow(()=>validateGuidedDay(balanced,goal));
@@ -94,4 +135,21 @@ for(const variant of [
  assert.equal(generated.meals.length,5);
  assert.doesNotThrow(()=>validateGuidedDay(generated,variant),"Reasonable target must yield plausible five meals");
 }
+// 02-02: the five-meal model must account for the coach's actual fiber target.
+const fiberGoal={...goal,fiber_g:28};
+const fiberPlan=structuredClone(original);
+fiberPlan.meals[2].items[0].fi=0.035;
+const fiberBefore=guideDeviation(fiberPlan,fiberGoal);
+assert.equal(fiberBefore.fi.target,28);
+assert.ok(fiberBefore.fi.actual>0&&Number.isFinite(fiberBefore.fi.percent));
+const fiberAdjustment=structuredClone(fiberPlan);
+fiberAdjustment.meals[2].items[0].qty+=10;
+assert.notEqual(guideDeviation(fiberAdjustment,fiberGoal).fi.actual,fiberBefore.fi.actual,
+ "Fiber must recalculate when the coach changes ingredient grams.");
+assert.equal(guideDeviation(fiberPlan,{...goal,fiber_g:0}).fi.percent,null,
+ "No fiber target means no fabricated percentage of goal.");
+const readFileSync=(await import("node:fs")).readFileSync;
+const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
+assert.ok(app.includes("data-guidedeviations")&&app.includes("deviations.fi.target>0"),
+ "Coach five-meal guide must display the fiber deviation.");
 console.log("PASS: real-food swaps, bounded portions and different calorie targets.");

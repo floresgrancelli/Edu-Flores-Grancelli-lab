@@ -1,0 +1,78 @@
+import assert from "node:assert/strict";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "../pilot/coach-intake-prefill.js";
+import {intakeSaveButtonLabel} from "../pilot/coach-intake-flow.js";
+import {readFileSync} from "node:fs";
+const sample={student_id:"student_A",shared_at:"2026-10-29T15:00:00Z",updated_at:"2026-10-29T15:01:00Z",age_years:41,height_cm:174,
+ weight_kg:80.5,objective:"recomp",activity_level:"moderate",dietary_pattern:"omnivore",
+ preferred_foods:"Pollo, arroz",disliked_foods:"Morrón",meal_routine:"07:00 a 21:00"};
+assert.throws(()=>createCoachCalculatorPrefill({intake:sample,studentId:"student_A",coachAuthorized:false}),/autorizada/);
+assert.throws(()=>createCoachCalculatorPrefill({intake:sample,studentId:"student_B",coachAuthorized:true}),/autorizada/);
+assert.throws(()=>createCoachCalculatorPrefill({intake:{...sample,shared_at:null},studentId:"student_A",coachAuthorized:true}),/autorizada/);
+const x=createCoachCalculatorPrefill({intake:sample,studentId:"student_A",coachAuthorized:true});
+assert.deepEqual(x.fields,{targetAge:"41",targetHeight:"174",targetWeight:"80.5",targetGoal:"recomp",targetActivity:"1.5"});
+assert.equal(x.readyForAutomaticCalculation,false,"Sex required by equation is NEVER guessed");
+assert.equal(x.sourceUpdatedAt,"2026-10-29T15:01:00Z","Bind prefill to a particular received revision");
+assert.equal(x.eligibleForGeneralExample,true);
+assert.ok(x.warnings.some(w=>w.includes("parámetro fisiológico")));
+assert.ok(x.warnings.some(w=>w.includes("alergias")));
+assert.ok(x.warnings.some(w=>w.includes("NO incorpora alimentos preferidos")),"The generic preview must not claim personalization that is not implemented");
+assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_A",consent:true}),true);
+assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_B",consent:true}),false);
+assert.equal(coachGuidePreviewAllowed(x,{studentId:"student_A",consent:false}),false);
+for(const pattern of ["vegetarian","vegan","pescatarian","other","unknown"]){
+ const v=createCoachCalculatorPrefill({intake:{...sample,dietary_pattern:pattern},studentId:"student_A",coachAuthorized:true});
+ assert.equal(coachGuidePreviewAllowed(v,{studentId:"student_A",consent:true}),false,"Never create animal menu for "+pattern);
+}
+// COACH-65 versioned handoff: an old shared intake must not drive the
+// relaunch calculator, even if it still has a shared_at timestamp.
+const versioned={...sample,completed_version:"coach_major_2026_r1",revision:2};
+const relaunch=createCoachCalculatorPrefill({
+ intake:versioned,studentId:"student_A",coachAuthorized:true,
+ requiredIntakeVersion:"coach_major_2026_r1"
+});
+assert.equal(relaunch.sourceVersion,"coach_major_2026_r1");
+assert.equal(relaunch.sourceRevision,2);
+assert.deepEqual(relaunch.fields,x.fields);
+for(const intake of [sample,{...versioned,completed_version:"coach_old_2026"},
+ {...versioned,revision:null},{...versioned,revision:0},
+ {...versioned,shared_at:null}]){
+ assert.throws(()=>createCoachCalculatorPrefill({
+  intake,studentId:"student_A",coachAuthorized:true,
+  requiredIntakeVersion:"coach_major_2026_r1"
+ }),/autorizada/,"Old, unshared or unversioned intake cannot prefill this release.");
+}
+const high=createCoachCalculatorPrefill({intake:{...sample,activity_level:"high"},studentId:"student_A",coachAuthorized:true});
+assert.equal(high.fields.targetActivity,undefined,"High must NOT silently be capped to 1.5");
+assert.ok(high.warnings.some(w=>w.includes("no tiene equivalencia")));
+for(const objective of ["maintenance","general",null]){
+ const y=createCoachCalculatorPrefill({intake:{...sample,objective},studentId:"student_A",coachAuthorized:true});
+ assert.equal(y.fields.targetGoal,undefined,"Unsupported goals cannot default to fat-loss");
+}
+const invalid=createCoachCalculatorPrefill({intake:{...sample,age_years:105,height_cm:110,weight_kg:20},studentId:"student_A",coachAuthorized:true});
+assert.equal(invalid.fields.targetAge,undefined);
+assert.equal(invalid.fields.targetHeight,undefined);
+assert.equal(invalid.fields.targetWeight,undefined);
+assert.ok(invalid.warnings.length>=4);
+assert.ok(!Object.hasOwn(x.fields,"targetSex"),"No inferred sex");
+const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
+const form=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
+assert.match(app,/createCoachCalculatorPrefill/);
+assert.match(app,/if\(action==="prepareCoachPlanFromIntake"\)/);
+assert.match(app,/await loadStudentDetail\(studentId\)/,"Re-read RLS/consent before using intake");
+assert.match(form,/data-act="prepareCoachPlanFromIntake"/);
+assert.match(app,/coachIntakeGuidePreview/);
+assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide must be regenerated after changing target kcal");
+assert.match(app,/coachGuidePreviewAllowed/);
+assert.equal(intakeSaveButtonLabel({wasShared:false,willShare:false}),"Guardar ficha privada");
+assert.equal(intakeSaveButtonLabel({wasShared:false,willShare:true}),"Guardar y enviar mi ficha a mi coach");
+assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:true}),"Actualizar ficha compartida con mi coach");
+assert.equal(intakeSaveButtonLabel({wasShared:true,willShare:false}),"Guardar privada y dejar de compartir");
+assert.match(app,/if\(e\.target\.id==="efgIntakeShare"\)/,"Submit label updates on checkbox change");
+assert.match(app,/regenerateCoachIntakeGuidePreview\(\)/,"Guide preview gets regenerated on goal edits");
+assert.match(app,/await loadStudentDetail\(studentId\); \/\/ Revalidate RLS\/consent/);
+assert.match(app,/requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED\?COACH_RELEASE_INTAKE_VERSION:null/,
+ "New Coach plan must derive exclusively from current verified intake revision.");
+assert.match(app,/Guardar objetivo para revisar guía/,"Goal must not be advertised as published diet");
+
+assert.doesNotMatch(app,/createCoachCalculatorPrefill\([\s\S]{0,150}state\.session\.user\.id\s*\)/);
+console.log("PASS: coach prefill is role/consent-specific, fails closed, and cannot invent goals, clinical safety or equation sex");

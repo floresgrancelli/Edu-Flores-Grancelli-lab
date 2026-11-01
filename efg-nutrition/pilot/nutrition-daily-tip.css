@@ -1,0 +1,29 @@
+/* PRO-60 / D-36 · Luxury editorial daily tip with licensed real food photography.
+   Palette adapts to Luxury Night/serotonin theme; bright macro charts unchanged. */
+.efg-daily-tip{isolation:isolate;display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1fr);align-items:stretch;overflow:hidden;margin:18px 0 22px;border-radius:25px;border:1px solid rgba(193,169,131,.38);background:linear-gradient(135deg,#fffaf2 0%,#f5eee5 51%,#e7e6eb 100%);box-shadow:0 15px 32px rgba(20,31,48,.13),inset 0 1px rgba(255,255,255,.89);color:#1b293c}
+.efg-daily-tip-media{min-height:270px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 43% 37%,#d0bda8,#657b78 85%)}
+.efg-daily-tip-photo-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font:700 clamp(18px,2vw,28px)/1.25 Georgia,serif;letter-spacing:.03em;color:#fffaf0;background:radial-gradient(ellipse at 45% 35%,#678983,#29485b);text-shadow:0 2px 7px rgba(15,29,44,.4)}
+.efg-daily-tip-photo{position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;min-height:0;object-fit:cover;object-position:center;color:transparent;font-size:0;transition:transform .45s ease}
+.efg-daily-tip-overlay{z-index:2}
+.efg-daily-tip:hover .efg-daily-tip-photo{transform:scale(1.018)}
+.efg-daily-tip-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:16px;background:linear-gradient(180deg,rgba(9,19,35,.56),transparent 45%,rgba(9,19,35,.24))}
+.efg-daily-tip-label{display:inline-flex;max-width:100%;font-size:10px;font-weight:780;letter-spacing:.18em;line-height:1.25;text-transform:uppercase;color:#fff7e6;background:rgba(22,35,51,.66);border:1px solid rgba(255,245,225,.33);border-radius:100px;padding:9px 11px;backdrop-filter:blur(8px)}
+.efg-daily-tip-date{color:white;background:rgba(21,35,52,.7);border-radius:8px;padding:6px 10px;font-size:11px;letter-spacing:.08em;font-weight:650;backdrop-filter:blur(8px)}
+.efg-daily-tip-copy{padding:clamp(20px,3vw,34px);display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0}
+.efg-daily-tip-kicker{margin:0!important;color:#846844!important;font-size:10px!important;font-weight:780;letter-spacing:.15em;text-transform:uppercase;line-height:1.5}
+.efg-daily-tip h2{font-family:Georgia,"Iowan Old Style","Baskerville",serif;font-size:clamp(26px,3vw,39px);line-height:1.1;letter-spacing:-.03em;color:#16273d!important;margin:0!important;text-wrap:balance}
+.efg-daily-tip-description{font-size:clamp(14px,1.3vw,16px);line-height:1.65;color:#304153!important;margin:0!important}
+.efg-daily-tip-disclaimer{font-size:11px;line-height:1.48;color:#526276!important;margin:0}
+.efg-gnocchi-recipe{border:1px solid rgba(79,113,119,.28);border-radius:13px;background:rgba(255,255,255,.72);padding:11px 13px;font-size:12px;line-height:1.55;color:#304153}
+.efg-gnocchi-recipe summary{font-weight:760;color:#243c58;cursor:pointer;min-height:24px}
+.efg-gnocchi-recipe summary:focus-visible{outline:3px solid #346fa3;outline-offset:3px}
+.efg-gnocchi-recipe p{margin:11px 0 0}
+.efg-gnocchi-recipe-note{font-size:11px;color:#536477}
+.efg-daily-tip-credit{font-size:10px;line-height:1.4;color:#5b6675;margin-top:2px}
+.efg-daily-tip-credit a{color:#344e75!important;text-decoration:underline;text-underline-offset:3px}
+.efg-daily-tip-action{align-self:flex-start;border:1px solid rgba(207,178,126,.4);border-radius:12px;display:inline-flex;gap:10px;align-items:center;justify-content:center;background:linear-gradient(135deg,#23364c,#0e1c2e);color:#fff7e8!important;font-weight:700;padding:12px 17px;min-height:44px;font-size:13px;box-shadow:inset 0 1px rgba(255,255,255,.14),0 4px 10px rgba(24,35,49,.16);cursor:pointer}
+.efg-daily-tip-action:hover,.efg-daily-tip-action:focus-visible{background:#334e66}
+.efg-daily-tip a:focus-visible,.efg-daily-tip button:focus-visible{outline:3px solid #346fa3;outline-offset:3px}
+@media(max-width:720px){.efg-daily-tip{grid-template-columns:1fr;border-radius:22px;margin:17px 0 20px}.efg-daily-tip-media{height:205px;min-height:205px}.efg-daily-tip-photo{height:205px;min-height:205px}.efg-daily-tip-copy{padding:22px;gap:11px}.efg-daily-tip h2{font-size:clamp(26px,7vw,32px)}.efg-daily-tip-description{font-size:14px}.efg-daily-tip-label{font-size:9px}}
+@media(max-width:360px){.efg-daily-tip-copy{padding:18px}.efg-daily-tip-media,.efg-daily-tip-photo{height:188px;min-height:188px}}
+@media(prefers-reduced-motion:reduce){.efg-daily-tip-photo{transition:none}.efg-daily-tip:hover .efg-daily-tip-photo{transform:none}}

@@ -479,6 +479,13 @@ export function nutritionTipForDate(instant=new Date()){
   special:false,date:date.iso,...regularPhotoForDate(date,group[1])};
 }
 const escapeHTML=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+// 08-06: specific cultural recipe lives with the 29th card rather than a
+// misleading CTA into unrelated generic student/Fit recipes. Informational
+// content only: no automatic diary write, invented macros or medical clearance.
+const gnocchiRecipeHTML='<details class="efg-gnocchi-recipe"><summary>Receta del 29 · Ñoquis y salsas</summary>'+
+ '<p><strong>Ñoquis caseros (2 porciones orientativas):</strong> 400 g de papa cocida y pisada, 100 g de harina de trigo y 1 huevo pequeño. Mezclá sin amasar de más, formá tiras, cortá y cociná en agua hirviendo hasta que los ñoquis suban a la superficie.</p>'+
+ '<p><strong>Salsa de tomate y albahaca:</strong> tomate triturado, ajo y hojas de albahaca, cocidos a gusto. <strong>Salsa de zapallo:</strong> zapallo asado, pisado con agua de cocción y hierbas.</p>'+
+ '<p class="efg-gnocchi-recipe-note">La receta contiene trigo y huevo. Comprobá ingredientes y restricciones personales; las cantidades y nutrientes reales varían con la preparación. Si registrás el plato, anotá ñoquis y salsa por separado según tu guía.</p></details>';
 export function nutritionTipCardHTML({now=new Date(),allowExplore=false}={}){
  const tip=nutritionTipForDate(now);
  const label=tip.special?"TRADICIÓN ARGENTINA":"NUTRICIÓN CON-CIENCIA";
@@ -494,7 +501,8 @@ export function nutritionTipCardHTML({now=new Date(),allowExplore=false}={}){
  '<h2 id="efgTipTitle">'+escapeHTML(tip.title)+'</h2>'+
  '<p class="efg-daily-tip-description">'+escapeHTML(tip.body)+'</p>'+
  '<p class="efg-daily-tip-disclaimer">Contenido cultural y educativo. No reemplaza indicaciones profesionales ni asigna calorías sin una receta verificada.</p>'+
- (allowExplore?'<button type="button" class="efg-daily-tip-action" data-tab="recipes">Explorar recetas <span aria-hidden="true">→</span></button>':'')+
+ (tip.special?gnocchiRecipeHTML:'')+
+ (allowExplore?'<button type="button" class="efg-daily-tip-action" data-tab="recipes">'+(tip.special?'Explorar otras recetas':'Explorar recetas')+' <span aria-hidden="true">→</span></button>':'')+
  '<small class="efg-daily-tip-credit">Fotografía: <a href="'+escapeHTML(tip.page)+'" target="_blank" rel="noopener noreferrer" aria-label="Fotografía de '+escapeHTML(tip.by)+'" >'+escapeHTML(tip.by)+' / Unsplash</a></small>'+
  '</div></section>';
 }

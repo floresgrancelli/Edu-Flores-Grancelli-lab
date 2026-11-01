@@ -82,7 +82,7 @@ try{
  attestDatabase(sql);
  let anchor=read('installation/tests/manifest-anchor-local.sql');
  const start=anchor.indexOf(" IF current_setting('efg.test_disposable_installation'");const end=anchor.indexOf(' SELECT food.* INTO original',start);assert.ok(start>0&&end>start);
- anchor=anchor.slice(0,start)+` IF NOT EXISTS(select 1 from efg_private.installation_runner_identity r where r.run_id=${q(process.env.GITHUB_RUN_ID)} and r.system_identifier=(select system_identifier::text from pg_control_system()) and r.server_addr=inet_server_addr()::text and r.nonce=current_setting('efg.test_runner_nonce',true)) THEN RAISE EXCEPTION 'Attested disposable DB required'; END IF;\n`+anchor.slice(end);
+ anchor=anchor.slice(0,start)+` IF NOT EXISTS(select 1 from efg_private.installation_runner_identity r where r.run_id=${q(process.env.GITHUB_RUN_ID)} and r.system_identifier=(select system_identifier::text from pg_control_system()) and r.server_addr=host(inet_server_addr()) and r.nonce=current_setting('efg.test_runner_nonce',true)) THEN RAISE EXCEPTION 'Attested disposable DB required'; END IF;\n`+anchor.slice(end);
  const sourceBefore=rowSnapshot(sql,['efg_private.coach_reviewed_foods','efg_private.nutrition_import_policies']);
  sql(`set efg.test_runner_nonce=${q(nonce)};\n`+anchor);assert.deepEqual(rowSnapshot(sql,Object.keys(sourceBefore)),sourceBefore);record('seven manifest assertions and SQL rollback');
  yes(await receipt('A',false),'explicit private participation');assert.equal(yes(await rpc('efg_submit_coach_relaunch_intake',users.studentA.token,intake(0,false)),'private intake'),1);

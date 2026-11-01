@@ -12,7 +12,7 @@
     },
     "runner/run.mjs": {
       "bytes": 18171,
-      "sha256": "faa563ab1fa540351541ce0c710ffd18a825bcfab0cb72a45c3b15cbb4828ff4"
+      "sha256": "2c396009ba8854efe0708da39efcde373b407ae3cf04a926ac5b81e78378b66a"
     },
     "runner/config.py": {
       "bytes": 805,
@@ -36,7 +36,7 @@
     },
     "runner/isolation.mjs": {
       "bytes": 2749,
-      "sha256": "9eef71a009e98b7ea398982ec8d0cf5889210f823db7a980bda47fbddca1e558"
+      "sha256": "4a9ae01d128fa5f8cdbb6a114acd164edfd347e44c613f7760ee921984e89664"
     },
     "runner/baseline-generated.sql": {
       "bytes": 86157,

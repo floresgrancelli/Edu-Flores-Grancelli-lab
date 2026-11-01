@@ -23,7 +23,7 @@ export function attestDatabase(sql){
  const x=JSON.parse(cmd('docker',['inspect',name]))[0];assert.equal(x.Name,'/'+name);assert.equal(x.State.Running,true);
  const ports=x.NetworkSettings.Ports['5432/tcp']||[];
  assert.ok(ports.some(p=>p.HostPort==='54322'),'Expected local exposed DB port');
- const addr=sql('select inet_server_addr()::text');
+ const addr=sql('select host(inet_server_addr())');
  const ips=Object.values(x.NetworkSettings.Networks).flatMap(n=>[n.IPAddress,n.GlobalIPv6Address]).filter(Boolean);
  assert.ok(ips.includes(addr)||['127.0.0.1','::1'].includes(addr),'Database address must belong to inspected stack');
  const system=sql('select system_identifier::text from pg_control_system()');

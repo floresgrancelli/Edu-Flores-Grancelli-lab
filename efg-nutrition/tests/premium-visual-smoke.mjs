@@ -1,3 +1,5 @@
+import {weeklyReportTransportSource} from './weekly-report-transport-private.mjs';
+import {runWeeklyReportFlow} from './weekly-report-flow-private.mjs';
 import {assertCoachReportLayout} from './coach-report-layout-private.mjs';
 // Browser QA on actual EFG UI; fixture accounts in RAM. NEVER contacts live Supabase.
 import { createServer } from "node:http";
@@ -6,6 +8,8 @@ import { extname, join, resolve } from "node:path";
 import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
+const weeklyReportMode=process.env.EFG_QA_WEEKLY_REPORT==="1";
+if(weeklyReportMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private report fixture requires real CI");
 const adaptedCoachMode=process.env.EFG_QA_ADAPTED_COACH==="1";
 if(adaptedCoachMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private coach fixture requires real CI");
 const rootDir=process.cwd();
@@ -27,6 +31,7 @@ const server=createServer((req,res)=>{
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
    if(adaptedCoachMode)bytes=Buffer.from(bytes.toString().replace('readScope:adaptedCoachScope,loadInput:null',
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
+   if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
     "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
@@ -42,7 +47,7 @@ if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
 const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=adaptedCoachMode?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=(adaptedCoachMode||weeklyReportMode)?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -51,7 +56,7 @@ const sbStub='export function createClient(){const b=()=>{const q={saved:null,se
 try{
  for(const [role,width] of scenarios){
   const context=await browser.newContext(androidMode?{...devices["Pixel 7"],viewport:{width,height:860}}:{viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
-  await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:sbStub}));
+  await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:weeklyReportMode?weeklyReportTransportSource():sbStub}));
   // Layout-only fixtures: live photo availability is tested separately in real browsers.
   await context.route(/^https:\/\/images\.(unsplash|pexels)\.com\//,route=>route.fulfill({
    status:200,contentType:"image/png",
@@ -166,6 +171,11 @@ try{
    await render();
   },role);
 
+  if(weeklyReportMode){
+   await page.evaluate(()=>Object.assign(window.__EFG_VISUAL_QA__,window.__EFG_WEEKLY_HOOKS__));
+   results.push(await runWeeklyReportFlow(page,width,outDir));
+   await context.close();continue;
+  }
   if(adaptedCoachMode){
    await page.evaluate(async()=>{
     const v=window.__EFG_VISUAL_QA__,s=v.state;
@@ -938,8 +948,9 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report-"+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
+writeFileSync(join(outDir,"report-"+(weeklyReportMode?"weekly-flow-":"")+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
 console.log(JSON.stringify({engine,captureEngine,androidMode,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;
+

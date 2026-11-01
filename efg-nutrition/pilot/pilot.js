@@ -417,7 +417,9 @@ function weeklyReportWindow(){
  from.setUTCDate(from.getUTCDate()-7);to.setUTCDate(to.getUTCDate()-1);
  return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
 }
+let weeklyPublishPending=false;
 async function publishWeeklyReport(){
+ if(weeklyPublishPending)throw Error("Esperá a que termine la publicación anterior.");
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
@@ -430,17 +432,35 @@ async function publishWeeklyReport(){
  const reportText=reportAsStoredText(approved,approved.conclusion,approved.flexibleNote);
  if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
  if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
- const {error}=await sb.from("efg_weekly_reports").insert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()});
- if(error)throw error;
- // Reload only report history; do not discard an unrelated unsaved coach plan draft.
- const latest=await sb.from("efg_weekly_reports")
-  .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
-  .order("week_ending",{ascending:false}).limit(52);
- if(latest.error)throw latest.error;
- state.coachHistory=latest.data||[];
- luxuryWeeklyEditor.reset();
- await render();
- notify("Informe Luxury Pro compartido con el alumno y conservado en su historial.");
+ const session=state.session,organizationId=state.org?.id,weekEnding=model.friday;
+ const currentScope=()=>state.session===session&&state.selectedStudent===student.user_id&&
+  state.org?.id===organizationId&&state.consent?.accepted&&
+  (state.roster||[]).some(x=>x.user_id===student.user_id&&x.active);
+ const record={student_id:student.user_id,coach_id:session.user.id,week_ending:weekEnding,
+  report_text:reportText,updated_at:new Date().toISOString()};
+ weeklyPublishPending=true;
+ try{
+  const {error}=await sb.from("efg_weekly_reports").insert(record);
+  if(error)throw error;
+  if(!currentScope())return;
+  // INSERT is confirmed. A failed refresh must not invite a duplicate send.
+  state.coachHistory=[record,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
+  luxuryWeeklyEditor.reset();
+  let refreshFailed=false;
+  try{
+   const latest=await sb.from("efg_weekly_reports")
+    .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
+    .order("week_ending",{ascending:false}).limit(52);
+   if(latest.error)throw latest.error;
+   if(!latest.data?.some(r=>r.week_ending===weekEnding&&r.report_text===reportText))throw Error("Historial confirmado todavía no disponible");
+   if(!currentScope())return;
+   state.coachHistory=latest.data||[];
+  }catch{refreshFailed=true;}
+  if(!currentScope())return;
+  await render();
+  notify(refreshFailed?"Informe compartido. No se pudo actualizar el historial; reabrilo para consultarlo. No hace falta reenviar.":
+   "Informe Luxury Pro compartido con el alumno y conservado en su historial.");
+ }finally{weeklyPublishPending=false;}
 }
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
@@ -4177,3 +4197,4 @@ const pullRefresh=createPullToRefresh({
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
  sb.auth.onAuthStateChange(handleAuthStateChange);
 })();
+

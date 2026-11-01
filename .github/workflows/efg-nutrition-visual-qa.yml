@@ -64,6 +64,22 @@ jobs:
           path: artifacts/coach-intake-guide-private/
           if-no-files-found: warn
           retention-days: 7
+      - name: Private weekly report actual UI flow (synthetic transport only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[weekly-report]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --experimental-default-type=module efg-nutrition/tests/weekly-report-state-private.mjs
+          EFG_QA_WEEKLY_REPORT=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Preserve weekly report flow evidence even on failure
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[weekly-report]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-report-private
+          path: |
+            artifacts/premium-visual-qa/weekly-flow-*.png
+            artifacts/premium-visual-qa/report-weekly-flow-*.json
+          if-no-files-found: warn
+          retention-days: 7
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
@@ -135,4 +151,5 @@ jobs:
           retention-days: 14
       - name: Confirm release remains manual
         run: echo "This test does not publish to Render, Supabase or main."
+
 

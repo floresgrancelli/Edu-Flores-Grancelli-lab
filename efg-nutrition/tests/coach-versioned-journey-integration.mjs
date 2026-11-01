@@ -29,7 +29,8 @@ try{
  assert.equal(coachDraftSourceCurrent(intake,draft),true);
  assert.equal(coachDraftSourceCurrent({...intake,revision:5},draft),false,'Same timestamp cannot hide a revision change');
  const reads=[],calls=[];
- const sb={from(table){
+ const coach='55555555-5555-4555-8555-555555555555';
+ const sb={auth:{getUser:async()=>({data:{user:{id:coach}},error:null})},from(table){
   assert.notEqual(table,'efg_student_intakes','New journey must never read old intake');
   reads.push(table);
   const q={select(){return q},eq(){return q},not(){return q},in(){return q},

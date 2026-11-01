@@ -68,6 +68,8 @@ const unlocked=nutritionTipCardHTML({now:localDate(2026,10,29),allowExplore:true
 assert.match(locked,/TIP NUTRICIONAL DEL DÍA/);
 assert.match(locked,/Foto|Fotografía/);
 assert.match(locked,/loading="lazy"/);
+assert.match(locked,/class="efg-daily-tip-photo-placeholder" aria-hidden="true">Nutrición Con-Ciencia/,
+ 'Photo failure must leave an offline branded placeholder, not a blank hero.');
 assert.match(locked,/alt="[^"]+"/);
 assert.match(locked,/Unsplash/);
 assert.match(locked,/No reemplaza indicaciones profesionales/);
@@ -84,6 +86,10 @@ assert.match(app,/state\.profile\.role==="student"\?nutritionTipCardHTML/);
 assert.match(app,/allowExplore:!!goal&&!!state\.foodPlan\?\.guided_plan/);
 assert.match(index,/nutrition-daily-tip\.css/);
 assert.match(style,/\.efg-daily-tip-photo/);
+assert.match(style,/\.efg-daily-tip-photo-placeholder\{position:absolute;inset:0/,
+ 'Offline photo fallback must occupy the actual hero photograph region.');
+assert.match(style,/\.efg-daily-tip-photo\{position:relative;z-index:1/,
+ 'Loaded photo must cover the branded fallback without hiding ALT.');
 assert.match(style,/@media\(max-width:720px\)/);
 assert.match(style, /prefers-reduced-motion:reduce/);
 console.log("PASS PRO60: 72 Argentine daily editorial tips, monthly 29 incl leap year, photos/crédits, no repeated next day, gated recipe links, responsive CSS contract.");

@@ -247,12 +247,12 @@ assert.ok(visibleRegisterBegin>=0&&visibleRegisterEnd>visibleRegisterBegin);
 const visibleMeal={meals:{almuerzo:[]},skipped:{}},visibleWriteSnapshots=[];
 const visibleFields={efgRecipeRegisterId:'local-recipe-0',efgRecipeRegisterSlot:'almuerzo',efgRecipeRegisterQty:'1.5'};
 const registerVisibleRecipe=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
- 'activeDiary','saveDiary','structuredClone','state','closeRecipeRegistration','notify',
+ 'activeDiary','saveDiary','structuredClone','state','closeRecipeRegistration','notify','validateRecipeIngredientAccess',
  'let recipeRegistrationBusy=false;'+app.slice(visibleRegisterBegin,visibleRegisterEnd)+';return confirmRecipeRegistration;')(
  visibleRecipeList,{getElementById:id=>({value:visibleFields[id]})},
  [['almuerzo','Almuerzo']],new Set(),()=>visibleMeal,
  async()=>{visibleWriteSnapshots.push(structuredClone(visibleMeal));},structuredClone,
- {diary:visibleMeal},()=>{},()=>{});
+ {diary:visibleMeal},()=>{},()=>{},()=>{});
 await registerVisibleRecipe();
 assert.equal(visibleMeal.meals.almuerzo.length,1,'Pending recipe registers exactly one nutrition entry');
 assert.equal(visibleMeal.meals.almuerzo[0].id,'custom-recipe');
@@ -394,10 +394,10 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
  const createBegin=app.indexOf('function recipeStoreKey(){');
  const createEnd=app.indexOf('let recipeDialogReturnFocus=',createBegin);
  assert.ok(recoveryBegin>=0&&recoveryEnd>recoveryBegin&&createBegin>=0&&createEnd>createBegin);
- const runtime=new Function('sb','state','localStorage','foods','prompt','notify','render','num',
+ const runtime=new Function('sb','state','localStorage','foods','prompt','notify','render','num','allowedFoods','FOOD_STATE_PAIRS',
   app.slice(recoveryBegin,recoveryEnd)+app.slice(createBegin,createEnd)+
   ';return {createPersonalRecipe,myRecipes,loadCloudRecipes};')(
-  db,st,storage,inputFood,()=>queue.shift(),message=>messages.push(message),async()=>{},x=>String(x));
+  db,st,storage,inputFood,()=>queue.shift(),message=>messages.push(message),async()=>{},x=>String(x),()=>['egg'],{});
  askRecipe('Tortilla pendiente');await runtime.createPersonalRecipe();
  failure='returned';askRecipe('Panqueque pendiente');await runtime.createPersonalRecipe();
  const key='efg-nutrition-custom-recipes:'+uid;

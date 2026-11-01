@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import {join} from 'node:path';
 export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
- const errorStart=collectedErrors.length,pages=[];
+ const errorStart=collectedErrors.length,pages=[],expectedRejections=[];
+ const expectRejectionConsole=message=>{
+  const matches=collectedErrors.map((text,index)=>({text,index})).filter(x=>x.index>=errorStart&&
+   x.text.split('\n')[0]===`coach/${width} console: Error: ${message}`&&x.text.includes('/coach-guide-intake-adapter.js:'));
+  assert.equal(matches.length,1,'Exactly one expected rejection must reach the real UI error handler: '+message);
+  expectedRejections.push(matches[0].text);collectedErrors.splice(matches[0].index,1);
+ };
  try{
  await page.evaluate(async()=>{
   const v=window.__EFG_VISUAL_QA__,s=v.state;
@@ -32,7 +38,7 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
  await open.click();await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();
  await mount.getByRole('button',{name:'Cerrar vista de prueba'}).click();
  await page.evaluate(()=>window.__EFG_OFFICIAL_PROVIDER__.setCeliac(true));
- await open.click();await page.getByText('Faltan opciones compatibles: revisá la propuesta con el coach.',{exact:true}).waitFor();assert.equal(await mount.locator('[data-guide-totals]').count(),0,'Unknown gluten evidence cannot generate clinical guide');
+ await open.click();await page.getByText('Faltan opciones compatibles: revisá la propuesta con el coach.',{exact:true}).waitFor();expectRejectionConsole('Faltan opciones compatibles: revisá la propuesta con el coach.');assert.equal(await mount.locator('[data-guide-totals]').count(),0,'Unknown gluten evidence cannot generate clinical guide');
  await page.evaluate(()=>{const p=window.__EFG_OFFICIAL_PROVIDER__;p.reset();p.hold();});
  await open.click();
  await page.waitForFunction(()=>window.__EFG_OFFICIAL_PROVIDER__.hasPending());
@@ -46,8 +52,9 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
  await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.selectedStudent==='demo-student-b');
  await page.evaluate(()=>{const p=window.__EFG_OFFICIAL_PROVIDER__;p.changeStudent();p.release();});
  await page.getByText('Cambió el alumno, la ficha o el permiso durante la lectura.',{exact:true}).waitFor();
+ expectRejectionConsole('Cambió el alumno, la ficha o el permiso durante la lectura.');
  assert.equal(await page.locator('#coachAdaptedDraftMount [data-guide-totals]').count(),0,'Late response must not populate another student');
- return {role:'coach',width,pages,errors:collectedErrors.slice(errorStart),officialPrivateConnection:'PASS',clinicalUnknown:'rejected',publishable:false};
+ return {role:'coach',width,pages,expectedRejections,errors:collectedErrors.slice(errorStart),officialPrivateConnection:'PASS',clinicalUnknown:'rejected',publishable:false};
  }catch(error){
   await page.screenshot({path:join(outDir,`coach-official-connected-failure-${width}.png`),fullPage:true}).catch(()=>{});
   throw error;

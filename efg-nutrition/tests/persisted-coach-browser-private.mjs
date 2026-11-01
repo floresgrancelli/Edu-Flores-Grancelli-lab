@@ -4,7 +4,7 @@ import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve,join,extname} from 'node:path';
 import {chromium} from 'playwright';
 import {yes,denied} from './helpers/coach119-local.mjs';
-export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,password}){
+export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,password,sql}){
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_PERSISTED_UI,'1');
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return [x.slice(0,i),x.slice(i+1).replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
@@ -17,6 +17,10 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
   if(pathname==='/efg-nutrition/pilot/pilot.js'){
    const marker='const coachPersistedGuideSource=null;';assert.equal(body.toString().split(marker).length,2);
    body=Buffer.from("import {createPersistedGuideProvider} from './persisted-guide-provider.js';\nimport {createClient as localClient} from '../tests/persisted-coach-browser-client.mjs';\n"+body.toString().replace(marker,'const coachPersistedGuideSource=createPersistedGuideProvider({client:localClient(),readScope:adaptedCoachScope,template:'+JSON.stringify(official.template)+'});')+'\nwindow.__PERSISTED_VIEW__={state,render,workspace:coachAdaptedWorkspace,handleAuthStateChange,setCoachSessionIdentity,setConsentMap:v=>{coachRosterConsent=v}};');
+  }
+  if(pathname==='/efg-nutrition/pilot/pilot.js'&&process.env.EFG_QA_BOUND_PUBLICATION==='1'){
+   const marker='const coachBoundPublication=null;';assert.equal(body.toString().split(marker).length,2);
+   body=Buffer.from("import {createBoundGuidePublication} from './bound-guide-publication-client.js';\n"+body.toString().replace(marker,'const coachBoundPublication=createBoundGuidePublication({sb:localClient(),readScope:adaptedCoachScope,enabled:true});'));
   }
   res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.html':'text/html','.svg':'image/svg+xml'})[extname(p)]||(pathname.endsWith('/')?'text/html':'application/octet-stream'),'Cache-Control':'no-store'});res.end(body);
  }catch{res.writeHead(404);res.end('Not found');}});
@@ -91,6 +95,11 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
    await page.evaluate(()=>window.__PERSISTED_VIEW__.handleAuthStateChange('SIGNED_OUT',null));release();
    assert.equal(await opening,true);assert.equal(await page.locator('[data-guide-totals]').count(),0);
    await page.unroute('http://127.0.0.1:54321/rest/v1/rpc/efg_read_bound_guide');await boot();
+   if(process.env.EFG_QA_BOUND_PUBLICATION==='1'){
+    const {runBoundPublication}=await import('./bound-publication-local-private.mjs');
+    results.push(await runBoundPublication({page,context,mount,width,side,users,orgs,token,request,rpc,sql,out,env,origin}));
+    continue; // This run covers publication negatives, not the following prior UI-only revocation scenario.
+   }
    // Revocation is a signed student mutation, not a browser fixture flag.
    yes(await rpc('efg_revoke_coach_health_intake',student.token,{p_expected_revision:2}),'revoke source');
    const writesBefore=calls.filter(c=>c.path.endsWith('/efg_save_bound_guide')).length;

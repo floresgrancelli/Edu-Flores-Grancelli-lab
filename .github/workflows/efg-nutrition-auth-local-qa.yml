@@ -7,6 +7,9 @@ on:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/persisted-guide-*.mjs'
       - 'efg-nutrition/tests/persisted-coach-*.mjs'
+      - 'efg-nutrition/tests/bound-publication-*.mjs'
+      - 'efg-nutrition/tests/sql/bound-publication-local-*.sql'
+      - 'efg-nutrition/pilot/bound-guide-publication-client.js'
       - 'efg-nutrition/pilot/coach-adapted-workspace.js'
       - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/tests/sql/persisted-guide-local-overlay.sql'
@@ -399,6 +402,7 @@ jobs:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-persisted-guide-local-status.env
           EFG_QA_PERSISTED_GUIDE: '1'
           EFG_QA_PERSISTED_UI: ${{ contains(github.event.head_commit.message, '[persisted-coach-ui]') && '1' || '0' }}
+          EFG_QA_BOUND_PUBLICATION: ${{ contains(github.event.head_commit.message, '[bound-publication]') && contains(github.event.head_commit.message, '[persisted-coach-ui]') && '1' || '0' }}
         run: |
           set -euo pipefail
           node efg-nutrition/tests/coach119-signed-local-setup.mjs
@@ -410,6 +414,10 @@ jobs:
           fi
           node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --provider-regression
           node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --pilot-scope-regression
+          if [ "$EFG_QA_BOUND_PUBLICATION" = '1' ]; then
+            node --check efg-nutrition/tests/bound-publication-local-private.mjs
+            node --experimental-default-type=module efg-nutrition/tests/bound-publication-client-private.mjs
+          fi
           node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs
       - name: Persisted UI safe screenshots and result
         if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]') && contains(github.event.head_commit.message, '[persisted-coach-ui]'))

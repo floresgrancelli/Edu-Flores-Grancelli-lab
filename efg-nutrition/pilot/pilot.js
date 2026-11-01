@@ -2528,8 +2528,9 @@ function adaptedCoachScope(){
 // PERSISTED_COACH_SCOPE_END
 const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
 const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
+const coachBoundPublication=null; // No product publication activation.
 const coachPersistedGuideSource=null; // Remains disabled; disposable runner injects authenticated provider only.
-const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
+const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource,publicationClient:coachBoundPublication}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
  enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
 });
 function coachGuidedSection(){

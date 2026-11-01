@@ -24,6 +24,7 @@ sql(read('../docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'));
 const official=importNine(sql);
 assert.equal(sql("select has_table_privilege('authenticated','efg_private.coach_reviewed_foods','SELECT')"),'f');
 sql(read('./sql/persisted-guide-local-overlay.sql'));
+if(process.env.EFG_QA_BOUND_PUBLICATION==='1'){assert.equal(process.env.EFG_QA_PERSISTED_UI,'1');sql(read('./sql/bound-publication-local-overlay.sql'));}
 // Wait for exact RPC in PostgREST; missing function must never count as permission PASS.
 let ready=false;for(let i=0;i<30;i++){
  const r=await rpc('efg_read_bound_guide',undefined,{p_student:randomUUID()});
@@ -75,7 +76,17 @@ for(const side of ['A','B']){
 }
 if(process.env.EFG_QA_PERSISTED_UI==='1'){
  const {runPersistedCoachBrowser}=await import('./persisted-coach-browser-private.mjs');
- await runPersistedCoachBrowser({users,orgs,official,request,rpc,password});
+ if(process.env.EFG_QA_BOUND_PUBLICATION==='1'){
+  for(const side of ['A','B']){
+   const student=users['student'+side],coach=users['coach'+side];
+   sql(`insert into public.efg_student_plan_access(student_id,organization_id,coach_id) values(${q(student.id)},${q(orgs[side])},${q(coach.id)}) on conflict(student_id) do nothing;
+    insert into efg_private.bound_publication_local_gate(student_id,coach_id,organization_id) values(${q(student.id)},${q(coach.id)},${q(orgs[side])});`);
+   yes(await rpc('efg_ack_science_intro',student.token,{p_version:'con_ciencia_2026_r1',p_action:'completed'}),'education receipt');
+  }
+  sql("update efg_private.coach_release_switches set enabled=true where switch_key='pilot_student_diary_write_gate'");
+ }
+ try{await runPersistedCoachBrowser({users,orgs,official,request,rpc,password,sql});}
+ finally{if(process.env.EFG_QA_BOUND_PUBLICATION==='1')sql(read('./sql/bound-publication-local-restore.sql'));}
 }else{
 const ownB=yes(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B own persisted context');assert.equal(ownB.organization_id,orgs.B);
 denied(await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id}),'anonymous');
@@ -124,9 +135,9 @@ denied(await rpc('efg_publish_coach_plan_draft_atomic',users.coachA.token,{p_stu
 yes(await rpc('efg_accept_pilot_participation',users.studentB.token,{p_version:'coach_pilot_2026_demo1',p_participation:true,p_sharing:false}),'B revokes sharing');
 denied(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B sharing revocation');
 }
-assert.equal(sql('select count(*) from public.efg_goals'),'0');
+assert.equal(sql('select count(*) from public.efg_goals'),process.env.EFG_QA_BOUND_PUBLICATION==='1'?'2':'0');
 assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
-console.log(process.env.EFG_QA_PERSISTED_UI==='1'?'PASS persisted UI HTTP/DB readback (see result.json)': 'PASS persisted nine-food guide: signed A/B declarations, source-bound persisted goal/preferences, five meals, edit/save/readback, RLS/revocation/stale/tamper negatives; publish OFF. Disposable fixtures only.');
+console.log(process.env.EFG_QA_BOUND_PUBLICATION==='1'?'PASS bound COACH119 local publication UI/learner HTTP/rollback (see result.json)':process.env.EFG_QA_PERSISTED_UI==='1'?'PASS persisted UI HTTP/DB readback (see result.json)': 'PASS persisted nine-food guide: signed A/B declarations, source-bound persisted goal/preferences, five meals, edit/save/readback, RLS/revocation/stale/tamper negatives; publish OFF. Disposable fixtures only.');
 
 }
 // Unit-only regression: no localContext(), SQL, JWT creation, network, or server.

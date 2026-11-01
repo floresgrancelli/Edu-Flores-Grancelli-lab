@@ -1,0 +1,134 @@
+{
+  "source_library": "libfile_d57eb4446e448191aecc43c6f4246e5e",
+  "source_zip_sha256": "d45c8d7d0a4d67fce7736af2b44d45d243bf2ddb5d5f0251797637f9fcfcdccd",
+  "files": {
+    "runner/build_baseline.py": {
+      "bytes": 7706,
+      "sha256": "da08e890d2d51a39c3388816277d5880c64c232605381deacfaa850fe6f992d9"
+    },
+    "runner/official-import.mjs": {
+      "bytes": 3042,
+      "sha256": "c30aef175e22b62bb4781496fcdeb72ead6c82b9253c0d83b22bab83cd7c5c49"
+    },
+    "runner/run.mjs": {
+      "bytes": 18171,
+      "sha256": "faa563ab1fa540351541ce0c710ffd18a825bcfab0cb72a45c3b15cbb4828ff4"
+    },
+    "runner/config.py": {
+      "bytes": 805,
+      "sha256": "d92a54b03aa08a55770e53c9f5d2b17b3366d07cc1cbe586309e953d07e0d323"
+    },
+    "runner/additional-cases.mjs": {
+      "bytes": 6135,
+      "sha256": "bee93865e3e56ffd109ba300e301e8668c15c87ebbfcc0116a98d0d9c9fa606e"
+    },
+    "runner/package-check.py": {
+      "bytes": 318,
+      "sha256": "317a73e4a8415f2e9321428258a59dd2ea64123a14cb43b4f1250944289bdb6a"
+    },
+    "runner/prerequisites.mjs": {
+      "bytes": 1629,
+      "sha256": "797ae5320437a7043f6abf427ce32bfb9be3f20c0d54c5658c258c090b297437"
+    },
+    "runner/identity-regression.mjs": {
+      "bytes": 1443,
+      "sha256": "4a9e5a438ae4238558fb5f1c7b55dd8d85353e2dc264af77f4d5c4cea08802ca"
+    },
+    "runner/isolation.mjs": {
+      "bytes": 2749,
+      "sha256": "9eef71a009e98b7ea398982ec8d0cf5889210f823db7a980bda47fbddca1e558"
+    },
+    "runner/baseline-generated.sql": {
+      "bytes": 86157,
+      "sha256": "c5ede487a43d0b93e8bbe9abe5d63a81ba8a031ddb50f997eb7e6f00ad52490c"
+    },
+    "runner/acl-contract.mjs": {
+      "bytes": 7681,
+      "sha256": "4746484d65e7bfa2c46557426ad2f64221788a9d4889a95d91d391a02aa62cc7"
+    },
+    "runner/job-proposal.yml": {
+      "bytes": 3713,
+      "sha256": "b5f5e531919a101f659ef3c888dd067567a62e3d3af5866f17f4a1c4ba73c962"
+    },
+    "runner/local-context.mjs": {
+      "bytes": 4507,
+      "sha256": "8db36e385fb666cd5d3b98e739765bddb1886fad40eff3b9cc6b34d64c430d29"
+    },
+    "runner/snapshot.mjs": {
+      "bytes": 3080,
+      "sha256": "a9bb1ca11fe69d0cf22c6aeef20f0444eb208e61d2217330e84ad8cb476019b1"
+    },
+    "runner/static-check.py": {
+      "bytes": 3235,
+      "sha256": "a76d443560bc1cc9eac3dd07ecb457d77cf759bfc3e6cb522e2328a1f02068b2"
+    },
+    "installation/proposed/006_normal_coach119_bound_publication_NOT_APPLIED.sql": {
+      "bytes": 29342,
+      "sha256": "7d3ac3b44003420d4aba0cf629f4d85181c0a9c9ea6e28d6c0d8594d32b9d481"
+    },
+    "installation/proposed/003_private_health_schema_NOT_APPLIED.sql": {
+      "bytes": 15007,
+      "sha256": "1e4f5279abf4242e3fb4b957cb81ae0eb2c52dd445a2e497d27b49d645f21685"
+    },
+    "installation/proposed/001_owner_organization_policies_NOT_APPLIED.sql": {
+      "bytes": 1858,
+      "sha256": "d3ceaa50c6d4eaad1aeebe76e10eeba33d1ee4c645cbac416adb64ce35bdf7f9"
+    },
+    "installation/proposed/004_private_guide_bindings_NOT_APPLIED.sql": {
+      "bytes": 15091,
+      "sha256": "427cba38823a4ccf9d82947190c8c1c40b2896861e6ceecd34e5ea8bf400db4e"
+    },
+    "installation/proposed/005_optional_sharing_and_entry_NOT_APPLIED.sql": {
+      "bytes": 20333,
+      "sha256": "4f21ecd51d2f15f6c112a4e0e6a0c3a40207d4dcd9ed01026049fbb76050cdde"
+    },
+    "installation/proposed/002_automatic_composition_NOT_APPLIED.sql": {
+      "bytes": 9117,
+      "sha256": "314b322c7cfe0b86e417524f6c4b08c69077eb51448bc6e027c2953fe35364c7"
+    },
+    "installation/installation-order.json": {
+      "bytes": 428,
+      "sha256": "4068b835b2bec102aa10b63bf903ec975935ecfa17ea056e32a0bca9d09e100e"
+    },
+    "installation/tests/manifest-anchor-local.sql": {
+      "bytes": 3227,
+      "sha256": "c0013163249309dcf5813ded255487cccd19deaa2ab658312347a485f42c132b"
+    },
+    "required-dependencies-reviewed.json": {
+      "bytes": 3274,
+      "sha256": "e0af7c6660d874207110b82cb02adbcf9f369d93a908d63406621078fb34dacc"
+    },
+    "evidence/hosted-metadata-20261101-2212.json": {
+      "bytes": 104216,
+      "sha256": "9f217df43882895dba95a39bc67124872994dbb6c5bd652f995d8a46b19006a5"
+    },
+    "evidence/hosted-metadata-supplement-20261101-2247.json": {
+      "bytes": 2953,
+      "sha256": "e5dc78563215239466e3d8251fd719dd35446055d92db009ea358a13203a8699"
+    },
+    "reference/efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql": {
+      "bytes": 6580,
+      "sha256": "2c21c46bbd80aaecb1bb093ae1bfc6e8521b0eeae282b49f7233399b19381be1"
+    },
+    "reference/efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql": {
+      "bytes": 7336,
+      "sha256": "da2b14c5f139ae586cb7c3383c85d1fa6b46aebd7653a1dc87964dad12042667"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_pilot_participation_server_receipts.sql": {
+      "bytes": 5184,
+      "sha256": "5696dfbf2301eaf96911db371bf03f935d4b2b139ab879104008bcf159b133f2"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_relaunch_general_pilot_intake.sql": {
+      "bytes": 12774,
+      "sha256": "90a489f962e3ed237507f97a91f0c7872783ced9692eaae3c4c7cd72eeecaedb"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_versioned_private_plan_drafts.sql": {
+      "bytes": 9022,
+      "sha256": "78150781442b8d9b804b27970df47ec44e8c5cd46c341baf7d355f66f99c52a1"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach115_versioned_legal_documents_receipts.sql": {
+      "bytes": 5971,
+      "sha256": "e130bb956fe74b2db43f59510c9fd3f10afd9b1027742f5a45322e0e9e4d4fed"
+    }
+  }
+}

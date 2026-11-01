@@ -1,0 +1,39 @@
+[
+  {
+    "signature": "efg_private.coach_notify_shared_relaunch_intake()",
+    "project": "cyjvddhimbsfipjfctsl",
+    "observedAt": "2026-11-01T22:47Z",
+    "reviewedAt": "2026-11-01T22:48Z",
+    "reviewBasis": "Coordinator supplied verified function definitions and ACL; runner final review pending",
+    "definition": "CREATE OR REPLACE FUNCTION efg_private.coach_notify_shared_relaunch_intake()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\ndeclare\n v_coach uuid;\n v_key text;\nbegin\n if new.shared_at is null then return new; end if;\n if tg_op='UPDATE' and old.revision=new.revision then return new; end if;\n -- A plain draft/revoked share must never notify.\n if not exists (\n  select 1 from public.efg_pilot_participation_receipts r\n  where r.student_id=new.student_id and r.organization_id=new.organization_id\n   and r.version='coach_pilot_2026_demo1'\n   and r.participation_accepted and r.sharing_accepted and r.revoked_at is null\n ) or not exists(\n  select 1 from public.efg_consents c\n  where c.student_id=new.student_id and c.organization_id=new.organization_id and c.accepted\n ) then return new; end if;\n select o.coach_id into v_coach from public.efg_profiles p\n join public.efg_organizations o on o.id=p.organization_id\n where p.user_id=new.student_id and p.role='student' and p.active\n   and p.organization_id=new.organization_id;\n if v_coach is null then return new; end if;\n v_key:='pilot_intake:'||new.student_id::text||':'||new.completed_version||':'||new.revision::text;\n insert into public.efg_notifications(\n   recipient_id,actor_id,kind,event_key,title,body,target_tab,target_student\n ) values(\n   v_coach,new.student_id,'message',v_key,\n   'Ficha nutricional recibida',\n   'Un alumno compartió o actualizó su ficha inicial para que prepares su plan.',\n   'coachIntake',new.student_id\n ) on conflict(recipient_id,event_key) do nothing;\n return new;\nend\n$function$\n",
+    "sha256": "227f79dc58b05ab746e4bf6f2764358aa1da0a32116747284b018ffdc7093c59",
+    "md5": "f77f870efa346fa89ed5741a24f40185",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres"
+    ],
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "prosecdef": true
+  },
+  {
+    "signature": "efg_private.student_belongs_to_coach(uuid)",
+    "project": "cyjvddhimbsfipjfctsl",
+    "observedAt": "2026-11-01T22:47Z",
+    "reviewedAt": "2026-11-01T22:48Z",
+    "reviewBasis": "Coordinator supplied verified function definitions and ACL; runner final review pending",
+    "definition": "CREATE OR REPLACE FUNCTION efg_private.student_belongs_to_coach(p_student uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n select exists(\n  select 1 from public.efg_profiles p\n  join public.efg_organizations o on o.id=p.organization_id\n  where p.user_id=p_student and p.role='student' and o.coach_id=auth.uid()\n );\n$function$\n",
+    "sha256": "6843019ba889122961e30f9ecb18c6eca0626d7fd822b8c33fa9ad6d5f311314",
+    "md5": "5aefc8befc430c057afd13185a5acba7",
+    "owner": "postgres",
+    "acl": [
+      "postgres=X/postgres",
+      "authenticated=X/postgres"
+    ],
+    "proconfig": [
+      "search_path=\"\""
+    ],
+    "prosecdef": true
+  }
+]

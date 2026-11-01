@@ -4,6 +4,7 @@ on:
   push:
     branches: [work/ncc-pr37-41-qa-snapshot-20261101]
     paths:
+      - 'private-installation/**'
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/persisted-guide-*.mjs'
       - 'efg-nutrition/tests/sdk-entry-*'
@@ -526,3 +527,85 @@ jobs:
             fi
             echo "PASS SDK disposable stack stopped without backup; no matching containers"
           fi
+
+  # PRIVATE JOB FRAGMENT; not an installed workflow or approval to execute.
+  # Add only after review to existing auth workflow; preserve every current job.
+  # Marker branch condition is intentional, no schedule/main trigger.
+  incremental-install-local:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[incremental-install]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      EFG_QA_INCREMENTAL_INSTALL: '1'
+      EFG_INCREMENTAL_STACK: ${{ runner.temp }}/efg-nutrition-incremental-local
+      EFG_LOCAL_STATUS_ENV: ${{ runner.temp }}/incremental-status-private.env
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reviewed dependency and source identity before creating stack
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 private-installation/runner/package-check.py
+          node private-installation/runner/prerequisites.mjs --check
+          for f in private-installation/runner/*.mjs; do node --check "$f"; done
+          node private-installation/runner/identity-regression.mjs
+          python3 private-installation/runner/build_baseline.py
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Existing PostgreSQL client only if absent
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+      - name: Fresh stack; local real Auth; no hosted link or SMTP
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test ! -e "$EFG_INCREMENTAL_STACK"
+          mkdir -p "$EFG_INCREMENTAL_STACK"
+          cd "$EFG_INCREMENTAL_STACK"
+          supabase init --yes
+          python3 "$GITHUB_WORKSPACE/private-installation/runner/config.py" "$PWD"
+          if ! supabase start > "$RUNNER_TEMP/incremental-start-private.log" 2>&1; then
+            echo 'Local stack start failed; raw private log is not uploaded'; exit 1
+          fi
+          supabase status -o env > "$EFG_LOCAL_STATUS_ENV"
+      - name: Incremental DDL, official sources, JWT and transaction contracts
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --experimental-default-type=module private-installation/runner/run.mjs
+      - name: Remove disposable stack and verify containers and volumes
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/incremental-install
+          if [ -d "$EFG_INCREMENTAL_STACK/supabase" ]; then
+            cd "$EFG_INCREMENTAL_STACK"
+            supabase stop --no-backup
+            if docker ps -a --format '{{.Names}}' | grep -q '_efg-nutrition-incremental-local$'; then
+              echo 'FAIL residual containers'; exit 1
+            fi
+            if docker volume ls --format '{{.Name}}' | grep -q '_efg-nutrition-incremental-local$'; then
+              echo 'FAIL residual stack volumes'; exit 1
+            fi
+            printf '%s\n' 'PASS stop --no-backup; no matching containers or volumes' > "$GITHUB_WORKSPACE/artifacts/incremental-install/cleanup.txt"
+          else
+            printf '%s\n' 'Stack not created; prerequisites or setup stopped earlier' > artifacts/incremental-install/cleanup.txt
+          fi
+      - name: Sanitized results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: incremental-install-${{ github.sha }}
+          path: artifacts/incremental-install/
+          retention-days: 7
+          if-no-files-found: warn

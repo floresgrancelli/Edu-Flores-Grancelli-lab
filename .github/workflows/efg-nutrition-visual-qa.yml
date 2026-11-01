@@ -2,7 +2,7 @@ name: EFG Nutrition Visual QA (isolated fixture)
 
 on:
   push:
-    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027, efg-nutrition-scientific-macros-20261027, efg-security-hardening-20261028]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027, efg-nutrition-scientific-macros-20261027, efg-security-hardening-20261028, work/ncc-pr37-41-qa-snapshot-20261101]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
@@ -35,7 +35,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Private adapted guide functional and visual delta
-        if: github.event_name == 'workflow_dispatch' && inputs.guide_delta
+        if: (github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]'))
         env:
           EFG_PRIVATE_GUIDE_QA: '1'
         run: |
@@ -44,7 +44,7 @@ jobs:
           node --experimental-default-type=module efg-nutrition/tests/adapted-guide-editor-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/adapted-guide-visual-private.mjs
       - name: Preserve synthetic adapted guide PNGs
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.guide_delta
+        if: always() && ((github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]')))
         uses: actions/upload-artifact@v4
         with:
           name: adapted-guide-private

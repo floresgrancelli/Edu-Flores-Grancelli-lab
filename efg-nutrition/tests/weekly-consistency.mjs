@@ -81,4 +81,24 @@ const selfGoalNotRetroactive=history([day("2026-10-26",2000,150),day("2026-10-27
  {start_on:"2026-10-27",kcal:2000,protein_g:150}
 ]);
 assert.equal(selfGoalNotRetroactive.evaluated,1,"Professional personal targets must not be retroactively applied before saved date");
+assert.throws(()=>history([],"2026-02-30"),/Parámetros semanales inválidos/,"Nonexistent calendar dates cannot be valid weekly records");
+const twoVersions=history([
+ day("2026-10-26",2000,150),day("2026-10-26",1700,150),
+ day("2026-10-27",2000,150),day("2026-02-30",2000,150)
+],"2026-10-28");
+assert.equal(twoVersions.days[0].status,"conflict","Contradictory log rows cannot earn achievements by arrival order");
+assert.equal(twoVersions.evaluated,1);
+assert.equal(twoVersions.ideal,1);
+assert.match(weeklyConsistencyPanel(twoVersions),/Registros duplicados/,"Ambiguity is announced in accessible markup");
+const oppositeOrder=history([
+ day("2026-10-26",1700,150),day("2026-10-26",2000,150)
+],"2026-10-28");
+assert.equal(oppositeOrder.days[0].status,"conflict");
+const duplicateFullWeek=history([
+ ...["2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-10-31"].map(d=>day(d,2000,150)),
+ day("2026-10-26",2000,150)
+],"2026-11-01");
+assert.equal(duplicateFullWeek.ideal,5);
+assert.doesNotMatch(weeklyConsistencyPanel(duplicateFullWeek),/ABRIR PREMIO/,"Duplicate rows cannot grant a false 6/6 reward");
+
 console.log("PASS: only ±5% Mon–Sat track and 6/6 reward, protein ≥90%, Sunday discretionary, provisional today, historical approved goals, no false awards.");

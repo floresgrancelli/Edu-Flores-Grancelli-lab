@@ -4,7 +4,11 @@
 const labels=["L","M","X","J","V","S"];
 export const WEEKLY_RANGES=Object.freeze({ideal:0.05,minProtein:0.90});
 const n=x=>{const v=Number(x);return Number.isFinite(v)?v:0;};
-const iso=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||""))?String(x):null;
+const iso=x=>{
+ if(typeof x!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(x))return null;
+ const parsed=new Date(x+"T12:00:00Z");
+ return !Number.isNaN(parsed.getTime())&&parsed.toISOString().slice(0,10)===x?x:null;
+};
 const move=(day,offset)=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+offset);return d.toISOString().slice(0,10);};
 const pct=x=>Math.round(x*10)/10;
 const escape=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -28,10 +32,19 @@ export function calculateWeeklyConsistency({today,logs,goals,totalOf,goalForDate
  if(!date||typeof totalOf!=="function"||typeof goalForDate!=="function")throw Error("Parámetros semanales inválidos");
  const ref=new Date(date+"T12:00:00Z");
  const monday=move(date,-((ref.getUTCDay()+6)%7));
- const byDay=new Map((logs||[]).filter(x=>iso(x?.log_day)).map(x=>[x.log_day,x]));
+ // Duplicate daily snapshots must never decide achievement by REST ordering.
+ // An ambiguous calendar day is excluded until the underlying records agree.
+ const byDay=new Map(),conflictingDays=new Set();
+ for(const log of logs||[]){
+  const key=iso(log?.log_day);
+  if(!key)continue;
+  if(byDay.has(key)||conflictingDays.has(key)){byDay.delete(key);conflictingDays.add(key);}
+  else byDay.set(key,log);
+ }
  const days=labels.map((label,i)=>{
   const d=move(monday,i);
   if(d>date)return {date:d,label,status:"future",ideal:false,acceptable:false};
+  if(conflictingDays.has(d))return {date:d,label,status:"conflict",ideal:false,acceptable:false};
   const log=byDay.get(d);
   if(!log||!validIntake(log))return {date:d,label,status:d===date?"today-empty":"no-data",ideal:false,acceptable:false};
   const goal=goalForDate(goals,d);
@@ -52,6 +65,7 @@ function slotCell(d,track){
  d.status==="today"?"Hoy: en curso, sin premio definitivo":
  d.status==="no-data"?"Sin registro":
  d.status==="unavailable"?"Sin meta o registro evaluable":
+ d.status==="conflict"?"Registros duplicados: revisá este día antes de evaluar":
  active?"Meta alcanzada":
  d.status==="outside"?"No alcanzó el margen o el mínimo de proteína":"No alcanzó esta franja";
  const dayText=escape(d.date+" · "+title);

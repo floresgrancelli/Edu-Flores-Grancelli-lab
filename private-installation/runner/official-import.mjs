@@ -20,7 +20,9 @@ export function installOfficialFixture(sql,input){
    mappingVersion:'official-nine-records-v1',parserVersion:'ncc-fdc-selected-export-v1',importMode:'approved_official_archive',
    importRunId:'isolated_'+process.env.GITHUB_RUN_ID,policyVersion:'ISOLATED_REVIEW_ONE_HOUR',test_only:false};
   manifest[f.id]=structuredClone(p);
-  const values=['k','p','c','f','fi'].map(k=>{assert.ok(Number.isFinite(f[k]));assert.equal(f[k],c.perUnit[k]);return f[k];});
+  // Import contract persists six decimals independently of the DB numeric typmod.
+  // Preserve unrounded official normalization in both provenance and manifest.
+  const values=['k','p','c','f','fi'].map(k=>{assert.ok(Number.isFinite(f[k]));assert.equal(f[k],c.perUnit[k]);const stored=Number(f[k].toFixed(6));assert.ok(Math.abs(stored-f[k])<=0.0000005);return stored;});
   rows.push(`insert into efg_private.coach_reviewed_foods(food_id,catalog_version,unit,k,p,c,f,fi,source_kind,source_url,evidence_id,evidence_status,automated_validated_at,expires_at,automatic_provenance) values(${q(f.id)},${q(p.mappingVersion)},'g',${values.join(',')},'validated_composition',${q(c.url)},${q('sha256_'+c.id.slice(7))},'automated_validated',now(),now()+interval '1 hour',${q(JSON.stringify(p))}::jsonb);`);
  }
  assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');

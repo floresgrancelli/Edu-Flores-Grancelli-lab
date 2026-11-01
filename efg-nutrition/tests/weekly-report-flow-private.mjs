@@ -3,8 +3,8 @@ import {join} from 'node:path';
 
 // Runs ONLY inside the existing real-app Playwright fixture. No fake UI handlers.
 export async function runWeeklyReportFlow(page,width,outDir){
- const screenshots=[];
- const capture=async name=>{const path=join(outDir,'weekly-flow-'+width+'-'+name+'.png');await page.screenshot({path,fullPage:true});screenshots.push(path);};
+ const screenshots=[],pdfs=[],printMeasurements=[];
+ const capture=async name=>{await page.locator('#pilot-toast').waitFor({state:'hidden',timeout:7000});const path=join(outDir,'weekly-flow-'+width+'-'+name+'.png');await page.screenshot({path,fullPage:true});screenshots.push(path);};
  page.on('dialog',dialog=>dialog.accept());
  try{
   await page.evaluate(async()=>{
@@ -77,9 +77,30 @@ export async function runWeeklyReportFlow(page,width,outDir){
   assert.ok(layout.width>250&&!layout.overflow,'Actual student report must be legible');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
   await capture('student-history');
+  // Exercise the REAL Exportar PDF handler. Only the OS print dialog is intercepted.
+  await page.evaluate(()=>{window.__weeklyPrintCalls=0;window.__originalWeeklyPrint=window.print;window.print=()=>{window.__weeklyPrintCalls++;};});
+  await published.locator('[data-act="printLuxuryReport"]').click();
+  assert.equal(await page.evaluate(()=>window.__weeklyPrintCalls),1);
+  assert.equal(await page.locator('.efg-lux-print-target').count(),1);
   await page.emulateMedia({media:'print'});
   assert.equal(await published.locator('.lux-report-flex').isVisible(),true);
+  const printLayout=await page.locator('.efg-lux-print-target').evaluate(el=>{
+   const rect=el.getBoundingClientRect(),visible=x=>{const s=getComputedStyle(x),r=x.getBoundingClientRect();return s.visibility!=='hidden'&&s.display!=='none'&&r.width>0&&r.height>0;};
+   const content=[...el.querySelectorAll('h2,h3,.lux-report-macro,.lux-report-days,.lux-report-conclusion p,.lux-report-flex p')].map(x=>{const r=x.getBoundingClientRect();return {tag:x.className||x.tagName,width:r.width,left:r.left,right:r.right,overflow:x.scrollWidth>x.clientWidth+2};});
+   const chrome=[...document.querySelectorAll('#pilot-toast,.pilot-nav,.pilot-bottom-nav,.efg-mobile-header,.pilot-top')].filter(visible).map(x=>x.id||x.className);
+   return {viewport:innerWidth,width:rect.width,left:rect.left,right:rect.right,content,visibleChrome:chrome};
+  });
+  printMeasurements.push(printLayout);
+  assert.ok(printLayout.width>=width*.8,'Print target too narrow: '+JSON.stringify(printLayout));
+  assert.ok(printLayout.left>=-2&&printLayout.right<=width+2,'Print target crosses viewport: '+JSON.stringify(printLayout));
+  assert.equal(printLayout.visibleChrome.length,0,'Print must hide chrome/toast: '+JSON.stringify(printLayout));
+  assert.ok(printLayout.content.every(x=>x.width>=160&&!x.overflow&&x.left>=printLayout.left-2&&x.right<=printLayout.right+2),'Print content clipped: '+JSON.stringify(printLayout));
   await capture('student-print');
+  const pdfPath=join(outDir,'weekly-flow-'+width+'-student-export.pdf');
+  const pdf=await page.pdf({path:pdfPath,format:'A4',printBackground:true,preferCSSPageSize:true});
+  assert.equal(pdf.subarray(0,5).toString(),'%PDF-');assert.ok(pdf.length>1000);pdfs.push(pdfPath);
+  await page.evaluate(()=>{window.dispatchEvent(new Event('afterprint'));window.print=window.__originalWeeklyPrint;});
+  assert.equal(await page.locator('.efg-lux-print-target').count(),0,'afterprint must clear target');
   await page.emulateMedia({media:'screen'});
   await published.locator('[data-act="replyWeeklyReport"]').click();
   await page.locator('#efgMessageText').waitFor();
@@ -119,6 +140,6 @@ export async function runWeeklyReportFlow(page,width,outDir){
    return s.coachHistory;
   });
   assert.deepEqual(late,[{sentinel:'A history must stay'}]);
-  return {role:'weekly-flow',width,pages:screenshots,errors:[],syntheticTransport:true,hostedRLS:false};
+  return {role:'weekly-flow',width,pages:screenshots,pdfs,printMeasurements,errors:[],syntheticTransport:true,hostedRLS:false};
  }catch(error){await capture('failure').catch(()=>{});throw error;}
 }

@@ -29,8 +29,10 @@ function foodsFromLogs(logs,from,to,days){
  for(const log of logs||[]){
   if(!date(log?.log_day)||log.log_day<from||log.log_day>to||!days.has(log.log_day))continue;
   const set=byDay.get(log.log_day)||new Map();
-  for(const items of Object.values(log.meals||{})){
-   if(!Array.isArray(items))continue;
+  for(const [slot,items] of Object.entries(log.meals||{})){
+   // Historical meals may retain foods after a slot was marked Omitir.
+   // Omitted foods must not appear in the student's weekly favourites.
+   if(log.skipped?.[slot]===true||!Array.isArray(items))continue;
    for(const food of items){
     const name=clean(food?.name||food?.label||'',70);
     const key=clean(food?.id||name.toLowerCase(),90);
@@ -186,6 +188,10 @@ function validReportShape(m){
 }
 export function reportAsStoredText(model,editedConclusion,editedFlexibleNote){
  if(!validReportShape(model))throw Error('Informe semanal con datos inválidos; volvé a generar la vista previa.');
+ // Never silently clip the text the coach reviewed and explicitly approved.
+ // The preview contract must use exactly the submitted conclusion and note.
+ if(String(editedConclusion??'').length>2200||String(editedFlexibleNote??'').length>750)
+  throw Error('El texto del informe supera el límite permitido; revisalo antes de publicarlo.');
  const conclusion=clean(editedConclusion,2200),flexibleNote=clean(editedFlexibleNote,750);
  if(!conclusion)throw Error('El coach debe revisar la conclusión antes de publicar.');
  const payload={...model,conclusion,flexibleNote,approvedByCoach:true};

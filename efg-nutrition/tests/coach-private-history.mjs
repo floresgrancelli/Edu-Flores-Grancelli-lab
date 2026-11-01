@@ -24,7 +24,7 @@ const sb={auth:{async getUser(){authReads++;return {data:{user:{id:authId}},erro
  return query;
 }};
 const h=await loadCoachPrivateHistory(sb,{profile,userId:id,entry});
-assert.equal(seen.length,7);
+assert.equal(seen.length,8,"Profile role/organization is checked before AND after historical SELECTs.");
 assert.equal(authReads,2,'Auth identity must be verified before and after the six SELECTs');
 assert.equal(seen[0].table,'efg_profiles');
 assert.equal(h.logs.length,1);
@@ -63,6 +63,19 @@ await assert.rejects(()=>loadCoachPrivateHistory(switched,{profile,userId:id,ent
 authId=id;
 rows.efg_weights=[{student_id:other,kg:75}];
 await assert.rejects(()=>loadCoachPrivateHistory(sb,{profile,userId:id,entry}),/no autorizado/);
+// Revocation/transfer during in-flight reads cannot return an old-org snapshot.
+rows.efg_weights=[{student_id:id,measured_on:'2026-10-29',kg:78.5}];
+rows.efg_profiles={...profile};
+let lateProfileReads=0;
+const transferredDuringRead={...sb,from(table){
+ if(table==='efg_profiles'&&++lateProfileReads===2)
+  rows.efg_profiles={...profile,organization_id:other};
+ return sb.from(table);
+}};
+await assert.rejects(()=>loadCoachPrivateHistory(transferredDuringRead,{profile,userId:id,entry}),
+ /perfil vigente/);
+assert.equal(lateProfileReads,2,"Second server profile read detects in-flight org transfer.");
+rows.efg_profiles={...profile};
 // The pilot route must not accidentally expose editable diary or payment actions.
 const ui=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 assert.match(ui,/loadCoachPrivateHistory\(sb,\{profile:state\.profile,userId:id,entry:state\.coachPilotEntry\}\)/);

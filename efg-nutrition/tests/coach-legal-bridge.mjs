@@ -8,12 +8,15 @@ assert.equal(LEGAL_ONBOARDING_ENABLED,false);
 const terms="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const privacy="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const hash="a".repeat(64);
+const userId="dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+let signedUserId=userId;
 const text="Documento hipotético exclusivamente para pruebas: "+("Explica derechos, alcance, privacidad y condiciones en detalle. ").repeat(6)+"<script>alert('bad')</script>";
 let docs=[
  {id:terms,kind:"terms",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"},
  {id:privacy,kind:"privacy",version:"2026.10",sha256:hash,body:text,is_current:true,published_at:"2026-10-30T12:00:00Z"}
 ],accepted=new Set(),writes=0,queries=0,misreport=false;
 const sb={
+ auth:{getUser:async()=>({data:{user:{id:signedUserId}},error:null})},
  rpc(name,payload){
   if(name==="efg_legal_current_status")
    return Promise.resolve({data:docs.map(d=>({kind:d.kind,document_id:d.id,version:d.version,sha256:d.sha256,
@@ -38,6 +41,7 @@ const off=await assert.rejects(()=>acceptCoachLegalOnboarding(sb,{},{terms:true,
 assert.equal(writes,0);
 const opts={enabled:true,legalEnabled:true};
 const loaded=await loadCoachLegalOnboarding(sb,opts);
+assert.equal(loaded.userId,userId,"Server-read legal snapshot is bound to the account that fetched it.");
 const verifiedDocs=docs;
 docs=verifiedDocs.map((d,i)=>i?d:{...d,body:d.body+" [PENDIENTE: revisión]"});
 await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/versión legal publicada no coincide/);
@@ -103,4 +107,17 @@ assert.ok(pull.indexOf("state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb
  "Student intake and current legal versions must be rechecked before private reads");
 assert.doesNotMatch(pilot,/acceptedNotice.*true.*legal|localStorage\.setItem\("legalAccepted"/,
  "No locally accepted flag may bypass versioned legal server readback.");
+// Switching accounts between preview and clicking Accept must not write a
+// receipt in account B using the snapshot displayed to account A.
+const beforeSwitchWrites=writes;
+signedUserId=privacy;
+await assert.rejects(()=>acceptCoachLegalOnboarding(sb,loaded,{terms:true,privacy:true},
+ {...opts,explicitSubmit:true}),/sesión cambió/);
+assert.equal(writes,beforeSwitchWrites,"Account switch must not invoke the legal receipt RPC.");
+signedUserId=userId;
+let switchedChecks=0;
+const switchedSb={...sb,auth:{getUser:async()=>({data:{user:{id:++switchedChecks===1?userId:privacy}},error:null})}};
+await assert.rejects(()=>loadCoachLegalOnboarding(switchedSb,opts),/sesión cambió/);
+assert.equal(switchedChecks,2,"Late response for A is rejected before legal documents are shown to B.");
+assert.throws(()=>renderCoachLegalOnboarding({...loaded,userId:null}),/no verificados/);
 console.log("PASS COACH-67: legal docs are exact version/hash, checked individually, HTML escaped, RPC explicit, readback mandatory and all flags OFF.");

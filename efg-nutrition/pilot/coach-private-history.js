@@ -25,12 +25,15 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
  // A signed entry and a profile loaded at login can become stale after an
  // admin deactivates/transfers a student in another session. Re-read the
  // current server-owned profile before any historical SELECT; fail closed.
- const current=await sb.from('efg_profiles').select('user_id,role,active,organization_id')
-  .eq('user_id',userId).maybeSingle();
- if(current?.error||!current?.data||current.data.user_id!==userId||
-    current.data.role!=='student'||current.data.active!==true||
-    current.data.organization_id!==profile.organization_id)
-  throw Error('No se pudo verificar el perfil vigente para leer el historial.');
+ const assertCurrentProfile=async()=>{
+  const current=await sb.from('efg_profiles').select('user_id,role,active,organization_id')
+   .eq('user_id',userId).maybeSingle();
+  if(current?.error||!current?.data||current.data.user_id!==userId||
+     current.data.role!=='student'||current.data.active!==true||
+     current.data.organization_id!==profile.organization_id)
+   throw Error('No se pudo verificar el perfil vigente para leer el historial.');
+ };
+ await assertCurrentProfile();
  const own=(table,fields,key='student_id')=>sb.from(table).select(fields).eq(key,userId);
  // Every query is read-only and scoped to the signed owner. RLS is still
  // authoritative. No service role, raw Storage URL, clinical or cross-org data.
@@ -51,6 +54,9 @@ export async function loadCoachPrivateHistory(sb,{profile,userId,entry}={}){
   if(rows.some(row=>!row||row[key]!==userId))throw Error('Historial no autorizado.');
   return rows;
  });
+ // A profile can also be deactivated or transferred while the six reads are
+ // in flight. Recheck the server-owned role/org after them, not just the JWT.
+ await assertCurrentProfile();
  // Do not return sensitive history to a different identity after an async switch.
  await assertCurrentIdentity();
  return {userId,logs:data[0],weights:data[1],goals:data[2],plan:data[3][0]||null,

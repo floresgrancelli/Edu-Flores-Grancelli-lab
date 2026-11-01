@@ -47,8 +47,8 @@
       "sha256": "4746484d65e7bfa2c46557426ad2f64221788a9d4889a95d91d391a02aa62cc7"
     },
     "runner/job-proposal.yml": {
-      "bytes": 3713,
-      "sha256": "b5f5e531919a101f659ef3c888dd067567a62e3d3af5866f17f4a1c4ba73c962"
+      "bytes": 3794,
+      "sha256": "51f7217bd3b77c0d4a654b4d0cb0697b569da372a54d901345d2c73753abda09"
     },
     "runner/local-context.mjs": {
       "bytes": 4507,

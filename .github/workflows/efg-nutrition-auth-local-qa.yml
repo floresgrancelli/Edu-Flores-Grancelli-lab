@@ -539,9 +539,10 @@ jobs:
       contents: read
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
-      EFG_INCREMENTAL_STACK: ${{ runner.temp }}/efg-nutrition-incremental-local
-      EFG_LOCAL_STATUS_ENV: ${{ runner.temp }}/incremental-status-private.env
     steps:
+      - name: Resolve disposable paths on runner
+        run: |
+          printf '%s\n' "EFG_INCREMENTAL_STACK=$RUNNER_TEMP/efg-nutrition-incremental-local" "EFG_LOCAL_STATUS_ENV=$RUNNER_TEMP/incremental-status-private.env" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:

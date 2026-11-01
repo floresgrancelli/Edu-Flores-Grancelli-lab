@@ -152,11 +152,19 @@ export function createMessagesCenter({sb,context,afterSend}){
   const unread=rows.filter(m=>m.student_id===x.student&&m.coach_id===x.coach&&m.sender_id!==user&&!m.read_at).map(m=>m.id);
   if(!unread.length)return rows;
   const readAt=new Date().toISOString();
-  const {error}=await sb.from("efg_messages").update({read_at:readAt})
-   .eq("student_id",x.student).eq("coach_id",x.coach).in("id",unread);
+  // RLS may silently affect ZERO rows without a PostgREST error. Only a
+  // returned, persisted read_at is authoritative; never hide unread messages
+  // on the strength of the request alone (06-01).
+  const {data:confirmed,error}=await sb.from("efg_messages").update({read_at:readAt})
+   .eq("student_id",x.student).eq("coach_id",x.coach).in("id",unread)
+   .select("id,read_at");
   if(error){console.warn("Message receipt",error.message);return rows;}
   if(context().userId!==user||!sameCurrentPair(x,sessionEpoch))return rows;
-  const ids=new Set(unread);return rows.map(m=>ids.has(m.id)?{...m,read_at:readAt}:m);
+  const acknowledged=new Map((Array.isArray(confirmed)?confirmed:[])
+   .filter(item=>unread.includes(item?.id)&&typeof item.read_at==="string"&&item.read_at.length>0)
+   .map(item=>[item.id,item.read_at]));
+  if(!acknowledged.size)return rows;
+  return rows.map(m=>acknowledged.has(m.id)?{...m,read_at:acknowledged.get(m.id)}:m);
  }
  async function load(force=false){
   resetIfChanged();const x=pair(),key=epoch;

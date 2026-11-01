@@ -68,6 +68,17 @@ assert.equal(parsed.conclusion,'Comentario <script>alert(1)</script> del coach')
 assert.doesNotMatch(renderLuxuryWeeklyReport(parsed),/<script>/,'User/coach input must be escaped');
 assert.equal(parseLuxuryWeeklyReport('Informe anterior en texto plano'),null);
 assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,approvedByCoach:false})),null);
+// 05-01/05-03: malformed historical JSON must not crash MI DÍA or coach history.
+const brokenDay={...parsed,days:[null,...parsed.days.slice(1)]};
+assert.equal(parseLuxuryWeeklyReport(JSON.stringify(brokenDay)),null);
+assert.equal(renderLuxuryWeeklyReport(brokenDay),'');
+assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,averages:{...parsed.averages,k:'2300'}})),null);
+assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,focus:[null]})),null);
+assert.equal(parseLuxuryWeeklyReport(JSON.stringify({...parsed,topFoods:[{name:'Pollo',days:-4}]})),null);
+assert.throws(()=>reportAsStoredText(brokenDay,'Texto revisado','Disfrutar'),/datos inválidos/);
+const duplicateIncomplete={...data,days:[...days,{...days[0],k:null}]};
+assert.throws(()=>buildLuxuryWeeklyReport(duplicateIncomplete),/registros diarios duplicados/,
+ 'Incomplete second copy must not conceal a duplicate date');
 assert.throws(()=>reportAsStoredText(model,'',null),/debe revisar/);
 assert.throws(()=>buildLuxuryWeeklyReport({...data,to:'2026-10-28'}),/siete días/);
 const scant=buildLuxuryWeeklyReport({...data,days:days.slice(0,2)});

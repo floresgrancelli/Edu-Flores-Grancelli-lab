@@ -51,9 +51,9 @@ new MutationObserver(()=>{
  button.addEventListener('click',async()=>{
   if(sdkEntryMount){sdkDeclaration.invalidate();sdkEntryMount.remove();}
   const element=document.createElement('div');element.dataset.epoch=String(sdkStudentContext().epoch);
-  root.append(element);sdkEntryMount=element;
+  (root.querySelector('.pilot-main')||root).append(element);sdkEntryMount=element;
   try{await sdkDeclaration.open(element);}catch(error){if(element.isConnected)element.textContent=error.message;}
- });root.append(button);
+ });(root.querySelector('.pilot-main')||root).append(button);
 }).observe(root,{childList:true,subtree:true});
 `;
  }

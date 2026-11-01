@@ -74,11 +74,11 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   await page.locator('#coachRelaunch_objective').selectOption('fat_loss');await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
   await page.locator('#coachRelaunch_age_years').fill('40');await page.locator('#coachRelaunch_height_cm').fill('175');await page.locator('#coachRelaunch_weight_kg').fill('86.4');
   await page.locator('#coachRelaunch_preferred_foods').fill('banana');await page.locator('#coachRelaunch_disliked_foods').fill('apple');await page.locator('#coachRelaunch_share').uncheck();
-  phase='student-save-private-intake';await page.locator('#efgCoachRelaunchForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===1);
+  phase='student-save-private-intake';await page.locator('#efgCoachRelaunchForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===1);await settled(page);
   assert.equal((await snapshot(page)).route,'private');
   phase='student-followup-consent';await page.locator('[data-tab="privacy"]:visible').first().click();await page.locator('[data-act="grantConsent"]').click();await page.locator('[data-act="revokeConsent"]').waitFor();
   phase='student-share-intake';await page.locator('[data-tab="intake"]:visible').first().click();await page.locator('#coachRelaunch_share').check();
-  await page.locator('#efgCoachRelaunchManageForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===2);
+  await page.locator('#efgCoachRelaunchManageForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===2);await settled(page);
   assert.equal((await snapshot(page)).route,'review');
   phase='student-declaration';
   await declare(page);await revoke(page);await declare(page); // Same open panel: regression covers both transitions.
@@ -142,7 +142,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    phase='stale-intake-'+width;
    await student.locator('#coachRelaunch_notes').fill('Fictional updated meal schedule');
    await student.locator('#efgCoachRelaunchManageForm button[type=submit]').click();
-   await student.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===3);
+   await student.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===3);await settled(student);
    const beforeStale=safeTraffic.filter(r=>r.path.endsWith('/efg_save_bound_guide')).length;
    await mount.getByRole('button',{name:'Guardar borrador privado',exact:true}).click();await mount.getByRole('alert').waitFor();
    assert.equal(safeTraffic.filter(r=>r.path.endsWith('/efg_save_bound_guide')).length,beforeStale);
@@ -172,7 +172,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
   assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/otp'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/verify'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/token'&&x.status===200));
   writeFileSync(join(out,'result.json'),JSON.stringify({status:'PASS_LOCAL_SDK_ENTRY',results,traffic:safeTraffic},null,2));
- }catch(error){const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures,pageFaults,locations:(error.stack||'').match(/sdk-entry-runner-private\.mjs:[0-9]+:[0-9]+/g)||[]};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
+ }catch(error){const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures,pageFaults,intercepted:/intercepts pointer events/.test(error.message||''),strictLocator:/strict mode violation/.test(error.message||''),locations:(error.stack||'').match(/sdk-entry-runner-private\.mjs:[0-9]+:[0-9]+/g)||[]};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
   console.log('SDK_ENTRY_DIAGNOSTIC '+JSON.stringify(failure));
   throw Error('SDK_ENTRY_FAILED_'+phase); // Do not print Playwright call arguments containing an OTP.
  }finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}

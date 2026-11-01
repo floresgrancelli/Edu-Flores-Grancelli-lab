@@ -96,8 +96,12 @@ assert.match(index,/nutrition-daily-tip\.css/);
 assert.match(style,/\.efg-daily-tip-photo/);
 assert.match(style,/\.efg-daily-tip-photo-placeholder\{position:absolute;inset:0/,
  'Offline photo fallback must occupy the actual hero photograph region.');
-assert.match(style,/\.efg-daily-tip-photo\{position:relative;z-index:1/,
- 'Loaded photo must cover the branded fallback without hiding ALT.');
+assert.match(style,/\.efg-daily-tip-photo\{position:absolute;inset:0;z-index:1/,
+ 'Photo must be absolute so failed/deferred images cannot change card geometry.');
+assert.match(style,/\.efg-daily-tip-photo\{[^}]*min-height:0;object-fit:cover/,
+ 'Photo size must be constrained by its parent and not by intrinsic content.');
+assert.match(style,/color:transparent;font-size:0/,
+ 'A broken image must keep its screen-reader ALT without painting ALT text above the branded fallback.');
 assert.match(style,/@media\(max-width:720px\)/);
 assert.match(style, /prefers-reduced-motion:reduce/);
 console.log("PASS PRO60: 72 Argentine daily editorial tips, monthly 29 incl leap year, photos/crédits, no repeated next day, gated recipe links, responsive CSS contract.");

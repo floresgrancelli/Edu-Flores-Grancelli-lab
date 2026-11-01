@@ -8,7 +8,9 @@ import {createPersistedGuideProvider} from '../pilot/persisted-guide-provider.js
 import {compositionVerified} from '../pilot/guide-compatibility.js';
 import {proposeAdaptedGuide} from '../pilot/adapted-guided-day.js';
 import {createGuideEditor,updateGuideEditor} from '../pilot/adapted-guide-editor.js';
-if(process.argv.includes('--provider-regression')){
+if(process.argv.includes('--pilot-scope-regression')){
+ await runPilotScopeRegression();
+}else if(process.argv.includes('--provider-regression')){
  await runProviderRegression();
 }else{
 assert.equal(process.env.EFG_QA_PERSISTED_GUIDE,'1');
@@ -71,6 +73,10 @@ for(const side of ['A','B']){
  assert.equal(declaration.declared_by,student.id);assert.equal(declaration.source_revision,2);assert.ok(Date.parse(declaration.confirmed_at)<=Date.now());
  assert.equal(yes(await rpc('efg_prepare_bound_guide',coach.token,prep(side)),'persist goal and source bindings'),1);
 }
+if(process.env.EFG_QA_PERSISTED_UI==='1'){
+ const {runPersistedCoachBrowser}=await import('./persisted-coach-browser-private.mjs');
+ await runPersistedCoachBrowser({users,orgs,official,request,rpc,password});
+}else{
 const ownB=yes(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B own persisted context');assert.equal(ownB.organization_id,orgs.B);
 denied(await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id}),'anonymous');
 denied(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentA.id}),'foreign organization');
@@ -117,9 +123,10 @@ denied(await rpc('efg_declare_no_restrictions',users.studentA.token,{p_document:
 denied(await rpc('efg_publish_coach_plan_draft_atomic',users.coachA.token,{p_student:users.studentA.id,p_expected_revision:2,p_request_id:randomUUID()}),'publication remains blocked');
 yes(await rpc('efg_accept_pilot_participation',users.studentB.token,{p_version:'coach_pilot_2026_demo1',p_participation:true,p_sharing:false}),'B revokes sharing');
 denied(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B sharing revocation');
+}
 assert.equal(sql('select count(*) from public.efg_goals'),'0');
 assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
-console.log('PASS persisted nine-food guide: signed A/B declarations, source-bound persisted goal/preferences, five meals, edit/save/readback, RLS/revocation/stale/tamper negatives; publish OFF. Disposable fixtures only.');
+console.log(process.env.EFG_QA_PERSISTED_UI==='1'?'PASS persisted UI HTTP/DB readback (see result.json)': 'PASS persisted nine-food guide: signed A/B declarations, source-bound persisted goal/preferences, five meals, edit/save/readback, RLS/revocation/stale/tamper negatives; publish OFF. Disposable fixtures only.');
 
 }
 // Unit-only regression: no localContext(), SQL, JWT creation, network, or server.
@@ -185,4 +192,62 @@ async function runProviderRegression(){
   }
  }
  console.log('PASS private unit regressions: evidence_id CHECK and raw digest preservation; student/session/generation change during Auth blocks RPC initiation; unchanged scope writes once. No SQL or hosted claim.');
+}
+
+// Extract production functions verbatim into a temporary ESM module; no eval/Function or V8 bypass.
+async function runPilotScopeRegression(){
+ const {mkdtempSync,writeFileSync,rmSync}=await import('node:fs');
+ const {tmpdir}=await import('node:os');const {join}=await import('node:path');const {pathToFileURL}=await import('node:url');
+ const pilot=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+ const begin='// PERSISTED_COACH_SCOPE_BEGIN',end='// PERSISTED_COACH_SCOPE_END';
+ assert.equal(pilot.split(begin).length,2);assert.equal(pilot.split(end).length,2);
+ const extracted=pilot.slice(pilot.indexOf(begin),pilot.indexOf(end));
+ const authStart=pilot.indexOf('function handleAuthStateChange(event,session){');
+ const authEnd=pilot.indexOf('// Never auto-reload',authStart);assert.ok(authStart>0&&authEnd>authStart);
+ const directory=mkdtempSync(join(tmpdir(),'ncc-real-pilot-scope-'));
+ try{
+  const modulePath=join(directory,'scope.mjs');
+  writeFileSync(modulePath,`let state,coachPersistedGuideSource=null;let closes=0;
+const coachAdaptedWorkspace={close(){closes++;coachPersistedGuideSource?.invalidate();}};
+const refresh=()=>{throw Error('Unexpected refresh branch');};
+const resetPrivateSession=()=>{coachAdaptedWorkspace.close();state.session=null;};const loginView=()=>{};
+${extracted}\n${pilot.slice(authStart,authEnd)}
+export {adaptedCoachScope,coachSessionIdentity,setCoachSessionIdentity,handleAuthStateChange};
+export const attach=(s,p)=>{state=s;coachPersistedGuideSource=p;};export const closeCount=()=>closes;
+`);
+  const real=await import(pathToFileURL(modulePath));
+  const sid='11111111-1111-4111-8111-111111111111',sid2='22222222-2222-4222-8222-222222222222';
+  const user={id:'coach-a'};
+  const session=(id,sub=user.id)=>({user,access_token:'header.'+Buffer.from(JSON.stringify({sub,session_id:id,exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.signature'});
+  const state={session:null,profile:{user_id:user.id,role:'coach',active:true},org:{id:'org-a',coach_id:user.id},
+   roster:[{user_id:'student-a',active:true,organization_id:'org-a'},{user_id:'student-b',active:true,organization_id:'org-a'}],selectedStudent:'student-a',
+   consent:{accepted:true,student_id:'student-a',organization_id:'org-a'},coachIntakeForms:{'student-a':{revision:1,updated_at:'r1',shared_at:'shared'}},coachIntakeAccess:{}};
+  real.attach(state,null);real.setCoachSessionIdentity(session(sid),user);
+  let reads=0,auth=0,release,entered,hold=false;
+  const client={auth:{getUser:async()=>{auth++;if(hold){entered();await new Promise(r=>release=r);}return {data:{user},error:null};}},rpc:async name=>{
+   reads++;
+   if(name==='efg_get_coach_health_intake')return {data:{viewer_id:user.id,student_id:state.selectedStudent,organization_id:'org-a',revision:1,processing_consent:true,followup_consent:true,shared_with_coach:true},error:null};
+   assert.equal(name,'efg_read_bound_guide');return {data:{viewer_id:user.id,session_id:state.session.session_id,student_id:state.selectedStudent,organization_id:'org-a',
+    health_revision:1,intake_revision:1,draft_revision:1,catalog_digest:'unit-digest',restriction_declaration:'none_declared',publishable:false,
+    evaluated_at:new Date().toISOString(),foods:[],goal:{kcal:2100},preferred_ids:[],disliked_ids:[]},error:null};
+  }};
+  const provider=createPersistedGuideProvider({client,readScope:real.adaptedCoachScope,template:[]});real.attach(state,provider);
+  const scope=real.adaptedCoachScope();assert.ok(Number.isSafeInteger(scope.sourceEpoch)&&scope.sourceEpoch>0);
+  assert.equal((await provider.load()).persisted,true);assert.equal(reads,2,'Real pilot scope must reach health and bound RPC');assert.equal(auth,1);
+  assert.equal(real.adaptedCoachScope().sourceEpoch,scope.sourceEpoch,'Unchanged scope stays stable');
+  const count=real.closeCount();real.handleAuthStateChange('TOKEN_REFRESHED',session(sid));
+  assert.equal(state.session.session_id,sid);assert.equal(real.closeCount(),count,'Same JWT session refresh preserves context');
+  real.handleAuthStateChange('SIGNED_IN',session(sid2));assert.equal(state.session.session_id,sid2);assert.ok(real.closeCount()>count);
+  assert.ok(real.adaptedCoachScope().sourceEpoch>scope.sourceEpoch);assert.equal(Object.hasOwn(state.session,'access_token'),false);
+  assert.equal(real.coachSessionIdentity(session(sid,'other-user'),user),null);assert.equal(real.coachSessionIdentity({...session(sid),access_token:'broken'},user),null);
+  // Actual pilot revision fingerprint changes during Auth: no bound-data RPC may begin.
+  const started=new Promise(r=>entered=r);hold=true;const pending=provider.load();await started;
+  const before=reads;state.coachIntakeForms['student-a']={revision:2,updated_at:'r2',shared_at:'shared'};release();
+  await assert.rejects(pending,/STALE_CONTEXT/);assert.equal(reads,before);hold=false;
+  const epoch=real.adaptedCoachScope().sourceEpoch;state.selectedStudent='student-b';state.consent.student_id='student-b';
+  assert.ok(real.adaptedCoachScope().sourceEpoch>epoch);
+  assert.equal((await provider.load()).row.student_id,'student-b');
+  const beforeDenied=reads;state.consent.accepted=false;await assert.rejects(()=>provider.load(),/SOURCE_DENIED/);assert.equal(reads,beforeDenied);
+  console.log('PASS real pilot scope/provider regression: positive epoch, real health gate reached, stable refresh, new session invalidation, revision change during Auth blocks RPC, student switch and consent denial. Unit transport only; not HTTP/UI execution.');
+ }finally{rmSync(directory,{recursive:true,force:true});}
 }

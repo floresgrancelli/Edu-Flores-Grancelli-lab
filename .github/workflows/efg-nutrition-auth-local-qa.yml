@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
       - 'efg-nutrition/tests/persisted-guide-*.mjs'
+      - 'efg-nutrition/tests/persisted-coach-*.mjs'
+      - 'efg-nutrition/pilot/coach-adapted-workspace.js'
+      - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/tests/sql/persisted-guide-local-overlay.sql'
       - 'efg-nutrition/pilot/persisted-guide-provider.js'
       - 'efg-nutrition/tests/automatic-composition-local.mjs'
@@ -369,6 +372,11 @@ jobs:
           path: ${{ runner.temp }}/v10-composition-result.txt
           retention-days: 7
           if-no-files-found: warn
+      - name: Install existing pinned browser QA dependency for persisted UI
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]') && contains(github.event.head_commit.message, '[persisted-coach-ui]')
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Fresh disposable stack for persisted guide contract
         if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]')
         run: |
@@ -390,13 +398,27 @@ jobs:
         env:
           EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-persisted-guide-local-status.env
           EFG_QA_PERSISTED_GUIDE: '1'
+          EFG_QA_PERSISTED_UI: ${{ contains(github.event.head_commit.message, '[persisted-coach-ui]') && '1' || '0' }}
         run: |
           set -euo pipefail
           node efg-nutrition/tests/coach119-signed-local-setup.mjs
           node --check efg-nutrition/tests/persisted-guide-local-e2e.mjs
           node --check efg-nutrition/tests/persisted-guide-nine-import.mjs
+          if [ "$EFG_QA_PERSISTED_UI" = '1' ]; then
+            node --check efg-nutrition/tests/persisted-coach-browser-private.mjs
+            node --check efg-nutrition/tests/persisted-coach-browser-client.mjs
+          fi
           node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --provider-regression
+          node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --pilot-scope-regression
           node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs
+      - name: Persisted UI safe screenshots and result
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]') && contains(github.event.head_commit.message, '[persisted-coach-ui]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: persisted-coach-ui-${{ github.sha }}
+          path: artifacts/persisted-coach-ui/
+          retention-days: 7
+          if-no-files-found: warn
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |
@@ -410,4 +432,5 @@ jobs:
         run: |
           echo "LOCAL GoTrue JWT checks (if completed) do NOT certify hosted Supabase, exact production schema, approved legal text, clinical food evidence, OTP email delivery, production RLS or iOS/Android."
           echo "No production SQL, no new hosted project, no preview branch, no project linking and no deployment. RELEASE NO GO."
+
 

@@ -2484,17 +2484,52 @@ function activeCoachGuideGoal(){
   ? (state.pendingGoal||state.pendingGoalRevision?.proposal||null)
   : (state.coachGoals[0]||null);
 }
+// PERSISTED_COACH_SCOPE_BEGIN: extracted verbatim by the private regression.
+let adaptedSourceEpoch=0,adaptedSourceFingerprint=null;
+function coachSessionIdentity(session,user){
+ // Correlation only, never authorization: the provider validates getUser and server JWT session_id.
+ // Retain only the opaque session ID; never put access/refresh tokens in application state or logs.
+ try{
+  if(!user?.id||session?.user?.id!==user.id||typeof session.access_token!=='string')return null;
+  const parts=session.access_token.split('.');if(parts.length!==3)return null;
+  const claims=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  if(claims.sub!==user.id||typeof claims.session_id!=='string'||
+   !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(claims.session_id)||
+   !Number.isFinite(claims.exp)||claims.exp*1000<=Date.now())return null;
+  return claims.session_id;
+ }catch{return null;}
+}
+function setCoachSessionIdentity(session,user){
+ const id=coachSessionIdentity(session,user);
+ if(state.session?.user?.id!==user?.id||state.session?.session_id!==id){
+  coachAdaptedWorkspace.close();
+ }
+ state.session=user?{user,session_id:id}:null;
+}
 function adaptedCoachScope(){
  const student=state.roster.find(p=>p.user_id===state.selectedStudent);
- return {userId:state.session?.user?.id,profileId:state.profile?.user_id,role:state.profile?.role,
+ const intake=state.coachIntakeForms?.[state.selectedStudent];
+ const fingerprint=JSON.stringify([state.session?.user?.id,state.session?.session_id,
+  state.selectedStudent,state.org?.id,state.org?.coach_id,student?.organization_id,student?.active,
+  state.consent?.accepted,state.consent?.student_id,state.consent?.organization_id,
+  intake?.revision,intake?.updated_at,intake?.shared_at,state.coachIntakeAccess?.[state.selectedStudent],
+  state.coachPlanDraftRecord?.draft_revision,state.pendingGoalRevision?.revision]);
+ if(fingerprint!==adaptedSourceFingerprint){
+  const hadContext=adaptedSourceFingerprint!==null;
+  adaptedSourceFingerprint=fingerprint;adaptedSourceEpoch++;
+  if(hadContext)coachPersistedGuideSource?.invalidate();
+ }
+ return {sourceEpoch:adaptedSourceEpoch,sessionId:state.session?.session_id,userId:state.session?.user?.id,profileId:state.profile?.user_id,role:state.profile?.role,
   active:state.profile?.active,organizationId:state.org?.id,ownerId:state.org?.coach_id,
   studentId:student?.user_id,studentActive:student?.active,studentOrganizationId:student?.organization_id,
   consent:state.consent?.accepted,consentStudentId:state.consent?.student_id,
   consentOrganizationId:state.consent?.organization_id};
 }
+// PERSISTED_COACH_SCOPE_END
 const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
 const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
-const coachAdaptedWorkspace=coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
+const coachPersistedGuideSource=null; // Remains disabled; disposable runner injects authenticated provider only.
+const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
  enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
 });
 function coachGuidedSection(){
@@ -3053,6 +3088,7 @@ async function loadRoleData(){
 }
 async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
+ coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
@@ -3104,7 +3140,11 @@ async function refresh(){
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
   if(switchingUser){state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
-  state.session={user:result.data.user};
+  // getUser above is authoritative; cached session supplies only JWT correlation metadata.
+  const sessionSnapshot=state.session;
+  const currentSession=await sb.auth.getSession();
+  if(state.session!==sessionSnapshot)return; // Auth event changed context during hydration.
+  setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
@@ -4127,6 +4167,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ coachAdaptedWorkspace.close(); // Includes pending HTTP loads and saves.
  // Clear role-scoped RAM on every SIGNED_OUT, including external session
  // invalidation. Never carry another Coach's private data to a fresh OTP user.
  state.foodCompatEvidence=[];state.habitualSelection={};
@@ -4158,12 +4199,12 @@ function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
   const user=session?.user;
   if(user&&state.profile?.user_id===user.id&&state.session?.user?.id===user.id){
-   state.session={user};
+   setCoachSessionIdentity(session,user);
    return;
   }
   if(!state.loading)queueMicrotask(()=>refresh());
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
-  state.session={user:session.user};
+  setCoachSessionIdentity(session,session.user);
  }else if(event==="SIGNED_OUT"){
   resetPrivateSession();loginView();
  }
@@ -4200,4 +4241,5 @@ const pullRefresh=createPullToRefresh({
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
  sb.auth.onAuthStateChange(handleAuthStateChange);
 })();
+
 

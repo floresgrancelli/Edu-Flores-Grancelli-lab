@@ -2,7 +2,7 @@
 import {createCoachHealthResponseProvider} from './coach-health-response-provider.js';
 export function createPersistedGuideProvider({client,readScope,template}){
  let generation=0,accepted=null;
- const key=s=>s&&JSON.stringify([s.userId,s.sessionId,s.studentId,s.organizationId]);
+ const key=s=>s&&JSON.stringify([s.userId,s.sessionId,s.studentId,s.organizationId,s.sourceEpoch]);
  const health=createCoachHealthResponseProvider({readScope,readHealth:async({studentId})=>{
   const r=await client.rpc('efg_get_coach_health_intake',{p_student:studentId});if(r.error)throw Error('HEALTH_DENIED');return r.data;
  }});

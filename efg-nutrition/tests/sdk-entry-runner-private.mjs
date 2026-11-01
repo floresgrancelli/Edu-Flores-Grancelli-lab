@@ -11,29 +11,30 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
  const root=process.cwd(),out=resolve('artifacts/sdk-entry');mkdirSync(out,{recursive:true});
- let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[];
+ let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[],sourceFailures=[],resourceFailures=[];
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,'http://localhost').pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));
   assert.ok(file.startsWith(root+'/'));let bytes=readFileSync(file);
   if(path==='/efg-nutrition/pilot/pilot.js')bytes=Buffer.from(localSdkEntrySource(bytes.toString(),{apiUrl:env.API_URL,publishableKey:env.ANON_KEY||env.PUBLISHABLE_KEY,origin,declarationPanel:true,official}));
   else if(extname(file)==='.js')bytes=Buffer.from(localSdkEntryFlag(path,bytes.toString()));
   res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.mjs':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.avif':'image/avif'})[extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(bytes);
- }catch{res.writeHead(500);res.end('LOCAL_SOURCE_FAILURE');}});
+ }catch{sourceFailures.push(new URL(req.url,'http://localhost').pathname);res.writeHead(500);res.end('LOCAL_SOURCE_FAILURE');}});
  const snapshot=page=>page.evaluate(()=>window.__SDK_ENTRY_QA__.snapshot());
  const settled=page=>page.waitForFunction(()=>window.__SDK_ENTRY_QA__?.snapshot().role&&!window.__SDK_ENTRY_QA__.snapshot().loading);
  async function pageFor(width){
   const context=await browser.newContext({viewport:{width,height:860},serviceWorkers:'block'});contexts.push(context);
   await context.route('**/*',route=>{const url=new URL(route.request().url());return [origin,env.API_URL].includes(url.origin)||url.origin==='https://esm.sh'?route.continue():route.abort();});
   const page=await context.newPage();
+  page.on('requestfailed',r=>{const u=new URL(r.url());resourceFailures.push({origin:u.origin,path:u.pathname});});
   page.on('response',r=>{const u=new URL(r.url());if(u.origin===env.API_URL)safeTraffic.push({path:u.pathname,method:r.request().method(),status:r.status()});});
   // Never collect console/errors containing Auth payloads, storageState, HAR or traces.
   page.on('dialog',dialog=>dialog.accept());return page;
  }
  async function login(page,actor){
-  await page.goto(origin+'/efg-nutrition/pilot/');await page.locator('#loginEmail').fill(actor.email);
-  const after=Date.now();await page.locator('#pilot-login-form button[type=submit]').click();
-  const code=await readOtp({email:actor.email,after});await page.locator('#loginOtp').fill(code);
-  await page.locator('#pilot-otp-form button[type=submit]').click();await settled(page);
+  phase='login-open';await page.goto(origin+'/efg-nutrition/pilot/');phase='login-email';await page.locator('#loginEmail').fill(actor.email);
+  phase='login-request-otp';const after=Date.now();await page.locator('#pilot-login-form button[type=submit]').click();
+  phase='login-read-local-mail';const code=await readOtp({email:actor.email,after});phase='login-fill-otp';await page.locator('#loginOtp').fill(code);
+  phase='login-submit-otp';await page.locator('#pilot-otp-form button[type=submit]').click();phase='login-hydration';await settled(page);
   assert.equal((await snapshot(page)).userId,actor.id);assert.equal(await page.locator('#loginOtp').count(),0);
  }
  async function logout(page){await page.locator('[data-act="logout"]:visible').first().click();await page.locator('#loginEmail').waitFor();assert.equal((await snapshot(page)).userId,null);}
@@ -162,7 +163,8 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
   assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/otp'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/verify'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/token'&&x.status===200));
   writeFileSync(join(out,'result.json'),JSON.stringify({status:'PASS_LOCAL_SDK_ENTRY',results,traffic:safeTraffic},null,2));
- }catch{writeFileSync(join(out,'failure.json'),JSON.stringify({status:'FAIL',phase,traffic:safeTraffic}));
+ }catch{const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
+  console.log('SDK_ENTRY_DIAGNOSTIC '+JSON.stringify(failure));
   throw Error('SDK_ENTRY_FAILED_'+phase); // Do not print Playwright call arguments containing an OTP.
  }finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}
 }

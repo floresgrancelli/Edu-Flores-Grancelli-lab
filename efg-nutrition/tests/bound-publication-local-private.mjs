@@ -75,6 +75,29 @@ export async function runBoundPublication({page,context,mount,width,side,users,o
    await learner.getByText('Ver las cinco comidas de ejemplo',{exact:true}).click();
    await learner.locator('.efg-guide-student').waitFor({state:'visible'});
    assert.equal(await learner.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   const geometry=await learner.locator('.efg-guide-student').evaluate(root=>{
+    const intersect=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1;
+    const groups=[...root.querySelectorAll('.efg-guide-food-group')].map(group=>{
+     const box=group.getBoundingClientRect();return {slot:group.dataset.guideslot,width:box.width,overflow:group.scrollWidth>group.clientWidth+1,
+      rows:[...group.querySelectorAll('.efg-guide-food')].map(row=>{
+       const name=row.querySelector('.efg-guide-food-name'),qty=row.querySelector(':scope > b');
+       if(!name||!qty)return {missing:true};
+       const a=name.getBoundingClientRect(),b=qty.getBoundingClientRect();
+       const range=document.createRange();range.selectNodeContents(name);const rects=[...range.getClientRects()];
+       return {name:name.textContent,qty:qty.textContent,overlap:intersect(a,b)||rects.some(r=>intersect(r,b)),
+        nameClipped:name.scrollWidth>name.clientWidth+1||rects.some(r=>r.left<a.left-1||r.right>a.right+1),
+        outside:a.left<box.left||a.right>box.right||b.left<box.left||b.right>box.right};
+      })};
+    });
+    return {groups,names:[...root.querySelectorAll('.efg-guide-food-name')].map(n=>n.textContent)};
+   });
+   for(const slot of ['almuerzo','cena'])assert.ok(geometry.groups.filter(g=>g.slot===slot).length>=2,'Actual published protein/carb subcards required: '+slot);
+   assert.ok(geometry.groups.every(g=>g.width>=160&&!g.overflow),'Subcards must remain readable inside real meal width: '+JSON.stringify(geometry));
+   const foodRows=geometry.groups.flatMap(g=>g.rows);assert.ok(foodRows.length>0);
+   assert.ok(foodRows.every(r=>!r.missing&&!r.overlap&&!r.nameClipped&&!r.outside),'Official name/quantity geometry: '+JSON.stringify(foodRows));
+   const expectedNames=after.guide[0].guided_plan.meals.flatMap(m=>m.items.map(i=>i.name));
+   for(const name of expectedNames)assert.ok(geometry.names.includes(name),'Full official description retained: '+name);
+
    await learner.screenshot({path:join(out,`bound-published-student-${width}.png`),fullPage:true});
   }finally{await learner.close();}
   yes(await rpc('efg_revoke_coach_health_intake',student.token,{p_expected_revision:2}),'revoke health source');

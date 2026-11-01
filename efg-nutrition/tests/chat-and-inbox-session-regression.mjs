@@ -27,18 +27,23 @@ const rows=[
  {id:"m-old",student_id:"student-demo",coach_id:"coach-old",sender_id:"coach-old",body:"SECRETO-COACH-ANTERIOR",created_at:"2026-10-30T10:00:00Z",read_at:null},
  {id:"m-new",student_id:"student-demo",coach_id:"coach-new",sender_id:"coach-new",body:"MENSAJE-COACH-NUEVO",created_at:"2026-10-30T11:00:00Z",read_at:null}
 ];
-const receipts=[],sent=[];let failReads=0,afterSend=0,alerts=0;
+const receipts=[],sent=[];let failReads=0,afterSend=0,alerts=0,readbackAllowed=true;
 function msgQuery(){
- const q={verb:"select",filters:[]};
+ const q={verb:"select",filters:[],returning:false};
  return {
-  select(){return this;},eq(k,v){q.filters.push([k,v]);return this;},in(k,v){q.filters.push([k,v]);return this;},
+  select(){if(q.verb==="update")q.returning=true;return this;},eq(k,v){q.filters.push([k,v]);return this;},in(k,v){q.filters.push([k,v]);return this;},
   or(){return this;},order(){return this;},limit(){return this;},
   update(value){q.verb="update";q.value=value;return this;},
   insert(value){q.verb="insert";q.value=value;return this;},
   then(yes,no){
    let result;
    if(q.verb==="insert"){sent.push(q.value);result={data:null,error:null};}
-   else if(q.verb==="update"){receipts.push(q.filters);result={data:null,error:null};}
+   else if(q.verb==="update"){
+    receipts.push({filters:q.filters,returning:q.returning});
+    const affected=readbackAllowed&&q.returning?rows.filter(m=>q.filters.every(([k,v])=>Array.isArray(v)?v.includes(m[k]):m[k]===v))
+     .map(m=>({...m,read_at:q.value.read_at})):[];
+    result={data:affected,error:null};
+   }
    else if(failReads>0){failReads--;result={data:null,error:{message:"offline after confirmed write"}};}
    else result={data:rows.filter(m=>q.filters.every(([k,v])=>Array.isArray(v)?v.includes(m[k]):m[k]===v)),error:null};
    return Promise.resolve(result).then(yes,no);
@@ -57,7 +62,12 @@ try{
  assert.match(chatHost.innerHTML,/MENSAJE-COACH-NUEVO/);
  assert.doesNotMatch(chatHost.innerHTML,/SECRETO-COACH-ANTERIOR/);
  assert.ok(receipts.length>0);
- assert.ok(receipts.every(f=>f.some(([k,v])=>k==="student_id"&&v==="student-demo")&&f.some(([k,v])=>k==="coach_id"&&["coach-old","coach-new"].includes(v))),"Every read receipt is scoped to student and coach");
+ assert.ok(receipts.every(({filters,returning})=>returning&&filters.some(([k,v])=>k==="student_id"&&v==="student-demo")&&filters.some(([k,v])=>k==="coach_id"&&["coach-old","coach-new"].includes(v))),"Every read receipt must require actual row readback scoped to the pair");
+ readbackAllowed=false;
+ await center.refresh();await tick();
+ assert.match(chatHost.innerHTML,/MENSAJE-COACH-NUEVO/,"Zero-row RLS update leaves the conversation visible and no error");
+ assert.ok(receipts.at(-1).returning,"Zero-row update still requires the server confirmation query");
+ readbackAllowed=true;
  await fire("input",{target:{id:"efgMessageText",value:"Hola nuevo coach"}});
  failReads=1;
  await fire("submit",{target:{id:"efgMessageForm",querySelector:()=>({value:"Hola nuevo coach"})},preventDefault(){}});

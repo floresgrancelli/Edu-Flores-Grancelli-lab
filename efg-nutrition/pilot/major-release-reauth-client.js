@@ -44,6 +44,17 @@ export async function confirmMajorRelaunchAndExit(sb,{
   throw Error('La sesión cambió después de confirmar el aviso; no se cerró la nueva cuenta.');
  if(!dirtyAtClick&&hasUnsavedChanges())
   return Object.freeze({signedOut:false,saveRequired:true});
+ // A first discard approval happened BEFORE the receipt RPC. When the
+ // original form was dirty, a second confirmation immediately before exit
+ // prevents edits made during the network round trip from being discarded by
+ // an old confirmation. This only applies to the explicit major release.
+ if(dirtyAtClick&&hasUnsavedChanges()){
+  if((await confirmDiscard())!==true)
+   return Object.freeze({signedOut:false,saveRequired:true});
+  const verified=await sb.auth.getUser();
+  if(verified?.error||verified?.data?.user?.id!==userId)
+   throw Error('La sesión cambió durante la última confirmación de cierre.');
+ }
  return signOutCurrentDevice({auth:sb.auth,explicitClick:true,
   hasUnsavedChanges:()=>false}); // prior dirty edits were expressly confirmed
 }

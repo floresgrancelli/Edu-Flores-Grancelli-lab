@@ -8,9 +8,23 @@ export async function signOutCurrentDevice({
 }={}){
  if(explicitClick!==true||typeof auth?.signOut!=='function')
   throw Error('El cierre requiere una acción explícita del usuario.');
+ // The active account may change while an asynchronous confirmation is open.
+ // In that case NEVER sign out the newly signed-in account.
+ let signedId=null;
+ if(typeof auth.getUser==='function'){
+  const before=await auth.getUser();
+  signedId=before?.data?.user?.id;
+  if(before?.error||typeof signedId!=='string'||!signedId)
+   throw Error('No pudimos verificar la sesión antes del cierre.');
+ }
  // Confirmation may be asynchronous (e.g. a custom mobile modal).
  if(hasUnsavedChanges()&&(await confirmDiscard())!==true)
   return Object.freeze({signedOut:false,cancelled:true});
+ if(signedId!==null){
+  const current=await auth.getUser();
+  if(current?.error||current?.data?.user?.id!==signedId)
+   throw Error('La sesión cambió durante la confirmación; no se cerró la nueva cuenta.');
+ }
  // Supabase local scope signs out only the device that requested it. Never
  // invalidate other people's accounts or force remote sessions on a minor patch.
  const answer=await auth.signOut({scope:'local'});

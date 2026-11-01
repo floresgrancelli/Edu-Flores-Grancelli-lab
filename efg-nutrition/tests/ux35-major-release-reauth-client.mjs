@@ -42,9 +42,12 @@ const no=await confirmMajorRelaunchAndExit(sb,{...args,
  hasUnsavedChanges:()=>true,confirmDiscard:()=>false});
 assert.equal(no.cancelled,true);
 assert.equal(calls.length-before,1,'Cancelled after status read but before acknowledgment');
+let affirmativePrompts=0;
 const yes=await confirmMajorRelaunchAndExit(sb,{...args,
- hasUnsavedChanges:()=>true,confirmDiscard:()=>true});
+ hasUnsavedChanges:()=>true,confirmDiscard:()=>{affirmativePrompts++;return true;}});
 assert.equal(yes.signedOut,true);
+assert.equal(affirmativePrompts,2,
+ 'Major reauth checks discard again after a network receipt for dirty forms');
 assert.deepEqual(calls.at(-1),['signOut',{scope:'local'}]);
 assert.deepEqual(calls.at(-2),['efg_major_release_ack',{
  p_release:'major_2026_01',p_event_kind:'reauth_notice_acknowledged',p_explicit_click:true
@@ -60,6 +63,16 @@ const oldSignOuts=calls.filter(x=>x[0]==='signOut').length;
 const delayed=await confirmMajorRelaunchAndExit(racing,{...args,hasUnsavedChanges:()=>newEdit});
 assert.equal(delayed.signedOut,false);
 assert.equal(delayed.saveRequired,true);
+assert.equal(calls.filter(x=>x[0]==='signOut').length,oldSignOuts);
+// A dirty form can receive NEW edits while the server receipt is pending.
+// The earlier confirm must not automatically discard them.
+let promptCount=0;
+const secondDeclined=await confirmMajorRelaunchAndExit(sb,{...args,
+ hasUnsavedChanges:()=>true,
+ confirmDiscard:()=>++promptCount===1});
+assert.equal(secondDeclined.signedOut,false);
+assert.equal(secondDeclined.saveRequired,true);
+assert.equal(promptCount,2,'Second prompt occurs after acknowledgment');
 assert.equal(calls.filter(x=>x[0]==='signOut').length,oldSignOuts);
 let authChecks=0;
 const swapped={...sb,auth:{...sb.auth,getUser:async()=>({

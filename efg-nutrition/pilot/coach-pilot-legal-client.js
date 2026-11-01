@@ -90,9 +90,19 @@ export async function submitCoachPilotLegal(sb,snapshot,selection,{explicitSubmi
  if(!explicitSubmit||!snapshot?.ready||typeof sb?.rpc!=='function'||
    !selection?.p_terms_checked||!selection?.p_privacy_checked)
   throw Error('La aceptación legal requiere confirmar expresamente ambos documentos.');
+ // The IDs sent to the signed RPC must be EXACTLY the two documents displayed
+ // to this user; do not accept an accidental stale/mixed or forged selection.
+ const docs=snapshot.documents;
+ const terms=Array.isArray(docs)?docs.find(x=>x.kind==='terms'):null;
+ const privacy=Array.isArray(docs)?docs.find(x=>x.kind==='privacy'):null;
+ if(!Array.isArray(docs)||docs.length!==2||
+   !UUID.test(terms?.id||'')||!UUID.test(privacy?.id||'')||
+   selection.p_terms_id!==terms.id||selection.p_privacy_id!==privacy.id)
+  throw Error('Las versiones legales seleccionadas no coinciden con las mostradas. Volvé a revisarlas.');
  const user=await sb.auth.getUser();
  if(user?.error||!UUID.test(user?.data?.user?.id||'')||
-   profile?.user_id!==user.data.user.id||!['student','coach','admin','personal'].includes(profile?.role))
+   profile?.user_id!==user.data.user.id||profile?.active!==true||
+   !['student','coach','admin','personal'].includes(profile?.role))
   throw Error('La sesión ya no está verificada.');
  const response=await sb.rpc('efg_accept_current_legal',selection);
  if(response.error||response.data!==true)

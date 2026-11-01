@@ -5,6 +5,8 @@ import {readFileSync} from 'node:fs';
 import {signOutCurrentDevice} from '../pilot/logout-session.js';
 const calls=[];
 const auth={signOut:async args=>{calls.push(args);return {error:null}}};
+const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const other='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 await assert.rejects(signOutCurrentDevice({auth}),/acción explícita/);
 assert.equal(calls.length,0,'No automatic version or timer sign-out');
 let confirmCalls=0;
@@ -35,6 +37,21 @@ const asyncApproved=await signOutCurrentDevice({auth,explicitClick:true,
  hasUnsavedChanges:()=>true,confirmDiscard:async()=>true});
 assert.equal(asyncApproved.signedOut,true);
 assert.equal(calls.length,3,'Async approval can sign out the current device');
+// Regression 09-04: a second account must not be signed out if the user
+// switches account while the first user's unsaved-edits modal is pending.
+let currentUser=uid,guardedSignouts=0;
+const guardedAuth={
+ getUser:async()=>({data:{user:{id:currentUser}},error:null}),
+ signOut:async()=>{guardedSignouts++;return {error:null};}
+};
+await assert.rejects(signOutCurrentDevice({auth:guardedAuth,explicitClick:true,
+ hasUnsavedChanges:()=>true,
+ confirmDiscard:async()=>{currentUser=other;return true;}
+}),/sesión cambió/);
+assert.equal(guardedSignouts,0,'Never close B after approval for A');
+currentUser=uid;
+assert.equal((await signOutCurrentDevice({auth:guardedAuth,explicitClick:true})).signedOut,true);
+assert.equal(guardedSignouts,1,'Authenticated, unchanged user may explicitly exit');
 await assert.rejects(signOutCurrentDevice({auth:{signOut:async()=>({error:{message:'offline'}})},explicitClick:true}),/No pudimos cerrar/);
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');

@@ -69,6 +69,15 @@ let sel=selections();
 assert.equal(sel.p_terms_id,terms);assert.equal(sel.p_privacy_id,privacy);
 await assert.rejects(submitCoachPilotLegal(sb,snapshot,sel,{explicitSubmit:false,profile}),
  /requiere confirmar/);
+// Do not POST a different pair of document IDs from the ones shown to
+// the student, or accept consent from a deactivated profile.
+const priorAccepts=calls.filter(x=>x.name==='efg_accept_current_legal').length;
+await assert.rejects(submitCoachPilotLegal(sb,snapshot,
+ {...sel,p_privacy_id:terms},{explicitSubmit:true,profile}),/versiones legales seleccionadas/);
+await assert.rejects(submitCoachPilotLegal(sb,snapshot,sel,{
+ explicitSubmit:true,profile:{...profile,active:false}}),/sesión ya no está verificada/);
+assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,priorAccepts,
+ 'Mismatch and inactive profile must never write legal receipts');
 const accepted=await submitCoachPilotLegal(sb,snapshot,sel,{explicitSubmit:true,profile});
 assert.equal(accepted.accepted,true);
 assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,1);

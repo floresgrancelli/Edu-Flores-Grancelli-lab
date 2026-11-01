@@ -166,3 +166,70 @@ assert.ok(!legacyStore.has(validV1Key)&&!legacyStore.has(validV2Key),
 console.log('PASS UX-04-03: malformed v1/v2 backups preserved without blocking valid-version recovery.');
 
 console.log('PASS UX-HABITUAL-REAL-01: actual app save twice, cloud readback after reset/relogin, both names and foods in picker, no cross-slot leakage. Hosted iPhone/Android UAT pending.');
+
+// UX-04-03: an old account's delayed read must never replace the favorites of
+// the current account, even when the old local v2 JSON is malformed.
+const accountA='user-favorite-A',accountB='user-favorite-B';
+const switchState={profile:{role:'student'},session:{user:{id:accountA}},habitualSelection:{}};
+const oldV1='efg-nutrition-habitual-v1:'+accountA+':desayuno';
+const oldV2='efg-nutrition-habitual-v2:'+accountA+':desayuno';
+const switchStore=new Map([[oldV1,JSON.stringify([{id:'oats',name:'Avena antigua'}])],[oldV2,'{damaged']]);
+const switchLocal={getItem:k=>switchStore.get(k)||null,removeItem:k=>switchStore.delete(k)};
+let resolveOldRead;
+const switchSB={from(table){
+ assert.equal(table,'efg_habitual_meals');
+ let owner='';
+ return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;return this;},
+  order(){
+   if(owner===accountA)return new Promise(resolve=>{resolveOldRead=resolve});
+   return Promise.resolve({data:[{id:'fav-B',meal_slot:'desayuno',name:'Comida de B',
+    items:[{id:'egg',name:'Huevo'}]}],error:null});
+  },
+  insert(){throw new Error('Stale migration attempted an insert');}};
+}};
+const switchAPI=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations',
+ subsystem+';return {loadCloudHabituales,getHabitualList};')(
+ switchSB,switchState,mealSlots,switchLocal,new Set());
+const oldRead=switchAPI.loadCloudHabituales();
+switchState.session={user:{id:accountB}};
+await switchAPI.loadCloudHabituales();
+resolveOldRead({data:[{id:'fav-A',meal_slot:'desayuno',name:'Comida de A',
+ items:[{id:'oats',name:'Avena'}]}],error:null});
+await oldRead;
+assert.deepEqual(switchAPI.getHabitualList('desayuno').map(x=>x.name),['Comida de B'],
+ 'A delayed response must never render a previous account’s meals');
+switchState.session={user:{id:accountA}};
+assert.deepEqual(switchAPI.getHabitualList('desayuno').map(x=>x.name),['Mi habitual anterior'],
+ 'Malformed v2 must not hide valid old v1 while the new account loads');
+assert.ok(switchStore.has(oldV1)&&switchStore.has(oldV2),'No old-user backup deletion');
+
+// Also simulate a completed old-user INSERT after account switch. Its UI result
+// must be ignored and its local backup kept for safe reconciliation on re-login.
+const insertState={profile:{role:'student'},session:{user:{id:accountA}},habitualSelection:{}};
+const insertKey='efg-nutrition-habitual-v2:'+accountA+':desayuno';
+const insertStore=new Map([[insertKey,JSON.stringify([{name:'Pendiente A',items:[{id:'egg'}]}])]]);
+let resolveOldInsert;
+const pendingInsertSB={from(table){
+ assert.equal(table,'efg_habitual_meals');
+ let owner='',payload;
+ return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;return this;},
+  order(){return Promise.resolve({data:owner===accountB?
+   [{id:'fav-B2',meal_slot:'desayuno',name:'Otro favorito de B',items:[{id:'oats'}]}]:[],error:null});},
+  insert(value){payload=value;return this;},
+  single(){assert.equal(payload.student_id,accountA);
+   return new Promise(resolve=>{resolveOldInsert=()=>resolve({data:{...payload,id:'insert-A'},error:null});});}};
+}};
+const insertAPI=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations',
+ subsystem+';return {loadCloudHabituales,getHabitualList};')(
+ pendingInsertSB,insertState,mealSlots,
+ {getItem:k=>insertStore.get(k)||null,removeItem:k=>insertStore.delete(k)},new Set());
+const oldInsert=insertAPI.loadCloudHabituales();
+await Promise.resolve(); // resume initial SELECT and enter awaited import INSERT
+assert.equal(typeof resolveOldInsert,'function');
+insertState.session={user:{id:accountB}};
+await insertAPI.loadCloudHabituales();
+resolveOldInsert();
+await oldInsert;
+assert.deepEqual(insertAPI.getHabitualList('desayuno').map(x=>x.name),['Otro favorito de B']);
+assert.ok(insertStore.has(insertKey),'Late old-account insert must not erase its backup');
+console.log('PASS UX-04-03: stale A/B favorite reads and imports isolated; corrupt v2 cannot hide v1.');

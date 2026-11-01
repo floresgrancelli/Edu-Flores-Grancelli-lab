@@ -29,18 +29,30 @@ const oversizedGuide={...guide,meals:guide.meals.map((meal,i)=>i===0?{...meal,it
 assert.throws(()=>validateCoachPlanProposal(goal,oversizedGuide),/nutrientes/);
 let operations=0,consent=true,shared=true,stamp=WHEN,failRpc=null,rev=1,invalidRevisionResponse=null,returnedStudent=STU,returnedDraftStudent=STU,returnedDraftOrg=ORG,returnedIntakeOrg=ORG;
 const calls=[];
+// Release-only signed-session simulation; the legacy feature stays disabled.
+const COACH='20000000-0000-4000-8000-000000000001';
+const OTHER_COACH='20000000-0000-4000-8000-000000000002';
+let signedCoach=COACH,flipOnDraftRead=false,flipOnRpc=null;
 const db={
+ auth:{async getUser(){return {data:{user:{id:signedCoach}},error:null};}},
  from(table){operations++;return {
   select(){return this;},eq(){return this;},not(){return this;},
   maybeSingle(){
    if(table==="efg_consents")return Promise.resolve({data:{accepted:consent},error:null});
    if(table==="efg_student_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,organization_id:returnedIntakeOrg,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore"}:null,error:null});
    if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,organization_id:returnedIntakeOrg,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
-   if(table==="efg_coach_plan_drafts")return Promise.resolve({data:{student_id:returnedDraftStudent,organization_id:returnedDraftOrg,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
+   if(table==="efg_coach_plan_drafts"){
+    if(flipOnDraftRead){signedCoach=OTHER_COACH;flipOnDraftRead=false;}
+    return Promise.resolve({data:{student_id:returnedDraftStudent,organization_id:returnedDraftOrg,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
+   }
    throw Error("Unrecognized table "+table);
   }
  };},
- async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};if(name==="efg_save_coach_plan_draft")return {data:invalidRevisionResponse===null?rev:invalidRevisionResponse,error:null};if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};throw Error("unexpected rpc "+name);}
+ async rpc(name,payload){operations++;calls.push({name,payload});if(failRpc)return {data:null,error:failRpc};
+  if(flipOnRpc===name){signedCoach=OTHER_COACH;flipOnRpc=null;}
+  if(name==="efg_save_coach_plan_draft")return {data:invalidRevisionResponse===null?rev:invalidRevisionResponse,error:null};
+  if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};
+  throw Error("unexpected rpc "+name);}
 };
 const disabled=createCoachPlanDraftClient({sb:db});
 await assert.rejects(()=>disabled.load(STU),/aún no habilitados/);
@@ -125,6 +137,24 @@ assert.deepEqual(calls.at(-1),{name:"efg_publish_coach_plan_draft_atomic",payloa
 }});
 assert.ok(!calls.slice(noServerCalls).some(x=>x.name==="efg_publish_coach_plan_draft"),
  "Current major release must NEVER fall back to old non-atomic RPC");
+// A stale in-flight response must never expose a previous Coach's plan in the
+// current Coach workspace. Backend JWT/RLS still authorizes every RPC.
+flipOnDraftRead=true;
+await assert.rejects(()=>versioned.load(STU),/cuenta del coach cambió/,
+ "Old Coach draft readback cannot cross a session switch");
+signedCoach=COACH;
+flipOnRpc='efg_save_coach_plan_draft';
+await assert.rejects(()=>versioned.save({studentId:STU,sourceUpdatedAt:WHEN,
+ sourceRevision:3,goal,guide:versionedGuide,expectedRevision:2}),/cuenta del coach cambió/,
+ "A completed draft save cannot claim verified UI state for another Coach");
+signedCoach=COACH;
+flipOnRpc='efg_publish_coach_plan_draft_atomic';
+await assert.rejects(()=>versioned.publish({studentId:STU,expectedRevision:2,
+ requestId:REQ,confirmed:true}),/cuenta del coach cambió/,
+ "Publication result cannot be displayed after Coach identity switch");
+signedCoach=COACH;
+assert.equal((await versioned.load(STU)).student_id,STU,'Restored signed session can reload');
+
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const flow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");
 assert.match(app,/createCoachPlanDraftClient\(\{sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,\s*versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED\}\)/,

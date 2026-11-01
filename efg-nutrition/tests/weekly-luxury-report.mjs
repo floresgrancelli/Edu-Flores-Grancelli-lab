@@ -155,7 +155,7 @@ const badArchived=[
  {...parsed,daysWithMeasuredMeals:8},
  {...parsed,daysWithMultipleMeals:8},
  {...parsed,friday:'2026-11-06'},
- {...parsed,days:parsed.days.map((day,i)=>i===5?{...day,closed:true}:day)}
+ {...parsed,days:parsed.days.map((day,i)=>i===2?{...day,closed:true}:day)}
 ];
 for(const archive of badArchived){
  assert.equal(parseLuxuryWeeklyReport(JSON.stringify(archive)),null,

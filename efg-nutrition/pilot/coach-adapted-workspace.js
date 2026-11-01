@@ -10,11 +10,12 @@ export function adaptedScopeKey(s){
   s.consentStudentId!==s.studentId||s.consentOrganizationId!==s.organizationId)return null;
  return JSON.stringify([s.userId,s.organizationId,s.studentId]);
 }
-export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=null}={}){
+export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=null,inputSource=null}={}){
  let editor=null,input=null,key=null,mount=null,preferences=[],dirtyPreference=false,notice='',request=0;
  const environment=()=>({catalog:input.catalog,goal:input.goal,context:input.context});
  function close(){request++;editor=null;input=null;key=null;mount?.replaceChildren();mount=null;dirtyPreference=false;notice='';}
- function current(){if(!enabled||!key||adaptedScopeKey(readScope())!==key){close();throw Error('Cambió el contexto del coach. Volvé a abrir el borrador.');}}
+ const unsubscribe=inputSource?.subscribe(()=>close());
+ function current(){try{inputSource?.assertCurrent();}catch(error){close();throw error;}if(!enabled||!key||adaptedScopeKey(readScope())!==key){close();throw Error('Cambió el contexto del coach. Volvé a abrir el borrador.');}}
  function draw(){
   current();renderGuideEditor(mount,{state:editor,catalog:input.catalog,onAction:action=>api.action(action)});
   mount.classList.add('card','efg-guide-shell');
@@ -43,11 +44,11 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
   button('Cerrar vista de prueba',()=>close());
  }
  const api={
-  available:()=>enabled&&typeof loadInput==='function'&&!!adaptedScopeKey(readScope()),
+  available:()=>enabled&&(typeof inputSource?.load==='function'||typeof loadInput==='function')&&!!adaptedScopeKey(readScope()),
   async open(node){
    if(!api.available())throw Error('La vista adaptada aún no tiene un origen de datos habilitado.');
    close();const ticket=request,keyBefore=adaptedScopeKey(readScope());
-   const next=await loadInput();
+   const next=await (inputSource?inputSource.load():loadInput());
    if(ticket!==request||keyBefore!==adaptedScopeKey(readScope()))throw Error('Cambió el alumno o la sesión durante la apertura.');
    if(next?.synthetic!==true)throw Error('El adaptador real de ficha y evidencia todavía no está habilitado.');
    input=structuredClone(next);preferences=[...(input.preferredIds||[])];key=keyBefore;mount=node;
@@ -68,7 +69,9 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
    editor=createGuideEditor(proposal,environment());dirtyPreference=false;notice='Nuevo borrador automático; pendiente de revisión.';draw();
   },
   close,
+  dispose(){close();unsubscribe?.();},
   snapshot:()=>editor?structuredClone({editor,dirtyPreference,preferences}):null
  };
  return api;
 }
+

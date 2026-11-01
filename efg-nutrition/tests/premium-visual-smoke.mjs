@@ -1,3 +1,4 @@
+import {assertCoachReportLayout} from './coach-report-layout-private.mjs';
 // Browser QA on actual EFG UI; fixture accounts in RAM. NEVER contacts live Supabase.
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
@@ -173,6 +174,7 @@ try{
     s.tab='coachStudents';await v.render();
    });
    await page.locator('#coachStudentGoals > summary').click();
+   await assertCoachReportLayout(page);
    const publishedBefore=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
    await page.locator('[data-act="openCoachAdaptedPreview"]').click();
    const mount=page.locator('#coachAdaptedDraftMount');

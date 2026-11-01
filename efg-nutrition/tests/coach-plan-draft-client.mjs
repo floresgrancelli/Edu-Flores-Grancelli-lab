@@ -33,6 +33,7 @@ const calls=[];
 const COACH='20000000-0000-4000-8000-000000000001';
 const OTHER_COACH='20000000-0000-4000-8000-000000000002';
 let signedCoach=COACH,flipOnDraftRead=false,flipOnRpc=null;
+let returnedDraftCoach=COACH,returnedDraftSourceRevision=3,returnedDraftSourceStamp=WHEN;
 const db={
  auth:{async getUser(){return {data:{user:{id:signedCoach}},error:null};}},
  from(table){operations++;return {
@@ -43,7 +44,9 @@ const db={
    if(table==="efg_coach_relaunch_intakes")return Promise.resolve({data:shared?{student_id:returnedStudent,organization_id:returnedIntakeOrg,updated_at:stamp,shared_at:WHEN,dietary_pattern:"omnivore",completed_version:"coach_major_2026_r1",revision:3}:null,error:null});
    if(table==="efg_coach_plan_drafts"){
     if(flipOnDraftRead){signedCoach=OTHER_COACH;flipOnDraftRead=false;}
-    return Promise.resolve({data:{student_id:returnedDraftStudent,organization_id:returnedDraftOrg,goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
+    return Promise.resolve({data:{student_id:returnedDraftStudent,coach_id:returnedDraftCoach,organization_id:returnedDraftOrg,
+     source_intake_revision:returnedDraftSourceRevision,source_intake_updated_at:returnedDraftSourceStamp,
+     goal_proposal:goal,guide_proposal:guide,draft_revision:rev,status:"draft"},error:null});
    }
    throw Error("Unrecognized table "+table);
   }
@@ -154,6 +157,18 @@ await assert.rejects(()=>versioned.publish({studentId:STU,expectedRevision:2,
  "Publication result cannot be displayed after Coach identity switch");
 signedCoach=COACH;
 assert.equal((await versioned.load(STU)).student_id,STU,'Restored signed session can reload');
+// COACH119: reading a draft of coach B or an older shared student revision must
+// not populate coach A's five-meal editor, even before the publish RPC runs.
+returnedDraftCoach=OTHER_COACH;
+await assert.rejects(()=>versioned.load(STU),/no pertenece a la cuenta del coach/);
+returnedDraftCoach=COACH;
+returnedDraftSourceRevision=2;
+await assert.rejects(()=>versioned.load(STU),/ficha anterior/);
+returnedDraftSourceRevision=3;
+returnedDraftSourceStamp='2026-10-29T13:00:00.000Z';
+await assert.rejects(()=>versioned.load(STU),/ficha anterior/);
+returnedDraftSourceStamp=WHEN;
+assert.equal((await versioned.load(STU)).coach_id,COACH,'Current signed coach may recover current draft');
 
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const flow=readFileSync(new URL("../pilot/coach-intake-flow.js",import.meta.url),"utf8");

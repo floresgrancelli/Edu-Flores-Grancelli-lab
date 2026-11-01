@@ -565,8 +565,14 @@ try{
     await foodSearch.fill("sushi");
     const firstKeyboard=await page.locator('#mealFoodSuggestions [data-mealsuggestion]').first().getAttribute("data-mealsuggestion");
     await foodSearch.press("Enter");
+    const focusedSuggestion=await page.evaluate(()=>document.activeElement?.dataset?.mealsuggestion||"");
+    if(focusedSuggestion!==firstKeyboard)
+      pageReport.errors.push("Search Enter must focus first suggestion without silently choosing it");
+    if(await page.locator("#mealEditorFood").inputValue()===firstKeyboard)
+      pageReport.errors.push("Search Enter must not automatically register food choice");
+    await page.locator('#mealFoodSuggestions [data-mealsuggestion="'+firstKeyboard+'"]').press("Enter");
     if(await page.locator("#mealEditorFood").inputValue()!==firstKeyboard)
-      pageReport.errors.push("Pressing Enter did not choose the first visible food suggestion");
+      pageReport.errors.push("Explicit Enter on focused suggestion did not choose food");
     await foodSearch.fill("sin_coincidencias_nunca_123");
     if(!(await page.locator("#mealFoodSuggestions").innerText()).includes("No encontramos"))
       pageReport.errors.push("No-match search did not inform the user");

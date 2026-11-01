@@ -668,3 +668,91 @@ await draftSwitch;
 assert.equal(draftState.pendingDiaryDraft.meals.desayuno.length,1,
  'Edited first-food draft must survive the delayed midnight read');
 console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed meal and unsaved draft preserved (offline).');
+
+// UX-SEARCH-EXPLICIT-CHOICE 04-04 / 04-05: execute actual student food-search
+// handlers, without a browser or hosted backend. Typing must not choose a
+// different food silently, and a chosen food must retain its edited quantity.
+{
+ const mealCatalog=[{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz integral"},{id:"chicken",name:"Pollo"}];
+ const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
+ const plannerBegin=source.indexOf("function filterPlannerFoods(input){");
+ const plannerEnd=source.indexOf("function updatePlannerPreview(){",plannerBegin);
+ assert.ok(plannerBegin>=0&&plannerEnd>plannerBegin,"Planner search handler must remain directly testable");
+ let syncCount=0,previewCount=0;
+ const plannerSelect={
+  dataset:{planselect:"cena|protein"},_value:"egg",_html:"",
+  get value(){return this._value;},
+  set value(value){this._value=value;},
+  get innerHTML(){return this._html;},
+  set innerHTML(html){this._html=html;this._value="none";}
+ };
+ const plannerState={plannerSelections:{"cena|protein":"egg"},plannerDraftGrams:{"cena|protein":{foodId:"egg",grams:"100"}}};
+ const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
+  "foods","allowedFoods","foodSearchText","groupedFoodOptions","state",
+  "syncPlannerSearchActions","updatePlannerPreview",
+  source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
+  {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog.map(f=>f.id),
+  food=>food.name,items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
+  plannerState,()=>{syncCount++;},()=>{previewCount++;}
+ );
+ const plannerInput={dataset:{plansearch:"cena|protein"},value:"arroz"};
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"none","Typing arroz must not pick the first matched food");
+ assert.equal(plannerState.plannerSelections["cena|protein"],"none","Unconfirmed query cannot alter simulated nutrients");
+ assert.equal(plannerState.plannerDraftGrams["cena|protein"],undefined,"Stale quantity must be dropped");
+ assert.equal(syncCount,1,"Remove previously chosen food from simulation exactly once");
+ assert.equal(previewCount,1);
+ plannerSearch(plannerInput);
+ assert.equal(previewCount,1,"Repeated Android input must not produce a second simulated change");
+ plannerSelect.value="rice";
+ plannerState.plannerSelections["cena|protein"]="rice"; // Explicit native change event.
+ plannerInput.value="arr";
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"rice","Still-matching explicit choice remains selected");
+ assert.equal(previewCount,1,"Typing more characters must not overwrite chosen grams");
+ plannerInput.value="pollo";
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"none","Changing query invalidates the previous selection");
+ assert.equal(plannerState.plannerSelections["cena|protein"],"none");
+ assert.equal(previewCount,2);
+
+ const mealBegin=source.indexOf("function filterMealFoods(){");
+ const mealEnd=source.indexOf("function updateMealEntryMode(",mealBegin);
+ assert.ok(mealBegin>=0&&mealEnd>mealBegin,"Meal search handler must remain directly testable");
+ const mealSearchInput={value:"huevo"};
+ const foodSelector={
+  _value:"egg",_html:"",
+  get value(){return this._value;},
+  set value(value){this._value=value;},
+  get innerHTML(){return this._html;},
+  set innerHTML(html){this._html=html;this._value="";}
+ };
+ const quantityChanges=[],searchSuggestions=[];
+ const mealSearch=new Function("document","foods","allowedFoods","FOOD_STATE_PAIRS",
+  "foodAllowedForMeal","state","isGuidedMealSlot","guidedMealGroupFor",
+  "groupIdFor","activeGuidedMealGroup","foodSearchText","groupedFoodOptions",
+  "renderMealSearchSuggestions","updateMealEntryMode",
+  source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
+  {getElementById:id=>id==="mealEditorFood"?foodSelector:id==="mealFoodSearch"?mealSearchInput:null},
+  mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
+  ()=>false,()=>false,()=>"",null,food=>food.name,
+  items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
+  (foods,term)=>searchSuggestions.push({count:foods.length,term}),
+  changed=>quantityChanges.push(changed)
+ );
+ mealSearch();
+ assert.equal(foodSelector.value,"egg");
+ assert.equal(quantityChanges.at(-1),false,"Same chosen food must keep the student's custom gram value");
+ mealSearchInput.value="arroz";
+ mealSearch();
+ assert.equal(foodSelector.value,"","Unmatched previous food must be cleared before saving");
+ assert.equal(quantityChanges.at(-1),true,"A genuinely changed food resets portion controls");
+ foodSelector.value="rice"; // Explicit food selection after the search.
+ mealSearchInput.value="arro";
+ mealSearch();
+ assert.equal(foodSelector.value,"rice");
+ assert.equal(quantityChanges.at(-1),false,"Gboard incremental input must not reset the selected rice quantity");
+ assert.equal(searchSuggestions.at(-1).count,1);
+}
+console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quantity survives incremental typing (real handlers).");
+

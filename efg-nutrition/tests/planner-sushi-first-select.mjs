@@ -463,7 +463,7 @@ console.log('PASS UX-04-04 first-food: stable empty-day draft, one REST entry, r
 // UX-04-02 / 04-04 / 04-05: the daily diary is ONE JSONB row. Breakfast,
 // lunch and sports writes must not race each other and lose the faster write.
 const racingState={session:{user:{id:'student-race'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
-const raceWrites=[];let releaseFirstRace=null;
+const raceWrites=[];let releaseFirstRace=null,holdStaleRace=false,releaseStaleRace=null;
 const raceSB={
  from(table){
   assert.equal(table,'efg_daily_logs');
@@ -479,6 +479,10 @@ const raceSB={
         if(raceWrites.length===1)return new Promise(resolve=>{
          releaseFirstRace=()=>resolve({data:{...captured,id:'day-race'}});
         });
+        if(holdStaleRace){
+         holdStaleRace=false;
+         return new Promise(resolve=>{releaseStaleRace=()=>resolve({data:{...captured,id:'day-race'}});});
+        }
         return Promise.resolve({data:{...captured,id:'day-race'}});
        }
       };
@@ -513,6 +517,18 @@ assert.equal(raceWrites.length,2,'New write is permitted after prior confirmatio
 assert.equal(racingState.diary.meals.desayuno.length,1,'Later lunch write must retain earlier breakfast');
 assert.equal(racingState.diary.meals.almuerzo.length,1);
 assert.equal(raceWrites[1].totals.k,255,'Merged daily nutrition totals must match both meals');
+holdStaleRace=true;
+const staleWrite=racingRuntime.saveDiary();
+assert.equal(racingState.diaryWritePending,true);
+racingState.session.user.id='student-after-logout'; // Simulated OTP account switch during REST.
+racingState.diary=null;
+releaseStaleRace();
+await staleWrite;
+assert.equal(racingState.diary,null,'Old account REST response must not rehydrate another account');
+assert.equal(racingState.diaryWritePending,false,'Stale response releases the lock');
+assert.equal(racingRuntime.activeDiary().student_id,'student-after-logout',
+ 'Next active diary belongs to the newly authenticated account');
+console.log('PASS UX-04-04: logout/account switch during in-flight diary write does not leak stale UI.');
 console.log('PASS UX-04-02 / 04-04 / 04-05: cross-slot REST write race prevented; immutable payload and safe retry.');
 
 

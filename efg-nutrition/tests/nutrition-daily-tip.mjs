@@ -73,8 +73,16 @@ assert.match(locked,/class="efg-daily-tip-photo-placeholder" aria-hidden="true">
 assert.match(locked,/alt="[^"]+"/);
 assert.match(locked,/Unsplash/);
 assert.match(locked,/No reemplaza indicaciones profesionales/);
+assert.match(locked,/class="efg-gnocchi-recipe"/,'The special 29th tip must include a real on-card recipe.');
+assert.match(locked,/Ñoquis caseros \(2 porciones orientativas\)/);
+assert.match(locked,/Salsa de tomate y albahaca/);
+assert.match(locked,/Salsa de zapallo/);
+assert.match(locked,/receta contiene trigo y huevo/);
+assert.doesNotMatch(nutritionTipCardHTML({now:localDate(2026,10,30),allowExplore:true}),/class="efg-gnocchi-recipe"/);
+assert.match(locked,/La receta contiene trigo y huevo/)
 assert.doesNotMatch(locked,/data-tab="recipes"/);
 assert.match(unlocked,/data-tab="recipes"/);
+assert.match(unlocked,/Explorar otras recetas/,'External library CTA cannot masquerade as the on-card ñoquis recipe.');
 assert.doesNotMatch(unlocked,/data-act="(?:setmeal|register|addFood)/);
 assert.doesNotMatch(unlocked,/\b(?:kcal|proteína por 100g|calorías exactas)\b/i,
  "No uncited calculated nutrition values on promotional card");

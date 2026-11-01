@@ -96,6 +96,21 @@ assert.equal(withNoGoalForTwoDays.targets.k,null);
 assert.doesNotMatch(withNoGoalForTwoDays.conclusion,/objetivo promedio vigente en esos días/);
 
 
+// REPORT-LUX: null/blank measurements are UNKNOWN, not 0 kcal/macros or measured meals.
+const absentEnergy=buildLuxuryWeeklyReport({...data,days:days.map((row,i)=>i===0?{...row,k:null}:row)});
+assert.equal(absentEnergy.daysRecorded,4,'Null energy must not enter the weekly average as a zero');
+assert.equal(absentEnergy.days[0].hasData,false,'Incomplete day must appear without energy values');
+assert.equal(absentEnergy.averages.k,(2110+2059+2163+2178)/4);
+const blankProtein=buildLuxuryWeeklyReport({...data,days:days.map((row,i)=>i===0?{...row,p:'   '}:row)});
+assert.equal(blankProtein.daysRecorded,4,'Blank protein is missing, not zero protein intake');
+const absentMealCount=buildLuxuryWeeklyReport({...data,days:days.map((row,i)=>({...row,mealCount:i===0?null:3}))});
+assert.equal(absentMealCount.daysWithMeasuredMeals,4,'Null meal count must remain unknown');
+assert.equal(absentMealCount.daysWithMultipleMeals,4);
+for(const invalid of ['2026-02-30','2026-13-01','2026-00-01']){
+ assert.throws(()=>buildLuxuryWeeklyReport({...data,from:invalid}),/Período semanal no válido|siete días/,
+  'Invalid calendar date must not be normalized silently');
+}
+
 const sparseMeals=buildLuxuryWeeklyReport({...data,days:days.map(d=>({...d,mealCount:1}))});
 assert.equal(sparseMeals.daysRecorded,5);
 assert.equal(sparseMeals.daysWithMultipleMeals,0);

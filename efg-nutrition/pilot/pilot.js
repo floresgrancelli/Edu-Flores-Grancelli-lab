@@ -641,7 +641,9 @@ async function deleteChosenHabitual(slot){
  const fav=chosenHabitual(slot);
  if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
  if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
- const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",state.session.user.id).eq("meal_slot",slot).select("id");
+ const userId=state.session?.user?.id;
+  const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",userId).eq("meal_slot",slot).select("id");
+  if(state.session?.user?.id!==userId)return;
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
@@ -682,7 +684,9 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
+  const userId=state.session?.user?.id;
+   const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
+   if(state.session?.user?.id!==userId)return;
   if(error)throw error;
   cloudHabituales.push(data);
   state.habitualSelection[slot]=String(data.id);
@@ -776,7 +780,9 @@ async function createPersonalRecipe(){
  for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
  const recipe={name:name.trim(),ingredients,portions,totals};
  const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
- const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+ const userId=state.session?.user?.id;
+ const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:userId,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+ if(state.session?.user?.id!==userId)return;
  if(error)throw error;
  cloudRecipes.push(data);
  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
@@ -3213,7 +3219,7 @@ if(el.dataset.foodbulk){
   for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
   return;
  }
- if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
+ if(el.dataset.recipedelete){const recipe=myRecipes().find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const userId=state.session?.user?.id;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);if(state.session?.user?.id!==userId)return;if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
  if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}

@@ -460,4 +460,48 @@ dayState.session.user.id='test-student-b';
 assert.equal(dailyRuntime.activeDiary().student_id,'test-student-b','Drafts must never cross accounts');
 assert.notStrictEqual(dailyRuntime.activeDiary(),tomorrow);
 console.log('PASS UX-04-04 first-food: stable empty-day draft, one REST entry, retries, day/account isolation (offline real source).');
+// UX-04-02 / 04-04 / 04-05: the daily diary is ONE JSONB row. Breakfast,
+// lunch and sports writes must not race each other and lose the faster write.
+const racingState={session:{user:{id:'student-race'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
+const raceWrites=[];let releaseFirstRace=null;
+const raceSB={from(table){
+ assert.equal(table,'efg_daily_logs');
+ return {upsert(payload,options){
+  assert.equal(options.onConflict,'student_id,log_day');
+  const captured=structuredClone(payload);raceWrites.push(captured);
+  return {select(){return {single(){
+   if(raceWrites.length===1)return new Promise(resolve=>{
+    releaseFirstRace=()=>resolve({data:{...captured,id:'day-race'}});
+   });
+   return Promise.resolve({data:{...captured,id:'day-race'}});
+  }}};
+ }};
+}};
+const racingRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,saveEnd)+';return {activeDiary,saveDiary};')(
+ racingState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
+ raceSB,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
+const firstDraft=racingRuntime.activeDiary();
+firstDraft.meals.desayuno.push({id:'egg',k:150});
+const firstWrite=racingRuntime.saveDiary();
+assert.equal(racingState.diaryWritePending,true,'Single row locks across meal slots while REST is pending');
+assert.equal(raceWrites.length,1,'First REST request begins immediately');
+firstDraft.meals.almuerzo.push({id:'rice',k:105}); // Second slot mutates optimistically.
+await assert.rejects(racingRuntime.saveDiary(),/Todavía se está guardando otro registro/);
+assert.equal(raceWrites.length,1,'The rejected parallel action must not send stale JSONB to REST');
+assert.equal(raceWrites[0].meals.almuerzo.length,0,'In-flight payload must be cloned, not observe later draft mutations');
+firstDraft.meals.almuerzo.pop(); // Simulated rollback in existing meal event handler.
+releaseFirstRace();
+await firstWrite;
+assert.equal(racingState.diaryWritePending,false,'Global write lock must release on success');
+assert.equal(racingState.diary.meals.desayuno.length,1);
+assert.equal(racingState.diary.meals.almuerzo.length,0,'Rejected lunch cannot create a phantom meal');
+racingRuntime.activeDiary().meals.almuerzo.push({id:'rice',k:105});
+await racingRuntime.saveDiary();
+assert.equal(raceWrites.length,2,'New write is permitted after prior confirmation');
+assert.equal(racingState.diary.meals.desayuno.length,1,'Later lunch write must retain earlier breakfast');
+assert.equal(racingState.diary.meals.almuerzo.length,1);
+assert.equal(raceWrites[1].totals.k,255,'Merged daily nutrition totals must match both meals');
+console.log('PASS UX-04-02 / 04-04 / 04-05: cross-slot REST write race prevented; immutable payload and safe retry.');
+
 

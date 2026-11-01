@@ -305,12 +305,18 @@ try{
      if(await search.count()!==1){pageReport.errors.push("Extra 1 search is missing");}
      else{
        await search.fill("sandia");
-       const chosen=await page.locator('[data-planselect="'+key+'"]').inputValue();
+       const selector=page.locator('[data-planselect="'+key+'"]');
+       const beforeChoice=await selector.inputValue();
+       if(beforeChoice==="watermelon")pageReport.errors.push("Planner search silently selected Sandía");
+       const candidate=selector.locator('option[value="watermelon"]');
+       if(await candidate.count()!==1)pageReport.errors.push("Sandía must appear once as an explicit search option");
+       else await selector.selectOption("watermelon");
+       const chosen=await selector.inputValue();
        const btn=row.locator('[data-planadd="'+key+'"]');
        const qty=row.locator('input[id="planQty_'+key+'"]');
-       if(chosen!=="watermelon")pageReport.errors.push("Sandía selected from search incorrectly: "+chosen);
-       if(await btn.count()!==1||!(await btn.isVisible()))pageReport.errors.push("Sandía search must expose AGREGAR AL REGISTRO button immediately");
-       if(await qty.count()!==1)pageReport.errors.push("Sandía search must expose editable grams");
+       if(chosen!=="watermelon")pageReport.errors.push("Sandía explicit selection not retained: "+chosen);
+       if(await btn.count()!==1||!(await btn.isVisible()))pageReport.errors.push("After explicit choice, Sandía must expose AGREGAR AL REGISTRO");
+       if(await qty.count()!==1)pageReport.errors.push("After explicit choice, Sandía must expose editable grams");
        const focused=await search.evaluate(el=>document.activeElement===el);
        if(!focused)pageReport.errors.push("Live search lost focus in iPhone-sized viewport");
        if(await qty.count()===1&&await btn.count()===1){

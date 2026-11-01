@@ -20,7 +20,7 @@ export function normalizeFdcComposition({mapping,record,receipt,now}={}){
   record.dataType!==mapping.dataType||record.description!==mapping.expectedDescription)
   return unknown('identity_mismatch');
  // Preparation equivalence is separately pinned; no fuzzy name/category matching.
- if(!['raw','cooked','fresh_unseasoned','packaged','breaded'].includes(mapping.preparation)||
+ if(!['raw','cooked','fresh_unseasoned','packaged','breaded','as_sold'].includes(mapping.preparation)||
   !mapping.preparationEvidenceId||!mapping.foodId||mapping.unit!=='g'||mapping.basisGrams!==100)
   return unknown('preparation_or_unit_unknown');
  if(record.dataType==='Branded'){
@@ -48,3 +48,4 @@ export function normalizeFdcComposition({mapping,record,receipt,now}={}){
    retrievedAt:receipt.retrievedAt,validUntil:receipt.validUntil,
    verification:'awaiting_trusted_ingestion',reviewedBy:null}};
 }
+

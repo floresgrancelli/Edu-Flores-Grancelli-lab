@@ -1,7 +1,7 @@
 // Private candidate: pure evaluation. No network, persistence, diagnosis or approval.
 const keys=['k','p','c','f','fi'];
 const finite=x=>typeof x==='number'&&Number.isFinite(x)&&x>=0;
-const preparations=new Set(['raw','cooked','fresh_unseasoned','packaged','breaded']);
+const preparations=new Set(['raw','cooked','fresh_unseasoned','packaged','breaded','as_sold']);
 const identifier=x=>typeof x==='string'&&x.trim().length>0;
 function sameIdentity(food,e){
  return !!(food&&e&&identifier(food.id)&&e.foodId===food.id&&
@@ -67,3 +67,4 @@ export function evaluateGuideFood(food,{restrictions=[],dislikedIds=[],pattern={
  return result(restrictions.length||pattern.kind==='keto'?'green':'neutral',
   restrictions.length?'Compatible bajo estas condiciones.':'Compatible con la propuesta.',true,conditions);
 }
+

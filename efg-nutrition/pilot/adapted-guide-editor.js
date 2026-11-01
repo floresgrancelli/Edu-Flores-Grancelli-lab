@@ -1,9 +1,10 @@
 // Private in-memory coach draft editor; no approval, storage, auth or RPC.
 import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js';
 import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js';
+import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js';
 const keys=['k','p','c','f','fi'];
 const clone=x=>structuredClone(x);
-export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=.10}={}){
+export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=GUIDE_TARGET_TOLERANCE}={}){
  const issues=[],decisions=[];
  const issue=(code,message)=>issues.push({code,message});
  if(!Array.isArray(catalog)||catalog.some(f=>!f||typeof f.id!=='string')||
@@ -12,7 +13,7 @@ export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=.10}={}){
  const foods=new Map(catalog.map(f=>[f.id,f]));
  const targets={k:goal?.kcal,p:goal?.protein_g,c:goal?.carb_g,f:goal?.fat_g,fi:goal?.fiber_g};
  const validGoal=keys.every(k=>typeof targets[k]==='number'&&Number.isFinite(targets[k])&&targets[k]>0)&&
-  targets.k>=1200&&targets.k<=6000&&Number.isFinite(tolerance)&&tolerance>=0&&tolerance<=.10;
+  targets.k>=1200&&targets.k<=6000&&Number.isFinite(tolerance)&&tolerance>=0&&tolerance<=GUIDE_TARGET_TOLERANCE;
  if(!validGoal)issue('goal','Revisá las metas con el coach.');
  else if(Math.abs(4*targets.p+4*targets.c+9*targets.f-targets.k)/targets.k>.10)
   issue('goal_conflict','Las calorías y los macros necesitan revisión.');
@@ -94,3 +95,4 @@ export function updateGuideEditor(previous,action,environment){
  state.review=reviewEditedGuide(state.working,environment);
  state.publishable=false;return state;
 }
+

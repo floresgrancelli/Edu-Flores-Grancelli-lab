@@ -2,7 +2,8 @@ import {ingestFdcPayload} from './official-composition-candidate.js';
 
 // Selected downloaded FDC detail JSON only. No network, API keys or catalogue writes.
 export const GUIDE_FDC_IDS = Object.freeze({apple:171688,oats_raw:173904,milk_skim:173432,
-  yogurt_greek_light:170894,spinach_cooked:168463});
+  yogurt_greek_light:170894,spinach_cooked:168463,chicken:171477,oil:171413,
+  brownrice:169704,potato:170440,banana:173944});
 const nutrients = [[1008,'Energy','KCAL'],[1003,'Protein','G'],
   [1005,'Carbohydrate, by difference','G'],[1004,'Total lipid (fat)','G'],
   [1079,'Fiber, total dietary','G']];
@@ -76,3 +77,4 @@ export function comparePer100g(candidate,catalog,tolerance){
   }
   return {status:'comparison',comparisons,publishable:false};
 }
+

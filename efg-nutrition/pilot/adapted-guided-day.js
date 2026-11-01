@@ -1,11 +1,12 @@
 // Private educational proposal. Reuses existing portion optimizer, never publishes.
 import {GUIDE_MEALS,rebalanceGuidedDay,guideTotals,guidedPortionBounds} from './guided-day.js';
 import {evaluateGuideFood,patternConflict} from './guide-compatibility.js';
+export const GUIDE_TARGET_TOLERANCE=.05; // Maximum daily deviation; coach targets remain unchanged.
 const nutrients=['k','p','c','f','fi'];
 const fail=(code,message)=>({ok:false,code,message,plan:null,requiresCoachReview:true});
-export function proposeAdaptedGuide({catalog,template,goal,context,preferredIds=[],tolerance=.10}={}){
+export function proposeAdaptedGuide({catalog,template,goal,context,preferredIds=[],tolerance=GUIDE_TARGET_TOLERANCE}={}){
  if(!goal||![goal.kcal,goal.protein_g,goal.carb_g,goal.fat_g,goal.fiber_g].every(x=>typeof x==='number'&&Number.isFinite(x)&&x>0)||
-  goal.kcal<1200||goal.kcal>6000||!Number.isFinite(tolerance)||tolerance<0||tolerance>.10)
+  goal.kcal<1200||goal.kcal>6000||!Number.isFinite(tolerance)||tolerance<0||tolerance>GUIDE_TARGET_TOLERANCE)
   return fail('invalid_goal','Revisá las metas con el coach.');
  const macroEnergy=4*goal.protein_g+4*goal.carb_g+9*goal.fat_g;
  if(Math.abs(macroEnergy-goal.kcal)/goal.kcal>.10)
@@ -57,3 +58,4 @@ export function proposeAdaptedGuide({catalog,template,goal,context,preferredIds=
  return {ok:true,plan,totals,decisions,goal:structuredClone(goal),requiresCoachReview:true,
   publishable:false,notice:'Propuesta educativa: pendiente de revisión del coach.'};
 }
+

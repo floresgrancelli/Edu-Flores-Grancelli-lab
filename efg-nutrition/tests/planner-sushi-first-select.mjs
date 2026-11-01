@@ -857,3 +857,81 @@ console.log("PASS UX-KEYBOARD-ACCOUNT-RACE: explicit meal search selection and u
  }
 }
 console.log("PASS UX-04-05: delayed sports/supplements and comments cannot restore or notify an unrelated user.");
+
+
+// UX-ACCOUNT-WRITE: real handlers, in-memory delayed REST and account A -> B switch.
+// Transport/DOM are simulated: this is NOT hosted or physical-device UAT.
+{
+ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
+ const extract=(begin,end,name,deps,preamble="")=>{
+  const a=source.indexOf(begin),b=source.indexOf(end,a+begin.length);
+  assert.ok(a>=0&&b>a,"Actual handler "+name+" is required");
+  const injected={...deps,structuredClone:obj=>JSON.parse(JSON.stringify(obj))};
+  return new Function(...Object.keys(injected),preamble+source.slice(a,b)+";return "+name+";")(...Object.values(injected));
+ };
+ for(const kind of ["planner","fit","personal","meal"]){
+  for(const rejection of [false,true]){
+   const oldDiary={student_id:"A",log_day:"2026-11-01",meals:{},sports:[],skipped:{}};
+   const nextDiary={student_id:"B",log_day:"2026-11-01",meals:{},sports:[],skipped:{}};
+   const state={session:{user:{id:"A"}},profile:{role:"student"},diary:oldDiary,activeMeal:"cena",
+    plannerMode:"dinner",plannerSelections:{"cena|protein":"rice"},plannerDraftGrams:{"cena|protein":100}};
+   const pending=[],toasts=[],dialogActions=[],pendingMealRegistrations=new Set();
+   const saveDiary=()=>{const hold=deferred();pending.push(hold);return hold.promise;};
+   const notify=m=>toasts.push(m),today=()=>"2026-11-01",rice={id:"rice",name:"Arroz",unit:"g",k:1.2,p:.02,c:.25,f:.01};
+   let operation;
+   if(kind==="planner"){
+    const handler=extract("async function addPlannedFood(key){","let mealDialogReturnFocus=null;","addPlannedFood",{
+     parsePlannerKey:key=>key.split("|"),document:{getElementById:id=>id.startsWith("planQty_")?{value:"100"}:null},
+     pendingMealRegistrations,makePlan:()=>({meals:[{slot:"cena",rows:[{category:"protein",food:rice}]}]}),
+     foods:[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
+     dailyTotals:()=>({}),state,plannerMeasuredGrams:(food,qty)=>qty,plannerSushiPortion:()=>null,
+     MILK_BEVERAGES:{},openPlannedFoodEditor:()=>{},normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     saveDiary,notify,num:x=>String(x),today
+    });
+    operation=handler("cena|protein");
+   }else if(kind==="fit"){
+    const prompts=["1","1"],recipe={id:"fit-case",name:"Budín Fit"};
+    const handler=extract("async function registerFitRecipe(id){","function studentSupplementsView(){","registerFitRecipe",{
+     state,FIT_RECIPES:[recipe],prompt:()=>prompts.shift(),mealSlots:[["cena","Cena"]],
+     pendingMealRegistrations,recipeTotals:()=>({perPortion:{k:120,p:8,c:10,f:4,fi:2}}),
+     foods:[],activeDiary:()=>state.diary,saveDiary,notify,num:x=>String(x),today
+    });
+    operation=handler("fit-case");
+   }else if(kind==="personal"){
+    const recipe={id:"rec1",name:"Mi budín",portions:2,totals:{k:400,p:20,c:40,f:12,fi:4}};
+    const handler=extract("async function confirmRecipeRegistration(){","function rootText(","confirmRecipeRegistration",{
+     myRecipes:()=>[recipe],document:{getElementById:id=>({value:id==="efgRecipeRegisterId"?"rec1":id==="efgRecipeRegisterSlot"?"cena":"1"})},
+     mealSlots:[["cena","Cena"]],pendingMealRegistrations,activeDiary:()=>state.diary,
+     state,saveDiary,closeRecipeRegistration:()=>dialogActions.push("close"),notify,today
+    },"let recipeRegistrationBusy=false;");
+    operation=handler();
+   }else{
+    const handler=extract("async function saveSelectedMeal(continueGuided=false){","function coachFoodChoices(","saveSelectedMeal",{
+     state,measureMealEntry:()=>({f:rice,qty:100,grams:100,useUnits:false,portion:null}),
+     pendingMealRegistrations,foodAllowedForMeal:()=>true,allowedFoods:()=>["rice"],
+     FOOD_STATE_PAIRS:{},activeDiary:()=>state.diary,BEVERAGE_IDS:new Set(),
+     calculateBeverage:()=>null,normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     isGuidedMealSlot:()=>false,saveDiary,notify,openMealDialog:()=>dialogActions.push("open"),
+     activeGuidedMealGroup:"protein",today
+    });
+    operation=handler(true);
+   }
+   assert.equal(pending.length,1,kind+" must initiate exactly one REST save");
+   state.session={user:{id:"B"}};state.diary=nextDiary;state.activeMeal="almuerzo";
+   state.plannerSelections={"cena|protein":"B-choice"};
+   const bGrams={"cena|protein":250};state.plannerDraftGrams=bGrams;
+   if(rejection){
+    pending[0].reject(new Error("network offline"));
+    let thrown=null;try{await operation;}catch(e){thrown=e;}
+    assert.equal(thrown?.message,"network offline",kind+" propagates failed REST write");
+   }else{pending[0].resolve();await operation;}
+   assert.strictEqual(state.diary,nextDiary,kind+" must never restore A diary into B");
+   assert.equal(state.activeMeal,"almuerzo",kind+" must not restore A dialog into B");
+   assert.equal(state.plannerSelections["cena|protein"],"B-choice",kind+" must not restore A selection");
+   assert.strictEqual(state.plannerDraftGrams,bGrams,kind+" must not restore A portion");
+   assert.equal(toasts.length,0,kind+" cannot toast B with A confirmation");
+   assert.equal(dialogActions.length,0,kind+" cannot close or open B dialog");
+  }
+ }
+ console.log("PASS UX-ACCOUNT-WRITE: 8 delayed success/failure outcomes for real food/recipe handlers.");
+}

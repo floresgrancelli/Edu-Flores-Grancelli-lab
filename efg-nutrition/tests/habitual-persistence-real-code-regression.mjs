@@ -326,3 +326,32 @@ assert.equal(failedImportApi.getHabitualList('almuerzo')[0]?.name,'Almuerzo sin 
 assert.ok(importStorageData.has(importKey),
  'Failed best-effort import must keep the original local backup');
 console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key protection and failed-import retry.');
+
+
+// UX-04-03: thrown transport errors (not just resolved {error}) must preserve backups.
+{
+ const uid='student-transport-rejected',key='efg-nutrition-habitual-v2:'+uid+':cena';
+ const pending={name:'Cena sin subir',items:[{id:'egg',name:'Huevo',qty:2}]};
+ const store=new Map([[key,JSON.stringify([pending])]]);
+ let failRead=true,attempts=0;
+ const db={from(table){
+  assert.equal(table,'efg_habitual_meals');
+  return {select(){return this;},eq(){return this;},
+   order(){return failRead?Promise.reject(new TypeError('Failed to fetch')):Promise.resolve({data:[],error:null});},
+   insert(){return this;},single(){attempts++;return Promise.reject(new TypeError('NetworkError on insert'));}};
+ }};
+ const st={profile:{role:'student'},session:{user:{id:uid}},habitualSelection:{}};
+ const local={getItem:k=>store.get(k)||null,removeItem:k=>store.delete(k)};
+ const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','console',
+  subsystem+';return {loadCloudHabituales,getHabitualList};')(
+  db,st,mealSlots,local,new Set(),{warn(){}});
+ await api.loadCloudHabituales();
+ assert.deepEqual(api.getHabitualList('cena').map(x=>x.name),[pending.name]);
+ assert.equal(attempts,0,'No writes when SELECT rejected');
+ failRead=false;
+ await api.loadCloudHabituales();
+ assert.equal(attempts,1,'Next successful SELECT retries unsynced favorite');
+ assert.deepEqual(api.getHabitualList('cena').map(x=>x.name),[pending.name]);
+ assert.equal(store.get(key),JSON.stringify([pending]),'Rejected INSERT leaves exact bytes for retry');
+ console.log('PASS UX-04-03: rejected SELECT and rejected INSERT retain offline favorite.');
+}

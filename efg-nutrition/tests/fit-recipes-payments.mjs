@@ -332,3 +332,35 @@ assert.deepEqual(offlineRecipes.myRecipes(),[],
 assert.deepEqual(JSON.parse(offlineRecipeMap.get(offlineRecipeKey)),[offlineRecipe],
  'Account switch leaves A backup intact');
 console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isolation.');
+
+
+// UX-08-08: Supabase adapter can reject Promise instead of returning {error}.
+{
+ const uid='recipe-transport-rejected',key='efg-nutrition-custom-recipes:'+uid;
+ const entry={name:'Receta sin subir',ingredients:[{foodId:'egg',grams:80}],
+  portions:2,totals:{k:200,p:15,c:8,f:10,fi:1}};
+ const store=new Map([[key,JSON.stringify([entry])]]);
+ const local={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
+ const st={profile:{role:'student'},session:{user:{id:uid}}};
+ let failRead=true,attempts=0;
+ const db={from(table){
+  assert.equal(table,'efg_personal_recipes');
+  return {select(){return this;},eq(){return this;},
+   order(){return failRead?Promise.reject(new TypeError('Failed to fetch')):Promise.resolve({data:[],error:null});},
+   insert(){return this;},single(){attempts++;return Promise.reject(new TypeError('NetworkError on insert'));}};
+ }};
+ const api=new Function('sb','state','localStorage','console',
+  offlineRecipeSource+';return {loadCloudRecipes,myRecipes};')(db,st,local,{warn(){}});
+ await api.loadCloudRecipes();
+ assert.deepEqual(api.myRecipes().map(x=>x.name),[entry.name]);
+ assert.equal(attempts,0);
+ failRead=false;
+ await api.loadCloudRecipes();
+ assert.equal(attempts,1,'Recovered SELECT retries local import');
+ assert.deepEqual(api.myRecipes().map(x=>x.name),[entry.name]);
+ assert.equal(store.get(key),JSON.stringify([entry]),'Rejected upload leaves local recipe intact');
+ st.session={user:{id:'other-user'}};failRead=true;
+ await api.loadCloudRecipes();
+ assert.deepEqual(api.myRecipes(),[],'Account B cannot view offline A recipe');
+ console.log('PASS UX-08-08: rejected SELECT/INSERT preserve offline recipe and user isolation.');
+}

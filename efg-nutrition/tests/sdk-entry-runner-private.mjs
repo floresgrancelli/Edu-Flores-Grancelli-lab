@@ -11,7 +11,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
  const root=process.cwd(),out=resolve('artifacts/sdk-entry');mkdirSync(out,{recursive:true});
- let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[],sourceFailures=[],resourceFailures=[];
+ let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[],sourceFailures=[],resourceFailures=[],pageFaults=[];
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,'http://localhost').pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));
   assert.ok(file.startsWith(root+'/'));let bytes=readFileSync(file);
@@ -25,6 +25,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   const context=await browser.newContext({viewport:{width,height:860},serviceWorkers:'block'});contexts.push(context);
   await context.route('**/*',route=>{const url=new URL(route.request().url());return [origin,env.API_URL].includes(url.origin)||url.origin==='https://esm.sh'?route.continue():route.abort();});
   const page=await context.newPage();
+  page.on('pageerror',e=>pageFaults.push({kind:e.name,locations:(e.stack||'').match(/[a-zA-Z0-9_-]+\.(?:m?js):[0-9]+:[0-9]+/g)||[]}));
   page.on('requestfailed',r=>{const u=new URL(r.url());resourceFailures.push({origin:u.origin,path:u.pathname});});
   page.on('response',r=>{const u=new URL(r.url());if(u.origin===env.API_URL)safeTraffic.push({path:u.pathname,method:r.request().method(),status:r.status()});});
   // Never collect console/errors containing Auth payloads, storageState, HAR or traces.
@@ -53,10 +54,10 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
  }
  async function declare(page){
-  if(!await page.locator('[data-restriction-form]').count())await page.locator('[data-sdk-declaration-open]').click();
-  const form=page.locator('[data-restriction-form]');await form.waitFor();
+  phase='declaration-open';if(!await page.locator('[data-restriction-form]').count())await page.locator('[data-sdk-declaration-open]').click();
+  phase='declaration-form';const form=page.locator('[data-restriction-form]');await form.waitFor();
   for(const n of ['none','processing','sharing']){assert.equal(await form.locator('[name='+n+']').isChecked(),false);await form.locator('[name='+n+']').check();}
-  await form.locator('button[type=submit]').click();await page.locator('[data-restriction-revoke]').waitFor();
+  phase='declaration-submit';await form.locator('button[type=submit]').click();await page.locator('[data-restriction-revoke]').waitFor();
   // Regression: save creates the revoke control immediately and clears all choices.
   for(const n of ['none','processing','sharing'])assert.equal(await page.locator('[data-restriction-form] [name='+n+']').isChecked(),false);
  }
@@ -171,7 +172,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
   assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/otp'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/verify'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/token'&&x.status===200));
   writeFileSync(join(out,'result.json'),JSON.stringify({status:'PASS_LOCAL_SDK_ENTRY',results,traffic:safeTraffic},null,2));
- }catch{const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
+ }catch(error){const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures,pageFaults,locations:(error.stack||'').match(/sdk-entry-runner-private\.mjs:[0-9]+:[0-9]+/g)||[]};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
   console.log('SDK_ENTRY_DIAGNOSTIC '+JSON.stringify(failure));
   throw Error('SDK_ENTRY_FAILED_'+phase); // Do not print Playwright call arguments containing an OTP.
  }finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}

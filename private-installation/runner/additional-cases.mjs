@@ -33,7 +33,7 @@ export async function negativePublicationCases({sql,rpc,coach,otherCoach,student
   // Keep the row's CHECK valid, so the test reaches expiration logic rather than
   // failing at an unrelated constraint. No nutrient/source identity is changed.
   sql(`update efg_private.coach_reviewed_foods set automated_validated_at=now()-interval '2 hours',expires_at=now()-interval '1 hour' where food_id=${q(food)}`);
-  assert.equal(sql(`select efg_private.coach_food_evidence_current(f) from efg_private.coach_reviewed_foods f where food_id=${q(food)}`),'f');
+  assert.equal(sql(`select efg_private.coach_food_evidence_current(source_food) from efg_private.coach_reviewed_foods source_food where food_id=${q(food)}`),'f');
   await noMutation(publication,'expired official composition',['PT409','42501']);
  }finally{sql(`update efg_private.coach_reviewed_foods set automated_validated_at=${q(dates.validated)}::timestamptz,expires_at=${q(dates.expires)}::timestamptz where food_id=${q(food)}`);}
  assert.deepEqual(rowSnapshot(sql,tables),beforeExpiry,'expiry fault restored exactly');

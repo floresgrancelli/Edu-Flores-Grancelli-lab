@@ -7,8 +7,8 @@
       "sha256": "da08e890d2d51a39c3388816277d5880c64c232605381deacfaa850fe6f992d9"
     },
     "runner/official-import.mjs": {
-      "bytes": 3042,
-      "sha256": "c30aef175e22b62bb4781496fcdeb72ead6c82b9253c0d83b22bab83cd7c5c49"
+      "bytes": 3062,
+      "sha256": "a29103ccc9bd46b6d2b59878a22a0ee47933df12f531d5809a8570f4aa4624a4"
     },
     "runner/run.mjs": {
       "bytes": 18876,
@@ -19,8 +19,8 @@
       "sha256": "d92a54b03aa08a55770e53c9f5d2b17b3366d07cc1cbe586309e953d07e0d323"
     },
     "runner/additional-cases.mjs": {
-      "bytes": 6135,
-      "sha256": "bee93865e3e56ffd109ba300e301e8668c15c87ebbfcc0116a98d0d9c9fa606e"
+      "bytes": 6155,
+      "sha256": "ff2e624705c7b26d327a18931727fe63183454a292ce2add9f05146018037dcc"
     },
     "runner/package-check.py": {
       "bytes": 318,

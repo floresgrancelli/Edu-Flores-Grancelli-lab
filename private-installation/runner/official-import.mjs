@@ -26,6 +26,6 @@ export function installOfficialFixture(sql,input){
  assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
  // This operating policy is exclusively a disposable test value, not a USDA freshness claim.
  sql(`begin; insert into efg_private.nutrition_import_policies values('ISOLATED_REVIEW_ONE_HOUR',true,interval '1 hour','official-nine-records-v1','ncc-fdc-selected-export-v1',${q(JSON.stringify(manifest))}::jsonb,now()); ${rows.join('\n')} commit;`);
- assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods f where efg_private.coach_food_evidence_current(f)'),'9');
+ assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods source_food where efg_private.coach_food_evidence_current(source_food)'),'9');
  return input.catalog.map(f=>f.id);
 }

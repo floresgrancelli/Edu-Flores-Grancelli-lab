@@ -19,8 +19,10 @@ export function validateCoachPilotEntryResponse(raw){
  if(raw.route==='legal'&&(raw.legal_current_accepted!==false||raw.can_log_meals||
    raw.participation_confirmed||raw.general_intake_shared))return deny();
  if(raw.route!=='legal'&&raw.legal_current_accepted!==true)return deny();
- if(raw.route==='participation'&&(raw.participation_confirmed!==false||raw.can_log_meals))return deny();
- if(raw.route==='intake'&&(raw.participation_confirmed!==true||raw.can_log_meals))return deny();
+ // A previously shared intake cannot coexist with a fresh incomplete
+ // participation/intake stage. Fail closed instead of showing mismatched data.
+ if(raw.route==='participation'&&(raw.participation_confirmed!==false||raw.can_log_meals||raw.general_intake_shared))return deny();
+ if(raw.route==='intake'&&(raw.participation_confirmed!==true||raw.can_log_meals||raw.general_intake_shared))return deny();
  if(raw.route==='private'&&(!raw.participation_confirmed||raw.general_intake_shared||raw.can_log_meals))return deny();
  if(raw.route==='review'&&(!raw.participation_confirmed||!raw.general_intake_shared||raw.can_log_meals))return deny();
  if(raw.route==='ready'&&(!raw.participation_confirmed||!raw.general_intake_shared||!raw.can_log_meals))return deny();

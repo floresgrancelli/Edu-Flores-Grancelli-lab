@@ -195,3 +195,85 @@ assert.deepEqual(insertRecipes.visible().map(x=>x.name),['Otra receta B']);
 assert.ok(insertRecipesStore.has(oldRecipeKey),
  'An import committed before logout must not delete old-user backup after logout');
 console.log('PASS UX-08-08: stale A/B recipe queries, import callbacks and local backups are isolated.');
+
+
+// UX-08-08: The REAL recipe picker must surface legitimate local backups
+// despite a full remote quota; malformed entries remain backed up, not shown.
+// The account-specific backup may be registered without an extra cloud INSERT.
+const visibleRecipeStart=app.indexOf('function myRecipes(){');
+const visibleRecipeEnd=app.indexOf('async function loadCloudRecipes(){',visibleRecipeStart);
+assert.ok(visibleRecipeStart>=0&&visibleRecipeEnd>visibleRecipeStart);
+const visibleLegacyA='efg-nutrition-custom-recipes:pending-A';
+const visibleLegacyB='efg-nutrition-custom-recipes:pending-B';
+const visiblePendingRecipe={name:'Bowl local sin sincronizar',
+ ingredients:[{foodId:'egg',grams:50}],portions:2,
+ totals:{k:180,p:12,c:3,f:10,fi:0}};
+const visibleRecipeRemote={id:'remote-0',name:'Remota 0',
+ ingredients:[{foodId:'egg',grams:100}],portions:1,
+ totals:{k:120,p:10,c:1,f:6,fi:0}};
+const visibleRecipeStore=new Map([
+ [visibleLegacyA,JSON.stringify([visiblePendingRecipe,
+  {...visibleRecipeRemote,id:undefined},
+  {name:'Irrecuperable automáticamente',ingredients:[],portions:1,totals:{k:0}}])],
+ [visibleLegacyB,JSON.stringify([{...visiblePendingRecipe,name:'Receta solo de B'}])]
+]);
+const visibleRecipeLocal={
+ getItem:k=>visibleRecipeStore.get(k)||null,
+ setItem:(k,value)=>visibleRecipeStore.set(k,value),
+ removeItem:k=>visibleRecipeStore.delete(k)
+};
+const visibleRecipeState={session:{user:{id:'pending-A'}},cloudRecipesUserId:'pending-A'};
+const visibleRecipeKey=()=> 'efg-nutrition-custom-recipes:'+visibleRecipeState.session?.user?.id;
+const visibleRecipeRemoteList=Array.from({length:30},(_,i)=>({
+ ...visibleRecipeRemote,id:'remote-'+i,name:'Remota '+i}));
+const visibleRecipeList=new Function('state','cloudRecipes','localStorage','recipeStoreKey',
+ app.slice(visibleRecipeStart,visibleRecipeEnd)+';return myRecipes;')(
+ visibleRecipeState,visibleRecipeRemoteList,visibleRecipeLocal,visibleRecipeKey);
+let displayedRecipes=visibleRecipeList();
+assert.equal(displayedRecipes.length,31,'Full cloud quota cannot hide recoverable local recipe');
+assert.equal(displayedRecipes[30].id,'local-recipe-0');
+assert.equal(displayedRecipes[30].pendingLocal,true);
+assert.equal(displayedRecipes.filter(r=>r.name==='Remota 0').length,1,'No duplicate imported recipe');
+assert.match(app,/pendiente de sincronizar/,'Pending state must be explained in picker and cards');
+visibleRecipeState.session={user:{id:'pending-B'}};
+assert.deepEqual(visibleRecipeList().map(r=>r.name),['Receta solo de B'],
+ 'Local recipe from account A must not appear on account B');
+visibleRecipeState.session={user:{id:'pending-A'}};
+
+// Register the pending recipe using the actual confirmRecipeRegistration handler.
+const visibleRegisterBegin=app.indexOf('async function confirmRecipeRegistration(){');
+const visibleRegisterEnd=app.indexOf('function rootText(',visibleRegisterBegin);
+assert.ok(visibleRegisterBegin>=0&&visibleRegisterEnd>visibleRegisterBegin);
+const visibleMeal={meals:{almuerzo:[]},skipped:{}},visibleWriteSnapshots=[];
+const visibleFields={efgRecipeRegisterId:'local-recipe-0',efgRecipeRegisterSlot:'almuerzo',efgRecipeRegisterQty:'1.5'};
+const registerVisibleRecipe=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
+ 'activeDiary','saveDiary','structuredClone','state','closeRecipeRegistration','notify',
+ 'let recipeRegistrationBusy=false;'+app.slice(visibleRegisterBegin,visibleRegisterEnd)+';return confirmRecipeRegistration;')(
+ visibleRecipeList,{getElementById:id=>({value:visibleFields[id]})},
+ [['almuerzo','Almuerzo']],new Set(),()=>visibleMeal,
+ async()=>{visibleWriteSnapshots.push(structuredClone(visibleMeal));},structuredClone,
+ {diary:visibleMeal},()=>{},()=>{});
+await registerVisibleRecipe();
+assert.equal(visibleMeal.meals.almuerzo.length,1,'Pending recipe registers exactly one nutrition entry');
+assert.equal(visibleMeal.meals.almuerzo[0].id,'custom-recipe');
+assert.equal(visibleMeal.meals.almuerzo[0].k,135,'1.5 of 2 portions: 180 * 1.5 / 2 kcal');
+assert.equal(visibleWriteSnapshots.length,1);
+assert.equal(visibleRecipeStore.has(visibleLegacyA),true,'Registering must not delete unsynced backup');
+
+// Delete only the explicitly chosen local backup; never issue a DB DELETE
+// for an unsynced recipe and never alter a different account's backup.
+const visibleDeleteBegin=app.indexOf('if(el.dataset.recipedelete){');
+const visibleDeleteEnd=app.indexOf('if(el.dataset.act==="createPersonalRecipe")',visibleDeleteBegin);
+assert.ok(visibleDeleteBegin>=0&&visibleDeleteEnd>visibleDeleteBegin);
+const deleteVisibleRecipe=new Function('state','myRecipes','recipeStoreKey','localStorage',
+ 'sb','confirm','notify','render','cloudRecipes',
+ 'return async function(el){'+app.slice(visibleDeleteBegin,visibleDeleteEnd)+'}')(
+ visibleRecipeState,visibleRecipeList,visibleRecipeKey,visibleRecipeLocal,
+ {from(){throw Error('Remote DELETE forbidden for local-only backup');}},
+ ()=>true,()=>{},async()=>{},visibleRecipeRemoteList);
+await deleteVisibleRecipe({dataset:{recipedelete:'local-recipe-0'}});
+assert.deepEqual(JSON.parse(visibleRecipeStore.get(visibleLegacyA)).map(r=>r.name),
+ ['Remota 0','Irrecuperable automáticamente'],
+ 'Only confirmed selection was removed; duplicate and malformed backups survive');
+assert.ok(visibleRecipeStore.has(visibleLegacyB),'Other account backup must stay intact');
+console.log('PASS UX-08-08: 30+1 pending recipes visible, registered once with macros and owner-safe deletion (offline).');

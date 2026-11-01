@@ -542,16 +542,20 @@ async function loadCloudHabituales(){
  cloudHabituales=data||[];
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
  for(const [slot] of mealSlots){
-  let local=[];
+  let local=[],validV2Backup=true,validV1Backup=true;
+  // Parse the two legacy formats independently. A damaged new list must not
+  // prevent recovery of an older valid meal (and vice versa).
   try{
    const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+   if(saved!==null&&!Array.isArray(saved))validV2Backup=false;
    if(Array.isArray(saved)&&saved.length)local=saved.slice();
-   // v1 and v2 can coexist after an update. Preserve both before cleanup.
-   // Never delete the legacy copy just because a newer favorites list exists.
+  }catch(_){validV2Backup=false;}
+  try{
    const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+   if(older!==null&&!Array.isArray(older))validV1Backup=false;
    if(Array.isArray(older)&&older.length&&!local.some(item=>JSON.stringify(item?.items)===JSON.stringify(older)))
     local.push({name:"Mi habitual anterior",items:older});
-  }catch(_){} 
+  }catch(_){validV1Backup=false;}
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){
    if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
@@ -562,7 +566,9 @@ async function loadCloudHabituales(){
   }
   // Respaldo local ya importado: evita que una comida eliminada reaparezca.
   if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
-   localStorage.removeItem(habitualListKey(slot));localStorage.removeItem(habitualKey(slot));
+   // Never destroy a malformed backup; it may still be manually recoverable.
+   if(validV2Backup)localStorage.removeItem(habitualListKey(slot));
+   if(validV1Backup)localStorage.removeItem(habitualKey(slot));
   }
  }
 }

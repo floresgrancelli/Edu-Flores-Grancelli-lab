@@ -11,8 +11,8 @@
       "sha256": "c30aef175e22b62bb4781496fcdeb72ead6c82b9253c0d83b22bab83cd7c5c49"
     },
     "runner/run.mjs": {
-      "bytes": 18171,
-      "sha256": "2c396009ba8854efe0708da39efcde373b407ae3cf04a926ac5b81e78378b66a"
+      "bytes": 18876,
+      "sha256": "21ce4f9c1a88e0b1d07a0997ca2e677ee0917d7d25aa86d2350104df554e28e1"
     },
     "runner/config.py": {
       "bytes": 805,
@@ -83,8 +83,8 @@
       "sha256": "4f21ecd51d2f15f6c112a4e0e6a0c3a40207d4dcd9ed01026049fbb76050cdde"
     },
     "installation/proposed/002_automatic_composition_NOT_APPLIED.sql": {
-      "bytes": 9117,
-      "sha256": "314b322c7cfe0b86e417524f6c4b08c69077eb51448bc6e027c2953fe35364c7"
+      "bytes": 9987,
+      "sha256": "e97859f246e0ee86f647f60c129c449d7a84b56fa8ef88ac0700fb3623714062"
     },
     "installation/installation-order.json": {
       "bytes": 428,

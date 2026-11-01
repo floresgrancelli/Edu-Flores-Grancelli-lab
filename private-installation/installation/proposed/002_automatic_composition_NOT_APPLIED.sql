@@ -13,6 +13,19 @@ DO $precondition$ BEGIN
   RAISE EXCEPTION 'Automatic provenance cannot be client writable';
  END IF;
 END $precondition$;
+-- PostgreSQL ARE bounds cannot exceed 255. Preserve the observed HTTPS,
+-- no-whitespace and 8..1990 suffix contract using an explicit length check.
+DO $url_precondition$ BEGIN
+ IF (SELECT pg_get_constraintdef(oid) FROM pg_constraint
+     WHERE conrelid='efg_private.coach_reviewed_foods'::regclass
+       AND conname='coach_reviewed_foods_source_url_check') IS DISTINCT FROM
+    $expected$CHECK ((source_url ~ '^https://[^[:space:]]{8,1990}$'::text))$expected$ THEN
+   RAISE EXCEPTION 'Source URL constraint differs from observed snapshot';
+ END IF;
+END $url_precondition$;
+ALTER TABLE efg_private.coach_reviewed_foods DROP CONSTRAINT coach_reviewed_foods_source_url_check;
+ALTER TABLE efg_private.coach_reviewed_foods ADD CONSTRAINT coach_reviewed_foods_source_url_check
+ CHECK(source_url ~ '^https://[^[:space:]]+$' AND char_length(source_url) BETWEEN 16 AND 1998);
 ALTER TABLE efg_private.coach_reviewed_foods ADD COLUMN automatic_provenance jsonb,
  ADD COLUMN automated_validated_at timestamptz;
 ALTER TABLE efg_private.coach_reviewed_foods DROP CONSTRAINT coach_reviewed_foods_evidence_status_check;

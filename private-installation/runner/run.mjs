@@ -74,6 +74,12 @@ try{
  sql("notify pgrst,'reload schema'");
  for(let n=0;n<40;n++){const r=await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id});if(r.data?.code==='42501')break;assert.equal(r.data?.code,'PGRST202');await new Promise(r=>setTimeout(r,250));}
  denied(await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id}),'anonymous real RPC',['42501']);
+ // Exercise the actual installed CHECK expression without changing source rows.
+ const urlCheck=sql("select pg_get_expr(conbin,conrelid) from pg_constraint where conrelid='efg_private.coach_reviewed_foods'::regclass and conname='coach_reviewed_foods_source_url_check'");
+ for(const [url,expected] of [['https://'+'a'.repeat(8),true],['https://'+'a'.repeat(1990),true],['https://'+'a'.repeat(7),false],['https://'+'a'.repeat(1991),false],['http://'+'a'.repeat(9),false],['https://abcd efgh',false]]){
+  assert.equal(sql('select '+urlCheck.replaceAll('source_url',q(url))),expected?'t':'f','Source URL boundary/HTTPS/whitespace');
+ }
+ record('source URL CHECK boundaries, HTTPS and whitespace preserved');
  const ids=installOfficialFixture(sql,input);
  // Identity guard includes Docker network IP. Never demand server loopback when
  // libpq loopback forwards to a verified Docker network address.

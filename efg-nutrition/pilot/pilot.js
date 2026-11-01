@@ -559,6 +559,13 @@ async function runHabitualSlotAction(slot,work){
  try{return await work();}
  finally{pendingHabitualSlots.delete(slot);pendingMealRegistrations.delete(slot);}
 }
+// Only transport/transient service failures justify a local pending copy.
+// Never turn authentication, permission/RLS or validation denials into offline writes.
+function recoverableOfflineWrite(error){
+ const status=Number(error?.status||0),code=String(error?.code||"");
+ return (!code||/^PGRST00[0-3]$/.test(code)||/^08\d{3}$/.test(code))&&
+  (!status||status===408||status===429||status>=500);
+}
 async function loadCloudHabituales(){
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
@@ -765,10 +772,28 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  const userId=state.session?.user?.id;
-   const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
-   if(state.session?.user?.id!==userId)return;
-  if(error)throw error;
+  const userId=state.session?.user?.id,items=structuredClone(d.meals[slot]);
+  let remoteResult;
+  try{remoteResult=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:clean,items}).select("id,meal_slot,name,items,created_at").single();}
+  catch(networkError){remoteResult={error:networkError};}
+  if(state.session?.user?.id!==userId)return;
+  if(remoteResult?.error){
+   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
+   const key=habitualListKey(slot);
+   let backups;
+   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
+   catch(_){throw Error("No pudimos leer el respaldo local; no sobrescribimos tus favoritos.");}
+   // A lost response may follow a committed insert. Next login deduplicates.
+   if(!backups.some(x=>x?.name===clean&&JSON.stringify(x.items)===JSON.stringify(items)))
+    backups.push({name:clean,items});
+   try{localStorage.setItem(key,JSON.stringify(backups));}
+   catch(_){throw Error("No pudimos guardar el habitual sin conexión en este dispositivo.");}
+   state.lastEditedMeal=slot;
+   await render();notify("Guardaste «"+clean+"» en este dispositivo, pendiente de sincronizar con tu cuenta.");
+   return;
+  }
+  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó el habitual.");
+  const data=remoteResult.data;
   cloudHabituales.push(data);
   state.habitualSelection[slot]=String(data.id);
   // Keep this meal expanded after save so the new choice and its ingredient
@@ -895,12 +920,27 @@ async function createPersonalRecipe(){
  for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
  const recipe={name:name.trim(),ingredients,portions,totals};
  const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
- const userId=state.session?.user?.id;
- const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:userId,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
- if(state.session?.user?.id!==userId)return;
- if(error)throw error;
- cloudRecipes.push(data);
- notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+  const userId=state.session?.user?.id;
+  let remoteResult;
+  try{remoteResult=await sb.from("efg_personal_recipes").insert({student_id:userId,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
+  catch(networkError){remoteResult={error:networkError};}
+  if(state.session?.user?.id!==userId)return;
+  if(remoteResult?.error){
+   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
+   const key=recipeStoreKey();
+   let backups;
+   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
+   catch(_){throw Error("No pudimos leer el respaldo local; la receta no se sobrescribió.");}
+   if(!backups.some(x=>x?.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))
+    backups.push(recipe);
+   try{localStorage.setItem(key,JSON.stringify(backups));}
+   catch(_){throw Error("No pudimos guardar la receta sin conexión en este dispositivo.");}
+   notify("Receta guardada sólo en este dispositivo, pendiente de sincronizar.");
+   return render();
+  }
+  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó la receta.");
+  cloudRecipes.push(remoteResult.data);
+  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
 let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
 function closeRecipeRegistration(){

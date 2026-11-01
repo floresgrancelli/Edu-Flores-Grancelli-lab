@@ -13,7 +13,7 @@ export function createVersionNotice({
  const initialSignature=signature(document);
  const sourceUrl=new URL("./index.html",import.meta.url);
  let latest=null,dismissed=null,working=false,lastChecked=0,lastError=null;
- let inFlight=null,finishFlight=null;
+ let inFlight=null,finishFlight=null,disposed=false;
  const host=document.createElement("aside");
  host.id="efgVersionNotice";
  host.className="efg-version-notice";
@@ -24,6 +24,7 @@ export function createVersionNotice({
  // Offer the upgrade, but never auto-reload a running food diary or edit.
  // Build changes are independent of promotional and legal flows.
  function paint(){
+  if(disposed)return;
   host.replaceChildren();
   // UX-35 definitive 29/10: minor/daily releases are SILENT by default.
   // Manual check still reports the new code; major reauth has a separate,
@@ -64,8 +65,10 @@ export function createVersionNotice({
   host.append(icon,copy,actions);
  }
  async function check({force=false,reopen=false}={}){
+  if(disposed)return false;
   if(inFlight){
    await inFlight;
+   if(disposed)return false;
    if(reopen&&latest){dismissed=null;paint();}
    return !!latest;
   }
@@ -76,8 +79,10 @@ export function createVersionNotice({
    const url=new URL(sourceUrl);
    url.searchParams.set("efg_version_check",String(Date.now()));
    const response=await fetch(url.toString(),{cache:"no-store",credentials:"same-origin",headers:{"Accept":"text/html"}});
+   if(disposed)return false;
    if(!response.ok)throw Error("Version check HTTP "+response.status);
    const html=await response.text();
+   if(disposed)return false;
    if(!/<!doctype html|<html/i.test(html.slice(0,600)))throw Error("Invalid version response");
    const doc=new DOMParser().parseFromString(html,"text/html");
    const serverVersion=doc.querySelector('meta[name="efg-build"]')?.getAttribute("content")||"";
@@ -105,6 +110,8 @@ export function createVersionNotice({
  // Do the first fetch promptly after all module initializers have mounted.
  queueMicrotask(()=>{void check({force:true});});
  return {check,paint,getLatest:()=>latest,getLastChecked:()=>lastChecked,getStatus:()=>({current:headVersion,latest:latest?.version||null,hasUpdate:!!latest,automaticNoticeEnabled:announceMinorUpdates===true,lastError,lastChecked,working}),dismiss:()=>{dismissed=latest?.key||null;paint();},dispose:()=>{
+  if(disposed)return;
+  disposed=true;
   clearInterval(poll);
   document.removeEventListener("visibilitychange",visibilityHandler);
   window.removeEventListener("focus",focusHandler);host.remove();

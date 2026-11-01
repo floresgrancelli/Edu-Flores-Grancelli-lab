@@ -122,5 +122,27 @@ assert.equal(silentHost.hidden,true,"Minor deployments never interrupt a logged-
 await silent.check({force:true,reopen:true});
 assert.equal(silentHost.hidden,true,"Manual checking must not create unwanted minor popup");
 silent.dispose();
+// 09-02/09-03: an old async version response cannot reopen a discarded
+// component after navigating away/logging out or recreating the PWA shell.
+let finishStaleFetch,staleFetches=0;
+globalThis.fetch=async()=>{
+ staleFetches++;
+ return new Promise(resolve=>{finishStaleFetch=resolve});
+};
+const dying=createVersionNotice({
+ currentVersion:current,canShow:()=>loggedIn,intervalMs:3600000,
+ announceMinorUpdates:true
+});
+const dyingHost=root.children.at(-1);
+const inflight=dying.check({force:true});
+assert.equal(staleFetches,1,"Probe starts before route unmount");
+dying.dispose();
+assert.equal(dyingHost.wasRemoved,true);
+finishStaleFetch({ok:true,text:async()=>"<html><body></body></html>"});
+assert.equal(await inflight,false,"Unmount cancels presentation of stale async response");
+assert.equal(dying.getLatest(),null,"Unmounted component must not publish a stale update");
+assert.equal(dying.getStatus().working,false,"Unloading releases in-flight state");
+assert.equal(await dying.check({force:true}),false,"Disposed checker never fetches again");
+assert.equal(staleFetches,1);
 Object.assign(globalThis,original);
 console.log("PASS NUT-58: visible noninterrupting update notice, safe re-opening instructions, never reload, dismissal, new release reopens, login/background hidden.");

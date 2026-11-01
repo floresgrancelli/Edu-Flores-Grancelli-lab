@@ -433,7 +433,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
@@ -2622,27 +2622,39 @@ function calculateGoal(){
  document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
 }
 async function saveDiary(){
- const d=activeDiary();
+ // A diary row is a single JSONB record. Per-slot locks alone permit two
+ // simultaneous writes from different meal slots, supplements or comments:
+ // the slower response can overwrite the faster meal. Reject overlapping
+ // writes before a second request reaches PostgREST; existing callers restore
+ // their optimistic changes and let the user retry.
+ if(state.diaryWritePending)throw new Error("Todavía se está guardando otro registro. Esperá la confirmación y volvé a intentar.");
+ const d=activeDiary(),studentId=state.session?.user?.id;
+ if(!studentId||d.student_id!==studentId)throw new Error("Revalidá tu sesión antes de registrar alimentos.");
  if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
  if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
  d.skipped=d.skipped||{};
  d.skipped._closed=false; // El día vigente permanece abierto hasta el horario automático.
- // The server response is the commit point for calculated daily totals.
- // On network/REST failure do not leave unconfirmed calories/macros cached.
- const confirmedTotals=dailyTotals(d),studentId=state.session.user.id;
- const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:confirmedTotals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
- if(error)throw error;
- state.diary=data;
- if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
- const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
- if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
- // Rendering is NOT the database commit point. Do not make callers roll back a
- // successfully persisted diary if the UI fails after a confirmed REST response.
- try{await render();}
- catch(error){
-  console.error("Diario confirmado en servidor; falló la actualización visual:",error);
-  try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
- }
+ // Snapshot BEFORE the first await. A later optimistic change (even one that
+ // rolls back) must not leak into the payload of the already started write.
+ const payload=structuredClone({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:dailyTotals(d),updated_at:new Date().toISOString()});
+ state.diaryWritePending=true;
+ try{
+  const {data,error}=await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
+  if(error)throw error;
+  // The server has committed, but the user may have logged out or midnight
+  // may have passed. Never rehydrate the previous user's/day's row into UI.
+  if(state.session?.user?.id!==studentId||today()!==payload.log_day)return;
+  state.diary=data;
+  if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
+  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
+  if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
+  // A render exception is NOT a database failure: preserve confirmed data.
+  try{await render();}
+  catch(error){
+   console.error("Diario confirmado en servidor; falló la actualización visual:",error);
+   try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
+  }
+ }finally{state.diaryWritePending=false;}
 }
 async function loadPersonalData(){
  const id=state.session.user.id;

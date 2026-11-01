@@ -1,0 +1,41 @@
+name: NCC Student UX Real-Handler Regression (isolated)
+on:
+  push:
+    branches: [work/ncc-student-ux-hourly-20261031]
+    paths:
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/tests/planner-sushi-first-select.mjs'
+      - 'efg-nutrition/tests/habitual-persistence-real-code-regression.mjs'
+      - 'efg-nutrition/tests/fit-recipes-payments.mjs'
+      - 'efg-nutrition/tests/student-diary-catalog-gates.mjs'
+      - '.github/workflows/ncc-student-ux-hourly-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-student-handlers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS syntax — isolated student files
+        run: |
+          node --check efg-nutrition/pilot/pilot.js
+          node --check efg-nutrition/tests/student-diary-catalog-gates.mjs
+          node --check efg-nutrition/tests/planner-sushi-first-select.mjs
+          node --check efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
+          node --check efg-nutrition/tests/fit-recipes-payments.mjs
+      - name: Real student handlers — synthetic transport, no hosted credentials
+        run: |
+          node efg-nutrition/tests/student-diary-catalog-gates.mjs
+          node efg-nutrition/tests/planner-sushi-first-select.mjs
+          node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs
+          node efg-nutrition/tests/fit-recipes-payments.mjs
+      - name: Coverage boundary
+        run: |
+          echo "Only isolated V8/Node regressions. Not hosted Supabase, Android Gboard, iPhone, Mac or five release CIs."

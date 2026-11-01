@@ -609,3 +609,62 @@ await loadingAfterWrite;
 assert.equal(personalState.diary.tag,'confirmed','Fresh load can resume after write');
 assert.equal(personalState.renderedDay,'2026-11-02');
 console.log('PASS UX-04-04 personal data: account/day/refresh/write generations isolated in real loader.');
+
+
+// UX-04-04: the REAL midnight-switch loader must not erase a newly confirmed
+// meal or in-progress first-food draft when its earlier SELECT resolves late.
+// All responses are synthetic and no hosted Supabase is called.
+const rolloverStart=source.indexOf('async function ensureCurrentDay(){');
+const rolloverEnd=source.indexOf('const activeGoal=()=>',rolloverStart);
+assert.ok(rolloverStart>=0&&rolloverEnd>rolloverStart);
+const makeRollover=(state,sb,today)=>new Function('state','sb','today',
+ source.slice(rolloverStart,rolloverEnd)+';return ensureCurrentDay;')(state,sb,today);
+const rolloverToday=()=> '2026-11-01';
+function deferredRolloverDb(){
+ const pending=[];
+ return {pending,from(table){
+  assert.equal(table,'efg_daily_logs');
+  let owner,day;
+  return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;
+   if(field==='log_day')day=value;return this;},
+   maybeSingle(){return new Promise(resolve=>pending.push({owner,day,resolve}));}};
+ }};
+}
+const rolloverState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null};
+const rolloverDb=deferredRolloverDb(),rollover=makeRollover(rolloverState,rolloverDb,rolloverToday);
+const oldAccountRead=rollover();
+rolloverState.session={user:{id:'roll-B'}};
+const newAccountRead=rollover();
+assert.equal(rolloverDb.pending.length,2,'B must not wait for an unrelated A rollover');
+rolloverDb.pending[1].resolve({data:{student_id:'roll-B',log_day:'2026-11-01'}});
+await newAccountRead;
+rolloverDb.pending[0].resolve({data:{student_id:'roll-A',log_day:'2026-11-01'}});
+await oldAccountRead;
+assert.equal(rolloverState.diary.student_id,'roll-B','A response cannot overwrite B');
+assert.equal(rolloverState.daySwitching,null,'Old request must not clear B tracking');
+
+const breakfastState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null,diaryWriteRevision:0};
+const breakfastDb=deferredRolloverDb();
+const breakfastSwitch=makeRollover(breakfastState,breakfastDb,rolloverToday)();
+breakfastState.diaryWriteRevision=1;
+breakfastState.diary={student_id:'roll-A',log_day:'2026-11-01',
+ meals:{desayuno:[{id:'egg',k:150}]}};
+breakfastDb.pending[0].resolve({data:null});
+await breakfastSwitch;
+assert.equal(breakfastState.diary.meals.desayuno.length,1,
+ 'Late SELECT null must not erase confirmed first breakfast');
+assert.equal(breakfastState.renderedDay,'2026-11-01');
+
+const draftState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null,pendingDiaryDraft:null};
+const draftDb=deferredRolloverDb();
+const draftSwitch=makeRollover(draftState,draftDb,rolloverToday)();
+draftState.pendingDiaryDraft={student_id:'roll-A',log_day:'2026-11-01',
+ meals:{desayuno:[{id:'egg',k:150}]},sports:[],skipped:{}};
+draftDb.pending[0].resolve({data:null});
+await draftSwitch;
+assert.equal(draftState.pendingDiaryDraft.meals.desayuno.length,1,
+ 'Edited first-food draft must survive the delayed midnight read');
+console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed meal and unsaved draft preserved (offline).');

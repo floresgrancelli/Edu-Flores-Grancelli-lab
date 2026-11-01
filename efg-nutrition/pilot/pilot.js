@@ -339,15 +339,21 @@ let pendingSportDiaryMutation=false;
 async function mutateSportDiary(mutate,message){
  if(pendingSportDiaryMutation)return;
  pendingSportDiaryMutation=true;
- const d=activeDiary(),previousSports=structuredClone(d.sports||[]);
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+ const previousSports=structuredClone(d.sports||[]);
  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.sports ||= [];d.skipped ||= {};
   mutate(d);
   d.skipped._closed=false;
   try{await saveDiary();}
-  catch(error){d.sports=previousSports;d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-  if(message)notify(message);
+  catch(error){
+   d.sports=previousSports;d.skipped=previousSkipped;
+   // A late failure from account A must not replace account B's diary.
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+   throw error;
+  }
+  if(message&&state.session?.user?.id===ownerId&&today()===ownerDay)notify(message);
  }finally{pendingSportDiaryMutation=false;}
 }
 async function addDailySupplement(){
@@ -370,13 +376,18 @@ async function saveDayComment(){
  if(pendingDayCommentSave)return;
  const comment=readDayComment(); // Read the draft before acquiring the write lock.
  pendingDayCommentSave=true;
- const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+ const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.skipped=d.skipped||{};
   d.skipped._comment=comment;
   try{await saveDiary();}
-  catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-  notify("Comentario guardado para el informe de tu coach.");
+  catch(error){
+   d.skipped=previousSkipped;
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+   throw error;
+  }
+  if(state.session?.user?.id===ownerId&&today()===ownerDay)notify("Comentario guardado para el informe de tu coach.");
  }finally{pendingDayCommentSave=false;}
 }
 let coachRosterConsent={};
@@ -1754,8 +1765,9 @@ function pickMealSearchSuggestion(foodId){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
  const food=foods.find(f=>f.id===foodId);
  if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
+ const foodChanged=selector.value!==food.id;
  selector.value=food.id;search.value=food.name;
- hideMealSearchSuggestions();updateMealEntryMode(true);
+ hideMealSearchSuggestions();updateMealEntryMode(foodChanged);
  search.focus({preventScroll:true});
 }
 function filterMealFoods(){
@@ -3953,7 +3965,9 @@ document.addEventListener("keydown",event=>{
    if(event.key==="Escape"){event.preventDefault();hideMealSearchSuggestions();search?.focus({preventScroll:true});return;}
    if(event.key==="ArrowDown"&&(event.target===search||index>=0)){event.preventDefault();choices[Math.min(index+1,choices.length-1)]?.focus({preventScroll:true});return;}
    if(event.key==="ArrowUp"&&index>=0){event.preventDefault();(index===0?search:choices[index-1])?.focus({preventScroll:true});return;}
-   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();pickMealSearchSuggestion(choices[0].dataset.mealsuggestion);return;}
+   // Enter on a search field (including the Gboard action key) is not an
+   // explicit food choice. Focus a suggestion; only its own click/Enter selects it.
+   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();choices[0].focus({preventScroll:true});return;}
   }
  if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
  if(event.key!=="Tab")return;

@@ -1,8 +1,10 @@
 import {adaptedScopeKey} from './coach-adapted-workspace.js';
 export function createBoundGuidePreparation({sb,readScope,readGoal,foodIds,onSaved}){
- let busy=false;
- const capture=()=>{const scope=readScope(),key=adaptedScopeKey(scope);if(!key||!scope.sessionId||!Number.isSafeInteger(scope.sourceEpoch)||scope.sourceEpoch<1)throw Error('Contexto del coach no verificado.');return {scope,key};};
- const guard=t=>{if(t.key!==adaptedScopeKey(readScope()))throw Error('Cambió el alumno, la sesión o la revisión.');};
+ let busy=false,generation=0;
+ const goalKey=()=>{const g=readGoal();return JSON.stringify(g?['student_id','goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].map(k=>g[k]):null);};
+ const invalidate=()=>{generation++;};
+ const capture=()=>{const scope=readScope(),key=adaptedScopeKey(scope);if(!key||!scope.sessionId||!Number.isSafeInteger(scope.sourceEpoch)||scope.sourceEpoch<1)throw Error('Contexto del coach no verificado.');return {scope,key,generation,goal:goalKey()};};
+ const guard=t=>{if(t.generation!==generation||t.goal!==goalKey()||t.key!==adaptedScopeKey(readScope()))throw Error('Cambió el alumno, la sesión o la revisión.');};
  async function signed(t){guard(t);const u=await sb.auth.getUser();guard(t);if(u.error||u.data?.user?.id!==t.scope.userId)throw Error('Sesión no verificada.');}
  async function prepare({preferredIds,dislikedIds,confirmed=false}){
   if(busy||!confirmed)throw Error('Revisión explícita requerida.');
@@ -29,7 +31,9 @@ export function createBoundGuidePreparation({sb,readScope,readGoal,foodIds,onSav
    if(saved.error||!Number.isSafeInteger(saved.data))throw Error('El servidor rechazó la preparación. Revalidá ficha y objetivos.');
    const back=await sb.rpc('efg_read_bound_guide',{p_student:t.scope.studentId});guard(t);
    if(back.error||back.data?.draft_revision!==saved.data||['kcal','protein_g','carb_g','fat_g','fiber_g','goal_type'].some(k=>back.data?.goal?.[k]!==goal[k]))throw Error('No se confirmó el mismo objetivo guardado.');
-   await onSaved(t.scope.studentId);return saved.data;
+   // The callback must guard after its own asynchronous read, before rendering.
+   // Rendering intentionally invalidates this completed operation.
+   guard(t);await onSaved(t.scope.studentId,()=>guard(t));return saved.data;
   }finally{busy=false;}
  }
  function mount(element){
@@ -39,5 +43,5 @@ export function createBoundGuidePreparation({sb,readScope,readGoal,foodIds,onSav
    try{await prepare({preferredIds:p?[p]:[],dislikedIds:n?[n]:[],confirmed:element.querySelector('[data-bound-source-review]').checked});}
    catch(e){if(element.isConnected)element.querySelector('[data-bound-prepare-status]').textContent=e.message;}};
  }
- return {prepare,mount};
+ return {prepare,mount,invalidate};
 }

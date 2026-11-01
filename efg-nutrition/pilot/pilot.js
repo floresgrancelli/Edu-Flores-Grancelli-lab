@@ -1,3 +1,7 @@
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js';
 import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
@@ -1081,6 +1085,7 @@ function frame(content){
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ pilotGuideLifecycle.mountStudent(root);
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -2528,10 +2533,26 @@ function adaptedCoachScope(){
 // PERSISTED_COACH_SCOPE_END
 const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
 const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
-const coachBoundPublication=null; // No product publication activation.
-const coachPersistedGuideSource=null; // Remains disabled; disposable runner injects authenticated provider only.
+const installedGuideEnabled=PILOT_GUIDE_INSTALL.enabled&&COACH_ADAPTED_GUIDE_PREVIEW_ENABLED;
+if(installedGuideEnabled&&(!PILOT_GUIDE_INSTALL.template.length||!PILOT_GUIDE_INSTALL.foodIds.length))throw Error('Falta configurar la plantilla revisada.');
+const coachBoundPublication=installedGuideEnabled&&PILOT_GUIDE_INSTALL.publicationEnabled?createBoundGuidePublication({sb,readScope:adaptedCoachScope,enabled:true}):null;
+const coachPersistedGuideSource=installedGuideEnabled?createPersistedGuideProvider({client:sb,readScope:adaptedCoachScope,template:PILOT_GUIDE_INSTALL.template}):null;
 const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource,publicationClient:coachBoundPublication}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
  enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
+});
+const pilotGuideLifecycle=createPilotGuideLifecycle({sb,enabled:installedGuideEnabled,
+ readStudent:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,organizationId:state.profile?.organization_id,role:state.profile?.role,active:state.profile?.active,intakeRevision:state.coachPilotIntake?.revision,sharedAt:state.coachPilotIntake?.shared_at}),
+ readScope:adaptedCoachScope,readGoal:()=>state.pendingGoal,foodIds:PILOT_GUIDE_INSTALL.foodIds,
+ onSaved:async (id,assertCurrent)=>{
+  // Read into a local value: loadStudentDetail clears pendingGoal before awaiting.
+  // Do not mutate current UI state until both request context and goal still match.
+  const saved=await coachDraftClient.load(id);assertCurrent();
+  if(saved?.status!=="draft"||!coachDraftSourceCurrent(state.coachIntakeForms[id],saved)||
+   ['goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].some(k=>saved.goal_proposal?.[k]!==state.pendingGoal?.[k]))throw Error('Cambió el borrador durante la actualización.');
+  state.coachPlanDraftRecord=saved;
+  state.coachGuidedDraft=saved.guide_proposal?structuredClone(saved.guide_proposal):null;
+  await render();
+ }
 });
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
@@ -2746,6 +2767,7 @@ function restoreViewContinuity(snapshot){
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
 async function render(){
+ pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
  // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
@@ -2903,6 +2925,7 @@ function regenerateCoachIntakeGuidePreview(){
  document.getElementById("coachIntakeGeneratedGuide")?.remove();
  const e=document.getElementById("goalPreview");
  if(!e||!state.pendingGoal)return;
+ if(installedGuideEnabled){pilotGuideLifecycle.mountPreparation(e);return;}
  const intakeDraft=state.coachIntakePrefill;
  if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
   if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
@@ -4168,6 +4191,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Includes pending HTTP loads and saves.
  // Clear role-scoped RAM on every SIGNED_OUT, including external session
  // invalidation. Never carry another Coach's private data to a fresh OTP user.

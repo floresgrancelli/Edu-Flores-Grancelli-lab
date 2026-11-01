@@ -63,7 +63,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
  }
  async function declare(page){
-  phase='declaration-open';if(!await page.locator('[data-restriction-form]').count())await page.locator('[data-sdk-declaration-open]').click();
+  phase='declaration-open';if(!await page.locator('[data-restriction-form]').count())await page.locator('[data-pilot-declaration-open], [data-sdk-declaration-open]').click();
   phase='declaration-form';const form=page.locator('[data-restriction-form]');await form.waitFor();
   for(const n of ['none','processing','sharing']){assert.equal(await form.locator('[name='+n+']').isChecked(),false);await form.locator('[name='+n+']').check();}
   phase='declaration-submit';await form.locator('button[type=submit]').click();await page.locator('[data-restriction-revoke]').waitFor();
@@ -131,7 +131,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   for(const [i,width]of [390,1280].entries()){
    const side=i?'B':'A',s=users['student'+side],c=users['coach'+side],student=await pageFor(width),coach=await pageFor(width);
    phase='student-entry-'+width;await studentEntry(student,s);enableLocalPublication(side);
-   await student.locator('[data-sdk-declaration-open]').click();await student.locator('[data-restriction-revoke]').waitFor();
+   await student.locator('[data-pilot-declaration-open], [data-sdk-declaration-open]').click();await student.locator('[data-restriction-revoke]').waitFor();
    await student.screenshot({path:join(out,'sdk-intake-'+width+'.png'),fullPage:true});
    phase='coach-entry-'+width;await login(coach,c);await legalAndIntro(coach,'coach');
    const deniedCoach=await coach.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedCoach.rows,0);assert.ok(deniedCoach.code===null||deniedCoach.code==='42501');await coachDetail(coach,s);
@@ -177,7 +177,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    await coach.reload();await settled(coach);await coachDetail(coach,s);assert.equal(await coach.evaluate(()=>window.__SDK_ENTRY_QA__.goal()),null);
    await prepare(coach);
    // Real student revocation invalidates an already opened coach draft before save.
-   phase='revoke-'+width;await student.locator('[data-sdk-declaration-open]').click();await student.locator('[data-restriction-revoke]').waitFor();await revoke(student);
+   phase='revoke-'+width;await student.locator('[data-pilot-declaration-open], [data-sdk-declaration-open]').click();await student.locator('[data-restriction-revoke]').waitFor();await revoke(student);
    const writes=safeTraffic.filter(r=>r.path.endsWith('/efg_save_bound_guide')).length;
    await mount.getByRole('button',{name:'Guardar borrador privado',exact:true}).click();await mount.getByRole('alert').waitFor();
    assert.equal(safeTraffic.filter(r=>r.path.endsWith('/efg_save_bound_guide')).length,writes);assert.equal(await mount.locator('[data-guide-totals]').count(),0);

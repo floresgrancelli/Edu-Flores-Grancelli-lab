@@ -14,7 +14,14 @@ export function localSdkEntrySource(source,{apiUrl,publishableKey,origin,declara
  replace(/^const SUPABASE_URL="[^"]+";/gm,'const SUPABASE_URL='+JSON.stringify(apiUrl)+';');
  replace(/^const SUPABASE_PUBLISHABLE="[^"]+";/gm,'const SUPABASE_PUBLISHABLE='+JSON.stringify(publishableKey)+';');
  replace(/emailRedirectTo:"https:\/\/efg-nutrition.onrender.com\/pilot\/"/g,'emailRedirectTo:'+JSON.stringify(origin+'/efg-nutrition/pilot/'));
- if(official){
+ const installedLifecycle=source.includes("import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';");
+ if(installedLifecycle){
+  assert.ok(official&&declarationPanel,'Installed lifecycle test needs actual official input and declaration forms');
+  assert.equal(official.ids.length,9);
+  replace(/^import \{PILOT_GUIDE_INSTALL\} from '\.\/pilot-guide-install-config\.js';$/gm,
+   'const PILOT_GUIDE_INSTALL=Object.freeze('+JSON.stringify({enabled:true,publicationEnabled:true,template:official.template,foodIds:official.ids})+');');
+ }
+ if(official&&!installedLifecycle){
   assert.equal(official.ids.length,9);
   replace(/const coachPersistedGuideSource=null;/g,'const coachPersistedGuideSource=createPersistedGuideProvider({client:sb,readScope:adaptedCoachScope,template:'+JSON.stringify(official.template)+'});');
   replace(/const coachBoundPublication=null;/g,'const coachBoundPublication=createBoundGuidePublication({sb,readScope:adaptedCoachScope,enabled:true});');
@@ -28,7 +35,7 @@ new MutationObserver(()=>{
 }).observe(root,{childList:true,subtree:true});
 `;
  }
- if(declarationPanel){
+ if(declarationPanel&&!installedLifecycle){
   source="import {createStudentRestrictionDeclaration} from './student-restriction-declaration.js';\n"+source+`
 let sdkEntryEpoch=0,sdkEntryFingerprint=null,sdkEntryMount=null;
 function sdkStudentContext(){

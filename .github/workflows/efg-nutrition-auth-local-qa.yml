@@ -474,6 +474,7 @@ jobs:
           node --experimental-default-type=module efg-nutrition/tests/sdk-entry-source-contract-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/sdk-entry-mail-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/coach-bound-guide-preparation-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-bound-goal-race-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/sdk-entry-goal-hydration-private.mjs
       - uses: supabase/setup-cli@v3
         with:

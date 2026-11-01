@@ -41,13 +41,15 @@ assert.match(mode,/export const COACH_VERSIONED_INTAKE_ENABLED=usesVersionedCoac
 assert.match(mode,/studentJourneyEnabled:COACH_STUDENT_JOURNEY_ENABLED/);
 assert.match(mode,/return relaunchEnabled===true\|\|studentJourneyEnabled===true;/);
 const pilot=actual('pilot.js');
-for(const declarationPanel of [false,true]){
+const installed=pilot.includes("import {PILOT_GUIDE_INSTALL}");
+for(const declarationPanel of installed?[true]:[false,true]){
  const result=localSdkEntrySource(pilot,{...options,declarationPanel,official:{ids:Array.from({length:9},(_,i)=>'TEST_ONLY_'+i),template:[]}});
  assert.ok(result.includes('https://esm.sh/@supabase/supabase-js@2.118.0'));
- assert.ok(result.includes('const coachPersistedGuideSource=createPersistedGuideProvider('));
- assert.ok(result.includes('const coachBoundPublication=createBoundGuidePublication('));
+ assert.ok(result.includes(installed?'const coachPersistedGuideSource=installedGuideEnabled?createPersistedGuideProvider(':'const coachPersistedGuideSource=createPersistedGuideProvider('));
+ assert.ok(result.includes(installed?'const coachBoundPublication=installedGuideEnabled&&PILOT_GUIDE_INSTALL.publicationEnabled?createBoundGuidePublication(':'const coachBoundPublication=createBoundGuidePublication('));
  assert.ok(result.includes('emailRedirectTo:'+JSON.stringify(options.origin+'/efg-nutrition/pilot/')));
- assert.equal(result.includes('const sdkDeclaration=createStudentRestrictionDeclaration('),declarationPanel);
+ if(installed){assert.ok(result.includes('const PILOT_GUIDE_INSTALL=Object.freeze('));assert.ok(result.includes('pilotGuideLifecycle.mountStudent(root)'));assert.ok(!result.includes('new MutationObserver('));}
+ else assert.equal(result.includes('const sdkDeclaration=createStudentRestrictionDeclaration('),declarationPanel);
  assert.ok(!result.includes('const coachPersistedGuideSource=null;'));
  assert.ok(!result.includes('const coachBoundPublication=null;'));
 }

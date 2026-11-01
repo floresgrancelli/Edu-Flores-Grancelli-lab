@@ -110,7 +110,15 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   await page.locator('[data-bound-preferred]').selectOption('banana');await page.locator('[data-bound-disliked]').selectOption('apple');await page.locator('[data-bound-source-review]').check();
   const response=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/efg_prepare_bound_guide')&&r.request().method()==='POST');
   const oldButton=await page.locator('[data-bound-prepare]').elementHandle();
-  await page.locator('[data-bound-prepare]').click();assert.equal((await response).status(),200);await oldButton.waitForElementState('hidden');
+  await page.locator('[data-bound-prepare]').click();const prepared=await response;
+  if(prepared.status()!==200){
+   const body=await prepared.json(),codes={
+    'Stale intake or unsupported pattern':'prepare_stale_intake',
+    'Draft already exists or version changed; reload before editing':'prepare_draft_revision_conflict'
+   };
+   guideErrors.push(codes[body?.message]||'prepare_unclassified_server_rejection');
+  }
+  assert.equal(prepared.status(),200);await oldButton.waitForElementState('hidden');
   await page.locator('[data-coachsection="coachStudentGoals"]').click();
   await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();
   const goal=await page.evaluate(()=>window.__SDK_ENTRY_QA__.goal()),view=await page.evaluate(()=>window.__SDK_ENTRY_QA__.guide());

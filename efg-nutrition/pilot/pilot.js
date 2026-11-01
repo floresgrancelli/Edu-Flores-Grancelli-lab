@@ -760,7 +760,26 @@ async function habitualAction(slot,action){
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];
-function myRecipes(){return state.cloudRecipesUserId===state.session?.user?.id?cloudRecipes:[];}
+function myRecipes(){
+ const userId=state.session?.user?.id;
+ if(!userId)return [];
+ const result=state.cloudRecipesUserId===userId?cloudRecipes.slice():[];
+ // Local recipes that could not migrate (30 remote slots, offline) must
+ // remain visible and registrable. Keep malformed backups intact but hidden.
+ try{
+  const saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");
+  if(!Array.isArray(saved))return result;
+  saved.forEach((recipe,index)=>{
+   if(!recipe||typeof recipe.name!=="string"||!recipe.name.trim()||
+    !Array.isArray(recipe.ingredients)||!recipe.ingredients.length||
+    !Number.isFinite(Number(recipe.portions))||Number(recipe.portions)<=0||
+    !recipe.totals||!["k","p","c","f"].every(k=>Number.isFinite(Number(recipe.totals[k]))))return;
+   if(result.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))return;
+   result.push({...recipe,id:"local-recipe-"+index,pendingLocal:true});
+  });
+ }catch(_){} // Never destroy malformed local data.
+ return result;
+}
 async function loadCloudRecipes(){
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
@@ -840,7 +859,7 @@ function registerPersonalRecipe(){
  root.insertAdjacentHTML("beforeend",'<div class="efg-recipe-register-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle">'+
  '<div class="between"><h2 id="efgRecipeRegisterTitle">Registrar receta propia</h2><button type="button" class="btn small ghost" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">✕</button></div>'+
  '<p class="pilot-hint">Elegí la preparación, el horario y las porciones realmente consumidas. Nada se registrará hasta que confirmes.</p>'+
- '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción'+(r.pendingLocal?' · pendiente de sincronizar':'')+'</option>').join("")+'</select></div>'+
  '<div class="field"><label for="efgRecipeRegisterSlot">Horario de comida</label><select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+escapeHTML(m[0])+'">'+escapeHTML(m[1])+'</option>').join("")+'</select></div>'+
  '<div class="field"><label for="efgRecipeRegisterQty">Porciones consumidas</label><input type="number" id="efgRecipeRegisterQty" value="1" min="0.1" max="20" step="any" inputmode="decimal"></div>'+
  '<div class="efg-recipe-register-actions"><button type="button" class="btn light" data-act="closeRecipeRegistration">Cancelar</button><button type="button" class="btn" data-act="confirmRecipeRegistration">Registrar y recalcular</button></div></section></div>');
@@ -1085,7 +1104,7 @@ function studentRecipesView(){
  '<div class="efg-fit-grid">'+FIT_RECIPES.filter(r=>!state.fitFilter||state.fitFilter==="all"||r.category===state.fitFilter).map(fitRecipeCard).join("")+'</div>'+
  '<p class="efg-fit-disclaimer">Las preparaciones no reemplazan un plan nutricional. Las porciones y valores se calculan según el catálogo EFG; pueden variar por marcas, peso comestible y método de cocción.</p></section>'+
  '<section class="card efg-content-card efg-own-recipes"><div class="efg-own-recipes-header"><div><span class="eyebrow">TU RECETARIO</span><h2>Mis preparaciones guardadas</h2><p class="pilot-hint">Tus recetas personales siguen siendo privadas y editables mediante una nueva carga.</p></div><div class="efg-actions"><button class="btn" data-act="createPersonalRecipe">+ Crear receta</button><button class="btn light" data-act="registerPersonalRecipe" '+(!rs.length?'disabled':'')+'>Registrar receta propia</button></div></div>'+
- (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
+ (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
 }
 async function registerFitRecipe(id){
  if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
@@ -1224,7 +1243,7 @@ function homeView(){
    }),{opened:state.rewardOpened===true,personal:isPersonalProfessional,
     verified:!isPersonalProfessional&&state.rewardFeatureReady===true,
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
- const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
+ const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -3269,7 +3288,35 @@ if(el.dataset.foodbulk){
   for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
   return;
  }
- if(el.dataset.recipedelete){const recipe=myRecipes().find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const userId=state.session?.user?.id;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);if(state.session?.user?.id!==userId)return;if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
+ if(el.dataset.recipedelete){
+  const userId=state.session?.user?.id;
+  const recipe=myRecipes().find(r=>r.id===el.dataset.recipedelete);
+  if(!userId||!recipe)return;
+  const message=recipe.pendingLocal?
+   "«"+recipe.name+"» sólo está guardada en este dispositivo. Eliminarla borrará ese respaldo local permanentemente. ¿Continuar?":
+   "¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán.";
+  if(!confirm(message)||state.session?.user?.id!==userId)return;
+  if(recipe.pendingLocal){
+   const key=recipeStoreKey();
+   const index=Number(String(recipe.id).replace(/^local-recipe-/,""));
+   let saved;
+   try{saved=JSON.parse(localStorage.getItem(key)||"[]");}
+   catch(_){throw Error("No pudimos leer el respaldo local. No se eliminó nada.");}
+   if(!Number.isInteger(index)||!Array.isArray(saved)||!saved[index]||
+    saved[index].name!==recipe.name||
+    JSON.stringify(saved[index].ingredients)!==JSON.stringify(recipe.ingredients))
+    throw Error("El respaldo cambió. Actualizá la lista antes de eliminarlo.");
+   saved.splice(index,1);
+   if(saved.length)localStorage.setItem(key,JSON.stringify(saved));
+   else localStorage.removeItem(key);
+   notify("Receta local eliminada de este dispositivo.");return render();
+  }
+  const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);
+  if(state.session?.user?.id!==userId)return;
+  if(error)throw error;
+  cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);
+  notify("Receta eliminada.");return render();
+ }
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
  if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}

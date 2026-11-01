@@ -277,3 +277,58 @@ assert.deepEqual(JSON.parse(visibleRecipeStore.get(visibleLegacyA)).map(r=>r.nam
  'Only confirmed selection was removed; duplicate and malformed backups survive');
 assert.ok(visibleRecipeStore.has(visibleLegacyB),'Other account backup must stay intact');
 console.log('PASS UX-08-08: 30+1 pending recipes visible, registered once with macros and owner-safe deletion (offline).');
+
+
+// UX-08-08 OFFLINE RECIPE RECOVERY: run the real recipe loader and picker;
+// network errors cannot hide a valid account-owned local backup or cross
+// contaminate the next signed-in account's cloud recipes.
+const offlineRecipeBegin=app.indexOf('function recipeStoreKey(){');
+const offlineRecipeEnd=app.indexOf('async function createPersonalRecipe(){',offlineRecipeBegin);
+assert.ok(offlineRecipeBegin>0&&offlineRecipeEnd>offlineRecipeBegin);
+const offlineRecipeSource=app.slice(offlineRecipeBegin,offlineRecipeEnd);
+const offlineRecipeUser='recipe-offline-A',offlineRecipeOther='recipe-offline-B';
+const offlineRecipeKey='efg-nutrition-custom-recipes:'+offlineRecipeUser;
+const offlineRecipe={name:'Budín local sin sincronizar',
+ ingredients:[{foodId:'egg',grams:80}],portions:2,
+ totals:{k:200,p:15,c:8,f:10,fi:1}};
+const offlineRecipeMap=new Map([[offlineRecipeKey,JSON.stringify([offlineRecipe])]]);
+const offlineRecipeStorage={
+ getItem:key=>offlineRecipeMap.get(key)||null,
+ setItem:(key,value)=>offlineRecipeMap.set(key,value),
+ removeItem:key=>offlineRecipeMap.delete(key)
+};
+const offlineRecipeState={profile:{role:'student'},session:{user:{id:offlineRecipeUser}}};
+let failRecipeQuery=true,failRecipeImport=false,remoteRecipeReadCount=0;
+const offlineRecipeDB={from(table){
+ assert.equal(table,'efg_personal_recipes');
+ return {select(){return this;},eq(){return this;},
+  order(){
+   remoteRecipeReadCount++;
+   if(failRecipeQuery)return Promise.resolve({data:null,error:new Error('offline read')});
+   return Promise.resolve({data:[],error:null});
+  },
+  insert(){return this;},
+  single(){return Promise.resolve({data:null,error:failRecipeImport?new Error('offline insert'):null});}};
+}};
+const offlineRecipes=new Function('sb','state','localStorage','console',
+ offlineRecipeSource+';return {loadCloudRecipes,myRecipes};')(
+ offlineRecipeDB,offlineRecipeState,offlineRecipeStorage,{warn(){}});
+await offlineRecipes.loadCloudRecipes();
+assert.deepEqual(offlineRecipes.myRecipes().map(x=>x.name),[offlineRecipe.name],
+ 'Offline SELECT must not hide local recipe');
+assert.equal(offlineRecipes.myRecipes()[0].pendingLocal,true);
+failRecipeQuery=false;failRecipeImport=true;
+await offlineRecipes.loadCloudRecipes();
+assert.equal(remoteRecipeReadCount,2);
+assert.deepEqual(offlineRecipes.myRecipes().map(x=>x.name),[offlineRecipe.name],
+ 'Failed background INSERT preserves selectable recipe');
+assert.deepEqual(JSON.parse(offlineRecipeMap.get(offlineRecipeKey)),[offlineRecipe],
+ 'Failed import must not delete local backup');
+offlineRecipeState.session={user:{id:offlineRecipeOther}};
+failRecipeQuery=true;
+await offlineRecipes.loadCloudRecipes();
+assert.deepEqual(offlineRecipes.myRecipes(),[],
+ 'Offline account B cannot see recipes belonging to A');
+assert.deepEqual(JSON.parse(offlineRecipeMap.get(offlineRecipeKey)),[offlineRecipe],
+ 'Account switch leaves A backup intact');
+console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isolation.');

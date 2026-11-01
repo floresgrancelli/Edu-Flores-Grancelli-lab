@@ -90,7 +90,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
  async function coachDetail(page,student){
   phase='coach-roster';
   await page.locator('[data-tab="coachStudents"]:visible').first().click();await page.locator('[data-student="'+student.id+'"]').first().click();
-  await page.locator('#coachStudentGoals > summary').click();
+  await page.locator('[data-coachsection="coachStudentGoals"]').click();
  }
  async function prepare(page){
   await page.locator('#targetSex').selectOption('male');await page.locator('#targetGoal').selectOption('fat_loss');
@@ -102,7 +102,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   const response=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/efg_prepare_bound_guide')&&r.request().method()==='POST');
   const oldButton=await page.locator('[data-bound-prepare]').elementHandle();
   await page.locator('[data-bound-prepare]').click();assert.equal((await response).status(),200);await oldButton.waitForElementState('hidden');
-  await page.locator('#coachStudentGoals > summary').click();
+  await page.locator('[data-coachsection="coachStudentGoals"]').click();
   await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();
   const goal=await page.evaluate(()=>window.__SDK_ENTRY_QA__.goal()),view=await page.evaluate(()=>window.__SDK_ENTRY_QA__.guide());
   assert.deepEqual(view.editor.review.targets,{k:goal.kcal,p:goal.protein_g,c:goal.carb_g,f:goal.fat_g,fi:goal.fiber_g});

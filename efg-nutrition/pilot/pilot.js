@@ -565,7 +565,13 @@ async function loadCloudHabituales(){
  const sameUser=()=>state.session?.user?.id===userId;
  const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true});
  if(!sameUser())return; // Ignore late response belonging to a previous account.
- if(error)throw error;
+ if(error){
+  // Offline reads must preserve this account's cached and local favorites.
+  if(state.cloudHabitualesUserId!==userId)cloudHabituales=[];
+  state.cloudHabitualesUserId=userId;
+  console.warn("Habituales en la nube no disponibles; respaldos locales conservados.",error.message);
+  return;
+ }
  cloudHabituales=data||[];
  state.cloudHabitualesUserId=userId;
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
@@ -592,7 +598,11 @@ async function loadCloudHabituales(){
    if(!sameUser())return;
    const created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
    if(!sameUser())return; // Keep local backup after account switch.
-   if(created.error)throw created.error;
+   if(created.error){
+    // Migration is best-effort; network failure must not erase local meals.
+    console.warn("Habitual local pendiente de sincronizar.",created.error.message);
+    return;
+   }
    remote.push(created.data);cloudHabituales.push(created.data);
   }
   // Respaldo local ya importado: evita que una comida eliminada reaparezca.
@@ -614,20 +624,20 @@ function getHabitualList(slot){
    .filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length)
    .map(x=>({id:x.id,name:x.name,items:x.items}));
   const exists=(item)=>entries.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items));
-  const append=(item)=>{
+  const append=(item,source)=>{
    if(item&&Array.isArray(item.items)&&item.items.length&&!exists(item))
-    entries.push({name:String(item.name||"Habitual"),items:item.items,pendingLocal:true});
+    entries.push({name:String(item.name||"Habitual"),items:item.items,pendingLocal:true,localSource:source});
   };
   // Both legacy backup formats coexist until each is safely migrated.
   // Independently parse them so corrupt v2 never hides a recoverable v1.
   try{
    const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-   if(Array.isArray(saved))for(const item of saved)append(item);
+   if(Array.isArray(saved))for(const item of saved)append(item,"v2");
   }catch(_){}
   try{
    const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
    if(Array.isArray(legacy)&&legacy.length&&!entries.some(x=>JSON.stringify(x.items)===JSON.stringify(legacy)))
-    append({name:"Mi habitual anterior",items:legacy});
+    append({name:"Mi habitual anterior",items:legacy},"v1");
   }catch(_){}
   return entries;
  }catch(_){return [];}
@@ -679,9 +689,34 @@ async function deleteChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
- if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
  if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
  const userId=state.session?.user?.id;
+ if(!fav.id){
+  // Only the explicitly confirmed local item may be deleted: never another
+  // user's backup, another favorite or a malformed legacy backup.
+  if(!fav.pendingLocal||!["v1","v2"].includes(fav.localSource)||!userId)
+   throw Error('No se pudo identificar el respaldo local. Recargá tus habituales.');
+  const key=fav.localSource==="v2"?habitualListKey(slot):habitualKey(slot);
+  let saved;
+  try{saved=JSON.parse(localStorage.getItem(key)||"null");}
+  catch(_){throw Error('El respaldo local está dañado. No se eliminó ningún archivo.');}
+  if(!Array.isArray(saved))throw Error('El respaldo local cambió. Recargá tus habituales.');
+  if(state.session?.user?.id!==userId)return;
+  if(fav.localSource==="v1"){
+   if(JSON.stringify(saved)!==JSON.stringify(fav.items))throw Error('El habitual antiguo cambió. Volvé a elegirlo.');
+   localStorage.removeItem(key);
+  }else{
+   const index=saved.findIndex(x=>String(x?.name||"Habitual")===fav.name&&JSON.stringify(x?.items)===JSON.stringify(fav.items));
+   if(index<0)throw Error('El habitual local cambió. Volvé a elegirlo.');
+   const remaining=saved.filter((_,i)=>i!==index);
+   if(remaining.length)localStorage.setItem(key,JSON.stringify(remaining));
+   else localStorage.removeItem(key);
+  }
+  state.habitualSelection[slot]="";
+  await render();
+  notify('Habitual local eliminado. Tus diarios históricos están intactos.');
+  return;
+ }
   const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",userId).eq("meal_slot",slot).select("id");
   if(state.session?.user?.id!==userId)return;
  if(error)throw error;
@@ -786,7 +821,13 @@ async function loadCloudRecipes(){
  const sameUser=()=>state.session?.user?.id===userId;
  const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true});
  if(!sameUser())return;
- if(error)throw error;
+ if(error){
+  // Offline recipes remain usable; never display another account's cache.
+  if(state.cloudRecipesUserId!==userId)cloudRecipes=[];
+  state.cloudRecipesUserId=userId;
+  console.warn("Recetas en la nube no disponibles; respaldos locales conservados.",error.message);
+  return;
+ }
  cloudRecipes=data||[];
  state.cloudRecipesUserId=userId;
  const backupKey=recipeStoreKey();
@@ -803,7 +844,11 @@ async function loadCloudRecipes(){
   if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
   const created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
   if(!sameUser())return; // Keep backup if import returned after user switch.
-  if(created.error)throw created.error;
+  if(created.error){
+   // Keep unsynchronized backups intact for next login or reconnect.
+   console.warn("Receta local pendiente de sincronizar.",created.error.message);
+   return;
+  }
   cloudRecipes.push(created.data);
  }
  if(!sameUser())return;

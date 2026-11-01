@@ -5,6 +5,9 @@ on:
     branches: [work/ncc-pr37-41-qa-snapshot-20261101]
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
+      - 'efg-nutrition/tests/automatic-composition-local.mjs'
+      - 'efg-nutrition/tests/sql/automatic-composition-local-overlay.sql'
+      - 'efg-nutrition/tests/evidence/fdc-official-20261101.zip'
       - 'efg-nutrition/docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'
       - 'efg-nutrition/tests/clinical-health-auth-local-e2e.mjs'
   pull_request:
@@ -48,6 +51,10 @@ on:
       - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
   workflow_dispatch:
     inputs:
+      auto_composition:
+        description: 'Run reviewed three-food official composition import in disposable Coach119 transaction'
+        type: boolean
+        default: false
       provider_contract:
         description: 'Run reviewed V5 private health response on empty disposable local stack'
         type: boolean
@@ -58,8 +65,9 @@ permissions:
 
 jobs:
   local-auth-rls:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[provider-contract]')
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[provider-contract]') || contains(github.event.head_commit.message, '[auto-composition]')
     env:
+      EFG_QA_AUTO_COMPOSITION: ${{ ((github.event_name == 'workflow_dispatch' && inputs.auto_composition) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[auto-composition]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
       EFG_QA_PROVIDER_CONTRACT: ${{ ((github.event_name == 'workflow_dispatch' && inputs.provider_contract) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[provider-contract]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -328,6 +336,27 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach119-signed-local-e2e.mjs
           node efg-nutrition/tests/coach119-signed-local-e2e.mjs
+      - name: V10 isolated official three-food composition gates and rollback
+        if: env.EFG_QA_AUTO_COMPOSITION == '1'
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-coach119-local-status.env
+          EFG_OFFICIAL_FDC_ARCHIVE: efg-nutrition/tests/evidence/fdc-official-20261101.zip
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          test -f "$EFG_OFFICIAL_FDC_ARCHIVE"
+          node --check efg-nutrition/tests/automatic-composition-local.mjs
+          node efg-nutrition/tests/automatic-composition-local.mjs | tee "$RUNNER_TEMP/v10-composition-result.txt"
+      - name: V10 isolated result log
+        if: always() && env.EFG_QA_AUTO_COMPOSITION == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: v10-isolated-composition-${{ github.sha }}
+          path: ${{ runner.temp }}/v10-composition-result.txt
+          retention-days: 7
+          if-no-files-found: warn
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |

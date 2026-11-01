@@ -755,7 +755,7 @@ async function applyChosenHabitual(slot){
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  validateHabitualCatalog(fav);
- const d=activeDiary();d.meals[slot] ||= [];
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
@@ -765,10 +765,13 @@ async function applyChosenHabitual(slot){
  try{await saveDiary();}
  catch(error){
   d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;
-  d.skipped._closed=previousClosed;state.lastEditedMeal=previousEdited;
+  d.skipped._closed=previousClosed;
+  if(state.session?.user?.id===ownerId&&today()===ownerDay)state.lastEditedMeal=previousEdited;
   throw error;
  }
- notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+ // An A-account write must not toast or mutate B after an account/day switch.
+ if(state.session?.user?.id===ownerId&&today()===ownerDay)
+  notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
  });
 }
 async function habitualAction(slot,action){
@@ -824,6 +827,7 @@ async function habitualAction(slot,action){
  if(!fav)throw Error("Número de comida habitual inválido.");
  validateHabitualCatalog(fav);
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
+ const ownerId=state.session?.user?.id,ownerDay=d.log_day;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
@@ -832,7 +836,8 @@ async function habitualAction(slot,action){
   d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;d.skipped._closed=previousClosed;
   throw error;
  }
- notify("Comida habitual registrada; balance recalculado.");
+ if(state.session?.user?.id===ownerId&&today()===ownerDay)
+  notify("Comida habitual registrada; balance recalculado.");
  });
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
@@ -904,17 +909,33 @@ async function loadCloudRecipes(){
   else localStorage.removeItem(backupKey);
  }
 }
+// Recipes remain visible as history; registering one must respect a published
+// Coach food list just like the direct meal picker and saved habitual meals.
+// No clinical suitability is inferred from this catalog membership.
+function allowedRecipeIngredientIds(){
+ const approved=new Set(allowedFoods());
+ if(state.profile?.role==="student"&&Array.isArray(state.foodPlan?.approved_food_ids))
+  for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(approved.has(cooked))approved.add(raw);
+ return approved;
+}
+function validateRecipeIngredientAccess(ingredients){
+ if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return;
+ const approved=allowedRecipeIngredientIds();
+ if(!Array.isArray(ingredients)||!ingredients.length||
+  ingredients.some(row=>!approved.has(Array.isArray(row)?row[0]:row?.foodId)))
+  throw Error("Esta receta contiene ingredientes que tu coach no incluyó en el catálogo aprobado. Revisá tu plan antes de registrarla.");
+}
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
  if(name===null)return;
  if(!name.trim()||name.trim().length>70)throw Error("Usá un nombre de 1 a 70 caracteres.");
- const ingredients=[];
+ const ingredients=[],permittedIngredients=allowedRecipeIngredientIds();
  for(let i=0;i<12;i++){
   const nameInput=prompt("Ingrediente "+(i+1)+". Escribí su nombre; dejalo vacío para terminar.\nEj.: yogur, granola, banana",i===0?"":"");
   if(nameInput===null){if(!ingredients.length)return;break;}
   const term=nameInput.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
   if(!term){if(!ingredients.length)throw Error("Agregá al menos un ingrediente.");break;}
-  const matches=foods.filter(f=>f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
+  const matches=foods.filter(f=>permittedIngredients.has(f.id)&&f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
   if(!matches.length){notify("No encontramos ese ingrediente en el catálogo.");i--;continue;}
   const chosen=prompt("Elegí el número del ingrediente:\n"+matches.map((f,j)=>(j+1)+". "+f.name).join("\n"),"1");
   if(chosen===null)return;
@@ -925,6 +946,7 @@ async function createPersonalRecipe(){
   ingredients.push({foodId:matches[idx].id,grams});
  }
  if(!ingredients.length)return;
+ validateRecipeIngredientAccess(ingredients);
  const portionsText=prompt("¿Cuántas porciones rinde la receta?","1");if(portionsText===null)return;
  const portions=Number(portionsText);if(!Number.isInteger(portions)||portions<1||portions>50)throw Error("Cantidad de porciones inválida.");
  const totals={k:0,p:0,c:0,f:0,fi:0};
@@ -978,6 +1000,7 @@ async function confirmRecipeRegistration(){
  const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
  const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
  if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
+ validateRecipeIngredientAccess(selected.ingredients);
  if(pendingMealRegistrations.has(slot))return;
  recipeRegistrationBusy=true;pendingMealRegistrations.add(slot);
  try{
@@ -1224,6 +1247,7 @@ async function registerFitRecipe(id){
  if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
  const recipe=FIT_RECIPES.find(r=>r.id===id);
  if(!recipe)throw new Error("No encontramos esa receta.");
+ validateRecipeIngredientAccess(recipe.ingredients);
  const meal=prompt("¿En qué comida querés registrar «"+recipe.name+"»?\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"1");
  if(meal===null)return;
  const slot=mealSlots[Number(meal)-1]?.[0];
@@ -3476,7 +3500,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
   if(pendingMealRegistrations.has(slot))return;
-  const index=Number(indexValue),d=activeDiary();
+  const index=Number(indexValue),d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
   pendingMealRegistrations.add(slot);
   const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -3484,9 +3508,11 @@ if(el.dataset.foodbulk){
   try{
    d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
    await saveDiary();
-   notify("Alimento eliminado. Los macros se actualizaron.");
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)
+    notify("Alimento eliminado. Los macros se actualizaron.");
   }catch(error){
-   d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
+   d.meals[slot]=previousItems;d.skipped=previousSkipped;
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
    throw error;
   }finally{pendingMealRegistrations.delete(slot);}
   return;
@@ -3502,12 +3528,17 @@ if(el.dataset.foodbulk){
   const slot=el.dataset.clearm;
   if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
   if(pendingMealRegistrations.has(slot))return;
-  const d=activeDiary(),beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+  const beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
   pendingMealRegistrations.add(slot);
   try{
    d.meals[slot]=[];d.skipped=d.skipped||{};d.skipped._closed=false;
    try{await saveDiary();}
-   catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
+   catch(error){
+    d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
+    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=beforeDiary;
+    throw error;
+   }
   }finally{pendingMealRegistrations.delete(slot);}
   return;
  }

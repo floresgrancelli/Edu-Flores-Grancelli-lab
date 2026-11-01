@@ -279,4 +279,65 @@ assert.match(sql,/f\.guided_plan->>'kind'='five_meal_example'/,"Published guide 
 assert.match(sql,/jsonb_array_length\(f\.guided_plan->'meals'\)=5/,"Published guide must have five slots");
 assert.match(sql,/count\(distinct m\.meal->>'slot'\)=5/,"Published guide must have five distinct slots");
 assert.match(sql,/jsonb_array_length\(m\.meal->'items'\) between 1 and 15/,"Published meals need nonempty item arrays");
+
+const defer=()=>{let resolve;const promise=new Promise(r=>{resolve=r;});return {promise,resolve};};
+const originalFrom=db.from;
+const delayedStudent=defer();
+state.profile={role:"student",organization_id:"org-A"};state.session={user:{id:"student-A"}};
+db.from=table=>table==="efg_student_plan_access"?
+ {select(){return this},eq(){return this},maybeSingle(){return delayedStudent.promise}}:
+ originalFrom.call(db,table);
+const studentPending=flow.loadStudent();
+state.session.user.id="student-B";
+state.studentIntake={notes:"Only student B"};state.planAccess={status:"pending"};state.planAccessSupported=true;
+delayedStudent.resolve({data:{status:"published"},error:null});
+await assert.rejects(studentPending,/sesión cambió/);
+assert.equal(state.studentIntake.notes,"Only student B");
+assert.equal(state.planAccess.status,"pending","A's response cannot mark B published");
+db.from=originalFrom;
+
+const delayedForms=defer(),delayedAccess=defer();
+state.profile={role:"coach",organization_id:"org-A"};state.session={user:{id:"coach-A"}};
+db.from=table=>({select(){return this},in(){return this},not(){return this},
+ limit(){return table==="efg_student_intakes"?delayedForms.promise:delayedAccess.promise}});
+const rosterPending=flow.loadCoach(["student-A"]);
+state.session.user.id="coach-B";
+state.coachIntakeForms={"student-B":{notes:"B private"}};
+state.coachIntakeAccess={"student-B":{status:"pending"}};
+delayedForms.resolve({data:[{student_id:"student-A",shared_at:"2026-10-29T00:00:00Z",notes:"A private"}],error:null});
+delayedAccess.resolve({data:[{student_id:"student-A",status:"published"}],error:null});
+await assert.rejects(rosterPending,/sesión cambió/);
+assert.deepEqual(Object.keys(state.coachIntakeForms),["student-B"]);
+assert.deepEqual(Object.keys(state.coachIntakeAccess),["student-B"]);
+db.from=originalFrom;
+
+const delayedDetail=defer(),delayedDetailAccess=defer();
+state.session.user.id="coach-A";
+db.from=table=>({select(){return this},eq(){return this},not(){return this},
+ maybeSingle(){return table==="efg_student_intakes"?delayedDetail.promise:delayedDetailAccess.promise}});
+const detailPending=flow.refreshCoachDetail("student-A",true);
+state.session.user.id="coach-B";
+state.coachIntakeForms["student-B"]={notes:"Private B"};
+delayedDetail.resolve({data:{student_id:"student-A",shared_at:"2026-10-29T00:00:00Z",notes:"A private"},error:null});
+delayedDetailAccess.resolve({data:{student_id:"student-A",status:"published"},error:null});
+await assert.rejects(detailPending,/sesión cambió/);
+assert.equal(state.coachIntakeForms["student-A"],undefined);
+assert.equal(state.coachIntakeForms["student-B"].notes,"Private B");
+db.from=originalFrom;
+
+const delayedSave=defer();
+state.profile={role:"student",organization_id:"org-A"};state.session={user:{id:"student-A"}};
+state.planAccessSupported=true;state.consent={accepted:true};
+fields.efgIntakeShare.checked=false;
+db.from=table=>table==="efg_student_intakes"?
+ {upsert(){return delayedSave.promise}}:originalFrom.call(db,table);
+const beforeRenders=renders,beforeNotices=notifications.length;
+const savePending=flow.save();
+state.session.user.id="student-B";
+delayedSave.resolve({error:null});
+await assert.rejects(savePending,/sesión cambió/);
+assert.equal(renders,beforeRenders);
+assert.equal(notifications.length,beforeNotices,"A confirmed save must not show success in B's account");
+db.from=originalFrom;
+
 console.log("EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.");

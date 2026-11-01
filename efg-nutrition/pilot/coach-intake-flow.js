@@ -24,40 +24,64 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  const filterRelease=query=>COACH_VERSIONED_INTAKE_ENABLED?
    query.eq("completed_version",COACH_RELEASE_INTAKE_VERSION):query;
  const pending=()=>state.profile?.role==="student"&&state.planAccessSupported&&state.planAccess?.status!=="published";
+ // Account/session changes cannot allow private legacy intake responses to
+ // paint another user's UI. Server RLS remains the authorization authority.
+ const actor=()=>({id:state.session?.user?.id||null,role:state.profile?.role||null,
+  org:state.profile?.organization_id||null});
+ const assertActor=who=>{
+  if(!who?.id||state.session?.user?.id!==who.id||
+    state.profile?.role!==who.role||state.profile?.organization_id!==who.org)
+   throw Error("La sesión cambió durante la consulta de la ficha; volvé a ingresar.");
+ };
  async function loadStudent(){
+  const who=actor();
   state.studentIntake=null;state.planAccess=null;state.planAccessSupported=false;
-  if(state.profile?.role!=="student")return;
-  const id=state.session.user.id;
+  if(who.role!=="student")return;
+  assertActor(who);
+  const id=who.id;
   const a=await sb.from("efg_student_plan_access").select("status,published_at,published_goal_id").eq("student_id",id).maybeSingle();
+  assertActor(who);
   if(a.error){if(missing(a.error))return;throw a.error;}
-  state.planAccessSupported=true;state.planAccess=a.data||{status:"pending"};
-  // Privacy rights continue after publication: retain access to the intake and revoke sharing at any time.
-  {
-   const f=await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle();
-   if(f.error)throw f.error;
-   state.studentIntake=f.data||null;
-  }
+  const f=await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle();
+  assertActor(who);
+  if(f.error)throw f.error;
+  if(f.data?.student_id!=null&&f.data.student_id!==id)
+   throw Error("La ficha recuperada no corresponde al alumno actual.");
+  // Commit both reads together, not a partially hydrated pending/ready state.
+  state.planAccessSupported=true;
+  state.planAccess=a.data||{status:"pending"};
+  state.studentIntake=f.data||null;
  }
  async function loadCoach(consentedIds){
+  const who=actor();
   state.coachIntakeForms={};state.coachIntakeAccess={};
   if(!consentedIds.length)return;
+  assertActor(who);
+  const authorized=new Set(consentedIds);
+  const ids=[...authorized];
   const [a,b]=await Promise.all([
-   filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields(true)).in("student_id",consentedIds).not("shared_at","is",null)).limit(500),
-   sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",consentedIds).limit(500)
+   filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields(true)).in("student_id",ids).not("shared_at","is",null)).limit(500),
+   sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",ids).limit(500)
   ]);
+  assertActor(who);
   if(a.error&&!missing(a.error))throw a.error;
   if(b.error&&!missing(b.error))throw b.error;
-  const authorized=new Set(consentedIds);
-  if(!a.error)for(const v of a.data||[])if(authorized.has(v.student_id)&&v.shared_at)state.coachIntakeForms[v.student_id]=v;
-  if(!b.error)for(const v of b.data||[])if(authorized.has(v.student_id))state.coachIntakeAccess[v.student_id]=v;
+  const forms={},access={};
+  if(!a.error)for(const v of a.data||[])if(authorized.has(v.student_id)&&v.shared_at)forms[v.student_id]=v;
+  if(!b.error)for(const v of b.data||[])if(authorized.has(v.student_id))access[v.student_id]=v;
+  assertActor(who);
+  state.coachIntakeForms=forms;
+  state.coachIntakeAccess=access;
  }
  // Reload before opening a coach's student detail: permission may have been revoked
  // or the optional intake deleted in another session since the roster last loaded.
  async function refreshCoachDetail(studentId,consented){
   if(!studentId)return;
+  const who=actor();
   delete state.coachIntakeForms[studentId];
   delete state.coachIntakeAccess[studentId];
   if(!consented)return;
+  assertActor(who);
   const [a,b]=await Promise.all([
    filterRelease(sb.from(currentIntakeTable())
     .select(currentIntakeFields(true))
@@ -65,6 +89,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
   ]);
+  assertActor(who);
   if(a.error&&!missing(a.error))throw a.error;
   if(b.error&&!missing(b.error))throw b.error;
   if(!a.error&&a.data?.student_id===studentId&&a.data.shared_at)state.coachIntakeForms[studentId]=a.data;
@@ -107,6 +132,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("Esta versión utiliza una ficha de relanzamiento que requiere revisión segura por versión.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)throw Error("Tu ficha no está disponible en esta sesión.");
+  const who=actor();assertActor(who);
   const get=id=>document.getElementById(id),value=id=>get(id)?.value?.trim()||"";
   const numeric=(id,min,max,integer=false)=>{
    const v=value(id);if(!v)return null;
@@ -123,7 +149,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const allow=!!get("efgIntakeShare")?.checked;
   if(allow&&state.consent?.accepted!==true)
    throw Error("Para enviar la ficha, primero autorizá el seguimiento de tu coach. Podés guardarla privada mientras tanto.");
-  const payload={student_id:state.session.user.id,organization_id:state.profile.organization_id,
+  const payload={student_id:who.id,organization_id:who.org,
    objective,activity_level,dietary_pattern,age_years:numeric("efgIntakeAge",18,100,true),
    height_cm:numeric("efgIntakeHeight",100,250),weight_kg:numeric("efgIntakeWeight",20,400),
    preferred_foods:value("efgIntakePreferred"),disliked_foods:value("efgIntakeDisliked"),
@@ -131,8 +157,11 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    shared_at:allow?(state.studentIntake?.shared_at||new Date().toISOString()):null,
    updated_at:new Date().toISOString()};
   const r=await sb.from("efg_student_intakes").upsert(payload,{onConflict:"student_id"});
+  assertActor(who);
   if(r.error)throw r.error;
-  await loadStudent();await render();notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
+  await loadStudent();assertActor(who);
+  await render();assertActor(who);
+  notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
  async function deleteOwn(){
   if(COACH_VERSIONED_INTAKE_ENABLED)
@@ -140,12 +169,17 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)
    throw Error("Tu ficha no está disponible en esta sesión.");
   if(!state.studentIntake)return;
+  const who=actor();assertActor(who);
   if(!window.confirm("¿Eliminar definitivamente solo los datos de tu ficha inicial? No se borrarán tu cuenta, tu plan ni tus registros nutricionales."))return;
-  const id=state.session.user.id;
+  assertActor(who);
+  const id=who.id;
   // The owner-only DELETE RLS policy provides the server-side permission check.
   const r=await sb.from("efg_student_intakes").delete().eq("student_id",id);
+  assertActor(who);
   if(r.error)throw r.error;
-  await loadStudent();await render();notify("Tu ficha inicial se eliminó. El seguimiento nutricional conserva sus propios permisos.");
+  await loadStudent();assertActor(who);
+  await render();assertActor(who);
+  notify("Tu ficha inicial se eliminó. El seguimiento nutricional conserva sus propios permisos.");
  }
  function details(studentId){
   const v=state.coachIntakeForms[studentId];
@@ -166,11 +200,16 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   // The legacy RPC must never publish a new-cohort plan or rewrite a historical
   // published goal once efg_student_plan_access exists. Staged Coach drafts use
   // efg_publish_coach_plan_draft separately after verified database review.
+  const who=actor();assertActor(who);
   await assertCoachGoalWriteSafe(sb,{studentId:student,fromSharedIntake:!!state.coachIntakeForms?.[student]?.shared_at});
+  assertActor(who);
+  if(state.selectedStudent!==student)throw Error("Cambió el alumno seleccionado durante la publicación.");
   if(!window.confirm("¿Publicar el plan y habilitar las funciones nutricionales de este alumno?"))return;
+  assertActor(who);
   const r=await sb.rpc("efg_publish_coach_plan",{p_student:student,p_goal_id:g.id});
+  assertActor(who);
   if(r.error)throw r.error;
-  await refresh();
+  await refresh();assertActor(who);
   notify("Plan publicado. El alumno ya puede utilizar las herramientas nutricionales.");
  }
  return {pending,loadStudent,loadCoach,refreshCoachDetail,view,save,deleteOwn,details,publish};

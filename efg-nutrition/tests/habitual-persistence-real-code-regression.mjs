@@ -25,7 +25,11 @@ const sb={from(table){
 const state={profile:{role:'student'},session:{user:{id:userId}},habitualSelection:{}};
 const mealSlots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almuerzo','Almuerzo'],
  ['media_tarde','Media tarde'],['merienda','Merienda'],['cena','Cena']];
-const localStorage={getItem(){return null},removeItem(){}};
+const legacyStore=new Map();
+const localStorage={
+ getItem:key=>legacyStore.get(key)||null,
+ removeItem:key=>{legacyStore.delete(key)}
+};
 const diary={meals:{desayuno:[{id:'egg',name:'Huevos',qty:100,unit:'g',k:140,p:12,c:2,f:8}]},skipped:{}};
 const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
 const pendingMealRegistrations=new Set();
@@ -107,4 +111,40 @@ assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
 assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);
 assert.equal((subsystem.match(/catch\(error\)\{\s*d\.meals\[slot\]=previousItems/g)||[]).length,2,
  'Both the selected habitual and legacy action must roll back in-memory meals');
+// UX-04-03: upgrading an account with BOTH v2 favorites and v1 older meal
+// must import both, not erase the still-unmigrated v1 meal when v2 is present.
+const lunchV2Key='efg-nutrition-habitual-v2:'+userId+':almuerzo';
+const lunchV1Key='efg-nutrition-habitual-v1:'+userId+':almuerzo';
+const lunchV2={name:'Almuerzo v2',items:[{id:'oats',name:'Avena',qty:80}]};
+const lunchV1=[{id:'egg',name:'Huevos',qty:100}];
+legacyStore.set(lunchV2Key,JSON.stringify([lunchV2]));
+legacyStore.set(lunchV1Key,JSON.stringify(lunchV1));
+api.resetMemory();await api.loadCloudHabituales();
+assert.deepEqual(api.getHabitualList('almuerzo').map(x=>x.name),['Almuerzo v2','Mi habitual anterior'],
+ 'Both locally saved versions must survive migration to cloud favorites');
+assert.equal(legacyStore.has(lunchV2Key),false,'Remove v2 after verified import');
+assert.equal(legacyStore.has(lunchV1Key),false,'Remove v1 only after verified import');
+
+// At the 20-favorite capacity limit, keep BOTH backups. Import one at a time
+// when capacity later becomes available, without silently discarding the other.
+const dinnerV2Key='efg-nutrition-habitual-v2:'+userId+':cena';
+const dinnerV1Key='efg-nutrition-habitual-v1:'+userId+':cena';
+legacyStore.set(dinnerV2Key,JSON.stringify([{name:'Cena nueva',items:[{id:'oats',name:'Avena',qty:50}]}]));
+legacyStore.set(dinnerV1Key,JSON.stringify([{id:'egg',name:'Huevos',qty:50}]));
+for(let i=0;i<20;i++)rows.push({id:'seed-dinner-'+i,student_id:userId,meal_slot:'cena',
+ name:'Cena antigua '+i,items:[{id:'egg',name:'Huevos',qty:i+1}],created_at:'2026-10-29T00:00:00Z'});
+api.resetMemory();await api.loadCloudHabituales();
+assert.equal(api.getHabitualList('cena').length,20);
+assert.ok(legacyStore.has(dinnerV2Key)&&legacyStore.has(dinnerV1Key),
+ 'Full quota must preserve v1 and v2 backup keys');
+rows=rows.filter(x=>x.id!=='seed-dinner-19');
+await api.loadCloudHabituales();
+assert.equal(api.getHabitualList('cena').length,20);
+assert.ok(legacyStore.has(dinnerV1Key),'When only v2 fits, v1 must remain recoverable');
+rows=rows.filter(x=>x.id!=='seed-dinner-18');
+await api.loadCloudHabituales();
+assert.deepEqual(api.getHabitualList('cena').slice(-2).map(x=>x.name),['Cena nueva','Mi habitual anterior']);
+assert.ok(!legacyStore.has(dinnerV1Key)&&!legacyStore.has(dinnerV2Key),
+ 'Cleanup only after both backups have migrated to the cloud');
+console.log('PASS UX-04-03: v1+v2 coexistence, 20-slot quota and deferred recovery preserve saved habitual meals.');
 console.log('PASS UX-HABITUAL-REAL-01: actual app save twice, cloud readback after reset/relogin, both names and foods in picker, no cross-slot leakage. Hosted iPhone/Android UAT pending.');

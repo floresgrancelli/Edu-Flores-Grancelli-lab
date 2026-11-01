@@ -28,9 +28,15 @@ export function createPersistedGuideProvider({client,readScope,template}){
   const now=Date.parse(r.evaluated_at);if(!Number.isFinite(now))throw Error('CLOCK_MISSING');
   const catalog=r.foods.map(f=>{const p=f.provenance;
    if(p.foodId!==f.id||p.unit!==f.unit||p.provider!=='usda_fdc'||p.test_only!==false)throw Error('EVIDENCE_MISMATCH');
+   // PostgreSQL persists numeric(10,6). Match that exact representation without discarding source precision.
+   const persistedPerUnit=Object.fromEntries(['k','p','c','f','fi'].map(k=>{
+    const raw=p.perUnit?.[k];
+    if(typeof raw!=='number'||!Number.isFinite(raw)||typeof f[k]!=='number'||Number(raw.toFixed(6))!==f[k])throw Error('EVIDENCE_MISMATCH');
+    return [k,f[k]];
+   }));
    return {id:f.id,name:p.description,preparation:p.preparation,unit:f.unit,k:f.k,p:f.p,c:f.c,f:f.f,fi:f.fi,
     composition:{status:'verified',id:p.rawDigest,url:p.sourceUrl,foodId:f.id,productId:null,preparation:p.preparation,
-     unit:f.unit,perUnit:p.perUnit,observedAt:f.validated_at,expiresAt:f.expires_at,reviewedBy:null},glutenEvidence:null};
+     unit:f.unit,perUnit:persistedPerUnit,sourcePerUnit:p.perUnit,normalization:'POSTGRES_NUMERIC_10_6',observedAt:f.validated_at,expiresAt:f.expires_at,reviewedBy:null},glutenEvidence:null};
   });
   accepted={key:key(s),revision:r.draft_revision,digest:r.catalog_digest,intake:r.intake_revision,health:r.health_revision};
   return {persisted:true,publishable:false,catalog,template:structuredClone(template),goal:r.goal,

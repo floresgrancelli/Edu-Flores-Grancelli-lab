@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {localContext,literal as q,yes,denied} from './helpers/coach119-local.mjs';
 import {importNine,compositionEvidenceId} from './persisted-guide-nine-import.mjs';
 import {createPersistedGuideProvider} from '../pilot/persisted-guide-provider.js';
+import {compositionVerified} from '../pilot/guide-compatibility.js';
 import {proposeAdaptedGuide} from '../pilot/adapted-guided-day.js';
 import {createGuideEditor,updateGuideEditor} from '../pilot/adapted-guide-editor.js';
 if(process.argv.includes('--provider-regression')){
@@ -83,7 +84,8 @@ const input=await provider.load();assert.equal(input.row.declaration.declared_by
 assert.equal(input.persisted,true);assert.equal(input.synthetic,undefined);
 assert.equal(input.row.general.revision,input.row.intake_revision);assert.equal(input.row.general.disliked_foods,'apple');
 assert.deepEqual(input.goal,official.goal); // This same persisted goal feeds both UI summary and generator.
-const proposed=proposeAdaptedGuide(input);assert.equal(proposed.ok,true);assert.equal(proposed.plan.meals.length,5);
+assert.ok(input.catalog.every(f=>compositionVerified(f,input.context.now)),'Persisted decimal composition must retain exact evaluator identity');
+const proposed=proposeAdaptedGuide(input);assert.equal(proposed.ok,true,JSON.stringify({code:proposed.code,message:proposed.message}));assert.equal(proposed.plan.meals.length,5);
 assert.ok(proposed.plan.meals.every(m=>m.items.every(x=>x.id!=='apple')));
 const env={catalog:input.catalog,goal:input.goal,context:input.context};
 let edit=createGuideEditor(proposed,env);edit=updateGuideEditor(edit,{type:'begin'},env);
@@ -142,7 +144,11 @@ async function runProviderRegression(){
   const row=()=>({viewer_id:'coach-a',session_id:'session-a',student_id:'student-a',organization_id:'org-a',
    intake_revision:1,health_revision:1,draft_revision:revision,catalog_digest:'unit-only-digest',
    restriction_declaration:'none_declared',publishable:false,evaluated_at:'2026-11-01T00:00:00Z',
-   foods:[],goal:{kcal:2100},preferred_ids:[],disliked_ids:[]});
+   foods:[{id:'unit-yogurt',unit:'g',k:.59,p:.1019,c:.036,f:.0039,fi:0,
+    validated_at:'2026-10-31T23:59:00Z',expires_at:'2026-11-01T01:00:00Z',
+    provenance:{foodId:'unit-yogurt',unit:'g',provider:'usda_fdc',test_only:false,description:'UNIT ONLY',preparation:'as_sold',
+     sourceUrl:'https://api.nal.usda.gov/fdc/v1/food/170894',rawDigest:'sha256:'+ 'a'.repeat(64),
+     perUnit:{k:.59,p:10.19/100,c:3.6/100,f:.39/100,fi:0}}}],goal:{kcal:2100},preferred_ids:[],disliked_ids:[]});
   const client={auth:{getUser:async()=>{
    authCalls++;
    // load=1; save's revalidation load=2; actual write's Auth=3.
@@ -157,7 +163,10 @@ async function runProviderRegression(){
    return {data:++revision,error:null};
   }};
   const provider=createPersistedGuideProvider({client,readScope:()=>scope,template:[]});
-  await provider.load();
+  const loaded=await provider.load();
+  assert.ok(compositionVerified(loaded.catalog[0],loaded.context.now));
+  assert.equal(loaded.catalog[0].composition.perUnit.p,.1019);
+  assert.equal(loaded.catalog[0].composition.sourcePerUnit.p,10.19/100);
   const saving=provider.save({kind:'UNIT_ONLY_NOT_A_REAL_PLAN'});
   let timeout;
   try{await Promise.race([started,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('Write Auth wait not reached')),2000);})]);}

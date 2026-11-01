@@ -20,6 +20,9 @@ for table in ['efg_organizations','efg_profiles']:
 prod=(ref/'tests/sql/nut56-prodshape-local-overlay.sql').read_text()
 for table in ['efg_organizations','efg_profiles']:
  emit(re.search(r'alter table public\.'+table+r'\n.*?;',prod,re.S).group())
+# Parent-confirmed structure-only read 2026-11-01T23:33:50Z.
+exact_types={('efg_private','coach_reviewed_foods',k):'numeric(10,6)' for k in ['k','p','c','f','fi']}
+exact_types.update({('public','efg_goals',k):'integer' for k in ['kcal','protein_g','carb_g','fat_g','fiber_g']})
 columns={}
 for c in m['structure']['columns']:columns.setdefault((c['table_schema'],c['table_name']),[]).append(c)
 for (schema,table),cs in columns.items():
@@ -27,6 +30,10 @@ for (schema,table),cs in columns.items():
  for c in cs:
   typ=c['data_type']; typ='text[]' if typ=='ARRAY' and c['column_default']=="'{}'::text[]" else typ
   assert typ in ['text','uuid','boolean','timestamp with time zone','date','numeric','integer','bigint','jsonb','text[]'],typ
+  exact=exact_types.get((schema,table,c['column_name']))
+  if exact:
+   assert c['is_nullable']=='NO' and typ==('numeric' if exact.startswith('numeric') else 'integer')
+   typ=exact
   fields.append(qi(c['column_name'])+' '+typ+(' DEFAULT '+c['column_default'] if c['column_default'] is not None else '')+(' NOT NULL' if c['is_nullable']=='NO' else ''))
  emit('CREATE TABLE '+qi(schema)+'.'+qi(table)+'('+',\n'.join(fields)+');')
 # All tables exist before foreign keys; unique/primary keys first.

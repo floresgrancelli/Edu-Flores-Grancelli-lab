@@ -8,6 +8,7 @@ import {attestDatabase} from './isolation.mjs';
 import {q,rowSnapshot,aclSnapshot,verifyObserved} from './snapshot.mjs';
 import {capturePermissions,verifyPermissions} from './acl-contract.mjs';
 import {negativePublicationCases,secondPublicationCase} from './additional-cases.mjs';
+import {verifyLegacyCutover} from './legacy-cutover-tests.mjs';
 import {officialInput,installOfficialFixture} from './official-import.mjs';
 const root=new URL('../',import.meta.url),read=p=>readFileSync(new URL(p,root),'utf8');
 const deps=reviewedDependencies(import.meta.url); // STOP before any DB access if unavailable.
@@ -15,7 +16,7 @@ const {sql,rpc,request,asClient}=localContext();const identity=attestDatabase(sq
 assert.equal(sql('select count(*) from auth.users'),'0');
 assert.equal(sql("select to_regclass('public.efg_profiles') is null"),'t');
 const out='artifacts/incremental-install';mkdirSync(out,{recursive:true});
-const result={status:'RUNNING',sha:process.env.GITHUB_SHA,groups:[],limits:['Synthetic support profiles/organizations; not a complete hosted restore','No browser or physical UAT','Legacy writes remain enabled by R2; cutover decision required'],restored:false};
+const result={status:'RUNNING',sha:process.env.GITHUB_SHA,groups:[],limits:['Synthetic support profiles/organizations; not a complete hosted restore','No browser or physical UAT','Legacy client writes closed in disposable cutover only; hosted unchanged; administrative deletion requires separate reviewed operation'],restored:false};
 const record=x=>result.groups.push(x);
 const tables=['public.efg_coach_relaunch_intakes','public.efg_pilot_participation_receipts','public.efg_consents','public.efg_goals','public.efg_food_plans','public.efg_student_plan_access','public.efg_notifications','public.efg_coach_plan_drafts','public.efg_legal_documents','public.efg_legal_acceptances','public.efg_sunday_rewards','efg_private.coach_reviewed_foods','efg_private.coach_release_switches'];
 let baselineReady=false,installed=false;
@@ -30,6 +31,9 @@ try{
  baselineReady=true;
  const metadata=JSON.parse(read('evidence/hosted-metadata-20261101-2212.json'));
  verifyObserved(sql,metadata);record('baseline observed columns/constraints/function digests');
+ const exactTypes=JSON.parse(read('runner/confirmed-types.json'));
+ for(const c of exactTypes.columns){const actual=JSON.parse(sql(`select jsonb_build_object('type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull) from pg_attribute a where a.attrelid=${q(c.schema_name+'.'+c.table_name)}::regclass and a.attname=${q(c.column_name)} and a.attnum>0 and not a.attisdropped`));assert.deepEqual(actual,{type:c.exact_type,not_null:c.not_null});}
+ record('ten confirmed exact types and nullability');
  writeFileSync(out+'/acl-before.json',JSON.stringify(aclSnapshot(sql),null,2));
  const input=officialInput(),goal={...input.goal,goal_type:'maintenance'};
  const password=randomBytes(24).toString('hex')+'!Aa9',suffix=randomBytes(6).toString('hex'),users={};
@@ -68,9 +72,13 @@ try{
  assert.deepEqual(rowSnapshot(sql,tables.filter(x=>x!=='efg_private.coach_release_switches')),Object.fromEntries(Object.entries(originalRows).filter(([k])=>k!=='efg_private.coach_release_switches')),'All legacy rows unchanged by installation');
  assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_coach_atomic_publication'"),'f');
  const permissionsAfter=verifyPermissions(sql,permissionsBefore);
- writeFileSync(out+'/acl-expected-contract.json',JSON.stringify({before:permissionsBefore,after:permissionsAfter,verified:true},null,2));
- writeFileSync(out+'/acl-after.json',JSON.stringify(aclSnapshot(sql),null,2));record('complete new-route ACL contract; existing ACL/defaults/column grants unchanged');record('legacy records/receipts preserved across six COMMITs; publication OFF');
+ writeFileSync(out+'/acl-six-migrations-before-cutover-contract.json',JSON.stringify({before:permissionsBefore,after:permissionsAfter,verified:true},null,2));
+ writeFileSync(out+'/acl-after-six-migrations-before-cutover.json',JSON.stringify(aclSnapshot(sql),null,2));record('complete new-route ACL contract; existing ACL/defaults/column grants unchanged');record('legacy records/receipts preserved across six COMMITs; publication OFF');
  for(const t of ['efg_private.nutrition_import_policies','efg_private.guide_source_bindings','efg_private.efg_coach_health_intakes','public.efg_coach_plan_publish_receipts'])assert.equal(sql(`select has_table_privilege('authenticated',${q(t)},'SELECT,INSERT,UPDATE,DELETE')`),'f');
+ await verifyLegacyCutover({sql,request,rpc,users,goal,readCutover:()=>read('installation/proposed/legacy-write-cutover.PROPOSAL.sql'),record,onPermissions:cutoverAcl=>{
+  writeFileSync(out+'/acl-after-cutover.json',JSON.stringify(cutoverAcl.after,null,2));
+  writeFileSync(out+'/acl-cutover-contract.json',JSON.stringify(cutoverAcl,null,2));
+ }});
  sql("notify pgrst,'reload schema'");
  for(let n=0;n<40;n++){const r=await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id});if(r.data?.code==='42501')break;assert.equal(r.data?.code,'PGRST202');await new Promise(r=>setTimeout(r,250));}
  denied(await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id}),'anonymous real RPC',['42501']);

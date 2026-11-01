@@ -49,6 +49,6 @@ export function importNine(sql){
    'automated_validated',now(),now()+interval '1 hour',${q(JSON.stringify(provenance))}::jsonb);`;
  }).join('\n');
  sql('begin;\n'+overlay+'\n'+inserts+'\ncommit;');
- assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods f where efg_private.coach_food_evidence_current(f)'),'9');
+ assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods source_food where efg_private.coach_food_evidence_current(source_food)'),'9');
  return {template:input.template,goal:{...input.goal,goal_type:'maintenance'},ids:input.catalog.map(f=>f.id)};
 }

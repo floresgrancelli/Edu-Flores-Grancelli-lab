@@ -33,8 +33,8 @@ alter table efg_private.guide_source_bindings enable row level security;
 revoke all on efg_private.guide_source_bindings from public,anon,authenticated;
 create function efg_private.guide_catalog_digest(ids text[]) returns text
 language sql stable security invoker set search_path='' as $f$
- select md5(coalesce(jsonb_agg(to_jsonb(f) order by f.food_id)::text,''))
- from efg_private.coach_reviewed_foods f where f.food_id=any(ids);
+ select md5(coalesce(jsonb_agg(to_jsonb(source_food) order by source_food.food_id)::text,''))
+ from efg_private.coach_reviewed_foods source_food where source_food.food_id=any(ids);
 $f$;
 revoke all on function efg_private.guide_catalog_digest(text[]) from public,anon,authenticated;
 create function efg_private.guide_binding_current(p_student uuid) returns boolean
@@ -54,8 +54,8 @@ declare b efg_private.guide_source_bindings%rowtype; h record; begin
    and i.completed_version='coach_major_2026_r1' and i.revision=b.intake_revision and i.shared_at is not null)
   and exists(select 1 from public.efg_coach_plan_drafts d where d.student_id=p_student and d.coach_id=b.coach_id and d.draft_revision=b.draft_revision and d.status='draft')
   and b.catalog_digest=efg_private.guide_catalog_digest(b.food_ids)
-  and (select count(*) from efg_private.coach_reviewed_foods f where f.food_id=any(b.food_ids)
-   and efg_private.coach_food_evidence_current(f))=cardinality(b.food_ids);
+  and (select count(*) from efg_private.coach_reviewed_foods source_food where source_food.food_id=any(b.food_ids)
+   and efg_private.coach_food_evidence_current(source_food))=cardinality(b.food_ids);
 end $f$;
 revoke all on function efg_private.guide_binding_current(uuid) from public,anon,authenticated;
 grant execute on function efg_private.guide_binding_current(uuid) to authenticated;
@@ -84,8 +84,8 @@ declare i record; h record; r bigint; begin
   or p_preferred is null or p_disliked is null or array_position(p_preferred,null) is not null
   or array_position(p_disliked,null) is not null or not(p_preferred<@p_food_ids) or not(p_disliked<@p_food_ids)
   or p_preferred&&p_disliked then raise exception 'Invalid identified preferences' using errcode='22023'; end if;
- if (select count(*) from efg_private.coach_reviewed_foods f where f.food_id=any(p_food_ids)
-  and efg_private.coach_food_evidence_current(f))<>cardinality(p_food_ids) then
+ if (select count(*) from efg_private.coach_reviewed_foods source_food where source_food.food_id=any(p_food_ids)
+  and efg_private.coach_food_evidence_current(source_food))<>cardinality(p_food_ids) then
   raise exception 'Source evidence unavailable' using errcode='42501'; end if;
  r:=public.efg_save_coach_plan_draft(p_student,p_goal,null,i.updated_at,i.revision,p_expected_draft);
  insert into efg_private.guide_source_bindings values(p_student,auth.uid(),i.organization_id,i.revision,h.revision,r,
@@ -107,9 +107,9 @@ declare b record; d record; foods jsonb; general jsonb; begin
  select * into d from public.efg_coach_plan_drafts where student_id=p_student and coach_id=auth.uid();
  if d.draft_revision is distinct from b.draft_revision or d.status<>'draft' then raise exception 'Stale draft' using errcode='PT409'; end if;
  select to_jsonb(i) into general from public.efg_coach_relaunch_intakes i where i.student_id=p_student and i.completed_version='coach_major_2026_r1';
- select jsonb_agg(jsonb_build_object('id',f.food_id,'unit',f.unit,'k',f.k,'p',f.p,'c',f.c,'f',f.f,'fi',f.fi,
-  'provenance',f.automatic_provenance,'validated_at',f.automated_validated_at,'expires_at',f.expires_at) order by f.food_id)
- into foods from efg_private.coach_reviewed_foods f where f.food_id=any(b.food_ids);
+ select jsonb_agg(jsonb_build_object('id',source_food.food_id,'unit',source_food.unit,'k',source_food.k,'p',source_food.p,'c',source_food.c,'f',source_food.f,'fi',source_food.fi,
+  'provenance',source_food.automatic_provenance,'validated_at',source_food.automated_validated_at,'expires_at',source_food.expires_at) order by source_food.food_id)
+ into foods from efg_private.coach_reviewed_foods source_food where source_food.food_id=any(b.food_ids);
  return jsonb_build_object('viewer_id',auth.uid(),'session_id',auth.jwt()->>'session_id','student_id',p_student,'organization_id',b.organization_id,
   'intake_revision',b.intake_revision,'health_revision',b.health_revision,'draft_revision',d.draft_revision,
   'catalog_digest',b.catalog_digest,'preferred_ids',b.preferred_ids,'disliked_ids',b.disliked_ids,

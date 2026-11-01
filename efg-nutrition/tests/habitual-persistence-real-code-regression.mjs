@@ -147,4 +147,22 @@ assert.deepEqual(api.getHabitualList('cena').slice(-2).map(x=>x.name),['Cena nue
 assert.ok(!legacyStore.has(dinnerV1Key)&&!legacyStore.has(dinnerV2Key),
  'Cleanup only after both backups have migrated to the cloud');
 console.log('PASS UX-04-03: v1+v2 coexistence, 20-slot quota and deferred recovery preserve saved habitual meals.');
+// A malformed backup must not block the OTHER version or be silently removed.
+const corruptV2Key='efg-nutrition-habitual-v2:'+userId+':media_tarde';
+const validV1Key='efg-nutrition-habitual-v1:'+userId+':media_tarde';
+legacyStore.set(corruptV2Key,'{incomplete-json');
+legacyStore.set(validV1Key,JSON.stringify([{id:'egg',name:'Huevos',qty:75}]));
+const validV2Key='efg-nutrition-habitual-v2:'+userId+':merienda';
+const corruptV1Key='efg-nutrition-habitual-v1:'+userId+':merienda';
+legacyStore.set(validV2Key,JSON.stringify([{name:'Merienda v2',items:[{id:'oats',name:'Avena',qty:33}]}]));
+legacyStore.set(corruptV1Key,'{incomplete-json');
+api.resetMemory();await api.loadCloudHabituales();
+assert.deepEqual(api.getHabitualList('media_tarde').map(x=>x.name),['Mi habitual anterior']);
+assert.deepEqual(api.getHabitualList('merienda').map(x=>x.name),['Merienda v2']);
+assert.ok(legacyStore.has(corruptV2Key),'Malformed v2 must remain recoverable');
+assert.ok(legacyStore.has(corruptV1Key),'Malformed v1 must remain recoverable');
+assert.ok(!legacyStore.has(validV1Key)&&!legacyStore.has(validV2Key),
+ 'Successfully migrated intact versions may be cleaned up independently');
+console.log('PASS UX-04-03: malformed v1/v2 backups preserved without blocking valid-version recovery.');
+
 console.log('PASS UX-HABITUAL-REAL-01: actual app save twice, cloud readback after reset/relogin, both names and foods in picker, no cross-slot leakage. Hosted iPhone/Android UAT pending.');

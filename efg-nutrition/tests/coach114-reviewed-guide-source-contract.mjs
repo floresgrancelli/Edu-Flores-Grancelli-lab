@@ -25,6 +25,14 @@ const guide={kind:'five_meal_example',version:1,meals:[
 ]};
 const selected=['milk_skim','fish_hake','egg','apple','rice','pumpkin','almonds'];
 const known=['egg','apple','rice','milk_skim','fish_hake','pumpkin','almonds'];
+// Regressions 02-02/02-03: an approved catalog does not repair a broken
+// five-meal sample, even if the listed food IDs are all known.
+for(const broken of [
+ {...guide,meals:guide.meals.slice(1)},
+ {...guide,meals:guide.meals.map((m,i)=>i===4?{...m,slot:'desayuno'}:m)},
+ {...guide,meals:guide.meals.map((m,i)=>i===2?{...m,items:[]}:m)}
+])assert.throws(()=>approvedFoodGuide(broken,selected,{knownIds:known}),
+ 'A missing, duplicate or empty meal must never be submitted to the Coach release draft.');
 const approved=approvedFoodGuide(guide,selected,{knownIds:known});
 assert.deepEqual(approved.approvedFoodIds,[...selected].sort(),
  'Full catalog selections must remain available, not only guide ingredients.');

@@ -14,6 +14,11 @@
 .efg-daily-tip h2{font-family:Georgia,"Iowan Old Style","Baskerville",serif;font-size:clamp(26px,3vw,39px);line-height:1.1;letter-spacing:-.03em;color:#16273d!important;margin:0!important;text-wrap:balance}
 .efg-daily-tip-description{font-size:clamp(14px,1.3vw,16px);line-height:1.65;color:#304153!important;margin:0!important}
 .efg-daily-tip-disclaimer{font-size:11px;line-height:1.48;color:#526276!important;margin:0}
+.efg-gnocchi-recipe{border:1px solid rgba(79,113,119,.28);border-radius:13px;background:rgba(255,255,255,.72);padding:11px 13px;font-size:12px;line-height:1.55;color:#304153}
+.efg-gnocchi-recipe summary{font-weight:760;color:#243c58;cursor:pointer;min-height:24px}
+.efg-gnocchi-recipe summary:focus-visible{outline:3px solid #346fa3;outline-offset:3px}
+.efg-gnocchi-recipe p{margin:11px 0 0}
+.efg-gnocchi-recipe-note{font-size:11px;color:#536477}
 .efg-daily-tip-credit{font-size:10px;line-height:1.4;color:#5b6675;margin-top:2px}
 .efg-daily-tip-credit a{color:#344e75!important;text-decoration:underline;text-underline-offset:3px}
 .efg-daily-tip-action{align-self:flex-start;border:1px solid rgba(207,178,126,.4);border-radius:12px;display:inline-flex;gap:10px;align-items:center;justify-content:center;background:linear-gradient(135deg,#23364c,#0e1c2e);color:#fff7e8!important;font-weight:700;padding:12px 17px;min-height:44px;font-size:13px;box-shadow:inset 0 1px rgba(255,255,255,.14),0 4px 10px rgba(24,35,49,.16);cursor:pointer}

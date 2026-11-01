@@ -1,5 +1,6 @@
 // Disposable LOCAL fixture only. Assertions exercise real HTTP/JWT; SQL is the fixture/oracle.
 import assert from 'node:assert/strict';
+import {isDeepStrictEqual} from 'node:util';
 import {literal as q} from './helpers/coach119-local.mjs';
 
 export async function runBoundRecoveryNegatives({sql,request,rpc,users,orgs,official,intake,prep}){
@@ -21,7 +22,7 @@ export async function runBoundRecoveryNegatives({sql,request,rpc,users,orgs,offi
  const originalDraft=baseline['public.efg_coach_plan_drafts'].find(d=>d.student_id===users.studentA.id);
  assert.ok(originalDraft?.guide_proposal?.meals?.length===5,'Existing real signed guide save required');
  const recoveredRevision=originalDraft.draft_revision+1;
- const same=(a,b,label)=>assert.ok(JSON.stringify(a)===JSON.stringify(b),label); // Never print rows/tokens on failure.
+ const same=(a,b,label)=>assert.ok(isDeepStrictEqual(a,b),label); // Compare JSON values, not jsonb key order; never print rows/tokens.
  const ok=(r,label)=>{assert.ok(r.ok,`${label}: HTTP ${r.status}, code ${r.data?.code||'none'}`);return r.data;};
  const reject=(r,code,label)=>{assert.equal(r.ok,false,label);assert.equal(r.data?.code,code,label);
   assert.equal(r.status,code==='PT409'?409:403,label);};
@@ -51,7 +52,7 @@ export async function runBoundRecoveryNegatives({sql,request,rpc,users,orgs,offi
  };
  const cases=[],integrityLimitations=[];
  async function scenario(name,run){reset();try{await run();cases.push({name,status:'PASS'});}
-  catch{cases.push({name,status:'FAIL'});}finally{reset();}}
+  catch(error){cases.push({name,status:'FAIL',locations:(error.stack||'').match(/sdk-entry-bound-recovery-private\.mjs:[0-9]+:[0-9]+/g)||[]});}finally{reset();}}
  try{
   await scenario('current-null-and-second-null',async()=>{
    await unchangedReject(()=>call({...prep('A')}),'PT409','current binding null');

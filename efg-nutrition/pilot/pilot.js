@@ -509,15 +509,39 @@ const activeDiary=()=>{
  return state.pendingDiaryDraft;
 };
 async function ensureCurrentDay(){
- if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
- if(state.daySwitching)return state.daySwitching;
- const nowDay=today(),uid=state.session.user.id;
- state.daySwitching=(async()=>{
+ const uid=state.session?.user?.id,nowDay=today();
+ if(!uid||!state.profile||!state.renderedDay||state.renderedDay===nowDay)return;
+ // Scope midnight reads to their account and day. A stale account A read
+ // must not block or overwrite a newly authenticated account B.
+ if(state.daySwitching&&state.daySwitchingOwner===uid&&state.daySwitchingForDay===nowDay)
+  return state.daySwitching;
+ const writeRevision=state.diaryWriteRevision||0;
+ const work=(async()=>{
   const {data,error}=await sb.from("efg_daily_logs").select("*").eq("student_id",uid).eq("log_day",nowDay).maybeSingle();
+  if(state.session?.user?.id!==uid||today()!==nowDay)return;
   if(error)throw error;
-  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.pendingDiaryDraft=null;state.renderedDay=nowDay;state.activeMeal=null;}
+  const draft=state.pendingDiaryDraft;
+  const editedDraft=draft?.student_id===uid&&draft.log_day===nowDay&&(
+   Object.values(draft.meals||{}).some(items=>Array.isArray(items)&&items.length>0)||
+   (draft.sports||[]).length>0||
+   Object.entries(draft.skipped||{}).some(([key,value])=>key!=="_closed"&&!!value));
+  // A later diary save, confirmed REST row, or edited local draft wins
+  // over SELECT started earlier. Never erase the first meal at midnight.
+  if((state.diary?.student_id===uid&&state.diary.log_day===nowDay)||
+   (state.diaryWriteRevision||0)!==writeRevision||
+   (state.diaryWritePending&&state.diaryWriteOwner===uid)||editedDraft){
+   state.renderedDay=nowDay;state.activeMeal=null;
+   return;
+  }
+  state.diary=data||null;state.pendingDiaryDraft=null;state.renderedDay=nowDay;state.activeMeal=null;
  })();
- try{await state.daySwitching;}finally{state.daySwitching=null;}
+ state.daySwitching=work;state.daySwitchingOwner=uid;state.daySwitchingForDay=nowDay;
+ try{await work;}
+ finally{
+  if(state.daySwitching===work){
+   state.daySwitching=null;state.daySwitchingOwner=null;state.daySwitchingForDay=null;
+  }
+ }
 }
 const activeGoal=()=>{ const p=state.profile; const own=state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}

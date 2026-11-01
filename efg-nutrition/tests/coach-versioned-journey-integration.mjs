@@ -45,7 +45,10 @@ try{
  await client.publish({studentId:student,expectedRevision:2,requestId:request,confirmed:true});
  assert.equal(calls.at(-1).name,'efg_publish_coach_plan_draft_atomic');
  assert.ok(reads.includes('efg_coach_relaunch_intakes'));
- const state={coachIntakeForms:{},coachIntakeAccess:{}};
+ // A real Coach loader always has a signed account and organization in state.
+ // Preserve this invariant in the isolated versioned-onboarding fixture.
+ const state={profile:{role:'coach',user_id:coach,organization_id:intake.organization_id},
+  session:{user:{id:coach}},coachIntakeForms:{},coachIntakeAccess:{}};
  const flow=createCoachIntakeFlow({sb,state,escapeHTML:String});
  await flow.loadCoach([student]);
  assert.equal(state.coachIntakeForms[student].revision,4);

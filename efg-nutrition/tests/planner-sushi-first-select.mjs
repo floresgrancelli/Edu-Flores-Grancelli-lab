@@ -532,3 +532,80 @@ console.log('PASS UX-04-04: logout/account switch during in-flight diary write d
 console.log('PASS UX-04-02 / 04-04 / 04-05: cross-slot REST write race prevented; immutable payload and safe retry.');
 
 
+
+
+// UX-04-02 / 04-04: The complete personal-data loader must reject stale
+// account, date, overlapping refresh and in-flight diary-write responses.
+// This executes the REAL loader body with seven deferred PostgREST-shaped
+// responses; it neither uses user accounts nor makes hosted requests.
+const loadStart=source.indexOf('async function loadPersonalData(){');
+const loadEnd=source.indexOf('async function loadOrgAndPayments(){',loadStart);
+assert.ok(loadStart>0&&loadEnd>loadStart,'Find actual personal-data loader');
+const pendingPersonalQueries=[];
+let personalDay='2026-11-01';
+const personalState={session:{user:{id:'student-A'}},diary:null,pendingDiaryDraft:null,
+ progressLogs:[],renderedDay:null};
+const personalSB={from(table){
+ let uid=null,logDay=null;
+ return {
+  select(){return this;},
+  eq(field,value){if(field==='student_id'||field==='user_id')uid=value;
+   if(field==='log_day')logDay=value;return this;},
+  gte(){return this;},order(){return this;},limit(){return this;},maybeSingle(){return this;},
+  then(resolve){pendingPersonalQueries.push({table,uid,logDay,resolve});}
+ };
+}};
+const personalAPI=new Function('state','sb','today',source.slice(loadStart,loadEnd)+';return loadPersonalData;')(
+ personalState,personalSB,()=>personalDay);
+async function waitPersonalQueries(count){
+ for(let i=0;i<30&&pendingPersonalQueries.length<count;i++)await Promise.resolve();
+ assert.equal(pendingPersonalQueries.length,count,'All seven parallel SELECTs must be pending');
+}
+function releasePersonalBatch(start,uid,tag,requestedDate){
+ const expected=['efg_daily_logs','efg_daily_logs','efg_weights','efg_activities',
+  'efg_goals','efg_personal_targets','efg_food_plans'];
+ for(let i=0;i<7;i++){
+  const q=pendingPersonalQueries[start+i];
+  assert.equal(q.table,expected[i]);assert.equal(q.uid,uid);
+  if(i===0)assert.equal(q.logDay,requestedDate,'Captured day cannot change during request');
+  const data=i===0?{student_id:uid,log_day:requestedDate,tag}:
+   i===1?[{student_id:uid,log_day:requestedDate,tag}]:
+   i===5||i===6?{student_id:uid,tag}:[{student_id:uid,tag}];
+  q.resolve({data,error:null});
+ }
+}
+const loadingA=personalAPI();await waitPersonalQueries(7);
+personalState.session={user:{id:'student-B'}};
+const loadingB=personalAPI();await waitPersonalQueries(14);
+releasePersonalBatch(7,'student-B','B-new','2026-11-01');await loadingB;
+assert.equal(personalState.diary.tag,'B-new');
+releasePersonalBatch(0,'student-A','A-stale','2026-11-01');await loadingA;
+assert.equal(personalState.diary.tag,'B-new','Delayed A data must not overwrite B session');
+assert.equal(personalState.foodPlan.tag,'B-new','No stale coach food plan crosses accounts');
+
+const firstRefresh=personalAPI();await waitPersonalQueries(21);
+const latestRefresh=personalAPI();await waitPersonalQueries(28);
+releasePersonalBatch(21,'student-B','newer','2026-11-01');await latestRefresh;
+releasePersonalBatch(14,'student-B','older','2026-11-01');await firstRefresh;
+assert.equal(personalState.diary.tag,'newer','Out-of-order same-user reload cannot undo latest');
+
+const lateOldDay=personalAPI();await waitPersonalQueries(35);
+personalDay='2026-11-02';
+releasePersonalBatch(28,'student-B','yesterday','2026-11-01');await lateOldDay;
+assert.equal(personalState.renderedDay,'2026-11-01');
+assert.equal(personalState.diary.tag,'newer','A midnight-spanning reload cannot show yesterday');
+
+const loadingDuringWrite=personalAPI();await waitPersonalQueries(42);
+personalState.diaryWritePending=true;personalState.diaryWriteOwner='student-B';
+personalState.diaryWriteRevision=1;
+releasePersonalBatch(35,'student-B','pre-write-snapshot','2026-11-02');
+await loadingDuringWrite;
+assert.equal(personalState.diary.tag,'newer','A diary write must win over a stale SELECT snapshot');
+personalState.diaryWritePending=false;personalState.diaryWriteOwner=null;
+
+const loadingAfterWrite=personalAPI();await waitPersonalQueries(49);
+releasePersonalBatch(42,'student-B','confirmed','2026-11-02');
+await loadingAfterWrite;
+assert.equal(personalState.diary.tag,'confirmed','Fresh load can resume after write');
+assert.equal(personalState.renderedDay,'2026-11-02');
+console.log('PASS UX-04-04 personal data: account/day/refresh/write generations isolated in real loader.');

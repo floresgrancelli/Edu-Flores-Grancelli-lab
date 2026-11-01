@@ -47,6 +47,7 @@ jobs:
           EFG_QA_ADAPTED_COACH=1 node efg-nutrition/tests/premium-visual-smoke.mjs
           node --experimental-default-type=module efg-nutrition/tests/coach-guide-intake-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/coach-guide-intake-visual-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/provider-contract-private.mjs
       - name: Preserve synthetic adapted guide PNGs
         if: always() && ((github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]')))
         uses: actions/upload-artifact@v4

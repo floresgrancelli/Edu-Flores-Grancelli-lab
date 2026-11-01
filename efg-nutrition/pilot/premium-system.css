@@ -510,3 +510,11 @@
 .coach-student-profile .efg-progress-header h2{overflow-wrap:normal;word-break:normal}
 .coach-student-profile .coach-profile-tabs{flex-wrap:wrap}
 
+
+/* Coach cards can be narrow at a desktop viewport: size tracks to their own space. */
+.coach-student-profile .efg-progress-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.coach-student-profile .efg-meal-donut-layout{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}
+.coach-student-profile .efg-meal-donut{max-width:240px;margin-inline:auto}
+.coach-student-profile .efg-consistency-head{flex-wrap:wrap}
+.coach-student-profile .efg-consistency-head strong{white-space:nowrap;flex-shrink:0}
+.coach-student-profile .efg-progress-panel h3,.coach-student-profile .efg-meal-legend{overflow-wrap:normal;word-break:normal}

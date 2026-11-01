@@ -286,13 +286,13 @@ assert.equal(recipeLocks.size,0,'Clear release lock after confirmation');
 const sportBegin=source.indexOf('let pendingSportDiaryMutation=false;');
 const sportEnd=source.indexOf('async function addDailySupplement(){',sportBegin);
 assert.ok(sportBegin>0&&sportEnd>sportBegin,'Real sport diary transaction helper exists');
-const sportsDiary={sports:[{id:'whey',name:'Whey',kind:'supplement',qty:30}],skipped:{_closed:true}};
-const sportsState={diary:sportsDiary},sportsNotices=[];
+const sportsDiary={student_id:'student-sport-id',log_day:'2026-10-31',sports:[{id:'whey',name:'Whey',kind:'supplement',qty:30}],skipped:{_closed:true}};
+const sportsState={session:{user:{id:'student-sport-id'}},diary:sportsDiary},sportsNotices=[];
 let sportsFail=true,sportsWrites=0,sportsWait=null;
-const sportMutation=new Function('activeDiary','state','saveDiary','notify',
+const sportMutation=new Function('activeDiary','state','saveDiary','notify','today',
  source.slice(sportBegin,sportEnd)+';return mutateSportDiary;')(
  ()=>sportsDiary,sportsState,async()=>{sportsWrites++;if(sportsFail)throw Error('offline');if(sportsWait)await sportsWait;},
- message=>sportsNotices.push(message));
+ message=>sportsNotices.push(message),()=> '2026-10-31');
 const sportsBefore=structuredClone(sportsDiary);
 await assert.rejects(sportMutation(d=>d.sports.splice(0,1),'removed'),/offline/);
 assert.deepEqual(sportsDiary,sportsBefore,'Failed supplement delete restores sport diary and closed flag');

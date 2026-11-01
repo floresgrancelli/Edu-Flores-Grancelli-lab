@@ -61,12 +61,12 @@ export function initialCoachRelaunchIntake({
   return {...EMPTY_COACH_RELAUNCH_INTAKE,health_flags:[]};
  // A draft from THIS release may be offered back to its verified owner, after
  // the server's ownership/consent checks. Never precheck any share permission.
- const allowed=Object.keys(EMPTY_COACH_RELAUNCH_INTAKE).filter(k=>k!=="shareWithCoach");
+ // The medical intake is OFF: never rehydrate prior diagnoses/allergies.
+ const forbidden=new Set(["shareWithCoach","health_flags","allergy_details"]);
+ const allowed=Object.keys(EMPTY_COACH_RELAUNCH_INTAKE).filter(k=>!forbidden.has(k));
  const form={...EMPTY_COACH_RELAUNCH_INTAKE,health_flags:[]};
  for(const key of allowed)if(Object.prototype.hasOwnProperty.call(currentVersionDraft,key))
-  form[key]=key==="health_flags"
-   ?(Array.isArray(currentVersionDraft[key])?[...currentVersionDraft[key]]:[])
-   :currentVersionDraft[key];
+  form[key]=currentVersionDraft[key];
  form.shareWithCoach=false;
  return form;
 }

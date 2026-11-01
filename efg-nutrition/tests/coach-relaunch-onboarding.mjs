@@ -61,7 +61,9 @@ const resumed=initialCoachRelaunchIntake({
   approved:true
  }});
 assert.equal(resumed.age_years,42);
-assert.deepEqual(resumed.health_flags,["celiac"]);
+assert.deepEqual(resumed.health_flags,[],
+ "Clinical flags must not be rehydrated in a same-version general-intake draft.");
+assert.equal(resumed.allergy_details,"","No clinical data without specific consent.");
 assert.equal(resumed.shareWithCoach,false,"Old sharing permission never prechecks new consent.");
 assert.ok(!("student_id" in resumed));
 assert.ok(!("approved" in resumed));

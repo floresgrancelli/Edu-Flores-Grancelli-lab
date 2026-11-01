@@ -49,4 +49,22 @@ assert.deepEqual(calls.at(-1),['signOut',{scope:'local'}]);
 assert.deepEqual(calls.at(-2),['efg_major_release_ack',{
  p_release:'major_2026_01',p_event_kind:'reauth_notice_acknowledged',p_explicit_click:true
 }]);
-console.log('PASS UX35: signed MAJOR only, no preview/minor/unauthorized/early exit, user confirmation before receipt, local OTP exit.');
+// A new edit can begin while the acknowledgment RPC is pending.
+let newEdit=false;
+const racing={...sb,rpc:async(name,data)=>{
+ const result=await sb.rpc(name,data);
+ if(name==='efg_major_release_ack')newEdit=true;
+ return result;
+}};
+const oldSignOuts=calls.filter(x=>x[0]==='signOut').length;
+const delayed=await confirmMajorRelaunchAndExit(racing,{...args,hasUnsavedChanges:()=>newEdit});
+assert.equal(delayed.signedOut,false);
+assert.equal(delayed.saveRequired,true);
+assert.equal(calls.filter(x=>x[0]==='signOut').length,oldSignOuts);
+let authChecks=0;
+const swapped={...sb,auth:{...sb.auth,getUser:async()=>({
+ data:{user:{id:++authChecks===5?other:uid}},error:null})}};
+await assert.rejects(confirmMajorRelaunchAndExit(swapped,args),/sesión cambió/);
+assert.equal(authChecks,5);
+assert.equal(calls.filter(x=>x[0]==='signOut').length,oldSignOuts);
+console.log('PASS UX35: signed major only, no logout on new edit or changed account.');

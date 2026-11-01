@@ -6,6 +6,15 @@ import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=20261030-cli
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const accepted=isCurrentCoachLegalAccepted;
+// Verify signed identity after awaited legal/intake reads and writes. Server RLS
+// remains authoritative; client state must not reveal a previous account.
+async function requireSignedRelaunchStudent(sb,profile,userId){
+ if(typeof sb?.auth?.getUser!=="function"||typeof sb?.rpc!=="function")
+  throw Error("No se pudo verificar la sesión del alumno.");
+ const signed=await sb.auth.getUser();
+ if(signed?.error||signed?.data?.user?.id!==userId||profile?.user_id!==userId)
+  throw Error("La sesión cambió mientras verificábamos tu ficha. Volvé a ingresar.");
+}
 const known={
  objective:[["","Sin definir"],["fat_loss","Reducir grasa"],["recomp","Recomposición"],["muscle_gain","Aumentar masa muscular"],["maintenance","Mantener peso"],["general","Mejorar hábitos"]],
  activity_level:[["","No informado"],["low","Mayormente sentado"],["light","Ligera"],["moderate","Moderada"],["high","Alta"]],
@@ -16,8 +25,10 @@ export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
  if(!sb||!validUid(userId)||profile?.user_id!==userId||profile?.role!=="student"||
     profile?.active!==true||!validUid(profile.organization_id))
   throw Error("No se pudo verificar tu cuenta de alumno Coach.");
+ await requireSignedRelaunchStudent(sb,profile,userId);
  const lr=await sb.rpc("efg_legal_current_status");
  if(lr.error||!Array.isArray(lr.data))throw Error("No se pudo comprobar el consentimiento legal actual.");
+ await requireSignedRelaunchStudent(sb,profile,userId);
  const legalStatus=lr.data,legalStatusFetched=true;
  if(!accepted(legalStatus))return {
   ...resolveCoachRelaunchEntry({userId,profile,identityVerified:true,
@@ -28,6 +39,7 @@ export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
   .select("student_id,organization_id,completed_version,revision,shared_at,completed_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,eating_window,preferred_foods,disliked_foods,meal_routine,notes")
   .eq("student_id",userId).eq("completed_version",COACH_RELEASE_INTAKE_VERSION).maybeSingle();
  if(r.error)throw Error("No se pudo verificar la ficha de relanzamiento actual.");
+ await requireSignedRelaunchStudent(sb,profile,userId);
  const status=r.data||null;
  const gate=resolveCoachRelaunchEntry({userId,profile,identityVerified:true,
   legalStatus,legalStatusFetched:true,onboardingStatus:status,onboardingStatusFetched:true});
@@ -135,12 +147,19 @@ export async function submitCoachRelaunchEntry(sb,{profile,userId,entry,payload,
      entry?.route==="ready"&&(!Number.isInteger(entry.status?.revision)||entry.status.revision<1||entry.status.completed_version!==COACH_RELEASE_INTAKE_VERSION))||!accepted(entry.legalStatus))
   throw Error("Verificá tu identidad, la ficha nueva y la aceptación legal antes de confirmar.");
  if(shareWithCoach!==true&&shareWithCoach!==false)throw Error("Permiso de compartir inválido.");
+ // Clinical intake is OFF: reject unapproved health and foreign-owner fields.
+ const general=emptyCoachRelaunchPayload();
+ if(!payload||typeof payload!=="object"||Array.isArray(payload)||
+    Object.keys(payload).some(key=>!Object.hasOwn(general,key)))
+  throw Error("La ficha general no admite datos clínicos ni campos ajenos.");
+ await requireSignedRelaunchStudent(sb,profile,userId);
  const a=await sb.rpc("efg_submit_coach_relaunch_intake",{
   p_completed_version:COACH_RELEASE_INTAKE_VERSION,p_payload:payload,
   p_expected_revision:entry.route==="ready"?entry.status.revision:0,p_share_with_coach:shareWithCoach
  });
  if(a.error)throw Error(a.error.code==="PT409"?
   "Tu ficha cambió en otra sesión; volvé a cargarla para continuar.":"No se pudo guardar la ficha nueva; revisá los permisos e intentá nuevamente.");
+ await requireSignedRelaunchStudent(sb,profile,userId);
  const expected=(entry.route==="ready"?entry.status.revision:0)+1;
  if(a.data!==expected)throw Error("La ficha nueva no devolvió la revisión esperada.");
  const fresh=await loadCoachRelaunchEntry(sb,{profile,userId});

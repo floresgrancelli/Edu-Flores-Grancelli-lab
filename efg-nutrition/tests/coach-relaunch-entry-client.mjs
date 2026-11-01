@@ -8,8 +8,9 @@ const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",org="bbbbbbbb-bbbb-4bbb-8bbb-bb
 const profile={user_id:uid,organization_id:org,role:"student",active:true};
 const legal=[{kind:"terms",document_id:"cccccccc-cccc-4ccc-8ccc-cccccccccccc",version:"1",sha256:"a".repeat(64),accepted:true},
  {kind:"privacy",document_id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",version:"1",sha256:"b".repeat(64),accepted:true}];
-let status=null,allowed=false,queries=0,writes=0,selectedProjection="";
+let status=null,allowed=false,queries=0,writes=0,selectedProjection="",authUser=uid;
 const sb={
+ auth:{getUser:async()=>({data:{user:{id:authUser}},error:null})},
  rpc(name,payload){
   if(name==="efg_legal_current_status")
    return Promise.resolve({data:allowed?legal:[{...legal[0],accepted:false},legal[1]],error:null});
@@ -143,4 +144,29 @@ assert.match(flow,/if\(COACH_VERSIONED_INTAKE_ENABLED\)[\s\S]*?throw Error\("Est
  "Legacy student update must not overwrite new release intake.");
 assert.match(flow,/el borrado antiguo está deshabilitado/,
  "Legacy delete must never erase the wrong versioned record.");
-console.log("PASS Coach re-entry UI synthetic: Terms first, fresh unsigned form, explicit share-off, no implicit save, signed backend readback required.");
+// Reject stale legal responses and writes after switching to another account.
+const beforeSwapWrites=writes;
+authUser=org;
+await assert.rejects(loadCoachRelaunchEntry(sb,{profile,userId:uid}),/sesión cambió/);
+await assert.rejects(submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:cleared,
+ payload:form.payload,shareWithCoach:false,explicitSubmit:true}),/sesión cambió/);
+assert.equal(writes,beforeSwapWrites);
+authUser=uid;
+const originalRpc=sb.rpc,beforeLegalQueries=queries;
+sb.rpc=(name,payload)=>{const result=originalRpc(name,payload);
+ if(name==='efg_legal_current_status')authUser=org;
+ return result;};
+await assert.rejects(loadCoachRelaunchEntry(sb,{profile,userId:uid}),/sesión cambió/);
+assert.equal(queries,beforeLegalQueries,'No private intake read after account swap');
+sb.rpc=originalRpc;authUser=uid;
+await assert.rejects(submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:cleared,
+ payload:{...form.payload,health_flags:['sibo']},shareWithCoach:false,explicitSubmit:true}),/datos clínicos/);
+assert.equal(writes,beforeSwapWrites,'Clinical data cannot reach general-intake RPC');
+sb.rpc=(name,payload)=>{const result=originalRpc(name,payload);
+ if(name==='efg_submit_coach_relaunch_intake')authUser=org;
+ return result;};
+await assert.rejects(submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:cleared,
+ payload:form.payload,shareWithCoach:false,explicitSubmit:true}),/sesión cambió/);
+assert.equal(writes,beforeSwapWrites+1,'A committed write must not show stale UI success');
+sb.rpc=originalRpc;authUser=uid;
+console.log("PASS Coach re-entry: signed rechecks, stale-session protection, clinical OFF (synthetic).");

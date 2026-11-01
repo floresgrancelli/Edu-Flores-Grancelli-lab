@@ -29,7 +29,8 @@ export async function confirmMajorRelaunchAndExit(sb,{
   throw Error('La Gran Actualización todavía no fue confirmada por el servidor.');
  // If the user cancels the unsaved-changes warning, do not even record
  // acknowledgment. No server signal and no session closure may occur.
- if(hasUnsavedChanges()&&(await confirmDiscard())!==true)
+ const dirtyAtClick=!!hasUnsavedChanges();
+ if(dirtyAtClick&&(await confirmDiscard())!==true)
   return Object.freeze({signedOut:false,cancelled:true});
  // Only after a signed, explicit acknowledgment receipt does local OTP exit.
  // This receipt is NOT acceptance of legal documents or medical sharing.
@@ -37,6 +38,12 @@ export async function confirmMajorRelaunchAndExit(sb,{
   profile,release:status,kind:'reauth_notice_acknowledged',
   explicitClick:true,explicitlyEnabled:enabled
  });
+ // Delayed receipt must not log out another account or discard a NEW edit.
+ const current=await sb.auth.getUser();
+ if(current?.error||current?.data?.user?.id!==userId)
+  throw Error('La sesión cambió después de confirmar el aviso; no se cerró la nueva cuenta.');
+ if(!dirtyAtClick&&hasUnsavedChanges())
+  return Object.freeze({signedOut:false,saveRequired:true});
  return signOutCurrentDevice({auth:sb.auth,explicitClick:true,
-  hasUnsavedChanges:()=>false}); // already confirmed before recording receipt
+  hasUnsavedChanges:()=>false}); // prior dirty edits were expressly confirmed
 }

@@ -5,12 +5,14 @@ import { extname, join, resolve } from "node:path";
 import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
+const adaptedCoachMode=process.env.EFG_QA_ADAPTED_COACH==="1";
+if(adaptedCoachMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private coach fixture requires real CI");
 const rootDir=process.cwd();
 const outDir=join(rootDir,"artifacts/premium-visual-qa");
 mkdirSync(outDir,{recursive:true});
 const errors=[];
 let blockedBackendCalls=0;
-const mime={".html":"text/html",".js":"text/javascript",".css":"text/css",".jpg":"image/jpeg",".webp":"image/webp",".png":"image/png",".svg":"image/svg+xml"};
+const mime={".html":"text/html",".js":"text/javascript",".mjs":"text/javascript",".css":"text/css",".jpg":"image/jpeg",".webp":"image/webp",".png":"image/png",".svg":"image/svg+xml"};
 const server=createServer((req,res)=>{
  try{
   const pathname=decodeURIComponent(new URL(req.url,"http://localhost").pathname);
@@ -18,7 +20,12 @@ const server=createServer((req,res)=>{
   if(!local.startsWith(rootDir+"/"))throw Error("Illegal path");
   let file=pathname.endsWith("/")?join(local,"index.html"):local;
   let bytes=readFileSync(file);
+  if(adaptedCoachMode&&pathname==="/efg-nutrition/pilot/coach-adapted-workspace.js"){
+   bytes=Buffer.from(bytes.toString().replace('COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=true'));
+  }
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
+   if(adaptedCoachMode)bytes=Buffer.from(bytes.toString().replace('readScope:adaptedCoachScope,loadInput:null',
+    "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    bytes=Buffer.from(bytes.toString("utf8")+
     "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
@@ -34,7 +41,7 @@ if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
 const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=adaptedCoachMode?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -157,6 +164,46 @@ try{
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
+
+  if(adaptedCoachMode){
+   await page.evaluate(async()=>{
+    const v=window.__EFG_VISUAL_QA__,s=v.state;
+    s.roster.forEach(p=>p.organization_id='demo-org');s.selectedStudent='demo-student-a';
+    s.consent={accepted:true,student_id:'demo-student-a',organization_id:'demo-org'};
+    s.tab='coachStudents';await v.render();
+   });
+   await page.locator('#coachStudentGoals > summary').click();
+   const publishedBefore=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
+   await page.locator('[data-act="openCoachAdaptedPreview"]').click();
+   const mount=page.locator('#coachAdaptedDraftMount');
+   await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();
+   await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
+   const qty=mount.locator('[data-edit-row="desayuno:0"] input');
+   const changed=String(Number(await qty.inputValue())+10);await qty.fill(changed);await qty.press('Tab');
+   const totals=await mount.locator('[data-guide-totals]').textContent();
+   await mount.locator('[data-adapted-preference]').selectOption('preferred');
+   await mount.locator('[data-adapted-notice]').filter({hasText:'Conservamos tus ediciones'}).waitFor();
+   assert.equal(await mount.locator('[data-guide-totals]').textContent(),totals);
+   assert.equal(await mount.locator('[data-edit-row="desayuno:0"] input').inputValue(),changed);
+   await mount.locator('[data-edit-row="desayuno:0"] summary').click();
+   const visibleConditions=mount.locator('[data-edit-row="desayuno:0"] details[open] p');
+   await visibleConditions.filter({hasText:'Sin agregados; revisar preparación.'})
+    .filter({hasText:'La suma del día debe respetar los hidratos acordados.'}).waitFor({state:'visible'});
+   await mount.getByRole('button',{name:'Conservar borrador editado'}).click();
+   assert.equal(await mount.locator('[data-draft-origin="edited_draft"]').count(),1);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Coach preview must fit viewport');
+   await page.screenshot({path:join(outDir,'coach-adapted-real-shell-'+width+'.png'),fullPage:true});
+   await mount.getByRole('button',{name:'Regenerar y reemplazar este borrador'}).click();
+   assert.equal(await mount.locator('[data-draft-origin="automatic_draft"]').count(),1);
+   await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
+   await mount.getByRole('button',{name:'Cancelar edición'}).click();
+   await mount.getByRole('button',{name:'Cerrar vista de prueba'}).click();assert.equal(await mount.locator('button').count(),0);
+   const publishedAfter=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
+   assert.equal(publishedAfter,publishedBefore,'Private preview must never feed existing publication state');
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org.coach_id='other-coach';await v.render();});
+   assert.equal(await page.locator('[data-act="openCoachAdaptedPreview"]').count(),0);
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org.coach_id='demo-coach';v.state.selectedStudent=null;v.state.tab='coach';await v.render();});
+  }
 
   if(width===390){
    await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="messages";await v.render();await v.inbox.refresh();});

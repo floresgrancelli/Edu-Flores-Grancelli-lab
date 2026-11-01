@@ -43,6 +43,12 @@ export function renderGuideEditor(root,{state,catalog,onAction}){
   add('p',`${meal.label}: ${t.k.toFixed(1)} kcal · P ${t.p.toFixed(1)} g · C ${t.c.toFixed(1)} g · G ${t.f.toFixed(1)} g · Fibra ${t.fi.toFixed(1)} g`);}
  add('p','Las metas y el presupuesto de hidratos se comprueban por día; no hay una asignación obligatoria por comida.');
  if(state.message)add('p',state.message);
+ if(state.mode!=='editing')for(const decision of review.decisions){
+  if(!decision.conditions.length)continue;
+  const details=add('details','');
+  add('summary',(catalog.find(f=>f.id===decision.id)?.name||decision.id)+' · condiciones',details);
+  add('p',decision.conditions.join(' '),details);
+ }
  const button=(text,type)=>{const b=add('button',text);b.type='button';b.onclick=()=>onAction({type});return b;};
  if(state.mode!=='editing')button('Editar borrador','begin');
  else{
@@ -60,7 +66,8 @@ export function renderGuideEditor(root,{state,catalog,onAction}){
    // New unit is explicit from the new source; no hidden g↔ml conversion.
    select.onchange=()=>{const f=catalog.find(x=>x.id===select.value);send(f.id,item.qty,f.unit);};
    const decision=review.decisions.find(d=>d.slot===meal.slot&&d.index===index);
-   if(decision){const msg=add('p',decision.reason,row);msg.dataset.compatibility=decision.color;}
+   if(decision){const msg=add('p',decision.reason,row);msg.dataset.compatibility=decision.color;
+    if(decision.conditions.length){const details=add('details','',row);add('summary','Condiciones',details);add('p',decision.conditions.join(' '),details);}}
   }
   button('Conservar borrador editado','save');button('Cancelar edición','cancel');
  }

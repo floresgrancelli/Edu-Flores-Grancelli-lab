@@ -1,3 +1,4 @@
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
@@ -2462,13 +2463,25 @@ function activeCoachGuideGoal(){
   ? (state.pendingGoal||state.pendingGoalRevision?.proposal||null)
   : (state.coachGoals[0]||null);
 }
+function adaptedCoachScope(){
+ const student=state.roster.find(p=>p.user_id===state.selectedStudent);
+ return {userId:state.session?.user?.id,profileId:state.profile?.user_id,role:state.profile?.role,
+  active:state.profile?.active,organizationId:state.org?.id,ownerId:state.org?.coach_id,
+  studentId:student?.user_id,studentActive:student?.active,studentOrganizationId:student?.organization_id,
+  consent:state.consent?.accepted,consentStudentId:state.consent?.student_id,
+  consentOrganizationId:state.consent?.organization_id};
+}
+const coachAdaptedWorkspace=createCoachAdaptedWorkspace({
+ enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
+});
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const goal=activeCoachGuideGoal();
  const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
  const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
- return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
+ const adaptedEntry=coachAdaptedWorkspace.available()?'<section class="card"><button class="btn small light" type="button" data-act="openCoachAdaptedPreview">Revisar guía adaptada · prueba privada</button><div id="coachAdaptedDraftMount"></div></section>':"";
+ return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+adaptedEntry+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
  (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus cinco comidas privadas.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
@@ -2674,6 +2687,7 @@ function restoreViewContinuity(snapshot){
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
 async function render(){
+ coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
  // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
  // response. Both flags default OFF. Never use a minor asset build as a trigger.
@@ -3833,6 +3847,12 @@ if(el.dataset.foodbulk){
  if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim(),two=document.getElementById("platformAlias2").value.trim(),three=document.getElementById("platformAlias3").value.trim();let r=await sb.rpc("efg_set_platform_aliases",{p_primary:alias,p_secondary:two||null,p_tertiary:three||null});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias oficiales de EFG actualizados.");return;}
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
+ if(action==="openCoachAdaptedPreview"){
+  if(!coachAdaptedWorkspace.available())throw Error("La vista adaptada no está habilitada para este contexto.");
+  const mount=document.getElementById("coachAdaptedDraftMount");
+  if(!mount)throw Error("Volvé al panel de guía del coach.");
+  await coachAdaptedWorkspace.open(mount);return;
+ }
  if(action==="makeGuidedDay"){
   const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
   const goal=activeCoachGuideGoal();

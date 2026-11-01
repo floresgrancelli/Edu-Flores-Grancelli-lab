@@ -1,0 +1,179 @@
+// PRIVATE fresh disposable runner ONLY. Four new fictional GoTrue users, never hosted.
+import assert from 'node:assert/strict';
+import {randomBytes,randomUUID} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {localContext,literal as q,yes,denied} from './helpers/coach119-local.mjs';
+import {importNine,compositionEvidenceId} from './persisted-guide-nine-import.mjs';
+import {createPersistedGuideProvider} from '../pilot/persisted-guide-provider.js';
+import {proposeAdaptedGuide} from '../pilot/adapted-guided-day.js';
+import {createGuideEditor,updateGuideEditor} from '../pilot/adapted-guide-editor.js';
+if(process.argv.includes('--provider-regression')){
+ await runProviderRegression();
+}else{
+assert.equal(process.env.EFG_QA_PERSISTED_GUIDE,'1');
+assert.match(process.env.GITHUB_RUN_ID||'',/^\d+$/);
+const {sql,request,rpc,asClient}=localContext();
+assert.equal(sql('select count(*) from auth.users'),'0','Fresh CURRENT setup only');
+assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
+const read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
+sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
+sql(read('../docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'));
+const official=importNine(sql);
+assert.equal(sql("select has_table_privilege('authenticated','efg_private.coach_reviewed_foods','SELECT')"),'f');
+sql(read('./sql/persisted-guide-local-overlay.sql'));
+// Wait for exact RPC in PostgREST; missing function must never count as permission PASS.
+let ready=false;for(let i=0;i<30;i++){
+ const r=await rpc('efg_read_bound_guide',undefined,{p_student:randomUUID()});
+ if(r.data?.code==='42501'){ready=true;break;}await new Promise(r=>setTimeout(r,200));
+}assert.ok(ready,'RPC cache not ready');
+const suffix=randomBytes(5).toString('hex'),password=randomBytes(20).toString('hex')+'!Ab3',users={};
+for(const label of ['coachA','coachB','studentA','studentB']){
+ const r=yes(await request('/auth/v1/signup',{method:'POST',body:{email:`persist-${label}-${suffix}@example.invalid`,password}}),'signup');
+ assert.ok(r.access_token&&r.user.id);assert.equal(yes(await request('/auth/v1/user',{token:r.access_token}),'signed identity').id,r.user.id);
+ users[label]={id:r.user.id,email:r.user.email,token:r.access_token};
+}
+const orgs={A:randomUUID(),B:randomUUID()};
+for(const side of ['A','B']){
+ const coach=users['coach'+side],student=users['student'+side],org=orgs[side];
+ sql(`insert into public.efg_organizations(id,coach_id,name,is_test) values(${q(org)},${q(coach.id)},'PRIVATE guide fixture',true);
+ insert into public.efg_profiles(user_id,email,nickname,role,active,organization_id) values
+ (${q(coach.id)},${q(coach.email)},'Fictional coach','coach',true,null),
+ (${q(student.id)},${q(student.email)},'Fictional student','student',true,${q(org)});
+ insert into public.efg_consents(student_id,organization_id,accepted) values(${q(student.id)},${q(org)},true);`);
+}
+const legal='SYNTHETIC LOCAL CONSENT NOT FOR PEOPLE. '.repeat(8);
+sql(`insert into public.efg_legal_documents(kind,version,body,sha256,is_current,published_at)
+ select kind,'synthetic_persist_v1',${q(legal)},encode(sha256(convert_to(${q(legal)},'UTF8')),'hex'),true,now() from unnest(array['terms','privacy']) kind;`);
+const doc=randomUUID(),digest='b'.repeat(64);
+sql(`insert into efg_private.efg_coach_health_documents(id,version,sha256,content_text,status,published_at)
+ values(${q(doc)},'synthetic_persist_v1',${q(digest)},${q(legal)},'published',now());`);
+for(const user of Object.values(users)){
+ const docs=yes(await rpc('efg_legal_current_status',user.token),'documents');
+ yes(await rpc('efg_accept_current_legal',user.token,{p_terms_id:docs.find(d=>d.kind==='terms').document_id,
+ p_privacy_id:docs.find(d=>d.kind==='privacy').document_id,p_terms_checked:true,p_privacy_checked:true}),'accept');
+}
+const intake={p_completed_version:'coach_major_2026_r1',p_payload:{objective:'maintenance',age_years:40,height_cm:175,weight_kg:80,
+ activity_level:'moderate',dietary_pattern:'omnivore',eating_window:'regular',preferred_foods:'banana',disliked_foods:'apple',notes:''},
+ p_expected_revision:0,p_share_with_coach:true};
+const prep=side=>({p_student:users['student'+side].id,p_goal:official.goal,p_intake_revision:1,p_health_revision:2,
+ p_preferred:['banana'],p_disliked:['apple'],p_food_ids:official.ids,p_expected_draft:null});
+for(const side of ['A','B']){
+ const student=users['student'+side],coach=users['coach'+side];
+ yes(await rpc('efg_accept_pilot_participation',student.token,{p_version:'coach_pilot_2026_demo1',p_participation:true,p_sharing:true}),'pilot receipt');
+ assert.equal(yes(await rpc('efg_submit_coach_relaunch_intake',student.token,intake),'persist general'),1);
+ assert.equal(yes(await rpc('efg_submit_coach_health_intake',student.token,{p_conditions:{},p_document_id:doc,p_document_sha256:digest,
+ p_expected_revision:0,p_processing_consent:true,p_share_with_coach:true}),'empty health not declaration'),1);
+ denied(await rpc('efg_prepare_bound_guide',coach.token,{...prep(side),p_health_revision:1}),'empty health cannot imply none');
+ denied(await rpc('efg_declare_no_restrictions',student.token,{p_document:doc,p_sha256:digest,p_expected_revision:1,p_processing_consent:false,p_share_with_coach:true}),'explicit processing checkbox required');
+ assert.equal(yes(await rpc('efg_declare_no_restrictions',student.token,{p_document:doc,p_sha256:digest,p_expected_revision:1,p_processing_consent:true,p_share_with_coach:true}),'explicit declaration'),2);
+ const declaration=JSON.parse(sql(`select restriction_declaration from efg_private.efg_coach_health_intakes where student_id=${q(student.id)}`));
+ assert.equal(declaration.declared_by,student.id);assert.equal(declaration.source_revision,2);assert.ok(Date.parse(declaration.confirmed_at)<=Date.now());
+ assert.equal(yes(await rpc('efg_prepare_bound_guide',coach.token,prep(side)),'persist goal and source bindings'),1);
+}
+const ownB=yes(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B own persisted context');assert.equal(ownB.organization_id,orgs.B);
+denied(await rpc('efg_read_bound_guide',undefined,{p_student:users.studentA.id}),'anonymous');
+denied(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentA.id}),'foreign organization');
+denied(await rpc('efg_prepare_bound_guide',users.coachA.token,{...prep('A'),p_expected_draft:1,p_intake_revision:99}),'stale intake');
+denied(await rpc('efg_prepare_bound_guide',users.studentA.token,prep('A')),'student cannot confirm coach references');
+const badWrite=await request('/rest/v1/efg_coach_plan_drafts?student_id=eq.'+users.studentA.id,{method:'PATCH',token:users.coachA.token,body:{goal_proposal:{kcal:9999}}});
+denied(badWrite,'direct draft mutation');
+let scope={userId:users.coachA.id,sessionId:JSON.parse(Buffer.from(users.coachA.token.split('.')[1],'base64url')).session_id,studentId:users.studentA.id,organizationId:orgs.A,profileId:users.coachA.id,role:'coach',active:true,ownerId:users.coachA.id,studentActive:true,studentOrganizationId:orgs.A,consent:true,consentStudentId:users.studentA.id,consentOrganizationId:orgs.A,sourceEpoch:1};
+const client=asClient(users.coachA),provider=createPersistedGuideProvider({client,readScope:()=>scope,template:official.template});
+const input=await provider.load();assert.equal(input.row.declaration.declared_by,users.studentA.id);assert.equal(input.row.declaration.source_revision,2);
+assert.equal(input.persisted,true);assert.equal(input.synthetic,undefined);
+assert.equal(input.row.general.revision,input.row.intake_revision);assert.equal(input.row.general.disliked_foods,'apple');
+assert.deepEqual(input.goal,official.goal); // This same persisted goal feeds both UI summary and generator.
+const proposed=proposeAdaptedGuide(input);assert.equal(proposed.ok,true);assert.equal(proposed.plan.meals.length,5);
+assert.ok(proposed.plan.meals.every(m=>m.items.every(x=>x.id!=='apple')));
+const env={catalog:input.catalog,goal:input.goal,context:input.context};
+let edit=createGuideEditor(proposed,env);edit=updateGuideEditor(edit,{type:'begin'},env);
+const item=edit.working.meals[0].items[0];edit=updateGuideEditor(edit,{type:'replace',slot:edit.working.meals[0].slot,index:0,id:item.id,qty:item.qty+1,unit:item.unit},env);
+assert.equal(edit.review.readyForReview,true);edit=updateGuideEditor(edit,{type:'save'},env);
+const saved=await provider.save(edit.committed);assert.equal(saved.row.draft_revision,2);assert.deepEqual(saved.row.guide,edit.committed);
+assert.deepEqual(saved.goal,input.goal);assert.equal(saved.publishable,false);
+const getDraft=token=>request('/rest/v1/efg_coach_plan_drafts?student_id=eq.'+users.studentA.id,{token});
+assert.equal(yes(await getDraft(users.coachA.token),'RLS readback').length,1);
+assert.equal(yes(await getDraft(users.coachB.token),'foreign RLS').length,0);
+denied(await rpc('efg_save_bound_guide',users.coachA.token,{p_student:users.studentA.id,p_expected_draft:1,p_catalog_digest:saved.row.catalog_digest,p_guide:edit.committed}),'stale save');
+const altered=structuredClone(edit.committed);altered.meals[0].items[0].k+=1;
+denied(await rpc('efg_save_bound_guide',users.coachA.token,{p_student:users.studentA.id,p_expected_draft:2,p_catalog_digest:saved.row.catalog_digest,p_guide:altered}),'adulterated composition');
+denied(await request('/rest/v1/coach_reviewed_foods?select=*',{token:users.coachA.token}),'no global catalog SELECT',['42501','PGRST205']);
+denied(await rpc('efg_publish_coach_plan_draft_atomic',users.coachA.token,{p_student:users.studentA.id,p_expected_revision:2,p_request_id:randomUUID()}),'valid bound draft still not publishable');
+const originalProvenance=sql("select automatic_provenance from efg_private.coach_reviewed_foods where food_id='banana'");
+sql("update efg_private.coach_reviewed_foods set automatic_provenance=jsonb_set(automatic_provenance,'{recordId}','\"wrong\"') where food_id='banana'");
+await assert.rejects(()=>provider.load(),/SOURCE_DENIED/);
+sql(`update efg_private.coach_reviewed_foods set automatic_provenance=${q(originalProvenance)}::jsonb where food_id='banana'`);
+// Delay an actual authorized HTTP response; never fabricate authorization data.
+let release,started;const began=new Promise(r=>started=r);
+const delayed={...client,rpc:async(...args)=>{const value=await client.rpc(...args);if(args[0]==='efg_read_bound_guide'){started();await new Promise(r=>release=r);}return value;}};
+const slow=createPersistedGuideProvider({client:delayed,readScope:()=>scope,template:official.template});
+const loading=slow.load();await began;scope={...scope,studentId:users.studentB.id,organizationId:orgs.B};slow.invalidate();release();
+await assert.rejects(loading,/STALE_RESPONSE/);scope={...scope,studentId:users.studentA.id,organizationId:orgs.A};
+assert.equal(yes(await rpc('efg_revoke_coach_health_intake',users.studentA.token,{p_expected_revision:2}),'revoke'),true);
+await assert.rejects(()=>provider.load(),/SOURCE_DENIED/);assert.equal(yes(await getDraft(users.coachA.token),'revoked draft hidden').length,0);
+denied(await rpc('efg_declare_no_restrictions',users.studentA.token,{p_document:doc,p_sha256:digest,p_expected_revision:2,p_processing_consent:true,p_share_with_coach:true}),'revoked replay');
+denied(await rpc('efg_publish_coach_plan_draft_atomic',users.coachA.token,{p_student:users.studentA.id,p_expected_revision:2,p_request_id:randomUUID()}),'publication remains blocked');
+yes(await rpc('efg_accept_pilot_participation',users.studentB.token,{p_version:'coach_pilot_2026_demo1',p_participation:true,p_sharing:false}),'B revokes sharing');
+denied(await rpc('efg_read_bound_guide',users.coachB.token,{p_student:users.studentB.id}),'B sharing revocation');
+assert.equal(sql('select count(*) from public.efg_goals'),'0');
+assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
+console.log('PASS persisted nine-food guide: signed A/B declarations, source-bound persisted goal/preferences, five meals, edit/save/readback, RLS/revocation/stale/tamper negatives; publish OFF. Disposable fixtures only.');
+
+}
+// Unit-only regression: no localContext(), SQL, JWT creation, network, or server.
+async function runProviderRegression(){
+ const schema=readFileSync(new URL('../migrations/20261030_coach_reviewed_guide_nutrition_source.sql',import.meta.url),'utf8');
+ const check=schema.match(/evidence_id text not null unique check\(evidence_id ~ '([^']+)'\)/);
+ assert.ok(check,'Actual evidence_id CHECK must be located');
+ const databasePattern=new RegExp(check[1]);
+ const raw='sha256:'+ 'a'.repeat(64),evidence=compositionEvidenceId(raw);
+ assert.match(evidence,databasePattern);
+ assert.equal(evidence,'sha256_'+ 'a'.repeat(64));
+ assert.equal(raw,'sha256:'+ 'a'.repeat(64),'Original provenance.rawDigest stays exact');
+ assert.doesNotMatch(raw,databasePattern,'Regression must reproduce original CHECK failure');
+ for(const bad of ['sha256:short','sha256:'+ 'G'.repeat(64),'sha256_'+ 'a'.repeat(64)])
+  assert.throws(()=>compositionEvidenceId(bad));
+ for(const change of ['student','session','invalidate','unchanged']){
+  let scope={userId:'coach-a',profileId:'coach-a',sessionId:'session-a',studentId:'student-a',organizationId:'org-a',
+   role:'coach',active:true,ownerId:'coach-a',studentActive:true,studentOrganizationId:'org-a',
+   consent:true,consentStudentId:'student-a',consentOrganizationId:'org-a',sourceEpoch:1};
+  let authCalls=0,writes=0,releaseAuth,authStarted,rpcCalls=0,revision=1;
+  const started=new Promise(resolve=>{authStarted=resolve;});
+  const row=()=>({viewer_id:'coach-a',session_id:'session-a',student_id:'student-a',organization_id:'org-a',
+   intake_revision:1,health_revision:1,draft_revision:revision,catalog_digest:'unit-only-digest',
+   restriction_declaration:'none_declared',publishable:false,evaluated_at:'2026-11-01T00:00:00Z',
+   foods:[],goal:{kcal:2100},preferred_ids:[],disliked_ids:[]});
+  const client={auth:{getUser:async()=>{
+   authCalls++;
+   // load=1; save's revalidation load=2; actual write's Auth=3.
+   if(authCalls===3){authStarted();await new Promise(resolve=>{releaseAuth=resolve;});}
+   return {data:{user:{id:'coach-a'}},error:null};
+  }},rpc:async(name,args)=>{
+   rpcCalls++;
+   if(name==='efg_get_coach_health_intake')return {data:{viewer_id:'coach-a',student_id:'student-a',organization_id:'org-a',
+    processing_consent:true,followup_consent:true,shared_with_coach:true,revision:1},error:null};
+   if(name==='efg_read_bound_guide')return {data:row(),error:null};
+   assert.equal(name,'efg_save_bound_guide');writes++;assert.equal(args.p_student,'student-a');
+   return {data:++revision,error:null};
+  }};
+  const provider=createPersistedGuideProvider({client,readScope:()=>scope,template:[]});
+  await provider.load();
+  const saving=provider.save({kind:'UNIT_ONLY_NOT_A_REAL_PLAN'});
+  let timeout;
+  try{await Promise.race([started,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('Write Auth wait not reached')),2000);})]);}
+  finally{clearTimeout(timeout);}
+  const callsBeforeRelease=rpcCalls;
+  if(change==='student')scope={...scope,studentId:'student-b',consentStudentId:'student-b'};
+  if(change==='session')scope={...scope,sessionId:'session-b'};
+  if(change==='invalidate')provider.invalidate();
+  releaseAuth();
+  if(change==='unchanged'){
+   assert.equal((await saving).row.draft_revision,2);assert.equal(writes,1,'Stable Auth must not disable saving');
+  }else{
+   await assert.rejects(saving,/STALE_CONTEXT/);
+   assert.equal(writes,0,'Stale Auth must prevent write initiation, not just discard its response');
+   assert.equal(rpcCalls,callsBeforeRelease,'No RPC may begin after the stale Auth await');
+  }
+ }
+ console.log('PASS private unit regressions: evidence_id CHECK and raw digest preservation; student/session/generation change during Auth blocks RPC initiation; unchanged scope writes once. No SQL or hosted claim.');
+}

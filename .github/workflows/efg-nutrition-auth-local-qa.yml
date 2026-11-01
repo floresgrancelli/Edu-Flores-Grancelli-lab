@@ -5,6 +5,9 @@ on:
     branches: [work/ncc-pr37-41-qa-snapshot-20261101]
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
+      - 'efg-nutrition/tests/persisted-guide-*.mjs'
+      - 'efg-nutrition/tests/sql/persisted-guide-local-overlay.sql'
+      - 'efg-nutrition/pilot/persisted-guide-provider.js'
       - 'efg-nutrition/tests/automatic-composition-local.mjs'
       - 'efg-nutrition/tests/sql/automatic-composition-local-overlay.sql'
       - 'efg-nutrition/tests/evidence/fdc-official-20261101.zip'
@@ -14,6 +17,9 @@ on:
     branches: [efg-nutrition-app, efg-major-integration-20261029]
     paths:
       - '.github/workflows/efg-nutrition-auth-local-qa.yml'
+      - 'efg-nutrition/tests/persisted-guide-*.mjs'
+      - 'efg-nutrition/tests/sql/persisted-guide-local-overlay.sql'
+      - 'efg-nutrition/pilot/persisted-guide-provider.js'
       - '.github/workflows/efg-nutrition-premium-qa.yml'
       - 'efg-nutrition/tests/coach-auth-local-e2e.mjs'
       - 'efg-nutrition/tests/coach119-signed-local-*.mjs'
@@ -65,7 +71,7 @@ permissions:
 
 jobs:
   local-auth-rls:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[provider-contract]') || contains(github.event.head_commit.message, '[auto-composition]')
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[provider-contract]') || contains(github.event.head_commit.message, '[auto-composition]') || contains(github.event.head_commit.message, '[persisted-guide]')
     env:
       EFG_QA_AUTO_COMPOSITION: ${{ ((github.event_name == 'workflow_dispatch' && inputs.auto_composition) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[auto-composition]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
       EFG_QA_PROVIDER_CONTRACT: ${{ ((github.event_name == 'workflow_dispatch' && inputs.provider_contract) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[provider-contract]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
@@ -363,10 +369,38 @@ jobs:
           path: ${{ runner.temp }}/v10-composition-result.txt
           retention-days: 7
           if-no-files-found: warn
+      - name: Fresh disposable stack for persisted guide contract
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]')
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          cd "$RUNNER_TEMP/efg-nutrition-coach119-local"
+          supabase stop --no-backup
+          mkdir -p "$RUNNER_TEMP/efg-nutrition-persisted-guide-local"
+          cd "$RUNNER_TEMP/efg-nutrition-persisted-guide-local"
+          supabase init --yes
+          if ! supabase start > "$RUNNER_TEMP/persisted-start-private.log" 2>&1; then
+            echo "Disposable start failed; private log not uploaded"; exit 1
+          fi
+          supabase status -o env > /tmp/efg-nutrition-persisted-guide-local-status.env
+      - name: Persisted source-bound guide signed A/B test
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[persisted-guide]')
+        env:
+          EFG_LOCAL_STATUS_ENV: /tmp/efg-nutrition-persisted-guide-local-status.env
+          EFG_QA_PERSISTED_GUIDE: '1'
+        run: |
+          set -euo pipefail
+          node efg-nutrition/tests/coach119-signed-local-setup.mjs
+          node --check efg-nutrition/tests/persisted-guide-local-e2e.mjs
+          node --check efg-nutrition/tests/persisted-guide-nine-import.mjs
+          node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --provider-regression
+          node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs
       - name: Stop disposable environment (no backup or remote action)
         if: always()
         run: |
-          for local_stack in "$RUNNER_TEMP/efg-nutrition-auth-local" "$RUNNER_TEMP/efg-nutrition-coach119-local"; do
+          for local_stack in "$RUNNER_TEMP/efg-nutrition-auth-local" "$RUNNER_TEMP/efg-nutrition-coach119-local" "$RUNNER_TEMP/efg-nutrition-persisted-guide-local"; do
             if command -v supabase >/dev/null 2>&1 && [ -d "$local_stack/supabase" ]; then
               (cd "$local_stack" && supabase stop --no-backup) || true
             fi
@@ -376,3 +410,4 @@ jobs:
         run: |
           echo "LOCAL GoTrue JWT checks (if completed) do NOT certify hosted Supabase, exact production schema, approved legal text, clinical food evidence, OTP email delivery, production RLS or iOS/Android."
           echo "No production SQL, no new hosted project, no preview branch, no project linking and no deployment. RELEASE NO GO."
+

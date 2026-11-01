@@ -130,8 +130,11 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
   const d=new Date(from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);
  });
  if(all[6]!==to)throw Error('La ventana debe abarcar siete días');
- const recorded=(days||[]).filter(d=>date(d?.date)&&d.date>=from&&d.date<=to&&d.hasData&&safeEnergy(d));
- if(new Set(recorded.map(d=>d.date)).size!==recorded.length)throw Error('Hay registros diarios duplicados; revisá la semana antes de publicar.');
+ // Identify duplicates BEFORE filtering incomplete values: an incomplete
+ // second row must not silently conceal a conflicting diary record.
+ const candidates=(days||[]).filter(d=>date(d?.date)&&d.date>=from&&d.date<=to&&d.hasData===true);
+ if(new Set(candidates.map(d=>d.date)).size!==candidates.length)throw Error('Hay registros diarios duplicados; revisá la semana antes de publicar.');
+ const recorded=candidates.filter(safeEnergy);
  const byDate=new Map(recorded.map(d=>[d.date,d]));
  const cleanDays=all.map(key=>{
   const d=byDate.get(key);
@@ -157,8 +160,32 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  model.flexibleNote='Comer también es compartir, elegir y disfrutar. Si te gusta un helado o una comida especial, podés conversar con tu coach cómo incluirlos en tu semana teniendo en cuenta tus preferencias y necesidades. No hace falta ganárselos ni compensarlos.';
  return model;
 }
+// A historical report is untrusted stored text. Validate all fields used by
+// the renderer so one damaged JSON row cannot crash alumno/coach history.
+const validMetric=x=>x===null||(typeof x==='number'&&Number.isFinite(x)&&x>=0);
+function validReportShape(m){
+ if(!m||typeof m!=='object'||m.kind!==LUXURY_WEEKLY_KIND||
+   !date(m.from)||!date(m.to)||!date(m.friday)||
+   typeof m.studentName!=='string'||typeof m.coachName!=='string'||
+   !Number.isSafeInteger(m.daysRecorded)||m.daysRecorded<0||m.daysRecorded>7||
+   !Array.isArray(m.days)||m.days.length!==7||!m.averages||!m.targets||
+   !['k','p','c','f'].every(k=>validMetric(m.averages[k])&&validMetric(m.targets[k]))||
+   !Array.isArray(m.focus)||m.focus.length>3||m.focus.some(x=>typeof x!=='string')||
+   !Array.isArray(m.topFoods)||m.topFoods.length>5||
+   m.topFoods.some(x=>!x||typeof x.name!=='string'||!Number.isInteger(x.days)||x.days<1||x.days>7)||
+   typeof m.conclusion!=='string'||!m.conclusion.trim()||m.conclusion.length>2200||
+   typeof m.flexibleNote!=='string'||m.flexibleNote.length>750)return false;
+ const expected=Array.from({length:7},(_,i)=>{
+  const d=new Date(m.from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);
+ });
+ if(expected[6]!==m.to)return false;
+ return m.days.every((d,i)=>d&&typeof d==='object'&&d.date===expected[i]&&
+  typeof d.hasData==='boolean'&&typeof d.closed==='boolean'&&
+  ['k','p','c','f'].every(k=>d.hasData?
+   (typeof d[k]==='number'&&Number.isFinite(d[k])&&d[k]>=0):d[k]===null));
+}
 export function reportAsStoredText(model,editedConclusion,editedFlexibleNote){
- if(model?.kind!==LUXURY_WEEKLY_KIND)throw Error('Informe de formato desconocido');
+ if(!validReportShape(model))throw Error('Informe semanal con datos inválidos; volvé a generar la vista previa.');
  const conclusion=clean(editedConclusion,2200),flexibleNote=clean(editedFlexibleNote,750);
  if(!conclusion)throw Error('El coach debe revisar la conclusión antes de publicar.');
  const payload={...model,conclusion,flexibleNote,approvedByCoach:true};
@@ -170,14 +197,12 @@ export function parseLuxuryWeeklyReport(value){
  if(typeof value!=='string'||value.length>8000||!value.startsWith('{"kind":"'+LUXURY_WEEKLY_KIND+'"'))return null;
  try{
   const m=JSON.parse(value);
-  if(m.kind!==LUXURY_WEEKLY_KIND||m.approvedByCoach!==true||!date(m.from)||!date(m.to)||
-    !Array.isArray(m.days)||m.days.length!==7||!Array.isArray(m.focus)||m.focus.length>3||
-    !Array.isArray(m.topFoods)||m.topFoods.length>5||typeof m.conclusion!=='string')return null;
+  if(m.approvedByCoach!==true||!validReportShape(m))return null;
   return m;
  }catch{return null;}
 }
 export function renderLuxuryWeeklyReport(model,{demo=false}={}){
- if(!model||model.kind!==LUXURY_WEEKLY_KIND)return '';
+ if(!validReportShape(model))return '';
  const average=(key,unit)=>fmt(model.averages?.[key],key==='k'?0:1)+' '+unit;
  const bar=(key,label,color,unit)=>{const a=model.averages?.[key],t=model.targets?.[key];
   const usable=Number.isFinite(a)&&Number.isFinite(t)&&t>0;

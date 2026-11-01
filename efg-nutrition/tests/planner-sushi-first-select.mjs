@@ -412,8 +412,8 @@ console.log("PASS: sushi pieces -> gram equivalents for macro engine and first s
 const dayBegin=source.indexOf('const blankDiary=()=>');
 const dayEnd=source.indexOf('async function ensureCurrentDay(){',dayBegin);
 const saveBegin=source.indexOf('async function saveDiary(){');
-const saveEnd=source.indexOf('async function loadPersonalData(){',saveBegin);
-assert.ok(dayBegin>0&&dayEnd>dayBegin&&saveBegin>0&&saveEnd>saveBegin);
+const dailySaveEnd=source.indexOf('async function loadPersonalData(){',saveBegin);
+assert.ok(dayBegin>0&&dayEnd>dayBegin&&saveBegin>0&&dailySaveEnd>saveBegin);
 const dayState={session:{user:{id:'test-student-a'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
 let day='2026-10-31',denyOnce=true;
 const dayWrites=[];
@@ -434,7 +434,7 @@ const calcTotals=d=>({
  p:0,c:0,f:0,fi:0
 });
 const dailyRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
- source.slice(dayBegin,dayEnd)+source.slice(saveBegin,saveEnd)+';return {activeDiary,saveDiary};')(
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,dailySaveEnd)+';return {activeDiary,saveDiary};')(
  dayState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
  dbStub,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
 const firstDay=dailyRuntime.activeDiary();
@@ -493,7 +493,7 @@ const raceSB={
  }
 };
 const racingRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
- source.slice(dayBegin,dayEnd)+source.slice(saveBegin,saveEnd)+';return {activeDiary,saveDiary};')(
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,dailySaveEnd)+';return {activeDiary,saveDiary};')(
  racingState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
  raceSB,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
 const firstDraft=racingRuntime.activeDiary();
@@ -543,7 +543,7 @@ const loadEnd=source.indexOf('async function loadOrgAndPayments(){',loadStart);
 assert.ok(loadStart>0&&loadEnd>loadStart,'Find actual personal-data loader');
 const pendingPersonalQueries=[];
 let personalDay='2026-11-01';
-const personalState={session:{user:{id:'student-A'}},diary:null,pendingDiaryDraft:null,
+const personalLoadState={session:{user:{id:'student-A'}},diary:null,pendingDiaryDraft:null,
  progressLogs:[],renderedDay:null};
 const personalSB={from(table){
  let uid=null,logDay=null;
@@ -556,7 +556,7 @@ const personalSB={from(table){
  };
 }};
 const personalAPI=new Function('state','sb','today',source.slice(loadStart,loadEnd)+';return loadPersonalData;')(
- personalState,personalSB,()=>personalDay);
+ personalLoadState,personalSB,()=>personalDay);
 async function waitPersonalQueries(count){
  for(let i=0;i<30&&pendingPersonalQueries.length<count;i++)await Promise.resolve();
  assert.equal(pendingPersonalQueries.length,count,'All seven parallel SELECTs must be pending');
@@ -575,39 +575,39 @@ function releasePersonalBatch(start,uid,tag,requestedDate){
  }
 }
 const loadingA=personalAPI();await waitPersonalQueries(7);
-personalState.session={user:{id:'student-B'}};
+personalLoadState.session={user:{id:'student-B'}};
 const loadingB=personalAPI();await waitPersonalQueries(14);
 releasePersonalBatch(7,'student-B','B-new','2026-11-01');await loadingB;
-assert.equal(personalState.diary.tag,'B-new');
+assert.equal(personalLoadState.diary.tag,'B-new');
 releasePersonalBatch(0,'student-A','A-stale','2026-11-01');await loadingA;
-assert.equal(personalState.diary.tag,'B-new','Delayed A data must not overwrite B session');
-assert.equal(personalState.foodPlan.tag,'B-new','No stale coach food plan crosses accounts');
+assert.equal(personalLoadState.diary.tag,'B-new','Delayed A data must not overwrite B session');
+assert.equal(personalLoadState.foodPlan.tag,'B-new','No stale coach food plan crosses accounts');
 
 const firstRefresh=personalAPI();await waitPersonalQueries(21);
 const latestRefresh=personalAPI();await waitPersonalQueries(28);
 releasePersonalBatch(21,'student-B','newer','2026-11-01');await latestRefresh;
 releasePersonalBatch(14,'student-B','older','2026-11-01');await firstRefresh;
-assert.equal(personalState.diary.tag,'newer','Out-of-order same-user reload cannot undo latest');
+assert.equal(personalLoadState.diary.tag,'newer','Out-of-order same-user reload cannot undo latest');
 
 const lateOldDay=personalAPI();await waitPersonalQueries(35);
 personalDay='2026-11-02';
 releasePersonalBatch(28,'student-B','yesterday','2026-11-01');await lateOldDay;
-assert.equal(personalState.renderedDay,'2026-11-01');
-assert.equal(personalState.diary.tag,'newer','A midnight-spanning reload cannot show yesterday');
+assert.equal(personalLoadState.renderedDay,'2026-11-01');
+assert.equal(personalLoadState.diary.tag,'newer','A midnight-spanning reload cannot show yesterday');
 
 const loadingDuringWrite=personalAPI();await waitPersonalQueries(42);
-personalState.diaryWritePending=true;personalState.diaryWriteOwner='student-B';
-personalState.diaryWriteRevision=1;
+personalLoadState.diaryWritePending=true;personalLoadState.diaryWriteOwner='student-B';
+personalLoadState.diaryWriteRevision=1;
 releasePersonalBatch(35,'student-B','pre-write-snapshot','2026-11-02');
 await loadingDuringWrite;
-assert.equal(personalState.diary.tag,'newer','A diary write must win over a stale SELECT snapshot');
-personalState.diaryWritePending=false;personalState.diaryWriteOwner=null;
+assert.equal(personalLoadState.diary.tag,'newer','A diary write must win over a stale SELECT snapshot');
+personalLoadState.diaryWritePending=false;personalLoadState.diaryWriteOwner=null;
 
 const loadingAfterWrite=personalAPI();await waitPersonalQueries(49);
 releasePersonalBatch(42,'student-B','confirmed','2026-11-02');
 await loadingAfterWrite;
-assert.equal(personalState.diary.tag,'confirmed','Fresh load can resume after write');
-assert.equal(personalState.renderedDay,'2026-11-02');
+assert.equal(personalLoadState.diary.tag,'confirmed','Fresh load can resume after write');
+assert.equal(personalLoadState.renderedDay,'2026-11-02');
 console.log('PASS UX-04-04 personal data: account/day/refresh/write generations isolated in real loader.');
 
 

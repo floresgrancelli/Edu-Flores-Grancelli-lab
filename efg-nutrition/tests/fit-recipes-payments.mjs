@@ -126,3 +126,72 @@ assert.deepEqual(JSON.parse(recipeStore.get(recipeKey)).map(x=>x.name),['Receta 
  'Invalid legacy data is preserved for explicit recovery rather than silently deleted');
 console.log('PASS UX-08-08 personal recipes: partial import never discards remaining local backup (offline).');
 
+// UX-08-08: a previous account's delayed SELECT or legacy import cannot
+// replace the next account's recipes or delete recoverable local backups.
+const recipeA='recipe-user-A',recipeB='recipe-user-B';
+const oldRecipeKey='efg-nutrition-custom-recipes:'+recipeA;
+const oldRecipeBackup=[{name:'Receta local A',ingredients:[{foodId:'egg',grams:80}],portions:1,totals:{k:100}}];
+const switchRecipesState={profile:{role:'student'},session:{user:{id:recipeA}}};
+const switchRecipesStore=new Map([[oldRecipeKey,JSON.stringify(oldRecipeBackup)]]);
+const switchRecipeLocal={
+ getItem:k=>switchRecipesStore.get(k)||null,
+ setItem:(k,v)=>switchRecipesStore.set(k,v),
+ removeItem:k=>switchRecipesStore.delete(k)
+};
+let resolveOldRecipeRead;
+const switchRecipeSB={from(table){
+ assert.equal(table,'efg_personal_recipes');
+ let owner='';
+ return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;return this;},
+  order(){
+   if(owner===recipeA)return new Promise(resolve=>{resolveOldRecipeRead=resolve});
+   return Promise.resolve({data:[{id:'B-1',name:'Receta propia B'}],error:null});
+  },
+  insert(){throw new Error('Stale recipe import attempted to write');}};
+}};
+const recipeCode=app.slice(recipeBegin,recipeEnd);
+const createRecipeHarness=(adapter,owner,storage)=>new Function('sb','state','localStorage','recipeStoreKey',
+ 'let cloudRecipes=[];'+recipeCode+
+ ';return {loadCloudRecipes,visible:()=>state.cloudRecipesUserId===state.session?.user?.id?cloudRecipes:[]};')(
+ adapter,owner,storage,()=> 'efg-nutrition-custom-recipes:'+owner.session?.user?.id);
+const switchRecipes=createRecipeHarness(switchRecipeSB,switchRecipesState,switchRecipeLocal);
+const firstRecipeFetch=switchRecipes.loadCloudRecipes();
+switchRecipesState.session={user:{id:recipeB}};
+await switchRecipes.loadCloudRecipes();
+resolveOldRecipeRead({data:[{id:'A-1',name:'Receta propia A'}],error:null});
+await firstRecipeFetch;
+assert.deepEqual(switchRecipes.visible().map(x=>x.name),['Receta propia B']);
+switchRecipesState.session={user:{id:recipeA}};
+assert.deepEqual(switchRecipes.visible(),[],'Do not expose B recipes before A reads its own data');
+assert.deepEqual(JSON.parse(switchRecipesStore.get(oldRecipeKey)),oldRecipeBackup,
+ 'Old A backup must survive stale read');
+
+const insertRecipesState={profile:{role:'student'},session:{user:{id:recipeA}}};
+const insertRecipesStore=new Map([[oldRecipeKey,JSON.stringify(oldRecipeBackup)]]);
+let resolveOldRecipeInsert;
+const insertRecipesSB={from(table){
+ assert.equal(table,'efg_personal_recipes');
+ let owner='',pending;
+ return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;return this;},
+  order(){return Promise.resolve({data:owner===recipeB?
+   [{id:'B-2',name:'Otra receta B'}]:[],error:null});},
+  insert(value){pending=value;return this;},
+  single(){assert.equal(pending.student_id,recipeA);
+   return new Promise(resolve=>{resolveOldRecipeInsert=()=>resolve({data:{...pending,id:'import-A'},error:null});});}};
+}};
+const insertRecipes=createRecipeHarness(insertRecipesSB,insertRecipesState,{
+ getItem:k=>insertRecipesStore.get(k)||null,
+ setItem:(k,v)=>insertRecipesStore.set(k,v),
+ removeItem:k=>insertRecipesStore.delete(k)
+});
+const oldRecipeImport=insertRecipes.loadCloudRecipes();
+await Promise.resolve();
+assert.equal(typeof resolveOldRecipeInsert,'function');
+insertRecipesState.session={user:{id:recipeB}};
+await insertRecipes.loadCloudRecipes();
+resolveOldRecipeInsert();
+await oldRecipeImport;
+assert.deepEqual(insertRecipes.visible().map(x=>x.name),['Otra receta B']);
+assert.ok(insertRecipesStore.has(oldRecipeKey),
+ 'An import committed before logout must not delete old-user backup after logout');
+console.log('PASS UX-08-08: stale A/B recipe queries, import callbacks and local backups are isolated.');

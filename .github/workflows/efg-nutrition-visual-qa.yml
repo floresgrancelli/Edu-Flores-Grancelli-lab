@@ -12,6 +12,11 @@ on:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
   workflow_dispatch:
+    inputs:
+      guide_delta:
+        description: 'Run reviewed private synthetic guide delta'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,6 +34,23 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Private adapted guide functional and visual delta
+        if: github.event_name == 'workflow_dispatch' && inputs.guide_delta
+        env:
+          EFG_PRIVATE_GUIDE_QA: '1'
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-editor-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-visual-private.mjs
+      - name: Preserve synthetic adapted guide PNGs
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.guide_delta
+        uses: actions/upload-artifact@v4
+        with:
+          name: adapted-guide-private
+          path: artifacts/adapted-guide-private/
+          if-no-files-found: error
+          retention-days: 7
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
@@ -100,3 +122,4 @@ jobs:
           retention-days: 14
       - name: Confirm release remains manual
         run: echo "This test does not publish to Render, Supabase or main."
+

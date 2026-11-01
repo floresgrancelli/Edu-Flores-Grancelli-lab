@@ -389,13 +389,13 @@ assert.equal(supWrites,2);
 
 // Concurrent comment submissions must not overwrite one another while a
 // previous REST response is pending, and must release the lock afterwards.
-const delayedCommentState={profile:{role:'student'},diary:{skipped:{_comment:'original'}}};
+const delayedCommentState={profile:{role:'student'},session:{user:{id:'pending-comment-user'}},diary:{student_id:'pending-comment-user',log_day:'2026-10-31',skipped:{_comment:'original'}}};
 let finishComment,commentPendingWrites=0;
 const pendingCommentPromise=new Promise(resolve=>{finishComment=resolve});
-const delayedComment=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+const delayedComment=new Function('state','readDayComment','activeDiary','saveDiary','notify','today',
  source.slice(commentStart,commentEnd)+';return saveDayComment;')(
  delayedCommentState,()=> 'Nuevo texto',()=>delayedCommentState.diary,
- async()=>{commentPendingWrites++;await pendingCommentPromise;},()=>{});
+ async()=>{commentPendingWrites++;await pendingCommentPromise;},()=>{},()=> '2026-10-31');
 const firstComment=delayedComment();
 await delayedComment();
 assert.equal(commentPendingWrites,1,'Repeated comment tap must not send a second REST write');

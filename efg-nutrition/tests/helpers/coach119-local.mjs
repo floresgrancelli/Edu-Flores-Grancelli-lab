@@ -47,6 +47,12 @@ export function localContext() {
   // Minimal Supabase-client interface backed by real HTTP, so the production
   // plan client is exercised too. No database responses are mocked here.
   const asClient = user => ({
+    auth: { async getUser() {
+      // Use the actual local GoTrue endpoint so draft-client session guards
+      // are exercised with a signed JWT rather than a synthetic user stub.
+      const r = await request('/auth/v1/user', {token: user.token});
+      return {data: {user: r.ok ? r.data : null}, error: r.ok ? null : r.data};
+    }},
     async rpc(name, body) {
       const r = await rpc(name, user.token, body);
       return {data: r.ok ? r.data : null, error: r.ok ? null : r.data};

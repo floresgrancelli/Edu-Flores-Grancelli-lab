@@ -192,14 +192,14 @@ assert.match(diaryNotices.at(-1),/registro se guardó/,'UI error gives honest re
 const skipStart=source.indexOf('async function saveSkippedMealChoice(slot,checked,checkbox){');
 const skipEnd=source.indexOf('root.addEventListener("change",e=>{invalidateCoachDraft(e);',skipStart);
 assert.ok(skipStart>=0&&skipEnd>skipStart,'Real skipped-meal persist handler exists');
-const skipDiary={skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
-const skipState={diary:skipDiary},skipLock=new Set();
+const skipDiary={student_id:'skip-user',log_day:'2026-10-31',skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
+const skipState={session:{user:{id:'skip-user'}},diary:skipDiary},skipLock=new Set();
 let skipFail=true,skipWrites=0;
-const skipAction=new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary',
+const skipAction=new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary','today',
  source.slice(skipStart,skipEnd)+';return saveSkippedMealChoice;')(
  [['desayuno','Desayuno']],()=>skipDiary,skipLock,skipState,async()=>{
   skipWrites++;if(skipFail)throw Error('offline');
- });
+ },()=> '2026-10-31');
 const checkbox={checked:true};
 await assert.rejects(skipAction('desayuno',true,checkbox),/offline/);
 assert.equal(skipDiary.skipped.desayuno,false,'Failed omit must restore original diary state');
@@ -320,8 +320,8 @@ assert.match(source,/if\(action==="addSport"\)[\s\S]*?mutateSportDiary/,'Sport a
 const omitStart=source.indexOf('if(el.dataset.mealomit){');
 const omitEnd=source.indexOf('if(action==="closeMeal")',omitStart);
 assert.ok(omitStart>=0&&omitEnd>omitStart,'Guided meal omit handler exists');
-const guidedDiary={meals:{desayuno:[]},skipped:{_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
-const guidedState={activeMeal:'desayuno',diary:guidedDiary};
+const guidedDiary={student_id:'guided-user',log_day:'2026-10-31',meals:{desayuno:[]},skipped:{_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
+const guidedState={session:{user:{id:'guided-user'}},activeMeal:'desayuno',diary:guidedDiary};
 const guidedLock=new Set(),guidedNotices=[];let guidedFail=true,guidedWrites=0,guidedOpened=0;
 const guidedClick=new Function('el','state','isGuidedMealSlot','pendingMealRegistrations',
  'activeDiary','today','saveDiary','openMealDialog','notify',

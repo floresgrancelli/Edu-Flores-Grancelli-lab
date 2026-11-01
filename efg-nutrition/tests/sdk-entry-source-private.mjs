@@ -75,7 +75,8 @@ window.__SDK_ENTRY_QA__=Object.freeze({
 });\n`;
 }
 export function localSdkEntryFlag(path,source){
- const flags={'/efg-nutrition/pilot/coach-student-journey.js':'COACH_STUDENT_JOURNEY_ENABLED',
+ const flags={'/efg-nutrition/pilot/legal-onboarding.js':'LEGAL_ONBOARDING_ENABLED',
+  '/efg-nutrition/pilot/coach-student-journey.js':'COACH_STUDENT_JOURNEY_ENABLED',
   '/efg-nutrition/pilot/coach-legal-bridge.js':'COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED',
   '/efg-nutrition/pilot/coach-plan-draft-client.js':'COACH_ATOMIC_PLAN_UI_ENABLED',
   '/efg-nutrition/pilot/coach-release-plan-gate.js':'COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED',

@@ -22,6 +22,7 @@ console.log('PASS local source transform contract. No browser or SDK/network exe
 const {readFileSync}=await import('node:fs');
 const actual=name=>readFileSync(new URL('../pilot/'+name,import.meta.url),'utf8');
 const flags={
+ 'legal-onboarding.js':'LEGAL_ONBOARDING_ENABLED',
  'coach-student-journey.js':'COACH_STUDENT_JOURNEY_ENABLED',
  'coach-legal-bridge.js':'COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED',
  'coach-plan-draft-client.js':'COACH_ATOMIC_PLAN_UI_ENABLED',
@@ -50,4 +51,4 @@ for(const declarationPanel of [false,true]){
  assert.ok(!result.includes('const coachPersistedGuideSource=null;'));
  assert.ok(!result.includes('const coachBoundPublication=null;'));
 }
-console.log('PASS actual checkout markers: pilot source, five literal flags, derived versioned mode preserved. No browser/SQL execution.');
+console.log('PASS actual checkout markers: pilot source, six literal flags, derived versioned mode preserved. No browser/SQL execution.');

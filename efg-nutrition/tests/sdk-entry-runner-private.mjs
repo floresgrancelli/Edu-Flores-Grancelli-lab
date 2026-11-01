@@ -88,6 +88,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   return sid;
  }
  async function coachDetail(page,student){
+  phase='coach-roster';
   await page.locator('[data-tab="coachStudents"]:visible').first().click();await page.locator('[data-student="'+student.id+'"]').first().click();
   await page.locator('#coachStudentGoals > summary').click();
  }

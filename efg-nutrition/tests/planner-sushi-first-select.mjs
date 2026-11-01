@@ -464,19 +464,30 @@ console.log('PASS UX-04-04 first-food: stable empty-day draft, one REST entry, r
 // lunch and sports writes must not race each other and lose the faster write.
 const racingState={session:{user:{id:'student-race'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
 const raceWrites=[];let releaseFirstRace=null;
-const raceSB={from(table){
- assert.equal(table,'efg_daily_logs');
- return {upsert(payload,options){
-  assert.equal(options.onConflict,'student_id,log_day');
-  const captured=structuredClone(payload);raceWrites.push(captured);
-  return {select(){return {single(){
-   if(raceWrites.length===1)return new Promise(resolve=>{
-    releaseFirstRace=()=>resolve({data:{...captured,id:'day-race'}});
-   });
-   return Promise.resolve({data:{...captured,id:'day-race'}});
-  }}};
- }};
-}};
+const raceSB={
+ from(table){
+  assert.equal(table,'efg_daily_logs');
+  return {
+   upsert(payload,options){
+    assert.equal(options.onConflict,'student_id,log_day');
+    const captured=structuredClone(payload);
+    raceWrites.push(captured);
+    return {
+     select(){
+      return {
+       single(){
+        if(raceWrites.length===1)return new Promise(resolve=>{
+         releaseFirstRace=()=>resolve({data:{...captured,id:'day-race'}});
+        });
+        return Promise.resolve({data:{...captured,id:'day-race'}});
+       }
+      };
+     }
+    };
+   }
+  };
+ }
+};
 const racingRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
  source.slice(dayBegin,dayEnd)+source.slice(saveBegin,saveEnd)+';return {activeDiary,saveDiary};')(
  racingState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},

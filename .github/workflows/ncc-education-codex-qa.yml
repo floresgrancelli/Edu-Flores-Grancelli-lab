@@ -1,0 +1,59 @@
+name: NCC Educational Codex Harness (isolated)
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/qa-educational-codex/**'
+      - '.github/workflows/ncc-education-codex-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-codex-components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout pinned release source (read only)
+        uses: actions/checkout@v4
+        with:
+          ref: 578b3887a39282a41d85a3309ee48cd8e2e3ed45
+          path: source-578
+          persist-credentials: false
+      - name: Checkout isolated QA scripts (no app overwrite)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: qa-scripts
+          persist-credentials: false
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright
+        working-directory: source-578
+        run: npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Install Chromium and WebKit
+        working-directory: source-578
+        run: npx playwright install --with-deps chromium webkit
+      - name: Original Codex delta — Chromium
+        env:
+          EFG_QA_PROJECT_ROOT: ${{ github.workspace }}/source-578/efg-nutrition
+          EFG_QA_OUT: ${{ github.workspace }}/qa-scripts/artifacts/education-delta
+          EFG_QA_ENGINE: chromium
+        run: |
+          node --check qa-scripts/efg-nutrition/qa-educational-codex/education-interaction-delta-qa.mjs
+          node qa-scripts/efg-nutrition/qa-educational-codex/education-interaction-delta-qa.mjs
+      - name: Original Codex delta — WebKit
+        env:
+          EFG_QA_PROJECT_ROOT: ${{ github.workspace }}/source-578/efg-nutrition
+          EFG_QA_OUT: ${{ github.workspace }}/qa-scripts/artifacts/education-delta
+          EFG_QA_ENGINE: webkit
+        run: node qa-scripts/efg-nutrition/qa-educational-codex/education-interaction-delta-qa.mjs
+      - name: Preserve QA screenshots + JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncc-codex-education-pinned-578b388
+          path: qa-scripts/artifacts/education-delta/
+          if-no-files-found: warn
+          retention-days: 14

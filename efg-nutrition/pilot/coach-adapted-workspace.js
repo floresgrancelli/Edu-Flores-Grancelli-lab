@@ -20,7 +20,15 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
   mount.classList.add('card','efg-guide-shell');
   mount.querySelectorAll('button').forEach(b=>b.classList.add('btn','small','light'));
   mount.querySelectorAll('section').forEach(s=>s.classList.add('efg-guide-meal'));
-  mount.querySelectorAll('[data-edit-row]').forEach(s=>s.classList.add('efg-guide-food'));
+  // The legacy food row is a single flex line; editor controls and conditions need wrapping.
+  mount.querySelectorAll('[data-edit-row]').forEach(row=>{
+   row.classList.add('efg-guide-food');
+   Object.assign(row.style,{display:'grid',gridTemplateColumns:'minmax(0, 1fr)',gap:'8px'});
+   row.querySelectorAll('label,select,p,details').forEach(node=>{
+    Object.assign(node.style,{minWidth:'0',maxWidth:'100%',whiteSpace:'normal',overflowWrap:'anywhere'});
+   });
+   row.querySelectorAll('select').forEach(node=>{node.style.width='100%';});
+  });
   const doc=mount.ownerDocument;
   const note=doc.createElement('p');note.className='pilot-notice';note.textContent='Vista de prueba con alimentos ficticios. No guarda ni publica planes.';mount.prepend(note);
   const label=doc.createElement('label');label.textContent='Preferido para la próxima propuesta';

@@ -85,4 +85,44 @@ for(const [kind,code,el] of [
   assert.equal(locks.size,0,kind+' lock must always release');
  }
 }
-console.log('PASS student UX: approved recipe ingredients (Fit/personal), favorite and food remove/clear account isolation (synthetic REST, not hosted/device UAT).');
+
+// The two real "Omitir" entry points must not restore B's diary, checkbox or
+// guided editor when a pending response from account A completes later.
+const checkboxBody=slice('async function saveSkippedMealChoice(slot,checked,checkbox){',
+ 'root.addEventListener("change",e=>{invalidateCoachDraft(e);');
+const guidedBody=slice('if(el.dataset.mealomit){','if(action==="closeMeal")');
+for(const [kind,body] of [['checkbox',checkboxBody],['guided',guidedBody]]){
+ for(const fails of [false,true]){
+  const a={student_id:'A',log_day:day,meals:{desayuno:[]},
+   skipped:{desayuno:false,_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
+  const b=nextDiary(),state={session:{user:{id:'A'}},diary:a,activeMeal:'desayuno'};
+  const priorA=structuredClone(a),priorB=structuredClone(b);
+  const locks=new Set(),hold=deferred(),alerts=[],editors=[];
+  const checkbox={checked:true};
+  const task=kind==='checkbox'?
+   new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary','today',
+    body+';return saveSkippedMealChoice;')(
+    [['desayuno','Desayuno']],()=>a,locks,state,()=>hold.promise,today
+   )('desayuno',true,checkbox):
+   new Function('el','state','isGuidedMealSlot','pendingMealRegistrations',
+    'activeDiary','today','saveDiary','openMealDialog','notify',
+    'return async()=>{'+body+'};')(
+    {dataset:{mealomit:'protein'}},state,slot=>slot==='desayuno',locks,
+    ()=>a,today,()=>hold.promise,(...args)=>editors.push(args),m=>alerts.push(m)
+   )();
+  switchAccount(state,b);state.activeMeal='cena';
+  checkbox.checked=false; // Current B screen is no longer the A draft.
+  if(fails){hold.reject(new Error('offline'));await assert.rejects(task,/offline/);
+   assert.deepEqual(a,priorA,kind+' A rollback must restore only A');
+  }else{hold.resolve();await task;}
+  assert.strictEqual(state.diary,b,kind+' late A response cannot replace B diary');
+  assert.deepEqual(b,priorB,kind+' must not mutate B payload');
+  assert.equal(checkbox.checked,false,kind+' may not toggle B checkbox');
+  assert.equal(state.activeMeal,'cena',kind+' may not take B back to old meal');
+  assert.deepEqual(editors,[],kind+' delayed A response may not open B guided editor');
+  assert.deepEqual(alerts,[],kind+' delayed A response may not notify B');
+  assert.equal(locks.size,0,kind+' must release pending per-meal lock');
+ }
+}
+
+console.log('PASS student UX: approved recipe ingredients (Fit/personal), favorite/food remove/clear and Omitir account isolation (synthetic REST, not hosted/device UAT).');

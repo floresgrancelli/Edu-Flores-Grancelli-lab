@@ -536,12 +536,17 @@ async function runHabitualSlotAction(slot,work){
  finally{pendingHabitualSlots.delete(slot);pendingMealRegistrations.delete(slot);}
 }
 async function loadCloudHabituales(){
- if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}
- const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ const userId=state.session?.user?.id;
+ if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
+ const sameUser=()=>state.session?.user?.id===userId;
+ const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true});
+ if(!sameUser())return; // Ignore late response belonging to a previous account.
  if(error)throw error;
  cloudHabituales=data||[];
+ state.cloudHabitualesUserId=userId;
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
  for(const [slot] of mealSlots){
+  if(!sameUser())return;
   let local=[],validV2Backup=true,validV1Backup=true;
   // Parse the two legacy formats independently. A damaged new list must not
   // prevent recovery of an older valid meal (and vice versa).
@@ -560,7 +565,9 @@ async function loadCloudHabituales(){
   for(const item of local){
    if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
    if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
-   const created=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   if(!sameUser())return;
+   const created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   if(!sameUser())return; // Keep local backup after account switch.
    if(created.error)throw created.error;
    remote.push(created.data);cloudHabituales.push(created.data);
   }
@@ -576,11 +583,12 @@ function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.us
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
  try{
-  const remote=cloudHabituales.filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
+  const remote=(state.cloudHabitualesUserId===state.session?.user?.id?cloudHabituales:[]).filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
   if(remote.length)return remote;
-  const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+  let saved=null,legacy=null;
+  try{saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");}catch(_){}
   if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
-  const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+  try{legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");}catch(_){}
   return Array.isArray(legacy)&&legacy.length?[{name:"Mi habitual anterior",items:legacy}]:[];
  }catch(_){return [];}
 }
@@ -708,29 +716,37 @@ async function habitualAction(slot,action){
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];
-function myRecipes(){return cloudRecipes;}
+function myRecipes(){return state.cloudRecipesUserId===state.session?.user?.id?cloudRecipes:[];}
 async function loadCloudRecipes(){
- if(!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];return;}
- const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ const userId=state.session?.user?.id;
+ if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
+ const sameUser=()=>state.session?.user?.id===userId;
+ const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true});
+ if(!sameUser())return;
  if(error)throw error;
  cloudRecipes=data||[];
+ state.cloudRecipesUserId=userId;
+ const backupKey=recipeStoreKey();
  let saved=[];
- try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
+ try{saved=JSON.parse(localStorage.getItem(backupKey)||"[]");}catch(_){}
  // Remove only recipes confirmed remotely (including existing duplicates).
  // Keep capacity-limited or malformed local backups for recovery; the old code
  // discarded ALL local recipes after importing only the first free slots.
  const pendingLocal=[];
  if(Array.isArray(saved))for(const recipe of saved){
+  if(!sameUser())return;
   if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
   if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
   if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
-  const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  const created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  if(!sameUser())return; // Keep backup if import returned after user switch.
   if(created.error)throw created.error;
   cloudRecipes.push(created.data);
  }
+ if(!sameUser())return;
  if(Array.isArray(saved)&&saved.length){
-  if(pendingLocal.length)localStorage.setItem(recipeStoreKey(),JSON.stringify(pendingLocal));
-  else localStorage.removeItem(recipeStoreKey());
+  if(pendingLocal.length)localStorage.setItem(backupKey,JSON.stringify(pendingLocal));
+  else localStorage.removeItem(backupKey);
  }
 }
 async function createPersonalRecipe(){

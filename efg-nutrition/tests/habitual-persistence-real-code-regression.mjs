@@ -134,12 +134,21 @@ legacyStore.set(dinnerV1Key,JSON.stringify([{id:'egg',name:'Huevos',qty:50}]));
 for(let i=0;i<20;i++)rows.push({id:'seed-dinner-'+i,student_id:userId,meal_slot:'cena',
  name:'Cena antigua '+i,items:[{id:'egg',name:'Huevos',qty:i+1}],created_at:'2026-10-29T00:00:00Z'});
 api.resetMemory();await api.loadCloudHabituales();
-assert.equal(api.getHabitualList('cena').length,20);
+assert.equal(api.getHabitualList('cena').length,22,
+ '20 cloud favorites must not hide TWO unsynced local meals');
+assert.deepEqual(api.getHabitualList('cena').slice(-2).map(x=>x.name),['Cena nueva','Mi habitual anterior']);
+assert.match(api.habitualPickerHTML('cena'),/pendiente de sincronizar/,
+ 'The picker must visibly indicate locally recovered favorites');
+state.habitualSelection.cena='local-20';
+await api.applyChosenHabitual('cena');
+assert.equal(diary.meals.cena[0].id,'oats',
+ 'Even at full cloud quota, a locally backed-up favorite stays usable');
 assert.ok(legacyStore.has(dinnerV2Key)&&legacyStore.has(dinnerV1Key),
  'Full quota must preserve v1 and v2 backup keys');
 rows=rows.filter(x=>x.id!=='seed-dinner-19');
 await api.loadCloudHabituales();
-assert.equal(api.getHabitualList('cena').length,20);
+assert.equal(api.getHabitualList('cena').length,21,
+ '19 old cloud + 1 imported + 1 locally pending remain accessible');
 assert.ok(legacyStore.has(dinnerV1Key),'When only v2 fits, v1 must remain recoverable');
 rows=rows.filter(x=>x.id!=='seed-dinner-18');
 await api.loadCloudHabituales();

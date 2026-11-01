@@ -50,7 +50,9 @@ export function releaseAcknowledgment(manifest,role){
 export function renderWhatsNew(manifest,role,seenVersions=[]){
  if(!releaseVisibleTo(manifest,role))return "";
  const m=valid(manifest);
- if(m.phase!=="live"||seenVersions.includes(m.version))return "";
+ // Unknown/corrupt receipt data is not proof that this announcement is unseen.
+ // Fail closed instead of throwing (or treating a string as a version list).
+ if(m.phase!=="live"||!Array.isArray(seenVersions)||seenVersions.includes(m.version))return "";
  return '<section class="card efg-release-whatsnew" aria-labelledby="efgReleaseWhatsNewTitle">'+launchArtwork+
   '<span class="eyebrow">NUEVA VERSIÓN · '+esc(m.version)+'</span>'+
   '<h2 id="efgReleaseWhatsNewTitle">¡Bienvenido a la nueva versión de Nutrición Con-Ciencia!</h2>'+

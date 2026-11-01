@@ -9,7 +9,7 @@ assert.notEqual(
  conversationSessionKey({userId:"student-x",role:"student",orgCoachId:"coach-b"}),
  "A student changing coaches must invalidate the chat cache");
 
-const oldDocument=globalThis.document,oldInterval=globalThis.setInterval,oldAlert=globalThis.alert;
+const oldDocument=globalThis.document,oldInterval=globalThis.setInterval,oldAlert=globalThis.alert,oldWindow=globalThis.window;
 const handlers=new Map();
 const chatHost={innerHTML:"",querySelector:()=>null,contains:()=>false};
 let notificationHost;
@@ -46,7 +46,7 @@ function msgQuery(){
  };
 }
 try{
- globalThis.document=mockDocument;globalThis.setInterval=()=>0;globalThis.alert=()=>{alerts++;};
+ globalThis.document=mockDocument;globalThis.window={addEventListener(){}};globalThis.setInterval=()=>0;globalThis.alert=()=>{alerts++;};
  const center=createMessagesCenter({sb:{from:msgQuery},context:()=>ctx,afterSend:()=>{afterSend++;}});
  center.mount();await tick();center.selectStudent("student-demo");await tick();
  assert.match(chatHost.innerHTML,/SECRETO-COACH-ANTERIOR/);
@@ -98,6 +98,6 @@ try{
  assert.equal(navigations,1,"Confirmed recipient-scoped read receipt permits navigation");
  assert.doesNotMatch(notificationHost.innerHTML,/efg-notify-count/,"Unread count must clear after confirmed update");
 }finally{
- globalThis.document=oldDocument;globalThis.setInterval=oldInterval;globalThis.alert=oldAlert;
+ globalThis.document=oldDocument;globalThis.setInterval=oldInterval;globalThis.alert=oldAlert;globalThis.window=oldWindow;
 }
 console.log("PASS 06-01/06-02: coach reassignment, pair-scoped receipts, no duplicate send retry, notification readback and ART dates.");

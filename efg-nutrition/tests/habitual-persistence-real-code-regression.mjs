@@ -242,3 +242,87 @@ await oldInsert;
 assert.deepEqual(insertAPI.getHabitualList('desayuno').map(x=>x.name),['Otro favorito de B']);
 assert.ok(insertStore.has(insertKey),'Late old-account insert must not erase its backup');
 console.log('PASS UX-04-03: stale A/B favorite reads and imports isolated; corrupt v2 cannot hide v1.');
+
+
+// UX-04-03 OFFLINE DELETE AND RETRY: exercise the REAL functions from pilot.js.
+// Users can delete a confirmed, locally backed-up favorite even when the
+// backend is offline, without deleting another favorite or damaged backup.
+const offlineUser='student-offline-delete';
+const offlineV2='efg-nutrition-habitual-v2:'+offlineUser+':cena';
+const offlineV1='efg-nutrition-habitual-v1:'+offlineUser+':cena';
+const offlineMeals=[
+ {name:'Cena A',items:[{id:'egg',name:'Huevo'}]},
+ {name:'Cena B',items:[{id:'oats',name:'Avena'}]}
+];
+const offlineStore=new Map([
+ [offlineV2,JSON.stringify(offlineMeals)],
+ [offlineV1,JSON.stringify([{id:'banana',name:'Banana antigua'}])]
+]);
+const offlineStorage={
+ getItem:key=>offlineStore.get(key)||null,
+ setItem:(key,value)=>offlineStore.set(key,value),
+ removeItem:key=>offlineStore.delete(key)
+};
+const offlineState={profile:{role:'student'},session:{user:{id:offlineUser}},habitualSelection:{}};
+let allowOfflineDelete=false, offlineRenderCount=0;
+const offlineDocument={getElementById(){return {value:offlineState.habitualSelection.cena||''}}};
+const offlineSB={from(table){
+ assert.equal(table,'efg_habitual_meals');
+ return {select(){return this;},eq(){return this;},
+  order(){return Promise.resolve({data:null,error:new Error('network unreachable')});}};
+}};
+const offlineApi=new Function('sb','state','mealSlots','localStorage',
+ 'pendingMealRegistrations','document','confirm','render','notify',
+ subsystem+';return {loadCloudHabituales,getHabitualList,deleteChosenHabitual};')(
+ offlineSB,offlineState,mealSlots,offlineStorage,new Set(),offlineDocument,
+ ()=>allowOfflineDelete,async()=>{offlineRenderCount++},()=>{});
+await offlineApi.loadCloudHabituales();
+assert.deepEqual(offlineApi.getHabitualList('cena').map(x=>x.name),
+ ['Cena A','Cena B','Mi habitual anterior'],
+ 'Offline cloud read cannot hide local v1/v2 favorites');
+offlineState.habitualSelection.cena='local-0';
+await offlineApi.deleteChosenHabitual('cena');
+assert.deepEqual(JSON.parse(offlineStore.get(offlineV2)),offlineMeals,
+ 'Cancelled local deletion must not mutate backup');
+allowOfflineDelete=true;
+await offlineApi.deleteChosenHabitual('cena');
+assert.deepEqual(JSON.parse(offlineStore.get(offlineV2)),[offlineMeals[1]],
+ 'Deleting one v2 favorite must preserve the other');
+assert.ok(offlineStore.has(offlineV1),'v2 deletion must never clear v1 backup');
+offlineState.habitualSelection.cena='local-1';
+await offlineApi.deleteChosenHabitual('cena');
+assert.equal(offlineStore.has(offlineV1),false,'Explicitly deleted v1 favorite is removed');
+assert.equal(offlineRenderCount,2,'Only confirmed deletes cause re-render');
+offlineStore.set(offlineV2,'{corrupt-json');
+offlineStore.set(offlineV1,JSON.stringify([{id:'rice',name:'Arroz histórico'}]));
+offlineState.habitualSelection.cena='local-0';
+await offlineApi.deleteChosenHabitual('cena');
+assert.equal(offlineStore.has(offlineV1),false);
+assert.equal(offlineStore.get(offlineV2),'{corrupt-json',
+ 'Malformed v2 backup must be left untouched when removing valid v1');
+
+const importUser='student-failed-migration';
+const importKey='efg-nutrition-habitual-v2:'+importUser+':almuerzo';
+const importStorageData=new Map([[importKey,JSON.stringify([
+ {name:'Almuerzo sin subir',items:[{id:'oats',name:'Avena'}]}
+])]]);
+const importStorage={
+ getItem:key=>importStorageData.get(key)||null,
+ setItem:(key,value)=>importStorageData.set(key,value),
+ removeItem:key=>importStorageData.delete(key)
+};
+const importState={profile:{role:'student'},session:{user:{id:importUser}},habitualSelection:{}};
+const failedImportSB={from(){
+ return {select(){return this;},eq(){return this;},
+  order(){return Promise.resolve({data:[],error:null});},
+  insert(){return this;},single(){return Promise.resolve({data:null,error:new Error('offline write')});}};
+}};
+const failedImportApi=new Function('sb','state','mealSlots','localStorage',
+ 'pendingMealRegistrations',subsystem+
+ ';return {loadCloudHabituales,getHabitualList};')(
+ failedImportSB,importState,mealSlots,importStorage,new Set());
+await failedImportApi.loadCloudHabituales();
+assert.equal(failedImportApi.getHabitualList('almuerzo')[0]?.name,'Almuerzo sin subir');
+assert.ok(importStorageData.has(importKey),
+ 'Failed best-effort import must keep the original local backup');
+console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key protection and failed-import retry.');

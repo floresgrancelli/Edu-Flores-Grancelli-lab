@@ -148,7 +148,7 @@ assert.match(source,/if\(el\.dataset\.removefood\)\{[\s\S]*?pendingMealRegistrat
 const realSaveStart=source.indexOf('async function saveDiary(){');
 const realSaveEnd=source.indexOf('async function loadPersonalData(){',realSaveStart);
 assert.ok(realSaveStart>=0&&realSaveEnd>realSaveStart,'Real daily persister exists');
-const persistedDiary={log_day:'2026-10-31',student_id:null,meals:{cena:[]},
+const persistedDiary={log_day:'2026-10-31',student_id:'student-test-id',meals:{cena:[]},
  sports:[],skipped:{},totals:{k:123,p:9,c:12,f:4,fi:3}};
 const persistedState={session:{user:{id:'student-test-id'}},diary:persistedDiary,progressLogs:[]};
 let pendingWrite,rejectWrite=true,renderCalls=0,renderShouldFail=false;const diaryNotices=[];

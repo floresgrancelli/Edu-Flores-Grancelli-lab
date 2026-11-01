@@ -11,7 +11,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
  const root=process.cwd(),out=resolve('artifacts/sdk-entry');mkdirSync(out,{recursive:true});
- let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[],sourceFailures=[],resourceFailures=[],pageFaults=[];
+ let origin,browser,phase='setup';const contexts=[],safeTraffic=[],results=[],sourceFailures=[],resourceFailures=[],pageFaults=[],guideErrors=[];
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,'http://localhost').pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));
   assert.ok(file.startsWith(root+'/'));let bytes=readFileSync(file);
@@ -25,6 +25,15 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   const context=await browser.newContext({viewport:{width,height:860},serviceWorkers:'block'});contexts.push(context);
   await context.route('**/*',route=>{const url=new URL(route.request().url());return [origin,env.API_URL].includes(url.origin)||url.origin==='https://esm.sh'?route.continue():route.abort();});
   const page=await context.newPage();
+  const knownGuideErrors={SOURCE_DENIED:'SOURCE_DENIED',SCOPE_OR_DECLARATION:'SCOPE_OR_DECLARATION',CLOCK_MISSING:'CLOCK_MISSING',EVIDENCE_MISMATCH:'EVIDENCE_MISMATCH',STALE_CONTEXT:'STALE_CONTEXT',STALE_RESPONSE:'STALE_RESPONSE',
+   'Revisá las metas con el coach.':'invalid_goal','Las calorías y los macros necesitan revisión del coach.':'goal_conflict',
+   'Revisá la plantilla del patrón.':'invalid_template','Falta una porción inicial válida.':'invalid_portion',
+   'Faltan opciones compatibles: revisá la propuesta con el coach.':'no_candidates','No se pudo ajustar esta propuesta. Revisala con el coach.':'optimizer_failed',
+   'El ajuste dejó una porción incompatible. Revisá la propuesta.':'portion_conflict',
+   'No encontramos una combinación cercana a tus metas. El coach debe ajustarla.':'no_solution_found',
+   'El borrador persistido necesita revisión.':'review_not_ready'};
+  page.on('console',msg=>{if(msg.type()!=='error')return;const text=msg.text();for(const [literal,code]of Object.entries(knownGuideErrors))if(text.includes(literal))guideErrors.push(code);});
+
   page.on('pageerror',e=>pageFaults.push({kind:e.name,locations:(e.stack||'').match(/[a-zA-Z0-9_-]+\.(?:m?js):[0-9]+:[0-9]+/g)||[]}));
   page.on('requestfailed',r=>{const u=new URL(r.url());resourceFailures.push({origin:u.origin,path:u.pathname});});
   page.on('response',r=>{const u=new URL(r.url());if(u.origin===env.API_URL)safeTraffic.push({path:u.pathname,method:r.request().method(),status:r.status()});});
@@ -173,7 +182,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
   assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/otp'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/verify'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/token'&&x.status===200));
   writeFileSync(join(out,'result.json'),JSON.stringify({status:'PASS_LOCAL_SDK_ENTRY',results,traffic:safeTraffic},null,2));
- }catch(error){const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures,pageFaults,intercepted:/intercepts pointer events/.test(error.message||''),strictLocator:/strict mode violation/.test(error.message||''),locations:(error.stack||'').match(/sdk-entry-runner-private\.mjs:[0-9]+:[0-9]+/g)||[]};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
+ }catch(error){const failure={status:'FAIL',phase,traffic:safeTraffic,sourceFailures,resourceFailures,pageFaults,guideErrors,intercepted:/intercepts pointer events/.test(error.message||''),strictLocator:/strict mode violation/.test(error.message||''),locations:(error.stack||'').match(/sdk-entry-runner-private\.mjs:[0-9]+:[0-9]+/g)||[]};writeFileSync(join(out,'failure.json'),JSON.stringify(failure));
   console.log('SDK_ENTRY_DIAGNOSTIC '+JSON.stringify(failure));
   throw Error('SDK_ENTRY_FAILED_'+phase); // Do not print Playwright call arguments containing an OTP.
  }finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}

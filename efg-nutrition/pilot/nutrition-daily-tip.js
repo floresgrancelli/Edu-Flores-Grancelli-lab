@@ -485,6 +485,9 @@ export function nutritionTipCardHTML({now=new Date(),allowExplore=false}={}){
  const date=tip.date.split("-").reverse().join("/");
  return '<section class="efg-daily-tip" aria-labelledby="efgTipTitle">'+
  '<div class="efg-daily-tip-media">'+
+ // The branded placeholder remains visible if an external photo fails to load.
+ // The actual image keeps ALT for screen readers and is placed above fallback.
+ '<div class="efg-daily-tip-photo-placeholder" aria-hidden="true">Nutrición Con-Ciencia</div>'+
  '<img class="efg-daily-tip-photo" src="'+escapeHTML(tip.src)+'" alt="'+escapeHTML(tip.alt)+'" loading="lazy" decoding="async" width="960" height="640" referrerpolicy="no-referrer">'+
  '<div class="efg-daily-tip-overlay"><span class="efg-daily-tip-label">'+label+'</span><span class="efg-daily-tip-date">'+date+'</span></div></div>'+
  '<div class="efg-daily-tip-copy"><p class="efg-daily-tip-kicker">TIP NUTRICIONAL DEL DÍA · '+escapeHTML(tip.category)+'</p>'+

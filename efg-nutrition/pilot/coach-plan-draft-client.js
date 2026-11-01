@@ -52,6 +52,23 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
    throw Error("No se pudo verificar la conexión segura.");
  };
  const idCheck=id=>{if(typeof id!=="string"||!UUID.test(id))throw Error("Identificador de alumno inválido.");};
+ // In the major release, a Coach can switch accounts while a request is in flight.
+ // Capture the signed identity and reject stale reads/results. This is UI
+ // isolation, not a substitute for JWT/RLS inside the protected RPC.
+ const captureCoachSession=async()=>{
+  if(!relaunchEnabled||!versionedBackendVerified)return null;
+  if(typeof sb?.auth?.getUser!=="function")throw Error("No se pudo verificar la sesión del coach.");
+  const u=await sb.auth.getUser();
+  const id=u?.data?.user?.id;
+  if(u?.error||!UUID.test(id||""))throw Error("No se pudo verificar la sesión del coach.");
+  return id;
+ };
+ const requireSameCoachSession=async id=>{
+  if(id===null)return;
+  const u=await sb.auth.getUser();
+  if(u?.error||u?.data?.user?.id!==id)
+   throw Error("La cuenta del coach cambió durante la operación. Volvé a abrir el alumno.");
+ };
  const currentIntake=async(studentId,expectedUpdatedAt=null,expectedSourceRevision=null)=>{
   const consent=await sb.from("efg_consents").select("accepted").eq("student_id",studentId).maybeSingle();
   if(consent.error)throw consent.error;
@@ -79,12 +96,15 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
  };
  async function load(studentId){
   check();idCheck(studentId);
+  const coachSession=await captureCoachSession();
   const intake=await currentIntake(studentId);
+  await requireSameCoachSession(coachSession);
   const r=await sb.from("efg_coach_plan_drafts")
    .select("student_id,coach_id,organization_id,source_intake_updated_at,goal_proposal,guide_proposal,draft_revision,status,updated_at"+
     (relaunchEnabled?",source_intake_revision":""))
    .eq("student_id",studentId).maybeSingle();
   if(r.error)throw r.error;
+  await requireSameCoachSession(coachSession);
   if(r.data&&(r.data.student_id!==studentId||
     !intake.organization_id||r.data.organization_id!==intake.organization_id))
    throw Error("El borrador recuperado no corresponde al alumno y organización seleccionados.");
@@ -101,12 +121,15 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   const p=validateCoachPlanProposal(goal,guide);
   if(relaunchEnabled&&!Array.isArray(p.guide.approvedFoodIds))
    throw Error("Para el nuevo alumno, seleccioná los alimentos aprobados junto con su guía.");
+  const coachSession=await captureCoachSession();
   await currentIntake(studentId,sourceUpdatedAt,relaunchEnabled?sourceRevision:null);
+  await requireSameCoachSession(coachSession);
   const params={p_student:studentId,p_goal:p.goal,p_guide:p.guide,
    p_intake_updated_at:sourceUpdatedAt,p_expected_revision:expectedRevision};
   if(relaunchEnabled)params.p_intake_revision=sourceRevision;
   const r=await sb.rpc("efg_save_coach_plan_draft",params);
   if(r.error)throw r.error;
+  await requireSameCoachSession(coachSession);
   if(typeof r.data!=="number"&&
     !(typeof r.data==="string"&&/^[1-9][0-9]*$/.test(r.data)))
    throw Error("El servidor devolvió una revisión de borrador inválida.");
@@ -120,7 +143,9 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(!Number.isSafeInteger(expectedRevision)||expectedRevision<1)
    throw Error("La versión del borrador no es válida.");
   if(typeof requestId!=="string"||!UUID.test(requestId))throw Error("Identificador único de publicación inválido.");
+  const coachSession=await captureCoachSession();
   await currentIntake(studentId);
+  await requireSameCoachSession(coachSession);
   // The DB rechecks consent, intake/version and reviewed evidence inside ONE transaction.
   // The major relaunch MUST use COACH119: legacy publishing is not atomic
   // with the versioned intake, health consent and access ledger.
@@ -129,6 +154,7 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
    p_student:studentId,p_expected_revision:expectedRevision,p_request_id:requestId
   });
   if(r.error)throw r.error;
+  await requireSameCoachSession(coachSession);
   if(typeof r.data!=="string"||!UUID.test(r.data))
    throw Error("El servidor no confirmó la meta aprobada. Consultá el estado antes de reintentar.");
   return {studentId,goalId:r.data,requestId,revision:expectedRevision};

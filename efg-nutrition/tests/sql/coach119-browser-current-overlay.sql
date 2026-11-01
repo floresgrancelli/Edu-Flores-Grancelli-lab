@@ -10,6 +10,20 @@ do $guard$ begin
 end $guard$;
 set local search_path = public, pg_catalog;
 
+-- SDK form fixture addition: the older API-only setup grants SELECT only.
+-- Not a claim that these statements are an exact hosted policy export.
+-- No identity column, INSERT or DELETE privilege; immutable-owner trigger remains.
+grant update(accepted,email_report_opt_in,updated_at) on public.efg_consents to authenticated;
+create policy sdk_local_consent_owner_update on public.efg_consents
+ for update to authenticated
+ using (student_id=(select auth.uid()) and exists(
+  select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
+   and p.role='student' and p.active=true and p.organization_id=efg_consents.organization_id))
+ with check (student_id=(select auth.uid()) and exists(
+  select 1 from public.efg_profiles p where p.user_id=(select auth.uid())
+   and p.role='student' and p.active=true and p.organization_id=efg_consents.organization_id));
+
+
 create table public."efg_activities" (
  "student_id" uuid not null,
  "activity_day" date not null,

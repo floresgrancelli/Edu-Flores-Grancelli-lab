@@ -67,6 +67,10 @@ window.__SDK_ENTRY_QA__=Object.freeze({
  readGuide:async id=>{const u=await sb.auth.getUser();if(u.error||!u.data?.user)throw Error('No session');
   const r=await sb.from('efg_food_plans').select('student_id,guided_goal_id,guided_plan').eq('student_id',id);
   if(r.error)throw Error('Guide read failed');return r.data;},
+ probeForbiddenConsent:async id=>{const u=await sb.auth.getUser();if(u.error||!u.data?.user)throw Error('No session');
+  if(id===u.data.user.id)throw Error('Probe only for a foreign row');
+  const r=await sb.from('efg_consents').update({accepted:false,email_report_opt_in:false,updated_at:new Date().toISOString()}).eq('student_id',id).select('student_id');
+  return {code:r.error?.code??null,rows:r.data?.length??0};},
  refreshSession:async()=>{const r=await sb.auth.refreshSession();return {ok:!r.error};}
 });\n`;
 }

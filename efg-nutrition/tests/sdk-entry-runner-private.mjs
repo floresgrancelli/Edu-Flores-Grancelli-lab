@@ -114,7 +114,8 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    phase='student-entry-'+width;await studentEntry(student,s);enableLocalPublication(side);
    await student.locator('[data-sdk-declaration-open]').click();await student.locator('[data-restriction-revoke]').waitFor();
    await student.screenshot({path:join(out,'sdk-intake-'+width+'.png'),fullPage:true});
-   phase='coach-entry-'+width;await login(coach,c);await legalAndIntro(coach,'coach');await coachDetail(coach,s);
+   phase='coach-entry-'+width;await login(coach,c);await legalAndIntro(coach,'coach');
+   const deniedCoach=await coach.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedCoach.rows,0);assert.ok(deniedCoach.code===null||deniedCoach.code==='42501');await coachDetail(coach,s);
    phase='prepare-edit-save-'+width;const goal=await prepare(coach),mount=coach.locator('#coachAdaptedDraftMount');
    await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();const qty=mount.locator('[data-edit-row="desayuno:0"] input');await qty.fill(String(Number(await qty.inputValue())+1));await qty.press('Tab');
    await mount.getByRole('button',{name:'Conservar borrador editado',exact:true}).click();const expected=(await coach.evaluate(()=>window.__SDK_ENTRY_QA__.guide())).editor.committed;
@@ -131,6 +132,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    try{await logout(coach);}finally{release();}await coach.unroute(env.API_URL+'/rest/v1/rpc/efg_read_bound_guide');
    assert.equal(await coach.locator('[data-guide-totals]').count(),0);
    const other=users['coach'+(side==='A'?'B':'A')];await login(coach,other);await legalAndIntro(coach,'coach');
+   const deniedOtherCoach=await coach.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedOtherCoach.rows,0);assert.ok(deniedOtherCoach.code===null||deniedOtherCoach.code==='42501');
    await coach.locator('[data-tab="coachStudents"]:visible').first().click();assert.equal(await coach.locator('[data-student="'+s.id+'"]').count(),0);assert.equal(await coach.locator('[data-guide-totals]').count(),0);
    await logout(coach);await login(coach,c);await coachDetail(coach,s);await openDraft(coach);
    assert.notEqual((await snapshot(coach)).sessionId,priorSession);
@@ -161,6 +163,7 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    await student.screenshot({path:join(out,'sdk-student-published-'+width+'.png'),fullPage:true});
    if(side==='A'){
     await logout(student);await login(student,users.studentB);
+    const deniedStudent=await student.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedStudent.rows,0);assert.ok(deniedStudent.code===null||deniedStudent.code==='42501');
     assert.equal((await snapshot(student)).intakeRevision,null);assert.equal(await student.locator('[data-guide-totals],.efg-guide-student').count(),0);
     assert.deepEqual(await student.evaluate(id=>window.__SDK_ENTRY_QA__.readGuide(id),s.id),[]);
    }

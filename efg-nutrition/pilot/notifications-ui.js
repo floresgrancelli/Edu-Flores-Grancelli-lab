@@ -8,7 +8,7 @@ export function createNotificationInbox({sb,getUserId,navigate}){
  host.setAttribute("aria-label","Notificaciones de Nutrición Con-Ciencia");
  document.body.append(host);
  function listMarkup(){
-  return records.length?records.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'"><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR")+'</small></span><span>'+esc(n.body)+'</span></button>').join(""):'<p class="efg-notify-empty">Todavía no hay avisos.</p>';
+  return records.length?records.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'"><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})+'</small></span><span>'+esc(n.body)+'</span></button>').join(""):'<p class="efg-notify-empty">Todavía no hay avisos.</p>';
  }
  function paint(){
   // Never render alerts cached for a different authenticated identity.
@@ -66,8 +66,12 @@ export function createNotificationInbox({sb,getUserId,navigate}){
   const n=records.find(x=>x.id===button.dataset.efgId);if(!n)return;
   try{
    if(!n.is_read){
-    const {error}=await sb.from("efg_notifications").update({is_read:true,read_at:new Date().toISOString()}).eq("id",n.id).eq("recipient_id",clickedUser);
+    const {data:confirmed,error}=await sb.from("efg_notifications")
+     .update({is_read:true,read_at:new Date().toISOString()})
+     .eq("id",n.id).eq("recipient_id",clickedUser).select("id").maybeSingle();
     if(error)throw error;
+    if(confirmed?.id!==n.id)throw Error("No se pudo confirmar la lectura de la notificación.");
+    if(getUserId()!==clickedUser)return;
     n.is_read=true;
    }
    if(getUserId()!==clickedUser)return;

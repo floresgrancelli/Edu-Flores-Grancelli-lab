@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./chat-and-inbox-session-regression.mjs";
 import {readFileSync} from "node:fs";
 const read=p=>readFileSync(p,"utf8");
 const app=read("efg-nutrition/pilot/pilot.js");

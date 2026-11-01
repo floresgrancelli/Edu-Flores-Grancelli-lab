@@ -1,8 +1,15 @@
 // EFG Nutrition Pro · inbox responsive for student, coach, and admin test-coach.
 // RLS on efg_messages is the source of truth; this UI NEVER grants chat access.
+export function conversationSessionKey(c={}){
+ const id=String(c.userId||"");
+ const role=String(c.role||"");
+ const mode=c.testCoach===true?"test":"regular";
+ const coach=role==="student"?String(c.orgCoachId||""):"";
+ return [id,role,mode,coach].join("|");
+}
 export function createMessagesCenter({sb,context,afterSend}){
  let selectedStudent=null,threadOpen=false,thread=[],overview=[],filter="",listMode="all";
- let busy=false,refreshing=false,pendingLoad=false,loadingOlder=false,threadHasMore=false,formDraft="",epoch=0,knownUser=null;
+ let busy=false,refreshing=false,pendingLoad=false,loadingOlder=false,threadHasMore=false,formDraft="",deliveryNotice="",epoch=0,knownUser=null;
  const drafts=new Map();
  const PAGE_SIZE=200;
  const messageOrder=(a,b)=>String(a.created_at).localeCompare(String(b.created_at))||String(a.id).localeCompare(String(b.id));
@@ -23,12 +30,17 @@ export function createMessagesCenter({sb,context,afterSend}){
     [{student:c.userId,coach:c.orgCoachId,name:c.coachName||"Mi coach",role:"Entrenador"}]:[];
  };
  const identity=x=>x?.student+"::"+x?.coach;
+ const sameCurrentPair=(x,sessionEpoch)=>{
+  if(!x||sessionEpoch!==epoch)return false;
+  const current=pair();
+  return !!current&&identity(current)===identity(x);
+ };
  const pair=()=>contacts().find(x=>x.student===selectedStudent)||null;
  function resetIfChanged(){
-  const c=context(),key=c.userId+"|"+c.role+"|"+(c.testCoach?"test":"");
-  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";drafts.clear();threadHasMore=false;filter="";listMode="all";epoch++;}
+  const c=context(),key=conversationSessionKey(c);
+  if(knownUser!==key){knownUser=key;selectedStudent=null;threadOpen=false;thread=[];overview=[];formDraft="";drafts.clear();threadHasMore=false;filter="";listMode="all";deliveryNotice="";epoch++;}
   const ids=new Set(contacts().map(x=>x.student));
-  if(selectedStudent&&!ids.has(selectedStudent)){drafts.delete(selectedStudent);selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;epoch++;}
+  if(selectedStudent&&!ids.has(selectedStudent)){drafts.delete(selectedStudent);selectedStudent=null;threadOpen=false;thread=[];formDraft="";threadHasMore=false;deliveryNotice="";epoch++;}
  }
  function previews(){
   const latest=new Map(),unread=new Map(),self=context().userId;
@@ -77,6 +89,7 @@ export function createMessagesCenter({sb,context,afterSend}){
     (bubbles||'<p class="efg-chat-empty">Todavía no hay mensajes. Podés iniciar la conversación.</p>')+'</div>'+
    '<form class="efg-message-compose" id="efgMessageForm"><textarea id="efgMessageText" required maxlength="2000" placeholder="Escribí un mensaje…" aria-label="Escribir mensaje">'+esc(formDraft)+'</textarea>'+
    '<button type="submit" '+(busy?'disabled':'')+' aria-label="Enviar mensaje"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg><span>Enviar</span></button></form>'+
+   (deliveryNotice?'<p role="status" class="efg-chat-delivery-notice">'+esc(deliveryNotice)+'</p>':'')+
    '<p class="efg-chat-privacy">Solo las personas vinculadas y autorizadas pueden conversar. Para emergencias usá los canales correspondientes.</p>';
  }
  function paint({force=false,prepend=false}={}){
@@ -128,15 +141,21 @@ export function createMessagesCenter({sb,context,afterSend}){
   else request=request.eq("student_id",c.userId).eq("coach_id",people[0].coach);
   const {data,error}=await request.order("created_at",{ascending:false}).limit(1000);
   if(error)throw error;
-  if(knownUser!==key)return;
-  overview=data||[];paint();
+  if(knownUser!==key||conversationSessionKey(context())!==key)return;
+  // UI defense-in-depth: show only currently authorized student/coach pairs.
+  const allowed=new Set(contacts().map(identity));
+  overview=(data||[]).filter(m=>allowed.has(m.student_id+"::"+m.coach_id));paint();
  }
- async function markRead(rows){
-  const unread=rows.filter(m=>m.sender_id!==context().userId&&!m.read_at).map(m=>m.id);
+ async function markRead(rows,x,sessionEpoch){
+  if(!sameCurrentPair(x,sessionEpoch))return rows;
+  const user=context().userId;
+  const unread=rows.filter(m=>m.student_id===x.student&&m.coach_id===x.coach&&m.sender_id!==user&&!m.read_at).map(m=>m.id);
   if(!unread.length)return rows;
   const readAt=new Date().toISOString();
-  const {error}=await sb.from("efg_messages").update({read_at:readAt}).in("id",unread);
+  const {error}=await sb.from("efg_messages").update({read_at:readAt})
+   .eq("student_id",x.student).eq("coach_id",x.coach).in("id",unread);
   if(error){console.warn("Message receipt",error.message);return rows;}
+  if(context().userId!==user||!sameCurrentPair(x,sessionEpoch))return rows;
   const ids=new Set(unread);return rows.map(m=>ids.has(m.id)?{...m,read_at:readAt}:m);
  }
  async function load(force=false){
@@ -151,13 +170,15 @@ export function createMessagesCenter({sb,context,afterSend}){
       .eq("student_id",x.student).eq("coach_id",x.coach)
       .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
     if(error)throw error;
-    if(epoch!==key)return;
-    const incoming=await markRead(data||[]);
-    if(epoch!==key)return;
+    if(!sameCurrentPair(x,key))return;
+    const scoped=(data||[]).filter(m=>m.student_id===x.student&&m.coach_id===x.coach);
+    const incoming=await markRead(scoped,x,key);
+    if(!sameCurrentPair(x,key))return;
     thread=mergeMessages(thread,incoming);
     if(!thread.length||thread.length===incoming.length)threadHasMore=incoming.length===PAGE_SIZE;
    }
    await refreshOverview();
+   if(x&&sameCurrentPair(x,key))deliveryNotice="";
   }finally{
    refreshing=false;paint({force});
    if(pendingLoad){pendingLoad=false;queueMicrotask(()=>load(force).catch(console.warn));}
@@ -175,16 +196,17 @@ export function createMessagesCenter({sb,context,afterSend}){
      .eq("student_id",x.student).eq("coach_id",x.coach).or(cursor)
      .order("created_at",{ascending:false}).order("id",{ascending:false}).limit(PAGE_SIZE);
    if(error)throw error;
-   if(key!==epoch)return;
-   const older=await markRead(data||[]);
-   if(key!==epoch)return;
+   if(!sameCurrentPair(x,key))return;
+   const scoped=(data||[]).filter(m=>m.student_id===x.student&&m.coach_id===x.coach);
+   const older=await markRead(scoped,x,key);
+   if(!sameCurrentPair(x,key))return;
    thread=mergeMessages(thread,older);
    threadHasMore=older.length===PAGE_SIZE;
   }finally{loadingOlder=false;if(key===epoch)paint({prepend:true});}
  }
  async function openStudent(student){
   resetIfChanged();if(!contacts().some(x=>x.student===student))return;
-  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft=drafts.get(student)||"";threadHasMore=false;epoch++;}
+  if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft=drafts.get(student)||"";threadHasMore=false;deliveryNotice="";epoch++;}
   threadOpen=true;paint({force:true});
   await load(true);
  }
@@ -198,9 +220,18 @@ export function createMessagesCenter({sb,context,afterSend}){
   try{
    const {error}=await sb.from("efg_messages").insert({student_id:x.student,coach_id:x.coach,sender_id:c.userId,body});
    if(error)throw error;
-   if(epoch!==sendEpoch||context().userId!==c.userId)return;
-   formDraft="";drafts.delete(x.student);await load(true);
-   if(epoch===sendEpoch&&context().userId===c.userId)afterSend?.();
+   if(epoch!==sendEpoch||context().userId!==c.userId||!sameCurrentPair(x,sendEpoch))return;
+   // A confirmed INSERT must not be reported as failed if subsequent SELECT fails.
+   formDraft="";drafts.delete(x.student);deliveryNotice="";
+   try{await load(true);}
+   catch(refreshError){
+    console.warn("Mensaje enviado; actualización del chat pendiente:",refreshError?.message);
+    if(sameCurrentPair(x,sendEpoch))
+     deliveryNotice="Mensaje enviado. No pudimos actualizar la conversación; reabrila para verlo.";
+   }
+   if(sameCurrentPair(x,sendEpoch)&&context().userId===c.userId){
+    try{await afterSend?.();}catch(callbackError){console.warn("Aviso posterior al envío:",callbackError?.message);}
+   }
   }finally{busy=false;paint({force:true});}
  }
  document.addEventListener("click",event=>{

@@ -37,7 +37,7 @@ export function proposeAdaptedGuide({catalog,template,goal,context,preferredIds=
  }
  let plan;
  try{plan=rebalanceGuidedDay({version:1,kind:'five_meal_example',meals:chosen,
-  supplementNote:'',createdFrom:'private_adapted_proposal'},goal);}
+  supplementNote:'',createdFrom:'private_adapted_proposal'},goal,{targetTolerance:tolerance});}
  catch{return fail('invalid_goal','No se pudo ajustar esta propuesta. Revisala con el coach.');}
  const decisions=[];
  for(const meal of plan.meals)for(const item of meal.items){
@@ -58,4 +58,5 @@ export function proposeAdaptedGuide({catalog,template,goal,context,preferredIds=
  return {ok:true,plan,totals,decisions,goal:structuredClone(goal),requiresCoachReview:true,
   publishable:false,notice:'Propuesta educativa: pendiente de revisión del coach.'};
 }
+
 

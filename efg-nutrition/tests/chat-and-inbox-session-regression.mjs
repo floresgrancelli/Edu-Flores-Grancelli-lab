@@ -84,6 +84,9 @@ try{
  }
  const inbox=createNotificationInbox({sb:{from:inboxQuery},getUserId:()=>ctx.userId,navigate:async()=>{navigations++;}});
  await inbox.refresh();
+ const toggleButton={dataset:{efgAction:"toggle"}};
+ const toggleTarget={closest:selector=>selector==="button"?toggleButton:selector.includes("#efgNotifications")?notificationHost:null};
+ await fire("click",{target:toggleTarget});
  assert.match(notificationHost.innerHTML,/30\/10\/2026/,"UTC date must be rendered in Buenos Aires local time");
  const button={dataset:{efgId:"notice-1"}};
  const target={closest:selector=>selector==="button"?button:selector.includes("#efgNotifications")?notificationHost:null};
@@ -93,7 +96,7 @@ try{
  markExists=true;
  await fire("click",{target});
  assert.equal(navigations,1,"Confirmed recipient-scoped read receipt permits navigation");
- assert.match(notificationHost.innerHTML,/read/);
+ assert.doesNotMatch(notificationHost.innerHTML,/efg-notify-count/,"Unread count must clear after confirmed update");
 }finally{
  globalThis.document=oldDocument;globalThis.setInterval=oldInterval;globalThis.alert=oldAlert;
 }

@@ -5,7 +5,7 @@ import {attestDatabase} from '../runner/isolation.mjs';
 import {q} from '../runner/snapshot.mjs';
 import {capturePermissions} from '../runner/acl-contract.mjs';
 export const tables=['efg_activities','efg_billing_settings','efg_invitations','efg_payments','efg_personal_targets','efg_weights','efg_daily_logs','efg_weekly_reports'];
-const sorted=x=>[...x].map(v=>JSON.stringify(v)).sort();
+const sorted=x=>[...x].map(v=>JSON.stringify(Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))))).sort();
 function acl(sql,kind,target){
  const object=kind==='r'?`select relacl a,relowner o from pg_class where oid=${q('public.'+target)}::regclass`:`select proacl a,proowner o from pg_proc where oid='public.efg_claim_invitation()'::regprocedure`;
  return JSON.parse(sql(`select coalesce(jsonb_agg(jsonb_build_object('role',case when x.grantee=0 then 'PUBLIC' else pg_get_userbyid(x.grantee) end,'privilege',x.privilege_type,'grantable',x.is_grantable)),'[]') from (${object}) s cross join lateral aclexplode(coalesce(s.a,acldefault(${q(kind)},s.o))) x`));

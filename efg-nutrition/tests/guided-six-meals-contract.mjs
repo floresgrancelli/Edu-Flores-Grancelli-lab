@@ -75,6 +75,13 @@ const lactose=generateFlexibleGuidedDay(catalog,goal,{restrictions:['lactose_int
 assert.ok(!lactose.meals.flatMap(x=>x.items).some(x=>['cheese','milk_skim','yogurt'].includes(x.id)));
 const vegan=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegan'});
 assert.ok(!vegan.meals.flatMap(x=>x.items).some(x=>['chicken','fish_hake','egg','milk_skim','yogurt','cheese'].includes(x.id)));
+const vegetarian=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegetarian'});
+assert.ok(!vegetarian.meals.flatMap(x=>x.items).some(x=>['chicken','fish_hake'].includes(x.id)));
+assert.equal(guideFoodSignal(catalog.find(x=>x.id==='egg'),{patternId:'vegetarian'}).status,'possible');
+assert.equal(guideFoodSignal(catalog.find(x=>x.id==='yogurt'),{patternId:'vegetarian'}).status,'possible');
+const pescatarian=generateFlexibleGuidedDay(catalog,goal,{patternId:'pescatarian'});
+assert.ok(!pescatarian.meals.flatMap(x=>x.items).some(x=>x.id==='chicken'));
+assert.equal(guideFoodSignal(catalog.find(x=>x.id==='fish_hake'),{patternId:'pescatarian'}).status,'possible');
 const keto=generateFlexibleGuidedDay(catalog,{...goal,carb_g:60,fat_g:145},{patternId:'keto'});
 assert.equal(keto.meals[0].slot,'desayuno','Keto does not imply intermittent fasting');
 const fasting=generateFlexibleGuidedDay(catalog,goal,{windowId:'16_8'});

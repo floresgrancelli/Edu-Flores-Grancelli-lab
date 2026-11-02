@@ -211,16 +211,16 @@
       "bytes": 5745
     },
     "bridge/tests/bridge-dom-local.mjs": {
-      "sha256": "342b0b41e23f88a7d12c4563162969ae2a2a82cf7ed97b2384f09988aafd0769",
-      "bytes": 5869
+      "bytes": 6739,
+      "sha256": "7bd9a4f4d1d277b1770ca7b10a677b26a1d470e1f3ef12aba2418e2a9e04f132"
     },
     "bridge/tests/bridge-http-contract.mjs": {
       "sha256": "b3c0010c85259659cbc456043c27226a275ccf68d1cfd5ed99c8051a6d272af5",
       "bytes": 1593
     },
     "bridge/tests/expiration-private.mjs": {
-      "sha256": "7c5cb7973d9d009b936a019dd00f5557b9de8abd15e217fd5c1f686325a14fd3",
-      "bytes": 2434
+      "bytes": 2805,
+      "sha256": "6c267c2d71567faed99a40a30309e1f7e7799a2a10a6ee4e9bdd791fae05e9ec"
     },
     "bridge/tests/bridge-rpc-local.mjs": {
       "sha256": "9c782e7b74bebe48c11d949367730db3bbbae080e56924cf164cd12a5a4468f0",

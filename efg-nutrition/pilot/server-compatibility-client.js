@@ -85,7 +85,9 @@ export function createServerCompatibilityClient({enabled=false,readScope,readSav
   if(saved?typeof readSaved!=='function':typeof evaluateProposal!=='function'){generation++;notify();fail('SERVER_OPERATION_UNAVAILABLE');}
   if(!saved)requireCurrent();
   const projection=recipeProjection(plan),s=copy(readScope()),key=scopeKey(s),ticket=++generation,started=monotonicNow(),startedWall=wallNow();
-  const requestKey='view-'+ticket;accepted=null;status='pending';notify();
+  // Bind the pending request context before notifying the renderer. A pending
+  // review must not invalidate its own first load merely because no decision exists.
+  const requestKey='view-'+ticket;scope=key;accepted=null;status='pending';notify();
   try{
    const r=saved?await readSaved():await evaluateProposal({studentId:s.studentId,expected:copy(frame),context:{sessionId:s.sessionId,sourceEpoch:s.sourceEpoch,organizationId:s.organizationId},requestKey,recipe:projection});
    return accept(r,plan,ticket,key,started,saved?null:requestKey,startedWall);

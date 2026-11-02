@@ -23,7 +23,14 @@ export async function verifyClinicalBridgeDOM({page,mealLabel,mealSlot,ingredien
  page.on('request',onRequest);page.on('response',onResponse);
  const waitEdited=()=>page.waitForResponse(r=>eligible.has(r.request())&&rpcName(r.request())===phase);
  try{
+  await page.locator('[data-server-compatibility]').filter({hasText:'Decisión del servidor para esta receta y revisión.'}).waitFor();
+  // Editing itself requests a preview of the unchanged recipe. Await it explicitly;
+  // it must never satisfy the subsequent edited-projection waiter.
+  const initialExpected={studentId,expectedFrame,expectedProjection:projection(initialReadRow.guide)};
+  const initialWaiting=page.waitForResponse(r=>rpcName(r.request())==='efg_preview_clinical_bound_recipe'&&matchesRequest(bodyOf(r.request()),initialExpected));
   await page.getByRole('button',{name:'Editar borrador',exact:true}).click();
+  const initialResponse=await initialWaiting;assert.equal(initialResponse.status(),200);assertReply(bodyOf(initialResponse.request()),await initialResponse.json(),initialExpected);
+  await page.locator('[data-server-compatibility]').filter({hasText:'Decisión del servidor para esta receta y revisión.'}).waitFor();
   const control=()=>page.getByLabel(`${mealLabel} cantidad ${ingredientIndex}`,{exact:true});
   assert.equal(Number(await control().inputValue()),oldQuantity);
   phase='efg_preview_clinical_bound_recipe';const previewWaiting=waitEdited();

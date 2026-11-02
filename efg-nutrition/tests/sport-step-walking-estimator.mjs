@@ -64,7 +64,7 @@ assert.equal(readWalkingActivityForm(doc).exercise_minutes,0);
 const html=renderWalkingActivityCard({todayActivity:legacy,lastWeightKg:78});
 for(const token of ['id="activitySteps"','id="activityPace"','id="activityHeightCm"',
  'id="activityWeightKg"','id="activityMinutes"','id="activityKind"',
- 'id="walkingActivityPreview"','data-act="saveActivity"','no una medición GPS'])
+ 'id="walkingActivityPreview"','data-act="saveActivity"','no mediciones clínicas'])
  assert.ok(html.includes(token),token);
 assert.match(walkingEstimateMarkup(baseline),/5,78/);
 assert.match(walkingEstimateMarkup(baseline),/252/);

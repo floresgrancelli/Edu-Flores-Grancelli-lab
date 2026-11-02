@@ -63,6 +63,11 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
           node efg-nutrition/tests/coach105-android-habitual-diets-contract.mjs
+      - name: COACH01-05 private dietary scope and guided Coach add or swap warning (synthetic)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/pilot/coach-guide-restriction-scope.js
+          node efg-nutrition/tests/coach-guide-restriction-scope.mjs
       - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs

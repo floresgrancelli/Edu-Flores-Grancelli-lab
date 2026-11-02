@@ -247,8 +247,8 @@
       "sha256": "7081c6217c62e3e2ca42a6dd95493e16174a9e8def23b85427c940646f5d6b90"
     },
     "diary-fixture/run.mjs": {
-      "bytes": 2054,
-      "sha256": "edc6340e1517e40b0ec9f7adb0fff6b869410091106171aeab7c23c8ecc785ef"
+      "bytes": 2221,
+      "sha256": "745c36e21c7d6d45552739a5f8275ce5caaffa8147b52e461a0410efcd07adbd"
     },
     "diary-fixture/http-cases.mjs": {
       "bytes": 2954,
@@ -259,8 +259,8 @@
       "sha256": "ab4ed44c5ed580aab520ebab5814abf9f76354f655c896c9bc5bf58b67fcab64"
     },
     "diary-fixture/browser.mjs": {
-      "bytes": 13703,
-      "sha256": "7da36f07d72dbe1f4cc0a0be11a900494ea421466fc1a779b1939c132185750b"
+      "bytes": 15731,
+      "sha256": "aa714bf48e01d1363c7d24dd2c7e2bd40671520c1b5679b7ddbb982fe4e33c9c"
     },
     "diary-fixture/install.mjs": {
       "bytes": 2810,

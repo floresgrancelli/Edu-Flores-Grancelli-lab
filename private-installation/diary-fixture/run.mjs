@@ -17,11 +17,11 @@ export async function runDiaryFixture({sql,request,users,input,ids,out,mutationT
   result.http=await diaryAccessCases({request:api,studentA:users.studentA,studentB:users.studentB,coachA:users.coachA,snapshot});
   await runDiaryBrowser({request,users,input,ids,out,snapshot});
   result.status='PASS';record('Diary fixture real HTTP ownership and SDK save/reload/select/recovery390/1280; no diary writes');
- }finally{
+ }catch(error){result.status='FAIL';result.error={name:error.name};throw error;}finally{
   try{
    // Only two initially empty synthetic tables; no UPDATE, privileged row delete or other table writes.
    for(const actor of [users.studentA,users.studentB])for(const table of names){const r=await api(actor,table,'DELETE','student_id=eq.'+actor.id+'&select=id');assert.ok(r.ok);}
    assert.deepEqual(snapshot(),before,'Complete tracked snapshots restored');result.restored=true;
-  }finally{writeFileSync(out+'/diary-result.json',JSON.stringify(result,null,2));}
+  }catch(error){result.status='FAIL';result.restorationError={name:error.name};throw error;}finally{writeFileSync(out+'/diary-result.json',JSON.stringify(result,null,2));}
  }
 }

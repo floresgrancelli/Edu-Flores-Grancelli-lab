@@ -135,7 +135,14 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
    let food=available.get(baseId),signal=guideFoodSignal(food,profile);
    if(!food||signal.status==='avoid'||signal.status==='review'){
     const choices=fallbackOrder({id:baseId},template.slot,profile);
-    const choose=choices.map(id=>available.get(id)).find(f=>f&&!used.has(f.id)&&guideFoodSignal(f,profile).status==='possible');
+    const options=choices.map(id=>available.get(id)).filter(f=>f&&!used.has(f.id));
+    // With unknown medical status every otherwise compatible food is amber.
+    // Still offer a vegan/other pattern swap as an UNAPPROVED coach draft;
+    // never keep a known-incompatible base merely because the alternative
+    // requires review. Do not arbitrarily replace a usable amber base.
+    const choose=options.find(f=>guideFoodSignal(f,profile).status==='possible')||
+      (profile.restrictionStatus==='unknown'&&(!food||signal.status==='avoid')
+        ?options.find(f=>guideFoodSignal(f,profile).status==='review'):null);
     if(choose){food=choose;signal=guideFoodSignal(food,profile);}
    }
    if(!food||used.has(food.id)||signal.status==='avoid')continue;

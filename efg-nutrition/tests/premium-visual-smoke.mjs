@@ -794,8 +794,11 @@ try{
     await page.locator("#mealFoodSearch").fill("sushi");
     const allowedIds=await page.locator('#mealEditorFood option[value]:not([value=""])')
      .evaluateAll(options=>options.filter(o=>!o.disabled).map(o=>o.value));
-    if(allowedIds.length!==1||allowedIds[0]!=="sushi_maki_salmon")
-     pageReport.errors.push("Coach-approved catalog leaked unselected foods: "+JSON.stringify(allowedIds));
+    // Guide ingredient references are not a student-specific whitelist:
+    // all the current sushi variants must remain searchable in MI DÍA.
+    if(!allowedIds.includes("sushi_maki_salmon")||!allowedIds.includes("sushi_nigiri_salmon")||
+       new Set(allowedIds).size!==allowedIds.length||allowedIds.length<3)
+     pageReport.errors.push("Shared catalog lost or duplicated sushi options: "+JSON.stringify(allowedIds));
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
     if(await page.locator("#mealEntryMode").inputValue()!=="units")
      pageReport.errors.push("Approved sushi should default to counting pieces");

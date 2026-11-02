@@ -43,7 +43,7 @@ try {
  requireAbsent();record('Pre-install target objects absent, all release switches OFF');
  const pack=buildPilotCoach119Transaction();result.sourceSha256=pack.sha256;
  assert.deepEqual(pack.blocks,['SEC09','OPT01','FOOD_URL','COACH119']);
- assert.equal((pack.sql.match(/^commit;\\s*$/gm)||[]).length,1);
+ assert.equal((pack.sql.match(/^commit;\s*$/gm)||[]).length,1);
  assert.ok(pack.sql.endsWith('commit;\n'));
  // The *entire generated script* executes in ONE connection and ONE
  // transaction. Replace only terminal COMMIT with ROLLBACK to keep fixture

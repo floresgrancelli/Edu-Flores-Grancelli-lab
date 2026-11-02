@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {sameRecipeIngredients as same} from '../pilot/recipe-ingredients-equal.js';
+const local=[{foodId:'banana',grams:100}],jsonb=[{grams:100,foodId:'banana'}];
+assert.equal(same(local,jsonb),true,'JSONB key ordering must not duplicate a committed recipe');
+assert.equal(same(local,[{foodId:'banana',grams:101}]),false);
+assert.equal(same(local,[{foodId:'apple',grams:100}]),false);
+assert.equal(same(local,[{foodId:'banana',grams:'100'}]),false);
+assert.equal(same(local,[{foodId:'banana',grams:100,extra:true}]),false);
+assert.equal(same([...local,...jsonb],local),false);
+assert.equal(same([{foodId:'a',grams:1},{foodId:'b',grams:2}],[{foodId:'b',grams:2},{foodId:'a',grams:1}]),false);
+assert.equal(same(null,null),false);
+assert.equal(same({},{}),false);
+const remote=[{id:'original',name:'TEST_ONLY',ingredients:jsonb}],backup={name:'TEST_ONLY',ingredients:local};
+assert.equal(remote.some(x=>x.name===backup.name&&same(x.ingredients,backup.ingredients)),true);
+assert.equal(remote.length,1);assert.equal(remote[0].id,'original');
+console.log('PASS recipe ingredient structural equality (unit only; HTTP replay remains required)');

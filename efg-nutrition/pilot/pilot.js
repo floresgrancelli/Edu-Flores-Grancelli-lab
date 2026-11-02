@@ -1,3 +1,4 @@
+import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
 import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
 import {createPersistedGuideProvider} from './persisted-guide-provider.js';
@@ -882,7 +883,7 @@ function myRecipes(){
     !Array.isArray(recipe.ingredients)||!recipe.ingredients.length||
     !Number.isFinite(Number(recipe.portions))||Number(recipe.portions)<=0||
     !recipe.totals||!["k","p","c","f"].every(k=>Number.isFinite(Number(recipe.totals[k]))))return;
-   if(result.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))return;
+   if(result.some(x=>x.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))return;
    result.push({...recipe,id:"local-recipe-"+index,pendingLocal:true});
   });
  }catch(_){} // Never destroy malformed local data.
@@ -916,7 +917,7 @@ async function loadCloudRecipes(){
  if(Array.isArray(saved))for(const recipe of saved){
   if(!sameUser())return;
   if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
-  if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
+  if(cloudRecipes.some(x=>x.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))continue;
   if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
   let created;
   try{created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
@@ -990,7 +991,7 @@ async function createPersonalRecipe(){
    let backups;
    try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
    catch(_){throw Error("No pudimos leer el respaldo local; la receta no se sobrescribió.");}
-   if(!backups.some(x=>x?.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))
+   if(!backups.some(x=>x?.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))
     backups.push(recipe);
    try{localStorage.setItem(key,JSON.stringify(backups));}
    catch(_){throw Error("No pudimos guardar la receta sin conexión en este dispositivo.");}
@@ -3561,7 +3562,7 @@ if(el.dataset.foodbulk){
    catch(_){throw Error("No pudimos leer el respaldo local. No se eliminó nada.");}
    if(!Number.isInteger(index)||!Array.isArray(saved)||!saved[index]||
     saved[index].name!==recipe.name||
-    JSON.stringify(saved[index].ingredients)!==JSON.stringify(recipe.ingredients))
+    !sameRecipeIngredients(saved[index].ingredients,recipe.ingredients))
     throw Error("El respaldo cambió. Actualizá la lista antes de eliminarlo.");
    saved.splice(index,1);
    if(saved.length)localStorage.setItem(key,JSON.stringify(saved));

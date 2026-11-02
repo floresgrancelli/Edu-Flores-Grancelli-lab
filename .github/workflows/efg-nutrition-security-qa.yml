@@ -1,7 +1,7 @@
 name: EFG Nutrition Security Guardrails
 on:
   pull_request:
-    branches: [efg-nutrition-app]
+    branches: [efg-nutrition-app, efg-major-integration-20261029]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-security-qa.yml'

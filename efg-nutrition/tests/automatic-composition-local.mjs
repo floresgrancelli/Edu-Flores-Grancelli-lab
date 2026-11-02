@@ -5,7 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {localContext,literal as q} from './helpers/coach119-local.mjs';
-import {importSelectedFdcExport} from '../pilot/fdc-selected-export.js';
+import {GUIDE_FDC_IDS,importSelectedFdcExport} from '../pilot/fdc-selected-export.js';
 
 assert.equal(process.env.EFG_QA_AUTO_COMPOSITION,'1','Explicit isolated opt-in required');
 assert.match(process.env.GITHUB_RUN_ID||'',/^\d+$/,'Actual CI run identifier required');
@@ -23,6 +23,57 @@ const captures=new Map(manifests.map(r=>{
  assert.ok(typeof r.captureCompletedAtUTC==='string'&&Number.isFinite(Date.parse(r.captureCompletedAtUTC)));
  return [r.fdcId,r.captureCompletedAtUTC];
 }));
+// 02-03. Audit ALL FIVE immutable capture records independently of the three
+// entries actually injected into an isolated SQL transaction below. These
+// strict, documented identities must match the archive; the source cannot
+// certify itself by supplying its own expected description.
+const expectedArchive=[
+ ['apple',171688,"Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",'raw'],
+ ['oats_raw',173904,'Cereals, oats, regular and quick, not fortified, dry','raw'],
+ ['milk_skim',173432,'Milk, nonfat, fluid, without added vitamin A and vitamin D (fat free or skim)','as_sold'],
+ ['yogurt_greek_light',170894,"Yogurt, Greek, plain, nonfat (Includes foods for USDA's Food Distribution Program)",'as_sold'],
+ ['spinach_cooked',168463,'Spinach, cooked, boiled, drained, without salt','cooked']
+];
+const archiveAudit=[];
+for(const [foodId,fdcId,description,preparation] of expectedArchive){
+ assert.equal(GUIDE_FDC_IDS[foodId],fdcId,'Mapping must use the pinned FDC identity');
+ const captured=loaded.records[fdcId];assert.ok(captured,'No FDC bytes for '+fdcId);
+ const raw=new TextEncoder().encode(captured.raw),record=JSON.parse(captured.raw);
+ assert.equal(createHash('sha256').update(raw).digest('hex'),captured.sha256);
+ assert.equal(record.fdcId,fdcId);assert.equal(record.dataType,'SR Legacy');
+ assert.equal(record.description,description,'FDC identity/preparation mismatch for '+foodId);
+ const capturedAt=captures.get(fdcId),now=Date.parse(capturedAt)+1800000;
+ const mapping={schemaVersion:1,foodId,fdcId,expectedDescription:description,
+  preparation,dataType:'SR Legacy',unit:'g',basisGrams:100,
+  version:'official-capture-audit-v1',matchMethod:'pinned_record',
+  preparationEvidenceId:'FDC-'+fdcId+'-exact-description'};
+ const metadata={format:'fdc-detail-json-v1',release:'SR Legacy',
+  sourceUrl:'https://api.nal.usda.gov/fdc/v1/food/'+fdcId,
+  retrievedAt:capturedAt,validUntil:new Date(Date.parse(capturedAt)+3600000).toISOString(),
+  basis:'per100g',basisEvidence:'FDC_SR_LEGACY_PER_100G'};
+ const candidate=await importSelectedFdcExport({bytes:raw,mappings:[mapping],metadata,now});
+ assert.equal(candidate.status,'import_report','FDC '+fdcId+' not a valid pinned record');
+ assert.equal(candidate.results?.length,1);
+ const item=candidate.results[0].result;
+ assert.equal(item.status,'normalized_candidate','FDC '+fdcId+' did not normalize: '+(item.reason||'unknown'));
+ assert.equal(item.publishable,false,'Archive normalization is never server approval');
+ assert.equal(candidate.publishable,false,'No source may auto-publish');
+ assert.ok(Object.values(item.perUnit).every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0));
+ // A 100 g dairy reference cannot be repurposed as 100 mL without density
+ // or a product label. A reviewer must supply separate volume evidence.
+ if(foodId==='milk_skim'){
+  const wrongUnit=await importSelectedFdcExport({bytes:raw,mappings:[{...mapping,unit:'ml'}],metadata,now});
+  assert.equal(wrongUnit.status,'unknown','Do not silently convert milk from g to ml');
+  assert.equal(wrongUnit.publishable,false);
+ }
+ archiveAudit.push({foodId,fdcId,validatedIdentity:true,normalizedPer100g:true,
+  publishable:false,rawDigest:'sha256:'+captured.sha256,unit:'g'});
+}
+assert.equal(archiveAudit.length,5);
+console.log('PASS PINNED FDC AUDIT: 5/5 exact records normalized per 100g; milk mL conversion BLOCKED; no hosted/catalog publication.');
+console.log('FDC AUDIT JSON '+JSON.stringify({archiveDigest:loaded.archiveDigest,
+ normalizedRecords:archiveAudit.length,serverReviewRecords:0,records:archiveAudit}));
+
 const selections=[['apple',171688,"Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",'raw'],
  ['oats_raw',173904,'Cereals, oats, regular and quick, not fortified, dry','raw'],
  ['spinach_cooked',168463,'Spinach, cooked, boiled, drained, without salt','cooked']];

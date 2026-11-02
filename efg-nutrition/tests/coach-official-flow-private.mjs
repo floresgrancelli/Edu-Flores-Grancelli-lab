@@ -1,7 +1,8 @@
+import {observeCoachSelectors} from './coach-selector-geometry-private.mjs';
 import assert from 'node:assert/strict';
 import {join} from 'node:path';
 export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
- const errorStart=collectedErrors.length,pages=[],expectedRejections=[];
+ const errorStart=collectedErrors.length,pages=[],expectedRejections=[];let selectorGeometry;
  const expectRejectionConsole=message=>{
   const matches=collectedErrors.map((text,index)=>({text,index})).filter(x=>x.index>=errorStart&&
    x.text.split('\n')[0]===`coach/${width} console: Error: ${message}`&&x.text.includes('/coach-guide-intake-adapter.js:'));
@@ -22,6 +23,7 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
  await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();
  const initial=await mount.locator('[data-guide-totals]').textContent();
  await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
+ selectorGeometry=await observeCoachSelectors(page,width,outDir);
  const qty=mount.locator('[data-edit-row="desayuno:0"] input');
  await qty.fill(String(Number(await qty.inputValue())+1));await qty.press('Tab');
  assert.notEqual(await mount.locator('[data-guide-totals]').textContent(),initial);
@@ -54,7 +56,7 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
  await page.getByText('Cambió el alumno, la ficha o el permiso durante la lectura.',{exact:true}).waitFor();
  expectRejectionConsole('Cambió el alumno, la ficha o el permiso durante la lectura.');
  assert.equal(await page.locator('#coachAdaptedDraftMount [data-guide-totals]').count(),0,'Late response must not populate another student');
- return {role:'coach',width,pages,expectedRejections,errors:collectedErrors.slice(errorStart),officialPrivateConnection:'PASS',clinicalUnknown:'rejected',publishable:false};
+ return {role:'coach',width,pages,selectorGeometry,expectedRejections,errors:collectedErrors.slice(errorStart),officialPrivateConnection:'PASS',clinicalUnknown:'rejected',publishable:false};
  }catch(error){
   await page.screenshot({path:join(outDir,`coach-official-connected-failure-${width}.png`),fullPage:true}).catch(()=>{});
   throw error;

@@ -15,8 +15,9 @@ export async function runDiaryFixture({sql,request,users,input,ids,out,mutationT
  try{
   for(let i=0;i<40;i++){const r=await api(users.studentA,names[0],'GET','select=id');if(r.ok)break;assert.equal(r.data?.code,'PGRST205');assert.ok(i<39);await new Promise(r=>setTimeout(r,250));}
   result.http=await diaryAccessCases({request:api,studentA:users.studentA,studentB:users.studentB,coachA:users.coachA,snapshot});
-  await runDiaryBrowser({request,users,input,ids,out,snapshot});
-  result.status='PASS';record('Diary fixture real HTTP ownership and SDK save/reload/select/recovery390/1280; no diary writes');
+  if(process.env.EFG_QA_DIARY_REGISTRATION==='1')await (await import('../diary-registration/run.mjs')).withDiaryRegistration({sql,out,request,users,snapshot,runBrowser:registrationCases=>runDiaryBrowser({request,users,input,ids,out,snapshot,registrationCases})});
+  else await runDiaryBrowser({request,users,input,ids,out,snapshot});
+  result.status='PASS';record(process.env.EFG_QA_DIARY_REGISTRATION==='1'?'Diary registration local HTTP/SDK390/1280 plus ownership/recovery; see dedicated results':'Diary fixture real HTTP ownership and SDK save/reload/select/recovery390/1280; no diary writes');
  }catch(error){result.status='FAIL';result.error={name:error.name};throw error;}finally{
   try{
    // Only two initially empty synthetic tables; no UPDATE, privileged row delete or other table writes.

@@ -8,7 +8,7 @@ import {createLocalMailReader} from '../../efg-nutrition/tests/sdk-entry-mail-lo
 const tables=['efg_habitual_meals','efg_personal_recipes'];
 const hkey=id=>'efg-nutrition-habitual-v2:'+id+':desayuno';
 const rkey=id=>'efg-nutrition-custom-recipes:'+id;
-export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
+export async function runDiaryBrowser({request,users,input,ids,out,snapshot,registrationCases=null}){
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_DIARY_FIXTURE,'1');
  const {chromium}=await import('playwright');
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1).replace(/^["']|["']$/g,'')];}));
@@ -119,6 +119,7 @@ window.__DIARY_AUTH_DIAGNOSTICS__=()=>({appActor:diaryAlias(state.session?.user?
    assert.match(await page.locator('#efgRecipeRegisterId option:checked').textContent(),/TEST_ONLY UI recipe/);
    await page.screenshot({path:join(out,`diary-select-${width}.png`),fullPage:true});await page.locator('[data-act="closeRecipeRegistration"]').first().click();
    assert.deepEqual(await api(users.studentA,'efg_daily_logs'),diaryBefore,'Selection/cancel never writes diary');
+   if(registrationCases)await registrationCases({page,switchPage,users,width,h,r,item,open,openRecipes,login,settled,hold,out,request,snapshot});
    assert.deepEqual((await owned(users.studentA,tables[0])).find(x=>x.id===h.id),h);assert.deepEqual((await owned(users.studentA,tables[1])).find(x=>x.id===r.id),r);
    await clean(users.studentA);
    stage='lost-response-'+width;await page.reload();await open(page);
@@ -153,7 +154,7 @@ window.__DIARY_AUTH_DIAGNOSTICS__=()=>({appActor:diaryAlias(state.session?.user?
     caseFailures.push(failure);console.error('DIARY_CASE_FAIL '+JSON.stringify(failure));
    }finally{await clean(users.studentA);}
    assert.deepEqual(await snapshot(),baseline,'All tracked database rows preserved after cleanup');
-   results.push({width,status:capacityPassed?'PASS':'FAIL',passedCases:['save/reload/select/cancel','lost response dedup','late GET A-B','late POST A-B'],capacity:capacityPassed?'PASS':'FAIL',diaryRegistration:'NOT_TESTED'});
+   results.push({width,status:capacityPassed?'PASS':'FAIL',passedCases:['save/reload/select/cancel','lost response dedup','late GET A-B','late POST A-B'],capacity:capacityPassed?'PASS':'FAIL',diaryRegistration:registrationCases?'PASS_LOCAL_HTTP':'NOT_TESTED'});
    await context.close();context=null;
   }
   stage='completed-widths-with-case-results';failedWait=null;

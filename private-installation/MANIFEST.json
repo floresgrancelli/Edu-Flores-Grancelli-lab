@@ -247,8 +247,8 @@
       "sha256": "7081c6217c62e3e2ca42a6dd95493e16174a9e8def23b85427c940646f5d6b90"
     },
     "diary-fixture/run.mjs": {
-      "bytes": 2221,
-      "sha256": "745c36e21c7d6d45552739a5f8275ce5caaffa8147b52e461a0410efcd07adbd"
+      "bytes": 2625,
+      "sha256": "e73be6bd2361861f08f98d92038476247964dcf47209f8b0e7298c9d4086f139"
     },
     "diary-fixture/http-cases.mjs": {
       "bytes": 2954,
@@ -259,8 +259,8 @@
       "sha256": "ab4ed44c5ed580aab520ebab5814abf9f76354f655c896c9bc5bf58b67fcab64"
     },
     "diary-fixture/browser.mjs": {
-      "bytes": 18447,
-      "sha256": "7b76972dd8214c54ccc96096e2c56e2a51dcbaa9da907247d03c94bc50f3635f"
+      "bytes": 18652,
+      "sha256": "c78bd18e43e283dd47b297bf45006b3ce28749168a889c5b86639ce47715ef5b"
     },
     "diary-fixture/install.mjs": {
       "bytes": 2810,
@@ -273,6 +273,30 @@
     "dom-fixture/install.mjs": {
       "bytes": 5118,
       "sha256": "d2e976d07dec96bbc1475a973477ef73734cf6501073b0442cf33d0b8f46859a"
+    },
+    "diary-registration/run.mjs": {
+      "bytes": 2898,
+      "sha256": "c569f029f1b2e85a9408d0837652cecd3f42cc693c3eb6bfafb226925243b583"
+    },
+    "diary-registration/restore.PROPOSAL.sql": {
+      "bytes": 474,
+      "sha256": "c0b1222687f5a11c16edc76e755bf9314988fe01d25d374ca9dd927d366555c1"
+    },
+    "diary-registration/http-cases.mjs": {
+      "bytes": 2317,
+      "sha256": "e096adb7231f22e9b418afca28ec7b0fd7a23aa7d06fa389b296e9ba7a4e9fab"
+    },
+    "diary-registration/browser-cases.mjs": {
+      "bytes": 6721,
+      "sha256": "a23ae50154aa05ad3e4f51d50478cf7c4625f6dc4681bc964f52dbc5592da976"
+    },
+    "diary-registration/install.mjs": {
+      "bytes": 3831,
+      "sha256": "c032042cce1078eb293cc2793434ab564e0d1faf8c4e1049c823562603650f32"
+    },
+    "diary-registration/writes.PROPOSAL.sql": {
+      "bytes": 3299,
+      "sha256": "789db109c367bab36949d45f6c7694f5ff388e69a8f72731da70013e43a2518e"
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",

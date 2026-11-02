@@ -541,6 +541,7 @@ jobs:
       EFG_QA_INCREMENTAL_INSTALL: '1'
       EFG_QA_DOM_FIXTURE_ONLY: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
       EFG_QA_DIARY_FIXTURE: ${{ contains(github.event.head_commit.message, '[diary-fixture]') && '1' || '0' }}
+      EFG_QA_DIARY_REGISTRATION: ${{ contains(github.event.head_commit.message, '[diary-registration]') && '1' || '0' }}
       EFG_QA_DOM_FIXTURE: ${{ (contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[clinical-bridge]') || contains(github.event.head_commit.message, '[diary-fixture]')) && '1' || '0' }}
       EFG_QA_CLINICAL_BRIDGE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && '1' || '0' }}
       EFG_QA_CLINICAL_BRIDGE_MODE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && 'rpc-dom' || '' }}
@@ -586,6 +587,9 @@ jobs:
           for f in private-installation/diary-fixture/*.mjs; do node --check "$f"; done
           node --experimental-default-type=module efg-nutrition/tests/recipe-ingredients-equal-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/habitual-recovery-private.mjs
+          if [ "$EFG_QA_DIARY_REGISTRATION" = '1' ]; then
+            for f in private-installation/diary-registration/*.mjs; do node --check "$f"; done
+          fi
           node --experimental-default-type=module --check efg-nutrition/pilot/pilot.js
           node --experimental-default-type=module --check efg-nutrition/pilot/auth-hydration-gate.js
           node --experimental-default-type=module efg-nutrition/tests/auth-hydration-gate-private.mjs

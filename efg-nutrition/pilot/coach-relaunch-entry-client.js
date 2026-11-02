@@ -50,12 +50,13 @@ export async function loadCoachRelaunchEntry(sb,{profile,userId}={}){
   return {route:"retry",reason:"No se pudo verificar la fecha de revisión de la ficha.",status:null,legalStatus};
  return {...gate,status,legalStatus};
 }
+const requiredGeneral=id=>["objective","age_years","height_cm","weight_kg","activity_level","dietary_pattern"].includes(id);
 const field=(id,label,val,step,min,max)=>
- '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
- '<input id="coachRelaunch_'+id+'" type="number" inputmode="decimal" min="'+min+
+ '<div class="field"><label for="coachRelaunch_'+id+'">'+label+(requiredGeneral(id)?' (obligatorio)':' (opcional)')+'</label>'+
+ '<input id="coachRelaunch_'+id+'"'+(requiredGeneral(id)?' required':'')+' type="number" inputmode="decimal" min="'+min+
  '" max="'+max+'" step="'+step+'" value="'+esc(val??"")+'"></div>';
 const select=(id,label,value)=>'<div class="field"><label for="coachRelaunch_'+id+'">'+label+
- '</label><select id="coachRelaunch_'+id+'">'+known[id].map(([code,text])=>
+ '</label><select id="coachRelaunch_'+id+'"'+(requiredGeneral(id)?' required':'')+'>'+known[id].map(([code,text])=>
  '<option value="'+esc(code)+'"'+(value===code?' selected':'')+'>'+esc(text)+'</option>').join("")+'</select></div>';
 const textarea=(id,label,value,max)=>
  '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
@@ -79,7 +80,7 @@ export function renderCoachRelaunchEntry(entry,{editing=false}={}){
  '<span class="eyebrow">Nutrición Con-Ciencia COACH · NUEVA ETAPA</span>'+
  '<h2 id="efgCoachRelaunchTitle">'+(editing?'Revisar mi ficha nueva':'Conozcámonos de nuevo')+'</h2>'+ 
  '<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>'+
- '<p class="pilot-hint">Los datos son voluntarios y no equivalen a un diagnóstico. No introduzcas información médica sensible en los campos de texto: ese apartado aún requiere revisión legal y profesional.</p>'+
+ '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Compartir la ficha requiere tu autorización separada y revocable. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form">'+ 
  select("objective","Mi objetivo",data.objective)+
  '<div class="field-row">'+field("age_years","Edad (años)",data.age_years,1,18,100)+

@@ -43,6 +43,11 @@ assert.match(html,/16:8/,'Intermittent fasting selectable as timing');
 assert.match(html,/no se aplican automáticamente/i);
 assert.match(html,/Conozcámonos de nuevo/);
 assert.match(html,/Confirmar mi ficha nueva/);
+for(const id of ['objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern'])
+ assert.match(html,new RegExp('id="coachRelaunch_'+id+'" required'),
+  'The required nutrition field '+id+' must be labeled and validated');
+assert.match(html,/\(obligatorio\)/);
+
 assert.match(html,/Autorizo compartir/);
 assert.doesNotMatch(html,/id="coachRelaunch_share"[^>]+checked/);
 const fields={

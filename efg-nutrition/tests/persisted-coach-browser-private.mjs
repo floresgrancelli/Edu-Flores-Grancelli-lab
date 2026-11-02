@@ -16,7 +16,9 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
   let body=readFileSync(pathname.endsWith('/')?join(p,'index.html'):p);
   if(pathname.endsWith('/coach-adapted-workspace.js'))body=Buffer.from(body.toString().replace('COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=true'));
   if(pathname==='/efg-nutrition/pilot/pilot.js'){
-   const marker='const coachPersistedGuideSource=null;';assert.equal(body.toString().split(marker).length,2);
+   // Match the real disabled-by-default product initializer, not a deleted
+   // "const ... = null" fixture from an older candidate. No product flag changes.
+   const marker="const coachPersistedGuideSource=installedGuideEnabled?createPersistedGuideProvider({client:sb,readScope:adaptedCoachScope,template:PILOT_GUIDE_INSTALL.template}):null;";assert.equal(body.toString().split(marker).length,2);
    const original=body.toString();
    const providerImport="import {createPersistedGuideProvider} from './persisted-guide-provider.js';";
    const localImport="import {createClient as localClient} from '../tests/persisted-coach-browser-client.mjs';";
@@ -26,7 +28,7 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
    body=Buffer.from(localImport+'\n'+providerSource.replace(marker,'const coachPersistedGuideSource=createPersistedGuideProvider({client:localClient(),readScope:adaptedCoachScope,template:'+JSON.stringify(official.template)+'});')+'\nwindow.__PERSISTED_VIEW__={state,render,workspace:coachAdaptedWorkspace,handleAuthStateChange,setCoachSessionIdentity,setConsentMap:v=>{coachRosterConsent=v}};');
   }
   if(pathname==='/efg-nutrition/pilot/pilot.js'&&process.env.EFG_QA_BOUND_PUBLICATION==='1'){
-   const marker='const coachBoundPublication=null;';assert.equal(body.toString().split(marker).length,2);
+   const marker="const coachBoundPublication=installedGuideEnabled&&PILOT_GUIDE_INSTALL.publicationEnabled?createBoundGuidePublication({sb,readScope:adaptedCoachScope,enabled:true}):null;";assert.equal(body.toString().split(marker).length,2);
    const input=body.toString(),publisherImport="import {createBoundGuidePublication} from './bound-guide-publication-client.js';";
    const once=input.includes(publisherImport)?input:publisherImport+'\n'+input;
    assert.equal(once.split(publisherImport).length-1,1,'Exactly one product publisher import after test injection');

@@ -11,6 +11,8 @@ for(const part of [
  "pg_catalog.jsonb_array_length(guided_plan->'meals') between 2 and 6",
  'COACH119 STOP: unexpected existing guide CHECK'
 ])assert.ok(sql.includes(part),'Signed guide shape migration missing '+part);
+assert.doesNotMatch(sql,/pg_catalog\.coalesce\(/,
+ 'COALESCE is a SQL expression and MUST NOT be qualified as pg_catalog.coalesce');
 assert.ok(sql.indexOf('validate constraint efg_guided_plan_shape')<
  sql.indexOf('create table public.efg_coach_plan_publish_receipts'),
  'Publish RPC must never run before the corrected guide shape is installed');

@@ -66,7 +66,7 @@ alter table public.efg_food_plans
    and pg_catalog.octet_length(guided_plan::text)<30000
    and guided_goal_id is not null
    and guided_plan_approved_at is not null
-   and pg_catalog.coalesce(
+   and coalesce(
     case when pg_catalog.jsonb_typeof(guided_plan->'meals')='array' then
      ( (guided_plan->>'kind'='five_meal_example'
          and pg_catalog.jsonb_array_length(guided_plan->'meals')=5)

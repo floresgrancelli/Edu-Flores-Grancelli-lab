@@ -39,11 +39,11 @@ const proposal={kind:'five_meal_example',version:1,meals:menu.meals.map(x=>({
  slot:x.slot,items:x.items.map(i=>({id:i.foodId,unit:'g',qty:i.grams}))
 }))};
 assert.deepEqual(approvedFoodGuide(proposal,menu.candidateFoodIds,
- {knownIds:[...pwaById.keys(),'brownrice','potato','banana','oil']}).approvedFoodIds,
+ {knownIds:[...menu.candidateFoodIds]}).approvedFoodIds,
  [...menu.candidateFoodIds].sort());
 assert.throws(()=>approvedFoodGuide(proposal,
  menu.candidateFoodIds.filter(id=>id!=='chicken_breast_roasted'),
- {knownIds:[...pwaById.keys(),'brownrice','potato','banana','oil']}),/no está seleccionado/);
+ {knownIds:[...menu.candidateFoodIds]}),/no está seleccionado/);
 
 assert.equal(source.readiness,'NOT_REVIEWED');
 assert.equal(source.publishable,false);

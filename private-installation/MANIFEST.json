@@ -11,8 +11,8 @@
       "sha256": "a5b0550d67239d356ee4d3607f445bb025205c67ba777be2605a3abb98ea988d"
     },
     "runner/run.mjs": {
-      "bytes": 20122,
-      "sha256": "68f0791e81701576e5da9fc78e6b4021de86046e1dd4ec307eac41ab4697c907"
+      "sha256": "e9aed9e628b6971bec9524822d16b8df3cb8925683871effecc1273311c648e9",
+      "bytes": 20759
     },
     "runner/config.py": {
       "bytes": 805,
@@ -147,8 +147,8 @@
       "sha256": "755e9b38e6cc3ae90368c2d365b8fdd964d78850ea092897a7e926bc29da58bc"
     },
     "runner/clinical-cases.mjs": {
-      "bytes": 15871,
-      "sha256": "1dbac3b42c73f4595e9fe2640b0559e01cfda68571595239554f7286877debe0"
+      "sha256": "09997ab43db894159e166c875661a41133dae8081e5f8d68833d555a28a6a9ee",
+      "bytes": 16020
     },
     "clinical/sql/clinical-provider.PROPOSAL.sql": {
       "bytes": 6877,
@@ -189,6 +189,54 @@
     "clinical/reference/guide-compatibility.mjs": {
       "bytes": 5148,
       "sha256": "a691b3ae6c3ccd4f959ad9cf8198bdff080eff9827dbbed4bdfb4be61c4516fd"
+    },
+    "bridge/run.mjs": {
+      "sha256": "0913927d11416f63f9d73b40a45d1b7c5e40e9cedb9e3265b09e5f9a5378a086",
+      "bytes": 5866
+    },
+    "bridge/clinical-preview-save.PROPOSAL.sql": {
+      "sha256": "14569ec90dcfa686ec0ae169da60d5425fc7a920a23b89ba91e301daeddcbda7",
+      "bytes": 7911
+    },
+    "bridge/browser-source.mjs": {
+      "sha256": "67a6dff688ffe55b7c20897e94cf2f63c0fffb657bb715fa50532f80db86bcf1",
+      "bytes": 1194
+    },
+    "bridge/browser.mjs": {
+      "sha256": "b3196d27359d89023dfae3791f80b38e03b64fbe675b4c5da9dac3a409405740",
+      "bytes": 6186
+    },
+    "bridge/fixtures.mjs": {
+      "sha256": "5b38880d16d2f63ad7e3438681fc44ed00af93fd2b490dda44c11d4aa699d6df",
+      "bytes": 5745
+    },
+    "bridge/tests/bridge-dom-local.mjs": {
+      "sha256": "342b0b41e23f88a7d12c4563162969ae2a2a82cf7ed97b2384f09988aafd0769",
+      "bytes": 5869
+    },
+    "bridge/tests/bridge-http-contract.mjs": {
+      "sha256": "b3c0010c85259659cbc456043c27226a275ccf68d1cfd5ed99c8051a6d272af5",
+      "bytes": 1593
+    },
+    "bridge/tests/expiration-private.mjs": {
+      "sha256": "7c5cb7973d9d009b936a019dd00f5557b9de8abd15e217fd5c1f686325a14fd3",
+      "bytes": 2434
+    },
+    "bridge/tests/bridge-rpc-local.mjs": {
+      "sha256": "9c782e7b74bebe48c11d949367730db3bbbae080e56924cf164cd12a5a4468f0",
+      "bytes": 5310
+    },
+    "bridge/tests/provider-bridge-private.mjs": {
+      "sha256": "fa0ad8cb49d00a542b838ef48f333c09d6bf066b813fed57e5dbfb65cefee66b",
+      "bytes": 4420
+    },
+    "bridge/tests/bridge-http-contract-private.mjs": {
+      "sha256": "32718e4d2b466b80fd52b568e21a59145d4e761458fd99f0521af1037525ad00",
+      "bytes": 1791
+    },
+    "bridge/tests/stale-recipe-private.mjs": {
+      "sha256": "002c9a7af9d450f1e4af78d8c7d79bd71ddc8de68bc2fc16d0fe2c1952e113a4",
+      "bytes": 2698
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",

@@ -1,6 +1,7 @@
 // Authenticated transport only. Not wired into pilot.js; no synthetic:true bypass.
+import {recipeProjection,serverCompatibilityFrame} from './server-compatibility-client.js';
 import {createCoachHealthResponseProvider} from './coach-health-response-provider.js';
-export function createPersistedGuideProvider({client,readScope,template}){
+export function createPersistedGuideProvider({client,readScope,template,clinical=false}){
  let generation=0,accepted=null;
  const key=s=>s&&JSON.stringify([s.userId,s.sessionId,s.studentId,s.organizationId,s.sourceEpoch]);
  const health=createCoachHealthResponseProvider({readScope,readHealth:async({studentId})=>{
@@ -24,7 +25,7 @@ export function createPersistedGuideProvider({client,readScope,template}){
   const {row:r,scope:s}=await call('efg_read_bound_guide',{});
   if(r.viewer_id!==s.userId||r.session_id!==s.sessionId||r.student_id!==s.studentId||r.organization_id!==s.organizationId||
    healthResponse.data.student_id!==r.student_id||healthResponse.data.organization_id!==r.organization_id||
-   healthResponse.data.viewer_id!==r.viewer_id||healthResponse.data.revision!==r.health_revision||r.restriction_declaration!=='none_declared'||r.publishable!==false)throw Error('SCOPE_OR_DECLARATION');
+   healthResponse.data.viewer_id!==r.viewer_id||healthResponse.data.revision!==r.health_revision||(clinical?!['none_declared','clinical_declared'].includes(r.restriction_declaration):r.restriction_declaration!=='none_declared')||r.publishable!==false)throw Error('SCOPE_OR_DECLARATION');
   const now=Date.parse(r.evaluated_at);if(!Number.isFinite(now))throw Error('CLOCK_MISSING');
   const catalog=r.foods.map(f=>{const p=f.provenance;
    if(p.foodId!==f.id||p.unit!==f.unit||p.provider!=='usda_fdc'||p.test_only!==false)throw Error('EVIDENCE_MISMATCH');
@@ -38,18 +39,42 @@ export function createPersistedGuideProvider({client,readScope,template}){
     composition:{status:'verified',id:p.rawDigest,url:p.sourceUrl,foodId:f.id,productId:null,preparation:p.preparation,
      unit:f.unit,perUnit:persistedPerUnit,sourcePerUnit:p.perUnit,normalization:'POSTGRES_NUMERIC_10_6',observedAt:f.validated_at,expiresAt:f.expires_at,reviewedBy:null},glutenEvidence:null};
   });
-  accepted={key:key(s),revision:r.draft_revision,digest:r.catalog_digest,intake:r.intake_revision,health:r.health_revision};
+  let restrictions=[],pattern={kind:'general'};
+  if(clinical){
+   const conditions=healthResponse.data.conditions;
+   if(!conditions||typeof conditions!=='object'||Array.isArray(conditions))throw Error('DECLARATION_MISSING');
+   const map={celiac:'gluten',lactose_intolerance:'lactose_intolerance'};
+   for(const [name,value] of Object.entries(conditions)){if(!['confirmed','suspected','not_reported'].includes(value)||!map[name])throw Error('UNSUPPORTED_DECLARATION');if(value!=='not_reported')restrictions.push(map[name]);}
+   if((r.restriction_declaration==='none_declared')!== (Object.keys(conditions).length===0))throw Error('DECLARATION_MISMATCH');
+   pattern=r.compatibility?.pattern||(r.general?.dietary_pattern==='omnivore'?{kind:'general'}:null);
+   if(!pattern||!['general','keto'].includes(pattern.kind)||
+    (pattern.kind==='keto'&&(r.general?.dietary_pattern!=='keto'||pattern.coachConfirmed!==true||pattern.intakeRevision!==r.intake_revision))||
+    (pattern.kind==='general'&&r.general?.dietary_pattern!=='omnivore'))throw Error('SERVER_PATTERN_MISSING');
+  }
+  accepted={frame:serverCompatibilityFrame(r),key:key(s),revision:r.draft_revision,digest:r.catalog_digest,intake:r.intake_revision,health:r.health_revision};
   return {persisted:true,publishable:false,catalog,template:structuredClone(template),goal:r.goal,
-   preferredIds:r.preferred_ids,context:{now,restrictions:[],dislikedIds:r.disliked_ids,pattern:{kind:'general'}},row:r};
+   preferredIds:r.preferred_ids,context:{now,restrictions,dislikedIds:r.disliked_ids,pattern},row:r};
  }
  async function save(plan){
   const previous=accepted;if(!previous||previous.key!==key(readScope()))throw Error('STALE_CONTEXT');
   await load(); // Fresh server authorization, source revisions and expiry before mutation.
   if(previous.revision!==accepted.revision||previous.digest!==accepted.digest||previous.intake!==accepted.intake||previous.health!==accepted.health)
    throw Error('STALE_CONTEXT');
+  if(clinical){
+   const projection=recipeProjection(plan),requestKey=crypto.randomUUID();
+   const {row:saved}=await call('efg_save_clinical_bound_recipe',{p_expected:previous.frame,p_recipe:projection,p_request_key:requestKey});
+   if(saved.request_key!==requestKey||JSON.stringify(recipeProjection(saved.recipe_projection))!==JSON.stringify(projection)||saved.draft_revision!==previous.revision+1)throw Error('SAVE_RESPONSE_MISMATCH');
+   const readback=await load();if(readback.row.draft_revision!==saved.draft_revision)throw Error('READBACK_CONFLICT');return readback;
+  }
   const {row:revision}=await call('efg_save_bound_guide',{p_expected_draft:previous.revision,p_catalog_digest:previous.digest,p_guide:plan});
   const readback=await load();if(readback.row.draft_revision!==revision)throw Error('READBACK_CONFLICT');
   return readback;
  }
- return {load,save,invalidate};
+ async function preview({expected,recipe,requestKey,context}){
+  if(!clinical)throw Error('CLINICAL_PROVIDER_OFF');
+  const scope=readScope();
+  if(!accepted||accepted.key!==key(scope)||context?.sessionId!==scope.sessionId||context?.sourceEpoch!==scope.sourceEpoch||context?.organizationId!==scope.organizationId)throw Error('STALE_CONTEXT');
+  const {row}=await call('efg_preview_clinical_bound_recipe',{p_expected:expected,p_recipe:recipeProjection(recipe),p_request_key:requestKey});return row;
+ }
+ return {load,save,invalidate,preview};
 }

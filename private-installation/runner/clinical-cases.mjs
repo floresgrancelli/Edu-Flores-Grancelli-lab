@@ -40,7 +40,7 @@ async function expireWhileWaiting({sql,rpc,fixture,snapshot,record}){
  }
 }
 
-export async function clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,mutationTables,record,out}){
+export async function clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,mutationTables,record,out,afterClinical=null}){
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_INCREMENTAL_INSTALL,'1');
  const report={status:'RUNNING',sqlParity:[],races:[],limits:['Clinical captures and registry rows in negatives are TEST_ONLY; no real clinical catalogue','No frontend, browser, hosted or clinical activation'],cleanup:false};
  const beforeAcl=capturePermissions(sql);
@@ -132,6 +132,7 @@ export async function clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,d
    report.races.push(await publicationVsWithdrawal({sql,rpc,...f,requestId:randomUUID(),withdrawalFirst:side==='B',snapshot:snap,publicationSnapshot:pubSnap}));
   }
   record('actual publication-first and withdrawal-first: locks observed, no deadlock, replay denied');
+  if(afterClinical)await afterClinical({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,record,out,fresh,allTables});
   report.status='PASS';
  }catch(e){report.status='FAIL';report.error={name:e.name,message:String(e.message).replace(/eyJ[A-Za-z0-9_.-]+/g,'[REDACTED]').slice(0,1200)};throw e;}
  finally{

@@ -540,7 +540,9 @@ jobs:
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
       EFG_QA_DOM_FIXTURE_ONLY: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
-      EFG_QA_DOM_FIXTURE: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
+      EFG_QA_DOM_FIXTURE: ${{ (contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[clinical-bridge]')) && '1' || '0' }}
+      EFG_QA_CLINICAL_BRIDGE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && '1' || '0' }}
+      EFG_QA_CLINICAL_BRIDGE_MODE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && 'rpc-dom' || '' }}
       EFG_QA_CLINICAL_COMPATIBILITY: ${{ contains(github.event.head_commit.message, '[clinical-compatibility]') && '1' || '0' }}
     steps:
       - name: Resolve disposable paths on runner
@@ -563,6 +565,19 @@ jobs:
         if: env.EFG_QA_DOM_FIXTURE_ONLY == '1'
         run: |
           for f in private-installation/dom-fixture/*.mjs; do node --check "$f"; done
+      - name: Reviewed clinical bridge contracts before any stack
+        if: env.EFG_QA_CLINICAL_BRIDGE == '1'
+        env:
+          EFG_BRIDGE_PILOT_ROOT: efg-nutrition/pilot
+        run: |
+          set -euo pipefail
+          for f in private-installation/bridge/*.mjs private-installation/bridge/tests/*.mjs private-installation/dom-fixture/*.mjs; do node --check "$f"; done
+          node --experimental-default-type=module private-installation/bridge/tests/expiration-private.mjs
+          node --experimental-default-type=module private-installation/bridge/tests/stale-recipe-private.mjs
+          node --experimental-default-type=module private-installation/bridge/tests/provider-bridge-private.mjs
+          node private-installation/bridge/tests/bridge-http-contract-private.mjs
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Clinical source preflight before stack (opt-in)
         if: env.EFG_QA_CLINICAL_COMPATIBILITY == '1'
         run: |

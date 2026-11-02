@@ -34,6 +34,7 @@ try{
  const exactTypes=JSON.parse(read('runner/confirmed-types.json'));
  for(const c of exactTypes.columns){const actual=JSON.parse(sql(`select jsonb_build_object('type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull) from pg_attribute a where a.attrelid=${q(c.schema_name+'.'+c.table_name)}::regclass and a.attname=${q(c.column_name)} and a.attnum>0 and not a.attisdropped`));assert.deepEqual(actual,{type:c.exact_type,not_null:c.not_null});}
  record('ten confirmed exact types and nullability');
+ if(process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom') (await import('../dom-fixture/install.mjs')).installDomFixture({sql,out});
  writeFileSync(out+'/acl-before.json',JSON.stringify(aclSnapshot(sql),null,2));
  const input=officialInput(),goal={...input.goal,goal_type:'maintenance'};
  const password=randomBytes(24).toString('hex')+'!Aa9',suffix=randomBytes(6).toString('hex'),users={};
@@ -50,6 +51,7 @@ try{
    insert into public.efg_consents(student_id,organization_id,accepted) values(${q(s.id)},${q(orgs[side])},true);
    insert into public.efg_student_plan_access(student_id,organization_id,coach_id) values(${q(s.id)},${q(orgs[side])},${q(c.id)});`);
  }
+ if(process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom')result.groups.push(await (await import('../dom-fixture/access-cases.mjs')).verifyDomFixtureAccess({sql,rpc,request,users,orgs}));
  const text='FICTIONAL LOCAL CONSENT, NOT A DOCUMENT FOR PEOPLE. '.repeat(10);
  sql(`insert into public.efg_legal_documents(kind,version,body,sha256,is_current,published_at) select kind,'isolated_install_v1',${q(text)},encode(sha256(convert_to(${q(text)},'UTF8')),'hex'),true,now() from unnest(array['terms','privacy']) kind; notify pgrst,'reload schema';`);
  for(let n=0;n<40;n++){const r=await rpc('efg_legal_current_status',users.studentA.token);if(r.ok)break;assert.equal(r.data?.code,'PGRST202');await new Promise(r=>setTimeout(r,250));}
@@ -153,7 +155,7 @@ try{
   const after=JSON.parse(rowSnapshot(sql,[t])[t]).filter(x=>x.student_id===users.studentB.id);assert.deepEqual(after,before);
  }
  record('legacy B goal/draft/intake/receipt retained');
- if(process.env.EFG_QA_CLINICAL_COMPATIBILITY==='1')await (await import('./clinical-cases.mjs')).clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,mutationTables,record,out});
+ if(process.env.EFG_QA_CLINICAL_COMPATIBILITY==='1')await (await import('./clinical-cases.mjs')).clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,mutationTables,record,out,afterClinical:process.env.EFG_QA_CLINICAL_BRIDGE==='1'?async context=>(await import('../bridge/run.mjs')).runClinicalBridge({...context,input,...(process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom'?{allTables:[...context.allTables,...(await import('../dom-fixture/install.mjs')).tables.map(t=>'public.'+t)]}:{})}):null});
  result.status='PASS';
 }catch(e){result.status='FAIL';result.error={name:e.name,message:String(e.message).replace(/eyJ[A-Za-z0-9_.-]+/g,'[REDACTED]').slice(0,1600)};throw e;
 }finally{

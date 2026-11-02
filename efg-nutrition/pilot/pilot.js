@@ -1524,12 +1524,13 @@ function plannerMeasuredGrams(food,shownQty){
  return portion?shownQty*portion.grams:shownQty;
 }
 function plannerQtyLabel(food,unit){
+ if(food?.unit==='porción')return 'porciones';
  const portion=plannerSushiPortion(food);
  return portion?"piezas (≈ "+num(portion.grams)+" g cada una, estimados)":unit;
 }
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
- const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
+ const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
  let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
  '<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
@@ -1537,7 +1538,7 @@ function plannerCard(){
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
- const all=allPlannerFoods(foods,allowedFoods());
+ const all=allPlannerFoods(selectableFoods(),allowedFoods());
  // Same full catalog, annotated by the SAME semaphore used by daily meal search.
  // No user-specific second catalog; no hidden foods for uncertain evidence.
  const plannerDisplayFoods=all.map(f=>{
@@ -1628,7 +1629,7 @@ function syncPlannerSearchActions(key){
  const pair=parsePlannerKey(key);
  if(!pair)return;
  const [slot,category]=pair;
- const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const row=plan.meals?.find(meal=>meal.slot===slot)?.rows?.find(item=>item.category===category);
  const signalMount=[...panel.querySelectorAll('[data-plan-compat]')].find(el=>el.dataset.planCompat===key);
  if(signalMount)signalMount.innerHTML=row?.food?foodTrafficLight(row.food).details:'';
@@ -1658,7 +1659,7 @@ function filterPlannerFoods(input){
  if(!select)return;
  const chosenId=select.value;
  const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
- const available=allPlannerFoods(foods,allowedFoods()); // Único catálogo; el semáforo no oculta alimentos.
+ const available=allPlannerFoods(selectableFoods(),allowedFoods()); // Único catálogo; el semáforo no oculta alimentos.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=plannerNormalizeQuery(foodSearchText(f)+" "+aliases);
@@ -1693,7 +1694,7 @@ function updatePlannerPreview(){
  let hasUnsupported=false;
  for(const select of notice.closest("#planSuggestionCard").querySelectorAll("[data-planselect]")){
   const key=select.dataset.planselect;
-  const food=foods.find(f=>f.id===select.value);
+  const food=selectableFoods().find(f=>f.id===select.value);
   if(!food)continue;
   if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,food.id)){hasUnsupported=true;gramChoices[key]=0;continue;}
   const shownQty=Number(document.getElementById("planQty_"+key)?.value)||0;
@@ -1702,7 +1703,7 @@ function updatePlannerPreview(){
   gramChoices[key]=grams;
   chosenFoods.push({food,grams});
  }
- const energyPlan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const energyPlan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const energy=plannerEnergyBreakdown(energyPlan,gramChoices);
  for(const [i,entry] of energy.entries()){
   const section=[...notice.closest("#planSuggestionCard").querySelectorAll("[data-plan-energy]")].find(el=>el.dataset.planEnergy===entry.slot);
@@ -1779,7 +1780,7 @@ function openPlannedFoodEditor(key){
  if(!pair)throw new Error("Selección inválida.");
  const [slot,category]=pair;
  const id=state.plannerSelections[key]||"";
- const selected=foods.find(f=>f.id===id);
+ const selected=selectableFoods().find(f=>f.id===id);
  if(!selected)throw new Error("Seleccioná un alimento.");
  openMealDialog(slot);
  const picker=document.getElementById("mealEditorFood");
@@ -1797,7 +1798,7 @@ async function addPlannedFood(key){
  pendingMealRegistrations.add(slot);
  try{
  if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
- const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
  if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
  const grams=plannerMeasuredGrams(row.food,shownQty);
@@ -1812,7 +1813,7 @@ async function addPlannedFood(key){
  d.skipped[slot]=false;
  // A planner choice must keep the user-visible sushi piece count after saving.
  // Nutrition calculation still uses grams; never duplicate the stored item.
- const item=normItem(row.food,grams,slot),portion=plannerSushiPortion(row.food);
+ const item=attachRecipeSnapshot(normItem(row.food,grams,slot),row.food),portion=plannerSushiPortion(row.food);
  if(portion){item.displayQty=shownQty;item.displayUnit=portion.label;item.unitEstimate=true;}
  d.meals[slot].push(item);
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
@@ -1844,7 +1845,7 @@ function openMealDialog(slot,initialGroup="protein"){
  const guided=isGuidedMealSlot(slot);
  activeGuidedMealGroup=guided&&GUIDED_MEAL_GROUPS.some(g=>g.id===initialGroup)?initialGroup:"protein";
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
- const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
+ const allowed=[...permitted].map(id=>selectableFoods().find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  const displayed=guided?allowed.filter(f=>guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup):allowed;
   const displayedWithSignals=displayed.map(f=>{const signal=foodTrafficLight(f);return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};});
  const marks=guidedMealMarks(activeDiary()?.skipped,slot),current=guidedMealTotals(activeDiary()?.meals?.[slot]);
@@ -1891,7 +1892,7 @@ function renderMealSearchSuggestions(items,term){
 }
 function pickMealSearchSuggestion(foodId){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
- const food=foods.find(f=>f.id===foodId);
+ const food=selectableFoods().find(f=>f.id===foodId);
  if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
  const foodChanged=selector.value!==food.id;
  selector.value=food.id;search.value=food.name;
@@ -1908,7 +1909,7 @@ function filterMealFoods(){
  const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
  // Searching is global so familiar food names still work regardless of
  // the current educational category; blank search shows the chosen section.
- const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
+ const filtered=[...permittedFoodIds].map(id=>selectableFoods().find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
@@ -1924,17 +1925,18 @@ function filterMealFoods(){
 }
 function updateMealEntryMode(foodChanged=false){
  const id=document.getElementById("mealEditorFood")?.value;
- const f=foods.find(x=>x.id===id);
+ const f=selectableFoods().find(x=>x.id===id);
  const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
  const mode=document.getElementById("mealEntryMode"),wrap=document.getElementById("mealEntryModeWrap"),qty=document.getElementById("mealEditorQty"),label=document.getElementById("mealEditorQtyLabel");
  if(!mode||!qty||!label||!wrap)return;
  wrap.style.display=portion?"":"none";
- if(foodChanged){mode.value=portion?"units":"weight";qty.value=portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
+ if(foodChanged){mode.value=portion?"units":"weight";qty.value=f?.unit==="porción"?1:portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
  if(!portion)mode.value="weight";
  const counting=!!portion&&mode.value==="units";
  label.textContent=counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
- qty.step=counting?"1":"any";
- qty.min=counting?"1":"0.1";
+ qty.step=counting?"1":f?.unit==="porción"?"0.5":"any";
+ qty.min=counting?"1":f?.unit==="porción"?"0.5":"0.1";
+ qty.max=f?.unit==="porción"?"20":"5000";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
@@ -1944,7 +1946,7 @@ function updateMealEntryMode(foodChanged=false){
 }
 function measureMealEntry(){
  const id=document.getElementById("mealEditorFood")?.value;
- const f=foods.find(x=>x.id===id);
+ const f=selectableFoods().find(x=>x.id===id);
  const qty=Number(document.getElementById("mealEditorQty")?.value);
  const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
  const useUnits=!!portion&&document.getElementById("mealEntryMode")?.value==="units";
@@ -1967,14 +1969,14 @@ async function saveSelectedMeal(continueGuided=false){
  const slot=state.activeMeal;
  if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  pendingMealRegistrations.add(slot);
  try{
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
  const previousDiary=state.diary,previousActiveMeal=state.activeMeal;
  const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
- const entry=normItem(f,grams,slot);
+ const entry=attachRecipeSnapshot(normItem(f,grams,slot),f);
  if(drink){entry.name=drink.name;entry.source=drink.source;entry.ingredients=drink.ingredients;Object.assign(entry,drink.totals);}
  if(useUnits){entry.displayQty=qty;entry.displayUnit=portion.label;entry.unitEstimate=true;}
  d.meals[slot].push(entry);d.skipped[slot]=false;d.skipped._closed=false;
@@ -3676,7 +3678,7 @@ if(el.dataset.foodbulk){
   const key=el.dataset.planextra,foodId=el.dataset.planfood;
   const parts=parsePlannerKey(key);
   if(!parts||!["vegetable","fat"].includes(parts[1]))throw new Error("Extra inválido.");
-  const candidate=allPlannerFoods(foods,allowedFoods()).find(f=>f.id===foodId);
+  const candidate=allPlannerFoods(selectableFoods(),allowedFoods()).find(f=>f.id===foodId);
   if(!candidate)throw new Error("Este alimento no está disponible en tu catálogo.");
   const first=parts[0]+"|vegetable",second=parts[0]+"|fat";
   const target=state.plannerSelections[first]&&state.plannerSelections[first]!=="none"?second:first;

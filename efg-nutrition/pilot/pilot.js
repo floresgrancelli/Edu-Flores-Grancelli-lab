@@ -34,7 +34,7 @@ import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1"
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood} from "./guided-day-v2.js?v=20261102-flex1";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-flex1";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
@@ -476,7 +476,7 @@ async function publishWeeklyReport(){
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const authHydration=createAuthHydrationGate({
  readIdentity:()=>state.session?.user?.id||null,
  invalidate:epoch=>{resetPrivateSession();state.authContextEpoch=epoch;loginView();},
@@ -2452,7 +2452,7 @@ function guidedDayContents(plan,goal,editable=false){
    const [min,max]=guidedPortionBounds(f.id);
    const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
    return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+
-     (flexible?' <small>'+escapeHTML(foodTrafficLight(f).symbol||'')+'</small>':'')+'</div>'+
+     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+'</div>'+
     (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
      (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
      '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
@@ -3229,12 +3229,36 @@ async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;
- state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
+ state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle());
  if(c.error)throw c.error;
  state.consent=c.data;
  // Never reuse a previously cached shared intake after its consent or record changed.
  await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true));
+ if(c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
+  // Private, RLS-guarded health read. No localStorage and no unverified
+  // free-text restriction data. Hosted RPC may not yet be installed: FAIL CLOSED
+  // for the atomic flow, preserve the live app when the pilot switch is OFF.
+  try{
+   const user=await contextRead(sb.auth.getUser());
+   const viewer=user?.data?.user?.id;
+   if(user.error||viewer!==state.session?.user?.id)throw Error("Identidad del coach no verificada.");
+   const result=await contextRead(sb.rpc("efg_get_coach_health_intake",{p_student:studentId}));
+   if(result.error)throw result.error;
+   const h=result.data;
+   if(h?.student_id===studentId&&h?.viewer_id===viewer&&
+      h.organization_id===state.org?.id&&h.shared_with_coach===true&&
+      h.processing_consent===true&&h.followup_consent===true&&
+      h.revoked!==true&&typeof h.conditions==="object"&&!Array.isArray(h.conditions)){
+    state.coachGuideHealth={studentId,viewerId:viewer,shared:true,consentVerified:true,
+     restrictions:Object.entries(h.conditions).filter(([k,v])=>
+      /^[a-z_]{2,40}$/.test(k)&&["confirmed","suspected"].includes(v)).map(([k])=>k)};
+   }
+  }catch(error){
+   if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("No se confirmó la declaración sanitaria vigente para preparar la Dieta Guía.");
+   console.warn("Lectura sanitaria privada aún no habilitada; guía automática clínica no autorizada.",error?.message);
+  }
+ }
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.coachFoodPlan=null;
  if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];return;}
@@ -4328,7 +4352,7 @@ function resetPrivateSession(){
  state.coachLegalPending=false;state.coachLegalSnapshot=null;state.coachRelaunchEntry=null;
  state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;
  state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakeGoals={};
- state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;
+ state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;
  state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;
  state.calculatedGoalBase=null;state.selectedStudent=null;state.consent=null;

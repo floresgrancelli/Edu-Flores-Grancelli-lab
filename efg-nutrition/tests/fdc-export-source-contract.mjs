@@ -1,7 +1,9 @@
 // 02-03: fictional FDC records. Checks source location/ID contract only.
 import assert from 'node:assert/strict';
-import {importSelectedFdcExport} from '../pilot/fdc-selected-export.js';
+import {importSelectedFdcExport,GUIDE_FDC_IDS} from '../pilot/fdc-selected-export.js';
 const now=Date.parse('2026-11-02T12:00:00Z');
+assert.equal(Object.keys(GUIDE_FDC_IDS).length,10,'Real pinned PWA guide must stay exactly 10 candidates');
+assert.equal(Object.hasOwn(GUIDE_FDC_IDS,'qa_roasted_breast_fdc171477'),false,'QA source alias cannot become a catalog candidate');
 const make=(fdcId,description)=>({fdcId,dataType:'SR Legacy',description,publicationDate:'2019-04-01',
  foodNutrients:[[1008,'Energy','KCAL',120],[1003,'Protein','G',8],
  [1005,'Carbohydrate, by difference','G',16],[1004,'Total lipid (fat)','G',3],
@@ -53,13 +55,6 @@ const chickenResult=await read(chicken,'https://api.nal.usda.gov/fdc/v1/food/171
 assert.equal(chickenResult.status,'unknown');
 assert.equal(chickenResult.reason,'preparation_mismatch_generic_chicken');
 assert.equal(chickenResult.publishable,false);
-// An exact roasted-breast identity may normalize OFFLINE without granting
-// approval to legacy generic chicken, publishing, or editing the PWA catalog.
-const precise=await read(chicken,'https://api.nal.usda.gov/fdc/v1/food/171477',
- [{...mapping(chicken,'chicken_breast_roasted'),preparation:'cooked'}]);
-assert.equal(precise.status,'import_report');
-assert.equal(precise.results[0].result.status,'normalized_candidate');
-assert.equal(precise.publishable,false);
 // An exact roasted breast record cannot silently validate generic chicken
 // merely because the protein/calorie estimate happens to be similar.
 // Unexpected mappings must fail closed instead of throwing due to an

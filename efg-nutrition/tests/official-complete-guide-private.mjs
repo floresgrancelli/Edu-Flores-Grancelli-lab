@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {importSelectedFdcExport} from '../pilot/fdc-selected-export.js';
+import {ingestFdcPayload} from '../pilot/official-composition-candidate.js';
 import {proposeAdaptedGuide,GUIDE_TARGET_TOLERANCE} from '../pilot/adapted-guided-day.js';
 import {evaluateGuideFood} from '../pilot/guide-compatibility.js';
 import {createGuideEditor,updateGuideEditor,reviewEditedGuide} from '../pilot/adapted-guide-editor.js';
@@ -34,9 +35,9 @@ for(const r of extra.records){
  assert.equal(parsed.description,r.expectedDescription);assert.equal(parsed.dataType,'SR Legacy');
  records.set(r.fdcId,r);
 }
-// Exact roasted breast is test-only; the legacy PWA chicken remains REJECTED for FDC171477.
+// This QA-only synthetic ID is never an actual PWA catalog option; FDC171477 cannot validate generic chicken.
 const mappings=[['apple',171688,'raw'],['oats_raw',173904,'raw'],['spinach_cooked',168463,'cooked'],
- ['yogurt_greek_light',170894,'as_sold'],['chicken_breast_roasted',171477,'cooked'],['oil',171413,'as_sold'],
+ ['yogurt_greek_light',170894,'as_sold'],['qa_roasted_breast_fdc171477',171477,'cooked'],['oil',171413,'as_sold'],
  ['brownrice',169704,'cooked'],['potato',170440,'cooked'],['banana',173944,'raw']];
 for(const [,id] of mappings)assert.ok(Number.isFinite(Date.parse(records.get(id).captureCompletedAtUTC)));
 const now=Math.max(...mappings.map(([,id])=>Date.parse(records.get(id).captureCompletedAtUTC)))+60000;
@@ -48,11 +49,24 @@ for(const [foodId,fdcId,preparation] of mappings){
  const mapping={schemaVersion:1,version:'private-complete-nine-v1',matchMethod:'pinned_record',
   foodId,fdcId,dataType:'SR Legacy',expectedDescription:captured.expectedDescription,
   preparation,preparationEvidenceId:`FDC-${fdcId}-description`,unit:'g',basisGrams:100};
- const imported=await importSelectedFdcExport({bytes:new TextEncoder().encode(captured.rawJSON),mappings:[mapping],
-  now:Date.parse(retrievedAt)+1,metadata:{format:'fdc-detail-json-v1',release:'SR Legacy',sourceUrl:captured.sourceUrl,
-   retrievedAt,validUntil:new Date(Date.parse(retrievedAt)+3600000).toISOString(),
-   basis:'per100g',basisEvidence:'FDC_SR_LEGACY_PER_100G'}});
- const c=imported.results?.[0]?.result;assert.equal(c?.status,'normalized_candidate',foodId);
+ const bytes=new TextEncoder().encode(captured.rawJSON);
+ const reviewNow=Date.parse(retrievedAt)+1;
+ const validUntil=new Date(Date.parse(retrievedAt)+3600000).toISOString();
+ const metadata={format:'fdc-detail-json-v1',release:'SR Legacy',sourceUrl:captured.sourceUrl,
+  retrievedAt,validUntil,basis:'per100g',basisEvidence:'FDC_SR_LEGACY_PER_100G'};
+ let c;
+ if(foodId==='qa_roasted_breast_fdc171477'){
+  // Source-only demonstration: never put this alias into GUIDE_FDC_IDS or the PWA.
+  // The real importer MUST refuse the generic chicken mapping to roasted breast.
+  const refused=await importSelectedFdcExport({bytes,mappings:[{...mapping,foodId:'chicken'}],now:reviewNow,metadata});
+  assert.equal(refused.status,'unknown');
+  assert.equal(refused.reason,'preparation_mismatch_generic_chicken');
+  c=await ingestFdcPayload({bytes,mapping,retrievedAt,validUntil,now:reviewNow});
+ }else{
+  const imported=await importSelectedFdcExport({bytes,mappings:[mapping],now:reviewNow,metadata});
+  c=imported.results?.[0]?.result;
+ }
+ assert.equal(c?.status,'normalized_candidate',foodId);
  // Trusted OFFLINE test harness only, anchored in separately reviewed capture bytes.
  // No production provider consumes this object. Source capture and local review times remain distinct.
  const composition={status:'verified',id:'sha256:'+captured.sha256,url:captured.sourceUrl,
@@ -69,9 +83,9 @@ const fruit=qty=>group(['apple','banana'],qty);
 const template=[
  {slot:'desayuno',label:'Desayuno',groups:[group(['yogurt_greek_light'],200),group(['oats_raw'],50),fruit(130)]},
  {slot:'media_manana',label:'Media mañana',groups:[group(['yogurt_greek_light'],200),fruit(130)]},
- {slot:'almuerzo',label:'Almuerzo',groups:[group(['chicken_breast_roasted'],175),group(['brownrice'],185),group(['spinach_cooked'],150),group(['oil'],10)]},
+ {slot:'almuerzo',label:'Almuerzo',groups:[group(['qa_roasted_breast_fdc171477'],175),group(['brownrice'],185),group(['spinach_cooked'],150),group(['oil'],10)]},
  {slot:'merienda',label:'Merienda',groups:[group(['yogurt_greek_light'],200),group(['oats_raw'],30),fruit(130)]},
- {slot:'cena',label:'Cena',groups:[group(['chicken_breast_roasted'],175),group(['potato'],230),group(['spinach_cooked'],150),group(['oil'],10)]}
+ {slot:'cena',label:'Cena',groups:[group(['qa_roasted_breast_fdc171477'],175),group(['potato'],230),group(['spinach_cooked'],150),group(['oil'],10)]}
 ];
 const goal={kcal:2100,protein_g:190,carb_g:240,fat_g:45,fiber_g:32}; // fictional scenario, no clinical recommendation
 const context={now,restrictions:[],dislikedIds:[],pattern:{kind:'general'}};
@@ -114,7 +128,7 @@ const syntheticTemplate=template.map(m=>({slot:m.slot,label:m.label,groups:[{ids
 const syntheticGoal={kcal:2000,protein_g:200,carb_g:200,fat_g:400/9,fiber_g:180};
 const impossible=proposeAdaptedGuide({catalog:[synthetic],template:syntheticTemplate,goal:syntheticGoal,context});
 assert.equal(impossible.ok,false);assert.equal(impossible.code,'no_solution_found');assert.equal(impossible.plan,null);
-const refused=generate({context:{...context,dislikedIds:['chicken_breast_roasted']}});
+const refused=generate({context:{...context,dislikedIds:['qa_roasted_breast_fdc171477']}});
 assert.equal(refused.ok,false);assert.equal(refused.code,'no_candidates');assert.equal(refused.plan,null);
 let editor=createGuideEditor(initial,environment);const original=structuredClone(editor.committed);
 editor=updateGuideEditor(editor,{type:'begin'},environment);

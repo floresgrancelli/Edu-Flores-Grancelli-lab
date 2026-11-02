@@ -1,0 +1,4 @@
+# P2 QA scope correction · 02/11/2026
+The previous patch (PR42 852b9ad4) passed isolated incremental installation but **failed Premium QA** because chicken_breast_roasted is an EXISTING PWA catalog ID with its own FDC2705956, not the source FDC171477.
+Fix: restore original 10-entry GUIDE_FDC_IDS and source contract. Keep generic chicken FDC171477 fail-closed. The nine-item PRIVATE testing-only fixture uses `qa_roasted_breast_fdc171477` and direct provenance normalization on FDC171477; the actual PWA remains untouched, and the source alias is not a catalog food or approved item. This protects all existing catalog IDs and avoids silently reassociating USDA records.
+A second disposable [incremental-install] run is required; no hosted changes, no backend release, no clinical activation. After the QA test passes, move only code fixes to the draft release candidate and rerun all five CI.

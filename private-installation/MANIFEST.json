@@ -191,8 +191,8 @@
       "sha256": "a691b3ae6c3ccd4f959ad9cf8198bdff080eff9827dbbed4bdfb4be61c4516fd"
     },
     "bridge/run.mjs": {
-      "sha256": "0913927d11416f63f9d73b40a45d1b7c5e40e9cedb9e3265b09e5f9a5378a086",
-      "bytes": 5866
+      "sha256": "f993299f45f2f40867f98cce7bdcc2bb5bdfbdff4d94e02d2b3496adfab41011",
+      "bytes": 6284
     },
     "bridge/clinical-preview-save.PROPOSAL.sql": {
       "sha256": "14569ec90dcfa686ec0ae169da60d5425fc7a920a23b89ba91e301daeddcbda7",
@@ -203,8 +203,8 @@
       "bytes": 1194
     },
     "bridge/browser.mjs": {
-      "sha256": "b3196d27359d89023dfae3791f80b38e03b64fbe675b4c5da9dac3a409405740",
-      "bytes": 6186
+      "sha256": "5074b60525aad104b0e6b82145a812b86828ed0d8718f739958b1f0ee0165c15",
+      "bytes": 6414
     },
     "bridge/fixtures.mjs": {
       "sha256": "5b38880d16d2f63ad7e3438681fc44ed00af93fd2b490dda44c11d4aa699d6df",

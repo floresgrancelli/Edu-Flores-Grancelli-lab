@@ -54,6 +54,6 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
   }
   assert.equal(failures.filter(x=>x.kind==='source').length,0,'Source transform must really load');
   writeFileSync(join(out,'bridge-browser.json'),JSON.stringify({status:'PASS_EDIT_SAVE_RELOAD_ONLY',results,resourceFailures:failures,limits:['General explicitly declared fixture; not certified clinical foods','Background expiration DOM is separate and not counted here','No clinical publication or hosted activation']},null,2));
- }catch{writeFileSync(join(out,'bridge-browser-failure.json'),JSON.stringify({status:'FAIL',resourceFailures:failures},null,2));throw Error('BRIDGE_BROWSER_FAILED: inspect sanitized artifact');}
+ }catch(error){const diagnostic={name:error.name,code:error.code||null,site:String(error.stack).split('\n').find(x=>/ at .*file:/.test(x))?.trim()||null};console.error('BRIDGE_BROWSER_DIAGNOSTIC '+JSON.stringify(diagnostic));writeFileSync(join(out,'bridge-browser-failure.json'),JSON.stringify({status:'FAIL',diagnostic,resourceFailures:failures},null,2));throw Error('BRIDGE_BROWSER_FAILED: inspect sanitized artifact');}
  finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}
 }

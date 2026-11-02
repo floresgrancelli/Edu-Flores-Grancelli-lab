@@ -189,6 +189,32 @@ $coach119_is_atomic$;
 revoke all on function efg_private.coach119_is_atomic_transaction()
  from public,anon,authenticated;
 
+-- A broader V2 database CHECK must NOT let old table-write grants bypass
+-- a signed atomic Coach publication. Every V2 insert/update, including
+-- a direct attempt to clear or replace an existing V2 plan, requires the
+-- private transaction marker created ONLY by COACH119's publish RPC.
+create function efg_private.coach119_guard_flexible_guide_write()
+returns trigger language plpgsql security definer set search_path=''
+as $coach119_guard_flexible$
+declare
+ v_old_kind text:=null;
+begin
+ if tg_op='UPDATE' then v_old_kind:=old.guided_plan->>'kind'; end if;
+ if (new.guided_plan->>'kind'='flexible_meal_guide'
+    or v_old_kind='flexible_meal_guide')
+   and efg_private.coach119_is_atomic_transaction() is distinct from true then
+  raise exception 'Flexible Coach guides require signed atomic publication'
+   using errcode='42501';
+ end if;
+ return new;
+end;
+$coach119_guard_flexible$;
+revoke all on function efg_private.coach119_guard_flexible_guide_write()
+ from public,anon,authenticated;
+create trigger coach119_guard_flexible_guide_write
+before insert or update on public.efg_food_plans
+for each row execute function efg_private.coach119_guard_flexible_guide_write();
+
 -- Preserve exactly the two existing legacy notifications during independent
 -- legacy writes, suppressing only within this signed atomic RPC's transaction.
 -- Stage with recorded pg_get_functiondef() before altering these functions.

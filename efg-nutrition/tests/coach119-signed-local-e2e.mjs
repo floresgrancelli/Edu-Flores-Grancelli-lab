@@ -260,6 +260,15 @@ for (const [student, coach] of [[users.returningA, users.coachA], [users.student
   const actualGuide=yes(await read('efg_food_plans',student),'published guide readback')[0]?.guided_plan;
   assert.equal(actualGuide?.meals?.length,sixMeals?6:5,
    'Sixth guide meal must survive server publication and client readback');
+  if(sixMeals){
+   // Even an assigned Coach with existing table UPDATE grants must not
+   // bypass the atomic RPC to mutate or erase a newly published V2 guide.
+   const direct=await request('/rest/v1/efg_food_plans?student_id=eq.'+student.id,{
+    method:'PATCH',token:coach.token,body:{guided_plan:null}
+   });
+   denied(direct,'Direct legacy write cannot erase a six-meal guide',['42501']);
+   assert.match(String(direct.data?.message||''),/Flexible Coach guides require signed atomic publication/);
+  }
 }
 assert.deepEqual(yes(await read('efg_daily_logs', users.returningA), 'old meal after full release circuit'), originalHistory);
 yes(await receipt(users.newA, false), 'withdraw sharing');

@@ -47,6 +47,11 @@ for(const part of [
 assert.match(sql,/comment on function public\.efg_publish_coach_plan_draft_atomic/);
 assert.match(sql,/on conflict\(student_id\) do update/);
 assert.match(sql,/create function efg_private\.coach119_reviewed_food_ids\(p_guide jsonb\)/);
+assert.match(sql,/create trigger coach119_guard_flexible_guide_write/);
+assert.match(sql,/v_old_kind='flexible_meal_guide'/,
+ 'Direct legacy writes may not clear or replace a published flexible guide');
+assert.match(sql,/efg_private\.coach119_is_atomic_transaction\(\) is distinct from true/,
+ 'V2 guide writes must use the private signed transaction marker');
 assert.match(sql,/v_food_ids:=efg_private\.coach119_reviewed_food_ids\(v_guide\)/);
 assert.match(sql,/food\.evidence_status='reviewed'/);
 assert.match(sql,/food\.expires_at>pg_catalog\.now\(\)/);

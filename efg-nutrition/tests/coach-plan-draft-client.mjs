@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
-const STU="00000000-0000-4000-8000-000000000011",REQ="30000000-0000-4000-8000-000000000001",GOAL="40000000-0000-4000-8000-000000000001";
+import {approvedFoodGuide} from "../pilot/coach-food-selection.js";
+// COACH119 / legacy and flexible versioned guide contracts.
 const WHEN="2026-10-29T12:00:00.000Z";
 const ORG="50000000-0000-4000-8000-000000000001";
 const goal={goal_type:"recomp",kcal:2100,protein_g:140,carb_g:230,fat_g:70,fiber_g:28};
@@ -209,8 +209,8 @@ assert.match(app,/coachDraftSourceCurrent\(state\.coachIntakeForms\[studentId\],
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado»/,
  "Staged GUI may not expose old approve-guide button");
 
-assert.match(app,/approvedFoodGuide\(guide,coachFoodChoicesFromDom\(root\)/,
- "Coach must submit exactly the visible selected catalog");
+assert.match(app,/approvedFoodGuide\(guide,guide.kind==="flexible_meal_guide"\?null:coachFoodChoicesFromDom\(root\)/,
+ "Flexible guide uses its selected ingredient references; legacy list remains validated");
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&state\.coachPlanDraftRecord\?\.guide_proposal\?\.approvedFoodIds/,
  "Reopened private draft must show the same approved catalog");
 assert.match(app,/guide:finalGuide/,

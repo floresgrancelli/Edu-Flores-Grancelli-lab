@@ -50,7 +50,7 @@ export function createCoachAdaptedWorkspace({enabled=false,readScope,loadInput=n
    row.querySelectorAll('label,select,p,details').forEach(node=>{
     Object.assign(node.style,{minWidth:'0',maxWidth:'100%',whiteSpace:'normal',overflowWrap:'anywhere'});
    });
-   row.querySelectorAll('select').forEach(node=>{node.style.width='100%';});
+   row.querySelectorAll('select').forEach(node=>{Object.assign(node.style,{width:'100%',whiteSpace:'nowrap',overflowWrap:'normal',minHeight:'44px',lineHeight:'1.4'});});
   });
   if(publishAttempt)mount.querySelectorAll('button,input,select').forEach(n=>n.disabled=true);
   const doc=mount.ownerDocument;

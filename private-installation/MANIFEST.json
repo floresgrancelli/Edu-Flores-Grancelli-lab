@@ -203,8 +203,8 @@
       "bytes": 1194
     },
     "bridge/browser.mjs": {
-      "bytes": 7143,
-      "sha256": "77274510e5c5dab981a5ce520ff3bb098e36d4a3c000a75a0656614b16abd1ef"
+      "bytes": 7561,
+      "sha256": "193528498093e2b9edd467ccc80804072422faaf874a0b2a2de7acc8e540caa9"
     },
     "bridge/fixtures.mjs": {
       "sha256": "5b38880d16d2f63ad7e3438681fc44ed00af93fd2b490dda44c11d4aa699d6df",
@@ -241,6 +241,10 @@
     "bridge/mail-config.py": {
       "sha256": "e670d7424a2eac36ea1c5cc7a28aef4fd9c4bddd1907a22fd491876e0eccc751",
       "bytes": 1253
+    },
+    "bridge/hidden-ttl-case.mjs": {
+      "bytes": 5516,
+      "sha256": "7081c6217c62e3e2ca42a6dd95493e16174a9e8def23b85427c940646f5d6b90"
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",

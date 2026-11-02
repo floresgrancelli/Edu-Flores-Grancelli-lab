@@ -20,3 +20,16 @@ export async function observeCoachSelectors(page,width,outDir){
  }
  return {rows,panel,samples,classification:'Measured wrapping risk; inspect native control pixels before claiming clipping. Horizontal ellipsis alone is not a vertical failure.'};
 }
+
+export async function assertCoachSelectors(page,width,outDir){
+ const result=await observeCoachSelectors(page,width,outDir);
+ for(const row of result.rows){assert.equal(row.whiteSpace,'nowrap');assert.ok(row.contentHeight+1>=row.singleLineHeight,'Native selected line fits vertically');}
+ const names=await page.locator('#coachAdaptedDraftMount [data-edit-row]').evaluateAll(rows=>rows.map(row=>{
+  const select=row.querySelector('select'),p=row.querySelector('[data-selected-food-name]');if(!p)return null;
+  const range=document.createRange();range.selectNodeContents(p);const text=range.getBoundingClientRect(),box=p.getBoundingClientRect(),r=row.getBoundingClientRect();
+  return {matches:p.textContent===select.selectedOptions[0].textContent,described:select.getAttribute('aria-describedby')===p.id,contains:text.top>=box.top-1&&text.bottom<=box.bottom+1&&text.left>=box.left-1&&text.right<=box.right+1&&box.right<=r.right+1,height:box.height};
+ }));
+ assert.ok(names.every(n=>n&&n.matches&&n.described&&n.contains&&n.height>0),'Complete selected names visible without clipping');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ return {...result,selectedNameGeometry:names};
+}

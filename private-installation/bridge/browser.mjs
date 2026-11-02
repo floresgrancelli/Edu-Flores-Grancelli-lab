@@ -1,3 +1,5 @@
+import {verifyHiddenTTL} from './hidden-ttl-case.mjs';
+import {rowSnapshot} from '../runner/snapshot.mjs';
 // Preparation only; authentic SDK/OTP and existing coach shell, no state injection.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
@@ -14,13 +16,13 @@ export function checkBrowserSchema(sql){
  const missing=['efg_activities','efg_billing_settings','efg_invitations','efg_payments','efg_personal_targets','efg_weights'].filter(t=>sql(`select to_regclass('public.${t}') is not null`)!=='t');
  assert.deepEqual(missing,[],'DOM requires reviewed SDK hydration fixture, absent from API baseline; do not add grants implicitly');
 }
-export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
+export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out,allTables}){
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_CLINICAL_BRIDGE,'1');checkBrowserSchema(sql);
  const {chromium}=await import('playwright');
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1).trim().replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
- const root=process.cwd(),contexts=[],results=[];let origin,browser,stage='launch';const failures=[];
+ const root=process.cwd(),contexts=[],results=[],ttlResults=[];let origin,browser,stage='launch';const failures=[];
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,'http://localhost').pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));assert.ok(file.startsWith(root+'/'));
   let bytes=readFileSync(file);
@@ -55,9 +57,11 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
    const row=yes(await rpc('efg_read_bound_guide',f.coach.token,{p_student:f.student.id}),'browser initial read');
    const meal=row.guide.meals[0],item=meal.items[0];
    stage='edit-save-reload-'+width;results.push({width,...await verifyClinicalBridgeDOM({page,mealLabel:meal.label,mealSlot:meal.slot,quantity:item.qty+1,initialReadRow:row,expectedFrame:frame(row),expectedRevision:row.draft_revision+1,openAfterReload:p=>open(p,f.student),artifactPath:join(out,`clinical-bridge-${width}.png`)})});
+   await page.reload();await settled(page);stage='hidden-ttl-'+width;
+   const ttl=await verifyHiddenTTL({page,context,sql,rpc,fixture:f,snapshot:()=>rowSnapshot(sql,allTables),open,out,width});ttlResults.push(ttl);console.log('BRIDGE_HIDDEN_TTL '+JSON.stringify(ttl));
   }
   assert.equal(failures.filter(x=>x.kind==='source').length,0,'Source transform must really load');
-  writeFileSync(join(out,'bridge-browser.json'),JSON.stringify({status:'PASS_EDIT_SAVE_RELOAD_ONLY',results,resourceFailures:failures,limits:['General explicitly declared fixture; not certified clinical foods','Background expiration DOM is separate and not counted here','No clinical publication or hosted activation']},null,2));
+  writeFileSync(join(out,'bridge-browser.json'),JSON.stringify({status:'PASS_EDIT_SAVE_RELOAD',results,ttlResults,resourceFailures:failures,limits:['General explicitly declared fixture; not certified clinical foods','TTL is proven only for entries explicitly marked PASS_REAL_HIDDEN_TTL','No clinical publication or hosted activation']},null,2));
  }catch(error){const diagnostic={stage,name:error.name,code:error.code||null,message:String(error.message).split('\n')[0].replace(/eyJ[A-Za-z0-9_.-]+/g,'[REDACTED]').slice(0,250),sites:String(error.stack).split('\n').filter(x=>/^\s+at .+:\d+:\d+/.test(x)).slice(0,5).map(x=>x.trim()),resourceFailures:failures};console.error('BRIDGE_BROWSER_DIAGNOSTIC '+JSON.stringify(diagnostic));writeFileSync(join(out,'bridge-browser-failure.json'),JSON.stringify({status:'FAIL',diagnostic,resourceFailures:failures},null,2));throw Error('BRIDGE_BROWSER_FAILED: inspect sanitized artifact');}
  finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}
 }

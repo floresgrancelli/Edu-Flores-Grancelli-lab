@@ -58,6 +58,10 @@ export function renderGuideEditor(root,{state,catalog,onAction}){
    const select=doc.createElement('select');select.setAttribute('aria-label',meal.label+' ingrediente '+(index+1));
    for(const food of catalog){const option=doc.createElement('option');option.value=food.id;option.textContent=food.name;select.append(option);}
    select.value=item.id;label.append(select);
+   // Preserve the complete official description outside the single-line native control.
+   const name=add('p',catalog.find(f=>f.id===item.id)?.name||item.id,row);
+   name.dataset.selectedFoodName='';name.id='guide-selected-'+meal.slot+'-'+index;
+   select.setAttribute('aria-describedby',name.id);
    const input=doc.createElement('input');input.type='number';input.step='any';input.value=Number.isFinite(item.qty)?String(item.qty):'';
    input.setAttribute('aria-label',meal.label+' cantidad '+(index+1));row.append(input);
    add('span',' '+item.unit,row);

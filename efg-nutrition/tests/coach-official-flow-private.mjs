@@ -1,4 +1,4 @@
-import {observeCoachSelectors} from './coach-selector-geometry-private.mjs';
+import {assertCoachSelectors} from './coach-selector-geometry-private.mjs';
 import assert from 'node:assert/strict';
 import {join} from 'node:path';
 export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
@@ -23,7 +23,16 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
  await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();
  const initial=await mount.locator('[data-guide-totals]').textContent();
  await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
- selectorGeometry=await observeCoachSelectors(page,width,outDir);
+ // Real change handler must update the full accessible description, then restore selection.
+ const firstRow=mount.locator('[data-edit-row]').first(),firstSelect=firstRow.locator('select');
+ const originalId=await firstSelect.inputValue();
+ const alternative=await firstSelect.locator('option').evaluateAll((xs,id)=>xs.find(x=>x.value!==id).value,originalId);
+ await firstSelect.selectOption(alternative);
+ assert.equal(await firstRow.locator('[data-selected-food-name]').textContent(),await firstRow.locator('select option:checked').textContent());
+ assert.notEqual(await firstRow.locator('select').inputValue(),originalId);
+ await firstRow.locator('select').selectOption(originalId);
+ assert.equal(await firstRow.locator('[data-selected-food-name]').textContent(),await firstRow.locator('select option:checked').textContent());
+ selectorGeometry=await assertCoachSelectors(page,width,outDir);
  const qty=mount.locator('[data-edit-row="desayuno:0"] input');
  await qty.fill(String(Number(await qty.inputValue())+1));await qty.press('Tab');
  assert.notEqual(await mount.locator('[data-guide-totals]').textContent(),initial);

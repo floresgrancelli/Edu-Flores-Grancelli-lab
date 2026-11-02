@@ -22,6 +22,8 @@ on:
       - 'efg-nutrition/tests/sql/persisted-guide-local-overlay.sql'
       - 'efg-nutrition/pilot/persisted-guide-provider.js'
       - 'efg-nutrition/tests/automatic-composition-local.mjs'
+      - 'efg-nutrition/tests/coach119-signed-local-setup.mjs'
+      - 'efg-nutrition/migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql'
       - 'efg-nutrition/tests/sql/automatic-composition-local-overlay.sql'
       - 'efg-nutrition/tests/evidence/fdc-official-20261101.zip'
       - 'efg-nutrition/docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'

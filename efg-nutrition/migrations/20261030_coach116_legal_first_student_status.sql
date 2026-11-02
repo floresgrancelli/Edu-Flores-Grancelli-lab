@@ -113,7 +113,7 @@ begin
       into v_goal_ok;
     if v_goal_ok and v_guide_goal=v_plan.published_goal_id
       and v_guide_at is not null and v_guide_at>=v_intake.updated_at
-      and case
+      and (case
      when pg_catalog.jsonb_typeof(v_guide->'meals')='array' then (
       (v_guide->>'kind'='five_meal_example' and v_guide->>'version'='1'
         and pg_catalog.jsonb_array_length(v_guide->'meals')=5)
@@ -121,7 +121,7 @@ begin
       (v_guide->>'kind'='flexible_meal_guide' and v_guide->>'version'='2'
         and pg_catalog.jsonb_array_length(v_guide->'meals') between 2 and 6)
      ) else false
-    end then
+    end) then
       v_route:='ready';
     end if;
    end if;

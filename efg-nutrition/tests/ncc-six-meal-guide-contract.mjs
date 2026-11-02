@@ -95,7 +95,7 @@ for(const key of [
  'generateFlexibleGuidedDay(foods,goal','removeFlexibleMeal(draft','removeFlexibleFood(draft',
  'addFlexibleFood(draft','data-guideremovemeal','data-guideremovefood','data-guideaddfood',
  'data-guidefoodsearch','function currentCoachGuideProfile()',
- 'efg_get_coach_health_intake','draft.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root)'
+ 'efg_get_coach_health_intake','guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root)'
 ])assert.ok(app.includes(key),'Missing real Coach UX connection: '+key);
 const sql=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
 const sourceSql=readFileSync(new URL('../migrations/20261030_coach_reviewed_guide_nutrition_source.sql',import.meta.url),'utf8');

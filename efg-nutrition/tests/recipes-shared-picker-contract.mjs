@@ -63,6 +63,7 @@ for(const guard of [
 assert.doesNotMatch(rpcSQL,/create policy|alter policy|grant select on public\.efg_personal_recipes/i,
  'Do not broaden the owner-only personal recipe RLS table');
 import {loadCoachSharedStudentRecipes} from '../pilot/coach-shared-recipes-read-client.js';
+import {reviewCoachGuideFoodChange} from '../pilot/coach-guide-restriction-scope.js';
 const linkedCoach='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',linkedStudent='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',linkedOrg='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const ownerProfile={user_id:linkedCoach,role:'coach',active:true};
 import {coachRecipeScopeMatches,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED} from '../pilot/coach-shared-recipes-read-client.js';
@@ -119,7 +120,7 @@ async function exerciseRecipePick({freshRows,changeScope,offline=false}){
  const env={state,el:{dataset:{guideaddfood:'cena'}},sb:{},activeCoachGuideGoal:()=>({}),readGuidedEditor:()=>draft,
   root:{querySelectorAll:key=>key==='[data-guidefoodpick]'?[pick]:[]},coachGuidePickerFoods:()=>[cached],
   foods:[{id:'egg'},{id:'bread'}],guideFoodSignal:f=>({status:f.id==='bread'?'avoid':'possible'}),
-  currentCoachGuideProfile:()=>({}),window:{confirm:()=>{calls.confirmed++;return false;}},
+  reviewCoachGuideFoodChange,currentCoachGuideProfile:()=>({restrictions:['celiac'],restrictionStatus:'declared'}),window:{confirm:()=>{calls.confirmed++;return false;}},
   COACH_ATOMIC_PLAN_UI_ENABLED:true,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED:true,coachRecipeScopeMatches,
   currentCoachRecipeScope:()=>({...currentScope,studentId:state.selectedStudent}),
   loadCoachSharedStudentRecipes:async()=>{

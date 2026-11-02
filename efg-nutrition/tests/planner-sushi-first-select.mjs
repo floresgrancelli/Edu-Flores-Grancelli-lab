@@ -887,9 +887,9 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
     const handler=extract("async function addPlannedFood(key){","let mealDialogReturnFocus=null;","addPlannedFood",{
      parsePlannerKey:key=>key.split("|"),document:{getElementById:id=>id.startsWith("planQty_")?{value:"100"}:null},
      pendingMealRegistrations,makePlan:()=>({meals:[{slot:"cena",rows:[{category:"protein",food:rice}]}]}),
-     foods:[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
+     foods:[rice],selectableFoods:()=>[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
      dailyTotals:()=>({}),state,plannerMeasuredGrams:(food,qty)=>qty,plannerSushiPortion:()=>null,
-     MILK_BEVERAGES:{},openPlannedFoodEditor:()=>{},normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     MILK_BEVERAGES:{},openPlannedFoodEditor:()=>{},normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),attachRecipeSnapshot:entry=>entry,
      saveDiary,notify,num:x=>String(x),today
     });
     operation=handler("cena|protein");
@@ -916,7 +916,7 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
      state,measureMealEntry:()=>({f:rice,qty:100,grams:100,useUnits:false,portion:null}),
      pendingMealRegistrations,foodAllowedForMeal:()=>true,allowedFoods:()=>["rice"],
      FOOD_STATE_PAIRS:{},activeDiary:()=>state.diary,BEVERAGE_IDS:new Set(),
-     calculateBeverage:()=>null,normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     calculateBeverage:()=>null,normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),attachRecipeSnapshot:entry=>entry,
      isGuidedMealSlot:()=>false,saveDiary,notify,openMealDialog:()=>dialogActions.push("open"),
      activeGuidedMealGroup:"protein",today
     });

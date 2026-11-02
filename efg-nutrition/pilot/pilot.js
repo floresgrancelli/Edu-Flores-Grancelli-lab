@@ -2493,7 +2493,7 @@ function coachAtomicDraftPanel(){
  if(COACH_VERSIONED_INTAKE_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED)
   return '<section class="card" aria-label="Plan del relanzamiento en preparación">'+
    '<h3>Plan de Nutrition Coach en revisión</h3>'+
-   '<p>La ficha nueva está disponible para revisión, pero la publicación de objetivo y guía de cinco comidas está detenida hasta verificar su versión, los permisos y los alimentos directamente en el servidor. El plan anterior del alumno continúa intacto.</p></section>';
+   '<p>La ficha nueva está disponible para revisión, pero la publicación de objetivo y guía de seis comidas está detenida hasta verificar su versión, los permisos y los alimentos directamente en el servidor. El plan anterior del alumno continúa intacto.</p></section>';
  const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
  if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
  const saved=state.coachPlanDraftRecord;
@@ -2516,12 +2516,12 @@ async function saveCoachAtomicDraft(){
  const sessionUserId=state.session?.user?.id,previousDraft=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
- if(!goal||!guide)throw Error("Prepará primero el objetivo y las cinco comidas.");
+ if(!goal||!guide)throw Error("Prepará primero el objetivo y la Dieta Guía.");
  validateGuidedDay(guide,goal);
  // Capture exactly what was submitted BEFORE network waits: later edits cannot
  // silently become the "saved" version through a shared mutable goal object.
  const finalGuide=COACH_ATOMIC_PLAN_UI_ENABLED
-  ?approvedFoodGuide(guide,coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)})
+  ?approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)})
   :guide;
  const snapshot=validateCoachPlanProposal(goal,finalGuide);
  const r=await coachDraftClient.save({
@@ -2549,7 +2549,7 @@ async function publishCoachAtomicDraft(){
  const sessionUserId=state.session?.user?.id,previousDraft=draft;
  const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
- const finalGuide=approvedFoodGuide(guide,coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
+ const finalGuide=approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
  const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide:finalGuide});
  if(!review.ready)throw Error(review.reason);
  if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
@@ -2639,6 +2639,18 @@ const pilotGuideLifecycle=createPilotGuideLifecycle({sb,enabled:installedGuideEn
   await render();
  }
 });
+function currentCoachGuideProfile(){
+ const intake=state.coachIntakeForms?.[state.selectedStudent]||{};
+ const pattern=profilePatternForCompatibility(intake.dietary_pattern||'balanced');
+ const windowId=['12_12','14_10','16_8'].includes(intake.eating_window)?intake.eating_window:'regular';
+ // Never infer restrictions from free-text notes or from a blank health field.
+ // A separate private server-owned consented health read is required.
+ const shared=state.coachGuideHealth;
+ const restrictions=shared?.studentId===state.selectedStudent&&shared.shared===true&&
+  shared.viewerId===state.session?.user?.id&&shared.consentVerified===true
+  ?shared.restrictions:[];
+ return {patternId:pattern,windowId,restrictions};
+}
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const goal=activeCoachGuideGoal();
@@ -2646,17 +2658,17 @@ function coachGuidedSection(){
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
  const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
  const adaptedEntry=coachAdaptedWorkspace.available()?'<section class="card"><button class="btn small light" type="button" data-act="openCoachAdaptedPreview">Revisar guía adaptada · prueba privada</button><div id="coachAdaptedDraftMount"></div></section>':"";
- return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+adaptedEntry+
+ return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Dieta Guía automática e interactiva</h3>'+adaptedEntry+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
- (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus cinco comidas privadas.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
+ (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus comidas de guía.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
- '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
+ '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':'<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">'+(pending?'Esta guía es solo una propuesta; guardala junto con la nueva meta.':'Para revisarla, generá un nuevo borrador privado.')+'</p>':
  '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>')):
- '<p class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Generá y revisá las cinco comidas de este borrador, antes de guardar.':'El ejemplo se genera después de calcular y aprobar el objetivo.')+'</p>'))+'</section>';
+ '<p class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Generá y revisá las comidas de este borrador, antes de guardar.':'El ejemplo se genera después de calcular y aprobar el objetivo.')+'</p>'))+'</section>';
 }
 function studentGuidedSection(){
  if(state.profile?.role!=="student"||!state.foodPlan?.guided_plan)return "";
@@ -2664,9 +2676,9 @@ function studentGuidedSection(){
  if(!goal)return "";
  const stale=state.goals[0]?.id!==goal.id;
  return '<section class="card efg-guide-student"><span class="eyebrow">GUÍA APROBADA POR TU COACH</span><h2>🍽️ Mi día de alimentación, explicado</h2>'+
- '<p>Conocé un ejemplo de cinco comidas y cantidades. Podés comer algo distinto y seguir registrando normalmente.</p>'+
+ '<p>Conocé una guía orientativa y cantidades. Podés comer algo distinto y seguir registrando normalmente.</p>'+
  (stale?'<div class="pilot-alert">Tu objetivo cambió después de este ejemplo: pedile al coach una nueva guía.</div>':'')+
- '<details><summary>Ver las cinco comidas de ejemplo</summary>'+guidedDayContents(guide,goal)+'</details>'+
+ '<details><summary>Ver las comidas de la Dieta Guía</summary>'+guidedDayContents(guide,goal)+'</details>'+
  '<button type="button" class="btn small light" data-tab="planner">Resolver lo que me falta hoy</button></section>';
 }
 function baselinePreview(){
@@ -2715,7 +2727,7 @@ async function approveGuidedDay(){
  const latest=await sb.from("efg_goals").select("id").eq("student_id",student).order("approved_at",{ascending:false}).limit(1).single();
  if(latest.error)throw latest.error;
  if(latest.data.id!==goal.id)throw new Error("La meta cambió: recargá la ficha antes de generar la guía.");
- if(!window.confirm("¿Aprobar estas cinco comidas de ejemplo para el alumno? No se cargarán en su diario."))return;
+ if(!window.confirm("¿Aprobar esta Dieta Guía de ejemplo para el alumno? No se cargarán en su diario."))return;
  const updated={
   student_id:student,coach_id:state.session.user.id,
   approved_food_ids:state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS,
@@ -3017,9 +3029,11 @@ function regenerateCoachIntakeGuidePreview(){
  if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
   if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
    try{
-    const sample=generateGuidedDay(foods,state.pendingGoal);
+    const sample=generateFlexibleGuidedDay(foods,state.pendingGoal,{
+     ...currentCoachGuideProfile()
+    });
     state.coachIntakeGuidePreview={...sample,createdFrom:"coach_intake_unapproved_preview"};
-    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Ejemplo automático de cinco comidas · SIN APROBAR</h4>'+
+    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Dieta Guía automática de seis comidas · SIN APROBAR</h4>'+
      '<p class="pilot-hint">Propuesta orientativa: NO se envía ni se suma al diario. Verificá ingredientes, alergias y restricciones antes de aprobarla.</p>'+
      guidedDayContents(state.coachIntakeGuidePreview,state.pendingGoal,false)+'</section>';
    }catch(error){
@@ -4058,11 +4072,13 @@ if(el.dataset.foodbulk){
    throw new Error(COACH_ATOMIC_PLAN_UI_ENABLED?"Primero calculá una propuesta privada.":"Primero aprobá la meta del alumno.");
   if(COACH_ATOMIC_PLAN_UI_ENABLED){
    const intake=state.coachIntakeForms?.[state.selectedStudent];
-   if(!intake?.shared_at||intake.dietary_pattern!=="omnivore")
-    throw new Error("No se genera un menú automático para esta ficha sin revisión profesional de la restricción y del catálogo.");
+   if(!intake?.shared_at||!state.coachGuideHealth?.consentVerified||
+      state.coachGuideHealth.studentId!==state.selectedStudent)
+    throw new Error("Antes de generar, confirmá la ficha y declaración sanitaria vigente y compartida.");
   }
-  state.coachGuidedDraft=(!state.coachGuidedDraft&&goal.id&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
-     structuredClone(state.coachFoodPlan.guided_plan):generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
+  state.coachGuidedDraft=generateFlexibleGuidedDay(foods,goal,{
+   ...currentCoachGuideProfile(),includeWhey:!!document.getElementById("guideWhey")?.checked
+  });
   showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}

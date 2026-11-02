@@ -87,7 +87,7 @@ assert.ok(totals.k>0&&totals.p>0&&totals.fi>0);
 const NUTRIENTS=['k','p','c','f','fi'];
 const LEGACY_SOURCE_IDS=new Set(['brownrice','potato','banana','oil']);
 const fromLegacy=id=>{
- const hit=legacy.match(new RegExp('\\\\{id:"'+id+'",name:"[^"]+",unit:"g",k:([0-9.]+),p:([0-9.]+),c:([0-9.]+),f:([0-9.]+),fi:([0-9.]+)'));
+ const hit=legacy.match(new RegExp('id:"'+id+'",name:"[^"]+",unit:"g",k:([0-9.]+),p:([0-9.]+),c:([0-9.]+),f:([0-9.]+),fi:([0-9.]+)'));
  assert.ok(hit,'Missing exact legacy nutrient row '+id);
  return Object.fromEntries(NUTRIENTS.map((key,i)=>[key,Number(hit[i+1])]));
 };

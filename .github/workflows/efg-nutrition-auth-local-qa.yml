@@ -534,13 +534,14 @@ jobs:
   # Add only after review to existing auth workflow; preserve every current job.
   # Marker branch condition is intentional, no schedule/main trigger.
   incremental-install-local:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[diary-fixture]'))
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[pilot-tx-dryrun]') || contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[diary-fixture]'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
       contents: read
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
+      EFG_QA_PILOT_TX_DRYRUN: ${{ contains(github.event.head_commit.message, '[pilot-tx-dryrun]') && '1' || '0' }}
       EFG_QA_DOM_FIXTURE_ONLY: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
       EFG_QA_DIARY_FIXTURE: ${{ contains(github.event.head_commit.message, '[diary-fixture]') && '1' || '0' }}
       EFG_QA_DIARY_REGISTRATION: ${{ contains(github.event.head_commit.message, '[diary-registration]') && '1' || '0' }}
@@ -640,7 +641,10 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          if [ "$EFG_QA_DOM_FIXTURE_ONLY" = '1' ]; then
+          if [ "$EFG_QA_PILOT_TX_DRYRUN" = '1' ]; then
+            node --check private-installation/runner/run-pilot-normal-tx.mjs
+            node private-installation/runner/run-pilot-normal-tx.mjs
+          elif [ "$EFG_QA_DOM_FIXTURE_ONLY" = '1' ]; then
             for f in private-installation/dom-fixture/*.mjs; do node --check "$f"; done
             node --experimental-default-type=module private-installation/dom-fixture/run-only.mjs
           else

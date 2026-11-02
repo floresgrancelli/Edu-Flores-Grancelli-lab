@@ -16,7 +16,7 @@ const docs=Object.freeze([
 const sha256=s=>createHash('sha256').update(s,'utf8').digest('hex');
 const sqlLiteral=s=>"'"+s.replaceAll("'","''")+"'";
 export function preparePilotNoticePublication(){
- const rows=docs.map(({kind,path})=>({kind,body:readFileSync(new URL(path,import.meta.url),'utf8').replace(/\\r\\n/g,'\\n').trim()}));
+ const rows=docs.map(({kind,path})=>({kind,body:readFileSync(new URL(path,import.meta.url),'utf8').replace(/\r\n/g,'\n').trim()}));
  const review=inspectPilotLegalDrafts({terms:rows[0].body,privacy:rows[1].body,version:PILOT_NOTICE_VERSION});
  assert.equal(review.readyForManualReview,true,'NCC01-03_NOTICE_REVIEW_NOT_READY: '+review.blockers.join(','));
  assert.equal(review.publishable,false,'Preparation may not certify hosted publication');
@@ -29,7 +29,7 @@ export function preparePilotNoticePublication(){
  const values=records.map(row=>'('+[
   sqlLiteral(row.kind),sqlLiteral(row.version),sqlLiteral(row.body),
   sqlLiteral(row.sha256),'true','pg_catalog.clock_timestamp()'
- ].join(',')+')').join(',\\n ');
+ ].join(',')+')').join(',\n ');
  const sql=[
  '-- NCC 01-03: two simple notices for private PILOT, not a commercial contract.',
  '-- SQL FOR OPERATOR REVIEW ONLY. NOT APPLIED. DO NOT EXECUTE BEFORE EDU GO.',
@@ -62,7 +62,7 @@ export function preparePilotNoticePublication(){
  '$ncc_pilot_notices_readback$;',
  'commit;',
  ''
- ].join('\\n');
+ ].join('\n');
  assert.equal((sql.match(/^begin;$/gm)||[]).length,1);
  assert.equal((sql.match(/^commit;$/gm)||[]).length,1);
  assert.ok(!sql.includes('update efg_private.coach_release_switches'));

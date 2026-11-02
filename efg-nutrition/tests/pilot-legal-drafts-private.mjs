@@ -52,10 +52,10 @@ assert.deepEqual(candidate.documents.map(d=>d.sha256),proposed.documents.map(d=>
 assert.match(candidate.transactionSha256,/^[a-f0-9]{64}$/);
 assert.equal((candidate.sql.match(/^begin;$/gm)||[]).length,1);
 assert.equal((candidate.sql.match(/^commit;$/gm)||[]).length,1);
-assert.equal((candidate.sql.match(/insert into public\\.efg_legal_documents/g)||[]).length,1);
-assert.match(candidate.sql,/NCC01-03 STOP: existing legal versions\\/receipts need manual review/);
+assert.equal((candidate.sql.match(/insert into public\.efg_legal_documents/g)||[]).length,1);
+assert.match(candidate.sql,/NCC01-03 STOP: existing legal versions\/receipts need manual review/);
 assert.match(candidate.sql,/NCC01-03 STOP: two versioned, content-hashed notices not verified/);
-assert.doesNotMatch(candidate.sql,/\\bupdate\\s+efg_private\\.coach_release_switches\\b/i);
+assert.doesNotMatch(candidate.sql,/\bupdate\s+efg_private\.coach_release_switches\b/i);
 // The CLI NEVER calls Supabase or deploys. A SQL emission needs the special
 // PREPARE acknowledgement; it still does not execute the proposed transaction.
 const {execFileSync}=await import('node:child_process');

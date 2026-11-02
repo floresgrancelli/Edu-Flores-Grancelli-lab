@@ -17,6 +17,9 @@ assert.match(pack.sql,/v_guide->>'kind'='flexible_meal_guide'/);
 assert.match(pack.sql,/v_intake\.age_years is null/);
 assert.match(pack.sql,/NCC_ABORT: signed student entry must support complete intake/);
 assert.match(pack.sql,/NCC_ABORT: release flags must remain OFF/);
+assert.match(pack.sql,/if p_share_with_coach and \([\s\S]*?p_payload->>'age_years' is null/,
+ 'Final OPT01 server RPC must refuse missing required intake data');
+assert.match(pack.sql,/NCC: complete objective, age, height, weight, activity and diet before sharing/);
 assert.match(pack.sql,/values\s*\(\s*'pilot_coach_atomic_publication'\s*,\s*false/i);
 assert.doesNotMatch(pack.sql,/[\n\r]\s*\\(?:i|copy|include)\b/i);
 const check=JSON.parse(execFileSync(process.execPath,['efg-nutrition/tools/prepare-pilot-coach119-release.mjs','--check'],{encoding:'utf8'}));

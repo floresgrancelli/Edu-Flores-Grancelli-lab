@@ -207,7 +207,21 @@ begin
  if p_payload ? 'weight_kg' and p_payload->>'weight_kg' is not null and
    (p_payload->>'weight_kg')::numeric not between 20 and 400 then
   raise exception 'Invalid weight' using errcode='22023'; end if;
- -- A consenting Coach cannot be inferred from an invitation or an existing plan.
+ -- NCC: this replacement is the LAST effective definition of the intake RPC.
+  -- A shared current Coach nutrition intake must include six core fields;
+  -- keeping a draft private, unsharing and clearing remain supported.
+  if p_share_with_coach and (
+   nullif(p_payload->>'objective','') is null
+   or p_payload->>'age_years' is null
+   or p_payload->>'height_cm' is null
+   or p_payload->>'weight_kg' is null
+   or nullif(p_payload->>'activity_level','') is null
+   or nullif(p_payload->>'dietary_pattern','') is null
+  ) then
+   raise exception 'NCC: complete objective, age, height, weight, activity and diet before sharing'
+    using errcode='22023';
+  end if;
+  -- A consenting Coach cannot be inferred from an invitation or an existing plan.
  if p_share_with_coach then
   if not exists(
    select 1 from public.efg_pilot_participation_receipts r

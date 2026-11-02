@@ -15,7 +15,7 @@ export const RELEASE_SOURCES=Object.freeze([
   },
   {
     "path": "efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql",
-    "sha": "45d67af67dab8228c3251c7b918822e2eca0a2a7",
+    "sha": "9330f7de3cbad7cbe56cdd79415b198245397bb4",
     "key": "OPT01"
   },
   {

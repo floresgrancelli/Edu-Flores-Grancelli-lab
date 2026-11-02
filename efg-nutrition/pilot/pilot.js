@@ -2016,6 +2016,8 @@ async function saveSelectedMeal(continueGuided=false){
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
+ if(COACH_ATOMIC_PLAN_UI_ENABLED)return '<section class="card" aria-label="Catálogo alimentario compartido">'+
+  '<h3>Un catálogo para todos</h3><p class="pilot-hint">Todos los alimentos del catálogo siguen disponibles para el alumno. Los ingredientes de la Dieta Guía se calculan y revisan en el borrador, sin una lista blanca por estudiante.</p></section>';
  const selected=new Set(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachPlanDraftRecord?.guide_proposal?.approvedFoodIds?.length
   ?state.coachPlanDraftRecord.guide_proposal.approvedFoodIds
   :state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);

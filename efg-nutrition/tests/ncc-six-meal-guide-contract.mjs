@@ -131,4 +131,12 @@ for(const text of ["v_guide->>'kind'='flexible_meal_guide'","jsonb_array_length(
  assert.ok(sql.includes(text),'Staged atomic publication missing '+text);
 for(const text of ["p_guide->>'kind'='flexible_meal_guide'","'media_tarde'","v_count>90"])
  assert.ok(sourceSql.includes(text),'Staged source verification missing '+text);
+// A normal Coach guide must not demand a separate health schema when clinical
+// modules are intentionally OFF. The general signed intake remains mandatory.
+assert.doesNotMatch(app,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)throw Error\("No se confirmó la declaración sanitaria/);
+assert.doesNotMatch(app,/!state\.coachGuideHealth\?\.consentVerified\|\|/);
+assert.match(app,/intake\?\.completed_version!==COACH_RELEASE_INTAKE_VERSION/);
+assert.match(app,/required\.some\(k=>intake\[k\]===null/);
+assert.match(app,/Unknown medical status is never interpreted/);
+assert.match(app,/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED/);
 console.log('PASS NCC six-meal guide: original model + 6 default, 5/4/2 after coach edits, source untouched, full daily goal, dietary pattern/fasting separated, conservative allergens, live UI contracts, staged SQL.');

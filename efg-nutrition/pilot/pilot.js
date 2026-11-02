@@ -3304,7 +3304,8 @@ async function loadStudentDetail(studentId){
       /^[a-z_]{2,40}$/.test(k)&&["confirmed","suspected"].includes(v)).map(([k])=>k)};
    }
   }catch(error){
-   if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("No se confirmó la declaración sanitaria vigente para preparar la Dieta Guía.");
+   if(error?.code==="STALE_AUTH_CONTEXT")throw error;
+   state.coachGuideHealth=null; // No health record is not a declaration of no restrictions.
    console.warn("Lectura sanitaria privada aún no habilitada; guía automática clínica no autorizada.",error?.message);
   }
  }
@@ -4148,14 +4149,37 @@ if(el.dataset.foodbulk){
   if(!goal||!state.selectedStudent||!state.consent?.accepted)
    throw new Error(COACH_ATOMIC_PLAN_UI_ENABLED?"Primero calculá una propuesta privada.":"Primero aprobá la meta del alumno.");
   if(COACH_ATOMIC_PLAN_UI_ENABLED){
+   // A general pilot guide needs a CURRENT, separately shared nutrition intake,
+   // NOT the clinical-only RPC (which remains OFF). Server atomic publish is final.
    const intake=state.coachIntakeForms?.[state.selectedStudent];
-   if(!intake?.shared_at||!state.coachGuideHealth?.consentVerified||
-      state.coachGuideHealth.studentId!==state.selectedStudent)
-    throw new Error("Antes de generar, confirmá la ficha y declaración sanitaria vigente y compartida.");
+   const required=["objective","age_years","height_cm","weight_kg","activity_level","dietary_pattern"];
+   const assigned=(state.roster||[]).some(p=>p.user_id===state.selectedStudent&&p.active===true);
+   if(!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED||!assigned||
+      intake?.student_id!==state.selectedStudent||intake?.organization_id!==state.org?.id||
+      intake?.completed_version!==COACH_RELEASE_INTAKE_VERSION||
+      !Number.isSafeInteger(intake?.revision)||intake.revision<1||
+      typeof intake.shared_at!=="string"||!Number.isFinite(Date.parse(intake.shared_at))||
+      typeof intake.updated_at!=="string"||!Number.isFinite(Date.parse(intake.updated_at))||
+      required.some(k=>intake[k]===null||intake[k]===undefined||intake[k]===""))
+    throw Error("Confirmá primero una ficha nutricional general vigente, completa y compartida.");
   }
   state.coachGuidedDraft=generateFlexibleGuidedDay(foods,goal,{
    ...currentCoachGuideProfile(),includeWhey:!!document.getElementById("guideWhey")?.checked
   });
+  if(COACH_ATOMIC_PLAN_UI_ENABLED&&!(
+    state.coachGuideHealth?.studentId===state.selectedStudent&&
+    state.coachGuideHealth?.viewerId===state.session?.user?.id&&
+    state.coachGuideHealth?.shared===true&&
+    state.coachGuideHealth?.consentVerified===true&&
+    Array.isArray(state.coachGuideHealth.restrictions)&&
+    state.coachGuideHealth.restrictions.length>0
+   )){
+    // Unknown medical status is never interpreted as "sin restricciones".
+    // The coach must inspect suitability before approving any guide.
+    const warning="Restricciones alimentarias no verificadas: no presupongas ausencia de celiaquía, intolerancias o alergias. Confirmá el perfil del alumno antes de aprobar alimentos.";
+    state.coachGuidedDraft.profileReviewNotes=
+     [...new Set([...(state.coachGuidedDraft.profileReviewNotes||[]),warning])].slice(0,25);
+  }
   showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="removeGuidedMeal"){

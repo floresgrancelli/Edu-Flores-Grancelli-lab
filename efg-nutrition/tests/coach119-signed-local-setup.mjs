@@ -54,6 +54,18 @@ assert.doesNotMatch(urlDef(),/\{8,1990\}/, 'Invalid regex survived COACH114 fix'
 assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
 // Publish remains gated. This is an installation rehearsal, never a hosted write.
 sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
+// The actual release bundle installs COACH116 LAST. OPT01 intentionally
+// redefines the older student entry RPC, so this disposable JWT integration
+// must reproduce the final server behavior with flexible 2-6 meal plans.
+sql(read('../migrations/20261030_coach116_legal_first_student_status.sql'));
+for(const [name,required] of [
+ ['public.efg_submit_coach_relaunch_intake(text,jsonb,integer,boolean)',
+  'complete objective, age, height, weight, activity and diet before sharing'],
+ ['public.efg_coach_pilot_entry_status()','flexible_meal_guide']
+]){
+ const definition=sql("select pg_get_functiondef('"+name+"'::regprocedure)");
+ assert.ok(definition.includes(required),'CURRENT signed RPC lost invariant '+required);
+}
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
 if(process.env.EFG_QA_SDK_ENTRY==='1'){
  sql(read('./sql/coach119-browser-current-overlay.sql'));

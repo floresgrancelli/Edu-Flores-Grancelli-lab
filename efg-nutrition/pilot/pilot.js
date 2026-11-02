@@ -25,6 +25,7 @@ import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,rende
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=20261030-lux-review1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
+import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=20261102-r1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
 import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
@@ -249,7 +250,7 @@ function calculateBeverage(f,totalMl){
  };
 }
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
-const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
+const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||f.category||"extra";
 const SNACK_FOOD_IDS=new Set(["cake","whey_powder","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
 const groupedFoodOptions=(items,meal=null)=>{
  const snack=meal==="media_manana"||meal==="media_tarde";
@@ -524,7 +525,9 @@ function foodTrafficLight(food){
  const plan=state.profile?.role==="student"?state.foodPlan:state.coachFoodPlan;
  const inPlan=Array.isArray(plan?.guided_plan?.meals)&&
   plan.guided_plan.meals.some(m=>Array.isArray(m.items)&&m.items.some(x=>x.id===food?.id));
- return describeTrafficLight(food,{pattern:compatibilityPattern(),inPlan,evidence:state.foodCompatEvidence});
+ const pattern=compatibilityPattern();
+ if(Array.isArray(food?.recipeIngredients))return recipeFoodSignal(food,{pattern,inPlan});
+ return describeTrafficLight(food,{pattern,inPlan,evidence:state.foodCompatEvidence});
 }
 async function refreshFoodCompatibilityEvidence(){
  const contextEpoch=state.authContextEpoch||0;
@@ -949,6 +952,36 @@ async function loadCloudRecipes(){
   if(pendingLocal.length)localStorage.setItem(backupKey,JSON.stringify(pendingLocal));
   else localStorage.removeItem(backupKey);
  }
+}
+// Shared picker projection (no canonical food mutations).
+function selectableFoods(){
+ const userId=state.session?.user?.id||null;
+ return foods.concat(recipeCatalogEntries({
+  foods,fitRecipes:FIT_RECIPES,personalRecipes:userId?myRecipes():[],userId
+ }));
+}
+function attachRecipeSnapshot(entry,food){
+ if(Array.isArray(food?.recipeIngredients))
+  entry.ingredients=food.recipeIngredients.map(x=>({foodId:x.foodId,grams:x.grams}));
+ return entry;
+}
+function recipeFoodSignal(food,{pattern,inPlan}={}){
+ const rows=Array.isArray(food?.recipeIngredients)?food.recipeIngredients:[];
+ const signals=rows.map(row=>{
+  const item=foods.find(x=>x.id===row.foodId);
+  return item?describeTrafficLight(item,{pattern,evidence:state.foodCompatEvidence}):
+   {color:'yellow'};
+ });
+ const color=!signals.length?'yellow':signals.some(x=>x.color==='red')?'red':
+  signals.some(x=>x.color==='yellow')?'yellow':
+  signals.every(x=>x.color==='green')?'green':'neutral';
+ const symbol={neutral:'',green:'🟢',yellow:'🟡',red:'🔴'}[color];
+ const note={green:'Ingredientes compatibles según la revisión disponible; revisar preparación.',
+  yellow:'Revisar ingredientes, trazas y preparación de esta receta.',
+  red:'Algún ingrediente es incompatible con el patrón declarado.'}[color];
+ return {color,symbol,canRecord:true,verified:false,details:
+  (inPlan?'<span class="efg-in-plan">Incluido en mi plan</span>':'')+
+  (note?'<span class="efg-food-compatibility efg-compat-'+color+'">'+note+'</span>':'')};
 }
 // Recipes remain visible as history; registering one must respect a published
 // Coach food list just like the direct meal picker and saved habitual meals.
@@ -1473,7 +1506,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
 // its selected ingredients are NOT a whitelist for the student's food diary.
 // Compatibility signals are annotations, not catalog membership or clinical approval.
 function allowedFoods(){
- return foods.map(f=>f.id);
+ return selectableFoods().map(f=>f.id);
 }
 // El sushi se muestra por piezas; el diario conserva gramos equivalentes.
 function plannerSushiPortion(food){

@@ -237,6 +237,10 @@
     "bridge/tests/stale-recipe-private.mjs": {
       "sha256": "002c9a7af9d450f1e4af78d8c7d79bd71ddc8de68bc2fc16d0fe2c1952e113a4",
       "bytes": 2698
+    },
+    "bridge/mail-config.py": {
+      "sha256": "e670d7424a2eac36ea1c5cc7a28aef4fd9c4bddd1907a22fd491876e0eccc751",
+      "bytes": 1253
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",

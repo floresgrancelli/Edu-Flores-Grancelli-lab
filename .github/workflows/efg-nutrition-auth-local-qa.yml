@@ -604,6 +604,9 @@ jobs:
           cd "$EFG_INCREMENTAL_STACK"
           supabase init --yes
           python3 "$GITHUB_WORKSPACE/private-installation/runner/config.py" "$PWD"
+          if [ "$EFG_QA_CLINICAL_BRIDGE" = '1' ]; then
+            python3 "$GITHUB_WORKSPACE/private-installation/bridge/mail-config.py" "$PWD"
+          fi
           if ! supabase start > "$RUNNER_TEMP/incremental-start-private.log" 2>&1; then
             echo 'Local stack start failed; raw private log is not uploaded'; exit 1
           fi

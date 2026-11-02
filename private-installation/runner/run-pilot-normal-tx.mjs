@@ -38,7 +38,7 @@ try {
  const entryPath=new URL('../../efg-nutrition/migrations/20261030_coach_pilot_student_entry_status.sql',import.meta.url);
  const entryBytes=readFileSync(entryPath);
  const {createHash}=await import('node:crypto');
- const gitBlob=createHash('sha1').update('blob '+entryBytes.length+'\\0').update(entryBytes).digest('hex');
+ const gitBlob=createHash('sha1').update('blob '+entryBytes.length+'\0').update(entryBytes).digest('hex');
  assert.equal(gitBlob,'715bfde2cb9eefe6c1ac828514cd72bf82cac685',
   'COACH111 source digest changed; stop before installing synthetic entry');
  assert.equal(sql("select to_regprocedure('public.efg_coach_pilot_entry_status()') is null"),'t');

@@ -238,6 +238,11 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach114-catalog-release-coverage.mjs
           node efg-nutrition/tests/coach114-catalog-release-coverage.mjs
+      - name: NCC 02-03 USDA official ten-record review manifest and prep mismatch (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tests/fdc-ten-source-review-contract.mjs
+          node efg-nutrition/tests/fdc-ten-source-review-contract.mjs
       - name: NCC 02-03 FDC exact official endpoint and identity (OFFLINE)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

@@ -81,4 +81,38 @@ for(const meal of menu.meals){
 }
 assert.equal(source.records.filter(x=>menu.candidateFoodIds.includes(x.foodId)).length,8);
 assert.ok(totals.k>0&&totals.p>0&&totals.fi>0);
+// Source audit prior to HUMAN food review. Distinguish the 9 selected PWA
+// records from the USDA/FNDDS *captured* identities; do not homogenize other
+// preparation states, review labels or the rest of the shared food catalog.
+const NUTRIENTS=['k','p','c','f','fi'];
+const LEGACY_SOURCE_IDS=new Set(['brownrice','potato','banana','oil']);
+const fromLegacy=id=>{
+ const hit=legacy.match(new RegExp('\\\\{id:"'+id+'",name:"[^"]+",unit:"g",k:([0-9.]+),p:([0-9.]+),c:([0-9.]+),f:([0-9.]+),fi:([0-9.]+)'));
+ assert.ok(hit,'Missing exact legacy nutrient row '+id);
+ return Object.fromEntries(NUTRIENTS.map((key,i)=>[key,Number(hit[i+1])]));
+};
+const aligned=menu.candidateFoodIds.map(id=>{
+ const sourceFood=id===precise.foodId?precise:matches.get(id);
+ const catalog=LEGACY_SOURCE_IDS.has(id)?fromLegacy(id):pwaById.get(id);
+ assert.ok(sourceFood?.per100g&&catalog,'Missing evidence/catalog cross-reference '+id);
+ if(!LEGACY_SOURCE_IDS.has(id)){
+  assert.equal(catalog.unit,'g');
+  assert.equal(catalog.sourceId,String(sourceFood.fdcId),
+   'Wrong primary source FDC identity; never map a different preparation');
+ }
+ const sourceGrams=sourceFood.per100g;
+ const differences=Object.fromEntries(NUTRIENTS.map(key=>[
+  key,Math.round((catalog[key]*100-sourceGrams[key])*10000)/10000
+ ]));
+ const needsReconciliation=NUTRIENTS.filter(key=>Math.abs(differences[key])>(key==='k'?0.5:0.1));
+ return {id,fdcId:sourceFood.fdcId,differences,needsReconciliation,
+  approved:false,reviewKind:'NUMERIC_CATALOG_CROSSCHECK_ONLY'};
+});
+const issues=aligned.flatMap(row=>row.needsReconciliation.map(k=>row.id+':'+k));
+assert.deepEqual(issues,['brownrice:fi'],
+ 'Review new discrepancies against SOURCE state/units instead of silently approving');
+assert.equal(aligned.length,9);
+assert.ok(aligned.every(x=>x.approved===false));
+assert.equal(menu.backendApprovedCount,0,'No official capture or calculated check seeds hosted Coach food review');
+console.log('PASS 02-03 FDC catalog audit: 9 exact IDs tested, fiber brownrice mismatch 1.8 vs 1.6 g/100g flagged for HUMAN REVIEW; nothing approved: '+JSON.stringify(issues));
 console.log('PASS 02-03 REVIEW-ONLY: five meals / gram-based preliminary totals '+JSON.stringify(Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,Math.round(v*10)/10])))+'; no operator approval and NO backend writes.');

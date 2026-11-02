@@ -331,6 +331,14 @@ begin
  for update of i;
  if not found then raise exception 'Current general intake not shared'
   using errcode='42501'; end if;
+ -- The signed atomic RPC also enforces required nutrition fields. Neither a
+ -- legacy shared_at timestamp nor a previously valid browser is sufficient.
+ if v_intake.objective is null or v_intake.age_years is null
+  or v_intake.height_cm is null or v_intake.weight_kg is null
+  or v_intake.activity_level is null or v_intake.dietary_pattern is null then
+  raise exception 'NCC: current shared nutrition intake incomplete'
+   using errcode='42501';
+ end if;
 
  -- Require BOTH distinct document kinds (not two accepted copies of Terms).
  -- ALL CURRENT text versions must be cryptographically verifiable and accepted

@@ -37,6 +37,9 @@ assert.match(sql,/v_food_ids:=efg_private\.coach119_reviewed_food_ids\(v_guide\)
 assert.match(sql,/food\.evidence_status='reviewed'/);
 assert.match(sql,/food\.expires_at>pg_catalog\.now\(\)/);
 assert.match(sql,/if v_verified<>v_count/);
+assert.match(sql,/v_intake\.objective is null or v_intake\.age_years is null/,
+ 'Atomic publication cannot bypass required nutrition fields in a shared intake');
+assert.match(sql,/v_intake\.activity_level is null or v_intake\.dietary_pattern is null/);
 assert.match(sql,/if v_item->>'id' is null or not\(v_item->>'id'=any\(v_selected\)\)/);
 assert.match(sql,/revoke all on function efg_private\.coach119_reviewed_food_ids\(jsonb\)/);
 assert.doesNotMatch(sql,/select pg_catalog\.array_agg\(distinct item\.value->>'id'\)\s+into v_food_ids/,

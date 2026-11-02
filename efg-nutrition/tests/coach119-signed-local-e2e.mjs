@@ -183,6 +183,9 @@ sql(`update public.efg_legal_documents set body=${q(text)} where kind='privacy'`
 sql("update efg_private.coach_reviewed_foods set expires_at=now()-interval '1 minute' where food_id='qa_food_b'");
 denied(await publish(users.coachA, body), 'expired selected food outside guide still blocks publication');
 sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='qa_food_b'");
+sql(`update public.efg_coach_relaunch_intakes set age_years=null where student_id=${q(users.newA.id)}`);
+denied(await publish(users.coachA,body),'incomplete signed nutrition intake cannot publish',['42501']);
+sql(`update public.efg_coach_relaunch_intakes set age_years=41 where student_id=${q(users.newA.id)}`);
 sql(`update public.efg_profiles set active=false where user_id=${q(users.coachA.id)}`);
 denied(await publish(users.coachA, body), 'inactive Coach JWT cannot publish');
 sql(`update public.efg_profiles set active=true where user_id=${q(users.coachA.id)}`);

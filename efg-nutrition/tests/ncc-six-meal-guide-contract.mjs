@@ -71,6 +71,16 @@ assert.ok(!ids(lactose).some(id=>['cheese','milk_skim','yogurt'].includes(id)));
 const vegan=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegan'});
 assert.ok(ids(vegan).some(id=>['tofu_firm','tempeh','chickpeas_cooked'].includes(id)));
 assert.ok(!ids(vegan).some(id=>['egg','chicken','fish_hake','yogurt','cheese','milk_skim'].includes(id)));
+const vegetarian=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegetarian'});
+assert.ok(!ids(vegetarian).some(id=>['chicken','fish_hake'].includes(id)),
+ 'Vegetarian guide must avoid meats and fish');
+assert.equal(guideFoodSignal(catalog.find(f=>f.id==='egg'),{patternId:'vegetarian'}).status,'possible',
+ 'Ovo-lacto vegetarian can include eggs');
+assert.equal(guideFoodSignal(catalog.find(f=>f.id==='yogurt'),{patternId:'vegetarian'}).status,'possible',
+ 'Ovo-lacto vegetarian can include dairy');
+const pescatarian=generateFlexibleGuidedDay(catalog,goal,{patternId:'pescatarian'});
+assert.ok(!ids(pescatarian).includes('chicken'),'Pescatarian guide must avoid chicken');
+assert.equal(guideFoodSignal(catalog.find(f=>f.id==='fish_hake'),{patternId:'pescatarian'}).status,'possible');
 const keto=generateFlexibleGuidedDay(catalog,goal,{patternId:'keto'});
 assert.equal(keto.meals.length,6,'Keto alone is not fasting');
 assert.ok(keto.profileReviewNotes.some(x=>x.includes('keto')),'Coach warned about carb target');

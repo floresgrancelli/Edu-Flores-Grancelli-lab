@@ -14,6 +14,12 @@ const OPTIONS={objective:new Set(['fat_loss','recomp','muscle_gain','maintenance
  dietary_pattern:new Set(['omnivore','mediterranean','dash','vegetarian','vegan',
  'pescatarian','flexitarian','portfolio','low_carb','keto','other']),
  eating_window:new Set(['regular','12_12','14_10','16_8'])};
+const REQUIRED_BASE=['objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern'];
+export function assertCompleteCoachPilotIntake(payload){
+ if(!payload||REQUIRED_BASE.some(key=>payload[key]===null||payload[key]===undefined||payload[key]===''))
+  throw Error('Completá objetivo, edad, altura, peso, actividad y tipo de alimentación antes de enviar tu ficha.');
+ return true;
+}
 const NUMERIC={age_years:[18,100,true],height_cm:[100,250,false],weight_kg:[20,400,false]};
 const LIMITS={preferred_foods:400,disliked_foods:400,meal_routine:400,notes:1000};
 function identity(profile,userId){
@@ -83,6 +89,9 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
  const general=fieldsOnly(payload);
  if(typeof shareWithCoach!=='boolean'||!Number.isSafeInteger(expectedRevision)||
   expectedRevision<0)throw Error('Permisos o versión de ficha inválidos.');
+ // First submission needs all core nutrition fields even when kept private;
+ // later privacy unshare/clear remains possible without deleting history.
+ if(expectedRevision===0||shareWithCoach===true)assertCompleteCoachPilotIntake(general);
  const userId=await check(sb,profile);
  const before=await readCurrent(sb,userId,profile.organization_id);
  if((before?.revision??0)!==expectedRevision)

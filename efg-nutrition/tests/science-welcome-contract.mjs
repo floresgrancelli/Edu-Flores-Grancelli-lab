@@ -123,7 +123,13 @@ assert.match(sql,/p\.role in \('student','coach'\)/);
 assert.match(sql,/revoke all on public\.efg_science_intro_receipts from public,anon,authenticated/);
 assert.doesNotMatch(sql,/grant (insert|update|delete) on public\.efg_science_intro_receipts/i);
 const pilot=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
-assert.match(pilot,/if\(SCIENCE_WELCOME_ENABLED&&state\.scienceWelcomePending&&!scienceLegalPending/);
+const welcomeFirst=pilot.indexOf('if(state.profile.role==="student"&&SCIENCE_WELCOME_ENABLED&&');
+const releaseLegal=pilot.indexOf('if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease');
+const pilotLegal=pilot.indexOf('if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){');
+assert.ok(welcomeFirst>0&&welcomeFirst<releaseLegal&&releaseLegal<pilotLegal,
+ 'The eight introductory screens precede BOTH current legal routes');
+assert.match(pilot,/state\.scienceWelcomePending=true;\s*state\.scienceWelcomeError=/,
+ 'A failed introduction receipt lookup cannot silently skip the eight screens');
 assert.match(pilot,/renderScienceWelcomeStep\(state\.scienceWelcomeStep/);
 assert.match(pilot,/scienceFinish","scienceSkip/);
 assert.match(pilot,/scienceWelcomePending=false;state\.scienceWelcomeStep=0/);

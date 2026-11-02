@@ -2875,6 +2875,16 @@ async function render(){
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
+ // NCC 02-11: one-time educational introduction BEFORE the current Terms,
+ // Privacy and mandatory nutrition intake for Coach students. Viewing the
+ // slides never implies legal/health consent or grants diary access.
+ if(state.profile.role==="student"&&SCIENCE_WELCOME_ENABLED&&
+    (COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED)&&
+    state.scienceWelcomePending){
+  root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{
+   busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
+  return;
+ }
  // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
  // response. Both flags default OFF. Never use a minor asset build as a trigger.
  if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease?.phase!=="none"&&state.majorRelease){
@@ -2910,8 +2920,8 @@ async function render(){
   root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
   return;
  }
- // EDUCATION01/02: 8 illustrated slides on the FIRST authenticated login
- // before plan access, but AFTER versioned Términos/Privacidad checks.
+ // EDUCATION01/02: the eight approved science panels also remain in the vertical tab.
+ // The pilot-specific student branch above prioritizes the slides before legal.
  const scienceLegalPending=state.profile.role==="student"&&
    ((COACH_STUDENT_JOURNEY_ENABLED&&state.coachPilotEntry?.route==="legal")||
     (COACH_RELAUNCH_ONBOARDING_ENABLED&&state.coachRelaunchEntry?.route==="legal"));
@@ -3345,6 +3355,10 @@ async function refresh(){
     state.scienceWelcomePending=intro.pending;
    }catch(error){
     // Unavailable educational receipts cannot be interpreted as viewed.
+    if(error?.code==="STALE_AUTH_CONTEXT")throw error;
+    // Unknown receipt status cannot mean that education was already viewed.
+    state.scienceWelcomePending=true;
+    state.scienceWelcomeError="No pudimos verificar si ya viste la presentación. Revisá la conexión.";
     console.warn("No se pudo verificar la presentación educativa:",error?.message);
    }
   }

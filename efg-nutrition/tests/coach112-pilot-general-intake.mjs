@@ -42,6 +42,15 @@ for(const choice of [undefined,null,"true",1]){
   expectedRevision:0,shareWithCoach:choice,explicitSubmit:true}),/Permisos o versión/);
 }
 assert.equal(nRPC,beforeImplicitShare,"No implicit sharing reaches the signed RPC");
+const beforeIncomplete=nRPC;
+for(const field of ['objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern']){
+ const partial={...payload,[field]:null};
+ for(const share of [true,false]){
+  await assert.rejects(submitCoachPilotGeneralIntake(sb,{profile,payload:partial,
+   expectedRevision:0,shareWithCoach:share,explicitSubmit:true}),/Completá objetivo/);
+ }
+}
+assert.equal(nRPC,beforeIncomplete,'Incomplete first form cannot submit or share via the client');
 const privateFirst=await submitCoachPilotGeneralIntake(fake({pilot:{...receipt,sharing_accepted:false}}),{
  profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true});
 assert.equal(privateFirst.shared,false);

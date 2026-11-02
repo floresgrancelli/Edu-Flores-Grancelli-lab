@@ -21,11 +21,12 @@ const recipeHelper=slice('function allowedRecipeIngredientIds(){','async functio
 const recipeState={profile:{role:'student'},foodPlan:{approved_food_ids:['egg','rice_cooked']}};
 const recipes=new Function('state','allowedFoods','FOOD_STATE_PAIRS',
  recipeHelper+';return {allowedRecipeIngredientIds,validateRecipeIngredientAccess};')(
- recipeState,()=>['egg','rice_cooked'],{rice:['rice_cooked','rice_raw']});
-assert.deepEqual([...recipes.allowedRecipeIngredientIds()].sort(),['egg','rice_cooked','rice_raw']);
+ recipeState,()=>['egg','rice_cooked','chocolate'],{rice:['rice_cooked','rice_raw']});
+assert.deepEqual([...recipes.allowedRecipeIngredientIds()].sort(),['chocolate','egg','rice_cooked','rice_raw']);
 assert.doesNotThrow(()=>recipes.validateRecipeIngredientAccess([{foodId:'egg',grams:100}]));
 assert.doesNotThrow(()=>recipes.validateRecipeIngredientAccess([['rice_raw',80]]));
-assert.throws(()=>recipes.validateRecipeIngredientAccess([{foodId:'chocolate',grams:20}]),/coach no incluyó/);
+assert.doesNotThrow(()=>recipes.validateRecipeIngredientAccess([{foodId:'chocolate',grams:20}]),
+ 'A guide selecting egg and rice never excludes another valid canonical food');
 assert.throws(()=>recipes.validateRecipeIngredientAccess([['unknown_food',10]]),/coach no incluyó/);
 assert.throws(()=>recipes.validateRecipeIngredientAccess([]),/coach no incluyó/);
 recipeState.foodPlan=null;
@@ -39,7 +40,22 @@ assert.match(source,/validateRecipeIngredientAccess\(recipe\.ingredients\)/,
 assert.match(source,/validateRecipeIngredientAccess\(selected\.ingredients\)/,
  'Personal recipe registration validates old recipes again');
 assert.match(source,/const matches=foods\.filter\(f=>permittedIngredients\.has\(f\.id\)/,
- 'New personal recipe picker hides foods not approved by coach');
+ 'New personal recipe picker checks shared canonical catalog membership, not a coach whitelist');
+
+// The catalog is shared: neither the Coach's approved guide nor the meal slot
+// may hide a real food or recipe from the student's diary.
+assert.match(source,/function allowedFoods\(\)\{\s*return selectableFoods\(\)\.map\(f=>f\.id\);\s*\}/,
+ 'Every canonical and owner-scoped recipe option remains accessible independently of guide selections');
+const foodAllowedForMeal=new Function(slice('const foodAllowedForMeal=','function budinRecipeHTML()')+
+ ';return foodAllowedForMeal;')();
+for(const slot of ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']){
+ assert.equal(foodAllowedForMeal({id:'cake'},slot),true,
+  'Budín may be registered in '+slot+' even if its recipe suggests other meal times');
+ assert.equal(foodAllowedForMeal({id:'chocolate'},slot),true,
+  'Food must not be hidden by meal timing: '+slot);
+}
+assert.match(source,/holder\.innerHTML=choice==="cake"\?budinRecipeHTML\(\)/,
+ 'The budín recipe is accessible in all six daily slots');
 
 // An old habitual must not notify B or restore B's last edited slot if A's
 // existing diary write resolves/rejects after switching account.

@@ -692,10 +692,10 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
  };
  const plannerState={plannerSelections:{"cena|protein":"egg"},plannerDraftGrams:{"cena|protein":{foodId:"egg",grams:"100"}}};
  const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
-  "foods","allowedFoods","foodSearchText","groupedFoodOptions","state",
+  "foods","selectableFoods","allowedFoods","foodSearchText","groupedFoodOptions","state",
   "syncPlannerSearchActions","updatePlannerPreview",
   source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
-  {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog.map(f=>f.id),
+  {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog,()=>mealCatalog.map(f=>f.id),
   food=>food.name,items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
   plannerState,()=>{syncCount++;},()=>{previewCount++;}
  );
@@ -732,13 +732,13 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
   set innerHTML(html){this._html=html;this._value="";}
  };
  const quantityChanges=[],searchSuggestions=[];
- const mealSearch=new Function("document","foods","allowedFoods","FOOD_STATE_PAIRS",
+ const mealSearch=new Function("document","foods","selectableFoods","allowedFoods","FOOD_STATE_PAIRS",
   "foodAllowedForMeal","state","isGuidedMealSlot","guidedMealGroupFor",
   "groupIdFor","activeGuidedMealGroup","foodSearchText","groupedFoodOptions",
   "renderMealSearchSuggestions","updateMealEntryMode",
   source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
   {getElementById:id=>id==="mealEditorFood"?foodSelector:id==="mealFoodSearch"?mealSearchInput:null},
-  mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
+  mealCatalog,()=>mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
   ()=>false,()=>false,()=>"",null,food=>food.name,
   items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
   (foods,term)=>searchSuggestions.push({count:foods.length,term}),
@@ -771,10 +771,10 @@ console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quan
  const selector={value:"egg",options:[{value:"egg",disabled:false},{value:"rice",disabled:false}]};
  const search={value:"",focus(){}};
  const changes=[];
- const pick=new Function("document","foods","hideMealSearchSuggestions","updateMealEntryMode",
+ const pick=new Function("document","foods","selectableFoods","hideMealSearchSuggestions","updateMealEntryMode",
   source.slice(begin,end)+";return pickMealSearchSuggestion;")(
   {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
-  [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
+  [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>[{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
  );
  pick("egg");
  assert.equal(changes.at(-1),false,"Re-choosing same item cannot reset edited grams");

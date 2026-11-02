@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {applyDeclaredFoodGuidance as apply} from '../pilot/declared-food-guidance.js';
+const base={color:'neutral',symbol:'',short:'',details:'',canRecord:true};
+const state=(selected)=>({declaration:'reported',readable:true,revoked:false,selected});
+const c=state({celiac:'confirmed'}),bread={id:'toast_whole'},apple={id:'apple'};
+const signal=(food,h,b=base)=>apply(b,food,h);
+assert.equal(signal(bread,undefined),base);
+assert.equal(signal(bread,{declaration:'none_declared',readable:true,selected:{}}).color,'neutral');
+for(const h of [null,{declaration:'unknown'},{...c,revoked:true},{...c,readable:false},state({celiac:'suspected'})])assert.equal(signal(apple,h).canAutoSuggest,false);
+assert.equal(signal(bread,c).color,'red');assert.equal(signal(bread,c).canRecord,true);assert.equal(signal(bread,c).canAutoSuggest,false);
+assert.equal(signal(apple,c).color,'green');assert.equal(signal(apple,c).verified,false);
+for(const f of [{id:'toast_glutenfree'},{...apple,brand:'X'},{id:'apple',ingredients:[]},{id:'custom-recipe:test'}])assert.equal(signal(f,c).color,'yellow');
+assert.equal(signal(apple,state({celiac:'confirmed',food_allergy:'confirmed'})).color,'yellow');
+assert.equal(signal(bread,state({celiac:'confirmed',diabetes:'suspected'})).color,'red');
+assert.equal(signal(apple,c,{...base,color:'red',details:'x'}).color,'red');
+assert.deepEqual(bread,{id:'toast_whole'});assert.deepEqual(c,state({celiac:'confirmed'}));
+console.log('PASS: neutral, missing and revoked declarations, ordinary toast, fresh fruit, labels/recipes, multiple restrictions, precedence, no diary block or catalog mutation.');

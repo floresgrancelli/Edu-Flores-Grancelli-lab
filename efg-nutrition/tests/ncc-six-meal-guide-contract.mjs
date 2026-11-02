@@ -5,6 +5,8 @@ import {generateGuidedDay,validateGuidedDay,guideTotals,guideDeviation} from '..
 import {FLEXIBLE_GUIDE_KIND,SIX_GUIDE_SLOTS,generateFlexibleGuidedDay,removeFlexibleMeal,
  removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from '../pilot/guided-day-v2.js';
 import {approvedFoodGuide} from '../pilot/coach-food-selection.js';
+import {recipeCatalogEntries} from '../pilot/recipe-catalog-bridge.js';
+import {addCoachRecipeServing,recipeIngredientLimits} from '../pilot/coach-guide-recipe-serving.js';
 import {validateCoachPlanProposal} from '../pilot/coach-plan-draft-client.js';
 const nutrients={egg:[1.48,.124,.0096,.0996],egg_white:[.55,.107,.0236,0],
  bread:[2.47,.13,.41,.042],milk_skim:[.35,.034,.05,.001],
@@ -89,6 +91,32 @@ assert.throws(()=>approvedFoodGuide(initial,['egg'],{knownIds:catalog.map(x=>x.i
 assert.deepEqual(initial.approvedFoodIds,undefined);
 assert.equal(validateCoachPlanProposal(goal,initial).guide.kind,FLEXIBLE_GUIDE_KIND);
 assert.equal(validateCoachPlanProposal(goal,withoutSnack).guide.meals.length,5);
+// GU-06: one Fit recipe portion -> canonical ingredient weights, without a
+// synthetic recipe food, duplicate egg or clamping banana/oats to large minima.
+const selectedRecipe=recipeCatalogEntries({foods:catalog,fitRecipes:[
+ {id:'pancakes',name:'Panqueques de banana y avena',portions:2,
+  ingredients:[['egg',100],['banana',100],['oats_raw',30]]}
+]})[0];
+const cooked=addCoachRecipeServing(initial,'desayuno',selectedRecipe,1,catalog,goal);
+const breakfast=cooked.meals.find(x=>x.slot==='desayuno');
+const originalBreakfast=initial.meals.find(x=>x.slot==='desayuno');
+assert.equal(breakfast.items.filter(x=>x.id==='egg').length,1,'Shared egg ingredient merges once');
+assert.equal(breakfast.items.find(x=>x.id==='egg').qty,originalBreakfast.items.find(x=>x.id==='egg').qty+50);
+assert.equal(breakfast.items.find(x=>x.id==='banana').qty,50,'50 g banana not enlarged to generic 80 g lower bound');
+assert.equal(breakfast.items.find(x=>x.id==='oats_raw').qty,15);
+assert.equal(breakfast.items.find(x=>x.id==='banana').locked,true);
+assert.deepEqual(recipeIngredientLimits(breakfast.items.find(x=>x.id==='banana')),[0.01,1000]);
+assert.ok(breakfast.items.every(x=>!x.id.startsWith('fit-recipe:')));
+assert.doesNotThrow(()=>validateGuidedDay(cooked,goal));
+assert.equal(new Set(breakfast.items.map(x=>x.id)).size,breakfast.items.length);
+assert.deepEqual(initial,old,'Recipe edits must not alter the previous draft');
+assert.throws(()=>addCoachRecipeServing(initial,'desayuno',selectedRecipe,0,catalog,goal),/media y cuatro/);
+assert.throws(()=>addCoachRecipeServing(initial,'desayuno',{
+ ...selectedRecipe,recipeIngredients:[{foodId:'not_in_catalog',grams:100}]},1,catalog,goal),/desconocido/);
+assert.throws(()=>addCoachRecipeServing(initial,'desayuno',{
+ ...selectedRecipe,id:'custom-recipe:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',privateRecipe:true,
+ ownerStudentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},1,catalog,goal),/lectura firmada/);
+assert.equal(validateCoachPlanProposal(goal,cooked).guide.kind,FLEXIBLE_GUIDE_KIND);
 assert.throws(()=>validateCoachPlanProposal(goal,{...initial,meals:initial.meals.slice(0,1)}));
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 for(const key of [

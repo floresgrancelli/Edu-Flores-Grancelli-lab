@@ -161,7 +161,9 @@ export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
  // Optimizes QUANTITIES, not food identities. Same repertoire can serve different goals.
  // All suggested portions are bounded to keep meals practical.
  for(const m of plan.meals)for(const item of m.items){
-  const [min,max]=guidedPortionBounds(item.id);
+  // Recipe parts use exact per-serving quantities: the normal individual
+  // food lower bound would silently inflate small ingredients and macros.
+  const [min,max]=item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
   item.qty=Math.min(max,Math.max(min,Number(item.qty)||min));
  }
  // Preserve the existing distribution as a warm start. If mandatory daily bounds
@@ -221,7 +223,8 @@ export function validateGuidedDay(plan,goal){
   if(!permitted.has(meal.slot)||slots.has(meal.slot)||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw new Error("Revisá los horarios y alimentos de la guía.");
   slots.add(meal.slot);
   for(const food of meal.items){
-   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<guidedPortionBounds(food.id)[0]||food.qty>guidedPortionBounds(food.id)[1]||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
+   const [min,max]=food.recipeComponent===true?[0.01,1000]:guidedPortionBounds(food.id);
+   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<min||food.qty>max||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
   }
  }
  if(typeof plan.supplementNote!=="string"||plan.supplementNote.length>300)throw new Error("La nota de suplementos es demasiado larga.");

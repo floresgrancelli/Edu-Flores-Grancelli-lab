@@ -3,12 +3,13 @@ const keys=['k','p','c','f','fi'];
 const number=x=>typeof x==='number'&&Number.isFinite(x)&&x>=0;
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,100}$/.test(x);
 const validPortions=x=>Number.isInteger(x)&&x>=1&&x<=50;
-function entry(id,name,parts,portions,totals,privateRecipe=false,pendingLocal=false){
+function entry(id,name,parts,portions,totals,privateRecipe=false,pendingLocal=false,metadata={}){
  if(typeof name!=='string'||!name.trim()||name.length>140||!validPortions(portions)||
   !parts.length||!keys.every(k=>number(totals?.[k])))return null;
  return {id,name:name.trim(),category:'recipe',unit:'porción',
   ...Object.fromEntries(keys.map(k=>[k,totals[k]/portions])),
-  recipeIngredients:parts,privateRecipe,pendingLocal,
+  recipeIngredients:parts,recipeBatchPortions:portions,privateRecipe,pendingLocal,
+  ...(privateRecipe?{ownerStudentId:metadata.ownerStudentId}:{}),
   sourceType:'recipe_estimate',validationStatus:'estimado',
   source:privateRecipe?'Receta propia calculada al guardarla según ingredientes':'Receta Fit estimada según ingredientes del catálogo'};
 }
@@ -33,7 +34,7 @@ export function recipeCatalogEntries({foods=[],fitRecipes=[],personalRecipes=[],
   if(!parts.length||parts.some(x=>!validId(x.foodId)||!number(x.grams)||x.grams<=0||!base.has(x.foodId)))continue;
   const totals=Object.fromEntries(keys.map(k=>[k,Number(recipe?.totals?.[k]??0)]));
   add(entry('custom-recipe:'+recipe.id,recipe.name,parts,Number(recipe.portions),
-    totals,true,recipe.pendingLocal===true));
+    totals,true,recipe.pendingLocal===true,{ownerStudentId:userId}));
  }
  return out;
 }

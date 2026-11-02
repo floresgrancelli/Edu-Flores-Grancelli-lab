@@ -36,7 +36,7 @@ export function assessCoachDraftPublication({studentId,intake,savedDraft,goal,gu
   return no("Todavía no existe un borrador privado guardado para este alumno.");
  if(!coachDraftSourceCurrent(intake,savedDraft,{versioned}))
   return no("La ficha del alumno cambió. Volvé a cargarla y revisar el plan.");
- if(!goal||!guide)return no("Primero prepará el objetivo y las cinco comidas.");
+ if(!goal||!guide)return no("Primero prepará el objetivo y la Dieta Guía.");
  try{
   const current=validateCoachPlanProposal(goal,guide);
   const stored=validateCoachPlanProposal(savedDraft.goal_proposal,savedDraft.guide_proposal);

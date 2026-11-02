@@ -153,3 +153,6 @@ const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.ok(app.includes("data-guidedeviations")&&app.includes("deviations.fi.target>0"),
  "Coach five-meal guide must display the fiber deviation.");
 console.log("PASS: real-food swaps, bounded portions and different calorie targets.");
+
+// Exercise flexible 2-6 meal contracts in the established Premium QA job.
+await import('./guided-six-meals-contract.mjs');

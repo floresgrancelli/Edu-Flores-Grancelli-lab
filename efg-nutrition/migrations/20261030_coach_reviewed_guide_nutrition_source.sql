@@ -57,17 +57,27 @@ declare
  v_items_count integer;
  v_count integer := 0;
 begin
+ -- Legacy five-meal guides remain valid; the new flexible v2 proposal
+ -- starts with six slots but the coach can remove slots (minimum two).
  if pg_catalog.jsonb_typeof(p_guide) is distinct from 'object'
-  or p_guide->>'kind' is distinct from 'five_meal_example'
-  or p_guide->>'version' is distinct from '1'
-  or pg_catalog.jsonb_typeof(p_guide->'meals') is distinct from 'array'
-  or pg_catalog.jsonb_array_length(p_guide->'meals') <> 5 then
+  or pg_catalog.jsonb_typeof(p_guide->'meals') is distinct from 'array' then
+   return false;
+ end if;
+ if not (
+   (p_guide->>'kind' = 'five_meal_example'
+     and p_guide->>'version' = '1'
+     and pg_catalog.jsonb_array_length(p_guide->'meals') = 5)
+   or
+   (p_guide->>'kind' = 'flexible_meal_guide'
+     and p_guide->>'version' = '2'
+     and pg_catalog.jsonb_array_length(p_guide->'meals') between 2 and 6)
+  ) then
    return false;
  end if;
  for v_meal in select value from pg_catalog.jsonb_array_elements(p_guide->'meals') loop
   if pg_catalog.jsonb_typeof(v_meal) is distinct from 'object'
    or v_meal->>'slot' is null or v_meal->>'slot' not in
-    ('desayuno','media_manana','almuerzo','merienda','cena')
+    ('desayuno','media_manana','almuerzo','media_tarde','merienda','cena')
    or v_meal->>'slot'=any(v_slots)
    or pg_catalog.jsonb_typeof(v_meal->'items') is distinct from 'array' then
    return false;
@@ -77,7 +87,7 @@ begin
   if v_items_count not between 1 and 15 then return false; end if;
   for v_item in select value from pg_catalog.jsonb_array_elements(v_meal->'items') loop
    v_count:=v_count+1;
-   if v_count>75 or pg_catalog.jsonb_typeof(v_item) is distinct from 'object'
+   if v_count>90 or pg_catalog.jsonb_typeof(v_item) is distinct from 'object'
     or v_item->>'id' is null or v_item->>'unit' is null
     or v_item->>'id' !~ '^[a-zA-Z0-9_-]{1,100}$'
     or v_item->>'unit' not in ('g','ml')
@@ -110,7 +120,10 @@ begin
    end loop;
   end loop;
  end loop;
- return pg_catalog.cardinality(v_slots)=5 and v_count>=5;
+ return pg_catalog.cardinality(v_slots)=pg_catalog.jsonb_array_length(p_guide->'meals')
+  and v_count>=pg_catalog.cardinality(v_slots)
+  and (p_guide->>'kind' <> 'five_meal_example'
+    or not ('media_tarde'=any(v_slots)));
 end
 $verify$;
 revoke all on function efg_private.coach_guide_foods_verified(jsonb)

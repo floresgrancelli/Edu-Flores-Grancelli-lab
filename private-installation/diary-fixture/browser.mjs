@@ -52,10 +52,11 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
  async function open(page){
   await settled(page,users.studentA);
   await step('signed-route-home',page,()=>page.locator('[data-tab="home"]:visible').first().click());
-  await step('mi-dia-breakfast-control',page,()=>page.locator('[data-habitualsave="desayuno"]:visible').first().waitFor());
+  await step('mi-dia-breakfast-attached',page,()=>page.locator('[data-habitualsave="desayuno"]').first().waitFor({state:'attached'}));
   const breakfast=page.locator('[data-habitualsave="desayuno"]').locator('xpath=ancestor::details[1]');
   const isOpen=await step('mi-dia-breakfast-container',page,()=>breakfast.getAttribute('open'));
   if(isOpen===null)await step('open-breakfast',page,()=>breakfast.locator(':scope > summary').click());
+  await step('mi-dia-breakfast-visible',page,()=>page.locator('[data-habitualsave="desayuno"]:visible').first().waitFor());
  }
  async function openRecipes(page){
   await open(page);

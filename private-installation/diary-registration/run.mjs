@@ -15,7 +15,19 @@ export async function withDiaryRegistration({sql,out,request,users,snapshot,runB
   const old=JSON.parse(sql(`select to_jsonb(c) from public.efg_consents c where student_id=${q(users.studentA.id)}`));assert.equal(old.accepted,true);
   const before=rowSnapshot(sql,['public.efg_consents']);
   try{const r=await request('/rest/v1/efg_consents?student_id=eq.'+users.studentA.id+'&select=*',{method:'PATCH',token:users.studentA.token,body:{accepted:false},prefer:'return=representation'});assert.ok(r.ok);assert.equal(r.data.length,1);assert.equal(r.data[0].accepted,false);await fn();}
-  finally{attestDatabase(sql);sql(`update public.efg_consents set accepted=${old.accepted?'true':'false'},updated_at=${q(old.updated_at)}::timestamptz where student_id=${q(users.studentA.id)}`);assert.deepEqual(rowSnapshot(sql,['public.efg_consents']),before);}
+  finally{
+   // The consent table has a timestamp trigger: a normal UPDATE changes
+   // updated_at even when an explicit older value is supplied. Undo ONLY
+   // this disposable-fixture row in a single transaction; LOCAL cannot leak
+   // the trigger setting to any other request or test, and real revoke/
+   // authorization operations above still exercise their normal triggers.
+   attestDatabase(sql);
+   sql(`begin;set local session_replication_role=replica;
+    update public.efg_consents set accepted=${old.accepted?'true':'false'},
+    updated_at=${q(old.updated_at)}::timestamptz
+    where student_id=${q(users.studentA.id)};commit;`);
+   assert.deepEqual(rowSnapshot(sql,['public.efg_consents']),before,'Restored consent including exact prior timestamp');
+  }
  };
  let install,result={status:'RUNNING',restored:false,dom:[]};
  try{

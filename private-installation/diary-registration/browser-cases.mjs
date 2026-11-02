@@ -43,10 +43,25 @@ export async function registrationCases(ctx){
    for(const row of await read())assert.equal(row.log_day,futureDay);
   }finally{await page.clock.setFixedTime(new Date());await restoreRows();await page.reload();await open(page);}stages.push(stage);
   stage='revoked-before-send';await withRevokedConsent(async()=>{
-   const before=await snapshot();const reply=page.waitForResponse(x=>x.request().method()==='POST'&&new URL(x.url()).pathname===endpoint);
-   await register();const denied=await reply;assert.equal(denied.status(),403);assert.deepEqual(await snapshot(),before);
+   // The application may correctly hide MI DÍA as soon as consent is
+   // revoked. Do not force-click an unavailable button and mistake that
+   // expected UI guard for a failed persistence test. Test the REAL signed
+   // REST boundary directly while consent is denied.
+   const before=await snapshot();
+   const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   const rejected=await request(endpoint+'?on_conflict=student_id,log_day&select=*',{
+    method:'POST',token:users.studentA.token,
+    prefer:'resolution=merge-duplicates,return=representation',
+    body:{student_id:users.studentA.id,log_day:day,meals:{desayuno:[item]},
+     sports:[],skipped:{},totals:Object.fromEntries(keys.map(k=>[k,item[k]]))}
+   });
+   assert.equal(rejected.status,403,'Revoked consent must deny signed diary writes');
+   assert.deepEqual(await snapshot(),before,'Revoked consent must cause zero DB mutation');
   });stages.push(stage);
-  await page.reload();await open(page);await page.screenshot({path:join(out,`diary-revocation-${width}.png`),fullPage:true});
+  // Re-establish an actual OTP/session after the revocation workflow; the
+  // old UI may have legitimately gated the page before the server restore.
+  await login(page,users.studentA);await open(page);
+  await page.screenshot({path:join(out,`diary-revocation-${width}.png`),fullPage:true});
   return {status:'PASS',width,stages,transport:'real local SDK/HTTP/JWT',explicitRecipeRetryAfterLostResponse:'NOT_TESTED (not idempotent by request key)'};
  }catch(e){e.diaryRegistrationStage=stage;throw e;}finally{page.off('request',listener);await restoreRows();}
 }

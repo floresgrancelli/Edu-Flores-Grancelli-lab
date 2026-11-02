@@ -231,7 +231,8 @@ export function validateGuidedDay(plan,goal){
  // Legacy example validation is unchanged. The six-slot coach guide may have
  // fewer meals; if its bounded portions cannot match the target, report the
  // deviation for coach review instead of forcing absurd gram amounts.
- const needsReview=["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>20);
+ const reviewKeys=diff.fi.target>0?["k","p","c","f","fi"]:["k","p","c","f"];
+ const needsReview=reviewKeys.some(k=>Math.abs(diff[k].percent)>20);
  if(legacy&&["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>30))
   throw new Error("El ejemplo se aleja más del 30% de la meta. Ajustá cantidades antes de enviarlo.");
  return {totals:guideTotals(plan).totals,deviations:diff,needsReview};

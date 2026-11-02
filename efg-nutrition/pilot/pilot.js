@@ -33,7 +33,8 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messag
 import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
-import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
+import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood} from "./guided-day-v2.js?v=20261102-flex1";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
@@ -2440,6 +2441,7 @@ function guidedTargetFeedback(deviations){
   :"Todavía hay diferencias con el objetivo. Recalculá las demás porciones o revisá el menú; se conservan los gramos que fijaste.";
 }
 function guidedDayContents(plan,goal,editable=false){
+ const flexible=plan.kind==="flexible_meal_guide";
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
   const mt=totals.perMeal.find(r=>r.slot===meal.slot)?.totals;
@@ -2449,8 +2451,10 @@ function guidedDayContents(plan,goal,editable=false){
    const alt=editable?guidedFoodAlternatives(f.id,foods):[];
    const [min,max]=guidedPortionBounds(f.id);
    const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
-   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>':
+   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+
+     (flexible?' <small>'+escapeHTML(foodTrafficLight(f).symbol||'')+'</small>':'')+'</div>'+
+    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
+     (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
      '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
   };
   const sections=educationalGuideSections(meal,groupIdFor);
@@ -2465,13 +2469,20 @@ function guidedDayContents(plan,goal,editable=false){
      '</section>').join('')+
     '<p class="efg-guide-education-foot">Las grasas se calculan a partir de todos los alimentos y de los aceites que figuren en la guía. Un plato preparado se cuenta una sola vez.</p></div>':
    meal.items.map(foodRow).join("");
-  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span></div>'+
+  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
+   (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
    '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
+   (editable&&flexible?'<div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
+    '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento del catálogo…"></label>'+
+    '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
+     '<option value="">Elegí un alimento</option>'+option(foods)+'</select>'+
+    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar a guía</button></div>':'')+
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
  '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
+ (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+

@@ -186,7 +186,8 @@ function fruitSaladRecipeHTML(){
  '</ul><p>Por bol: <b>'+num(salad.k*portion)+' kcal</b> · P '+num(salad.p*portion,1)+' g · HC '+num(salad.c*portion,1)+' g · G '+num(salad.f*portion,1)+' g.</p>'+
  '<small>Podés registrar 1 bol (200 g) o elegir «Peso» y cargar lo realmente consumido. Si la mezcla es diferente, los valores son aproximados. Azúcar, miel, almíbar, jugo o yogur se registran por separado.</small></details>';
 }
-const foodAllowedForMeal=(food,meal)=>food?.id!=="cake" || BUDIN_RECIPE.allowedMeals.includes(meal);
+// Every food/recipe may be recorded in every meal; preferred timings never restrict the diary.
+const foodAllowedForMeal=()=>true;
 function budinRecipeHTML(){
  const cake=foods.find(f=>f.id==="cake"),portion=BUDIN_RECIPE.portionGrams;
  return '<details class="budin-recipe" open><summary>📖 Receta · '+BUDIN_RECIPE.name+'</summary>'+
@@ -201,7 +202,7 @@ function updateMealRecipe(){
  const holder=document.getElementById("mealRecipeDetail");
  if(!holder)return;
  const choice=document.getElementById("mealEditorFood")?.value;
- holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():choice==="fruit_salad_basic"?fruitSaladRecipeHTML():"";
+ holder.innerHTML=choice==="cake"?budinRecipeHTML():choice==="fruit_salad_basic"?fruitSaladRecipeHTML():"";
 }
 const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
 const MILK_BEVERAGES={coffee_milk:125,coffee_cortado:30,tea_milk:80,mate_cocido_milk:125};
@@ -2030,11 +2031,11 @@ function coachFoodChoices(p,consent){
  }).join("");
  return '<div class="divider"></div><h3>Alimentos disponibles para planificar</h3>'+ 
   '<p class="pilot-hint">Semáforo por patrón alimentario: 🟢 compatible revisado, 🟡 verificar etiqueta o composición, 🔴 incompatible con el patrón según evidencia. Sin restricciones: sin color. Los colores no indican calorías y no impiden registrar alimentos.</p>'+ 
- '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
+ '<p class="pilot-hint">Esta selección es orientativa para la guía; no restringe el catálogo compartido. Todos los alumnos pueden buscar y registrar cualquier alimento, independientemente del semáforo. Los productos de marca requieren comprobar su etiqueta.</p>'+
  '<div class="food-library-tools"><label for="coachFoodSearch">Buscar alimentos</label><input type="search" id="coachFoodSearch" placeholder="Buscar entre '+foods.length+' alimentos…" autocomplete="off"><p id="coachFoodCount" class="pilot-hint">'+selected.size+' alimentos seleccionados de '+foods.length+'</p></div>'+
  sections+(COACH_ATOMIC_PLAN_UI_ENABLED
-  ?'<p class="pilot-hint" role="note">Esta selección se guarda JUNTO con el borrador privado de cinco comidas. Antes de publicar el servidor verificará las referencias de cada alimento. No significa aptitud clínica.</p>'
-  :'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>');
+  ?'<p class="pilot-hint" role="note">Los ingredientes de la guía se revisan al guardar el borrador. No son una lista blanca ni limitan el catálogo de Mi Día; tampoco certifican aptitud clínica.</p>'
+  :'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar selección orientativa (catálogo completo)</button>');
 }
 function filterCoachFoodLibrary(){
  const input=document.getElementById("coachFoodSearch");

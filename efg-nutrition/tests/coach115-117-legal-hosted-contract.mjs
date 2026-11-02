@@ -74,6 +74,13 @@ assert.match(html,/Condiciones de participación en el piloto/);
 assert.match(html,/Información de privacidad del piloto/);
 assert.match(html,/permiso específico, voluntario y revocable/);
 assert.match(html,/Participación en el piloto/);
+const formatted=renderCoachPilotLegal({ready:true,documents:[
+ {kind:'terms',version:'pilot_20261102_v1',body:'Primera sección.\n\nSegunda sección con <script>alert(1)</script>.'},
+ {kind:'privacy',version:'pilot_20261102_v1',body:'Datos y privacidad.\n\nContacto mediante el coach.'}
+]});
+assert.match(formatted,/<p>Primera sección\.<\/p><p>Segunda sección con &lt;script&gt;alert\(1\)&lt;\/script&gt;\.<\/p>/);
+assert.match(formatted,/<p>Datos y privacidad\.<\/p><p>Contacto mediante el coach\.<\/p>/);
+assert.doesNotMatch(formatted,/<script>/,'Pilot documents must never execute HTML');
 assert.match(html,/checkbox/);
 assert.doesNotMatch(html,/<input[^>]*\bchecked\b/, 'The consent checkboxes must start unselected');
 const selections=()=>readCoachPilotLegalSelections({getElementById:key=>({

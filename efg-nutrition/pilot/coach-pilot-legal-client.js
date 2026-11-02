@@ -11,6 +11,12 @@ function reviewedBody(body){
  return typeof body==='string'&&body.trim().length>=300&&!UNAPPROVED_LEGAL.test(body);
 }
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Preserve readable paragraphs without interpreting or injecting any HTML.
+ // The approved text is stored as plain UTF-8 and escaped at render time.
+function renderNoticeParagraphs(body){
+ const paragraphs=String(body??'').trim().split(/\r?\n\s*\r?\n/).map(x=>x.trim()).filter(Boolean);
+ return paragraphs.map(part=>'<p>'+esc(part).replace(/\r?\n/g,' ')+'</p>').join('');
+}
 const TYPES=['terms','privacy'];
 function validStatus(rows){
  return Array.isArray(rows)&&rows.length===2&&
@@ -63,7 +69,7 @@ export function renderCoachPilotLegal(snapshot){
   '<div class="pilot-form">'+docs.map(doc=>{
    const isTerms=doc.kind==='terms',label=isTerms?'Condiciones de participación en el piloto':'Información de privacidad del piloto';
    return '<article class="efg-legal-document"><details><summary>'+label+' · versión '+esc(doc.version)+'</summary>'+
-    '<div class="efg-legal-body">'+esc(doc.body)+'</div></details>'+
+    '<div class="efg-legal-body">'+renderNoticeParagraphs(doc.body)+'</div></details>'+
     '<label class="efg-legal-confirm"><input type="checkbox" id="efgCoachPilotLegal_'+doc.kind+'"'+
     (doc.accepted?' disabled':'')+'> '+(doc.accepted?'Ya aceptaste esta versión de '+label:
      'Leí y acepto expresamente '+label)+'</label></article>';

@@ -55,4 +55,14 @@ assert.equal(chickenResult.reason,'preparation_mismatch_generic_chicken');
 assert.equal(chickenResult.publishable,false);
 // An exact roasted breast record cannot silently validate generic chicken
 // merely because the protein/calorie estimate happens to be similar.
+// Unexpected mappings must fail closed instead of throwing due to an
+// attempted .some() on an object supplied by a malformed or stale caller.
+const malformed=await importSelectedFdcExport({
+ bytes:new TextEncoder().encode(JSON.stringify(apple)),
+ mappings:{foodId:'chicken',fdcId:171477},
+ metadata:{...meta,sourceUrl:'https://api.nal.usda.gov/fdc/v1/food/171688'},
+ now
+});
+assert.equal(malformed.status,'unknown');
+assert.equal(malformed.reason,'invalid_selection');
 console.log('PASS 02-03: official FDC endpoint/ID binding; unknown URLs rejected; fictional captures remain non-publishable.');

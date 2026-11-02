@@ -32,7 +32,7 @@ export async function importSelectedFdcExport({bytes,mappings,metadata,now}={}){
   // Its macros may look similar; the identities are NOT interchangeable.
   // Block this mapping until an explicitly reviewed preparation-specific
   // catalog ID is introduced. This is a source gate, never a medical claim.
-  if(mappings?.some(m=>m?.foodId==='chicken'&&m?.fdcId===171477))
+  if(Array.isArray(mappings)&&mappings.some(m=>m?.foodId==='chicken'&&m?.fdcId===171477))
     return unknown('preparation_mismatch_generic_chicken');
   if(!Array.isArray(mappings)||!mappings.length||mappings.length>5||
     new Set(mappings.map(m=>m?.fdcId)).size!==mappings.length||

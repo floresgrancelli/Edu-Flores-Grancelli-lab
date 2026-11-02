@@ -37,7 +37,10 @@ await assert.rejects(()=>loadReviewedFoodEvidence(down,{foodIds:['test_food'],pa
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');
 for(const check of [/function foodTrafficLight\(food\)/,/function refreshFoodCompatibilityEvidence\(\)/,/groupedFoodOptions\(displayedWithSignals,slot\)/,/mealCompatibilityStatus/,/foodTrafficLight\(f\)\.symbol/,/await contextRead\(refreshFoodCompatibilityEvidence\(\)\)/])assert.match(app,check);
-assert.match(app,/if\(switchingUser\)\{state\.foodCompatEvidence=\[\];/, 'No cached reviews from a previous user');
+assert.match(app,/if\(switchingUser\)\{[^}]*state\.foodCompatEvidence=\[\];/,
+ 'No cached reviews from a previous user, even when additional private caches are cleared first');
+assert.match(app,/if\(switchingUser\)\{[^}]*state\.coachSharedRecipeScope=null;state\.coachSharedRecipes=\[\];/,
+ 'Cross-account refresh also clears newly introduced private Coach recipe data');
 assert.match(app,/function resetPrivateSession\(\)\{[\s\S]*?state\.foodCompatEvidence=\[\];/, 'Logout central reset clears reviewed-food cache');
 assert.match(app,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/, 'Explicit exit clears the same private cache before the next account');
 assert.match(app,/Alimentos disponibles para planificar/);

@@ -32,6 +32,9 @@ const highCarbIds=new Set(['bread','bread_white','bread_rye','toast_whole','rice
 const naturallySimple=new Set(['egg','egg_white','banana','apple','pear','mandarin','orange','strawberry','rice','brownrice','potato','sweetpotato','pumpkin','rocket','oil','avocado','chicken','fish_hake','tofu_firm','broccoli_cooked','zucchini']);
 const plainName=x=>String(x?.name||'').toLocaleLowerCase('es-AR');
 function normalizeProfile(raw={}){
+ if(raw.restrictions!==undefined&&!Array.isArray(raw.restrictions))throw Error('Restricciones alimentarias inválidas.');
+ const restrictionStatus=raw.restrictionStatus??'unspecified';
+ if(!['unknown','declared','none_declared','unspecified'].includes(restrictionStatus))throw Error('Estado de declaración inválido.');
  const restrictions=[...new Set((raw.restrictions||[]).filter(x=>typeof x==='string').map(x=>x.toLowerCase().trim()))];
  const pattern=String(raw.patternId||raw.dietaryPattern||raw.pattern||'balanced').toLowerCase();
  const fasting=String(raw.windowId||raw.fasting||'regular');
@@ -39,7 +42,7 @@ function normalizeProfile(raw={}){
  if(restrictions.length>16||!['balanced','omnivore','mediterranean','flexitarian','vegetarian','vegan','pescatarian','keto','low_carb','dash','portfolio'].includes(pattern)||
   !['regular','12_12','14_10','16_8'].includes(fasting)||disliked.length>100)
   throw Error('Perfil alimentario inválido.');
- return {restrictions,pattern,fasting,disliked};
+ return {restrictions,pattern,fasting,disliked,restrictionStatus};
 }
 export function guideFoodSignal(food,raw={}){
  const profile=normalizeProfile(raw),id=food?.id||'',name=plainName(food);
@@ -67,6 +70,7 @@ export function guideFoodSignal(food,raw={}){
  if(food.recipeIngredients||id.startsWith('fit-recipe:')||id.startsWith('custom-recipe:'))return {status:'review',reason:'Revisar ingredientes completos de la receta'};
  if(isCeliac&&!naturallySimple.has(id))return {status:'review',reason:'Verificar etiqueta, preparación y contaminación cruzada'};
  if(lactose&&dairyNames.test(name))return {status:'review',reason:'Verificar rótulo y tolerancia individual'};
+ if(profile.restrictionStatus==='unknown')return {status:'review',reason:'Restricciones sin verificar: no se puede asumir ausencia de alergias'};
  return {status:'possible',reason:'Propuesta general; considerar preparación y preferencias'};
 }
 const roleOf=(id,slot)=>{
@@ -122,6 +126,8 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  if(profile.restrictions.includes('food_allergy')&&!options.allergenDetailsConfirmed)
   throw Error('Revisá primero qué alérgeno declaró el alumno antes de generar la guía automática.');
  const active=initialSlots(profile),meals=[],notices=[];
+ if(profile.restrictionStatus==='unknown')notices.push('Restricciones sin verificar: no presupongas ausencia de celiaquía, intolerancias o alergias.');
+ if(Array.isArray(options.restrictionReviewNotes))notices.push(...options.restrictionReviewNotes.filter(x=>typeof x==='string'&&x.length<=220));
  for(const template of templates){
   if(!active.has(template.slot))continue;
   const used=new Set(),items=[];
@@ -133,7 +139,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
     if(choose){food=choose;signal=guideFoodSignal(food,profile);}
    }
    if(!food||used.has(food.id)||signal.status==='avoid')continue;
-   if(signal.status==='review')notices.push(template.label+': revisar '+food.name+' ('+signal.reason+').');
+   if(signal.status==='review'&&profile.restrictionStatus!=='unknown')notices.push(template.label+': revisar '+food.name+' ('+signal.reason+').');
    const [min,max]=guidedPortionBounds(food.id);
    const grams=Math.min(max,Math.max(min,qty));
    items.push(ensureSource(food,grams));used.add(food.id);

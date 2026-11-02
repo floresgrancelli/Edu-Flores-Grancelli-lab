@@ -58,7 +58,6 @@ for(const file of ['PILOTO_CONDICIONES_BORRADOR_20261102.md','PILOTO_PRIVACIDAD_
  }
 }
 docs=structuredClone(baselineDocs);
-const baselineDocs=structuredClone(docs);
 for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN VIGENCIA', 'ESTADO: NO APROBADO',
  'Propuesta privada para aprobación.', 'Propuesta privada; usar sólo cuando el circuito esté validado.',
  'No publicada ni aceptada por ninguna persona.', 'PROPUESTA  PRIVADA PARA APROBACION']){

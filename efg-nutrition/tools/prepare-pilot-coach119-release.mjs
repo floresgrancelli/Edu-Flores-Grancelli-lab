@@ -1,4 +1,4 @@
-// Construct an operator-reviewed, all-or-nothing SQL *candidate* from five
+// Construct an operator-reviewed, all-or-nothing SQL *candidate* from six
 // audited scripts (including the existing signed six-meal entry status). NO database connection or deployment is possible here.
 // Intentionally does not ingest real records, seed nutrition review or enable flags.
 import {readFileSync} from 'node:fs';
@@ -32,6 +32,11 @@ export const RELEASE_SOURCES=Object.freeze([
     "path": "efg-nutrition/migrations/20261030_coach116_legal_first_student_status.sql",
     "sha": "b551798c460a80c82dc156ca9fa4a3770250accc",
     "key": "COACH116"
+  },
+  {
+    "path": "efg-nutrition/migrations/20261102_coach_shared_student_recipes_NOT_APPLIED.sql",
+    "sha": "1944a69d47767ac0991030f480b8251904224ad6",
+    "key": "GU06"
   }
 ]);
 const root=new URL('../../',import.meta.url);
@@ -129,6 +134,20 @@ begin
    pg_catalog.pg_get_functiondef(to_regprocedure('public.efg_coach_pilot_entry_status()')),
    'v_intake.age_years is null'),0)=0
  then raise exception 'NCC_ABORT: signed student entry must support complete intake and flexible 2-6 meal guide'; end if;
+ -- Consent-scoped personal recipes can be read ONLY via the signed Coach RPC.
+ -- No extra SELECT policy on the original student-owned table is permitted.
+ if not exists(select 1 from pg_proc p
+  where p.oid=to_regprocedure('public.efg_coach_shared_student_recipes(uuid)')
+    and p.prosecdef
+    and not has_function_privilege('anon',p.oid,'EXECUTE')
+    and has_function_privilege('authenticated',p.oid,'EXECUTE'))
+  or (select count(*) from pg_policies where schemaname='public'
+      and tablename='efg_personal_recipes' and cmd='SELECT')<>1
+  or not exists(select 1 from pg_policies where schemaname='public'
+      and tablename='efg_personal_recipes' and cmd='SELECT'
+      and policyname='Alumno lee sus recetas'
+      and qual like '%student_id%' and qual like '%auth.uid()%')
+ then raise exception 'NCC_ABORT: GU06 owner recipe RLS or scoped Coach RPC not verified'; end if;
 end
 $ncc_release_post$;
 notify pgrst, 'reload schema';

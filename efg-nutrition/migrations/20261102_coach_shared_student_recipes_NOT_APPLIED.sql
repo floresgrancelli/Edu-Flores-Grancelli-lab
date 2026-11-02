@@ -15,6 +15,14 @@ begin
     or pg_catalog.to_regprocedure('public.efg_coach_shared_student_recipes(uuid)') is not null
     or not exists(select 1 from pg_catalog.pg_class
      where oid='public.efg_personal_recipes'::regclass and relrowsecurity)
+    or pg_catalog.has_table_privilege('anon','public.efg_personal_recipes','SELECT')
+    or (select pg_catalog.count(*) from pg_catalog.pg_policies
+     where schemaname='public' and tablename='efg_personal_recipes'
+      and cmd='SELECT')<>1
+    or not exists(select 1 from pg_catalog.pg_policies
+     where schemaname='public' and tablename='efg_personal_recipes'
+      and cmd='SELECT' and policyname='Alumno lee sus recetas'
+      and qual like '%student_id%' and qual like '%auth.uid()%')
  then raise exception 'NCC-GU06 STOP: recipe ownership/RLS or Coach sharing prerequisites not ready' using errcode='55000';
  end if;
 end $ncc_shared_recipe_preflight$;

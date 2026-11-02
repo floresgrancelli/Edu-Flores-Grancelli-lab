@@ -48,7 +48,9 @@ export async function verifyDomFixtureAccess({sql,rpc,request,users,orgs}){
    else {assert.equal(foreign.length,1);assert.ok(!JSON.stringify(foreign).includes(users.studentA.id)&&!JSON.stringify(foreign).includes(users.coachA.id),'No A identifiers in B scope');}
    denied(await request('/rest/v1/'+table+'?select=*'),'anonymous table',['42501']);
    for(const method of ['POST','PATCH','DELETE']){
-    denied(await request('/rest/v1/'+table,{method,token:users.coachA.token,...(method==='DELETE'?{}:{body:row})}),`${method} ${table}`,['42501']);
+    const filterKey=Object.keys(row)[0];
+    const path='/rest/v1/'+table+(method==='POST'?'':'?'+filterKey+'=eq.'+encodeURIComponent(row[filterKey]));
+    denied(await request(path,{method,token:users.coachA.token,...(method==='DELETE'?{}:{body:row})}),`${method} ${table}`,['42501']);
     assert.deepEqual(rowSnapshot(sql,tracked),before,'Rejected write must not mutate');
    }
   }

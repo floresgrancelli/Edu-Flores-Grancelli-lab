@@ -585,6 +585,11 @@ jobs:
           set -euo pipefail
           for f in private-installation/diary-fixture/*.mjs; do node --check "$f"; done
           node --experimental-default-type=module efg-nutrition/tests/recipe-ingredients-equal-private.mjs
+          node --experimental-default-type=module --check efg-nutrition/pilot/pilot.js
+          node --experimental-default-type=module --check efg-nutrition/pilot/auth-hydration-gate.js
+          node --experimental-default-type=module efg-nutrition/tests/auth-hydration-gate-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/auth-hydration-pilot-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/persisted-guide-local-e2e.mjs --pilot-scope-regression
           python3 -m py_compile private-installation/diary-fixture/mail-config.py
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
@@ -660,4 +665,5 @@ jobs:
           path: artifacts/incremental-install/
           retention-days: 7
           if-no-files-found: warn
+
 

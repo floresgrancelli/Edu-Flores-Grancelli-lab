@@ -225,10 +225,11 @@ async function runPilotScopeRegression(){
  const directory=mkdtempSync(join(tmpdir(),'ncc-real-pilot-scope-'));
  try{
   const modulePath=join(directory,'scope.mjs');
-  writeFileSync(modulePath,`let state,coachPersistedGuideSource=null;let closes=0;
+  writeFileSync(modulePath,`import {createAuthHydrationGate} from ${JSON.stringify(new URL("../pilot/auth-hydration-gate.js",import.meta.url).href)};\nlet state,coachPersistedGuideSource=null;let closes=0;
 const coachAdaptedWorkspace={close(){closes++;coachPersistedGuideSource?.invalidate();}};
 const refresh=()=>{throw Error('Unexpected refresh branch');};
 const resetPrivateSession=()=>{coachAdaptedWorkspace.close();state.session=null;};const loginView=()=>{};
+const authHydration=createAuthHydrationGate({readIdentity:()=>state.session?.user?.id, invalidate:epoch=>{resetPrivateSession();state.authContextEpoch=epoch;},schedule:queueMicrotask,refresh});
 ${extracted}\n${pilot.slice(authStart,authEnd)}
 export {adaptedCoachScope,coachSessionIdentity,setCoachSessionIdentity,handleAuthStateChange};
 export const attach=(s,p)=>{state=s;coachPersistedGuideSource=p;};export const closeCount=()=>closes;
@@ -269,3 +270,4 @@ export const attach=(s,p)=>{state=s;coachPersistedGuideSource=p;};export const c
   console.log('PASS real pilot scope/provider regression: positive epoch, real health gate reached, stable refresh, new session invalidation, revision change during Auth blocks RPC, student switch and consent denial. Unit transport only; not HTTP/UI execution.');
  }finally{rmSync(directory,{recursive:true,force:true});}
 }
+

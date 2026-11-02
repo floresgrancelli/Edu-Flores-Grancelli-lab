@@ -1,3 +1,4 @@
+import {createAuthHydrationGate} from "./auth-hydration-gate.js";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
 import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
@@ -400,8 +401,10 @@ async function saveDayComment(){
 let coachRosterConsent={};
 let myWeeklyReports=[];
 async function loadMyWeeklyReports(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  if(state.profile?.role!=="student"){myWeeklyReports=[];return;}
- const {data,error}=await sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12);
+ const {data,error}=await contextRead(sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12));
  if(error)throw error;myWeeklyReports=data||[];
 }
 function weeklyStudentPanel(){
@@ -472,6 +475,12 @@ const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const authHydration=createAuthHydrationGate({
+ readIdentity:()=>state.session?.user?.id||null,
+ invalidate:epoch=>{resetPrivateSession();state.authContextEpoch=epoch;loginView();},
+ schedule:queueMicrotask,refresh:()=>refresh()
+});
+
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
@@ -518,12 +527,15 @@ function foodTrafficLight(food){
  return describeTrafficLight(food,{pattern:compatibilityPattern(),inPlan,evidence:state.foodCompatEvidence});
 }
 async function refreshFoodCompatibilityEvidence(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const pattern=compatibilityPattern();
  state.foodCompatEvidence=[];
  if(!FOOD_COMPATIBILITY_ENABLED||pattern==="balanced")return;
  try{
-  state.foodCompatEvidence=await loadReviewedFoodEvidence(sb,{foodIds:foods.map(f=>f.id),patterns:[pattern]});
+  state.foodCompatEvidence=await contextRead(loadReviewedFoodEvidence(sb,{foodIds:foods.map(f=>f.id),patterns:[pattern]}));
  }catch(error){
+  if((state.authContextEpoch||0)!==contextEpoch)return;
   state.foodCompatEvidence=[];
   console.warn("Semáforo: revisiones no disponibles; se mostrará amarillo.",error?.message);
  }
@@ -605,9 +617,10 @@ function recoverableOfflineWrite(error){
   (!status||status===408||status===429||status>=500);
 }
 async function loadCloudHabituales(){
+ const contextEpoch=state.authContextEpoch||0;
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
- const sameUser=()=>state.session?.user?.id===userId;
+ const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId;
  // Offline fetch can reject, not just resolve with {error}; preserve backup.
  let data,error;
  try{({data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
@@ -890,9 +903,10 @@ function myRecipes(){
  return result;
 }
 async function loadCloudRecipes(){
+ const contextEpoch=state.authContextEpoch||0;
  const userId=state.session?.user?.id;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
- const sameUser=()=>state.session?.user?.id===userId;
+ const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId;
  // Lost transport must not hide a recoverable recipe stored on this device.
  let data,error;
  try{({data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
@@ -1107,10 +1121,12 @@ function welcomeView(){
   '</section></div>';
 }
 async function loadWelcomeStatus(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.welcomePending=false;
  if(SCIENCE_WELCOME_ENABLED)return; // Replace generic old student welcome with science intro on new release.
  if(state.profile?.role!=="student"||!state.profile?.active)return;
- const {data,error}=await sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle();
+ const {data,error}=await contextRead(sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle());
  // Un error de red o configuración nunca impide consultar los diarios privados.
  if(error){console.warn("No se pudo comprobar la bienvenida:",error.message);return;}
  state.welcomePending=!data;
@@ -1344,12 +1360,14 @@ function weeklyScoreForCoach(){
    goals:state.coachGoals||[],totalOf:dailyTotals,goalForDate});
 }
 async function loadSundayPermission(studentId){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.rewardApproval=null;state.rewardFeatureReady=false;
  if(!studentId||!state.session?.user?.id)return;
  if(state.profile.role!=="student"&&(!state.selectedStudent||!state.consent?.accepted))return;
- const {data,error}=await sb.from("efg_sunday_rewards")
+ const {data,error}=await contextRead(sb.from("efg_sunday_rewards")
    .select("student_id,week_monday,coach_id,approved,approved_at")
-   .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle();
+   .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle());
  if(error){
   // La migración todavía puede estar pendiente: nunca atribuir una
   // autorización sin prueba persistida, y nunca bloquear el diario.
@@ -2768,6 +2786,7 @@ function restoreViewContinuity(snapshot){
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
 async function render(){
+ const renderEpoch=state.authContextEpoch||0;
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
@@ -2863,6 +2882,7 @@ async function render(){
  if(studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
+ if((state.authContextEpoch||0)!==renderEpoch)return;
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
@@ -2999,13 +3019,15 @@ async function saveDiary(){
  }finally{state.diaryWritePending=false;if(state.diaryWriteOwner===studentId)state.diaryWriteOwner=null;}
 }
 async function loadPersonalData(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const id=state.session.user.id,requestedDay=today();
  // An earlier tab load must not rehydrate another account, a previous date,
  // or an older response over a newer refresh / confirmed diary write.
  const loadToken=Symbol("personal-data-load");
  state.personalDataLoadToken=loadToken;
  const writeRevision=state.diaryWriteRevision||0;
- const results=await Promise.all([
+ const results=await contextRead(Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",requestedDay).maybeSingle(),
  sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(requestedDay+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
@@ -3013,7 +3035,7 @@ async function loadPersonalData(){
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_personal_targets").select("*").eq("user_id",id).maybeSingle(),
  sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
- ]);
+ ]));
  const error=results.find(x=>x.error)?.error;
  if(state.session?.user?.id!==id||today()!==requestedDay||state.personalDataLoadToken!==loadToken)return;
  if((state.diaryWriteRevision||0)!==writeRevision||
@@ -3022,40 +3044,46 @@ async function loadPersonalData(){
  state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const id=state.session.user.id,role=state.profile.role;
  let orgResult;
- if(role==="coach")orgResult=await sb.from("efg_organizations").select("*").eq("coach_id",id).maybeSingle();
- if(role==="admin")orgResult=await sb.from("efg_organizations").select("*").eq("coach_id",id).eq("is_test",true).maybeSingle();
- if(role==="student")orgResult=await sb.from("efg_organizations").select("*").eq("id",state.profile.organization_id).maybeSingle();
+ if(role==="coach")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("coach_id",id).maybeSingle());
+ if(role==="admin")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("coach_id",id).eq("is_test",true).maybeSingle());
+ if(role==="student")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("id",state.profile.organization_id).maybeSingle());
  if(orgResult?.error)throw orgResult.error;
  state.org=orgResult?.data||null;
- const [pay,bill]=await Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias,additional_aliases").eq("id",1).maybeSingle()]);
+ const [pay,bill]=await contextRead(Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias,additional_aliases").eq("id",1).maybeSingle()]));
  if(pay.error)throw pay.error;
  if(bill.error)throw bill.error;
  state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;state.platformAliases=[state.platformAlias,...(bill.data?.additional_aliases||[])].filter(Boolean);
 }
 async function loadCoachIntakeGoals(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.coachIntakeGoals={};state.coachIntakeVerified=false;
  const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id);
  if(!ids.length){state.coachIntakeVerified=true;return;}
  try{
   // Only consented students. Database RLS remains authoritative for each row.
-  const {data,error}=await sb.from("efg_goals").select("student_id,id").in("student_id",ids).limit(500);
+  const {data,error}=await contextRead(sb.from("efg_goals").select("student_id,id").in("student_id",ids).limit(500));
   if(error)throw error;
   for(const goal of data||[])state.coachIntakeGoals[goal.student_id]=true;
   state.coachIntakeVerified=true;
  }catch(error){console.warn("EFG intake goal summary unavailable:",error.message);}
 }
 async function loadCoachIntakeDraftStatuses(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.coachIntakeDraftStatuses={};state.coachIntakeDraftVerified=false;
  // Until the entire atomic release is approved, do not claim private drafts.
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return;
  const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true&&
   state.coachIntakeForms?.[p.user_id]?.shared_at).map(p=>p.user_id);
  if(!ids.length){state.coachIntakeDraftVerified=true;return;}
- const result=await sb.from("efg_coach_plan_drafts")
+ const result=await contextRead(sb.from("efg_coach_plan_drafts")
   .select("student_id,organization_id,coach_id,status,draft_revision,source_intake_revision")
-  .in("student_id",ids).limit(500);
+  .in("student_id",ids).limit(500));
  if(result.error){console.warn("Coach draft summary unavailable:",result.error.message);return;}
  const authorized=new Set(ids);
  for(const row of result.data||[]){
@@ -3066,65 +3094,71 @@ async function loadCoachIntakeDraftStatuses(){
  state.coachIntakeDraftVerified=true;
 }
 async function loadCoachRosterConsent(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  // One source of truth for real coaches AND the admin's test-coach workspace.
  // Read only; never infer consent from enrollment or modify a student's decision.
  coachRosterConsent={};
  const ids=(state.roster||[]).map(p=>p.user_id).filter(Boolean);
  if(!ids.length)return;
- const {data,error}=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);
+ const {data,error}=await contextRead(sb.from("efg_consents").select("student_id,accepted").in("student_id",ids));
  if(error)throw error;
  for(const consent of data||[])coachRosterConsent[consent.student_id]=consent.accepted===true;
 }
 async function loadRoleData(){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const role=state.profile.role;
  if(role==="admin"){
-  const [o,inv]=await Promise.all([sb.from("efg_organizations").select("*").order("created_at",{ascending:false}),sb.from("efg_invitations").select("*").eq("role","coach").order("created_at",{ascending:false})]);
+  const [o,inv]=await contextRead(Promise.all([sb.from("efg_organizations").select("*").order("created_at",{ascending:false}),sb.from("efg_invitations").select("*").eq("role","coach").order("created_at",{ascending:false})]));
   if(o.error||inv.error)throw o.error||inv.error;
   state.orgs=(o.data||[]).filter(o=>!o.is_test||o.coach_id!==state.session.user.id);state.invitations=inv.data||[];
   if(state.org?.is_test){
-   const [students,pending]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",state.org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",state.org.id).eq("role","student")]);
+   const [students,pending]=await contextRead(Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",state.org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",state.org.id).eq("role","student")]));
    if(students.error||pending.error)throw students.error||pending.error;
    state.roster=students.data||[];state.testInvitations=pending.data||[];
-   await loadCoachRosterConsent();
-   await loadCoachIntakeGoals();
-   await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
-   await loadCoachIntakeDraftStatuses();
-   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
+   await contextRead(loadCoachRosterConsent());
+   await contextRead(loadCoachIntakeGoals());
+   await contextRead(coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id)));
+   await contextRead(loadCoachIntakeDraftStatuses());
+   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await contextRead(loadStudentDetail(state.selectedStudent));
   }
  }
  if(role==="coach"){
   const org=state.org;
   if(!org)throw new Error("Tu espacio de entrenador todavía no está listo.");
-  const [r,inv]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]);
+  const [r,inv]=await contextRead(Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]));
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
-  await loadCoachRosterConsent();
-  await loadCoachIntakeGoals();
-   await coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id));
-   await loadCoachIntakeDraftStatuses();
+  await contextRead(loadCoachRosterConsent());
+  await contextRead(loadCoachIntakeGoals());
+   await contextRead(coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id)));
+   await contextRead(loadCoachIntakeDraftStatuses());
 
-  if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
+  if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await contextRead(loadStudentDetail(state.selectedStudent));
  }
  if(role==="student"){
-  const c=await sb.from("efg_consents").select("*").eq("student_id",state.session.user.id).maybeSingle();
+  const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",state.session.user.id).maybeSingle());
   if(c.error)throw c.error;
   state.consent=c.data||null;
  }
 }
 async function loadStudentDetail(studentId){
+ const contextEpoch=state.authContextEpoch||0;
+ const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
- const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
+ const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle());
  if(c.error)throw c.error;
  state.consent=c.data;
  // Never reuse a previously cached shared intake after its consent or record changed.
- await coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true);
+ await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true));
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.coachFoodPlan=null;
  if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];return;}
- const results=await Promise.all([
+ const results=await contextRead(Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",studentId).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
@@ -3132,11 +3166,11 @@ async function loadStudentDetail(studentId){
  sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle(),
  sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",studentId).order("week_ending",{ascending:false}).limit(52)
- ]);
+ ]));
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;state.coachHistory=results[6].data||[];
  if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
-  const savedDraft=await coachDraftClient.load(studentId);
+  const savedDraft=await contextRead(coachDraftClient.load(studentId));
   state.coachPlanDraftRecord=savedDraft;
   // Restore only a server-authorized draft based on the CURRENT shared intake.
   // Never treat this proposal as an approved goal or a student diary entry.
@@ -3146,33 +3180,35 @@ async function loadStudentDetail(studentId){
    state.coachGuidedDraft=savedDraft.guide_proposal?structuredClone(savedDraft.guide_proposal):null;
   }
  }
- await loadSundayPermission(studentId);
+ await contextRead(loadSundayPermission(studentId));
 }
 async function refresh(){
  if(state.loading)return;
+ const ticket=authHydration.begin();if(!ticket)return;
+ const contextRead=promise=>authHydration.read(ticket,promise);
  state.loading=true;
  try{
-  const result=await sb.auth.getUser();
+  const result=await contextRead(sb.auth.getUser());
   if(result.error){
    // Un error de red no debe confundirse con ausencia de sesión.
    // No se muestran datos privados hasta que getUser valide la identidad.
    let savedSession=null;
-   try{savedSession=(await sb.auth.getSession()).data?.session||null;}catch(_){}
+   try{savedSession=(await contextRead(sb.auth.getSession())).data?.session||null;}catch(_){}
    if(savedSession){sessionConnectionRetry();return;}
    state.profile=null;return loginView("Tu sesión no está disponible. Volvé a ingresar si hace falta.");
   }
   if(!result.data.user){state.profile=null;return loginView();}
-  const id=result.data.user.id;
+  const id=result.data.user.id;authHydration.verified(ticket,id);
   const switchingUser=state.session?.user?.id!==id;
   if(switchingUser){state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   // getUser above is authoritative; cached session supplies only JWT correlation metadata.
-  const sessionSnapshot=state.session;
-  const currentSession=await sb.auth.getSession();
-  if(state.session!==sessionSnapshot)return; // Auth event changed context during hydration.
+  const currentSession=await contextRead(sb.auth.getSession());
+  // Epoch was revalidated after getSession; same-user token rotation is harmless.
+  if(!currentSession.error&&currentSession.data?.session?.user?.id!==id)throw Error("AUTH_IDENTITY_MISMATCH");
   setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
-  let claim=await sb.rpc("efg_claim_invitation");
+  let claim=await contextRead(sb.rpc("efg_claim_invitation"));
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
-  let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
+  let p=await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
   if(p.error)throw p.error;
   state.profile=p.data;
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
@@ -3182,9 +3218,9 @@ async function refresh(){
   // Personal, BEFORE role-specific legacy data fetches. Both release flags OFF.
   state.majorRelease=null;state.majorReleaseLegal=null;
   if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED){
-   state.majorRelease=await readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true});
+   state.majorRelease=await contextRead(readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true}));
    if(state.majorRelease.phase==="legal")
-    state.majorReleaseLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
+    state.majorReleaseLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
    if(state.majorRelease.phase!=="none")return render();
   }
   // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
@@ -3194,7 +3230,7 @@ async function refresh(){
   state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";
   if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)){
    try{
-    const intro=await readScienceWelcomeStatus(sb,{profile:state.profile,userId:id});
+    const intro=await contextRead(readScienceWelcomeStatus(sb,{profile:state.profile,userId:id}));
     state.scienceWelcomePending=intro.pending;
    }catch(error){
     // Unavailable educational receipts cannot be interpreted as viewed.
@@ -3203,45 +3239,48 @@ async function refresh(){
   }
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
-   state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+   state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
    if(state.coachLegalPending)return render();
   }
   if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
    if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
-   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));
    if(state.coachPilotEntry.route==="legal")
-    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
+    state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
-    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
+    state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
    if(["review","private"].includes(state.coachPilotEntry.route)){
-    await loadRoleData();
+    await contextRead(loadRoleData());
     // The signed private/review route does not authorize new diary writes,
     // but must not erase the student’s ability to READ their own history.
-    state.coachPrivateHistory=await loadCoachPrivateHistory(sb,{profile:state.profile,userId:id,entry:state.coachPilotEntry});
+    state.coachPrivateHistory=await contextRead(loadCoachPrivateHistory(sb,{profile:state.profile,userId:id,entry:state.coachPilotEntry}));
    }
    if(state.coachPilotEntry.route!=="ready")return render();
   }
   if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
-   state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
+   state.coachRelaunchEntry=await contextRead(loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id}));
    if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
-    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+    state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
    if(state.coachRelaunchEntry.route!=="ready")return render();
   }
-  await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
-  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
-  await loadRoleData();
-  if(state.profile.role==="student")await coachIntakeFlow.loadStudent();
-  await refreshFoodCompatibilityEvidence();
-  if(state.profile.role==="student")await loadSundayPermission(id);
-  await inbox.refresh();
+  await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
+  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
+  await contextRead(loadRoleData());
+  if(state.profile.role==="student")await contextRead(coachIntakeFlow.loadStudent());
+  await contextRead(refreshFoodCompatibilityEvidence());
+  if(state.profile.role==="student")await contextRead(loadSundayPermission(id));
+  await contextRead(inbox.refresh());
   // Legacy OTP auto-consent tokens must never be interpreted as permission.
   // Signing in is authentication only; coach consent requires the dedicated action.
   sessionStorage.removeItem("efgNutritionCoachConsent:"+id);
-  await loadWelcomeStatus();
-  await render();
- }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
- finally{state.loading=false;}
+  await contextRead(loadWelcomeStatus());
+  await contextRead(render());
+ }catch(e){if(!authHydration.current(ticket)||e?.code==="STALE_AUTH_CONTEXT")return;fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
+ finally{
+  if(!authHydration.current(ticket))resetPrivateSession();
+  state.loading=false;authHydration.finish(ticket);
+ }
 }
 // Explicit pull-to-refresh: re-fetch role-authorized data but never navigate or reload the page.
 let refreshingWorkspace=false;
@@ -3250,6 +3289,8 @@ async function refreshVisibleWorkspace(){
  if(!state.profile||!state.session?.user?.id||state.welcomePending)throw Error("Ingresá a tu cuenta para actualizar.");
   // Unknown/Personal accounts must NEVER refresh legacy Coach/Student tables.
   if(!["student","coach","admin"].includes(state.profile.role))return refresh();
+ const ticket=authHydration.begin();if(!ticket)throw Error("Ya hay una actualización en curso.");
+ const contextRead=promise=>authHydration.read(ticket,promise);
  refreshingWorkspace=true;
  const id=state.session.user.id,originalView=activeViewKey();
  const selected=state.selectedStudent,goalId=state.coachGoals[0]?.id;
@@ -3262,38 +3303,38 @@ async function refreshVisibleWorkspace(){
  try{
   // This check is independent of the potentially slow data synchronization.
   void versionNotice.check({force:true});
-  const user=await sb.auth.getUser();
+  const user=await contextRead(sb.auth.getUser());
   if(user.error||user.data?.user?.id!==id)throw Error("No se pudo validar la sesión. Revisá tu conexión e intentá nuevamente.");
   // COACH88: refresh is a real server-side legal/intake revalidation.
   // An expired legal version or withdrawn sharing must block new private reads
   // and must not resurrect an edited Coach draft from the previous session.
   if(COACH_VERSIONED_INTAKE_ENABLED&&state.profile.role==="coach"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
-   state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
+   state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
    state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
    if(state.coachLegalPending){
     state.selectedStudent=null;state.coachPlanDraftRecord=null;state.coachGuidedDraft=null;
-    await render();return;
+    await contextRead(render());return;
    }
   }
   if(COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"){
-   state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});
+   state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));
    state.coachPilotLegal=null;state.coachPilotIntake=null;
    if(state.coachPilotEntry.route==="legal")
-    state.coachPilotLegal=await loadCoachPilotLegal(sb,{profile:state.profile});
+    state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
-    state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;
-   if(!["ready","review","private"].includes(state.coachPilotEntry.route)){await render();return;}
+    state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
+   if(!["ready","review","private"].includes(state.coachPilotEntry.route)){await contextRead(render());return;}
   }
   if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"){
-   state.coachRelaunchEntry=await loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id});
+   state.coachRelaunchEntry=await contextRead(loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id}));
    if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
-    state.coachLegalSnapshot=await loadCoachLegalOnboarding(sb);
-   if(state.coachRelaunchEntry.route!=="ready"){await render();return;}
+    state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
+   if(state.coachRelaunchEntry.route!=="ready"){await contextRead(render());return;}
   }
-  await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
-  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
-  await loadRoleData();
-  await refreshFoodCompatibilityEvidence();
+  await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
+  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
+  await contextRead(loadRoleData());
+  await contextRead(refreshFoodCompatibilityEvidence());
   // No refresh can revive edits based on an intake that was changed or unshared
   // in another device. The staged flow must also match the server draft revision.
   const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(
@@ -3314,16 +3355,19 @@ async function refreshVisibleWorkspace(){
    state.calculatedGoalBase=coachEdits.base;
    state.pendingGoalRevision=coachEdits.revision;
   }
-  await inbox.refresh();
+  await contextRead(inbox.refresh());
   if(state.tab==="messages"){
    // Leave the message composer mounted to avoid dropping the keyboard or draft.
-   await messages.refresh();
+   await contextRead(messages.refresh());
   }else if(state.tab==="notifications"){
    inbox.repaint();
   }else{
-   await render(); // Same-view continuity keeps accordions, draft inputs and scroll.
+   await contextRead(render()); // Same-view continuity keeps accordions, draft inputs and scroll.
   }
- }finally{refreshingWorkspace=false;}
+ }catch(error){if(!authHydration.current(ticket)||error?.code==="STALE_AUTH_CONTEXT")return;throw error;}finally{
+  if(!authHydration.current(ticket))resetPrivateSession();
+  refreshingWorkspace=false;authHydration.finish(ticket);
+ }
 }
 async function saveWeight(){
  const kg=Number(document.getElementById("weightKg")?.value),day=document.getElementById("weightDay")?.value,time=document.getElementById("weightTime")?.value;
@@ -4214,6 +4258,10 @@ function resetPrivateSession(){
  state.org=null;state.orgs=[];state.payments=[];state.platformAlias=null;
  state.platformAliases=[];state.invitations=[];
  state.session=null;state.profile=null;
+ myWeeklyReports=[];cloudRecipes=[];cloudHabituales=[];coachRosterConsent={};
+ state.coachPrivateHistory=null;
+ state.cloudRecipesUserId=null;state.cloudHabitualesUserId=null;
+ state.personalDataLoadToken=null;state.pendingDiaryDraft=null;
  state.renderedDay=null;state.activeMeal=null;state.tab="home";state.otpEmail=null;
  state.welcomePending=false;state.scienceWelcomePending=false;
  state.scienceWelcomeStep=0;state.scienceWelcomeError="";
@@ -4223,16 +4271,14 @@ function resetPrivateSession(){
 }
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
-  const user=session?.user;
-  if(user&&state.profile?.user_id===user.id&&state.session?.user?.id===user.id){
+  const user=session?.user;if(!user)return;
+  if(authHydration.change(user.id))return;
+  if(state.profile?.user_id===user.id&&state.session?.user?.id===user.id)
    setCoachSessionIdentity(session,user);
-   return;
-  }
-  if(!state.loading)queueMicrotask(()=>refresh());
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
   setCoachSessionIdentity(session,session.user);
  }else if(event==="SIGNED_OUT"){
-  resetPrivateSession();loginView();
+  authHydration.change(null);
  }
 }
 // Never auto-reload after a release. Only warn the user, especially when editing.

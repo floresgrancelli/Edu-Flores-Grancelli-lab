@@ -6,7 +6,7 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 const HASH=/^[a-f0-9]{64}$/i;
 // Defense in depth: a mistakenly marked current document must not turn a
 // clearly labelled internal draft into a user acceptance flow.
-const UNAPPROVED_LEGAL=/\[(?:PENDIENTE|POR COMPLETAR)[^\]]*\]|BORRADOR\s+NO\s+PUBLICAR|NO\s+EN\s+VIGENCIA|ESTADO:\s*NO\s+APROBADO/i;
+const UNAPPROVED_LEGAL=/\[(?:PENDIENTE|POR COMPLETAR)[^\]]*\]|BORRADOR\s+NO\s+PUBLICAR|NO\s+EN\s+VIGENCIA|ESTADO:\s*NO\s+APROBADO|PROPUESTA\s+PRIVADA(?:\s+PARA\s+APROBACI[ÓO]N)?|NO\s+PUBLICAD[OA]\s+NI\s+ACEPTAD[OA]/i;
 function reviewedBody(body){
  return typeof body==='string'&&body.trim().length>=300&&!UNAPPROVED_LEGAL.test(body);
 }
@@ -114,3 +114,4 @@ export async function submitCoachPilotLegal(sb,snapshot,selection,{explicitSubmi
   throw Error('Las versiones cambiaron o no se confirmó su aceptación. Volvé a revisarlas.');
  return verified;
 }
+

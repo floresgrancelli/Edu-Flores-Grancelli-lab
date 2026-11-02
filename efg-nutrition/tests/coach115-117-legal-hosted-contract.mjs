@@ -48,10 +48,14 @@ assert.equal(snapshot.ready,true);assert.equal(snapshot.accepted,false);
 // Even if an operator accidentally marks a draft as current, the client
 // must refuse to present it for acceptance or record a receipt.
 const baselineDocs=structuredClone(docs);
-for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN VIGENCIA', 'ESTADO: NO APROBADO']){
- docs=structuredClone(baselineDocs);
- docs[0].body=marker+' '+body;
- await assert.rejects(loadCoachPilotLegal(mocked(),{profile}),/borradores no aprobados/);
+for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN VIGENCIA', 'ESTADO: NO APROBADO',
+ 'Propuesta privada para aprobación.', 'Propuesta privada; usar sólo cuando el circuito esté validado.',
+ 'No publicada ni aceptada por ninguna persona.', 'PROPUESTA  PRIVADA PARA APROBACION']){
+ for(const index of [0,1]){
+  docs=structuredClone(baselineDocs);
+  docs[index].body=marker+' '+body;
+  await assert.rejects(loadCoachPilotLegal(mocked(),{profile}),/borradores no aprobados/);
+ }
 }
 docs=baselineDocs;
 assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,0);
@@ -120,3 +124,4 @@ assert.match(app,/renderCoachPilotLegal\(state\.coachPilotLegal\)/);
 assert.match(app,/if\(action==="acceptCoachPilotLegal"\)/);
 assert.match(app,/await submitCoachPilotLegal\(sb/);
 console.log('PASS COACH115-117: signed separate legal versioned receipts, fail-closed missing docs, legal route before MI DIA; no medical consent inferred.');
+

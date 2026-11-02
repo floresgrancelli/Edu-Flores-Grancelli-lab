@@ -2667,7 +2667,9 @@ function coachGuidedSection(){
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
- (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':'<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':
+ draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':
+ '<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">'+(pending?'Esta guía es solo una propuesta; guardala junto con la nueva meta.':'Para revisarla, generá un nuevo borrador privado.')+'</p>':
  '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>')):
  '<p class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Generá y revisá las comidas de este borrador, antes de guardar.':'El ejemplo se genera después de calcular y aprobar el objetivo.')+'</p>'))+'</section>';
@@ -2722,6 +2724,8 @@ function showGuidedEditor(){
 async function approveGuidedDay(){
  if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Usá el borrador privado y la publicación conjunta: no está permitido enviar guías por separado.");
  const student=state.selectedStudent,goal=state.coachGoals[0],draft=readGuidedEditor();
+ if(draft?.kind==="flexible_meal_guide")
+  throw Error("La Dieta Guía de seis comidas requiere publicación atómica validada. La vía heredada no está habilitada.");
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session.user.id))||!state.consent?.accepted||!student||!goal)throw new Error("No tenés permiso para enviar esta guía.");
  validateGuidedDay(draft,goal);
  // Never edit a published guide directly after the transactional access schema exists.

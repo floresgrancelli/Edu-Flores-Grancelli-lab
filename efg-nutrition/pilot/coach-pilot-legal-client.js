@@ -28,7 +28,7 @@ export async function loadCoachPilotLegal(sb,{profile}={}){
  const sr=await sb.rpc('efg_legal_current_status');
  if(sr.error)throw Error('No pudimos consultar la versión vigente de los documentos.');
  if(!validStatus(sr.data))return Object.freeze({ready:false,documents:[],reason:
-  'Los Términos y la Política de Privacidad están en preparación. Todavía no se puede aceptar esta versión.'});
+  'Los avisos del piloto y la información de privacidad están en preparación. Todavía no se puede aceptar esta versión.'});
  const status=sr.data;
  const dr=await sb.from('efg_legal_documents')
   .select('id,kind,version,body,sha256,is_current,published_at')
@@ -58,10 +58,10 @@ export function renderCoachPilotLegal(snapshot){
   throw Error('No se encontraron dos documentos legales vigentes.');
  return '<section class="card efg-coach-legal" aria-labelledby="coachLegalTitle">'+
   '<span class="eyebrow">NUTRICIÓN CON-CIENCIA · NUEVO INGRESO</span>'+
-  '<h2 id="coachLegalTitle">Términos y privacidad</h2>'+
-  '<p>Leé los dos documentos actuales. Se confirman por separado, sin casillas premarcadas. Esto no autoriza el tratamiento de datos de salud, que requiere un permiso independiente.</p>'+
+  '<h2 id="coachLegalTitle">Participación en el piloto</h2>'+
+  '<p>Leé las condiciones de la prueba y el aviso de privacidad. Confirmás cada uno por separado, con las casillas inicialmente desmarcadas. Esto no autoriza compartir la ficha con un coach.</p>'+
   '<div class="pilot-form">'+docs.map(doc=>{
-   const isTerms=doc.kind==='terms',label=isTerms?'Términos y Condiciones':'Política de Privacidad';
+   const isTerms=doc.kind==='terms',label=isTerms?'Condiciones de participación en el piloto':'Información de privacidad del piloto';
    return '<article class="efg-legal-document"><details><summary>'+label+' · versión '+esc(doc.version)+'</summary>'+
     '<div class="efg-legal-body">'+esc(doc.body)+'</div></details>'+
     '<label class="efg-legal-confirm"><input type="checkbox" id="efgCoachPilotLegal_'+doc.kind+'"'+
@@ -69,8 +69,8 @@ export function renderCoachPilotLegal(snapshot){
      'Leí y acepto expresamente '+label)+'</label></article>';
   }).join('')+
   '<button type="button" class="btn block" data-act="acceptCoachPilotLegal">'+
-  'Confirmar los dos documentos</button></div>'+
-  '<p class="pilot-hint">La participación del piloto y el envío de la ficha al coach son autorizaciones adicionales y separadas.</p></section>';
+  'Confirmar ambos avisos</button></div>'+
+  '<p class="pilot-hint">Compartir tu ficha con el coach requiere un permiso específico, voluntario y revocable. Las funciones clínicas continúan desactivadas.</p></section>';
 }
 export function readCoachPilotLegalSelections(doc,snapshot){
  if(!snapshot?.ready||!Array.isArray(snapshot.documents)||snapshot.documents.length!==2)

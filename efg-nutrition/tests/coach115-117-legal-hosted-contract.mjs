@@ -70,8 +70,10 @@ for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN 
 docs=baselineDocs;
 assert.equal(calls.filter(x=>x.name==='efg_accept_current_legal').length,0);
 const html=renderCoachPilotLegal(snapshot);
-assert.match(html,/Términos y Condiciones/);
-assert.match(html,/Política de Privacidad/);
+assert.match(html,/Condiciones de participación en el piloto/);
+assert.match(html,/Información de privacidad del piloto/);
+assert.match(html,/permiso específico, voluntario y revocable/);
+assert.match(html,/Participación en el piloto/);
 assert.match(html,/checkbox/);
 assert.doesNotMatch(html,/<input[^>]*\bchecked\b/, 'The consent checkboxes must start unselected');
 const selections=()=>readCoachPilotLegalSelections({getElementById:key=>({

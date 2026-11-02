@@ -32,3 +32,6 @@ assert.match(app,/\{id:"brownrice",name:"Arroz integral cocido"/);
 assert.match(app,/\{id:"potato",name:"Papa hervida sin piel y sin sal"/);
 assert.match(app,/\{id:"banana",name:"Banana cruda sin cáscara"/);
 console.log('PASS 02-03 official SR Legacy 10-record review manifest, generic-chicken mismatch and milk unit correction BLOCKED; no Coach publication.');
+
+// Candidate five-meal shortlist must remain review-only and keep ambiguous foods excluded.
+await import('./ncc-pilot-initial-five-meal-review.mjs');

@@ -160,7 +160,7 @@
     },
     "clinical/sql/existing-rpc-hooks.PROPOSAL.sql": {
       "bytes": 22620,
-      "sha256": "082974dfc2d4332225336ed2852e9b84bcdd87f0a0dc935981939d0ea68e90b5"
+      "sha256": "1db316498ecb90da4b59f87a1d2a449982e60a833149b9e2844b4654ea69ab2e"
     },
     "clinical/tests/pattern-revision-local.PROPOSAL.sql": {
       "bytes": 1610,
@@ -194,5 +194,6 @@
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",
   "cutover_source_zip_sha256": "b7cd0175e22bb9344392e60953bcdc2f4094caf09a04ef7e05d0cfd6cb7af48f",
   "clinical_source_library": "libfile_86516fc1a8908191a56c7deda164885a",
-  "clinical_source_zip_sha256": "98ae5adc48233e1c104580d1d43e19d12169e5477b5eb4ac74b7f38f4c5480f8"
+  "clinical_source_zip_sha256": "98ae5adc48233e1c104580d1d43e19d12169e5477b5eb4ac74b7f38f4c5480f8",
+  "clinical_runtime_correction": "42846: two health variables use concrete rowtype; no predicate/grant changes"
 }

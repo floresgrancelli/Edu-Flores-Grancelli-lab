@@ -2,14 +2,14 @@
 BEGIN;
 CREATE OR REPLACE FUNCTION efg_private.guide_binding_current(p_student uuid) returns boolean
 language plpgsql stable security definer set search_path='' as $f$
-declare b efg_private.guide_source_bindings%rowtype; h record; begin
+declare b efg_private.guide_source_bindings%rowtype; h efg_private.efg_coach_health_intakes%rowtype; begin
  select * into b from efg_private.guide_source_bindings where student_id=p_student;
  if not found then return true; end if; -- Unrelated legacy drafts keep existing RLS.
  if auth.uid() is distinct from b.coach_id or not efg_private.coach_has_student(p_student)
   or not efg_private.coach_pilot_share_active(p_student,b.organization_id) then return false; end if;
  select * into h from efg_private.efg_coach_health_intakes where student_id=p_student;
  return found and h.organization_id=b.organization_id and h.revision=b.health_revision
-  and h.shared_at is not null and h.consent_accepted_at is not null and efg_private.clinical_declaration_supported(h::efg_private.efg_coach_health_intakes)
+  and h.shared_at is not null and h.consent_accepted_at is not null and efg_private.clinical_declaration_supported(h)
   and exists(select 1 from public.efg_coach_relaunch_intakes i where i.student_id=p_student
    and i.completed_version='coach_major_2026_r1' and i.revision=b.intake_revision and i.shared_at is not null)
   and exists(select 1 from public.efg_coach_plan_drafts d where d.student_id=p_student and d.coach_id=b.coach_id and d.draft_revision=b.draft_revision and d.status='draft')
@@ -21,7 +21,7 @@ end $f$;
 CREATE OR REPLACE FUNCTION public.efg_prepare_bound_guide(p_student uuid,p_goal jsonb,p_intake_revision integer,
  p_health_revision integer,p_preferred text[],p_disliked text[],p_food_ids text[],p_expected_draft bigint)
 returns bigint language plpgsql security definer set search_path='' as $f$
-declare i record; h record; r bigint; d record; b record; expected bigint:=p_expected_draft; begin
+declare i record; h efg_private.efg_coach_health_intakes%rowtype; r bigint; d record; b record; expected bigint:=p_expected_draft; begin
  if auth.uid() is null or not efg_private.coach_has_student(p_student) then
   raise exception 'Denied' using errcode='42501'; end if;
  perform efg_private.clinical_lock_context(p_student);
@@ -32,7 +32,7 @@ declare i record; h record; r bigint; d record; b record; expected bigint:=p_exp
  select * into h from efg_private.efg_coach_health_intakes where student_id=p_student for update;
  if not found or h.revision is distinct from p_health_revision or h.organization_id<>i.organization_id
   or h.shared_at is null or h.consent_accepted_at is null
-  or efg_private.clinical_declaration_supported(h::efg_private.efg_coach_health_intakes) is distinct from true then
+  or efg_private.clinical_declaration_supported(h) is distinct from true then
   raise exception 'Explicit current declaration required' using errcode='42501'; end if;
  if p_food_ids is null or cardinality(p_food_ids) not between 1 and 30
   or array_position(p_food_ids,null) is not null

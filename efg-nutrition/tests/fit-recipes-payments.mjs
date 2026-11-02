@@ -424,3 +424,6 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
  assert.equal(messages.length,2,'Only real local saves report success');
  console.log('PASS UX-OFFLINE-NEW-RECIPE-01: offline creation, 503, retry import, account isolation, RLS denial and malformed JSON.');
 }
+
+// Reuse the established Premium QA job for the unified food/recipe picker.
+await import('./recipes-shared-picker-contract.mjs');

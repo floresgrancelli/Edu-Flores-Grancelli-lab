@@ -178,6 +178,11 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-legal-bridge.js
           node efg-nutrition/tests/coach-legal-bridge.mjs
+      - name: NCC 01-03 pilot-only legal drafts reviewer gate (OFFLINE, NOT PUBLISHED)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tools/prepare-pilot-legal-review.mjs
+          node efg-nutrition/tests/pilot-legal-drafts-private.mjs
       - name: COACH-67 parse disabled legal bridge (STATIC, NO LEGAL GO)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node --check efg-nutrition/pilot/coach-legal-bridge.js

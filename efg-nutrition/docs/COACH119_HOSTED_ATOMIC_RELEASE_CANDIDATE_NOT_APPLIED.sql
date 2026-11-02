@@ -188,9 +188,9 @@ begin
 end;
 $coach119_legacy_guide$;
 
--- The Coach explicitly approves a catalog for NEW and existing students.
--- This is separate from the five-meal guide. No unreviewed food can be added
--- through browser JSON; this private validator is called by the atomic RPC.
+-- The private publication verifies the guide's ingredient references. These
+-- are NEVER a student's food-catalog whitelist. The full PWA catalog remains
+-- visible to every student; no medical safety claim is made by a food ID.
 create function efg_private.coach119_reviewed_food_ids(p_guide jsonb)
 returns text[] language plpgsql stable set search_path=''
 as $coach119_foods$
@@ -229,8 +229,20 @@ begin
   and food.reviewed_at<=pg_catalog.now() and food.expires_at>pg_catalog.now()
   and food.source_url like 'https://%';
  if v_verified<>v_count then
-  raise exception 'Selected catalog foods lack current reviewed evidence'
+  raise exception 'Guide ingredient source records not yet reviewed'
    using errcode='42501';
+ end if;
+ -- v2 contains only references actually USED in the guide; no need to audit
+ -- every existing food merely to show the full catalog to every student.
+ if p_guide->>'kind'='flexible_meal_guide' then
+  if v_count is distinct from (
+   select pg_catalog.count(distinct item.value->>'id')
+   from pg_catalog.jsonb_array_elements(p_guide->'meals') as meal(value)
+   cross join lateral pg_catalog.jsonb_array_elements(meal.value->'items') as item(value)
+  ) then
+   raise exception 'Flexible guide references differ from its ingredients'
+    using errcode='22023';
+  end if;
  end if;
  for v_item in
   select item.value
@@ -369,11 +381,15 @@ begin
  if pg_catalog.jsonb_typeof(v_goal) is distinct from 'object'
   or v_goal->>'goal_type' not in ('fat_loss','recomp','muscle_gain','maintenance')
   or pg_catalog.jsonb_typeof(v_guide) is distinct from 'object'
-  or v_guide->>'kind' is distinct from 'five_meal_example'
-  or v_guide->>'version' is distinct from '1'
   or pg_catalog.jsonb_typeof(v_guide->'meals') is distinct from 'array'
-  or pg_catalog.jsonb_array_length(v_guide->'meals')<>5 then
-  raise exception 'Goal or five-meal guide missing or invalid' using errcode='22023';
+  or not (
+    (v_guide->>'kind'='five_meal_example' and v_guide->>'version'='1'
+      and pg_catalog.jsonb_array_length(v_guide->'meals')=5)
+    or
+    (v_guide->>'kind'='flexible_meal_guide' and v_guide->>'version'='2'
+      and pg_catalog.jsonb_array_length(v_guide->'meals') between 2 and 6)
+  ) then
+  raise exception 'Goal or versioned Dieta Guia missing or invalid' using errcode='22023';
  end if;
  foreach v_key in array array['kcal','protein_g','carb_g','fat_g','fiber_g'] loop
   if pg_catalog.jsonb_typeof(v_goal->v_key) is distinct from 'number' then
@@ -389,13 +405,14 @@ begin
  select count(*),count(distinct meal.value->>'slot')
   into v_slot_count,v_distinct_slots
  from pg_catalog.jsonb_array_elements(v_guide->'meals') as meal(value);
- if v_slot_count<>5 or v_distinct_slots<>5 or
-  efg_private.coach_guide_foods_verified(v_guide) is distinct from true then
+ if v_slot_count<>pg_catalog.jsonb_array_length(v_guide->'meals')
+   or v_distinct_slots<>v_slot_count or
+   efg_private.coach_guide_foods_verified(v_guide) is distinct from true then
   raise exception 'Guide foods are not independently reviewed and current'
    using errcode='42501';
  end if;
- -- Require a reviewed, explicitly Coach-selected catalog (not just the
- -- five guide ingredients) before granting food-planning access.
+ -- Verify the guide's nutrient references only. The food catalog for a
+ -- student's diary is unchanged and never restricted by this reference set.
  v_food_ids:=efg_private.coach119_reviewed_food_ids(v_guide);
 
  -- The private transaction marker, not the client-settable GUC alone,
@@ -425,12 +442,9 @@ begin
  )
  on conflict(student_id) do update set
   coach_id=excluded.coach_id,
-  -- The new, explicitly Coach-selected and currently reviewed catalog
-  -- is authoritative. Never carry legacy IDs forward implicitly: an old
-  -- selection may be expired, unreviewed, or no longer suitable for the
-  -- student's current intake. The BEFORE UPDATE trigger archives the prior
-  -- approved list together with the previous guide for audit/history.
-  -- Re-approve any desired legacy item explicitly in approvedFoodIds.
+  -- Store the versioned guide's nutrient reference IDs for source audit.
+  -- This is not a per-student catalog filter. The BEFORE UPDATE trigger
+  -- archives the previous guide and reference set for history.
   approved_food_ids=excluded.approved_food_ids,
   guided_plan=excluded.guided_plan,guided_goal_id=excluded.guided_goal_id,
   guided_plan_approved_at=excluded.guided_plan_approved_at,

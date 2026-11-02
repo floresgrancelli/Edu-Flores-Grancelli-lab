@@ -16,11 +16,20 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
   if(pathname.endsWith('/coach-adapted-workspace.js'))body=Buffer.from(body.toString().replace('COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=true'));
   if(pathname==='/efg-nutrition/pilot/pilot.js'){
    const marker='const coachPersistedGuideSource=null;';assert.equal(body.toString().split(marker).length,2);
-   body=Buffer.from("import {createPersistedGuideProvider} from './persisted-guide-provider.js';\nimport {createClient as localClient} from '../tests/persisted-coach-browser-client.mjs';\n"+body.toString().replace(marker,'const coachPersistedGuideSource=createPersistedGuideProvider({client:localClient(),readScope:adaptedCoachScope,template:'+JSON.stringify(official.template)+'});')+'\nwindow.__PERSISTED_VIEW__={state,render,workspace:coachAdaptedWorkspace,handleAuthStateChange,setCoachSessionIdentity,setConsentMap:v=>{coachRosterConsent=v}};');
+   const original=body.toString();
+   const providerImport="import {createPersistedGuideProvider} from './persisted-guide-provider.js';";
+   const localImport="import {createClient as localClient} from '../tests/persisted-coach-browser-client.mjs';";
+   const providerSource=original.includes(providerImport)?original:providerImport+'\n'+original;
+   assert.equal(providerSource.split(providerImport).length-1,1,'Exactly one product provider import after test injection');
+   assert.equal(providerSource.split(localImport).length-1,0,'The local HTTP facade is injected only by this fixture');
+   body=Buffer.from(localImport+'\n'+providerSource.replace(marker,'const coachPersistedGuideSource=createPersistedGuideProvider({client:localClient(),readScope:adaptedCoachScope,template:'+JSON.stringify(official.template)+'});')+'\nwindow.__PERSISTED_VIEW__={state,render,workspace:coachAdaptedWorkspace,handleAuthStateChange,setCoachSessionIdentity,setConsentMap:v=>{coachRosterConsent=v}};');
   }
   if(pathname==='/efg-nutrition/pilot/pilot.js'&&process.env.EFG_QA_BOUND_PUBLICATION==='1'){
    const marker='const coachBoundPublication=null;';assert.equal(body.toString().split(marker).length,2);
-   body=Buffer.from("import {createBoundGuidePublication} from './bound-guide-publication-client.js';\n"+body.toString().replace(marker,'const coachBoundPublication=createBoundGuidePublication({sb:localClient(),readScope:adaptedCoachScope,enabled:true});'));
+   const input=body.toString(),publisherImport="import {createBoundGuidePublication} from './bound-guide-publication-client.js';";
+   const once=input.includes(publisherImport)?input:publisherImport+'\n'+input;
+   assert.equal(once.split(publisherImport).length-1,1,'Exactly one product publisher import after test injection');
+   body=Buffer.from(once.replace(marker,'const coachBoundPublication=createBoundGuidePublication({sb:localClient(),readScope:adaptedCoachScope,enabled:true});'));
   }
   res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.html':'text/html','.svg':'image/svg+xml'})[extname(p)]||(pathname.endsWith('/')?'text/html':'application/octet-stream'),'Cache-Control':'no-store'});res.end(body);
  }catch{res.writeHead(404);res.end('Not found');}});
@@ -39,7 +48,12 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
   let token=coach.token;
   const boot=async()=>{
    await page.goto(origin+'/efg-nutrition/pilot/',{waitUntil:'networkidle'});
-   await page.waitForFunction(()=>!!window.__PERSISTED_VIEW__);
+   await page.waitForFunction(()=>!!window.__PERSISTED_VIEW__).catch(error=>{
+    // Never mask a module bootstrap exception as a generic screenshot timeout.
+    // Only test-side pageerror messages; no Supabase credentials or response bodies.
+    const diagnostic=errors.slice(-4).map(msg=>String(msg).slice(0,280)).join(' | ');
+    throw Error('LOCAL_PERSISTED_BOOTSTRAP_FAILED: '+(diagnostic||error.message));
+   });
    await page.evaluate(async({token,key,coach,student,org,goal})=>{
     window.__PERSISTED_LOCAL__={url:'http://127.0.0.1:54321',token,key};
     const v=window.__PERSISTED_VIEW__,s=v.state;

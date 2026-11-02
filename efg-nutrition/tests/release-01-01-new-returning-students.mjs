@@ -97,5 +97,12 @@ for(const sql of [initial,legalGate]){
  assert.match(sql,/v_guide_goal=v_plan\.published_goal_id/);
  assert.doesNotMatch(sql,/\b(?:update|delete|truncate)\s+(?:from\s+)?public\.efg_(?:goals|daily_logs|messages|food_plans)/i);
 }
+for(const stagedStatus of [initial,legalGate]){
+ assert.match(stagedStatus,/v_intake\.age_years is null/,'Missing mandatory nutrition data blocks entry');
+ assert.match(stagedStatus,/v_guide->>'kind'='flexible_meal_guide'/,
+  'The signed backend supports the new six-meal plan kind');
+ assert.match(stagedStatus,/pg_catalog\.jsonb_array_length\(v_guide->'meals'\) between 2 and 6/,
+  'Approved guide can have six to two active meals, while the diary remains unchanged');
+}
 assert.match(legalGate,/v_current_legal_count<>2/);
 console.log("PASS 01-01: new + returning students repeat versioned form, legacy plans/history preserved, separate legal, no silent sharing; synthetic only, hosted OFF.");

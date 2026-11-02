@@ -85,23 +85,27 @@ const intakeBody = revision => ({p_completed_version: 'coach_major_2026_r1',
 for (const user of [users.newA, users.returningA, users.studentB]) {
   denied(await rpc('efg_submit_coach_relaunch_intake', user.token, intakeBody(0)),
     'intake cannot precede legal acceptance');
-  await acceptLegal(user);
-  assert.equal((await status(user)).route, 'participation');
-  yes(await receipt(user), 'explicit participation and sharing receipt');
-  assert.equal((await status(user)).route, 'intake');
   // Educational receipt is genuinely user-scoped, persistent and idempotent.
   yes(await rpc('efg_ack_science_intro', user.token,
     {p_version: 'con_ciencia_2026_r1', p_action: 'completed'}), 'educational introduction acknowledgement');
   yes(await rpc('efg_ack_science_intro', user.token,
     {p_version: 'con_ciencia_2026_r1', p_action: 'completed'}), 'repeat educational acknowledgement');
   assert.equal(yes(await read('efg_science_intro_receipts', user), 'own intro receipt').length, 1);
+  assert.equal((await status(user)).route,'legal','Education acknowledgement is not legal acceptance');
+  await acceptLegal(user);
+  assert.equal((await status(user)).route, 'participation');
+  yes(await receipt(user), 'explicit participation and sharing receipt');
+  assert.equal((await status(user)).route, 'intake');
+  const incomplete={...intakeBody(0),p_payload:{...intakeBody(0).p_payload,age_years:null}};
+  denied(await rpc('efg_submit_coach_relaunch_intake',user.token,incomplete),
+   'SQL rejects a shared intake missing mandatory nutrition data');
   assert.equal(Number(yes(await rpc('efg_submit_coach_relaunch_intake', user.token, intakeBody(0)),
     'new version shared intake')), 1);
   assert.equal((await status(user)).route, 'review');
   denied(await diaryWrite(user), 'shared intake alone never unlocks diary');
 }
 for (const coach of [users.coachA, users.coachB]) await acceptLegal(coach);
-console.log('PASS current legal -> participation -> intro receipt -> new/returning intake -> review; diary denied; real local JWT signatures verified.');
+console.log('PASS educational intro -> independent legal -> participation -> mandatory intake -> review; signed local JWT and diary deny.');
 
 const selectIntake = async user => {
   const rows = yes(await read('efg_coach_relaunch_intakes', user), 'read own current intake');
@@ -115,6 +119,11 @@ function guide(qty = 400, approvedFoodIds = ['qa_food_a', 'qa_food_b']) {
   return {kind: 'five_meal_example', version: 1, approvedFoodIds,
     meals: ['desayuno', 'media_manana', 'almuerzo', 'merienda', 'cena'].map(slot => ({slot,
       items: [{id: 'qa_food_a', unit: 'g', qty, k: 1, p: .1, c: .1, f: .02, fi: .01}]}))};
+}
+function flexibleSixMealGuide(qty=250) {
+ return {kind:'flexible_meal_guide',version:2,approvedFoodIds:['qa_food_a'],
+  meals:['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'].map(slot=>({slot,
+   items:[{id:'qa_food_a',unit:'g',qty,k:1,p:.1,c:.1,f:.02,fi:.01}]}))};
 }
 const intakeA = await selectIntake(users.newA);
 const draftBody = (student, intake, expected = null, g = goal, menu = guide()) => ({
@@ -239,9 +248,15 @@ assert.equal(sql(`select array_to_string(approved_food_ids,',') from efg_private
 // Both organizations and returning students must also have a positive path.
 for (const [student, coach] of [[users.returningA, users.coachA], [users.studentB, users.coachB]]) {
   const intake = await selectIntake(student);
-  assert.equal(Number(yes(await save(coach, draftBody(student, intake)), 'independent valid draft')), 1);
+  const sixMeals=student===users.returningA;
+  const menu=sixMeals?flexibleSixMealGuide():guide();
+  assert.equal(Number(yes(await save(coach, draftBody(student, intake,null,goal,menu)), 'independent valid draft')), 1);
   yes(await publish(coach, publishBody(student, 1, randomUUID())), 'independent valid publication');
-  assert.equal((await status(student)).route, 'ready');
+  assert.equal((await status(student)).route, 'ready',
+   'New flexible six-meal and historic five-meal guides both unlock only after publishing');
+  const actualGuide=yes(await read('efg_food_plans',student),'published guide readback')[0]?.guided_plan;
+  assert.equal(actualGuide?.meals?.length,sixMeals?6:5,
+   'Sixth guide meal must survive server publication and client readback');
 }
 assert.deepEqual(yes(await read('efg_daily_logs', users.returningA), 'old meal after full release circuit'), originalHistory);
 yes(await receipt(users.newA, false), 'withdraw sharing');

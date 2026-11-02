@@ -692,11 +692,11 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
  };
  const plannerState={plannerSelections:{"cena|protein":"egg"},plannerDraftGrams:{"cena|protein":{foodId:"egg",grams:"100"}}};
  const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
-  "foods","selectableFoods","allowedFoods","foodSearchText","groupedFoodOptions","state",
+  "foods","selectableFoods","allowedFoods","foodSearchText","foodTrafficLight","groupedFoodOptions","state",
   "syncPlannerSearchActions","updatePlannerPreview",
   source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
   {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog,()=>mealCatalog.map(f=>f.id),
-  food=>food.name,items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
+  food=>food.name,()=>({symbol:"",color:"neutral"}),items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
   plannerState,()=>{syncCount++;},()=>{previewCount++;}
  );
  const plannerInput={dataset:{plansearch:"cena|protein"},value:"arroz"};

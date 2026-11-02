@@ -255,10 +255,11 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
   '<section class="lux-report-section"><h3>Cómo se repartieron tus macros</h3><p>Promedios comparados con las metas vigentes de cada día registrado.</p>'+
   '<div class="lux-report-macros">'+bar('p','Proteínas','#288278','g')+bar('c','Carbohidratos','#b99459','g')+bar('f','Grasas','#8991b5','g')+'</div></section>'+
   '<section class="lux-report-section"><h3>Tu energía, día por día</h3><div class="lux-report-days">'+tick+'</div>'+
-  '<p>Los días sin datos se muestran vacíos; nunca cuentan como cero calorías.</p></section>'+
+  '<p>Los días sin datos se muestran vacíos; nunca cuentan como cero calorías.</p>' +
+  '<p class="lux-report-fiber-status">Fibra: sin dato consolidado en este informe. No se interpreta como cero.</p></section>'+
   '<section class="lux-report-section"><h3>Tus alimentos más elegidos</h3>'+
   (top?'<ol class="lux-report-top">'+top+'</ol>':'<p>Necesitamos más registros de comidas para construir tu top.</p>')+'</section>'+
-  '<section class="lux-report-conclusion"><h3>Conclusión revisada por tu coach</h3><p>'+escape(model.conclusion)+'</p></section>'+
+  '<section class="lux-report-conclusion"><h3>'+(model.approvedByCoach===true?'Conclusión revisada por tu coach':'Conclusión propuesta · pendiente de revisión')+'</h3><p>'+escape(model.conclusion)+'</p></section>'+
   '<section class="lux-report-evidence"><details><summary>¿Cómo llegamos a esta conclusión? · Datos y evidencia</summary>'+
   '<p><strong>Datos de esta semana:</strong> '+escape(model.evidence?.dataBasis||'No hay datos suficientes')+'</p>'+
   '<p><strong>Comparación:</strong> '+escape(model.evidence?.dailyGoals||'No comparable')+'</p>'+
@@ -269,6 +270,7 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
 
   '<section class="lux-report-section"><h3>Tus tres focos para la próxima semana</h3><ol class="lux-report-focus">'+focus+'</ol></section>'+
   (model.flexibleNote?'<section class="lux-report-flex"><h3><span aria-hidden="true">✦</span> Espacio para disfrutar</h3><p>'+escape(model.flexibleNote)+'</p></section>':'')+
-  '<footer>REVISADO POR '+escape(model.coachName).toUpperCase()+
+  '<footer>'+(model.approvedByCoach===true?'REVISADO POR ':'BORRADOR PARA REVISIÓN DE ')+escape(model.coachName).toUpperCase()+
   ' · Los datos de alimentación son autodeclarados. Este informe no sustituye asesoramiento médico o nutricional personalizado.</footer></div></article>';
 }
+

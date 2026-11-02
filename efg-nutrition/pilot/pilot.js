@@ -1,3 +1,9 @@
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
@@ -339,15 +345,21 @@ let pendingSportDiaryMutation=false;
 async function mutateSportDiary(mutate,message){
  if(pendingSportDiaryMutation)return;
  pendingSportDiaryMutation=true;
- const d=activeDiary(),previousSports=structuredClone(d.sports||[]);
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+ const previousSports=structuredClone(d.sports||[]);
  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.sports ||= [];d.skipped ||= {};
   mutate(d);
   d.skipped._closed=false;
   try{await saveDiary();}
-  catch(error){d.sports=previousSports;d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-  if(message)notify(message);
+  catch(error){
+   d.sports=previousSports;d.skipped=previousSkipped;
+   // A late failure from account A must not replace account B's diary.
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+   throw error;
+  }
+  if(message&&state.session?.user?.id===ownerId&&today()===ownerDay)notify(message);
  }finally{pendingSportDiaryMutation=false;}
 }
 async function addDailySupplement(){
@@ -370,13 +382,18 @@ async function saveDayComment(){
  if(pendingDayCommentSave)return;
  const comment=readDayComment(); // Read the draft before acquiring the write lock.
  pendingDayCommentSave=true;
- const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+ const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.skipped=d.skipped||{};
   d.skipped._comment=comment;
   try{await saveDiary();}
-  catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-  notify("Comentario guardado para el informe de tu coach.");
+  catch(error){
+   d.skipped=previousSkipped;
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+   throw error;
+  }
+  if(state.session?.user?.id===ownerId&&today()===ownerDay)notify("Comentario guardado para el informe de tu coach.");
  }finally{pendingDayCommentSave=false;}
 }
 let coachRosterConsent={};
@@ -405,7 +422,9 @@ function weeklyReportWindow(){
  from.setUTCDate(from.getUTCDate()-7);to.setUTCDate(to.getUTCDate()-1);
  return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
 }
+let weeklyPublishPending=false;
 async function publishWeeklyReport(){
+ if(weeklyPublishPending)throw Error("Esperá a que termine la publicación anterior.");
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
@@ -418,22 +437,40 @@ async function publishWeeklyReport(){
  const reportText=reportAsStoredText(approved,approved.conclusion,approved.flexibleNote);
  if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
  if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
- const {error}=await sb.from("efg_weekly_reports").insert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()});
- if(error)throw error;
- // Reload only report history; do not discard an unrelated unsaved coach plan draft.
- const latest=await sb.from("efg_weekly_reports")
-  .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
-  .order("week_ending",{ascending:false}).limit(52);
- if(latest.error)throw latest.error;
- state.coachHistory=latest.data||[];
- luxuryWeeklyEditor.reset();
- await render();
- notify("Informe Luxury Pro compartido con el alumno y conservado en su historial.");
+ const session=state.session,organizationId=state.org?.id,weekEnding=model.friday;
+ const currentScope=()=>state.session===session&&state.selectedStudent===student.user_id&&
+  state.org?.id===organizationId&&state.consent?.accepted&&
+  (state.roster||[]).some(x=>x.user_id===student.user_id&&x.active);
+ const record={student_id:student.user_id,coach_id:session.user.id,week_ending:weekEnding,
+  report_text:reportText,updated_at:new Date().toISOString()};
+ weeklyPublishPending=true;
+ try{
+  const {error}=await sb.from("efg_weekly_reports").insert(record);
+  if(error)throw error;
+  if(!currentScope())return;
+  // INSERT is confirmed. A failed refresh must not invite a duplicate send.
+  state.coachHistory=[record,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
+  luxuryWeeklyEditor.reset();
+  let refreshFailed=false;
+  try{
+   const latest=await sb.from("efg_weekly_reports")
+    .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
+    .order("week_ending",{ascending:false}).limit(52);
+   if(latest.error)throw latest.error;
+   if(!latest.data?.some(r=>r.week_ending===weekEnding&&r.report_text===reportText))throw Error("Historial confirmado todavía no disponible");
+   if(!currentScope())return;
+   state.coachHistory=latest.data||[];
+  }catch{refreshFailed=true;}
+  if(!currentScope())return;
+  await render();
+  notify(refreshFailed?"Informe compartido. No se pudo actualizar el historial; reabrilo para consultarlo. No hace falta reenviar.":
+   "Informe Luxury Pro compartido con el alumno y conservado en su historial.");
+ }finally{weeklyPublishPending=false;}
 }
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
@@ -495,17 +532,53 @@ const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un pr
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
-const activeDiary=()=>state.diary?.log_day===today()?state.diary:blankDiary();
+// Keep the first, not-yet-persisted day's diary as a stable draft. Previously
+// activeDiary() returned a NEW blank object on each call: the first food was
+// added to object A, while saveDiary() persisted empty object B. This made the
+// first selection appear lost until the user registered it a second time.
+const activeDiary=()=>{
+ const day=today();
+ if(state.diary?.log_day===day&&state.diary.student_id===state.session?.user?.id)return state.diary;
+ const uid=state.session?.user?.id;
+ if(!uid)return blankDiary();
+ if(!state.pendingDiaryDraft||state.pendingDiaryDraft.student_id!==uid||state.pendingDiaryDraft.log_day!==day)
+  state.pendingDiaryDraft=blankDiary();
+ return state.pendingDiaryDraft;
+};
 async function ensureCurrentDay(){
- if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
- if(state.daySwitching)return state.daySwitching;
- const nowDay=today(),uid=state.session.user.id;
- state.daySwitching=(async()=>{
+ const uid=state.session?.user?.id,nowDay=today();
+ if(!uid||!state.profile||!state.renderedDay||state.renderedDay===nowDay)return;
+ // Scope midnight reads to their account and day. A stale account A read
+ // must not block or overwrite a newly authenticated account B.
+ if(state.daySwitching&&state.daySwitchingOwner===uid&&state.daySwitchingForDay===nowDay)
+  return state.daySwitching;
+ const writeRevision=state.diaryWriteRevision||0;
+ const work=(async()=>{
   const {data,error}=await sb.from("efg_daily_logs").select("*").eq("student_id",uid).eq("log_day",nowDay).maybeSingle();
+  if(state.session?.user?.id!==uid||today()!==nowDay)return;
   if(error)throw error;
-  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.renderedDay=nowDay;state.activeMeal=null;}
+  const draft=state.pendingDiaryDraft;
+  const editedDraft=draft?.student_id===uid&&draft.log_day===nowDay&&(
+   Object.values(draft.meals||{}).some(items=>Array.isArray(items)&&items.length>0)||
+   (draft.sports||[]).length>0||
+   Object.entries(draft.skipped||{}).some(([key,value])=>key!=="_closed"&&!!value));
+  // A later diary save, confirmed REST row, or edited local draft wins
+  // over SELECT started earlier. Never erase the first meal at midnight.
+  if((state.diary?.student_id===uid&&state.diary.log_day===nowDay)||
+   (state.diaryWriteRevision||0)!==writeRevision||
+   (state.diaryWritePending&&state.diaryWriteOwner===uid)||editedDraft){
+   state.renderedDay=nowDay;state.activeMeal=null;
+   return;
+  }
+  state.diary=data||null;state.pendingDiaryDraft=null;state.renderedDay=nowDay;state.activeMeal=null;
  })();
- try{await state.daySwitching;}finally{state.daySwitching=null;}
+ state.daySwitching=work;state.daySwitchingOwner=uid;state.daySwitchingForDay=nowDay;
+ try{await work;}
+ finally{
+  if(state.daySwitching===work){
+   state.daySwitching=null;state.daySwitchingOwner=null;state.daySwitchingForDay=null;
+  }
+ }
 }
 const activeGoal=()=>{ const p=state.profile; const own=state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
@@ -523,43 +596,100 @@ async function runHabitualSlotAction(slot,work){
  try{return await work();}
  finally{pendingHabitualSlots.delete(slot);pendingMealRegistrations.delete(slot);}
 }
+// Only transport/transient service failures justify a local pending copy.
+// Never turn authentication, permission/RLS or validation denials into offline writes.
+function recoverableOfflineWrite(error){
+ const status=Number(error?.status||0),code=String(error?.code||"");
+ return (!code||/^PGRST00[0-3]$/.test(code)||/^08\d{3}$/.test(code))&&
+  (!status||status===408||status===429||status>=500);
+}
 async function loadCloudHabituales(){
- if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}
- const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
- if(error)throw error;
+ const userId=state.session?.user?.id;
+ if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
+ const sameUser=()=>state.session?.user?.id===userId;
+ // Offline fetch can reject, not just resolve with {error}; preserve backup.
+ let data,error;
+ try{({data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
+ catch(networkError){error=networkError;}
+ if(!sameUser())return; // Ignore late response belonging to a previous account.
+ if(error){
+  // Offline reads must preserve this account's cached and local favorites.
+  if(state.cloudHabitualesUserId!==userId)cloudHabituales=[];
+  state.cloudHabitualesUserId=userId;
+  console.warn("Habituales en la nube no disponibles; respaldos locales conservados.",error.message);
+  return;
+ }
  cloudHabituales=data||[];
+ state.cloudHabitualesUserId=userId;
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
  for(const [slot] of mealSlots){
-  let local=[];
+  if(!sameUser())return;
+  let local=[],validV2Backup=true,validV1Backup=true;
+  // Parse the two legacy formats independently. A damaged new list must not
+  // prevent recovery of an older valid meal (and vice versa).
   try{
    const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-   if(Array.isArray(saved)&&saved.length)local=saved;
-   else {const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");if(Array.isArray(older)&&older.length)local=[{name:"Mi habitual anterior",items:older}];}
-  }catch(_){} 
+   if(saved!==null&&!Array.isArray(saved))validV2Backup=false;
+   if(Array.isArray(saved)&&saved.length)local=saved.slice();
+  }catch(_){validV2Backup=false;}
+  try{
+   const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+   if(older!==null&&!Array.isArray(older))validV1Backup=false;
+   if(Array.isArray(older)&&older.length&&!local.some(item=>JSON.stringify(item?.items)===JSON.stringify(older)))
+    local.push({name:"Mi habitual anterior",items:older});
+  }catch(_){validV1Backup=false;}
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){
    if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
    if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
-   const created=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
-   if(created.error)throw created.error;
+   if(!sameUser())return;
+   // Rejected best-effort migration must not erase the local copy.
+   let created;
+   try{created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();}
+   catch(networkError){created={error:networkError};}
+   if(!sameUser())return; // Keep local backup after account switch.
+   if(created.error){
+    // Migration is best-effort; network failure must not erase local meals.
+    console.warn("Habitual local pendiente de sincronizar.",created.error.message);
+    return;
+   }
    remote.push(created.data);cloudHabituales.push(created.data);
   }
   // Respaldo local ya importado: evita que una comida eliminada reaparezca.
   if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
-   localStorage.removeItem(habitualListKey(slot));localStorage.removeItem(habitualKey(slot));
+   // Never destroy a malformed backup; it may still be manually recoverable.
+   if(validV2Backup)localStorage.removeItem(habitualListKey(slot));
+   if(validV1Backup)localStorage.removeItem(habitualKey(slot));
   }
  }
 }
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
+ // A local backup that cannot yet be imported (20 cloud favorites reached,
+ // network unavailable, or migration pending) must remain SELECTABLE. Showing
+ // only cloud entries hid those saved meals even while the local backup survived.
  try{
-  const remote=cloudHabituales.filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
-  if(remote.length)return remote;
-  const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-  if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
-  const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
-  return Array.isArray(legacy)&&legacy.length?[{name:"Mi habitual anterior",items:legacy}]:[];
+  const entries=(state.cloudHabitualesUserId===state.session?.user?.id?cloudHabituales:[])
+   .filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length)
+   .map(x=>({id:x.id,name:x.name,items:x.items}));
+  const exists=(item)=>entries.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items));
+  const append=(item,source)=>{
+   if(item&&Array.isArray(item.items)&&item.items.length&&!exists(item))
+    entries.push({name:String(item.name||"Habitual"),items:item.items,pendingLocal:true,localSource:source});
+  };
+  // Both legacy backup formats coexist until each is safely migrated.
+  // Independently parse them so corrupt v2 never hides a recoverable v1.
+  try{
+   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+   if(Array.isArray(saved))for(const item of saved)append(item,"v2");
+  }catch(_){}
+  try{
+   const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+   if(Array.isArray(legacy)&&legacy.length&&!entries.some(x=>JSON.stringify(x.items)===JSON.stringify(legacy)))
+    append({name:"Mi habitual anterior",items:legacy},"v1");
+  }catch(_){}
+  return entries;
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
@@ -575,7 +705,7 @@ function habitualPickerHTML(slot){
  state.habitualSelection[slot]=selectedKey;
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
- list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item))+'</option>').join('')+'</select>'+
+ list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
  '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
@@ -609,9 +739,36 @@ async function deleteChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
- if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
  if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
- const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",state.session.user.id).eq("meal_slot",slot).select("id");
+ const userId=state.session?.user?.id;
+ if(!fav.id){
+  // Only the explicitly confirmed local item may be deleted: never another
+  // user's backup, another favorite or a malformed legacy backup.
+  if(!fav.pendingLocal||!["v1","v2"].includes(fav.localSource)||!userId)
+   throw Error('No se pudo identificar el respaldo local. Recargá tus habituales.');
+  const key=fav.localSource==="v2"?habitualListKey(slot):habitualKey(slot);
+  let saved;
+  try{saved=JSON.parse(localStorage.getItem(key)||"null");}
+  catch(_){throw Error('El respaldo local está dañado. No se eliminó ningún archivo.');}
+  if(!Array.isArray(saved))throw Error('El respaldo local cambió. Recargá tus habituales.');
+  if(state.session?.user?.id!==userId)return;
+  if(fav.localSource==="v1"){
+   if(JSON.stringify(saved)!==JSON.stringify(fav.items))throw Error('El habitual antiguo cambió. Volvé a elegirlo.');
+   localStorage.removeItem(key);
+  }else{
+   const index=saved.findIndex(x=>String(x?.name||"Habitual")===fav.name&&JSON.stringify(x?.items)===JSON.stringify(fav.items));
+   if(index<0)throw Error('El habitual local cambió. Volvé a elegirlo.');
+   const remaining=saved.filter((_,i)=>i!==index);
+   if(remaining.length)localStorage.setItem(key,JSON.stringify(remaining));
+   else localStorage.removeItem(key);
+  }
+  state.habitualSelection[slot]="";
+  await render();
+  notify('Habitual local eliminado. Tus diarios históricos están intactos.');
+  return;
+ }
+  const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",userId).eq("meal_slot",slot).select("id");
+  if(state.session?.user?.id!==userId)return;
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
@@ -624,7 +781,7 @@ async function applyChosenHabitual(slot){
  return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
  validateHabitualCatalog(fav);
- const d=activeDiary();d.meals[slot] ||= [];
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
@@ -634,10 +791,13 @@ async function applyChosenHabitual(slot){
  try{await saveDiary();}
  catch(error){
   d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;
-  d.skipped._closed=previousClosed;state.lastEditedMeal=previousEdited;
+  d.skipped._closed=previousClosed;
+  if(state.session?.user?.id===ownerId&&today()===ownerDay)state.lastEditedMeal=previousEdited;
   throw error;
  }
- notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+ // An A-account write must not toast or mutate B after an account/day switch.
+ if(state.session?.user?.id===ownerId&&today()===ownerDay)
+  notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
  });
 }
 async function habitualAction(slot,action){
@@ -652,8 +812,28 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
-  if(error)throw error;
+  const userId=state.session?.user?.id,items=structuredClone(d.meals[slot]);
+  let remoteResult;
+  try{remoteResult=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:clean,items}).select("id,meal_slot,name,items,created_at").single();}
+  catch(networkError){remoteResult={error:networkError};}
+  if(state.session?.user?.id!==userId)return;
+  if(remoteResult?.error){
+   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
+   const key=habitualListKey(slot);
+   let backups;
+   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
+   catch(_){throw Error("No pudimos leer el respaldo local; no sobrescribimos tus favoritos.");}
+   // A lost response may follow a committed insert. Next login deduplicates.
+   if(!backups.some(x=>x?.name===clean&&JSON.stringify(x.items)===JSON.stringify(items)))
+    backups.push({name:clean,items});
+   try{localStorage.setItem(key,JSON.stringify(backups));}
+   catch(_){throw Error("No pudimos guardar el habitual sin conexión en este dispositivo.");}
+   state.lastEditedMeal=slot;
+   await render();notify("Guardaste «"+clean+"» en este dispositivo, pendiente de sincronizar con tu cuenta.");
+   return;
+  }
+  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó el habitual.");
+  const data=remoteResult.data;
   cloudHabituales.push(data);
   state.habitualSelection[slot]=String(data.id);
   // Keep this meal expanded after save so the new choice and its ingredient
@@ -673,6 +853,7 @@ async function habitualAction(slot,action){
  if(!fav)throw Error("Número de comida habitual inválido.");
  validateHabitualCatalog(fav);
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
+ const ownerId=state.session?.user?.id,ownerDay=d.log_day;
  const previousItems=structuredClone(d.meals[slot]);
  const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
@@ -681,41 +862,106 @@ async function habitualAction(slot,action){
   d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;d.skipped._closed=previousClosed;
   throw error;
  }
- notify("Comida habitual registrada; balance recalculado.");
+ if(state.session?.user?.id===ownerId&&today()===ownerDay)
+  notify("Comida habitual registrada; balance recalculado.");
  });
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];
-function myRecipes(){return cloudRecipes;}
+function myRecipes(){
+ const userId=state.session?.user?.id;
+ if(!userId)return [];
+ const result=state.cloudRecipesUserId===userId?cloudRecipes.slice():[];
+ // Local recipes that could not migrate (30 remote slots, offline) must
+ // remain visible and registrable. Keep malformed backups intact but hidden.
+ try{
+  const saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");
+  if(!Array.isArray(saved))return result;
+  saved.forEach((recipe,index)=>{
+   if(!recipe||typeof recipe.name!=="string"||!recipe.name.trim()||
+    !Array.isArray(recipe.ingredients)||!recipe.ingredients.length||
+    !Number.isFinite(Number(recipe.portions))||Number(recipe.portions)<=0||
+    !recipe.totals||!["k","p","c","f"].every(k=>Number.isFinite(Number(recipe.totals[k]))))return;
+   if(result.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))return;
+   result.push({...recipe,id:"local-recipe-"+index,pendingLocal:true});
+  });
+ }catch(_){} // Never destroy malformed local data.
+ return result;
+}
 async function loadCloudRecipes(){
- if(!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];return;}
- const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
- if(error)throw error;
+ const userId=state.session?.user?.id;
+ if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
+ const sameUser=()=>state.session?.user?.id===userId;
+ // Lost transport must not hide a recoverable recipe stored on this device.
+ let data,error;
+ try{({data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
+ catch(networkError){error=networkError;}
+ if(!sameUser())return;
+ if(error){
+  // Offline recipes remain usable; never display another account's cache.
+  if(state.cloudRecipesUserId!==userId)cloudRecipes=[];
+  state.cloudRecipesUserId=userId;
+  console.warn("Recetas en la nube no disponibles; respaldos locales conservados.",error.message);
+  return;
+ }
  cloudRecipes=data||[];
+ state.cloudRecipesUserId=userId;
+ const backupKey=recipeStoreKey();
  let saved=[];
- try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
+ try{saved=JSON.parse(localStorage.getItem(backupKey)||"[]");}catch(_){}
+ // Remove only recipes confirmed remotely (including existing duplicates).
+ // Keep capacity-limited or malformed local backups for recovery; the old code
+ // discarded ALL local recipes after importing only the first free slots.
+ const pendingLocal=[];
  if(Array.isArray(saved))for(const recipe of saved){
-  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals)continue;
+  if(!sameUser())return;
+  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
   if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
-  if(cloudRecipes.length>=30)break;
-  const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
-  if(created.error)throw created.error;
+  if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
+  let created;
+  try{created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
+  catch(networkError){created={error:networkError};}
+  if(!sameUser())return; // Keep backup if import returned after user switch.
+  if(created.error){
+   // Keep unsynchronized backups intact for next login or reconnect.
+   console.warn("Receta local pendiente de sincronizar.",created.error.message);
+   return;
+  }
   cloudRecipes.push(created.data);
  }
- // Al completar la importación, retirar el respaldo local para no recrear recetas eliminadas.
- if(Array.isArray(saved)&&saved.length)localStorage.removeItem(recipeStoreKey());
+ if(!sameUser())return;
+ if(Array.isArray(saved)&&saved.length){
+  if(pendingLocal.length)localStorage.setItem(backupKey,JSON.stringify(pendingLocal));
+  else localStorage.removeItem(backupKey);
+ }
+}
+// Recipes remain visible as history; registering one must respect a published
+// Coach food list just like the direct meal picker and saved habitual meals.
+// No clinical suitability is inferred from this catalog membership.
+function allowedRecipeIngredientIds(){
+ const approved=new Set(allowedFoods());
+ if(state.profile?.role==="student"&&Array.isArray(state.foodPlan?.approved_food_ids))
+  for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(approved.has(cooked))approved.add(raw);
+ return approved;
+}
+function validateRecipeIngredientAccess(ingredients){
+ if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return;
+ const approved=allowedRecipeIngredientIds();
+ if(!Array.isArray(ingredients)||!ingredients.length||
+  ingredients.some(row=>!approved.has(Array.isArray(row)?row[0]:row?.foodId)))
+  throw Error("Esta receta contiene ingredientes que tu coach no incluyó en el catálogo aprobado. Revisá tu plan antes de registrarla.");
 }
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
  if(name===null)return;
  if(!name.trim()||name.trim().length>70)throw Error("Usá un nombre de 1 a 70 caracteres.");
- const ingredients=[];
+ const ingredients=[],permittedIngredients=allowedRecipeIngredientIds();
  for(let i=0;i<12;i++){
   const nameInput=prompt("Ingrediente "+(i+1)+". Escribí su nombre; dejalo vacío para terminar.\nEj.: yogur, granola, banana",i===0?"":"");
   if(nameInput===null){if(!ingredients.length)return;break;}
   const term=nameInput.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
   if(!term){if(!ingredients.length)throw Error("Agregá al menos un ingrediente.");break;}
-  const matches=foods.filter(f=>f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
+  const matches=foods.filter(f=>permittedIngredients.has(f.id)&&f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
   if(!matches.length){notify("No encontramos ese ingrediente en el catálogo.");i--;continue;}
   const chosen=prompt("Elegí el número del ingrediente:\n"+matches.map((f,j)=>(j+1)+". "+f.name).join("\n"),"1");
   if(chosen===null)return;
@@ -726,16 +972,34 @@ async function createPersonalRecipe(){
   ingredients.push({foodId:matches[idx].id,grams});
  }
  if(!ingredients.length)return;
+ validateRecipeIngredientAccess(ingredients);
  const portionsText=prompt("¿Cuántas porciones rinde la receta?","1");if(portionsText===null)return;
  const portions=Number(portionsText);if(!Number.isInteger(portions)||portions<1||portions>50)throw Error("Cantidad de porciones inválida.");
  const totals={k:0,p:0,c:0,f:0,fi:0};
  for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
  const recipe={name:name.trim(),ingredients,portions,totals};
  const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
- const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
- if(error)throw error;
- cloudRecipes.push(data);
- notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+  const userId=state.session?.user?.id;
+  let remoteResult;
+  try{remoteResult=await sb.from("efg_personal_recipes").insert({student_id:userId,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
+  catch(networkError){remoteResult={error:networkError};}
+  if(state.session?.user?.id!==userId)return;
+  if(remoteResult?.error){
+   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
+   const key=recipeStoreKey();
+   let backups;
+   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
+   catch(_){throw Error("No pudimos leer el respaldo local; la receta no se sobrescribió.");}
+   if(!backups.some(x=>x?.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))
+    backups.push(recipe);
+   try{localStorage.setItem(key,JSON.stringify(backups));}
+   catch(_){throw Error("No pudimos guardar la receta sin conexión en este dispositivo.");}
+   notify("Receta guardada sólo en este dispositivo, pendiente de sincronizar.");
+   return render();
+  }
+  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó la receta.");
+  cloudRecipes.push(remoteResult.data);
+  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
 let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
 function closeRecipeRegistration(){
@@ -750,7 +1014,7 @@ function registerPersonalRecipe(){
  root.insertAdjacentHTML("beforeend",'<div class="efg-recipe-register-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle">'+
  '<div class="between"><h2 id="efgRecipeRegisterTitle">Registrar receta propia</h2><button type="button" class="btn small ghost" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">✕</button></div>'+
  '<p class="pilot-hint">Elegí la preparación, el horario y las porciones realmente consumidas. Nada se registrará hasta que confirmes.</p>'+
- '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción</option>').join("")+'</select></div>'+
+ '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción'+(r.pendingLocal?' · pendiente de sincronizar':'')+'</option>').join("")+'</select></div>'+
  '<div class="field"><label for="efgRecipeRegisterSlot">Horario de comida</label><select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+escapeHTML(m[0])+'">'+escapeHTML(m[1])+'</option>').join("")+'</select></div>'+
  '<div class="field"><label for="efgRecipeRegisterQty">Porciones consumidas</label><input type="number" id="efgRecipeRegisterQty" value="1" min="0.1" max="20" step="any" inputmode="decimal"></div>'+
  '<div class="efg-recipe-register-actions"><button type="button" class="btn light" data-act="closeRecipeRegistration">Cancelar</button><button type="button" class="btn" data-act="confirmRecipeRegistration">Registrar y recalcular</button></div></section></div>');
@@ -762,17 +1026,25 @@ async function confirmRecipeRegistration(){
  const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
  const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
  if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
+ validateRecipeIngredientAccess(selected.ingredients);
  if(pendingMealRegistrations.has(slot))return;
  recipeRegistrationBusy=true;pendingMealRegistrations.add(slot);
  try{
   const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
   for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
-  const d=activeDiary();d.meals[slot] ||= [];
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
   const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
   d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;
   try{await saveDiary();}
-  catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
-  closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+  catch(error){
+   d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
+   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))state.diary=beforeDiary;
+   throw error;
+  }
+  // A delayed account A completion must not close B's popup or toast B.
+  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
+   closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+  }
  }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot);}
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">Nutrición Con-Ciencia</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
@@ -813,6 +1085,7 @@ function frame(content){
  menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ pilotGuideLifecycle.mountStudent(root);
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -995,12 +1268,13 @@ function studentRecipesView(){
  '<div class="efg-fit-grid">'+FIT_RECIPES.filter(r=>!state.fitFilter||state.fitFilter==="all"||r.category===state.fitFilter).map(fitRecipeCard).join("")+'</div>'+
  '<p class="efg-fit-disclaimer">Las preparaciones no reemplazan un plan nutricional. Las porciones y valores se calculan según el catálogo EFG; pueden variar por marcas, peso comestible y método de cocción.</p></section>'+
  '<section class="card efg-content-card efg-own-recipes"><div class="efg-own-recipes-header"><div><span class="eyebrow">TU RECETARIO</span><h2>Mis preparaciones guardadas</h2><p class="pilot-hint">Tus recetas personales siguen siendo privadas y editables mediante una nueva carga.</p></div><div class="efg-actions"><button class="btn" data-act="createPersonalRecipe">+ Crear receta</button><button class="btn light" data-act="registerPersonalRecipe" '+(!rs.length?'disabled':'')+'>Registrar receta propia</button></div></div>'+
- (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
+ (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
 }
 async function registerFitRecipe(id){
  if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
  const recipe=FIT_RECIPES.find(r=>r.id===id);
  if(!recipe)throw new Error("No encontramos esa receta.");
+ validateRecipeIngredientAccess(recipe.ingredients);
  const meal=prompt("¿En qué comida querés registrar «"+recipe.name+"»?\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"1");
  if(meal===null)return;
  const slot=mealSlots[Number(meal)-1]?.[0];
@@ -1015,12 +1289,16 @@ async function registerFitRecipe(id){
   const {perPortion}=recipeTotals(recipe,foods);
   const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
   for(const key of ["k","p","c","f","fi"])item[key]=Math.round(perPortion[key]*qty*100)/100;
-  const d=activeDiary();d.meals[slot] ||= [];
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
   const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
   d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;d.skipped._closed=false;
   try{await saveDiary();}
-  catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
-  notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
+  catch(error){
+   d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
+   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))state.diary=beforeDiary;
+   throw error;
+  }
+  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
  }finally{pendingMealRegistrations.delete(slot);}
 }
 function studentSupplementsView(){
@@ -1134,7 +1412,7 @@ function homeView(){
    }),{opened:state.rewardOpened===true,personal:isPersonalProfessional,
     verified:!isPersonalProfessional&&state.rewardFeatureReady===true,
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
- const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
+ const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -1329,7 +1607,9 @@ function filterPlannerFoods(input){
  });
  const hasQuery=words.length>0;
  const selectedMatch=matched.find(f=>f.id===chosenId);
- const nextId=hasQuery?(selectedMatch?.id||matched[0]?.id||"none"):chosenId;
+ // A query filters the choices; it must not silently select the first match
+ // and change the simulated day before the student chooses a food.
+ const nextId=hasQuery?(selectedMatch?.id||"none"):chosenId;
  // El resultado visible debe coincidir con el texto ingresado, también en iOS.
  select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
  select.value=nextId;
@@ -1462,7 +1742,7 @@ async function addPlannedFood(key){
  if(plannerSushiPortion(row.food)&&!Number.isFinite(grams))throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
  if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
- const d=activeDiary();d.meals[slot] ||= [];
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  // Guard the draft against a denied/offline diary write: never show phantom meals.
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
  const previousDiary=state.diary,previousSelection=state.plannerSelections[key];
@@ -1478,11 +1758,15 @@ async function addPlannedFood(key){
  state.plannerDraftGrams={};
  try{await saveDiary();}
  catch(error){
-  d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
-  state.plannerSelections[key]=previousSelection;state.plannerDraftGrams=previousDraft;
+  d.meals[slot]=previousItems;d.skipped=previousSkipped;
+  // Preserve the local rollback, but never overwrite the next account's planner.
+  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
+   state.diary=previousDiary;
+   state.plannerSelections[key]=previousSelection;state.plannerDraftGrams=previousDraft;
+  }
   throw error;
  }
- notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
+ if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
  }finally{pendingMealRegistrations.delete(slot);}
 }
 let mealDialogReturnFocus=null;
@@ -1547,8 +1831,9 @@ function pickMealSearchSuggestion(foodId){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
  const food=foods.find(f=>f.id===foodId);
  if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
+ const foodChanged=selector.value!==food.id;
  selector.value=food.id;search.value=food.name;
- hideMealSearchSuggestions();updateMealEntryMode(true);
+ hideMealSearchSuggestions();updateMealEntryMode(foodChanged);
  search.focus({preventScroll:true});
 }
 function filterMealFoods(){
@@ -1572,7 +1857,8 @@ function filterMealFoods(){
  renderMealSearchSuggestions(filtered,term);
  // No autoseleccionar la primera opción: iOS no emite "change" si el
  // usuario elige un valor que el select ya consideraba seleccionado.
- updateMealEntryMode(true);
+ // When a typed query keeps the same selection, do not reset its custom quantity.
+ updateMealEntryMode(previous!==selector.value);
 }
 function updateMealEntryMode(foodChanged=false){
  const id=document.getElementById("mealEditorFood")?.value;
@@ -1622,7 +1908,7 @@ async function saveSelectedMeal(continueGuided=false){
  if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  pendingMealRegistrations.add(slot);
  try{
- const d=activeDiary();d.meals[slot] ||= [];
+ const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
  const previousDiary=state.diary,previousActiveMeal=state.activeMeal;
  const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
@@ -1639,12 +1925,18 @@ async function saveSelectedMeal(continueGuided=false){
  state.activeMeal=null;
  try{await saveDiary();}
  catch(error){
-  d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
-  state.activeMeal=previousActiveMeal; // Keep the editor open for a safe retry.
+  d.meals[slot]=previousItems;d.skipped=previousSkipped;
+  // A delayed failure must not restore A's diary/editor into account B.
+  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
+   state.diary=previousDiary;
+   state.activeMeal=previousActiveMeal; // Keep the editor open for retry.
+  }
   throw error;
  }
- if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
- notify("Alimento agregado, balance actualizado.");
+ if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
+  if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
+  notify("Alimento agregado, balance actualizado.");
+ }
  }finally{pendingMealRegistrations.delete(slot);}
 }
 function coachFoodChoices(p,consent){
@@ -2197,13 +2489,79 @@ function activeCoachGuideGoal(){
   ? (state.pendingGoal||state.pendingGoalRevision?.proposal||null)
   : (state.coachGoals[0]||null);
 }
+// PERSISTED_COACH_SCOPE_BEGIN: extracted verbatim by the private regression.
+let adaptedSourceEpoch=0,adaptedSourceFingerprint=null;
+function coachSessionIdentity(session,user){
+ // Correlation only, never authorization: the provider validates getUser and server JWT session_id.
+ // Retain only the opaque session ID; never put access/refresh tokens in application state or logs.
+ try{
+  if(!user?.id||session?.user?.id!==user.id||typeof session.access_token!=='string')return null;
+  const parts=session.access_token.split('.');if(parts.length!==3)return null;
+  const claims=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  if(claims.sub!==user.id||typeof claims.session_id!=='string'||
+   !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(claims.session_id)||
+   !Number.isFinite(claims.exp)||claims.exp*1000<=Date.now())return null;
+  return claims.session_id;
+ }catch{return null;}
+}
+function setCoachSessionIdentity(session,user){
+ const id=coachSessionIdentity(session,user);
+ if(state.session?.user?.id!==user?.id||state.session?.session_id!==id){
+  coachAdaptedWorkspace.close();
+ }
+ state.session=user?{user,session_id:id}:null;
+}
+function adaptedCoachScope(){
+ const student=state.roster.find(p=>p.user_id===state.selectedStudent);
+ const intake=state.coachIntakeForms?.[state.selectedStudent];
+ const fingerprint=JSON.stringify([state.session?.user?.id,state.session?.session_id,
+  state.selectedStudent,state.org?.id,state.org?.coach_id,student?.organization_id,student?.active,
+  state.consent?.accepted,state.consent?.student_id,state.consent?.organization_id,
+  intake?.revision,intake?.updated_at,intake?.shared_at,state.coachIntakeAccess?.[state.selectedStudent],
+  state.coachPlanDraftRecord?.draft_revision,state.pendingGoalRevision?.revision]);
+ if(fingerprint!==adaptedSourceFingerprint){
+  const hadContext=adaptedSourceFingerprint!==null;
+  adaptedSourceFingerprint=fingerprint;adaptedSourceEpoch++;
+  if(hadContext)coachPersistedGuideSource?.invalidate();
+ }
+ return {sourceEpoch:adaptedSourceEpoch,sessionId:state.session?.session_id,userId:state.session?.user?.id,profileId:state.profile?.user_id,role:state.profile?.role,
+  active:state.profile?.active,organizationId:state.org?.id,ownerId:state.org?.coach_id,
+  studentId:student?.user_id,studentActive:student?.active,studentOrganizationId:student?.organization_id,
+  consent:state.consent?.accepted,consentStudentId:state.consent?.student_id,
+  consentOrganizationId:state.consent?.organization_id};
+}
+// PERSISTED_COACH_SCOPE_END
+const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
+const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
+const installedGuideEnabled=PILOT_GUIDE_INSTALL.enabled&&COACH_ADAPTED_GUIDE_PREVIEW_ENABLED;
+if(installedGuideEnabled&&(!PILOT_GUIDE_INSTALL.template.length||!PILOT_GUIDE_INSTALL.foodIds.length))throw Error('Falta configurar la plantilla revisada.');
+const coachBoundPublication=installedGuideEnabled&&PILOT_GUIDE_INSTALL.publicationEnabled?createBoundGuidePublication({sb,readScope:adaptedCoachScope,enabled:true}):null;
+const coachPersistedGuideSource=installedGuideEnabled?createPersistedGuideProvider({client:sb,readScope:adaptedCoachScope,template:PILOT_GUIDE_INSTALL.template}):null;
+const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource,publicationClient:coachBoundPublication}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
+ enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
+});
+const pilotGuideLifecycle=createPilotGuideLifecycle({sb,enabled:installedGuideEnabled,
+ readStudent:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,organizationId:state.profile?.organization_id,role:state.profile?.role,active:state.profile?.active,intakeRevision:state.coachPilotIntake?.revision,sharedAt:state.coachPilotIntake?.shared_at}),
+ readScope:adaptedCoachScope,readGoal:()=>state.pendingGoal,foodIds:PILOT_GUIDE_INSTALL.foodIds,
+ onSaved:async (id,assertCurrent)=>{
+  // Read into a local value: loadStudentDetail clears pendingGoal before awaiting.
+  // Do not mutate current UI state until both request context and goal still match.
+  const saved=await coachDraftClient.load(id);assertCurrent();
+  if(saved?.status!=="draft"||!coachDraftSourceCurrent(state.coachIntakeForms[id],saved)||
+   ['goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].some(k=>saved.goal_proposal?.[k]!==state.pendingGoal?.[k]))throw Error('Cambió el borrador durante la actualización.');
+  state.coachPlanDraftRecord=saved;
+  state.coachGuidedDraft=saved.guide_proposal?structuredClone(saved.guide_proposal):null;
+  await render();
+ }
+});
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const goal=activeCoachGuideGoal();
  const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
  const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
- return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
+ const adaptedEntry=coachAdaptedWorkspace.available()?'<section class="card"><button class="btn small light" type="button" data-act="openCoachAdaptedPreview">Revisar guía adaptada · prueba privada</button><div id="coachAdaptedDraftMount"></div></section>':"";
+ return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+adaptedEntry+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
  (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus cinco comidas privadas.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
@@ -2409,6 +2767,8 @@ function restoreViewContinuity(snapshot){
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
 async function render(){
+ pilotGuideLifecycle.invalidate();
+ coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
  // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
  // response. Both flags default OFF. Never use a minor asset build as a trigger.
@@ -2565,6 +2925,7 @@ function regenerateCoachIntakeGuidePreview(){
  document.getElementById("coachIntakeGeneratedGuide")?.remove();
  const e=document.getElementById("goalPreview");
  if(!e||!state.pendingGoal)return;
+ if(installedGuideEnabled){pilotGuideLifecycle.mountPreparation(e);return;}
  const intakeDraft=state.coachIntakePrefill;
  if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
   if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
@@ -2600,32 +2961,52 @@ function calculateGoal(){
  document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
 }
 async function saveDiary(){
- const d=activeDiary();
+ // A diary row is a single JSONB record. Per-slot locks alone permit two
+ // simultaneous writes from different meal slots, supplements or comments:
+ // the slower response can overwrite the faster meal. Reject overlapping
+ // writes before a second request reaches PostgREST; existing callers restore
+ // their optimistic changes and let the user retry.
+ if(state.diaryWritePending)throw new Error("Todavía se está guardando otro registro. Esperá la confirmación y volvé a intentar.");
+ const d=activeDiary(),studentId=state.session?.user?.id;
+ if(!studentId||d.student_id!==studentId)throw new Error("Revalidá tu sesión antes de registrar alimentos.");
  if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
  if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
  d.skipped=d.skipped||{};
  d.skipped._closed=false; // El día vigente permanece abierto hasta el horario automático.
- // The server response is the commit point for calculated daily totals.
- // On network/REST failure do not leave unconfirmed calories/macros cached.
- const confirmedTotals=dailyTotals(d),studentId=state.session.user.id;
- const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:confirmedTotals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
- if(error)throw error;
- state.diary=data;
- const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
- if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
- // Rendering is NOT the database commit point. Do not make callers roll back a
- // successfully persisted diary if the UI fails after a confirmed REST response.
- try{await render();}
- catch(error){
-  console.error("Diario confirmado en servidor; falló la actualización visual:",error);
-  try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
- }
+ // Snapshot BEFORE the first await. A later optimistic change (even one that
+ // rolls back) must not leak into the payload of the already started write.
+ const payload=structuredClone({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:dailyTotals(d),updated_at:new Date().toISOString()});
+ state.diaryWritePending=true;
+ state.diaryWriteOwner=studentId;
+ state.diaryWriteRevision=(state.diaryWriteRevision||0)+1;
+ try{
+  const {data,error}=await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
+  if(error)throw error;
+  // The server has committed, but the user may have logged out or midnight
+  // may have passed. Never rehydrate the previous user's/day's row into UI.
+  if(state.session?.user?.id!==studentId||today()!==payload.log_day)return;
+  state.diary=data;
+  if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
+  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
+  if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
+  // A render exception is NOT a database failure: preserve confirmed data.
+  try{await render();}
+  catch(error){
+   console.error("Diario confirmado en servidor; falló la actualización visual:",error);
+   try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
+  }
+ }finally{state.diaryWritePending=false;if(state.diaryWriteOwner===studentId)state.diaryWriteOwner=null;}
 }
 async function loadPersonalData(){
- const id=state.session.user.id;
+ const id=state.session.user.id,requestedDay=today();
+ // An earlier tab load must not rehydrate another account, a previous date,
+ // or an older response over a newer refresh / confirmed diary write.
+ const loadToken=Symbol("personal-data-load");
+ state.personalDataLoadToken=loadToken;
+ const writeRevision=state.diaryWriteRevision||0;
  const results=await Promise.all([
- sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",today()).maybeSingle(),
- sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
+ sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",requestedDay).maybeSingle(),
+ sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(requestedDay+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
@@ -2633,8 +3014,11 @@ async function loadPersonalData(){
  sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
  ]);
  const error=results.find(x=>x.error)?.error;
+ if(state.session?.user?.id!==id||today()!==requestedDay||state.personalDataLoadToken!==loadToken)return;
+ if((state.diaryWriteRevision||0)!==writeRevision||
+   (state.diaryWritePending&&state.diaryWriteOwner===id))return;
  if(error)throw error;
- state.diary=results[0].data||null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
+ state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
  const id=state.session.user.id,role=state.profile.role;
@@ -2728,6 +3112,7 @@ async function loadRoleData(){
 }
 async function loadStudentDetail(studentId){
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
+ coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
@@ -2755,9 +3140,9 @@ async function loadStudentDetail(studentId){
   // Restore only a server-authorized draft based on the CURRENT shared intake.
   // Never treat this proposal as an approved goal or a student diary entry.
   if(savedDraft?.status==="draft"&&coachDraftSourceCurrent(state.coachIntakeForms[studentId],savedDraft)
-    &&savedDraft.goal_proposal&&savedDraft.guide_proposal){
+    &&savedDraft.goal_proposal){
    state.pendingGoal={...savedDraft.goal_proposal,student_id:studentId};
-   state.coachGuidedDraft=structuredClone(savedDraft.guide_proposal);
+   state.coachGuidedDraft=savedDraft.guide_proposal?structuredClone(savedDraft.guide_proposal):null;
   }
  }
  await loadSundayPermission(studentId);
@@ -2779,7 +3164,11 @@ async function refresh(){
   const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
   if(switchingUser){state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
-  state.session={user:result.data.user};
+  // getUser above is authoritative; cached session supplies only JWT correlation metadata.
+  const sessionSnapshot=state.session;
+  const currentSession=await sb.auth.getSession();
+  if(state.session!==sessionSnapshot)return; // Auth event changed context during hydration.
+  setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
   let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
   let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
@@ -3156,7 +3545,35 @@ if(el.dataset.foodbulk){
   for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
   return;
  }
- if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
+ if(el.dataset.recipedelete){
+  const userId=state.session?.user?.id;
+  const recipe=myRecipes().find(r=>r.id===el.dataset.recipedelete);
+  if(!userId||!recipe)return;
+  const message=recipe.pendingLocal?
+   "«"+recipe.name+"» sólo está guardada en este dispositivo. Eliminarla borrará ese respaldo local permanentemente. ¿Continuar?":
+   "¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán.";
+  if(!confirm(message)||state.session?.user?.id!==userId)return;
+  if(recipe.pendingLocal){
+   const key=recipeStoreKey();
+   const index=Number(String(recipe.id).replace(/^local-recipe-/,""));
+   let saved;
+   try{saved=JSON.parse(localStorage.getItem(key)||"[]");}
+   catch(_){throw Error("No pudimos leer el respaldo local. No se eliminó nada.");}
+   if(!Number.isInteger(index)||!Array.isArray(saved)||!saved[index]||
+    saved[index].name!==recipe.name||
+    JSON.stringify(saved[index].ingredients)!==JSON.stringify(recipe.ingredients))
+    throw Error("El respaldo cambió. Actualizá la lista antes de eliminarlo.");
+   saved.splice(index,1);
+   if(saved.length)localStorage.setItem(key,JSON.stringify(saved));
+   else localStorage.removeItem(key);
+   notify("Receta local eliminada de este dispositivo.");return render();
+  }
+  const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);
+  if(state.session?.user?.id!==userId)return;
+  if(error)throw error;
+  cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);
+  notify("Receta eliminada.");return render();
+ }
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
  if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
  if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
@@ -3184,7 +3601,7 @@ if(el.dataset.foodbulk){
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
   if(pendingMealRegistrations.has(slot))return;
-  const index=Number(indexValue),d=activeDiary();
+  const index=Number(indexValue),d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
   pendingMealRegistrations.add(slot);
   const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -3192,9 +3609,11 @@ if(el.dataset.foodbulk){
   try{
    d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
    await saveDiary();
-   notify("Alimento eliminado. Los macros se actualizaron.");
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)
+    notify("Alimento eliminado. Los macros se actualizaron.");
   }catch(error){
-   d.meals[slot]=previousItems;d.skipped=previousSkipped;state.diary=previousDiary;
+   d.meals[slot]=previousItems;d.skipped=previousSkipped;
+   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
    throw error;
   }finally{pendingMealRegistrations.delete(slot);}
   return;
@@ -3210,12 +3629,17 @@ if(el.dataset.foodbulk){
   const slot=el.dataset.clearm;
   if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
   if(pendingMealRegistrations.has(slot))return;
-  const d=activeDiary(),beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+  const beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
   pendingMealRegistrations.add(slot);
   try{
    d.meals[slot]=[];d.skipped=d.skipped||{};d.skipped._closed=false;
    try{await saveDiary();}
-   catch(error){d.meals[slot]=beforeItems;d.skipped=beforeSkipped;state.diary=beforeDiary;throw error;}
+   catch(error){
+    d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
+    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=beforeDiary;
+    throw error;
+   }
   }finally{pendingMealRegistrations.delete(slot);}
   return;
  }
@@ -3434,7 +3858,8 @@ if(el.dataset.foodbulk){
   if(!isGuidedMealSlot(slot)||!["protein","carb"].includes(group))return;
   if(pendingMealRegistrations.has(slot))return;
   pendingMealRegistrations.add(slot);
-  const d=activeDiary(),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
   try{
    d.skipped ||= {};d.skipped._guidedComponents ||= {};
    d.skipped._guidedComponents[slot] ||= {};
@@ -3442,9 +3867,16 @@ if(el.dataset.foodbulk){
    const omitted=d.skipped._guidedComponents[slot][group];
    if(!state.diary||state.diary.log_day!==today())state.diary=d;
    try{await saveDiary();}
-   catch(error){d.skipped=previousSkipped;state.diary=previousDiary;throw error;}
-   openMealDialog(slot,group==="protein"?"carb":"prepared");
-   notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+   catch(error){
+    d.skipped=previousSkipped;
+    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
+    throw error;
+   }
+   // Late completion from A must not open a guided editor or notify B.
+   if(state.session?.user?.id===ownerId&&today()===ownerDay){
+    openMealDialog(slot,group==="protein"?"carb":"prepared");
+    notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
+   }
   }finally{pendingMealRegistrations.delete(slot);}
   return;
  }
@@ -3502,6 +3934,12 @@ if(el.dataset.foodbulk){
  if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim(),two=document.getElementById("platformAlias2").value.trim(),three=document.getElementById("platformAlias3").value.trim();let r=await sb.rpc("efg_set_platform_aliases",{p_primary:alias,p_secondary:two||null,p_tertiary:three||null});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias oficiales de EFG actualizados.");return;}
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
+ if(action==="openCoachAdaptedPreview"){
+  if(!coachAdaptedWorkspace.available())throw Error("La vista adaptada no está habilitada para este contexto.");
+  const mount=document.getElementById("coachAdaptedDraftMount");
+  if(!mount)throw Error("Volvé al panel de guía del coach.");
+  await coachAdaptedWorkspace.open(mount);return;
+ }
  if(action==="makeGuidedDay"){
   const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
   const goal=activeCoachGuideGoal();
@@ -3598,14 +4036,19 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
   return;
  }
  pendingMealRegistrations.add(slot);
+ const ownerId=state.session?.user?.id,ownerDay=d.log_day;
  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
   d.skipped=d.skipped||{};
   d.skipped[slot]=!!checked;d.skipped._closed=false;
   await saveDiary();
  }catch(error){
-  d.skipped=previousSkipped;state.diary=previousDiary;
-  if(checkbox)checkbox.checked=!!previousSkipped[slot];
+  d.skipped=previousSkipped;
+  // An old A failure cannot restore B's diary or a new account's checkbox.
+  if(state.session?.user?.id===ownerId&&today()===ownerDay){
+   state.diary=previousDiary;
+   if(checkbox)checkbox.checked=!!previousSkipped[slot];
+  }
   throw error;
  }finally{pendingMealRegistrations.delete(slot);}
 }
@@ -3694,7 +4137,9 @@ document.addEventListener("keydown",event=>{
    if(event.key==="Escape"){event.preventDefault();hideMealSearchSuggestions();search?.focus({preventScroll:true});return;}
    if(event.key==="ArrowDown"&&(event.target===search||index>=0)){event.preventDefault();choices[Math.min(index+1,choices.length-1)]?.focus({preventScroll:true});return;}
    if(event.key==="ArrowUp"&&index>=0){event.preventDefault();(index===0?search:choices[index-1])?.focus({preventScroll:true});return;}
-   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();pickMealSearchSuggestion(choices[0].dataset.mealsuggestion);return;}
+   // Enter on a search field (including the Gboard action key) is not an
+   // explicit food choice. Focus a suggestion; only its own click/Enter selects it.
+   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();choices[0].focus({preventScroll:true});return;}
   }
  if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
  if(event.key!=="Tab")return;
@@ -3746,6 +4191,8 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ pilotGuideLifecycle.invalidate();
+ coachAdaptedWorkspace.close(); // Includes pending HTTP loads and saves.
  // Clear role-scoped RAM on every SIGNED_OUT, including external session
  // invalidation. Never carry another Coach's private data to a fresh OTP user.
  state.foodCompatEvidence=[];state.habitualSelection={};
@@ -3777,12 +4224,12 @@ function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
   const user=session?.user;
   if(user&&state.profile?.user_id===user.id&&state.session?.user?.id===user.id){
-   state.session={user};
+   setCoachSessionIdentity(session,user);
    return;
   }
   if(!state.loading)queueMicrotask(()=>refresh());
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
-  state.session={user:session.user};
+  setCoachSessionIdentity(session,session.user);
  }else if(event==="SIGNED_OUT"){
   resetPrivateSession();loginView();
  }
@@ -3819,3 +4266,5 @@ const pullRefresh=createPullToRefresh({
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
  sb.auth.onAuthStateChange(handleAuthStateChange);
 })();
+
+

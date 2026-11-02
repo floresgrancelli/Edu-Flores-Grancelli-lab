@@ -2,7 +2,7 @@ name: EFG Nutrition Visual QA (isolated fixture)
 
 on:
   push:
-    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027, efg-nutrition-scientific-macros-20261027, efg-security-hardening-20261028]
+    branches: [efg-premium-redesign-dev, efg-recipes-payments-ux, efg-fit-recipe-illustrations, efg-fix-admin-coach-alias, efg-real-recipe-photos-20261027, efg-nutrition-scientific-macros-20261027, efg-security-hardening-20261028, work/ncc-pr37-41-qa-snapshot-20261101]
     paths:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
@@ -12,6 +12,11 @@ on:
       - 'efg-nutrition/**'
       - '.github/workflows/efg-nutrition-visual-qa.yml'
   workflow_dispatch:
+    inputs:
+      guide_delta:
+        description: 'Run reviewed private synthetic guide delta'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,6 +34,97 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Private adapted guide functional and visual delta
+        if: (github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]'))
+        env:
+          EFG_PRIVATE_GUIDE_QA: '1'
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-editor-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-visual-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-adapted-workspace-private.mjs
+          EFG_QA_ADAPTED_COACH=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-guide-intake-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-guide-intake-visual-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/provider-contract-private.mjs
+      - name: Preserve synthetic adapted guide PNGs
+        if: always() && ((github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]')))
+        uses: actions/upload-artifact@v4
+        with:
+          name: adapted-guide-private
+          path: artifacts/adapted-guide-private/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve synthetic intake connector PNGs
+        if: always() && ((github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]')))
+        uses: actions/upload-artifact@v4
+        with:
+          name: coach-intake-guide-private
+          path: artifacts/coach-intake-guide-private/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Private weekly report actual UI flow (synthetic transport only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[weekly-report]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --experimental-default-type=module efg-nutrition/tests/weekly-report-state-private.mjs
+          EFG_QA_WEEKLY_REPORT=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Preserve weekly report flow evidence even on failure
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[weekly-report]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-report-private
+          path: |
+            artifacts/premium-visual-qa/weekly-flow-*.png
+            artifacts/premium-visual-qa/weekly-flow-*.pdf
+            artifacts/premium-visual-qa/report-weekly-flow-*.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Official nine-food guide five-percent contract (private offline)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-guide]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "ea088c8c4e30729a10aa0512cfe57365f91c5d0c53e83490a1ec296a4f5ebcae  efg-nutrition/tests/evidence/fdc-official-20261101.zip" | sha256sum -c -
+          echo "a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39  efg-nutrition/tests/evidence/fdc-additional-five-20261101.json" | sha256sum -c -
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/adapted-guide-editor-private.mjs
+          mkdir -p artifacts/official-guide-private
+          node --experimental-default-type=module efg-nutrition/tests/official-complete-guide-private.mjs efg-nutrition/tests/evidence/fdc-official-20261101.zip efg-nutrition/tests/evidence/fdc-additional-five-20261101.json a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39 > artifacts/official-guide-private/result.json
+      - name: Preserve official guide private result
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-guide]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-guide-private
+          path: artifacts/official-guide-private/
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Official composition connected to real coach UI (private RAM provider)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-coach]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "ea088c8c4e30729a10aa0512cfe57365f91c5d0c53e83490a1ec296a4f5ebcae  efg-nutrition/tests/evidence/fdc-official-20261101.zip" | sha256sum -c -
+          echo "a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39  efg-nutrition/tests/evidence/fdc-additional-five-20261101.json" | sha256sum -c -
+          mkdir -p artifacts/official-guide-private
+          EFG_EXPORT_PRIVATE_GUIDE_INPUT=1 node --experimental-default-type=module efg-nutrition/tests/official-complete-guide-private.mjs efg-nutrition/tests/evidence/fdc-official-20261101.zip efg-nutrition/tests/evidence/fdc-additional-five-20261101.json a2160a75e37bf36dd2fc4b267a6efd17a15558c48949762da09ad3ec69da3f39 > artifacts/official-guide-private/result-with-input.json
+          node --experimental-default-type=module efg-nutrition/tests/coach-guide-connection-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/coach-official-connection-private.mjs artifacts/official-guide-private/result-with-input.json
+          EFG_QA_OFFICIAL_COACH=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Preserve official coach connection evidence even on failure
+        if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[official-coach]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-coach-connected-private
+          path: |
+            artifacts/premium-visual-qa/coach-official-connected-*.png
+            artifacts/premium-visual-qa/report-official-connected-*.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Coach narrow guide OLD versus FIXED (focused real renderer)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[coach-layout]')
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          EFG_QA_COACH_GUIDE_LAYOUT=1 node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
@@ -100,3 +196,6 @@ jobs:
           retention-days: 14
       - name: Confirm release remains manual
         run: echo "This test does not publish to Render, Supabase or main."
+
+
+

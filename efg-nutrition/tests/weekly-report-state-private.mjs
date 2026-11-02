@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {buildLuxuryWeeklyReport,renderLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport} from '../pilot/weekly-luxury-report.js';
+import {createLuxuryWeeklyEditor} from '../pilot/weekly-luxury-editor.js';
+const model=buildLuxuryWeeklyReport({from:'2026-10-23',to:'2026-10-29',friday:'2026-10-30',studentName:'Alumno ficticio',coachName:'Coach ficticio',
+ days:[{date:'2026-10-23',hasData:true,closed:true,mealCount:2,k:1200,p:80,c:120,f:40}],goals:[],logs:[]});
+const editor=createLuxuryWeeklyEditor(),context={coachId:'synthetic-coach',studentId:'synthetic-student',weekEnding:model.friday,model};
+assert.match(renderLuxuryWeeklyReport(model),/Conclusión propuesta · pendiente de revisión/);
+assert.doesNotMatch(renderLuxuryWeeklyReport(model),/REVISADO POR/);
+assert.match(renderLuxuryWeeklyReport(model),/Fibra: sin dato consolidado/);
+assert.equal(Object.hasOwn(model.averages,'fi'),false,'Do not add a fictional fiber zero');
+const preview=editor.preview(context,'Texto revisado ficticio','Disfrutar sin compensaciones.');
+assert.match(renderLuxuryWeeklyReport(preview),/BORRADOR PARA REVISIÓN/);
+const serialized=reportAsStoredText(editor.requirePreview(context,preview.conclusion,preview.flexibleNote),preview.conclusion,preview.flexibleNote);
+const stored=parseLuxuryWeeklyReport(serialized);
+assert.match(renderLuxuryWeeklyReport(stored),/Conclusión revisada por tu coach/);
+assert.match(renderLuxuryWeeklyReport(stored),/REVISADO POR/);
+assert.equal(stored.conclusion,'Texto revisado ficticio');
+assert.equal(stored.days[1].k,null);
+assert.equal(stored.averages.k,1200);
+const before=JSON.stringify(stored);renderLuxuryWeeklyReport(stored);assert.equal(JSON.stringify(stored),before);
+console.log('PASS weekly report delta: draft/preview/published labels, unavailable fiber, exact approved text and unchanged history. Synthetic data; no backend authorization claim.');

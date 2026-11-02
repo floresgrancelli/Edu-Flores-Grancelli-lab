@@ -1,0 +1,198 @@
+{
+  "source_library": "libfile_d57eb4446e448191aecc43c6f4246e5e",
+  "source_zip_sha256": "d45c8d7d0a4d67fce7736af2b44d45d243bf2ddb5d5f0251797637f9fcfcdccd",
+  "files": {
+    "runner/build_baseline.py": {
+      "bytes": 8166,
+      "sha256": "7314715e2b7e55d4d916868942a03f522570eae4278ee48b513cbb248227dec6"
+    },
+    "runner/official-import.mjs": {
+      "bytes": 3308,
+      "sha256": "a5b0550d67239d356ee4d3607f445bb025205c67ba777be2605a3abb98ea988d"
+    },
+    "runner/run.mjs": {
+      "bytes": 20122,
+      "sha256": "68f0791e81701576e5da9fc78e6b4021de86046e1dd4ec307eac41ab4697c907"
+    },
+    "runner/config.py": {
+      "bytes": 805,
+      "sha256": "d92a54b03aa08a55770e53c9f5d2b17b3366d07cc1cbe586309e953d07e0d323"
+    },
+    "runner/additional-cases.mjs": {
+      "bytes": 6155,
+      "sha256": "ff2e624705c7b26d327a18931727fe63183454a292ce2add9f05146018037dcc"
+    },
+    "runner/package-check.py": {
+      "bytes": 318,
+      "sha256": "317a73e4a8415f2e9321428258a59dd2ea64123a14cb43b4f1250944289bdb6a"
+    },
+    "runner/prerequisites.mjs": {
+      "bytes": 1629,
+      "sha256": "797ae5320437a7043f6abf427ce32bfb9be3f20c0d54c5658c258c090b297437"
+    },
+    "runner/identity-regression.mjs": {
+      "bytes": 1443,
+      "sha256": "4a9e5a438ae4238558fb5f1c7b55dd8d85353e2dc264af77f4d5c4cea08802ca"
+    },
+    "runner/isolation.mjs": {
+      "bytes": 2749,
+      "sha256": "4a9ae01d128fa5f8cdbb6a114acd164edfd347e44c613f7760ee921984e89664"
+    },
+    "runner/baseline-generated.sql": {
+      "bytes": 86157,
+      "sha256": "c5ede487a43d0b93e8bbe9abe5d63a81ba8a031ddb50f997eb7e6f00ad52490c"
+    },
+    "runner/acl-contract.mjs": {
+      "bytes": 7681,
+      "sha256": "4746484d65e7bfa2c46557426ad2f64221788a9d4889a95d91d391a02aa62cc7"
+    },
+    "runner/job-proposal.yml": {
+      "bytes": 3794,
+      "sha256": "51f7217bd3b77c0d4a654b4d0cb0697b569da372a54d901345d2c73753abda09"
+    },
+    "runner/local-context.mjs": {
+      "bytes": 4507,
+      "sha256": "8db36e385fb666cd5d3b98e739765bddb1886fad40eff3b9cc6b34d64c430d29"
+    },
+    "runner/snapshot.mjs": {
+      "bytes": 3080,
+      "sha256": "a9bb1ca11fe69d0cf22c6aeef20f0444eb208e61d2217330e84ad8cb476019b1"
+    },
+    "runner/static-check.py": {
+      "bytes": 3235,
+      "sha256": "a76d443560bc1cc9eac3dd07ecb457d77cf759bfc3e6cb522e2328a1f02068b2"
+    },
+    "installation/proposed/006_normal_coach119_bound_publication_NOT_APPLIED.sql": {
+      "bytes": 29342,
+      "sha256": "7d3ac3b44003420d4aba0cf629f4d85181c0a9c9ea6e28d6c0d8594d32b9d481"
+    },
+    "installation/proposed/003_private_health_schema_NOT_APPLIED.sql": {
+      "bytes": 15007,
+      "sha256": "1e4f5279abf4242e3fb4b957cb81ae0eb2c52dd445a2e497d27b49d645f21685"
+    },
+    "installation/proposed/001_owner_organization_policies_NOT_APPLIED.sql": {
+      "bytes": 1858,
+      "sha256": "d3ceaa50c6d4eaad1aeebe76e10eeba33d1ee4c645cbac416adb64ce35bdf7f9"
+    },
+    "installation/proposed/004_private_guide_bindings_NOT_APPLIED.sql": {
+      "bytes": 15091,
+      "sha256": "427cba38823a4ccf9d82947190c8c1c40b2896861e6ceecd34e5ea8bf400db4e"
+    },
+    "installation/proposed/005_optional_sharing_and_entry_NOT_APPLIED.sql": {
+      "bytes": 20333,
+      "sha256": "4f21ecd51d2f15f6c112a4e0e6a0c3a40207d4dcd9ed01026049fbb76050cdde"
+    },
+    "installation/proposed/002_automatic_composition_NOT_APPLIED.sql": {
+      "bytes": 9987,
+      "sha256": "e97859f246e0ee86f647f60c129c449d7a84b56fa8ef88ac0700fb3623714062"
+    },
+    "installation/installation-order.json": {
+      "bytes": 428,
+      "sha256": "4068b835b2bec102aa10b63bf903ec975935ecfa17ea056e32a0bca9d09e100e"
+    },
+    "installation/tests/manifest-anchor-local.sql": {
+      "bytes": 3227,
+      "sha256": "c0013163249309dcf5813ded255487cccd19deaa2ab658312347a485f42c132b"
+    },
+    "required-dependencies-reviewed.json": {
+      "bytes": 3274,
+      "sha256": "e0af7c6660d874207110b82cb02adbcf9f369d93a908d63406621078fb34dacc"
+    },
+    "evidence/hosted-metadata-20261101-2212.json": {
+      "bytes": 104216,
+      "sha256": "9f217df43882895dba95a39bc67124872994dbb6c5bd652f995d8a46b19006a5"
+    },
+    "evidence/hosted-metadata-supplement-20261101-2247.json": {
+      "bytes": 2953,
+      "sha256": "e5dc78563215239466e3d8251fd719dd35446055d92db009ea358a13203a8699"
+    },
+    "reference/efg-nutrition/tests/sql/coach-auth-local-bootstrap.sql": {
+      "bytes": 6580,
+      "sha256": "2c21c46bbd80aaecb1bb093ae1bfc6e8521b0eeae282b49f7233399b19381be1"
+    },
+    "reference/efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql": {
+      "bytes": 7336,
+      "sha256": "da2b14c5f139ae586cb7c3383c85d1fa6b46aebd7653a1dc87964dad12042667"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_pilot_participation_server_receipts.sql": {
+      "bytes": 5184,
+      "sha256": "5696dfbf2301eaf96911db371bf03f935d4b2b139ab879104008bcf159b133f2"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_relaunch_general_pilot_intake.sql": {
+      "bytes": 12774,
+      "sha256": "90a489f962e3ed237507f97a91f0c7872783ced9692eaae3c4c7cd72eeecaedb"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach_versioned_private_plan_drafts.sql": {
+      "bytes": 9022,
+      "sha256": "78150781442b8d9b804b27970df47ec44e8c5cd46c341baf7d355f66f99c52a1"
+    },
+    "reference/efg-nutrition/migrations/20261030_coach115_versioned_legal_documents_receipts.sql": {
+      "bytes": 5971,
+      "sha256": "e130bb956fe74b2db43f59510c9fd3f10afd9b1027742f5a45322e0e9e4d4fed"
+    },
+    "runner/confirmed-types.json": {
+      "bytes": 1858,
+      "sha256": "e870c429a1fe72f4eb4d0dc30cb733cd3659418e80dcd0f39cbeb46d50f8a14f"
+    },
+    "runner/legacy-cutover-tests.mjs": {
+      "bytes": 5932,
+      "sha256": "1b845ea527012d0a03b6ec6c8bd4ed064fb668172ce0d778c17743e738a2eaa2"
+    },
+    "runner/cutover-acl-contract.mjs": {
+      "bytes": 3939,
+      "sha256": "666e2a19da4bb7e6db0060d1300ffa031dd0ead7b89a0949ad98bd2d7f01d6b3"
+    },
+    "installation/proposed/legacy-write-cutover.PROPOSAL.sql": {
+      "bytes": 3811,
+      "sha256": "755e9b38e6cc3ae90368c2d365b8fdd964d78850ea092897a7e926bc29da58bc"
+    },
+    "runner/clinical-cases.mjs": {
+      "bytes": 15871,
+      "sha256": "1dbac3b42c73f4595e9fe2640b0559e01cfda68571595239554f7286877debe0"
+    },
+    "clinical/sql/clinical-provider.PROPOSAL.sql": {
+      "bytes": 6877,
+      "sha256": "a10191f782ee3bb7efdd417c78de35a49e537e640826d09ee04d60004c2bd5e2"
+    },
+    "clinical/sql/backend-compatibility.PROPOSAL.sql": {
+      "bytes": 17801,
+      "sha256": "c1bd6e196c4a5b23211b81f8930b8c62161141b311e5079be3d11d45fb3f5c51"
+    },
+    "clinical/sql/existing-rpc-hooks.PROPOSAL.sql": {
+      "bytes": 22620,
+      "sha256": "082974dfc2d4332225336ed2852e9b84bcdd87f0a0dc935981939d0ea68e90b5"
+    },
+    "clinical/tests/pattern-revision-local.PROPOSAL.sql": {
+      "bytes": 1610,
+      "sha256": "0f9a6f2f53c305222855b575b94778059290a575f990ad2c6718acca1e6bc49b"
+    },
+    "clinical/tests/publication-withdrawal-local.mjs": {
+      "bytes": 5401,
+      "sha256": "9c07823542bfb91dee5b5ed3b2b0e42b7be60ef0dff9f823f0e15f6100216c44"
+    },
+    "clinical/tests/common-parity-private.mjs": {
+      "bytes": 1591,
+      "sha256": "f7af3ee0bfea14d4dd3ffc645457ff8e0b16e194bdf33475c21dfee65521c164"
+    },
+    "clinical/tests/common-parity-cases.json": {
+      "bytes": 2620,
+      "sha256": "68071549ffab3f286f69ce9f081b5f409dd8214abbcee388faf8362b714ccbac"
+    },
+    "clinical/tests/clinical-provider-private.mjs": {
+      "bytes": 7538,
+      "sha256": "62201eb559d7d677f9bc62ffb6e9cef88ed7e903c407cc2525d61e061afe71aa"
+    },
+    "clinical/server/clinical-provider.mjs": {
+      "bytes": 9807,
+      "sha256": "52056ed953b6b3d0d473b85f9cc38adf4bc943bbc2853df4cceed8c84b3a55ee"
+    },
+    "clinical/reference/guide-compatibility.mjs": {
+      "bytes": 5148,
+      "sha256": "a691b3ae6c3ccd4f959ad9cf8198bdff080eff9827dbbed4bdfb4be61c4516fd"
+    }
+  },
+  "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",
+  "cutover_source_zip_sha256": "b7cd0175e22bb9344392e60953bcdc2f4094caf09a04ef7e05d0cfd6cb7af48f",
+  "clinical_source_library": "libfile_86516fc1a8908191a56c7deda164885a",
+  "clinical_source_zip_sha256": "98ae5adc48233e1c104580d1d43e19d12169e5477b5eb4ac74b7f38f4c5480f8"
+}

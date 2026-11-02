@@ -1,0 +1,47 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conector ficticio de ficha y guía</title>
+<style>body{font:16px system-ui;margin:auto;padding:20px;max-width:960px;background:#faf8f3;color:#26394b}fieldset{margin:16px 0;border:1px solid #b8c4c7;border-radius:12px}label{display:block;margin:12px 0}select,button{max-width:100%;padding:10px}button{margin:8px 5px 8px 0}section{padding:12px;border:1px solid #ccc;margin:10px 0}p{overflow-wrap:anywhere}</style>
+<h1>Prueba ficticia de ficha → guía</h1><p>No guarda datos, no conecta al backend y no aprueba planes.</p>
+<form id="intake"><fieldset><legend>Preferencias generales ficticias</legend>
+<label>Preferido <select id="preferred"><option value="">Sin preferido</option><option value="preferred">FICTICIO preferred</option></select></label>
+<label>Evitado por gusto <select id="disliked"><option value="">Ninguno</option><option value="fresh_a">FICTICIO fresh_a</option></select></label></fieldset>
+<fieldset><legend>Declaración separada ficticia</legend>
+<label><input type="checkbox" id="gluten"> Declaro celiaquía para esta prueba</label>
+<label><input type="checkbox" id="share"> Compartir la declaración ficticia con el coach de esta organización</label>
+</fieldset><button>Compartir ficha ficticia</button></form>
+<button id="coach">Pasar al coach y preparar borrador</button><button id="revoke">Revocar acceso ficticio</button>
+<button id="missing">Quitar evidencia ficticia</button>
+<p role="status" id="message">Completá los campos ficticios.</p><main id="editor"></main>
+<script type="module">
+import {fixture,scope} from './coach-guide-intake-fixture.mjs';
+import {createGuideIntakeSource} from '../pilot/coach-guide-intake-adapter.js';
+import {createCoachAdaptedWorkspace} from '../pilot/coach-adapted-workspace.js';
+let current={...scope},bundle=null,revision=0;
+const message=document.querySelector('#message'),mount=document.querySelector('#editor');
+const source=createGuideIntakeSource({readScope:()=>current,readBundle:async()=>structuredClone(bundle)});
+const workspace=createCoachAdaptedWorkspace({enabled:true,readScope:()=>current,inputSource:source});
+source.subscribe(()=>{message.textContent='Ficha o permiso modificados: el borrador anterior se descartó.';});
+document.querySelector('#intake').onsubmit=event=>{
+ event.preventDefault();source.invalidate();current.sourceEpoch++;current.consent=true;revision++;
+ bundle=fixture(current);
+ for(const channel of ['general','health','goals','preferences','catalog'])bundle[channel].data.revision=revision;
+ const preferred=document.querySelector('#preferred').value,disliked=document.querySelector('#disliked').value;
+ bundle.general.data.preferred_foods=preferred?'FICTICIO '+preferred:'';
+ bundle.general.data.disliked_foods=disliked?'FICTICIO '+disliked:'';
+ Object.assign(bundle.preferences.data,{source_intake_revision:revision,catalog_revision:revision,
+  preferred_text:bundle.general.data.preferred_foods,disliked_text:bundle.general.data.disliked_foods,
+  preferred_ids:preferred?[preferred]:[],disliked_ids:disliked?[disliked]:[]});
+ bundle.goals.data.source_intake_revision=revision;
+ bundle.health.data.conditions=document.querySelector('#gluten').checked?{celiac:'suspected'}:{};
+ bundle.health.data.shared_with_coach=document.querySelector('#share').checked;
+ message.textContent='Ficha ficticia preparada en dos canales separados. Metas ficticias confirmadas; plan todavía no aprobado.';
+};
+document.querySelector('#coach').onclick=async()=>{try{await workspace.open(mount);message.textContent='Propuesta ficticia preparada: revisar y editar, sin aprobación.';}catch(e){message.textContent=e.message;}};
+document.querySelector('#revoke').onclick=()=>{current.consent=false;current.sourceEpoch++;source.invalidate();};
+document.querySelector('#missing').onclick=()=>{
+ source.invalidate();current.sourceEpoch++;
+ if(bundle)for(const channel of ['general','health','goals','preferences','catalog'])bundle[channel].binding.sourceEpoch=current.sourceEpoch;
+ bundle?.catalog.data.foods.forEach(f=>{delete f.glutenEvidence;});
+ message.textContent='Evidencia ficticia retirada. Declarar una restricción no verifica alimentos.';
+};
+</script></html>

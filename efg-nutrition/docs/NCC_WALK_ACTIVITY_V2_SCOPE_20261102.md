@@ -26,3 +26,6 @@ Pruebas offline: pasos tradicionales, distancia/tiempo manual, minutos solos, km
 Referencias:
 - 2024 Adult Compendium: https://pmc.ncbi.nlm.nih.gov/articles/PMC10818145/
 - Revisión de precisión de wearables: https://pmc.ncbi.nlm.nih.gov/articles/PMC7509623/
+
+## Segundo control automático
+La rama independiente también prueba la migración aditiva en PostgreSQL 17 descartable: filas legacy intactas, políticas RLS sin cambios, tres columnas nulas para históricos, escritura/lectura nueva, seis negativos de rango y rechazo de migración repetida. Sigue sin ser prueba de persistencia hospedada ni autorización de despliegue.

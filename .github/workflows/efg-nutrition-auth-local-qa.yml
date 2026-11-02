@@ -532,13 +532,15 @@ jobs:
   # Add only after review to existing auth workflow; preserve every current job.
   # Marker branch condition is intentional, no schedule/main trigger.
   incremental-install-local:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[incremental-install]')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[hydration-fixture]'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
       contents: read
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
+      EFG_QA_DOM_FIXTURE_ONLY: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
+      EFG_QA_DOM_FIXTURE: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
       EFG_QA_CLINICAL_COMPATIBILITY: ${{ contains(github.event.head_commit.message, '[clinical-compatibility]') && '1' || '0' }}
     steps:
       - name: Resolve disposable paths on runner
@@ -557,6 +559,10 @@ jobs:
           for f in private-installation/runner/*.mjs; do node --check "$f"; done
           node private-installation/runner/identity-regression.mjs
           python3 private-installation/runner/build_baseline.py
+      - name: Fixture-only syntax before any stack
+        if: env.EFG_QA_DOM_FIXTURE_ONLY == '1'
+        run: |
+          for f in private-installation/dom-fixture/*.mjs; do node --check "$f"; done
       - name: Clinical source preflight before stack (opt-in)
         if: env.EFG_QA_CLINICAL_COMPATIBILITY == '1'
         run: |
@@ -591,7 +597,12 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          node --experimental-default-type=module private-installation/runner/run.mjs
+          if [ "$EFG_QA_DOM_FIXTURE_ONLY" = '1' ]; then
+            for f in private-installation/dom-fixture/*.mjs; do node --check "$f"; done
+            node --experimental-default-type=module private-installation/dom-fixture/run-only.mjs
+          else
+            node --experimental-default-type=module private-installation/runner/run.mjs
+          fi
       - name: Remove disposable stack and verify containers and volumes
         if: always()
         run: |

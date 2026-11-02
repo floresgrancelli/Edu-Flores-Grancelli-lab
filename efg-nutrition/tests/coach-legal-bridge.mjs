@@ -42,6 +42,14 @@ assert.equal(writes,0);
 const opts={enabled:true,legalEnabled:true};
 const loaded=await loadCoachLegalOnboarding(sb,opts);
 assert.equal(loaded.userId,userId,"Server-read legal snapshot is bound to the account that fetched it.");
+// Both private pilot draft files must fail closed if falsely seeded as current.
+const pilotTerms=await (await import('node:fs/promises')).readFile(new URL('../docs/PILOTO_CONDICIONES_BORRADOR_20261102.md',import.meta.url),'utf8');
+const pilotPrivacy=await (await import('node:fs/promises')).readFile(new URL('../docs/PILOTO_PRIVACIDAD_BORRADOR_20261102.md',import.meta.url),'utf8');
+for(const text of [pilotTerms,pilotPrivacy]){
+ const original=docs;docs=docs.map((d,i)=>i===0?{...d,body:text}:d);
+ await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/versión legal publicada no coincide/);
+ docs=original;
+}
 const verifiedDocs=docs;
 docs=verifiedDocs.map((d,i)=>i?d:{...d,body:d.body+" [PENDIENTE: revisión]"});
 await assert.rejects(()=>loadCoachLegalOnboarding(sb,opts),/versión legal publicada no coincide/);

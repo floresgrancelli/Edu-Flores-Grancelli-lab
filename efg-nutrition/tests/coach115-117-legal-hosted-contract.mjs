@@ -48,6 +48,17 @@ assert.equal(snapshot.ready,true);assert.equal(snapshot.accepted,false);
 // Even if an operator accidentally marks a draft as current, the client
 // must refuse to present it for acceptance or record a receipt.
 const baselineDocs=structuredClone(docs);
+// No draft file (even if erroneously marked current in the DB) may be
+// displayed for approval. Real draft source is read, not duplicated as a fixture.
+for(const file of ['PILOTO_CONDICIONES_BORRADOR_20261102.md','PILOTO_PRIVACIDAD_BORRADOR_20261102.md']){
+ const draftText=readFileSync(new URL('../docs/'+file,import.meta.url),'utf8');
+ for(const idx of [0,1]){
+  docs=structuredClone(baselineDocs);docs[idx].body=draftText;
+  await assert.rejects(loadCoachPilotLegal(mocked(),{profile}),/borradores no aprobados/);
+ }
+}
+docs=structuredClone(baselineDocs);
+const baselineDocs=structuredClone(docs);
 for(const marker of ['[PENDIENTE: responsable]', 'BORRADOR NO PUBLICAR', 'NO EN VIGENCIA', 'ESTADO: NO APROBADO',
  'Propuesta privada para aprobación.', 'Propuesta privada; usar sólo cuando el circuito esté validado.',
  'No publicada ni aceptada por ninguna persona.', 'PROPUESTA  PRIVADA PARA APROBACION']){

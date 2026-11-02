@@ -19,8 +19,8 @@ for(const token of [
  'import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting}',
  'import {fetchCoachPilotEntry}', 'import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake}',
  'import {acceptPilotParticipation}', 'renderPilotParticipationNotice({serverReceipts:true})',
- 'state.coachPilotEntry=await fetchCoachPilotEntry(sb,{profile:state.profile});',
- 'state.coachPilotIntake=(await loadCoachPilotGeneralIntake(sb,{profile:state.profile})).intake;',
+ 'state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));',
+ 'state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;',
  'if(action==="pilotDemoContinue")','await acceptPilotParticipation(sb,choice,{explicitSubmit:true});',
  'if(action==="openMessages"&&COACH_STUDENT_JOURNEY_ENABLED',
  'syncPilotParticipationContinueButton(document);return;',
@@ -35,8 +35,10 @@ assert.match(pilot,/function resetPrivateSession\(\)\{[\s\S]*?state\.foodCompatE
 assert.match(pilot,/state\.coachPilotEntry=null;state\.coachPilotIntake=null;state\.coachPilotLegal=null;/);
 assert.match(pilot,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/,
  'Explicit logout must clear Coach pilot and old session cache');
-assert.match(pilot,/else if\(event==="SIGNED_OUT"\)\{[\s\S]*?resetPrivateSession\(\);loginView\(\);/,
- 'Signed-out auth events must clear the same private cache');
+assert.match(pilot,/else if\(event==="SIGNED_OUT"\)\{\s*authHydration\.change\(null\);/,
+ 'Signed-out auth events must notify the central hydration gate');
+assert.match(pilot,/invalidate:epoch=>\{resetPrivateSession\(\);state\.authContextEpoch=epoch;loginView\(\);\}/,
+ 'Central hydration gate must clear all private caches and role memory');
 assert.match(pilot,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)throw Error\("Ingreso piloto duplicado/);
 assert.doesNotMatch(pilot,/if\(!data.shareWithCoach&&!state.coachPilotIntake\)throw Error\("Para continuar compartí la ficha/);
 assert.match(pilot,/pilot\?\.route==="private"/);

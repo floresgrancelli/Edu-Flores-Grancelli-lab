@@ -129,7 +129,7 @@ const roleGuard=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNC
 const welcome=source.indexOf("if(state.welcomePending)return welcomeView()",source.indexOf("async function render()"));
 assert.ok(roleGuard>0&&welcome>roleGuard,"The new Coach versioned intake precedes legacy student welcome/navigation.");
 const start=source.indexOf('if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)',source.indexOf("async function refresh()"));
-const legacy=source.indexOf('await Promise.all([loadPersonalData(),loadOrgAndPayments()])',start);
+const legacy=source.indexOf('await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]))',start);
 assert.ok(start>0&&legacy>start,"Intake/legal checks precede legacy data fetches for returning students.");
 assert.match(source,/if\(e.target.id==="efgCoachRelaunchForm"\|\|e.target.id==="efgCoachRelaunchManageForm"\)/);
 assert.match(source,/await submitCoachRelaunchEntry\(sb,/);

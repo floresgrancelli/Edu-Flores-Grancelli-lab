@@ -100,7 +100,7 @@ for(const part of [
  'readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true})',
  'renderMajorReleaseAnnouncement(state.majorRelease,state.profile.role)',
  'renderWhatsNew(state.majorRelease,state.profile.role)',
- 'state.majorReleaseLegal=await loadCoachPilotLegal',
+ 'state.majorReleaseLegal=await contextRead(loadCoachPilotLegal',
  'await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,',
  'const out=await confirmMajorRelaunchAndExit(sb,{'
 ])assert.ok(app.includes(part),'Missing one-time major UI wiring: '+part);

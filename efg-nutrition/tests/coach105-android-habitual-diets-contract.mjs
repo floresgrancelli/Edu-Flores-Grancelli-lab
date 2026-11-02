@@ -11,7 +11,9 @@ assert.match(src,/\+habitualPickerHTML\(key\)\+/, 'Existing habitual picker must
 assert.match(src,/const choice=selectedIndex>=0\?selectedIndex:0;/, 'Saved habitual must be previewed by default, including multiple saved variants');
 assert.match(src,/getHabitualList\(slot\)/,'Pick only the current meal slot');
 assert.match(src,/cloudHabituales=data\|\|\[\]/,'Previously saved meals must be fetched');
-assert.match(src,/\.eq\("student_id",state\.session\.user\.id\)\.order\("created_at"/,'Habitual fetch must use signed account');
+assert.match(src,/const userId=state\.session\?\.user\?\.id;/,'Habitual query captures current signed account');
+assert.match(src,/\.eq\("student_id",userId\)\.order\("created_at"/,'Habitual fetch filters by captured signed account');
+assert.match(src,/if\(!sameUser\(\)\)return; \/\/ Ignore late response belonging to a previous account\./,'Habitual ignores stale reads after account changes');
 assert.match(src,/state\.habitualSelection\[slot\]=String\(data\.id\);[\s\S]*?state\.lastEditedMeal=slot;[\s\S]*?await render\(\)/,'Saving a habitual keeps its meal open, shows the newly chosen option and repaints after server confirmation');
 assert.match(src,/data-habitualchoice/,'User can choose each habitual');
 assert.match(src,/data-habitualapply/,'User can apply selected habitual');

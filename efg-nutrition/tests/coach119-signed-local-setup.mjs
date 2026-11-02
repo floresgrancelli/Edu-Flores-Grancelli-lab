@@ -27,8 +27,39 @@ for (const file of files) sql(read(file));
 sql('alter table public.efg_pilot_participation_receipts add constraint ' +
   'efg_pilot_participation_receipts_sharing_accepted_check check(sharing_accepted=true) not valid');
 sql(read('../migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql'));
+// Assert that SEC09 and OPT01 have actually been applied in the correct order,
+// using disposable local schemas and no existing human accounts.
+for(const [table,policy] of [
+ ['efg_coach_relaunch_intakes','efg_coach_relaunch_owner_select'],
+ ['efg_pilot_participation_receipts','efg_pilot_participation_owner_read']
+]){
+ const qual=sql("select qual from pg_policies where schemaname='public' and tablename='"+table+"' and policyname='"+policy+"'");
+ assert.ok(qual.includes(table+'.organization_id'),'SEC09 owner isolation missing: '+table);
+}
+assert.equal(sql("select to_regprocedure('efg_private.coach_pilot_share_active(uuid,uuid)') is not null"),'t');
+assert.equal(sql("select count(*) from pg_constraint where conrelid='public.efg_pilot_participation_receipts'::regclass and conname='efg_pilot_participation_receipts_sharing_accepted_check'"),'0');
+// The hosted COACH114 URL check currently contains {8,1990}, which is invalid
+// for regex evaluation. Recreate that exact LEGACY SHAPE on an EMPTY disposable
+// local table, then exercise its already-reviewed corrective migration.
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+const urlDef=()=>sql("select pg_get_constraintdef(oid) from pg_constraint where conrelid='efg_private.coach_reviewed_foods'::regclass and conname='coach_reviewed_foods_source_url_check'");
+assert.match(urlDef(),/char_length/, 'Unexpected source migration URL check');
+sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check;"+
+    "alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check "+
+    "check(source_url ~ '^https://[^[:space:]]{8,1990}$');");
+assert.match(urlDef(),/\{8,1990\}/, 'Legacy hosted URL check was not reconstructed');
+sql(read('../migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql'));
+assert.match(urlDef(),/char_length/, 'COACH114 fix not installed');
+assert.doesNotMatch(urlDef(),/\{8,1990\}/, 'Invalid regex survived COACH114 fix');
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+// Publish remains gated. This is an installation rehearsal, never a hosted write.
 sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
+if(process.env.EFG_QA_SDK_ENTRY==='1'){
+ sql(read('./sql/coach119-browser-current-overlay.sql'));
+ sql(read('../migrations/etapas12_habituales.sql'));
+ sql(read('../migrations/etapas12_informes_semanales.sql'));
+}
 assert.equal(sql('select count(*) from public.efg_legal_documents'), '0');
 assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'), '0');
 assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'), '0');

@@ -24,6 +24,58 @@ const goalKey={k:'kcal',p:'protein_g',c:'carb_g',f:'fat_g'};
 const safeEnergy=(d)=>['k','p','c','f'].every(key=>{
  const value=finite(d?.[key]);return value!==null&&value>=0;
 });
+// Optional fiber extension. Raw recorded-item fiber is already a total in grams.
+// Never use the general daily reducer's fallback zero when source items lack fi.
+const measuredFiber=x=>{if(!['number','string'].includes(typeof x))return null;const n=finite(x);return n!==null&&n>=0?n:null;};
+function fiberFromLogs(logs,day){
+ const rows=logs.filter(l=>l?.log_day===day);
+ if(rows.length!==1)return null;
+ const log=rows[0],meals=log.meals??{},sports=log.sports??[];
+ if(typeof meals!=='object'||Array.isArray(meals)||!Array.isArray(sports))return null;
+ const values=[];
+ for(const [slot,items]of Object.entries(meals)){
+  if(log.skipped?.[slot])continue; // Same consumed slots as dailyTotals.
+  if(!Array.isArray(items))return null;
+  for(const item of items){const value=measuredFiber(item?.fi);if(value===null)return null;values.push(value);}
+ }
+ // dailyTotals also includes sports: supplements/training consumptions are
+ // recorded nutrient totals, not exercise expenditure. No fallback zero.
+ for(const item of sports){const value=measuredFiber(item?.fi);if(value===null)return null;values.push(value);}
+ return values.length?values.reduce((a,b)=>a+b,0):null;
+}
+function fiberGoalAt(goals,day){
+ const rows=(goals||[]).filter(g=>date(g?.start_on)&&g.start_on<=day);
+ if(!rows.length)return null;
+ const latest=rows.map(g=>g.start_on).sort().at(-1);
+ const values=rows.filter(g=>g.start_on===latest).map(g=>measuredFiber(g.fiber_g));
+ return values.every(v=>v!==null&&v>0&&v===values[0])?values[0]:null;
+}
+function fiberSummary(days){
+ const measured=days.filter(d=>d.hasData&&d.fi!==null),paired=measured.filter(d=>d.fiberTarget!==null);
+ const mean=(rows,k)=>rows.length?rows.reduce((sum,d)=>sum+d[k],0)/rows.length:null;
+ return {version:1,daysMeasured:measured.length,daysCompared:paired.length,
+  comparedAverage:mean(paired,'fi'),comparedTarget:mean(paired,'fiberTarget')};
+}
+function validFiberShape(m){
+ const extended=Object.hasOwn(m,'fiber')||Object.hasOwn(m.averages,'fi')||Object.hasOwn(m.targets,'fi')||m.days.some(d=>d&&(Object.hasOwn(d,'fi')||Object.hasOwn(d,'fiberTarget')));
+ if(!extended)return true; // Old serialized reports remain unchanged, not backfilled.
+ if(!m.fiber||m.fiber.version!==1||!Number.isSafeInteger(m.fiber.daysMeasured)||!Number.isSafeInteger(m.fiber.daysCompared)||!validMetric(m.averages.fi)||!validMetric(m.targets.fi)||
+  !m.days.every(d=>d&&validMetric(d.fi)&&validMetric(d.fiberTarget)&&
+   (d.hasData||d.fi===null)&&(d.fi!==null||d.fiberTarget===null)&&
+   (d.fiberTarget===null||d.fiberTarget>0)))return false;
+ const expected=fiberSummary(m.days),measured=m.days.filter(d=>d.hasData&&d.fi!==null);
+ const mean=measured.length?measured.reduce((sum,d)=>sum+d.fi,0)/measured.length:null;
+ const target=expected.daysMeasured>0&&expected.daysCompared===expected.daysMeasured?expected.comparedTarget:null;
+ const equal=(a,b)=>a===b||(typeof a==='number'&&typeof b==='number'&&Number.isFinite(a)&&Math.abs(a-b)<=1e-9);
+ return Object.keys(expected).every(k=>equal(m.fiber[k],expected[k]))&&equal(m.averages.fi,mean)&&equal(m.targets.fi,target);
+}
+function fiberText(model){
+ if(!model.fiber)return 'Fibra: sin dato consolidado en este informe. No se interpreta como cero.';
+ const f=model.fiber;
+ if(!f.daysMeasured)return 'Fibra: sin dato consolidado; sin datos medidos en los 7 días. No se interpreta como cero.';
+ const coverage='Fibra: '+fmt(model.averages.fi,1)+' g de promedio en '+f.daysMeasured+' de 7 días con dato medido ('+model.daysRecorded+' días registrados).';
+ return coverage+(f.daysCompared?' Comparación en '+f.daysCompared+' fechas con dato y meta vigente: '+fmt(f.comparedAverage,1)+' g registrados / '+fmt(f.comparedTarget,1)+' g de meta media.':' Sin metas históricas comparables para esas fechas.')+' Los datos ausentes no cuentan como cero.';
+}
 function foodsFromLogs(logs,from,to,days){
  const byDay=new Map();
  for(const log of logs||[]){
@@ -126,7 +178,7 @@ function recommendations(model){
  ];
  return {focus:focus.slice(0,3),conclusion:parts.join(' '),evidence};
 }
-export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,days=[],goals=[],logs=[]}={}){
+export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,days=[],goals=[],logs=null}={}){
  if(!date(from)||!date(to)||!date(friday)||from>to||to>=friday)throw Error('Período semanal no válido');
  const all=Array.from({length:7},(_,i)=>{
   const d=new Date(from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);
@@ -143,9 +195,11 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
  const byDate=new Map(recorded.map(d=>[d.date,d]));
  const cleanDays=all.map(key=>{
   const d=byDate.get(key);
-  return d?{date:key,hasData:true,closed:!!d.closed,mealCount:finite(d.mealCount),k:Number(d.k),p:Number(d.p),c:Number(d.c),f:Number(d.f)}:
-   {date:key,hasData:false,closed:false,mealCount:null,k:null,p:null,c:null,f:null};
+  return d?{date:key,hasData:true,closed:!!d.closed,mealCount:finite(d.mealCount),k:Number(d.k),p:Number(d.p),c:Number(d.c),f:Number(d.f),fi:Array.isArray(logs)?fiberFromLogs(logs,key):measuredFiber(d.fi)}:
+   {date:key,hasData:false,closed:false,mealCount:null,k:null,p:null,c:null,f:null,fi:null};
  });
+ for(const d of cleanDays)d.fiberTarget=d.fi!==null?fiberGoalAt(goals,d.date):null;
+ const fiber=fiberSummary(cleanDays);
  const valid=cleanDays.filter(d=>d.hasData);
  const mean=key=>valid.length?valid.reduce((a,d)=>a+d[key],0)/valid.length:null;
  const eligible=valid.map(d=>({d,g:dailyGoal(goals,d.date)}));
@@ -153,13 +207,14 @@ export function buildLuxuryWeeklyReport({from,to,friday,studentName,coachName,da
   const selected=eligible.map(x=>finite(x.g?.[goalKey[key]])).filter(x=>x!==null&&x>0);
   return selected.length===valid.length&&selected.length?selected.reduce((a,b)=>a+b,0)/selected.length:null;
  };
- const averages={k:mean('k'),p:mean('p'),c:mean('c'),f:mean('f')};
- const targets={k:meanTarget('k'),p:meanTarget('p'),c:meanTarget('c'),f:meanTarget('f')};
+ const measured=valid.filter(d=>d.fi!==null);
+ const averages={k:mean('k'),p:mean('p'),c:mean('c'),f:mean('f'),fi:measured.length?measured.reduce((sum,d)=>sum+d.fi,0)/measured.length:null};
+ const targets={k:meanTarget('k'),p:meanTarget('p'),c:meanTarget('c'),f:meanTarget('f'),fi:fiber.daysMeasured>0&&fiber.daysCompared===fiber.daysMeasured?fiber.comparedTarget:null};
  const model={kind:LUXURY_WEEKLY_KIND,studentName:clean(studentName,70)||'Alumno',coachName:clean(coachName,70)||'Entrenador',
   from,to,friday,daysRecorded:valid.length,daysClosed:valid.filter(d=>d.closed).length,
   daysWithMeasuredMeals:valid.filter(d=>d.mealCount!==null).length,
   daysWithMultipleMeals:valid.filter(d=>d.mealCount!==null&&d.mealCount>=2).length,
-  days:cleanDays,averages,targets,topFoods:foodsFromLogs(logs,from,to,new Set(valid.map(d=>d.date))),focus:[],conclusion:'',flexibleNote:''};
+  days:cleanDays,averages,targets,fiber,topFoods:foodsFromLogs(logs,from,to,new Set(valid.map(d=>d.date))),focus:[],conclusion:'',flexibleNote:''};
  const advice=recommendations(model);model.focus=advice.focus;model.conclusion=advice.conclusion;model.evidence=advice.evidence;
  // A flexible eating idea is never an earned reward, prescription or clinical approval.
  model.flexibleNote='Comer también es compartir, elegir y disfrutar. Si te gusta un helado o una comida especial, podés conversar con tu coach cómo incluirlos en tu semana teniendo en cuenta tus preferencias y necesidades. No hace falta ganárselos ni compensarlos.';
@@ -198,7 +253,7 @@ function validReportShape(m){
  const multipleMeals=observed.filter(d=>Number.isFinite(d.mealCount)&&d.mealCount>=2).length;
  if(m.daysWithMeasuredMeals!==undefined&&m.daysWithMeasuredMeals!==measuredMeals)return false;
  if(m.daysWithMultipleMeals!==undefined&&m.daysWithMultipleMeals!==multipleMeals)return false;
- return m.days.every((d,i)=>d&&typeof d==='object'&&d.date===expected[i]&&
+ return validFiberShape(m)&&m.days.every((d,i)=>d&&typeof d==='object'&&d.date===expected[i]&&
   (d.hasData||d.closed===false)&&
   (d.mealCount===undefined||d.mealCount===null||
    (Number.isSafeInteger(d.mealCount)&&d.mealCount>=0))&&
@@ -255,10 +310,11 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
   '<section class="lux-report-section"><h3>Cómo se repartieron tus macros</h3><p>Promedios comparados con las metas vigentes de cada día registrado.</p>'+
   '<div class="lux-report-macros">'+bar('p','Proteínas','#288278','g')+bar('c','Carbohidratos','#b99459','g')+bar('f','Grasas','#8991b5','g')+'</div></section>'+
   '<section class="lux-report-section"><h3>Tu energía, día por día</h3><div class="lux-report-days">'+tick+'</div>'+
-  '<p>Los días sin datos se muestran vacíos; nunca cuentan como cero calorías.</p></section>'+
+  '<p>Los días sin datos se muestran vacíos; nunca cuentan como cero calorías.</p>' +
+  '<p class="lux-report-fiber-status">'+escape(fiberText(model))+'</p></section>'+
   '<section class="lux-report-section"><h3>Tus alimentos más elegidos</h3>'+
   (top?'<ol class="lux-report-top">'+top+'</ol>':'<p>Necesitamos más registros de comidas para construir tu top.</p>')+'</section>'+
-  '<section class="lux-report-conclusion"><h3>Conclusión revisada por tu coach</h3><p>'+escape(model.conclusion)+'</p></section>'+
+  '<section class="lux-report-conclusion"><h3>'+(model.approvedByCoach===true?'Conclusión revisada por tu coach':'Conclusión propuesta · pendiente de revisión')+'</h3><p>'+escape(model.conclusion)+'</p></section>'+
   '<section class="lux-report-evidence"><details><summary>¿Cómo llegamos a esta conclusión? · Datos y evidencia</summary>'+
   '<p><strong>Datos de esta semana:</strong> '+escape(model.evidence?.dataBasis||'No hay datos suficientes')+'</p>'+
   '<p><strong>Comparación:</strong> '+escape(model.evidence?.dailyGoals||'No comparable')+'</p>'+
@@ -269,6 +325,8 @@ export function renderLuxuryWeeklyReport(model,{demo=false}={}){
 
   '<section class="lux-report-section"><h3>Tus tres focos para la próxima semana</h3><ol class="lux-report-focus">'+focus+'</ol></section>'+
   (model.flexibleNote?'<section class="lux-report-flex"><h3><span aria-hidden="true">✦</span> Espacio para disfrutar</h3><p>'+escape(model.flexibleNote)+'</p></section>':'')+
-  '<footer>REVISADO POR '+escape(model.coachName).toUpperCase()+
+  '<footer>'+(model.approvedByCoach===true?'REVISADO POR ':'BORRADOR PARA REVISIÓN DE ')+escape(model.coachName).toUpperCase()+
   ' · Los datos de alimentación son autodeclarados. Este informe no sustituye asesoramiento médico o nutricional personalizado.</footer></div></article>';
 }
+
+

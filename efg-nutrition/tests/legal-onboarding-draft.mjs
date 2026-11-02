@@ -70,7 +70,7 @@ console.log("PASS SEC-10: authentication and Coach health-data sharing are separ
 // through an unknown future profile role or fetch legacy Coach/Student data.
 const personalGuard='if(!["student","coach","admin"].includes(state.profile.role))return render();';
 assert.ok(refresh.includes(personalGuard),"Future Personal role must short-circuit workspace loading");
-assert.ok(refresh.indexOf(personalGuard)<refresh.indexOf("await Promise.all([loadPersonalData(),loadOrgAndPayments()])"),
+assert.ok(refresh.indexOf(personalGuard)<refresh.indexOf("await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]))"),
  "The server-verified role gate precedes any legacy data calls");
 const renderFunction=pilot.split("async function render(){")[1]?.split("function updateFoodHint()")[0];
 assert.ok(renderFunction?.includes('if(!["student","coach","admin"].includes(state.profile.role))'),

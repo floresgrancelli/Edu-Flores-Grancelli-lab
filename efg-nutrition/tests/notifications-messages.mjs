@@ -47,7 +47,7 @@ assert.match(versions,/const canPresent=announceMinorUpdates===true&&!!latest&&d
 assert.match(versions,/hasUnsavedChanges\(\)/,"Warn users before asking them to re-open after an unsaved edit");
 assert.match(app,/data-act="checkAppVersion"/,"Manual update check must be reachable from More menu");
 assert.match(app,/versionCheckCard\(\)/,"Update check accessible to user");
-assert.match(app,/void versionNotice\.check\(\{force:true\}\);\s*const user=await sb\.auth\.getUser\(\)/,"Version check must start before long backend sync");
+assert.match(app,/void versionNotice\.check\(\{force:true\}\);\s*const user=await contextRead\(sb\.auth\.getUser\(\)\)/,"Version check must start before long backend sync");
 assert.match(versions,/getStatus:\(\)=>/,"Version checker exposes checked, error and release status");
 assert.match(versions,/if\(reopen&&latest\)dismissed=null/,"Explicit recheck opens a postponed release");
 assert.match(html,/pastel-system\.css\?v=20261029-android-pan1/,"Android scroll CSS must have a fresh cache key");

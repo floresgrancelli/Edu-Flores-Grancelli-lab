@@ -1,3 +1,8 @@
+import {runCoachGuideContainer} from './coach-guide-container-regression.mjs';
+import {runOfficialCoachFlow} from './coach-official-flow-private.mjs';
+import {weeklyReportTransportSource} from './weekly-report-transport-private.mjs';
+import {runWeeklyReportFlow} from './weekly-report-flow-private.mjs';
+import {assertCoachReportLayout} from './coach-report-layout-private.mjs';
 // Browser QA on actual EFG UI; fixture accounts in RAM. NEVER contacts live Supabase.
 import { createServer } from "node:http";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
@@ -5,12 +10,27 @@ import { extname, join, resolve } from "node:path";
 import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
+const coachGuideLayoutMode=process.env.EFG_QA_COACH_GUIDE_LAYOUT==='1';
+if(coachGuideLayoutMode)assert.equal(process.env.GITHUB_ACTIONS,'true','Focused layout requires real CI');
+const officialCoachMode=process.env.EFG_QA_OFFICIAL_COACH==='1';
+let officialInput=null;
+if(officialCoachMode){
+ assert.equal(process.env.GITHUB_ACTIONS,'true','Private official coach test requires real CI');
+ const result=JSON.parse(readFileSync('artifacts/official-guide-private/result-with-input.json','utf8'));
+ assert.equal(result.status,'PASS_OFFICIAL_NINE_PRIVATE_SCENARIO');
+ assert.equal(result.qaInput?.synthetic,true);assert.equal(result.qaInput.catalog.length,9);
+ officialInput=result.qaInput;
+}
+const weeklyReportMode=process.env.EFG_QA_WEEKLY_REPORT==="1";
+if(weeklyReportMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private report fixture requires real CI");
+const adaptedCoachMode=process.env.EFG_QA_ADAPTED_COACH==="1";
+if(adaptedCoachMode)assert.equal(process.env.GITHUB_ACTIONS,"true","Private coach fixture requires real CI");
 const rootDir=process.cwd();
 const outDir=join(rootDir,"artifacts/premium-visual-qa");
 mkdirSync(outDir,{recursive:true});
 const errors=[];
 let blockedBackendCalls=0;
-const mime={".html":"text/html",".js":"text/javascript",".css":"text/css",".jpg":"image/jpeg",".webp":"image/webp",".png":"image/png",".svg":"image/svg+xml"};
+const mime={".html":"text/html",".js":"text/javascript",".mjs":"text/javascript",".css":"text/css",".jpg":"image/jpeg",".webp":"image/webp",".png":"image/png",".svg":"image/svg+xml"};
 const server=createServer((req,res)=>{
  try{
   const pathname=decodeURIComponent(new URL(req.url,"http://localhost").pathname);
@@ -18,9 +38,23 @@ const server=createServer((req,res)=>{
   if(!local.startsWith(rootDir+"/"))throw Error("Illegal path");
   let file=pathname.endsWith("/")?join(local,"index.html"):local;
   let bytes=readFileSync(file);
+  if((adaptedCoachMode||officialCoachMode)&&pathname==="/efg-nutrition/pilot/coach-adapted-workspace.js"){
+   bytes=Buffer.from(bytes.toString().replace('COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=true'));
+  }
   if(pathname==="/efg-nutrition/pilot/pilot.js"){
+   if(officialCoachMode){
+    const marker='const coachGuideProviders=null;';
+    assert.equal(bytes.toString().split(marker).length,2,'Exact private injection point required');
+    bytes=Buffer.from("import {createOfficialTestProvider} from '../tests/coach-official-provider-private.mjs';\n"+
+     bytes.toString().replace(marker,'const coachGuideProviders=createOfficialTestProvider(adaptedCoachScope,'+JSON.stringify(officialInput)+');')+
+     '\nwindow.__EFG_OFFICIAL_PROVIDER__=coachGuideProviders;\n');
+   }
+
+   if(adaptedCoachMode)bytes=Buffer.from(bytes.toString().replace('readScope:adaptedCoachScope,loadInput:null',
+    "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
+   if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -34,7 +68,7 @@ if(androidMode&&engine!=="chromium")throw Error("Android Chromium QA only");
 const captureEngine=androidMode?"android-chromium":engine;
 const browser=await ({chromium,webkit}[engine]).launch({headless:true});
 const results=[];
-const scenarios=androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
+const scenarios=(coachGuideLayoutMode||adaptedCoachMode||weeklyReportMode||officialCoachMode)?[["coach",390],["coach",1280]]:androidMode?[["student",390],["coach",390],["admin",390]]:engine==="webkit"?[["student",390],["coach",390],["admin",390],["student",1280]]:[
  ["student",320],["student",360],["student",375],["student",390],["student",430],["student",768],["student",1280],
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
@@ -43,7 +77,7 @@ const sbStub='export function createClient(){const b=()=>{const q={saved:null,se
 try{
  for(const [role,width] of scenarios){
   const context=await browser.newContext(androidMode?{...devices["Pixel 7"],viewport:{width,height:860}}:{viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});
-  await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:sbStub}));
+  await context.route("https://esm.sh/**",route=>route.fulfill({status:200,contentType:"text/javascript",headers:{"Access-Control-Allow-Origin":"*"},body:weeklyReportMode?weeklyReportTransportSource():sbStub}));
   // Layout-only fixtures: live photo availability is tested separately in real browsers.
   await context.route(/^https:\/\/images\.(unsplash|pexels)\.com\//,route=>route.fulfill({
    status:200,contentType:"image/png",
@@ -157,6 +191,59 @@ try{
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
+
+  if(coachGuideLayoutMode){
+   results.push(await runCoachGuideContainer(page,width,outDir));
+   await context.close();continue;
+  }
+  if(weeklyReportMode){
+   await page.evaluate(()=>Object.assign(window.__EFG_VISUAL_QA__,window.__EFG_WEEKLY_HOOKS__));
+   results.push(await runWeeklyReportFlow(page,width,outDir));
+   await context.close();continue;
+  }
+  if(officialCoachMode){
+   results.push(await runOfficialCoachFlow(page,width,outDir,errors));await context.close();continue;
+  }
+  if(adaptedCoachMode){
+   await page.evaluate(async()=>{
+    const v=window.__EFG_VISUAL_QA__,s=v.state;
+    s.roster.forEach(p=>p.organization_id='demo-org');s.selectedStudent='demo-student-a';
+    s.consent={accepted:true,student_id:'demo-student-a',organization_id:'demo-org'};
+    s.tab='coachStudents';await v.render();
+   });
+   await page.locator('#coachStudentGoals > summary').click();
+   await assertCoachReportLayout(page);
+   const publishedBefore=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
+   await page.locator('[data-act="openCoachAdaptedPreview"]').click();
+   const mount=page.locator('#coachAdaptedDraftMount');
+   await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();
+   await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
+   const qty=mount.locator('[data-edit-row="desayuno:0"] input');
+   const changed=String(Number(await qty.inputValue())+10);await qty.fill(changed);await qty.press('Tab');
+   const totals=await mount.locator('[data-guide-totals]').textContent();
+   await mount.locator('[data-adapted-preference]').selectOption('preferred');
+   await mount.locator('[data-adapted-notice]').filter({hasText:'Conservamos tus ediciones'}).waitFor();
+   assert.equal(await mount.locator('[data-guide-totals]').textContent(),totals);
+   assert.equal(await mount.locator('[data-edit-row="desayuno:0"] input').inputValue(),changed);
+   await mount.locator('[data-edit-row="desayuno:0"] summary').click();
+   const visibleConditions=mount.locator('[data-edit-row="desayuno:0"] details[open] p');
+   await visibleConditions.filter({hasText:'Sin agregados; revisar preparación.'})
+    .filter({hasText:'La suma del día debe respetar los hidratos acordados.'}).waitFor({state:'visible'});
+   await mount.getByRole('button',{name:'Conservar borrador editado'}).click();
+   assert.equal(await mount.locator('[data-draft-origin="edited_draft"]').count(),1);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Coach preview must fit viewport');
+   await page.screenshot({path:join(outDir,'coach-adapted-real-shell-'+width+'.png'),fullPage:true});
+   await mount.getByRole('button',{name:'Regenerar y reemplazar este borrador'}).click();
+   assert.equal(await mount.locator('[data-draft-origin="automatic_draft"]').count(),1);
+   await mount.getByRole('button',{name:'Editar borrador',exact:true}).click();
+   await mount.getByRole('button',{name:'Cancelar edición'}).click();
+   await mount.getByRole('button',{name:'Cerrar vista de prueba'}).click();assert.equal(await mount.locator('button').count(),0);
+   const publishedAfter=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
+   assert.equal(publishedAfter,publishedBefore,'Private preview must never feed existing publication state');
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org.coach_id='other-coach';await v.render();});
+   assert.equal(await page.locator('[data-act="openCoachAdaptedPreview"]').count(),0);
+   await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org.coach_id='demo-coach';v.state.selectedStudent=null;v.state.tab='coach';await v.render();});
+  }
 
   if(width===390){
    await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="messages";await v.render();await v.inbox.refresh();});
@@ -305,12 +392,18 @@ try{
      if(await search.count()!==1){pageReport.errors.push("Extra 1 search is missing");}
      else{
        await search.fill("sandia");
-       const chosen=await page.locator('[data-planselect="'+key+'"]').inputValue();
+       const selector=page.locator('[data-planselect="'+key+'"]');
+       const beforeChoice=await selector.inputValue();
+       if(beforeChoice==="watermelon")pageReport.errors.push("Planner search silently selected Sandía");
+       const candidate=selector.locator('option[value="watermelon"]');
+       if(await candidate.count()!==1)pageReport.errors.push("Sandía must appear once as an explicit search option");
+       else await selector.selectOption("watermelon");
+       const chosen=await selector.inputValue();
        const btn=row.locator('[data-planadd="'+key+'"]');
        const qty=row.locator('input[id="planQty_'+key+'"]');
-       if(chosen!=="watermelon")pageReport.errors.push("Sandía selected from search incorrectly: "+chosen);
-       if(await btn.count()!==1||!(await btn.isVisible()))pageReport.errors.push("Sandía search must expose AGREGAR AL REGISTRO button immediately");
-       if(await qty.count()!==1)pageReport.errors.push("Sandía search must expose editable grams");
+       if(chosen!=="watermelon")pageReport.errors.push("Sandía explicit selection not retained: "+chosen);
+       if(await btn.count()!==1||!(await btn.isVisible()))pageReport.errors.push("After explicit choice, Sandía must expose AGREGAR AL REGISTRO");
+       if(await qty.count()!==1)pageReport.errors.push("After explicit choice, Sandía must expose editable grams");
        const focused=await search.evaluate(el=>document.activeElement===el);
        if(!focused)pageReport.errors.push("Live search lost focus in iPhone-sized viewport");
        if(await qty.count()===1&&await btn.count()===1){
@@ -559,8 +652,14 @@ try{
     await foodSearch.fill("sushi");
     const firstKeyboard=await page.locator('#mealFoodSuggestions [data-mealsuggestion]').first().getAttribute("data-mealsuggestion");
     await foodSearch.press("Enter");
+    const focusedSuggestion=await page.evaluate(()=>document.activeElement?.dataset?.mealsuggestion||"");
+    if(focusedSuggestion!==firstKeyboard)
+      pageReport.errors.push("Search Enter must focus first suggestion without silently choosing it");
+    if(await page.locator("#mealEditorFood").inputValue()===firstKeyboard)
+      pageReport.errors.push("Search Enter must not automatically register food choice");
+    await page.locator('#mealFoodSuggestions [data-mealsuggestion="'+firstKeyboard+'"]').press("Enter");
     if(await page.locator("#mealEditorFood").inputValue()!==firstKeyboard)
-      pageReport.errors.push("Pressing Enter did not choose the first visible food suggestion");
+      pageReport.errors.push("Explicit Enter on focused suggestion did not choose food");
     await foodSearch.fill("sin_coincidencias_nunca_123");
     if(!(await page.locator("#mealFoodSuggestions").innerText()).includes("No encontramos"))
       pageReport.errors.push("No-match search did not inform the user");
@@ -877,8 +976,9 @@ try{
  }
 }finally{await browser.close();await new Promise(r=>server.close(r));}
 const report={timestamp:new Date().toISOString(),scenarios:results,blockedBackendCalls,errors};
-writeFileSync(join(outDir,"report-"+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
+writeFileSync(join(outDir,"report-"+(coachGuideLayoutMode?"coach-guide-container-":officialCoachMode?"official-connected-":weeklyReportMode?"weekly-flow-":"")+captureEngine+".json"),JSON.stringify({...report,deviceEmulation:androidMode?"Pixel 7 Android Chromium (NOT physical device)":"generic touch"},null,2));
 const failed=errors.concat(results.flatMap(x=>x.errors.map(e=>x.role+"/"+x.width+": "+e)));
 console.log(JSON.stringify({engine,captureEngine,androidMode,passed:failed.length===0,scenarios:results.length,pages:results.reduce((n,x)=>n+x.pages.length,0),backendRequestsBlocked:blockedBackendCalls,issues:failed},null,2));
 assert.equal(blockedBackendCalls,0,"Fixture attempted a production backend connection");
 if(failed.length)process.exitCode=1;
+

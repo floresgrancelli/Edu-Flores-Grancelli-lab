@@ -67,7 +67,10 @@ assert.match(html,/pilot\.js\?v=20261030-ux35-major2/);
 assert.match(app,/auth:sb\.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits/);
 assert.match(app,/if\(!result\.signedOut\)return/);
 assert.match(app,/function resetPrivateSession\(\)/);
-assert.match(app,/resetPrivateSession\(\);loginView\(\)/,'Remote/session auth signout clears role memory');
+assert.match(app,/invalidate:epoch=>\{resetPrivateSession\(\);state\.authContextEpoch=epoch;loginView\(\);\}/,
+ 'Auth hydration invalidation must clear role memory before showing login');
+assert.match(app,/else if\(event==="SIGNED_OUT"\)\{\s*authHydration\.change\(null\);/,
+ 'External signout must invalidate the same auth hydration gate');
 assert.match(app,/state\.roster=\[\];state\.coachLogs=\[\]/);
 assert.match(app,/state\.diary=null;state\.progressLogs=\[\]/);
 assert.match(app,/announceMinorUpdates:false/,'Only the exceptional relaunch may show notice');

@@ -42,3 +42,19 @@
 .efg-guide-education-foot{font-size:11px!important;line-height:1.6!important;margin:0 2px!important;color:#444968!important}
 @media(min-width:900px){.efg-guide-education{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.efg-guide-education-intro,.efg-guide-education-foot{grid-column:1 / -1}}
 @media(max-width:440px){.efg-guide-education{padding:9px;gap:9px}.efg-guide-food-group{padding:10px}}
+
+/* Published learner guide: size inner groups by their actual meal-card width. */
+.efg-guide-student .efg-guide-education{grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}
+.efg-guide-student .efg-guide-food-group .efg-guide-food{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}
+.efg-guide-student .efg-guide-food-group .efg-guide-food-name{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.efg-guide-student .efg-guide-food-group .efg-guide-food>b{justify-self:end;white-space:nowrap}
+
+
+/* Coach nested cards: use available width, not the desktop viewport breakpoint. */
+.efg-role-coach .efg-guide-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))}
+.efg-role-coach .efg-guide-education{grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))}
+.efg-role-coach .efg-guide-food-group .efg-guide-food{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.efg-role-coach .efg-guide-food-group .efg-guide-food-name,
+.efg-role-coach .efg-guide-food-group .efg-guide-select-label{display:block;min-width:0;width:100%;white-space:normal;overflow-wrap:normal;word-break:normal}
+.efg-role-coach .efg-guide-food-group :is(select,input){display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.efg-role-coach .efg-guide-food-group h4{word-break:normal;overflow-wrap:normal}

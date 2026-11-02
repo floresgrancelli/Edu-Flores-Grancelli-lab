@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {randomBytes,randomUUID} from 'node:crypto';
+const providerContract=process.env.EFG_QA_PROVIDER_CONTRACT==='1';
+if(providerContract)assert.equal(process.env.GITHUB_ACTIONS,'true','V5 requires actual authorized runner');
 const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV||'', 'utf8')
  .split(/\r?\n/).filter(s=>s.includes('=')).map(s=>{const i=s.indexOf('=');return [s.slice(0,i),s.slice(i+1).trim().replace(/^['"]|['"]$/g,'')]}));
 const api=env.API_URL,key=env.ANON_KEY||env.PUBLISHABLE_KEY;
@@ -77,6 +79,13 @@ assert.deepEqual(own.conditions,args.p_conditions,'All eight optional codes surv
 assert.equal(own.conditions.sibo,'suspected');
 assert.equal(own.sibo_phase,'none','SIBO alone cannot enable FODMAP restriction');
 assert.equal(own.shared_with_coach,false);
+if(providerContract){
+ assert.equal(own.organization_id,orgA);assert.equal(own.viewer_id,u.studentA.id);
+ assert.equal(own.processing_consent,true);assert.equal(own.followup_consent,true);
+ const denied=bad(await rpc('efg_get_coach_health_intake',null,{p_student:u.studentA.id}),'Anonymous lacks EXECUTE');
+ assert.ok([401,403].includes(denied.status),'Expected HTTP authorization denial');
+ assert.equal(denied.data.code,'42501','Expected PostgreSQL insufficient_privilege');
+}
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'Coach cannot read unshared clinical data'),null);
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachB.token,{p_student:u.studentA.id}),'Other org cannot read clinical data'),null);
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.studentB.token,{p_student:u.studentA.id}),'Other student cannot read clinical data'),null);
@@ -86,11 +95,18 @@ bad(await rpc('efg_submit_coach_health_intake',u.studentA.token,{...args,p_expec
 assert.equal(Number(good(await rpc('efg_submit_coach_health_intake',u.studentA.token,{...args,p_expected_revision:1,p_share_with_coach:true}),'Explicit separate coach clinical share')),2);
 const coachA=good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'Linked coach reads expressly shared condition');
 assert.equal(coachA.shared_with_coach,true);
+if(providerContract){
+ assert.equal(coachA.organization_id,orgA);assert.equal(coachA.viewer_id,u.coachA.id);
+ assert.equal(coachA.processing_consent,true);assert.equal(coachA.followup_consent,true);
+ assert.equal(coachA.revision,2);
+}
 assert.equal(coachA.conditions.lactose_intolerance,'confirmed');
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachB.token,{p_student:u.studentA.id}),'Other org after share'),null);
 sql('update public.efg_consents set accepted=false where student_id='+quote(u.studentA.id));
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'Revoked Coach consent blocks clinical access'),null);
-assert.equal(good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Student retains private self read').revision,2);
+const retained=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Student retains private self read');
+assert.equal(retained.revision,2);if(providerContract)assert.equal(retained.followup_consent,false);
+assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachB.token,{p_student:u.studentA.id}),'Other org after revocation'),null);
 bad(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:1}),'Stale revocation');
 assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:2}),'Owner erases health data'),true);
 const erased=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Owner sees only nonclinical erasure marker');
@@ -109,3 +125,5 @@ assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intak
 assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),5);
 bad(await rpc('efg_revoke_coach_health_intake',u.coachA.token,{p_expected_revision:4}),'Coach cannot erase student conditions');
 console.log('PASS CLIN-GUT-03 REAL LOCAL JWT: 2 organizations, 4 GoTrue identities, terms/privacy + distinct health document, explicit processing/share, no anon or private API, revision conflicts, independent consent revocation and physical data deletion. NO hosted authorization or clinical sign-off.');
+
+if(providerContract)console.log('PASS V5 private scope RPC: server org/viewer/consents, anon401-or-403/42501, orgB and revocation; local synthetic only.');

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "./student-diary-catalog-gates.mjs";
 import {readFileSync} from "node:fs";
 import {runInNewContext} from "node:vm";
 import {FOOD_UNIT_PORTIONS,EXTRA_FOODS} from "../pilot/food-catalog.js";
@@ -147,7 +148,7 @@ assert.match(source,/if\(el\.dataset\.removefood\)\{[\s\S]*?pendingMealRegistrat
 const realSaveStart=source.indexOf('async function saveDiary(){');
 const realSaveEnd=source.indexOf('async function loadPersonalData(){',realSaveStart);
 assert.ok(realSaveStart>=0&&realSaveEnd>realSaveStart,'Real daily persister exists');
-const persistedDiary={log_day:'2026-10-31',student_id:null,meals:{cena:[]},
+const persistedDiary={log_day:'2026-10-31',student_id:'student-test-id',meals:{cena:[]},
  sports:[],skipped:{},totals:{k:123,p:9,c:12,f:4,fi:3}};
 const persistedState={session:{user:{id:'student-test-id'}},diary:persistedDiary,progressLogs:[]};
 let pendingWrite,rejectWrite=true,renderCalls=0,renderShouldFail=false;const diaryNotices=[];
@@ -191,14 +192,14 @@ assert.match(diaryNotices.at(-1),/registro se guardó/,'UI error gives honest re
 const skipStart=source.indexOf('async function saveSkippedMealChoice(slot,checked,checkbox){');
 const skipEnd=source.indexOf('root.addEventListener("change",e=>{invalidateCoachDraft(e);',skipStart);
 assert.ok(skipStart>=0&&skipEnd>skipStart,'Real skipped-meal persist handler exists');
-const skipDiary={skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
-const skipState={diary:skipDiary},skipLock=new Set();
+const skipDiary={student_id:'skip-user',log_day:'2026-10-31',skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
+const skipState={session:{user:{id:'skip-user'}},diary:skipDiary},skipLock=new Set();
 let skipFail=true,skipWrites=0;
-const skipAction=new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary',
+const skipAction=new Function('mealSlots','activeDiary','pendingMealRegistrations','state','saveDiary','today',
  source.slice(skipStart,skipEnd)+';return saveSkippedMealChoice;')(
  [['desayuno','Desayuno']],()=>skipDiary,skipLock,skipState,async()=>{
   skipWrites++;if(skipFail)throw Error('offline');
- });
+ },()=> '2026-10-31');
 const checkbox={checked:true};
 await assert.rejects(skipAction('desayuno',true,checkbox),/offline/);
 assert.equal(skipDiary.skipped.desayuno,false,'Failed omit must restore original diary state');
@@ -230,10 +231,10 @@ let recipeWrites=0,recipeFailure=true,recipeClosed=0;
 const writeRecipe=async()=>{recipeWrites++;if(recipeFailure)throw Error('network offline')};
 const fitRecipe={id:'fit001',name:'Budín Fit',ingredients:[['egg',100]],portions:2};
 const fitRun=new Function('state','FIT_RECIPES','prompt','mealSlots','recipeTotals','foods',
- 'activeDiary','saveDiary','notify','num','pendingMealRegistrations',
+ 'activeDiary','saveDiary','notify','num','pendingMealRegistrations','validateRecipeIngredientAccess',
  source.slice(fitStart,fitEnd)+';return registerFitRecipe;')(
  recipeState,[fitRecipe],()=>'1',[['cena','Cena']],()=>({perPortion:{k:120,p:8,c:10,f:4,fi:1}}),
- [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks);
+ [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks,()=>{});
 const beforeFit=structuredClone(recipeDiary);
 await assert.rejects(fitRun('fit001'),/network offline/);
 assert.deepEqual(recipeDiary,beforeFit,'Rejected Fit recipe restores foods and skipped flags');
@@ -247,12 +248,12 @@ const chosenOwn={id:'mine',name:'Tarta casera',portions:2,totals:{k:500,p:20,c:4
 const personalDocument={getElementById(id){return {value:id==='efgRecipeRegisterId'?'mine':id==='efgRecipeRegisterSlot'?'cena':'1'}}};
 const personalState={diary:recipeDiary};
 const ownHandler=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
- 'activeDiary','state','saveDiary','closeRecipeRegistration','notify',
+ 'activeDiary','state','saveDiary','closeRecipeRegistration','notify','validateRecipeIngredientAccess',
  'busy',
  source.slice(recipeStart,recipeEnd).replaceAll('recipeRegistrationBusy','busy.value')+
  ';return confirmRecipeRegistration;')(
  ()=>[chosenOwn],personalDocument,[['cena','Cena']],recipeLocks,()=>recipeDiary,personalState,
- writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),{value:false});
+ writeRecipe,()=>{recipeClosed++},msg=>recipeAlerts.push(msg),()=>{},{value:false});
 const beforeOwn=structuredClone(recipeDiary);
 await assert.rejects(ownHandler(),/network offline/);
 assert.deepEqual(recipeDiary,beforeOwn,'Rejected personal recipe restores previous diary');
@@ -268,9 +269,9 @@ assert.equal(recipeLocks.size,0,'Personal recipe releases lock');
 const clearStart=source.indexOf('if(el.dataset.clearm){');
 const clearEnd=source.indexOf('if(el.dataset.removesport!==undefined)',clearStart);
 assert.ok(clearStart>0&&clearEnd>clearStart,'Actual clear meal branch must exist');
-const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots',
+const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots','today',
  'return async()=>{'+source.slice(clearStart,clearEnd)+'};')(
- {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']]);
+ {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']],()=>recipeDiary.log_day);
 const beforeClear=structuredClone(recipeDiary);
 recipeFailure=true;
 await assert.rejects(clearHandler(),/network offline/);
@@ -285,13 +286,13 @@ assert.equal(recipeLocks.size,0,'Clear release lock after confirmation');
 const sportBegin=source.indexOf('let pendingSportDiaryMutation=false;');
 const sportEnd=source.indexOf('async function addDailySupplement(){',sportBegin);
 assert.ok(sportBegin>0&&sportEnd>sportBegin,'Real sport diary transaction helper exists');
-const sportsDiary={sports:[{id:'whey',name:'Whey',kind:'supplement',qty:30}],skipped:{_closed:true}};
-const sportsState={diary:sportsDiary},sportsNotices=[];
+const sportsDiary={student_id:'student-sport-id',log_day:'2026-10-31',sports:[{id:'whey',name:'Whey',kind:'supplement',qty:30}],skipped:{_closed:true}};
+const sportsState={session:{user:{id:'student-sport-id'}},diary:sportsDiary},sportsNotices=[];
 let sportsFail=true,sportsWrites=0,sportsWait=null;
-const sportMutation=new Function('activeDiary','state','saveDiary','notify',
+const sportMutation=new Function('activeDiary','state','saveDiary','notify','today',
  source.slice(sportBegin,sportEnd)+';return mutateSportDiary;')(
  ()=>sportsDiary,sportsState,async()=>{sportsWrites++;if(sportsFail)throw Error('offline');if(sportsWait)await sportsWait;},
- message=>sportsNotices.push(message));
+ message=>sportsNotices.push(message),()=> '2026-10-31');
 const sportsBefore=structuredClone(sportsDiary);
 await assert.rejects(sportMutation(d=>d.sports.splice(0,1),'removed'),/offline/);
 assert.deepEqual(sportsDiary,sportsBefore,'Failed supplement delete restores sport diary and closed flag');
@@ -319,8 +320,8 @@ assert.match(source,/if\(action==="addSport"\)[\s\S]*?mutateSportDiary/,'Sport a
 const omitStart=source.indexOf('if(el.dataset.mealomit){');
 const omitEnd=source.indexOf('if(action==="closeMeal")',omitStart);
 assert.ok(omitStart>=0&&omitEnd>omitStart,'Guided meal omit handler exists');
-const guidedDiary={meals:{desayuno:[]},skipped:{_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
-const guidedState={activeMeal:'desayuno',diary:guidedDiary};
+const guidedDiary={student_id:'guided-user',log_day:'2026-10-31',meals:{desayuno:[]},skipped:{_closed:false,_guidedComponents:{desayuno:{protein:false,carb:false}}}};
+const guidedState={session:{user:{id:'guided-user'}},activeMeal:'desayuno',diary:guidedDiary};
 const guidedLock=new Set(),guidedNotices=[];let guidedFail=true,guidedWrites=0,guidedOpened=0;
 const guidedClick=new Function('el','state','isGuidedMealSlot','pendingMealRegistrations',
  'activeDiary','today','saveDiary','openMealDialog','notify',
@@ -348,13 +349,13 @@ assert.equal(guidedNotices.length,1);
 const commentStart=source.indexOf('let pendingDayCommentSave=false;');
 const commentEnd=source.indexOf('let coachRosterConsent={};',commentStart);
 assert.ok(commentStart>0&&commentEnd>commentStart,'Real student day-comment handler exists');
-const commentState={profile:{role:'student'},diary:{skipped:{_comment:'Texto anterior',_closed:false}}};
+const commentState={profile:{role:'student'},session:{user:{id:'comment-user'}},diary:{student_id:'comment-user',log_day:'2026-10-31',skipped:{_comment:'Texto anterior',_closed:false}}};
 let commentRejected=true,commentWrites=0,commentNotice=0;
-const commentRun=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+const commentRun=new Function('state','readDayComment','activeDiary','saveDiary','notify','today',
  source.slice(commentStart,commentEnd)+';return saveDayComment;')(
  commentState,()=> 'Nuevo comentario',()=>commentState.diary,
  async()=>{commentWrites++;if(commentRejected)throw Error('offline')},
- ()=>{commentNotice++});
+ ()=>{commentNotice++},()=> '2026-10-31');
 await assert.rejects(commentRun(),/offline/);
 assert.equal(commentState.diary.skipped._comment,'Texto anterior','Offline comment cannot replace persisted note');
 assert.equal(commentNotice,0,'Rejected comment may not tell student it was saved');
@@ -369,16 +370,16 @@ assert.equal(commentWrites,2);
 const supplementBegin=source.indexOf('async function addDailySupplement(){');
 const supplementEnd=source.indexOf('function dayComment(d){',supplementBegin);
 assert.ok(supplementBegin>=0&&supplementEnd>supplementBegin,'Actual supplement form handler present');
-const supDiary={sports:[],skipped:{_closed:false}},supState={diary:supDiary};
+const supDiary={student_id:'supp-user',log_day:'2026-10-31',sports:[],skipped:{_closed:false}},supState={session:{user:{id:'supp-user'}},diary:supDiary};
 const supForm={supplementItem:'creatine',supplementQty:'5',supplementMoment:'desayuno'};
 const supDoc={getElementById(id){return {value:supForm[id]||''}}};
 let supWriteFails=true,supWrites=0;
 const formSource=source.slice(sportBegin,supplementEnd);
-const actualSupplement=new Function('activeDiary','state','saveDiary','notify','SUPPLEMENTS','document','normItem',
+const actualSupplement=new Function('activeDiary','state','saveDiary','notify','SUPPLEMENTS','document','normItem','today',
  formSource+';return addDailySupplement;')(
  ()=>supDiary,supState,async()=>{supWrites++;if(supWriteFails)throw Error('offline')},()=>{},
  [{id:'creatine',name:'Creatina',unit:'g',k:0,p:0,c:0,f:0,fi:0}],supDoc,
- (food,qty,when)=>({id:food.id,qty,when}));
+ (food,qty,when)=>({id:food.id,qty,when}),()=> '2026-10-31');
 await assert.rejects(actualSupplement(),/offline/);
 assert.equal(supDiary.sports.length,0,'Offline supplement cannot create ghost daily intake');
 supWriteFails=false;await actualSupplement();
@@ -388,13 +389,13 @@ assert.equal(supWrites,2);
 
 // Concurrent comment submissions must not overwrite one another while a
 // previous REST response is pending, and must release the lock afterwards.
-const delayedCommentState={profile:{role:'student'},diary:{skipped:{_comment:'original'}}};
+const delayedCommentState={profile:{role:'student'},session:{user:{id:'pending-comment-user'}},diary:{student_id:'pending-comment-user',log_day:'2026-10-31',skipped:{_comment:'original'}}};
 let finishComment,commentPendingWrites=0;
 const pendingCommentPromise=new Promise(resolve=>{finishComment=resolve});
-const delayedComment=new Function('state','readDayComment','activeDiary','saveDiary','notify',
+const delayedComment=new Function('state','readDayComment','activeDiary','saveDiary','notify','today',
  source.slice(commentStart,commentEnd)+';return saveDayComment;')(
  delayedCommentState,()=> 'Nuevo texto',()=>delayedCommentState.diary,
- async()=>{commentPendingWrites++;await pendingCommentPromise;},()=>{});
+ async()=>{commentPendingWrites++;await pendingCommentPromise;},()=>{},()=> '2026-10-31');
 const firstComment=delayedComment();
 await delayedComment();
 assert.equal(commentPendingWrites,1,'Repeated comment tap must not send a second REST write');
@@ -405,3 +406,535 @@ assert.equal(delayedCommentState.diary.skipped._comment,'Nuevo texto');
 console.log('PASS UX-SUSHI: real planner persists estimated grams AND 3 visible pieces, rejects fractions; rice unchanged.');
 
 console.log("PASS: sushi pieces -> gram equivalents for macro engine and first selection DOM preservation (offline).");
+
+// UX-04-04 FIRST FOOD: run the real day initializer and REST persister together.
+// On a new day state.diary=null, two calls must see the SAME pending draft.
+// This reproduces the user-reported first selection not being registered.
+const dayBegin=source.indexOf('const blankDiary=()=>');
+const dayEnd=source.indexOf('async function ensureCurrentDay(){',dayBegin);
+const saveBegin=source.indexOf('async function saveDiary(){');
+const dailySaveEnd=source.indexOf('async function loadPersonalData(){',saveBegin);
+assert.ok(dayBegin>0&&dayEnd>dayBegin&&saveBegin>0&&dailySaveEnd>saveBegin);
+const dayState={session:{user:{id:'test-student-a'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
+let day='2026-10-31',denyOnce=true;
+const dayWrites=[];
+const dbStub={from(table){
+ assert.equal(table,'efg_daily_logs');
+ return {upsert(payload,options){
+  assert.equal(options.onConflict,'student_id,log_day');
+  const snapshot=structuredClone(payload);
+  return {select(){return {async single(){
+   dayWrites.push(snapshot);
+   if(denyOnce){denyOnce=false;return {data:null,error:new Error('offline')}};
+   return {data:{...snapshot,id:'persisted-day'}};
+  }}}};
+ }};
+}};
+const calcTotals=d=>({
+ k:Object.values(d.meals||{}).flat().reduce((n,x)=>n+Number(x.k||0),0),
+ p:0,c:0,f:0,fi:0
+});
+const dailyRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,dailySaveEnd)+';return {activeDiary,saveDiary};')(
+ dayState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
+ dbStub,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
+const firstDay=dailyRuntime.activeDiary();
+assert.strictEqual(dailyRuntime.activeDiary(),firstDay,'First diary draft must retain object identity');
+firstDay.meals.desayuno.push({id:'egg',name:'Huevos',qty:100,k:150});
+firstDay.meals.almuerzo.push({id:'rice',name:'Arroz',qty:80,k:105});
+await assert.rejects(dailyRuntime.saveDiary(),/offline/);
+assert.equal(dayState.diary,null,'Denied first write cannot be mistaken for a confirmed diary');
+assert.strictEqual(dayState.pendingDiaryDraft,firstDay,'Failed write keeps the draft for caller rollback');
+assert.equal(dayWrites[0].meals.desayuno.length,1,'FIRST submission must include the first food');
+assert.equal(dayWrites[0].meals.almuerzo.length,1,'Other pending slot remains included in same draft');
+await dailyRuntime.saveDiary();
+assert.equal(dayWrites.length,2);
+assert.equal(dayWrites[1].totals.k,255,'First successful write includes both slots and correct totals');
+assert.equal(dayState.diary.meals.desayuno[0].id,'egg');
+assert.equal(dayState.pendingDiaryDraft,null,'Only confirmed REST response clears the draft');
+assert.strictEqual(dailyRuntime.activeDiary(),dayState.diary,'Next item uses confirmed daily row');
+day='2026-11-01';
+const tomorrow=dailyRuntime.activeDiary();
+assert.equal(tomorrow.log_day,day);
+assert.notStrictEqual(tomorrow,dayState.diary,'Tomorrow must not reuse yesterday');
+dayState.session.user.id='test-student-b';
+assert.equal(dailyRuntime.activeDiary().student_id,'test-student-b','Drafts must never cross accounts');
+assert.notStrictEqual(dailyRuntime.activeDiary(),tomorrow);
+console.log('PASS UX-04-04 first-food: stable empty-day draft, one REST entry, retries, day/account isolation (offline real source).');
+// UX-04-02 / 04-04 / 04-05: the daily diary is ONE JSONB row. Breakfast,
+// lunch and sports writes must not race each other and lose the faster write.
+const racingState={session:{user:{id:'student-race'}},diary:null,pendingDiaryDraft:null,progressLogs:[]};
+const raceWrites=[];let releaseFirstRace=null,holdStaleRace=false,releaseStaleRace=null;
+const raceSB={
+ from(table){
+  assert.equal(table,'efg_daily_logs');
+  return {
+   upsert(payload,options){
+    assert.equal(options.onConflict,'student_id,log_day');
+    const captured=structuredClone(payload);
+    raceWrites.push(captured);
+    return {
+     select(){
+      return {
+       single(){
+        if(raceWrites.length===1)return new Promise(resolve=>{
+         releaseFirstRace=()=>resolve({data:{...captured,id:'day-race'}});
+        });
+        if(holdStaleRace){
+         holdStaleRace=false;
+         return new Promise(resolve=>{releaseStaleRace=()=>resolve({data:{...captured,id:'day-race'}});});
+        }
+        return Promise.resolve({data:{...captured,id:'day-race'}});
+       }
+      };
+     }
+    };
+   }
+  };
+ }
+};
+const racingRuntime=new Function('state','today','mealDefault','sb','dailyTotals','isNutritionDayClosed','render','notify','structuredClone',
+ source.slice(dayBegin,dayEnd)+source.slice(saveBegin,dailySaveEnd)+';return {activeDiary,saveDiary};')(
+ racingState,()=>day,{desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]},
+ raceSB,calcTotals,()=>false,async()=>{},()=>{},structuredClone);
+const firstDraft=racingRuntime.activeDiary();
+firstDraft.meals.desayuno.push({id:'egg',k:150});
+const firstWrite=racingRuntime.saveDiary();
+assert.equal(racingState.diaryWritePending,true,'Single row locks across meal slots while REST is pending');
+assert.equal(raceWrites.length,1,'First REST request begins immediately');
+firstDraft.meals.almuerzo.push({id:'rice',k:105}); // Second slot mutates optimistically.
+await assert.rejects(racingRuntime.saveDiary(),/Todavía se está guardando otro registro/);
+assert.equal(raceWrites.length,1,'The rejected parallel action must not send stale JSONB to REST');
+assert.equal(raceWrites[0].meals.almuerzo.length,0,'In-flight payload must be cloned, not observe later draft mutations');
+firstDraft.meals.almuerzo.pop(); // Simulated rollback in existing meal event handler.
+releaseFirstRace();
+await firstWrite;
+assert.equal(racingState.diaryWritePending,false,'Global write lock must release on success');
+assert.equal(racingState.diary.meals.desayuno.length,1);
+assert.equal(racingState.diary.meals.almuerzo.length,0,'Rejected lunch cannot create a phantom meal');
+racingRuntime.activeDiary().meals.almuerzo.push({id:'rice',k:105});
+await racingRuntime.saveDiary();
+assert.equal(raceWrites.length,2,'New write is permitted after prior confirmation');
+assert.equal(racingState.diary.meals.desayuno.length,1,'Later lunch write must retain earlier breakfast');
+assert.equal(racingState.diary.meals.almuerzo.length,1);
+assert.equal(raceWrites[1].totals.k,255,'Merged daily nutrition totals must match both meals');
+holdStaleRace=true;
+const staleWrite=racingRuntime.saveDiary();
+assert.equal(racingState.diaryWritePending,true);
+racingState.session.user.id='student-after-logout'; // Simulated OTP account switch during REST.
+racingState.diary=null;
+releaseStaleRace();
+await staleWrite;
+assert.equal(racingState.diary,null,'Old account REST response must not rehydrate another account');
+assert.equal(racingState.diaryWritePending,false,'Stale response releases the lock');
+assert.equal(racingRuntime.activeDiary().student_id,'student-after-logout',
+ 'Next active diary belongs to the newly authenticated account');
+console.log('PASS UX-04-04: logout/account switch during in-flight diary write does not leak stale UI.');
+console.log('PASS UX-04-02 / 04-04 / 04-05: cross-slot REST write race prevented; immutable payload and safe retry.');
+
+
+
+
+// UX-04-02 / 04-04: The complete personal-data loader must reject stale
+// account, date, overlapping refresh and in-flight diary-write responses.
+// This executes the REAL loader body with seven deferred PostgREST-shaped
+// responses; it neither uses user accounts nor makes hosted requests.
+const loadStart=source.indexOf('async function loadPersonalData(){');
+const loadEnd=source.indexOf('async function loadOrgAndPayments(){',loadStart);
+assert.ok(loadStart>0&&loadEnd>loadStart,'Find actual personal-data loader');
+const pendingPersonalQueries=[];
+let personalDay='2026-11-01';
+const personalLoadState={session:{user:{id:'student-A'}},diary:null,pendingDiaryDraft:null,
+ progressLogs:[],renderedDay:null};
+const personalSB={from(table){
+ let uid=null,logDay=null;
+ return {
+  select(){return this;},
+  eq(field,value){if(field==='student_id'||field==='user_id')uid=value;
+   if(field==='log_day')logDay=value;return this;},
+  gte(){return this;},order(){return this;},limit(){return this;},maybeSingle(){return this;},
+  then(resolve){pendingPersonalQueries.push({table,uid,logDay,resolve});}
+ };
+}};
+const personalAPI=new Function('state','sb','today',source.slice(loadStart,loadEnd)+';return loadPersonalData;')(
+ personalLoadState,personalSB,()=>personalDay);
+async function waitPersonalQueries(count){
+ for(let i=0;i<30&&pendingPersonalQueries.length<count;i++)await Promise.resolve();
+ assert.equal(pendingPersonalQueries.length,count,'All seven parallel SELECTs must be pending');
+}
+function releasePersonalBatch(start,uid,tag,requestedDate){
+ const expected=['efg_daily_logs','efg_daily_logs','efg_weights','efg_activities',
+  'efg_goals','efg_personal_targets','efg_food_plans'];
+ for(let i=0;i<7;i++){
+  const q=pendingPersonalQueries[start+i];
+  assert.equal(q.table,expected[i]);assert.equal(q.uid,uid);
+  if(i===0)assert.equal(q.logDay,requestedDate,'Captured day cannot change during request');
+  const data=i===0?{student_id:uid,log_day:requestedDate,tag}:
+   i===1?[{student_id:uid,log_day:requestedDate,tag}]:
+   i===5||i===6?{student_id:uid,tag}:[{student_id:uid,tag}];
+  q.resolve({data,error:null});
+ }
+}
+const loadingA=personalAPI();await waitPersonalQueries(7);
+personalLoadState.session={user:{id:'student-B'}};
+const loadingB=personalAPI();await waitPersonalQueries(14);
+releasePersonalBatch(7,'student-B','B-new','2026-11-01');await loadingB;
+assert.equal(personalLoadState.diary.tag,'B-new');
+releasePersonalBatch(0,'student-A','A-stale','2026-11-01');await loadingA;
+assert.equal(personalLoadState.diary.tag,'B-new','Delayed A data must not overwrite B session');
+assert.equal(personalLoadState.foodPlan.tag,'B-new','No stale coach food plan crosses accounts');
+
+const firstRefresh=personalAPI();await waitPersonalQueries(21);
+const latestRefresh=personalAPI();await waitPersonalQueries(28);
+releasePersonalBatch(21,'student-B','newer','2026-11-01');await latestRefresh;
+releasePersonalBatch(14,'student-B','older','2026-11-01');await firstRefresh;
+assert.equal(personalLoadState.diary.tag,'newer','Out-of-order same-user reload cannot undo latest');
+
+const lateOldDay=personalAPI();await waitPersonalQueries(35);
+personalDay='2026-11-02';
+releasePersonalBatch(28,'student-B','yesterday','2026-11-01');await lateOldDay;
+assert.equal(personalLoadState.renderedDay,'2026-11-01');
+assert.equal(personalLoadState.diary.tag,'newer','A midnight-spanning reload cannot show yesterday');
+
+const loadingDuringWrite=personalAPI();await waitPersonalQueries(42);
+personalLoadState.diaryWritePending=true;personalLoadState.diaryWriteOwner='student-B';
+personalLoadState.diaryWriteRevision=1;
+releasePersonalBatch(35,'student-B','pre-write-snapshot','2026-11-02');
+await loadingDuringWrite;
+assert.equal(personalLoadState.diary.tag,'newer','A diary write must win over a stale SELECT snapshot');
+personalLoadState.diaryWritePending=false;personalLoadState.diaryWriteOwner=null;
+
+const loadingAfterWrite=personalAPI();await waitPersonalQueries(49);
+releasePersonalBatch(42,'student-B','confirmed','2026-11-02');
+await loadingAfterWrite;
+assert.equal(personalLoadState.diary.tag,'confirmed','Fresh load can resume after write');
+assert.equal(personalLoadState.renderedDay,'2026-11-02');
+console.log('PASS UX-04-04 personal data: account/day/refresh/write generations isolated in real loader.');
+
+
+// UX-04-04: the REAL midnight-switch loader must not erase a newly confirmed
+// meal or in-progress first-food draft when its earlier SELECT resolves late.
+// All responses are synthetic and no hosted Supabase is called.
+const rolloverStart=source.indexOf('async function ensureCurrentDay(){');
+const rolloverEnd=source.indexOf('const activeGoal=()=>',rolloverStart);
+assert.ok(rolloverStart>=0&&rolloverEnd>rolloverStart);
+const makeRollover=(state,sb,today)=>new Function('state','sb','today',
+ source.slice(rolloverStart,rolloverEnd)+';return ensureCurrentDay;')(state,sb,today);
+const rolloverToday=()=> '2026-11-01';
+function deferredRolloverDb(){
+ const pending=[];
+ return {pending,from(table){
+  assert.equal(table,'efg_daily_logs');
+  let owner,day;
+  return {select(){return this;},eq(field,value){if(field==='student_id')owner=value;
+   if(field==='log_day')day=value;return this;},
+   maybeSingle(){return new Promise(resolve=>pending.push({owner,day,resolve}));}};
+ }};
+}
+const rolloverState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null};
+const rolloverDb=deferredRolloverDb(),rollover=makeRollover(rolloverState,rolloverDb,rolloverToday);
+const oldAccountRead=rollover();
+rolloverState.session={user:{id:'roll-B'}};
+const newAccountRead=rollover();
+assert.equal(rolloverDb.pending.length,2,'B must not wait for an unrelated A rollover');
+rolloverDb.pending[1].resolve({data:{student_id:'roll-B',log_day:'2026-11-01'}});
+await newAccountRead;
+rolloverDb.pending[0].resolve({data:{student_id:'roll-A',log_day:'2026-11-01'}});
+await oldAccountRead;
+assert.equal(rolloverState.diary.student_id,'roll-B','A response cannot overwrite B');
+assert.equal(rolloverState.daySwitching,null,'Old request must not clear B tracking');
+
+const breakfastState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null,diaryWriteRevision:0};
+const breakfastDb=deferredRolloverDb();
+const breakfastSwitch=makeRollover(breakfastState,breakfastDb,rolloverToday)();
+breakfastState.diaryWriteRevision=1;
+breakfastState.diary={student_id:'roll-A',log_day:'2026-11-01',
+ meals:{desayuno:[{id:'egg',k:150}]}};
+breakfastDb.pending[0].resolve({data:null});
+await breakfastSwitch;
+assert.equal(breakfastState.diary.meals.desayuno.length,1,
+ 'Late SELECT null must not erase confirmed first breakfast');
+assert.equal(breakfastState.renderedDay,'2026-11-01');
+
+const draftState={session:{user:{id:'roll-A'}},profile:{role:'student'},
+ renderedDay:'2026-10-31',diary:null,pendingDiaryDraft:null};
+const draftDb=deferredRolloverDb();
+const draftSwitch=makeRollover(draftState,draftDb,rolloverToday)();
+draftState.pendingDiaryDraft={student_id:'roll-A',log_day:'2026-11-01',
+ meals:{desayuno:[{id:'egg',k:150}]},sports:[],skipped:{}};
+draftDb.pending[0].resolve({data:null});
+await draftSwitch;
+assert.equal(draftState.pendingDiaryDraft.meals.desayuno.length,1,
+ 'Edited first-food draft must survive the delayed midnight read');
+console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed meal and unsaved draft preserved (offline).');
+
+// UX-SEARCH-EXPLICIT-CHOICE 04-04 / 04-05: execute actual student food-search
+// handlers, without a browser or hosted backend. Typing must not choose a
+// different food silently, and a chosen food must retain its edited quantity.
+{
+ const mealCatalog=[{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz integral"},{id:"chicken",name:"Pollo"}];
+ const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
+ const plannerBegin=source.indexOf("function filterPlannerFoods(input){");
+ const plannerEnd=source.indexOf("function updatePlannerPreview(){",plannerBegin);
+ assert.ok(plannerBegin>=0&&plannerEnd>plannerBegin,"Planner search handler must remain directly testable");
+ let syncCount=0,previewCount=0;
+ const plannerSelect={
+  dataset:{planselect:"cena|protein"},_value:"egg",_html:"",
+  get value(){return this._value;},
+  set value(value){this._value=value;},
+  get innerHTML(){return this._html;},
+  set innerHTML(html){this._html=html;this._value="none";}
+ };
+ const plannerState={plannerSelections:{"cena|protein":"egg"},plannerDraftGrams:{"cena|protein":{foodId:"egg",grams:"100"}}};
+ const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
+  "foods","allowedFoods","foodSearchText","groupedFoodOptions","state",
+  "syncPlannerSearchActions","updatePlannerPreview",
+  source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
+  {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog.map(f=>f.id),
+  food=>food.name,items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
+  plannerState,()=>{syncCount++;},()=>{previewCount++;}
+ );
+ const plannerInput={dataset:{plansearch:"cena|protein"},value:"arroz"};
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"none","Typing arroz must not pick the first matched food");
+ assert.equal(plannerState.plannerSelections["cena|protein"],"none","Unconfirmed query cannot alter simulated nutrients");
+ assert.equal(plannerState.plannerDraftGrams["cena|protein"],undefined,"Stale quantity must be dropped");
+ assert.equal(syncCount,1,"Remove previously chosen food from simulation exactly once");
+ assert.equal(previewCount,1);
+ plannerSearch(plannerInput);
+ assert.equal(previewCount,1,"Repeated Android input must not produce a second simulated change");
+ plannerSelect.value="rice";
+ plannerState.plannerSelections["cena|protein"]="rice"; // Explicit native change event.
+ plannerInput.value="arr";
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"rice","Still-matching explicit choice remains selected");
+ assert.equal(previewCount,1,"Typing more characters must not overwrite chosen grams");
+ plannerInput.value="pollo";
+ plannerSearch(plannerInput);
+ assert.equal(plannerSelect.value,"none","Changing query invalidates the previous selection");
+ assert.equal(plannerState.plannerSelections["cena|protein"],"none");
+ assert.equal(previewCount,2);
+
+ const mealBegin=source.indexOf("function filterMealFoods(){");
+ const mealEnd=source.indexOf("function updateMealEntryMode(",mealBegin);
+ assert.ok(mealBegin>=0&&mealEnd>mealBegin,"Meal search handler must remain directly testable");
+ const mealSearchInput={value:"huevo"};
+ const foodSelector={
+  _value:"egg",_html:"",
+  get value(){return this._value;},
+  set value(value){this._value=value;},
+  get innerHTML(){return this._html;},
+  set innerHTML(html){this._html=html;this._value="";}
+ };
+ const quantityChanges=[],searchSuggestions=[];
+ const mealSearch=new Function("document","foods","allowedFoods","FOOD_STATE_PAIRS",
+  "foodAllowedForMeal","state","isGuidedMealSlot","guidedMealGroupFor",
+  "groupIdFor","activeGuidedMealGroup","foodSearchText","groupedFoodOptions",
+  "renderMealSearchSuggestions","updateMealEntryMode",
+  source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
+  {getElementById:id=>id==="mealEditorFood"?foodSelector:id==="mealFoodSearch"?mealSearchInput:null},
+  mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
+  ()=>false,()=>false,()=>"",null,food=>food.name,
+  items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
+  (foods,term)=>searchSuggestions.push({count:foods.length,term}),
+  changed=>quantityChanges.push(changed)
+ );
+ mealSearch();
+ assert.equal(foodSelector.value,"egg");
+ assert.equal(quantityChanges.at(-1),false,"Same chosen food must keep the student's custom gram value");
+ mealSearchInput.value="arroz";
+ mealSearch();
+ assert.equal(foodSelector.value,"","Unmatched previous food must be cleared before saving");
+ assert.equal(quantityChanges.at(-1),true,"A genuinely changed food resets portion controls");
+ foodSelector.value="rice"; // Explicit food selection after the search.
+ mealSearchInput.value="arro";
+ mealSearch();
+ assert.equal(foodSelector.value,"rice");
+ assert.equal(quantityChanges.at(-1),false,"Gboard incremental input must not reset the selected rice quantity");
+ assert.equal(searchSuggestions.at(-1).count,1);
+}
+console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quantity survives incremental typing (real handlers).");
+
+
+
+// 04-04: keyboard action / IME must require explicit choice; repeated same-food
+// suggestion must preserve the student's edited grams instead of resetting to 100.
+{
+ const begin=source.indexOf("function pickMealSearchSuggestion(foodId){");
+ const end=source.indexOf("function filterMealFoods(){",begin);
+ assert.ok(begin>=0&&end>begin,"Real meal suggestion handler must be present");
+ const selector={value:"egg",options:[{value:"egg",disabled:false},{value:"rice",disabled:false}]};
+ const search={value:"",focus(){}};
+ const changes=[];
+ const pick=new Function("document","foods","hideMealSearchSuggestions","updateMealEntryMode",
+  source.slice(begin,end)+";return pickMealSearchSuggestion;")(
+  {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
+  [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
+ );
+ pick("egg");
+ assert.equal(changes.at(-1),false,"Re-choosing same item cannot reset edited grams");
+ pick("rice");
+ assert.equal(changes.at(-1),true,"Changing actual food must reset portion controls");
+ assert.equal(selector.value,"rice");
+ const keyStart=source.indexOf('document.addEventListener("keydown",event=>{');
+ const keyEnd=source.indexOf('root.addEventListener("submit",e=>{',keyStart);
+ assert.ok(keyStart>=0&&keyEnd>keyStart,"Actual IME keyboard handler must exist");
+ let onKeydown,focuses=0,implicitPicks=0,prevented=0;
+ const searchInput={id:"mealFoodSearch"};
+ const choice={dataset:{mealsuggestion:"egg"},focus(){focuses++;}};
+ const suggestions={hidden:false,querySelectorAll:()=>[choice]};
+ const dialog={classList:{contains:name=>name==="meal-popup"}};
+ const fakeDocument={
+  addEventListener(name,handler){if(name==="keydown")onKeydown=handler;},
+  querySelector:()=>dialog,
+  getElementById:id=>id==="mealFoodSuggestions"?suggestions:id==="mealFoodSearch"?searchInput:null,
+  activeElement:searchInput
+ };
+ runInNewContext(source.slice(keyStart,keyEnd),{
+  document:fakeDocument,closeMealDialog(){},closeRecipeRegistration(){},
+  hideMealSearchSuggestions(){},pickMealSearchSuggestion(){implicitPicks++}
+ });
+ assert.equal(typeof onKeydown,"function");
+ const emit=(isComposing,keyCode)=>onKeydown({
+  key:"Enter",isComposing,keyCode,target:searchInput,
+  preventDefault(){prevented++;}
+ });
+ emit(true,229);
+ emit(false,229);
+ assert.equal(focuses,0,"Gboard composition never selects/focuses a food");
+ emit(false,13);
+ assert.equal(focuses,1,"Keyboard action focuses the first explicit option");
+ assert.equal(implicitPicks,0,"Enter in search must never automatically register first suggestion");
+ assert.equal(prevented,1,"Non-composing Enter stops unintended form submission");
+}
+console.log("PASS UX-KEYBOARD-ACCOUNT-RACE: explicit meal search selection and unchanged-food quantity (real code).");
+
+// 04-05: a slow rejected/successful supplement or comment save must never
+// replace another logged-in account's diary or announce a false confirmation.
+{
+ const wait=()=>{
+  let resolve,reject;
+  const promise=new Promise((a,b)=>{resolve=a;reject=b;});
+  return {promise,resolve,reject};
+ };
+ const sportStart=source.indexOf("let pendingSportDiaryMutation=false;");
+ const sportEnd=source.indexOf("async function addDailySupplement(){",sportStart);
+ const noteStart=source.indexOf("let pendingDayCommentSave=false;");
+ const noteEnd=source.indexOf("let coachRosterConsent=",noteStart);
+ assert.ok(sportStart>=0&&sportEnd>sportStart&&noteStart>=0&&noteEnd>noteStart);
+ for(const kind of ["sport","comment"]){
+  const oldDiary={log_day:"2026-11-01",student_id:"A",sports:[],skipped:{}};
+  const newDiary={log_day:"2026-11-01",student_id:"B",sports:[],skipped:{}};
+  const state={session:{user:{id:"A"}},profile:{role:"student"},diary:oldDiary};
+  let inFlight=null;
+  const notices=[];
+  const saveDiary=()=>{inFlight=wait();return inFlight.promise;};
+  const actual=kind==="sport"?
+   new Function("activeDiary","state","saveDiary","notify","today",
+    source.slice(sportStart,sportEnd)+";return mutateSportDiary;")(
+    ()=>state.diary,state,saveDiary,text=>notices.push(text),()=> "2026-11-01"
+   ):
+   new Function("activeDiary","state","saveDiary","notify","today","readDayComment",
+    source.slice(noteStart,noteEnd)+";return saveDayComment;")(
+    ()=>state.diary,state,saveDiary,text=>notices.push(text),()=> "2026-11-01",()=> "Comentario A"
+   );
+  const start=()=>kind==="sport"?actual(d=>d.sports.push({name:"Whey",qty:30}),"Suplemento guardado"):actual();
+  let job=start();
+  assert.ok(inFlight,"First write must reach transport");
+  state.session={user:{id:"B"}};state.diary=newDiary;
+  inFlight.reject(new Error("connection interrupted"));
+  await assert.rejects(job,/connection interrupted/);
+  assert.strictEqual(state.diary,newDiary,kind+": rejected A must not restore A into B");
+  assert.equal(notices.length,0);
+  state.session={user:{id:"A"}};state.diary=oldDiary;
+  job=start();
+  state.session={user:{id:"B"}};state.diary=newDiary;
+  inFlight.resolve();
+  await job;
+  assert.strictEqual(state.diary,newDiary,kind+": resolved A must not overwrite B");
+  assert.equal(notices.length,0,kind+": no A confirmation toast in B");
+ }
+}
+console.log("PASS UX-04-05: delayed sports/supplements and comments cannot restore or notify an unrelated user.");
+
+
+// UX-ACCOUNT-WRITE: real handlers, in-memory delayed REST and account A -> B switch.
+// Transport/DOM are simulated: this is NOT hosted or physical-device UAT.
+{
+ const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
+ const extract=(begin,end,name,deps,preamble="")=>{
+  const a=source.indexOf(begin),b=source.indexOf(end,a+begin.length);
+  assert.ok(a>=0&&b>a,"Actual handler "+name+" is required");
+  const injected={...deps,structuredClone:obj=>JSON.parse(JSON.stringify(obj))};
+  return new Function(...Object.keys(injected),preamble+source.slice(a,b)+";return "+name+";")(...Object.values(injected));
+ };
+ for(const kind of ["planner","fit","personal","meal"]){
+  for(const rejection of [false,true]){
+   const oldDiary={student_id:"A",log_day:"2026-11-01",meals:{},sports:[],skipped:{}};
+   const nextDiary={student_id:"B",log_day:"2026-11-01",meals:{},sports:[],skipped:{}};
+   const state={session:{user:{id:"A"}},profile:{role:"student"},diary:oldDiary,activeMeal:"cena",
+    plannerMode:"dinner",plannerSelections:{"cena|protein":"rice"},plannerDraftGrams:{"cena|protein":100}};
+   const pending=[],toasts=[],dialogActions=[],pendingMealRegistrations=new Set();
+   const saveDiary=()=>{const hold=deferred();pending.push(hold);return hold.promise;};
+   const notify=m=>toasts.push(m),today=()=>"2026-11-01",rice={id:"rice",name:"Arroz",unit:"g",k:1.2,p:.02,c:.25,f:.01};
+   let operation;
+   if(kind==="planner"){
+    const handler=extract("async function addPlannedFood(key){","let mealDialogReturnFocus=null;","addPlannedFood",{
+     parsePlannerKey:key=>key.split("|"),document:{getElementById:id=>id.startsWith("planQty_")?{value:"100"}:null},
+     pendingMealRegistrations,makePlan:()=>({meals:[{slot:"cena",rows:[{category:"protein",food:rice}]}]}),
+     foods:[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
+     dailyTotals:()=>({}),state,plannerMeasuredGrams:(food,qty)=>qty,plannerSushiPortion:()=>null,
+     MILK_BEVERAGES:{},openPlannedFoodEditor:()=>{},normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     saveDiary,notify,num:x=>String(x),today
+    });
+    operation=handler("cena|protein");
+   }else if(kind==="fit"){
+    const prompts=["1","1"],recipe={id:"fit-case",name:"Budín Fit"};
+    const handler=extract("async function registerFitRecipe(id){","function studentSupplementsView(){","registerFitRecipe",{
+     state,FIT_RECIPES:[recipe],prompt:()=>prompts.shift(),mealSlots:[["cena","Cena"]],
+     pendingMealRegistrations,recipeTotals:()=>({perPortion:{k:120,p:8,c:10,f:4,fi:2}}),
+     foods:[],activeDiary:()=>state.diary,saveDiary,notify,num:x=>String(x),today,
+     validateRecipeIngredientAccess:()=>{}
+    });
+    operation=handler("fit-case");
+   }else if(kind==="personal"){
+    const recipe={id:"rec1",name:"Mi budín",portions:2,totals:{k:400,p:20,c:40,f:12,fi:4}};
+    const handler=extract("async function confirmRecipeRegistration(){","function rootText(","confirmRecipeRegistration",{
+     myRecipes:()=>[recipe],document:{getElementById:id=>({value:id==="efgRecipeRegisterId"?"rec1":id==="efgRecipeRegisterSlot"?"cena":"1"})},
+     mealSlots:[["cena","Cena"]],pendingMealRegistrations,activeDiary:()=>state.diary,
+     state,saveDiary,closeRecipeRegistration:()=>dialogActions.push("close"),notify,today,
+     validateRecipeIngredientAccess:()=>{}
+    },"let recipeRegistrationBusy=false;");
+    operation=handler();
+   }else{
+    const handler=extract("async function saveSelectedMeal(continueGuided=false){","function coachFoodChoices(","saveSelectedMeal",{
+     state,measureMealEntry:()=>({f:rice,qty:100,grams:100,useUnits:false,portion:null}),
+     pendingMealRegistrations,foodAllowedForMeal:()=>true,allowedFoods:()=>["rice"],
+     FOOD_STATE_PAIRS:{},activeDiary:()=>state.diary,BEVERAGE_IDS:new Set(),
+     calculateBeverage:()=>null,normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),
+     isGuidedMealSlot:()=>false,saveDiary,notify,openMealDialog:()=>dialogActions.push("open"),
+     activeGuidedMealGroup:"protein",today
+    });
+    operation=handler(true);
+   }
+   assert.equal(pending.length,1,kind+" must initiate exactly one REST save");
+   state.session={user:{id:"B"}};state.diary=nextDiary;state.activeMeal="almuerzo";
+   state.plannerSelections={"cena|protein":"B-choice"};
+   const bGrams={"cena|protein":250};state.plannerDraftGrams=bGrams;
+   if(rejection){
+    pending[0].reject(new Error("network offline"));
+    let thrown=null;try{await operation;}catch(e){thrown=e;}
+    assert.equal(thrown?.message,"network offline",kind+" propagates failed REST write");
+   }else{pending[0].resolve();await operation;}
+   assert.strictEqual(state.diary,nextDiary,kind+" must never restore A diary into B");
+   assert.equal(state.activeMeal,"almuerzo",kind+" must not restore A dialog into B");
+   assert.equal(state.plannerSelections["cena|protein"],"B-choice",kind+" must not restore A selection");
+   assert.strictEqual(state.plannerDraftGrams,bGrams,kind+" must not restore A portion");
+   assert.equal(toasts.length,0,kind+" cannot toast B with A confirmation");
+   assert.equal(dialogActions.length,0,kind+" cannot close or open B dialog");
+  }
+ }
+ console.log("PASS UX-ACCOUNT-WRITE: 8 delayed success/failure outcomes for real food/recipe handlers.");
+}

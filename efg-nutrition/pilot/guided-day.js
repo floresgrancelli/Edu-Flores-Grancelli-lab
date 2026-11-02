@@ -150,8 +150,9 @@ export function generateGuidedDay(catalog,goal,{includeWhey=false}={}){
  const plan={version:1,kind:"five_meal_example",meals,supplementNote:"",createdFrom:"coach_approved_goal"};
  return rebalanceGuidedDay(plan,goal);
 }
-export function rebalanceGuidedDay(existing,goal){
+export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
  ensureGuideGoal(goal);
+ if(targetTolerance!==null&&(!valid(targetTolerance)||targetTolerance<0||targetTolerance>.05))throw new Error("Margen de ajuste inválido.");
  if(!existing?.meals||existing.meals.length!==5)throw new Error("Guía incompleta.");
  const plan=structuredClone(existing);
  // Optimizes QUANTITIES, not food identities. Same repertoire can serve different goals.
@@ -160,9 +161,16 @@ export function rebalanceGuidedDay(existing,goal){
   const [min,max]=guidedPortionBounds(item.id);
   item.qty=Math.min(max,Math.max(min,Number(item.qty)||min));
  }
- // Bounded coordinate descent: kcal + protein + carbs + fats; no artificial micro-portions.
+ // Preserve the existing distribution as a warm start. If mandatory daily bounds
+ // fail, repair them before optimizing distribution; never trade feasibility away.
+ const violation=()=>Object.values(guideDeviation(plan,goal)).reduce((total,d)=>
+  total+(d.target>0?Math.max(0,Math.abs(d.difference/d.target)-targetTolerance)**2:0),0);
+ for(const repair of targetTolerance===null?[false]:[false,true]){
+ if(repair&&violation()===0)break;
+ // Bounded coordinate descent; identities, locks, portion steps and bounds unchanged.
  for(let iteration=0;iteration<240;iteration++){
   const current=score(plan,goal);let best=null,bestScore=current;
+  let bestViolation=repair?violation():0;
   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
    const item=plan.meals[mi].items[ii], [min,max,step]=bounds(item.id),original=item.qty;
    if(item.locked===true)continue;
@@ -170,12 +178,17 @@ export function rebalanceGuidedDay(existing,goal){
     item.qty=original+delta;
     if(item.qty<min||item.qty>max){item.qty=original;continue;}
     const candidate=score(plan,goal);
-    if(candidate<bestScore-0.0000001){bestScore=candidate;best={mi,ii,qty:item.qty};}
+    const candidateViolation=repair?violation():0;
+    if(candidateViolation<bestViolation||
+      (candidateViolation===bestViolation&&candidate<bestScore-0.0000001)){
+     bestViolation=candidateViolation;bestScore=candidate;best={mi,ii,qty:item.qty};
+    }
     item.qty=original;
    }
   }
   if(!best)break;
   plan.meals[best.mi].items[best.ii].qty=best.qty;
+ }
  }
  return plan;
 }

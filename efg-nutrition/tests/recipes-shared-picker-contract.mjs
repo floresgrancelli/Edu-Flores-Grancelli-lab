@@ -52,6 +52,10 @@ for(const guard of [
  "i.completed_version='coach_major_2026_r1'",
  'i.shared_at is not null',
  'where recipe.student_id=p_student',
+ "join public.efg_legal_acceptances student_receipt",
+ "join public.efg_legal_acceptances coach_receipt",
+ "doc.kind in ('terms','privacy')",
+ 'v_legal_count<>2',
  'limit 30',
  'revoke all on function public.efg_coach_shared_student_recipes',
  'from public,anon,authenticated'

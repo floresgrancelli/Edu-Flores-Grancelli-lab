@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {randomBytes, randomUUID} from 'node:crypto';
 import {localContext, literal as q, yes, denied} from './helpers/coach119-local.mjs';
 import {createCoachPlanDraftClient} from '../pilot/coach-plan-draft-client.js';
+import {loadCoachSharedStudentRecipes} from '../pilot/coach-shared-recipes-read-client.js';
 import {preparePilotNoticePublication} from '../tools/prepare-pilot-notices-release.mjs';
 import {renderCoachPilotLegal} from '../pilot/coach-pilot-legal-client.js';
 
@@ -40,6 +41,17 @@ for (const [name, user] of Object.entries(users)) {
   }
 }
 const read = (table, user, select = '*') => request(`/rest/v1/${table}?select=${select}`, {token: user.token});
+const recipeA=randomUUID(),recipeB=randomUUID();
+const syntheticParts=JSON.stringify([{foodId:'qa_food_a',grams:200}]);
+const syntheticTotals=JSON.stringify({k:200,p:20,c:20,f:4,fi:2});
+sql(`insert into public.efg_personal_recipes(id,student_id,name,ingredients,portions,totals)
+ values(${q(recipeA)},${q(users.newA.id)},'Receta propia A',${q(syntheticParts)}::jsonb,2,${q(syntheticTotals)}::jsonb),
+       (${q(recipeB)},${q(users.studentB.id)},'Receta propia B',${q(syntheticParts)}::jsonb,2,${q(syntheticTotals)}::jsonb)`);
+assert.equal(yes(await read('efg_personal_recipes',users.newA),'Owner reads own personal recipes').length,1);
+assert.deepEqual(yes(await read('efg_personal_recipes',users.coachA),'Coach may NOT directly read owner recipe table'),[]);
+assert.deepEqual(yes(await rpc('efg_coach_shared_student_recipes',users.coachA.token,{p_student:users.newA.id}),
+ 'No Coach recipe sharing before independent permissions'),[]);
+
 const status = async user => yes(await rpc('efg_coach_pilot_entry_status', user.token), 'signed entry ' + user.id);
 const day = '2026-10-31';
 const diary = {student_id: users.returningA.id, log_day: day,
@@ -126,7 +138,27 @@ for (const user of [users.newA, users.returningA, users.studentB]) {
   assert.equal((await status(user)).route, 'review');
   denied(await diaryWrite(user), 'shared intake alone never unlocks diary');
 }
+// Even after student consent, a Coach must accept BOTH current notices before
+// a private recipe is disclosed. A sign-in alone is never sufficient.
+assert.deepEqual(yes(await rpc('efg_coach_shared_student_recipes',users.coachA.token,{p_student:users.newA.id}),
+ 'Coach has not accepted current Terms/Privacy'),[]);
 for (const coach of [users.coachA, users.coachB]) await acceptLegal(coach);
+const ownScoped=await loadCoachSharedStudentRecipes(asClient(users.coachA),{
+ profile:{user_id:users.coachA.id,role:'coach',active:true},
+ studentId:users.newA.id,organizationId:orgA
+});
+assert.equal(ownScoped.recipes.length,1);
+assert.equal(ownScoped.recipes[0].id,recipeA);
+assert.equal(ownScoped.recipes[0].name,'Receta propia A');
+assert.deepEqual(yes(await rpc('efg_coach_shared_student_recipes',users.coachB.token,{p_student:users.newA.id}),
+ 'Coach B never reads Coach A student recipes'),[]);
+assert.deepEqual(yes(await rpc('efg_coach_shared_student_recipes',users.newA.token,{p_student:users.newA.id}),
+ 'Student cannot impersonate Coach RPC'),[]);
+assert.equal(yes(await rpc('efg_coach_shared_student_recipes',users.coachB.token,{p_student:users.studentB.id}),
+ 'Coach B can access only its shared student recipes').length,1);
+assert.deepEqual(yes(await read('efg_personal_recipes',users.coachA),
+ 'Owner RLS still denies direct Coach REST SELECT'),[]);
+console.log('PASS GU-06 signed LOCAL: owner-only recipe table, two orgs, independent Terms/Privacy + student sharing and Coach-scoped read; no hosted changes.');
 console.log('PASS educational intro -> independent legal -> participation -> mandatory intake -> review; signed local JWT and diary deny.');
 
 const selectIntake = async user => {
@@ -294,6 +326,8 @@ for (const [student, coach] of [[users.returningA, users.coachA], [users.student
 }
 assert.deepEqual(yes(await read('efg_daily_logs', users.returningA), 'old meal after full release circuit'), originalHistory);
 yes(await receipt(users.newA, false), 'withdraw sharing');
+assert.deepEqual(yes(await rpc('efg_coach_shared_student_recipes',users.coachA.token,{p_student:users.newA.id}),
+ 'Revoked sharing must immediately hide previously accessible personal recipes'),[]);
 assert.equal((await status(users.newA)).route, 'private');
 denied(await request(`/rest/v1/efg_daily_logs?student_id=eq.${users.newA.id}`, {
   method: 'PATCH', token: users.newA.token, body: {totals: {kcal: 999}}}), 'opt-out prevents new diary writes');

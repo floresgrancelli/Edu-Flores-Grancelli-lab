@@ -58,10 +58,18 @@ sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
 // redefines the older student entry RPC, so this disposable JWT integration
 // must reproduce the final server behavior with flexible 2-6 meal plans.
 sql(read('../migrations/20261030_coach116_legal_first_student_status.sql'));
+// GU-06: exercise the exact proposed Coach-to-student recipe read against a
+// faithful, fictional owner-RLS table, with real signed GoTrue identities.
+sql(read('./sql/coach119-personal-recipes-hostedshape-local.sql'));
+sql(read('../migrations/20261102_coach_shared_student_recipes_NOT_APPLIED.sql'));
+assert.equal(sql("select relrowsecurity from pg_class where oid='public.efg_personal_recipes'::regclass"),'t');
+assert.equal(sql("select count(*) from pg_policies where tablename='efg_personal_recipes' and cmd='SELECT'"),'1',
+ 'Recipe table must keep precisely one owner SELECT policy (no Coach table read)');
 for(const [name,required] of [
  ['public.efg_submit_coach_relaunch_intake(text,jsonb,integer,boolean)',
   'complete objective, age, height, weight, activity and diet before sharing'],
- ['public.efg_coach_pilot_entry_status()','flexible_meal_guide']
+ ['public.efg_coach_pilot_entry_status()','flexible_meal_guide'],
+ ['public.efg_coach_shared_student_recipes(uuid)','v_legal_count<>2']
 ]){
  const definition=sql("select pg_get_functiondef('"+name+"'::regprocedure)");
  assert.ok(definition.includes(required),'CURRENT signed RPC lost invariant '+required);

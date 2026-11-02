@@ -8,6 +8,8 @@ do $ncc_shared_recipe_preflight$
 begin
  if pg_catalog.to_regclass('public.efg_personal_recipes') is null
     or pg_catalog.to_regclass('public.efg_coach_relaunch_intakes') is null
+    or pg_catalog.to_regclass('public.efg_legal_documents') is null
+    or pg_catalog.to_regclass('public.efg_legal_acceptances') is null
     or pg_catalog.to_regprocedure('efg_private.coach_pilot_share_active(uuid,uuid)') is null
     or pg_catalog.to_regprocedure('efg_private.coach_has_student(uuid)') is null
     or pg_catalog.to_regprocedure('public.efg_coach_shared_student_recipes(uuid)') is not null
@@ -23,6 +25,7 @@ as $ncc_shared_recipes$
 declare
  v_coach uuid := auth.uid();
  v_org uuid;
+ v_legal_count integer:=0;
  v_rows jsonb := '[]'::jsonb;
 begin
  if v_coach is null or p_student is null or v_coach=p_student then
@@ -47,6 +50,20 @@ begin
    ) then
   return '[]'::jsonb;
  end if;
+ -- The coach's login and student follow-up permission do NOT substitute for
+ -- BOTH current Terms and Privacy accepted by BOTH linked accounts.
+ -- If a published notice changes version, shared recipe reads stop immediately.
+ select pg_catalog.count(distinct doc.kind) into v_legal_count
+ from public.efg_legal_documents doc
+ join public.efg_legal_acceptances student_receipt
+  on student_receipt.document_id=doc.id and student_receipt.user_id=p_student
+ join public.efg_legal_acceptances coach_receipt
+  on coach_receipt.document_id=doc.id and coach_receipt.user_id=v_coach
+ where doc.is_current and doc.published_at is not null
+  and doc.kind in ('terms','privacy')
+  and doc.sha256=pg_catalog.encode(
+    pg_catalog.sha256(pg_catalog.convert_to(doc.body,'UTF8')),'hex');
+ if v_legal_count<>2 then return '[]'::jsonb; end if;
  select coalesce(pg_catalog.jsonb_agg(to_jsonb(rec) order by rec.created_at,rec.id),'[]'::jsonb)
  into v_rows
  from (

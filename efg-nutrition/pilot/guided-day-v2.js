@@ -32,9 +32,9 @@ const naturallySimple=new Set(['egg','egg_white','banana','apple','pear','mandar
 const plainName=x=>String(x?.name||'').toLocaleLowerCase('es-AR');
 function normalizeProfile(raw={}){
  const restrictions=[...new Set((raw.restrictions||[]).filter(x=>typeof x==='string').map(x=>x.toLowerCase().trim()))];
- const pattern=String(raw.patternId||raw.dietaryPattern||'balanced').toLowerCase();
- const fasting=String(raw.windowId||'regular');
- const disliked=[...new Set((raw.dislikedIds||[]).filter(x=>typeof x==='string'))];
+ const pattern=String(raw.patternId||raw.dietaryPattern||raw.pattern||'balanced').toLowerCase();
+ const fasting=String(raw.windowId||raw.fasting||'regular');
+ const disliked=[...new Set((raw.dislikedIds||raw.disliked||[]).filter(x=>typeof x==='string'))];
  if(restrictions.length>16||!['balanced','omnivore','mediterranean','flexitarian','vegetarian','vegan','pescatarian','keto','low_carb','dash','portfolio'].includes(pattern)||
   !['regular','12_12','14_10','16_8'].includes(fasting)||disliked.length>100)
   throw Error('Perfil alimentario inválido.');

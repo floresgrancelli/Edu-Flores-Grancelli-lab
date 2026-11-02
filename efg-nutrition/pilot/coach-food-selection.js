@@ -45,7 +45,7 @@ export function approvedFoodGuide(guide,selectedIds=null,{knownIds=null}={}){
   unique.add(id);
  }
  if(unique.size!==selectedIds.length)throw Error("La selección contiene alimentos duplicados.");
- if(uniqueGuide.some(id=>!unique.has(id)))throw Error("Un ingrediente de la guía no figura en la selección histórica.");
+ if(uniqueGuide.some(id=>!unique.has(id)))throw Error("Un ingrediente de la guía no está seleccionado en la referencia histórica.");
  return {...structuredClone(guide),approvedFoodIds:[...unique].sort()};
 }
 export function coachFoodChoicesFromDom(root){

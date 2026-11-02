@@ -3,6 +3,7 @@ import {join} from 'node:path';
 
 // Runs ONLY inside the existing real-app Playwright fixture. No fake UI handlers.
 export async function runWeeklyReportFlow(page,width,outDir){
+ await import('./weekly-fiber-private.mjs'); // Run focal Node contract in the existing opt-in weekly job.
  const screenshots=[],pdfs=[],printMeasurements=[];
  const capture=async name=>{await page.locator('#pilot-toast').waitFor({state:'hidden',timeout:7000});const path=join(outDir,'weekly-flow-'+width+'-'+name+'.png');await page.screenshot({path,fullPage:true});screenshots.push(path);};
  page.on('dialog',dialog=>dialog.accept());
@@ -12,9 +13,11 @@ export async function runWeeklyReportFlow(page,width,outDir){
    s.selectedStudent='demo-student-a';s.tab='reports';s.consent={accepted:true};
    s.coachLogs=Array.from({length:5},(_,i)=>{
     const d=new Date(w.from+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);
-    return {log_day:d.toISOString().slice(0,10),meals:{desayuno:[{id:'synthetic-breakfast',name:'Desayuno ficticio',k:400,p:30,c:45,f:12,fi:4}],
-     almuerzo:[{id:'synthetic-lunch',name:'Almuerzo ficticio',k:700,p:50,c:75,f:20,fi:7}]},skipped:{},sports:[]};
+    return {log_day:d.toISOString().slice(0,10),meals:{desayuno:[{id:'synthetic-breakfast',name:'Desayuno ficticio',k:400,p:30,c:45,f:12,fi:i===0?0:4}],
+     almuerzo:[{id:'synthetic-lunch',name:'Almuerzo ficticio',k:700,p:50,c:75,f:20,...(i===1||i===3?{}:{fi:i===0?0:7})}]},skipped:{},sports:[]};
    });
+   const changed=new Date(w.from+'T12:00:00Z');changed.setUTCDate(changed.getUTCDate()+2);
+   s.coachGoals=[{start_on:w.from,kcal:2000,protein_g:100,carb_g:220,fat_g:60,fiber_g:20},{start_on:changed.toISOString().slice(0,10),kcal:2000,protein_g:100,carb_g:220,fat_g:60,fiber_g:30}];
    s.coachHistory=[{id:'synthetic-legacy',student_id:'demo-student-a',week_ending:'2026-01-02',report_text:'Informe histórico ficticio intacto'}];
    window.__WEEKLY_RAM__.db.efg_weekly_reports=structuredClone(s.coachHistory);
    s.coachGuidedDraft={syntheticSentinel:'preserve-unrelated-plan'};
@@ -69,7 +72,14 @@ export async function runWeeklyReportFlow(page,width,outDir){
   });
   const published=page.locator('details.pilot-record').filter({has:page.locator('.lux-report')});
   await published.locator(':scope > summary').click();
-  await published.getByText('Fibra: sin dato consolidado en este informe. No se interpreta como cero.',{exact:true}).waitFor();
+  await published.locator('.lux-report-fiber-status').waitFor();
+  const fiberText=await published.locator('.lux-report-fiber-status').innerText();
+  assert.match(fiberText,/7,3 g de promedio en 3 de 7 días/);
+  assert.match(fiberText,/3 fechas con dato y meta vigente: 7,3 g registrados \/ 26,7 g/);
+  const storedFiber=await page.evaluate(()=>JSON.parse(window.__WEEKLY_RAM__.db.efg_weekly_reports.find(r=>r.id!=='synthetic-legacy').report_text));
+  assert.equal(storedFiber.fiber.daysMeasured,3);assert.equal(storedFiber.days[0].fi,0);assert.equal(storedFiber.days[1].fi,null);
+  const fiberLayout=await published.locator('.lux-report-fiber-status').evaluate(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,overflow:el.scrollWidth>el.clientWidth+2}));
+  assert.ok(fiberLayout.width>200&&fiberLayout.height>15&&!fiberLayout.overflow);
   assert.match(await published.locator('.lux-report-conclusion p').innerText(),/Conclusión editada/);
   const color=await published.locator('.lux-report-flex').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.ok(color.includes('223, 245, 255')&&color.includes('196, 234, 250'),'Espacio para disfrutar must remain celeste');
@@ -86,7 +96,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
   assert.equal(await published.locator('.lux-report-flex').isVisible(),true);
   const printLayout=await page.locator('.efg-lux-print-target').evaluate(el=>{
    const rect=el.getBoundingClientRect(),visible=x=>{const s=getComputedStyle(x),r=x.getBoundingClientRect();return s.visibility!=='hidden'&&s.display!=='none'&&r.width>0&&r.height>0;};
-   const content=[...el.querySelectorAll('h2,h3,.lux-report-macro,.lux-report-days,.lux-report-conclusion p,.lux-report-flex p')].map(x=>{const r=x.getBoundingClientRect();return {tag:x.className||x.tagName,width:r.width,left:r.left,right:r.right,overflow:x.scrollWidth>x.clientWidth+2};});
+   const content=[...el.querySelectorAll('h2,h3,.lux-report-macro,.lux-report-days,.lux-report-conclusion p,.lux-report-flex p,.lux-report-fiber-status')].map(x=>{const r=x.getBoundingClientRect();return {tag:x.className||x.tagName,width:r.width,left:r.left,right:r.right,overflow:x.scrollWidth>x.clientWidth+2};});
    const chrome=[...document.querySelectorAll('#pilot-toast,.pilot-nav,.pilot-bottom-nav,.efg-mobile-header,.pilot-top')].filter(visible).map(x=>x.id||x.className);
    return {viewport:innerWidth,width:rect.width,left:rect.left,right:rect.right,content,visibleChrome:chrome};
   });
@@ -143,3 +153,4 @@ export async function runWeeklyReportFlow(page,width,outDir){
   return {role:'weekly-flow',width,pages:screenshots,pdfs,printMeasurements,errors:[],syntheticTransport:true,hostedRLS:false};
  }catch(error){await capture('failure').catch(()=>{});throw error;}
 }
+

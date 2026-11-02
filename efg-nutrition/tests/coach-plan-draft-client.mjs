@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
-import {approvedFoodGuide} from "../pilot/coach-food-selection.js";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
 // COACH119 / legacy and flexible versioned guide contracts.
 const WHEN="2026-10-29T12:00:00.000Z";
 const ORG="50000000-0000-4000-8000-000000000001";

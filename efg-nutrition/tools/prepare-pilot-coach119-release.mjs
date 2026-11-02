@@ -1,5 +1,6 @@
-// Construct an operator-reviewed, all-or-nothing SQL *candidate* from four
-// existing audited scripts. NO database connection or deployment is possible here.
+// Construct a pinned, all-or-nothing SQL *candidate* from four
+// existing reviewed scripts. The COACH119 pin was refreshed for the new
+// flexible 2–6-slot staging proposal: this is NOT a deployment approval. NO database connection or deployment is possible here.
 // Intentionally does not ingest real records, seed nutrition review or enable flags.
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
@@ -25,7 +26,7 @@ export const RELEASE_SOURCES=Object.freeze([
   },
   {
     "path": "efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql",
-    "sha": "5067c7846c6cedd4a6d901d61aab6d72a2ef9507",
+    "sha": "05a8ce29081b2292b8bd65f9696dbb1c7b540fce",
     "key": "COACH119"
   }
 ]);

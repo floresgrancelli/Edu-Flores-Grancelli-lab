@@ -72,7 +72,7 @@ function validFiberShape(m){
 function fiberText(model){
  if(!model.fiber)return 'Fibra: sin dato consolidado en este informe. No se interpreta como cero.';
  const f=model.fiber;
- if(!f.daysMeasured)return 'Fibra: sin datos medidos en los 7 días. No se interpreta como cero.';
+ if(!f.daysMeasured)return 'Fibra: sin dato consolidado; sin datos medidos en los 7 días. No se interpreta como cero.';
  const coverage='Fibra: '+fmt(model.averages.fi,1)+' g de promedio en '+f.daysMeasured+' de 7 días con dato medido ('+model.daysRecorded+' días registrados).';
  return coverage+(f.daysCompared?' Comparación en '+f.daysCompared+' fechas con dato y meta vigente: '+fmt(f.comparedAverage,1)+' g registrados / '+fmt(f.comparedTarget,1)+' g de meta media.':' Sin metas históricas comparables para esas fechas.')+' Los datos ausentes no cuentan como cero.';
 }

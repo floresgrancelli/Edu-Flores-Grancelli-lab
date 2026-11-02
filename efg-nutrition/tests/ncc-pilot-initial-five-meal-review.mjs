@@ -1,5 +1,6 @@
 // 02-03: proposal-only selected five-meal menu; NEVER a nutrition or server-approval record.
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import {EXTRA_FOODS} from '../pilot/food-catalog.js';
 import {approvedFoodGuide} from '../pilot/coach-food-selection.js';
@@ -51,7 +52,23 @@ assert.equal(source.rawSourceBackendSeeded,false);
 const precise=menu.preciseChickenCandidate;
 assert.equal(precise.fdcId,2705956);
 assert.equal(precise.publishable,false);
-assert.equal(precise.needsPrimarySourceCaptureAndHumanReview,true);
+assert.equal(precise.reviewStatus,'pending_operator_review');
+const evidence=precise.primaryEvidence;
+assert.equal(evidence.file,'tests/evidence/fndds-2705956.json');
+assert.equal(evidence.sourceUrl,'https://api.nal.usda.gov/fdc/v1/food/2705956');
+const bytes=readFileSync(new URL('../'+evidence.file,import.meta.url));
+assert.equal(createHash('sha256').update(bytes).digest('hex'),evidence.sha256);
+const captured=JSON.parse(bytes);
+assert.equal(captured.fdcId,precise.fdcId);
+assert.equal(captured.description,precise.description);
+assert.equal(captured.dataType,'Survey (FNDDS)');
+assert.equal(captured.foodCode,'24122131');
+for(const [key,id] of Object.entries({k:1008,p:1003,c:1005,f:1004,fi:1079})){
+ const matches=captured.foodNutrients.filter(row=>row.nutrient.id===id);
+ assert.equal(matches.length,1,'Missing or duplicate primary nutrient '+key);
+ assert.equal(matches[0].nutrient.unitName,key==='k'?'kcal':'g');
+ assert.equal(matches[0].amount,precise.per100g[key]);
+}
 assert.equal(matches.get('chicken').fdcId,171477);
 assert.notEqual(precise.foodId,'chicken');
 assert.equal(precise.foodId,'chicken_breast_roasted');
@@ -109,6 +126,8 @@ const aligned=menu.candidateFoodIds.map(id=>{
   approved:false,reviewKind:'NUMERIC_CATALOG_CROSSCHECK_ONLY'};
 });
 const issues=aligned.flatMap(row=>row.needsReconciliation.map(k=>row.id+':'+k));
+assert.equal(aligned.find(row=>row.id===precise.foodId).differences.p,0.02,
+ 'FNDDS reports 30.20 g/100 g; the existing catalog has 30.22 g/100 g');
 assert.deepEqual(issues,['brownrice:fi'],
  'Review new discrepancies against SOURCE state/units instead of silently approving');
 assert.equal(aligned.length,9);

@@ -75,7 +75,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  }
  // Reload before opening a coach's student detail: permission may have been revoked
  // or the optional intake deleted in another session since the roster last loaded.
- async function refreshCoachDetail(studentId,consented){
+ async function refreshCoachDetail(studentId,consented,assertCurrent){
   if(!studentId)return;
   const who=actor();
   delete state.coachIntakeForms[studentId];
@@ -89,6 +89,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
   ]);
+  assertCurrent?.();
   assertActor(who);
   if(a.error&&!missing(a.error))throw a.error;
   if(b.error&&!missing(b.error))throw b.error;

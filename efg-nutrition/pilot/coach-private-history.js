@@ -100,7 +100,7 @@ export function renderCoachPrivateHistory(history,{userId}={}){
   '</section><section><h3>Pesajes</h3>'+list(weights,'Todavía no hay pesajes.')+'</section></div>'+
   '<section><h3>Mi objetivo y guía anterior</h3>'+goalLine+
   (guideRows.length&&(!goal||history.plan?.guided_goal_id!==goal.id)?'<p class="pilot-alert">Esta guía corresponde a un objetivo anterior. Consultá al coach antes de tomarla como plan vigente.</p>':'')+
-  list(guideRows,'Todavía no hay una guía de cinco comidas aprobada.')+'</section>'+
+  list(guideRows,'Todavía no tenés una Dieta Guía aprobada.')+'</section>'+
   '<section><h3>Informes semanales</h3>'+(reports.join('')||'<p class="pilot-hint">Sin informes previos.</p>')+'</section>'+
   '<section><h3>Comprobantes enviados</h3>'+list(payments,'Sin comprobantes previos.')+'</section>'+
   '<p class="pilot-hint">No se muestran diagnósticos ni archivos privados de comprobantes. '+

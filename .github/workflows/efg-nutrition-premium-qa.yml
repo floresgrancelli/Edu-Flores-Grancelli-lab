@@ -163,6 +163,7 @@ jobs:
         run: |
           node --check efg-nutrition/pilot/coach-intake-flow.js
           node efg-nutrition/tests/coach-intake-flow.mjs
+          node efg-nutrition/tests/sdk-entry-goal-hydration-private.mjs
       - name: SEC08 hosted-readonly privilege inventory and mandatory release gate remain protected
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

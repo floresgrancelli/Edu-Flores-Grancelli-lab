@@ -4,6 +4,7 @@ import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
 import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
 import {createPersistedGuideProvider} from './persisted-guide-provider.js';
 import {createBoundGuidePublication} from './bound-guide-publication-client.js';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js';
 import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
@@ -1397,15 +1398,17 @@ function weeklyScoreForCoach(){
  return calculateWeeklyConsistency({today:today(),logs:state.coachProgressLogs||[],
    goals:state.coachGoals||[],totalOf:dailyTotals,goalForDate});
 }
-async function loadSundayPermission(studentId){
+async function loadSundayPermission(studentId,assertCoachDetail){
  const contextEpoch=state.authContextEpoch||0;
  const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.rewardApproval=null;state.rewardFeatureReady=false;
  if(!studentId||!state.session?.user?.id)return;
- if(state.profile.role!=="student"&&(!state.selectedStudent||!state.consent?.accepted))return;
+ if(state.profile.role!=="student"&&!assertCoachDetail)return;
+ assertCoachDetail?.();
  const {data,error}=await contextRead(sb.from("efg_sunday_rewards")
    .select("student_id,week_monday,coach_id,approved,approved_at")
    .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle());
+ assertCoachDetail?.();
  if(error){
   // La migración todavía puede estar pendiente: nunca atribuir una
   // autorización sin prueba persistida, y nunca bloquear el diario.
@@ -3267,17 +3270,26 @@ async function loadRoleData(){
 }
 async function loadStudentDetail(studentId){
  const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
+ const request=(state.coachDetailRequest||0)+1;
+ const coachId=state.session?.user?.id,organizationId=state.org?.id;
+ state.coachDetailRequest=request;
+ const assertCurrent=()=>{
+  if(state.coachDetailRequest!==request||state.selectedStudent!==studentId||
+     (state.authContextEpoch||0)!==contextEpoch||state.session?.user?.id!==coachId||state.org?.id!==organizationId)
+   throw Object.assign(Error("Cambió la ficha abierta."),{code:"STALE_AUTH_CONTEXT"});
+ };
+ const contextRead=async promise=>{try{return await promise;}finally{assertCurrent();}};
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
- state.selectedStudent=studentId;
+ state.selectedStudent=studentId;state.consent=null;
+ state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];
+ state.rewardApproval=null;state.rewardFeatureReady=false;state.coachFoodPlan=null;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
  const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle());
  if(c.error)throw c.error;
- state.consent=c.data;
  // Never reuse a previously cached shared intake after its consent or record changed.
- await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true));
+ await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true,assertCurrent));
  if(COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
     state.profile?.role==="coach"&&c.data?.accepted===true&&
     state.coachIntakeForms?.[studentId]?.shared_at){
@@ -3291,10 +3303,11 @@ async function loadStudentDetail(studentId){
    organizationId:loaded.organizationId,epoch:contextEpoch};
   state.coachSharedRecipes=loaded.recipes;
  }
- if(c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
-  // Private, RLS-guarded health read. No localStorage and no unverified
-  // free-text restriction data. Hosted RPC may not yet be installed: FAIL CLOSED
-  // for the atomic flow, preserve the live app when the pilot switch is OFF.
+ if(CLINICAL_GUIDE_CONNECTION_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
+    state.profile.user_id===coachId&&state.org?.coach_id===coachId&&
+    c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
+  // General follow-up alone never starts a clinical read. Independent health
+  // permissions and the identities in the server response must also match.
   try{
    const user=await contextRead(sb.auth.getUser());
    const viewer=user?.data?.user?.id;
@@ -3305,7 +3318,8 @@ async function loadStudentDetail(studentId){
    if(h?.student_id===studentId&&h?.viewer_id===viewer&&
       h.organization_id===state.org?.id&&h.shared_with_coach===true&&
       h.processing_consent===true&&h.followup_consent===true&&
-      h.revoked!==true&&typeof h.conditions==="object"&&!Array.isArray(h.conditions)){
+      h.revoked!==true&&Number.isSafeInteger(h.revision)&&h.revision>0&&
+      h.conditions&&typeof h.conditions==="object"&&!Array.isArray(h.conditions)){
     state.coachGuideHealth={studentId,viewerId:viewer,shared:true,consentVerified:true,
      restrictions:Object.entries(h.conditions).filter(([k,v])=>
       /^[a-z_]{2,40}$/.test(k)&&["confirmed","suspected"].includes(v)).map(([k])=>k)};
@@ -3316,9 +3330,7 @@ async function loadStudentDetail(studentId){
    console.warn("Lectura sanitaria privada aún no habilitada; guía automática clínica no autorizada.",error?.message);
   }
  }
- state.rewardApproval=null;state.rewardFeatureReady=false;
- state.coachFoodPlan=null;
- if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];return;}
+ if(!c.data?.accepted){state.consent=c.data;return;}
  const results=await contextRead(Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",studentId).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
@@ -3341,7 +3353,8 @@ async function loadStudentDetail(studentId){
    state.coachGuidedDraft=savedDraft.guide_proposal?structuredClone(savedDraft.guide_proposal):null;
   }
  }
- await contextRead(loadSundayPermission(studentId));
+ await contextRead(loadSundayPermission(studentId,assertCurrent));
+ state.consent=c.data;
 }
 async function refresh(){
  if(state.loading)return;
@@ -3378,18 +3391,17 @@ async function refresh(){
   // All four roles receive the exceptional release sequence, including future
   // Personal, BEFORE role-specific legacy data fetches. Both release flags OFF.
   state.majorRelease=null;state.majorReleaseLegal=null;
+  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";state.scienceWelcomeBusy=false;
+  const guidedStudent=state.profile.role==="student"&&
+   (COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED);
   if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED){
    state.majorRelease=await contextRead(readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true}));
-   if(state.majorRelease.phase==="legal")
-    state.majorReleaseLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
-   if(state.majorRelease.phase!=="none")return render();
+   if(!["none","legal"].includes(state.majorRelease.phase))return render();
   }
-  // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
-  if(!["student","coach","admin"].includes(state.profile.role))return render();
+  const releaseLegal=state.majorRelease?.phase==="legal";
   // EDUCATION01/02: verify the signed user/version receipt before the
   // early return for students awaiting their Coach's approved plan.
-  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";
-  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)){
+  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)&&(!releaseLegal||guidedStudent)){
    try{
     const intro=await contextRead(readScienceWelcomeStatus(sb,{profile:state.profile,userId:id}));
     state.scienceWelcomePending=intro.pending;
@@ -3401,7 +3413,14 @@ async function refresh(){
     state.scienceWelcomeError="No pudimos verificar si ya viste la presentación. Revisá la conexión.";
     console.warn("No se pudo verificar la presentación educativa:",error?.message);
    }
+   if(guidedStudent&&state.scienceWelcomePending)return render();
   }
+  if(releaseLegal){
+   state.majorReleaseLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
+   return render();
+  }
+  // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
+  if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
   if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
    state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
@@ -3608,12 +3627,15 @@ async function mainClick(event){
    // A network response for a previously signed-in account cannot unlock another.
    if(state.session?.user?.id!==userId||state.profile!==profile)return;
    state.scienceWelcomePending=false;state.scienceWelcomeStep=0;
-   await render();window.scrollTo(0,0);
+   state.scienceWelcomeBusy=false;
+   if(profile.role==="student"&&(COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED))await refresh();
+   else await render();
+   window.scrollTo(0,0);
   }catch(error){
    if(state.session?.user?.id===userId&&state.profile===profile){
-    state.scienceWelcomeError=error.message;await render();
+    state.scienceWelcomeBusy=false;state.scienceWelcomeError=error.message;await render();
    }
-  }finally{state.scienceWelcomeBusy=false;}
+  }
   return;
  }
  if(state.renderedDay&&state.renderedDay!==today()){
@@ -4206,35 +4228,41 @@ if(el.dataset.foodbulk){
   const goal=activeCoachGuideGoal(),draft=readGuidedEditor(),slot=el.dataset.guideaddfood;
   if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
   const control=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
-   const food=coachGuidePickerFoods().find(x=>x.id===control?.value);
-   if(!food)throw Error("Elegí un alimento o receta Fit disponible.");
+   let food=coachGuidePickerFoods().find(x=>x.id===control?.value);
+   if(!food)throw Error("Elegí un alimento o receta disponible.");
+   let auth={};
+   if(food.privateRecipe===true){
+    const ticket=state.coachSharedRecipeScope;
+    const isCurrent=()=>ticket===state.coachSharedRecipeScope&&coachRecipeScopeMatches(currentCoachRecipeScope(),ticket);
+    if(!COACH_ATOMIC_PLAN_UI_ENABLED||!COACH_SHARED_STUDENT_RECIPES_UI_ENABLED||!isCurrent())
+     throw Error("La receta personal necesita autorización actual del alumno.");
+    let fresh;
+    try{
+     fresh=await loadCoachSharedStudentRecipes(sb,{profile:state.profile,
+      studentId:ticket.studentId,organizationId:ticket.organizationId});
+    }catch(error){
+     if(isCurrent()){state.coachSharedRecipes=[];showGuidedEditor();}
+     throw error;
+    }
+    if(!isCurrent()||fresh.coachId!==ticket.coachId||state.coachGuidedDraft!==draft)
+     throw Error("Cambió la cuenta, el alumno o el borrador; reabrí la guía.");
+    state.coachSharedRecipes=fresh.recipes;
+    const selectedId=food.id;
+    food=recipeCatalogEntries({foods,personalRecipes:fresh.recipes,userId:ticket.studentId}).find(x=>x.id===selectedId);
+    if(!food){showGuidedEditor();throw Error("La receta ya no está compartida.");}
+    auth={authorizedStudentId:ticket.studentId,authorizedScopedRecipeRead:true};
+   }
    const ingredients=Array.isArray(food.recipeIngredients)
-    ?food.recipeIngredients.map(x=>foods.find(y=>y.id===x.foodId)).filter(Boolean):[food];
-   if(!ingredients.length||(Array.isArray(food.recipeIngredients)&&ingredients.length!==food.recipeIngredients.length))
-    throw Error("La receta tiene ingredientes sin ficha alimentaria.");
+    ?food.recipeIngredients.map(x=>foods.find(y=>y.id===x.foodId)):[food];
+   if(!ingredients.length||ingredients.some(x=>!x))throw Error("La receta tiene ingredientes sin ficha alimentaria.");
    if(ingredients.some(x=>guideFoodSignal(x,currentCoachGuideProfile()).status==="avoid")&&
-      !window.confirm("Hay ingredientes que no coinciden con el perfil declarado. ¿Querés incluirlos bajo tu revisión de coach?"))return;
+      !window.confirm("Hay ingredientes que no coinciden con el perfil declarado. ¿Querés incluirlos bajo tu revisión de coach?")){
+    if(food.privateRecipe)showGuidedEditor();
+    return;
+   }
    if(Array.isArray(food.recipeIngredients)){
     const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
-    let actual=food,auth={};
-    if(food.privateRecipe===true){
-     if(!COACH_ATOMIC_PLAN_UI_ENABLED||!COACH_SHARED_STUDENT_RECIPES_UI_ENABLED||
-        !coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope))
-      throw Error("La receta personal necesita autorización actual del alumno.");
-     const scope=currentCoachRecipeScope();
-     const fresh=await loadCoachSharedStudentRecipes(sb,{
-      profile:state.profile,studentId:scope.studentId,organizationId:scope.organizationId
-     });
-     if(!coachRecipeScopeMatches(currentCoachRecipeScope(),scope)||
-       state.selectedStudent!==scope.studentId||fresh.coachId!==scope.coachId)
-      throw Error("Cambió la cuenta o el alumno; reabrí la guía.");
-     actual=recipeCatalogEntries({foods,personalRecipes:fresh.recipes,userId:scope.studentId})
-       .find(x=>x.id===food.id);
-     if(!actual)throw Error("La receta ya no está compartida.");
-     state.coachSharedRecipes=fresh.recipes;
-     auth={authorizedStudentId:scope.studentId,authorizedScopedRecipeRead:true};
-    }
-    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,actual,Number(input?.value||1),foods,goal,auth);
+    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal,auth);
     showGuidedEditor();
     notify("Receta incorporada por porciones y componentes, sin macros duplicados. Revisá las fuentes antes de publicar.");
    }else{

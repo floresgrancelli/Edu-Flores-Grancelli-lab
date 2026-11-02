@@ -106,6 +106,52 @@ await assert.rejects(loadCoachSharedStudentRecipes(scopedFake(),
 const emptyShared=await loadCoachSharedStudentRecipes(scopedFake({response:[]}),
  {profile:ownerProfile,studentId:linkedStudent,organizationId:linkedOrg});
 assert.deepEqual(emptyShared.recipes,[]);
+// Exercise the delegated Coach action against a changing, signed read.
+const actionStart=coachUI.indexOf(' if(action==="addGuidedFood"){');
+const actionEnd=coachUI.indexOf(' if(action==="recalcGuidedDay")',actionStart);
+assert.ok(actionStart>=0&&actionEnd>actionStart);
+async function exerciseRecipePick({freshRows,changeScope,offline=false}){
+ const cached=recipeCatalogEntries({foods:[{id:'egg'}],personalRecipes:[authorized],userId:linkedStudent})[0];
+ const draft={kind:'flexible_meal_guide'},state={coachGuidedDraft:draft,selectedStudent:linkedStudent,
+  coachSharedRecipes:[authorized],coachSharedRecipeScope:ticket};
+ const calls={confirmed:0,added:0,rendered:0},added=[];
+ const pick={value:cached.id,dataset:{guidefoodpick:'cena'}};
+ const env={state,el:{dataset:{guideaddfood:'cena'}},sb:{},activeCoachGuideGoal:()=>({}),readGuidedEditor:()=>draft,
+  root:{querySelectorAll:key=>key==='[data-guidefoodpick]'?[pick]:[]},coachGuidePickerFoods:()=>[cached],
+  foods:[{id:'egg'},{id:'bread'}],guideFoodSignal:f=>({status:f.id==='bread'?'avoid':'possible'}),
+  currentCoachGuideProfile:()=>({}),window:{confirm:()=>{calls.confirmed++;return false;}},
+  COACH_ATOMIC_PLAN_UI_ENABLED:true,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED:true,coachRecipeScopeMatches,
+  currentCoachRecipeScope:()=>({...currentScope,studentId:state.selectedStudent}),
+  loadCoachSharedStudentRecipes:async()=>{
+   if(changeScope){state.selectedStudent=linkedCoach;state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];}
+   if(offline)throw Error('falló la red');
+   return {coachId:linkedCoach,recipes:freshRows};
+  },recipeCatalogEntries,showGuidedEditor:()=>calls.rendered++,addCoachRecipeServing:(_draft,_slot,recipe)=>{calls.added++;added.push(recipe);return draft;},notify(){}};
+ const run=new Function(...Object.keys(env),'return async function(action){'+coachUI.slice(actionStart,actionEnd)+'}')(...Object.values(env));
+ return {state,calls,added,error:await run('addGuidedFood').then(()=>null,e=>e)};
+}
+const revoked=await exerciseRecipePick({freshRows:[]});
+assert.match(revoked.error.message,/no está compartida/);
+assert.deepEqual(revoked.state.coachSharedRecipes,[],'The picker must forget a revoked recipe');
+assert.ok(revoked.calls.rendered>0);
+assert.equal(revoked.calls.added,0);
+const updated=await exerciseRecipePick({freshRows:[{...authorized,ingredients:[{foodId:'bread',grams:10}]}]});
+assert.equal(updated.error,null);
+assert.equal(updated.calls.confirmed,1,'Check the freshly authorized ingredients before adding');
+assert.equal(updated.calls.added,0,'Declining the updated ingredient warning preserves the draft');
+const fresh=await exerciseRecipePick({freshRows:[{...authorized,ingredients:[{foodId:'egg',grams:150}]}]});
+assert.equal(fresh.error,null);
+assert.equal(fresh.calls.confirmed,0);
+assert.deepEqual(fresh.added[0].recipeIngredients,[{foodId:'egg',grams:150}]);
+const disconnected=await exerciseRecipePick({offline:true});
+assert.ok(disconnected.error);
+assert.deepEqual(disconnected.state.coachSharedRecipes,[]);
+assert.ok(disconnected.calls.rendered>0);
+const switched=await exerciseRecipePick({freshRows:[authorized],changeScope:true});
+assert.ok(switched.error);
+assert.deepEqual(switched.state.coachSharedRecipes,[]);
+assert.deepEqual(switched.calls,{confirmed:0,added:0,rendered:0});
+
 console.log('PASS GU-06 STAGED: personal recipes require signed scoped coach RPC and opt-in; no owner-table RLS widening and no hosted writes.');
 
 console.log('PASS RECIPE CATALOG: 12 editorial + owner-scoped recipes, 0 cross-account leaks, portion-based diary and planner contracts.');

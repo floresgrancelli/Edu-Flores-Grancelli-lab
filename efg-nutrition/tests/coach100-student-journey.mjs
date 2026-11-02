@@ -72,7 +72,7 @@ for(const wrongIntake of [
 ])assert.equal(currentCoachIntakeDraft(queueDraft,wrongIntake,ids),false,
  'A mismatched or unshared intake cannot be marked as current in the Coach inbox');
 assert.match(renderCoachPlanWaiting(),/Tu coach está preparando tu plan/);
-assert.match(renderCoachPlanWaiting(),/una guía de cinco comidas/);
+assert.match(renderCoachPlanWaiting(),/aprobar tu objetivo y tu Dieta Guía/);
 assert.match(renderCoachPlanWaiting(),/mensajería/i);
 assert.match(renderCoachPlanWaiting(),/Tus comidas, peso y planes anteriores no se borraron/);
 console.log('PASS COACH100: both consents, fresh shared health intake and current atomic goal+guide mandatory before MI DÍA. All legacy/stale/cross-tenant routes denied (synthetic only).');

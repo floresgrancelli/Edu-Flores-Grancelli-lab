@@ -52,7 +52,7 @@ export function renderCoachPlanWaiting(){
  return '<section class="card efg-coach-waiting" role="status" aria-live="polite">'+
  '<span class="eyebrow">NUTRICIÓN CON-CIENCIA · MI INGRESO</span>'+
  '<h2>Tu coach está preparando tu plan</h2>'+
- '<p>Tu ficha fue enviada. El coach debe revisar tus datos y aprobar tu objetivo y una guía de cinco comidas. Te avisaremos cuando puedas comenzar a registrar tus comidas.</p>'+
+ '<p>Tu ficha fue enviada. Tu coach va a revisar tus datos y aprobar tu objetivo y tu Dieta Guía. Te avisaremos cuando puedas comenzar a registrar tus comidas.</p>'+
  '<p class="pilot-hint">Mientras tanto podés usar la mensajería. Tus comidas, peso y planes anteriores no se borraron.</p>'+
  '<button class="btn" type="button" data-act="openMessages">Hablar con mi coach</button>'+
  '<button class="btn light" type="button" data-act="retry">Comprobar si mi plan está listo</button>'+

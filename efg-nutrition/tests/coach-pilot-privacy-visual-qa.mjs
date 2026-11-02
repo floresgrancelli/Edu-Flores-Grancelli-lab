@@ -15,7 +15,10 @@ const server=createServer((req,res)=>{
   assert.ok(file.startsWith(base+'/'));
   let bytes=readFileSync(file);
   if(path.endsWith('/coach-student-journey.js'))bytes=Buffer.from(bytes.toString().replace('COACH_STUDENT_JOURNEY_ENABLED=false','COACH_STUDENT_JOURNEY_ENABLED=true'));
-  if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+'\nwindow.__PILOT_QA__={state,render};');
+  if(path.endsWith('/science-welcome.js'))bytes=Buffer.from(bytes.toString().replace('SCIENCE_WELCOME_ENABLED=false','SCIENCE_WELCOME_ENABLED=true'));
+  if(path.endsWith('/major-release-client.js'))bytes=Buffer.from(bytes.toString().replace('MAJOR_RELEASE_FLOW_ENABLED=false','MAJOR_RELEASE_FLOW_ENABLED=true'));
+  if(path.endsWith('/release-communications.js'))bytes=Buffer.from(bytes.toString().replace('RELEASE_COMMUNICATIONS_ENABLED=false','RELEASE_COMMUNICATIONS_ENABLED=true'));
+  if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+'\nwindow.__PILOT_QA__={state,render,refresh,sb};');
   res.writeHead(200,{'content-type':types[extname(file)]||'application/octet-stream','cache-control':'no-store'});res.end(bytes);
  }catch{res.writeHead(404);res.end('Fixture missing')}
 });
@@ -62,10 +65,57 @@ try{
   const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(bounds.scroll<=width+2,'Horizontal overflow '+JSON.stringify(bounds));
   await page.screenshot({path:join(out,`pilot-privacy-${engine}-${width}.png`),fullPage:true});
-  results.push({engine,width,waitingPrivacy:true,publishedEditable:true,clinicalDisabled:true});
+  // Hydrate the real app with both release gates enabled. A failed read must
+  // still present education; a failed acknowledgement must permit a retry.
+  await page.evaluate(async()=>{
+   const {state,sb,refresh}=window.__PILOT_QA__;
+   const profile=state.profile,user={id:profile.user_id};
+   const trace=window.__introTest={legalReads:0,acks:0};
+   let receipt=null;
+   sb.auth.getUser=async()=>({data:{user}});
+   sb.auth.getSession=async()=>({data:{session:{user}}});
+   sb.from=table=>{
+    const query={select:()=>query,eq:()=>query};
+    if(table==='efg_profiles'){
+     query.single=async()=>({data:profile});
+     return query;
+    }
+    if(table==='efg_science_intro_receipts'){
+     query.maybeSingle=async()=>({data:receipt,error:receipt?null:{message:'offline'}});
+     return query;
+    }
+    throw Error('Unexpected table during relaunch: '+table);
+   };
+   sb.rpc=async(name,args)=>{
+    if(name==='efg_claim_invitation')return {data:true};
+    if(name==='efg_major_release_status')return {data:{phase:'legal',id:'major_fixture'}};
+    if(name==='efg_legal_current_status'){trace.legalReads++;return {data:[]};}
+    if(name==='efg_ack_science_intro'){
+     if(++trace.acks===1)return {error:{message:'offline'}};
+     receipt={user_id:user.id,version:args.p_version,seen_at:new Date().toISOString()};
+     return {data:true};
+    }
+    throw Error('Unexpected RPC during relaunch: '+name);
+   };
+   await refresh();
+  });
+  assert.equal(await page.locator('[data-science-step="1"]').count(),1,'education before major-release legal');
+  assert.equal(await page.evaluate(()=>window.__introTest.legalReads),0);
+  for(let step=1;step<8;step++)await page.locator('[data-act="scienceNext"]').click();
+  const finish=page.locator('[data-act="scienceFinish"]');
+  await finish.click();
+  await page.locator('.ns-welcome-error').waitFor();
+  assert.equal(await finish.isEnabled(),true,'retry after a failed educational receipt');
+  await finish.click();
+  await page.locator('.efg-coach-legal').waitFor();
+  await page.evaluate(()=>window.__PILOT_QA__.refresh());
+  assert.equal(await page.locator('.efg-coach-legal').count(),1,'returning student with receipt goes to legal');
+  assert.equal(await page.locator('.ns-welcome-slide').count(),0);
+  assert.deepEqual(await page.evaluate(()=>window.__introTest),{legalReads:2,acks:2});
+  results.push({engine,width,waitingPrivacy:true,publishedEditable:true,clinicalDisabled:true,educationBeforeReleaseLegal:true});
   await context.close();
  }
  assert.deepEqual(issues,[]);
 }finally{await browser.close();await new Promise(r=>server.close(r))}
 writeFileSync(join(out,`pilot-privacy-${engine}.json`),JSON.stringify({fixture:true,results,issues},null,2));
-console.log('PASS actual new-journey app: waiting/privacy/edit navigation and published intake management; clinical fields disabled; '+engine);
+console.log('PASS '+engine+': intake privacy, clinical fields disabled, education before release notices, retry and returning-student receipt.');

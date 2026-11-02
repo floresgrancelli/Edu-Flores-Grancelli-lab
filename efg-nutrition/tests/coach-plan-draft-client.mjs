@@ -209,8 +209,10 @@ assert.match(app,/coachDraftSourceCurrent\(state\.coachIntakeForms\[studentId\],
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado»/,
  "Staged GUI may not expose old approve-guide button");
 
-assert.match(app,/approvedFoodGuide\(guide,coachFoodChoicesFromDom\(root\)/,
- "Coach must submit exactly the visible selected catalog");
+assert.match(app,/approvedFoodGuide\(guide,guide\.kind==="flexible_meal_guide"\?null:coachFoodChoicesFromDom\(root\)/,
+ "V2 must derive only guide ingredient references; historical V1 keeps its explicit selection.");
+assert.match(app,/const finalGuide=COACH_ATOMIC_PLAN_UI_ENABLED[\s\S]*?guide\.kind==="flexible_meal_guide"/,
+ "Atomic draft must use the versioned guide contract.");
 assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&state\.coachPlanDraftRecord\?\.guide_proposal\?\.approvedFoodIds/,
  "Reopened private draft must show the same approved catalog");
 assert.match(app,/guide:finalGuide/,

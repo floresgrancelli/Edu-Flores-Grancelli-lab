@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+const equalitySource=readFileSync("efg-nutrition/pilot/recipe-ingredients-equal.js","utf8");
+const {sameRecipeIngredients}=await import("data:text/javascript;base64,"+Buffer.from(equalitySource).toString("base64"));
+const createAppHarness=(...args)=>new Function('sameRecipeIngredients',...args).bind(null,sameRecipeIngredients);
 const source=readFileSync("efg-nutrition/pilot/fit-recipes.js","utf8");
 const photoSource=readFileSync("efg-nutrition/pilot/fit-recipe-photos.js","utf8");
 const {FIT_RECIPE_PHOTOS}=await import("data:text/javascript;base64,"+Buffer.from(photoSource).toString("base64"));
@@ -108,7 +111,7 @@ const localAPI={
  setItem:(k,v)=>recipeStore.set(k,v),
  removeItem:k=>recipeStore.delete(k)
 };
-const recipeRuntime=new Function('sb','state','localStorage','recipeStoreKey',
+const recipeRuntime=createAppHarness('sb','state','localStorage','recipeStoreKey',
  'let cloudRecipes=[];'+app.slice(recipeBegin,recipeEnd)+';return {loadCloudRecipes, getRecipes:()=>cloudRecipes};')(
  recipeSB,{profile:{role:'student'},session:{user:{id:'test-user'}}},localAPI,()=>recipeKey);
 await recipeRuntime.loadCloudRecipes();
@@ -150,7 +153,7 @@ const switchRecipeSB={from(table){
   insert(){throw new Error('Stale recipe import attempted to write');}};
 }};
 const recipeCode=app.slice(recipeBegin,recipeEnd);
-const createRecipeHarness=(adapter,owner,storage)=>new Function('sb','state','localStorage','recipeStoreKey',
+const createRecipeHarness=(adapter,owner,storage)=>createAppHarness('sb','state','localStorage','recipeStoreKey',
  'let cloudRecipes=[];'+recipeCode+
  ';return {loadCloudRecipes,visible:()=>state.cloudRecipesUserId===state.session?.user?.id?cloudRecipes:[]};')(
  adapter,owner,storage,()=> 'efg-nutrition-custom-recipes:'+owner.session?.user?.id);
@@ -226,7 +229,7 @@ const visibleRecipeState={session:{user:{id:'pending-A'}},cloudRecipesUserId:'pe
 const visibleRecipeKey=()=> 'efg-nutrition-custom-recipes:'+visibleRecipeState.session?.user?.id;
 const visibleRecipeRemoteList=Array.from({length:30},(_,i)=>({
  ...visibleRecipeRemote,id:'remote-'+i,name:'Remota '+i}));
-const visibleRecipeList=new Function('state','cloudRecipes','localStorage','recipeStoreKey',
+const visibleRecipeList=createAppHarness('state','cloudRecipes','localStorage','recipeStoreKey',
  app.slice(visibleRecipeStart,visibleRecipeEnd)+';return myRecipes;')(
  visibleRecipeState,visibleRecipeRemoteList,visibleRecipeLocal,visibleRecipeKey);
 let displayedRecipes=visibleRecipeList();
@@ -246,7 +249,7 @@ const visibleRegisterEnd=app.indexOf('function rootText(',visibleRegisterBegin);
 assert.ok(visibleRegisterBegin>=0&&visibleRegisterEnd>visibleRegisterBegin);
 const visibleMeal={meals:{almuerzo:[]},skipped:{}},visibleWriteSnapshots=[];
 const visibleFields={efgRecipeRegisterId:'local-recipe-0',efgRecipeRegisterSlot:'almuerzo',efgRecipeRegisterQty:'1.5'};
-const registerVisibleRecipe=new Function('myRecipes','document','mealSlots','pendingMealRegistrations',
+const registerVisibleRecipe=createAppHarness('myRecipes','document','mealSlots','pendingMealRegistrations',
  'activeDiary','saveDiary','structuredClone','state','closeRecipeRegistration','notify','validateRecipeIngredientAccess',
  'let recipeRegistrationBusy=false;'+app.slice(visibleRegisterBegin,visibleRegisterEnd)+';return confirmRecipeRegistration;')(
  visibleRecipeList,{getElementById:id=>({value:visibleFields[id]})},
@@ -265,7 +268,7 @@ assert.equal(visibleRecipeStore.has(visibleLegacyA),true,'Registering must not d
 const visibleDeleteBegin=app.indexOf('if(el.dataset.recipedelete){');
 const visibleDeleteEnd=app.indexOf('if(el.dataset.act==="createPersonalRecipe")',visibleDeleteBegin);
 assert.ok(visibleDeleteBegin>=0&&visibleDeleteEnd>visibleDeleteBegin);
-const deleteVisibleRecipe=new Function('state','myRecipes','recipeStoreKey','localStorage',
+const deleteVisibleRecipe=createAppHarness('state','myRecipes','recipeStoreKey','localStorage',
  'sb','confirm','notify','render','cloudRecipes',
  'return async function(el){'+app.slice(visibleDeleteBegin,visibleDeleteEnd)+'}')(
  visibleRecipeState,visibleRecipeList,visibleRecipeKey,visibleRecipeLocal,
@@ -310,7 +313,7 @@ const offlineRecipeDB={from(table){
   insert(){return this;},
   single(){return Promise.resolve({data:null,error:failRecipeImport?new Error('offline insert'):null});}};
 }};
-const offlineRecipes=new Function('sb','state','localStorage','console',
+const offlineRecipes=createAppHarness('sb','state','localStorage','console',
  offlineRecipeSource+';return {loadCloudRecipes,myRecipes};')(
  offlineRecipeDB,offlineRecipeState,offlineRecipeStorage,{warn(){}});
 await offlineRecipes.loadCloudRecipes();
@@ -349,7 +352,7 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
    order(){return failRead?Promise.reject(new TypeError('Failed to fetch')):Promise.resolve({data:[],error:null});},
    insert(){return this;},single(){attempts++;return Promise.reject(new TypeError('NetworkError on insert'));}};
  }};
- const api=new Function('sb','state','localStorage','console',
+ const api=createAppHarness('sb','state','localStorage','console',
   offlineRecipeSource+';return {loadCloudRecipes,myRecipes};')(db,st,local,{warn(){}});
  await api.loadCloudRecipes();
  assert.deepEqual(api.myRecipes().map(x=>x.name),[entry.name]);
@@ -394,7 +397,7 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
  const createBegin=app.indexOf('function recipeStoreKey(){');
  const createEnd=app.indexOf('let recipeDialogReturnFocus=',createBegin);
  assert.ok(recoveryBegin>=0&&recoveryEnd>recoveryBegin&&createBegin>=0&&createEnd>createBegin);
- const runtime=new Function('sb','state','localStorage','foods','prompt','notify','render','num','allowedFoods','FOOD_STATE_PAIRS',
+ const runtime=createAppHarness('sb','state','localStorage','foods','prompt','notify','render','num','allowedFoods','FOOD_STATE_PAIRS',
   app.slice(recoveryBegin,recoveryEnd)+app.slice(createBegin,createEnd)+
   ';return {createPersonalRecipe,myRecipes,loadCloudRecipes};')(
   db,st,storage,inputFood,()=>queue.shift(),message=>messages.push(message),async()=>{},x=>String(x),()=>['egg'],{});

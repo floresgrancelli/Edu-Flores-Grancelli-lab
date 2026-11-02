@@ -4,6 +4,7 @@ on:
     branches: [qa/ncc-starter-food-identity-20261102]
     paths:
       - 'efg-nutrition/tests/starter-food-source-identity-20261102.mjs'
+      - 'efg-nutrition/tests/starter-chicken-fndds-identity-20261102.mjs'
       - 'efg-nutrition/docs/NCC_STARTER_FOOD_PRE_REVIEW_20261102.md'
       - '.github/workflows/ncc-starter-food-identity-qa.yml'
 permissions:
@@ -20,3 +21,5 @@ jobs:
       - run: |
           node --check efg-nutrition/tests/starter-food-source-identity-20261102.mjs
           node efg-nutrition/tests/starter-food-source-identity-20261102.mjs
+          node --check efg-nutrition/tests/starter-chicken-fndds-identity-20261102.mjs
+          node efg-nutrition/tests/starter-chicken-fndds-identity-20261102.mjs

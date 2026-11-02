@@ -41,6 +41,12 @@ assert.match(app,/if\(switchingUser\)\{state\.foodCompatEvidence=\[\];/, 'No cac
 assert.match(app,/function resetPrivateSession\(\)\{[\s\S]*?state\.foodCompatEvidence=\[\];/, 'Logout central reset clears reviewed-food cache');
 assert.match(app,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/, 'Explicit exit clears the same private cache before the next account');
 assert.match(app,/Alimentos disponibles para planificar/);
+assert.match(app,/const plannerDisplayFoods=all\.map\(f=>/);
+assert.match(app,/groupedFoodOptions\(plannerDisplayFoods,meal\.slot\)/);
+assert.match(app,/data-plan-compat/);
+assert.match(app,/role="status"'\+foodTrafficLight\(row\.food\)\.details/);
+assert.match(app,/const mealSlots=\[\["desayuno"[^\n]*"media_tarde"[^\n]*"merienda"[^\n]*"cena"/,
+ 'All six actual diary meal slots must remain unchanged');
 assert.match(app,/Semáforo por patrón alimentario/);
 assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);
 assert.match(app,/data-coachfood[\s\S]*foodTrafficLight\(f\)\.symbol/);

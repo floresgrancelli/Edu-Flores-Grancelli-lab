@@ -1469,13 +1469,11 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div><div id="mealDialogContainer"></div>'+goalForm;
 }
 
-// Coach-approved food availability is separate from the five-meal example.
-// Existing pilot accounts without a reviewed Coach list keep their legacy catalog.
+// One catalog across student, coach, planner and diary. A guided example and
+// its selected ingredients are NOT a whitelist for the student's food diary.
+// Compatibility signals are annotations, not catalog membership or clinical approval.
 function allowedFoods(){
- const catalog=foods.map(f=>f.id);
- if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return catalog;
- const known=new Set(catalog);
- return [...new Set(state.foodPlan.approved_food_ids)].filter(id=>known.has(id));
+ return foods.map(f=>f.id);
 }
 // El sushi se muestra por piezas; el diario conserva gramos equivalentes.
 function plannerSushiPortion(food){
@@ -1507,6 +1505,12 @@ function plannerCard(){
  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
  const all=allPlannerFoods(foods,allowedFoods());
+ // Same full catalog, annotated by the SAME semaphore used by daily meal search.
+ // No user-specific second catalog; no hidden foods for uncertain evidence.
+ const plannerDisplayFoods=all.map(f=>{
+  const signal=foodTrafficLight(f);
+  return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};
+ });
  const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
@@ -1534,18 +1538,19 @@ function plannerCard(){
     if(suggestions.length){
      out+='<div class="planner-extras-helper"><b>¿Querés completar calorías con un extra?</b>'+
        '<p data-plan-extra-remaining="'+escapeHTML(meal.slot)+'">Las calorías que faltan aparecen arriba. Elegí un extra solo si querés.</p>'+
-       '<div class="planner-extra-actions">'+suggestions.map(f=>'<button type="button" class="planner-extra-chip" data-planextra="'+escapeHTML(meal.slot)+'|vegetable" data-planfood="'+escapeHTML(f.id)+'">+ '+escapeHTML(f.name)+'</button>').join("")+'</div>'+
+       '<div class="planner-extra-actions">'+suggestions.map(f=>'<button type="button" class="planner-extra-chip" data-planextra="'+escapeHTML(meal.slot)+'|vegetable" data-planfood="'+escapeHTML(f.id)+'">+ '+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+" ":"")+f.name)+'</button>').join("")+'</div>'+
        '<small>Elegir uno solo prepara la sugerencia de gramos; no registra alimentos automáticamente.</small></div>';
     }
    }
    const key=meal.slot+"|"+row.category;
    const label=slotNames[row.category]||"Alimento";
    const currentId=row.food?.id||"none";
-   let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(available,meal.slot);
+   let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(plannerDisplayFoods,meal.slot);
    if(currentId!=="none")options=options.replace('<option value="'+escapeHTML(currentId)+'">','<option value="'+escapeHTML(currentId)+'" selected>');
    out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
     '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
-    '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>';
+    '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>'+
+    (row.food?'<div class="efg-compat-status" data-plan-compat="'+escapeHTML(key)+'" role="status">'+foodTrafficLight(row.food).details+'</div>':'');
    out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);

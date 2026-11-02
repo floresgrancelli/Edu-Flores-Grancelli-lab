@@ -29,48 +29,16 @@ for(const text of [proposedTerms,proposedPrivacy]){
  assert.doesNotMatch(text,/Responsable:\\s*Entidad de simulación|Domicilio de ejemplo|\\[(?:PENDIENTE|COMPLETAR)\\]|BORRADOR INTERNO — NO PUBLICAR/);
 }
 for(const bad of [
- {terms:proposedTerms.replace('Nutrición Con-Ciencia','Otra aplicación'),privacy:proposedPrivacy},
- {terms:proposedTerms,privacy:proposedPrivacy.replace('supresión','')},
+ // Replace EVERY occurrence of the brand; one surviving mention is not proof
+ // that the notice belongs to the right application.
+ {terms:proposedTerms.replaceAll('Nutrición Con-Ciencia','Otra aplicación'),privacy:proposedPrivacy},
+ {terms:proposedTerms,privacy:proposedPrivacy.replace('acceso, corrección o supresión','consultas generales')},
  {terms:proposedTerms,privacy:proposedPrivacy.replace('Retirar el permiso','Otro cambio')},
+ {terms:proposedTerms,privacy:proposedPrivacy.replace('a través del coach que te invitó o del equipo que te invitó al piloto','por otro canal')},
  {terms:proposedTerms,privacy:proposedTerms},
  {terms:proposedTerms,privacy:proposedPrivacy,version:'pilot_20261103_v1'}
 ]){
  assert.equal(inspectPilotLegalDrafts(bad).readyForManualReview,false,
-  'Missing brand, rights, withdrawal, distinct text or pinned version must fail closed');
+  'Missing brand, rights, withdrawal, support route, distinct text or pinned version must fail closed');
 }
-// Preserve the public-facing copy exactly as requested. The following
-// synthetic enrichment is ONLY for the local review contract: never put
-// fictional names/addresses into documents seen by pilot participants.
-const filled=(body,kind)=>{
- const src=body.replace(/^BORRADOR INTERNO — NO PUBLICAR\n/,'');
- const heading=kind==='terms'
-  ?'# Condiciones para participar en el piloto de Nutrición Con-Ciencia\n'
-  :'# Aviso de datos y privacidad del piloto de Nutrición Con-Ciencia\n';
- const fields='Versión propuesta: pilot_20261102_v1\n'+
-  'Responsable: Entidad de simulación QA\n'+
-  'Domicilio: Domicilio de ejemplo 100, CABA\n'+
-  'Contacto: soporte@example.invalid\n';
- const provider=kind==='privacy'
-  ?'Conservación: 30 días tras finalizar piloto, sujeto a auditoría.\n'+
-   'Infraestructura sintética: Supabase y Render.\n'
-  :'';
- return heading+fields+provider+src;
-};
-const fillTerms=()=>filled(terms,'terms');
-const fillPrivacy=()=>filled(privacy,'privacy');
-const checked=inspectPilotLegalDrafts({terms:fillTerms(),privacy:fillPrivacy(),version});
-assert.deepEqual(checked.blockers,[],'Only synthetic, populated copies pass technical review');
-assert.equal(checked.readyForManualReview,true);
-assert.equal(checked.publishable,false,'Technical review never activates the hosted app');
-assert.equal(checked.uploaded,false);
-for(const changed of [
- {privacy:fillPrivacy().replace('Supabase','otro servicio')},
- {terms:fillPrivacy(),privacy:fillTerms()},
- {version:'pilot_20261103_v1'},
- {privacy:fillTerms()}
-]){
- const r=inspectPilotLegalDrafts({terms:fillTerms(),privacy:fillPrivacy(),version,...changed});
- assert.ok(r.blockers.length>0,JSON.stringify(changed).slice(0,70));
- assert.equal(r.publishable,false);
-}
-console.log('PASS 01-03: pilot drafts blocked until real identity, address, contact, retention and distinct versioned documents; no SQL, no publication, no commercial contract required.');
+console.log('PASS 01-03: two simple reviewed pilot NOTICES ready for human review; old internal drafts blocked; no fabricated personal address, no SQL, no production publication.');

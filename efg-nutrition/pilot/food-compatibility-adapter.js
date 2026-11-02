@@ -2,6 +2,7 @@
 // No medical conclusions, no localStorage, no user-submitted food evidence.
 // Table is RLS SELECT reviewed-only and writable solely by private operator.
 import {classifyFood,renderFoodCompatibility} from './food-compatibility.js';
+import {applyDeclaredFoodGuidance} from './declared-food-guidance.js';
 const CODE=/^[A-Za-z0-9_-]{1,100}$/;
 const RULE=/^[A-Za-z0-9:_-]{3,100}$/;
 export const COACH101_TRAFFIC_LIGHT_REVISION='pilot_2026_evidence_v1';
@@ -39,10 +40,10 @@ export async function loadReviewedFoodEvidence(sb,{foodIds,patterns}={}){
  }
  return reviewedRowsToCatalogEvidence(rows);
 }
-export function describeTrafficLight(food,{pattern='balanced',restrictions=[],inPlan=false,evidence=[]}={}){
+export function describeTrafficLight(food,{pattern='balanced',restrictions=[],inPlan=false,evidence=[],healthDeclaration}={}){
  const result=classifyFood(food,{patternId:profilePatternForCompatibility(pattern),restrictions,inPlan},{catalogEvidence:evidence});
- // A signal without an active rule remains neutral even if the food is calorie-dense.
  const symbol={neutral:'',green:'🟢',yellow:'🟡',red:'🔴'}[result.color]??'';
- return {color:result.color,symbol,short:result.label,details:renderFoodCompatibility(result),
+ const base={color:result.color,symbol,short:result.label,details:renderFoodCompatibility(result),
   canRecord:result.canRecord,verified:result.color==='green'||result.color==='red'};
+ return applyDeclaredFoodGuidance(base,food,healthDeclaration);
 }

@@ -23,7 +23,9 @@ bootstrap=bootstrap.replace('create role anon nologin;','').replace('create role
 sql(bootstrap);
 sql(`create table public.efg_coach_relaunch_intakes(
  student_id uuid primary key references public.efg_profiles(user_id),organization_id uuid,
- completed_version text,revision integer,shared_at timestamptz,updated_at timestamptz);
+ completed_version text,revision integer,
+  objective text,age_years integer,height_cm numeric(5,1),weight_kg numeric(5,1),
+  activity_level text,dietary_pattern text,shared_at timestamptz,updated_at timestamptz);
 create table public.efg_pilot_participation_receipts(
  student_id uuid,organization_id uuid,version text,acceptance_method text,
  participation_accepted boolean,sharing_accepted boolean,accepted_at timestamptz,revoked_at timestamptz);
@@ -59,7 +61,9 @@ sql(`insert into auth.users values('${coach}'),('${other}'),('${student}'),('${s
 insert into public.efg_organizations values('${org}','${coach}'),('${orgB}','${other}');
 insert into public.efg_profiles values('${coach}','${org}','coach',true),('${other}','${orgB}','coach',true),('${student}','${org}','student',true),('${studentB}','${orgB}','student',true);
 insert into public.efg_consents values('${student}','${org}',true),('${studentB}','${orgB}',true);
-insert into public.efg_coach_relaunch_intakes values('${student}','${org}','coach_major_2026_r1',1,'${when}','${when}');
+insert into public.efg_coach_relaunch_intakes
+ (student_id,organization_id,completed_version,revision,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,shared_at,updated_at)
+ values('${student}','${org}','coach_major_2026_r1',1,'recomp',41,174,80,'moderate','omnivore','${when}','${when}');
 insert into public.efg_pilot_participation_receipts values('${student}','${org}','coach_pilot_2026_demo1','two_explicit_checkboxes',true,true,now(),null);
 insert into public.efg_student_plan_access(student_id,organization_id,coach_id) values('${student}','${org}','${coach}');`);
 const save=(revision='null',g=goal)=>`select public.efg_save_coach_plan_draft('${student}',${quote(JSON.stringify(g))}::jsonb,${quote(JSON.stringify(guide))}::jsonb,'${when}',1,${revision})`;
@@ -94,6 +98,11 @@ sql('update public.efg_consents set accepted=true');
 sql('update public.efg_pilot_participation_receipts set revoked_at=now()');
 sql(asUser(coach,publish()),true);
 sql('update public.efg_pilot_participation_receipts set revoked_at=null');
+// The current SQL RPC must reject incomplete, otherwise previously shared
+// legacy rows could bypass the new client-side required-field checks.
+sql('update public.efg_coach_relaunch_intakes set age_years=null');
+sql(asUser(coach,publish()),true);
+sql('update public.efg_coach_relaunch_intakes set age_years=41');
 const goalId=sql(asUser(coach,publish()));
 assert.match(goalId,/^[a-f0-9-]{36}$/);
 assert.equal(sql(asUser(coach,publish())),goalId,'Same request returns same goal');

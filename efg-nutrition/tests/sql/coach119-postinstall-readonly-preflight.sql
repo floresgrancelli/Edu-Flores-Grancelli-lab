@@ -62,9 +62,10 @@ with checks(phase,check_id,passed,explanation) as (
     and has_function_privilege('authenticated',p.oid,'EXECUTE')),
    'No anonymous publication permission'),
  ('04_ATOMIC','COACH119_RECEIPTS_PRIVATE_RLS',
-   exists(select 1 from pg_class where
-    oid=to_regclass('public.efg_coach_plan_publish_receipts') and relrowsecurity)
-   and not has_table_privilege('anon','public.efg_coach_plan_publish_receipts','SELECT'),
+   exists(select 1 from pg_class t where
+    t.oid=to_regclass('public.efg_coach_plan_publish_receipts')
+    and t.relrowsecurity
+    and not has_table_privilege('anon',t.oid,'SELECT')),
    'Receipt table RLS and no anonymous read'),
  ('04_ATOMIC','COACH119_HISTORY_PRIVATE_RLS',
    exists(select 1 from pg_class where

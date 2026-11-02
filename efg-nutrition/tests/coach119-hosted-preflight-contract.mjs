@@ -45,3 +45,34 @@ assert.doesNotMatch(afterBody,/select\s+\*/i);
 assert.ok(afterBody.includes("to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is not null"));
 assert.ok(body.includes("to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is null"));
 console.log('PASS: independent PRE vs POST install SQL contracts; one READ-ONLY SELECT each, no GO inferred.');
+
+
+// PILOT-FASTTRACK: the private six-migration fixture includes a separate
+// health schema. That fixture is NOT the non-clinical Coach pilot release.
+// Keep the normal atomic path independent from clinical declarations; never
+// require users to disclose diagnoses merely to access a general food guide.
+const normalSql=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
+const normalExecutable=normalSql.split('\n').filter(l=>!l.trimStart().startsWith('--')).join('\n');
+const privateOrder=JSON.parse(readFileSync(new URL('../../private-installation/installation/installation-order.json',import.meta.url),'utf8'));
+assert.equal(privateOrder.status,'PRIVATE_NOT_EXECUTED');
+assert.ok(privateOrder.files.some(x=>x.includes('003_private_health_schema_NOT_APPLIED')),
+ 'Private installation is an extended clinical QA scenario and must not be mistaken for the pilot path');
+assert.match(normalExecutable,/create function public\.efg_publish_coach_plan_draft_atomic\s*\(/i,
+ 'The approved release must still publish objective, guide and access atomically');
+for(const forbidden of [
+ 'efg_coach_health_intakes','efg_coach_health_documents',
+ 'efg_declare_no_restrictions','guide_source_bindings'
+])assert.doesNotMatch(normalExecutable,new RegExp('\\b'+forbidden+'\\b','i'),
+ 'General Coach pilot cannot require health/clinical binding '+forbidden);
+assert.match(normalExecutable,/values\s*\(\s*'pilot_coach_atomic_publication'\s*,\s*false/i,
+ 'Installing normal COACH119 must keep publication OFF');
+assert.match(normalExecutable,/efg_private\.coach119_reviewed_food_ids\s*\(/,
+ 'Normal publication must verify selected nutritional sources on the server');
+const clinical=readFileSync(new URL('../pilot/gut-clinical-workbench.js',import.meta.url),'utf8');
+const autogestion=readFileSync(new URL('../pilot/personal-workspace.js',import.meta.url),'utf8');
+assert.match(clinical,/export const GUT_CLINICAL_INTAKE_ENABLED=false;/);
+assert.match(autogestion,/export const PERSONAL_WORKSPACE_ENABLED=false;/);
+const relaunch=readFileSync(new URL('../pilot/coach-relaunch-onboarding.js',import.meta.url),'utf8');
+assert.match(relaunch,/export const COACH_RELAUNCH_ONBOARDING_ENABLED=false;/,
+ 'Do not activate onboarding before hosted checks, real pilot documents and owner GO');
+console.log('PASS PILOT FASTTRACK: normal COACH119 is non-clinical and OFF; extended health/Personal remain excluded.');

@@ -2,6 +2,8 @@
 // existing audited scripts. NO database connection or deployment is possible here.
 // Intentionally does not ingest real records, seed nutrition review or enable flags.
 import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 
@@ -113,7 +115,7 @@ commit;
  return {sql:result,sha256:digest,blocks:RELEASE_SOURCES.map(x=>x.key)};
 }
 const mode=process.argv[2]||'--check';
-if(import.meta.url==='file://'+process.argv[1]){
+if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  const x=buildPilotCoach119Transaction();
  if(mode==='--check')console.log(JSON.stringify({status:'PREPARED_NOT_APPLIED',sha256:x.sha256,phases:x.blocks,transactions:1,productionWrites:0,flagsEnabled:0}));
  else if(mode==='--emit'&&process.argv[3]==='--ack=PREPARE_ONLY_NOT_GO')process.stdout.write(x.sql);

@@ -1,20 +1,17 @@
 BORRADOR INTERNO — NO PUBLICAR
-# Aviso de datos y privacidad del piloto de Nutrición Con-Ciencia
+# Nutrición Con-Ciencia
+## Aviso de privacidad de la prueba piloto
 
-Versión propuesta: pilot_20261102_v1
-Responsable: [PENDIENTE: nombre real o razón social]
-Domicilio: [PENDIENTE: domicilio de contacto]
-Contacto: [PENDIENTE: correo real para ejercer derechos de datos]
-Conservación: [PENDIENTE: plazo concreto y tratamiento de copias de respaldo]
+En **Nutrición Con-Ciencia** usamos los datos que proporcionás para permitir tu ingreso, guardar tus registros, mostrar tu evolución y facilitar el acompañamiento nutricional durante esta prueba privada.
 
-**Para qué se usan los datos.** En esta prueba privada se registran correo de ingreso, cuenta y rol, ficha nutricional general, metas, registros voluntarios de alimentos y cantidades, actividad, peso y evolución, planes del coach, mensajes, avisos y, cuando corresponda, comprobantes de pagos. Se utilizan para autenticarte, conservar tu historial, calcular estimaciones, mostrar el plan, permitir el seguimiento autorizado, dar soporte y mejorar el piloto. No se venden los datos ni se habilita publicidad personalizada.
+**Qué se registra.** Los datos necesarios para tu cuenta; ficha general y objetivos; comidas y cantidades; peso, pasos, kilómetros, minutos de actividad y, si elegís ingresarla, frecuencia cardíaca media; planes y mensajes. Los comprobantes de pago se guardan únicamente cuando corresponde.
 
-**Quién puede acceder.** Vos accedés a tus registros. El coach vinculado accede solo a lo que hayas autorizado compartir, según permisos del servidor; no debe acceder a otra organización. Administradores técnicos autorizados pueden intervenir para operar y proteger la plataforma. El coach no recibe automáticamente acceso a datos médicos por participar en el piloto.
+**Quiénes pueden verlos.** Vos accedés a tu información. El coach vinculado puede consultar los registros comprendidos en la autorización de seguimiento que hayas dado. Esa autorización es separada y puede revocarse. Las personas autorizadas a mantener la plataforma pueden intervenir para su soporte y seguridad.
 
-**Dónde se almacenan.** Utilizamos Supabase para base de datos, autenticación y archivos privados; el proyecto conocido está en la región sa-east-1 (Brasil). El sitio web se aloja en Render. La ubicación de otros servicios y posibles transferencias internacionales deben confirmarse por el responsable antes de habilitar este aviso; no se promete almacenamiento exclusivo en Argentina o Brasil.
+**Para qué se utilizan.** Para el funcionamiento de la app, seguimiento autorizado, cálculos aproximados y mejoras de esta prueba. La frecuencia cardíaca es opcional y no se utiliza para diagnosticar enfermedades ni para determinar automáticamente las calorías gastadas. No se usan estos datos para vender información personal ni para publicidad personalizada.
 
-**Tus decisiones y derechos.** El aviso de privacidad y las condiciones del piloto se aceptan con casillas diferentes y no premarcadas. Autorizar que el coach vea la ficha es otra decisión independiente y revocable. Podés consultar tus datos y solicitar acceso, rectificación o supresión mediante el contacto indicado, previa verificación de identidad y dentro de los límites que correspondan. Los respaldos de la base no incluyen necesariamente los archivos privados y la revocación no equivale a una eliminación inmediata de cada copia.
+**Conservación y solicitudes.** Los registros se conservan durante el piloto y mientras sean necesarios para su cierre, soporte y obligaciones aplicables. Podés solicitar acceso, corrección o supresión comunicándote con el equipo que te facilitó el ingreso, sujeto a la verificación de identidad y a las obligaciones legales. Las funciones clínicas permanecen desactivadas.
 
-**Datos sensibles.** No solicitamos diagnósticos, alergias, medicación ni enfermedades en la ficha general de esta versión; evitá ingresarlos en notas o chats. Los módulos clínicos y las recomendaciones médicas permanecen desactivados.
+**Casilla 2 — sin marcar inicialmente:** «Leí el aviso de privacidad y acepto el uso de mis datos para participar en el piloto de Nutrición Con-Ciencia».
 
-**Casilla B:** «Leí el aviso de privacidad y acepto el tratamiento necesario de mis datos para participar en el piloto». No autoriza, por sí misma, compartir la ficha con el coach.
+Aceptar este aviso **no** autoriza por sí solo compartir tu ficha con el coach.

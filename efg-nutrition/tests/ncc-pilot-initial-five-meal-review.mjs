@@ -28,7 +28,7 @@ assert.equal(chickenPwa.fi,0);
 assert.notEqual(chickenPwa.validationStatus,'reviewed','PWA source reference is not an operator approval');
 const legacy=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 for(const id of ['brownrice','potato','banana','oil']){
- assert.match(legacy,new RegExp('\\\\{id:"'+id+'",name:','g'),'Missing PWA legacy food '+id);
+ assert.ok(legacy.includes('{id:"'+id+'",name:'),'Missing PWA legacy food '+id);
 }
 for(const id of menu.candidateFoodIds){
  assert.ok(pwaById.has(id)||['brownrice','potato','banana','oil'].includes(id),

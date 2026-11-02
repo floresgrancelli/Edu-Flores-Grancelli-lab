@@ -20,7 +20,7 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1).trim().replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
- const root=process.cwd(),contexts=[],results=[];let origin,browser;const failures=[];
+ const root=process.cwd(),contexts=[],results=[];let origin,browser,stage='launch';const failures=[];
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,'http://localhost').pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));assert.ok(file.startsWith(root+'/'));
   let bytes=readFileSync(file);
@@ -30,9 +30,9 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
  }catch{failures.push({kind:'source',path:new URL(req.url,'http://localhost').pathname});res.writeHead(500);res.end('LOCAL_SOURCE_FAILURE');}});
  const settled=page=>page.waitForFunction(()=>window.__SDK_ENTRY_QA__?.snapshot().role&&!window.__SDK_ENTRY_QA__.snapshot().loading);
  async function open(page,student){
-  await settled(page);await page.locator('[data-tab="coachStudents"]:visible').first().click();await page.locator(`[data-student="${student.id}"]`).first().click();
+  stage='open-settled';await settled(page);stage='coach-students-tab';await page.locator('[data-tab="coachStudents"]:visible').first().click();stage='select-student';await page.locator(`[data-student="${student.id}"]`).first().click();
   const details=page.locator('#coachStudentGoals');if(await details.count()&&!await details.getAttribute('open'))await details.locator(':scope > summary').click();
-  await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();
+  stage='open-preview';await page.locator('[data-act="openCoachAdaptedPreview"]').click();stage='read-persisted';await page.locator('[data-persisted-revision]').waitFor();
  }
  try{
   await new Promise((r,j)=>{server.once('error',j);server.listen(4173,'127.0.0.1',r);});origin='http://127.0.0.1:4173';browser=await chromium.launch({headless:true});
@@ -43,17 +43,17 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
    const page=await context.newPage();page.on('dialog',d=>d.accept());
    // Record only resource path/status, never query strings, Auth payloads or console.
    page.on('response',r=>{if(r.status()>=400)failures.push({kind:'http',path:new URL(r.url()).pathname,status:r.status()});});
-   await page.goto(origin+'/efg-nutrition/pilot/');await page.locator('#loginEmail').fill(f.coach.email);const after=Date.now();
-   await page.locator('#pilot-login-form button[type=submit]').click();const otp=await readOtp({email:f.coach.email,after});await page.locator('#loginOtp').fill(otp);await page.locator('#pilot-otp-form button[type=submit]').click();await settled(page);
+   stage='login-page';await page.goto(origin+'/efg-nutrition/pilot/');await page.locator('#loginEmail').fill(f.coach.email);const after=Date.now();
+   stage='request-otp';await page.locator('#pilot-login-form button[type=submit]').click();stage='read-otp';const otp=await readOtp({email:f.coach.email,after});await page.locator('#loginOtp').fill(otp);stage='submit-otp';await page.locator('#pilot-otp-form button[type=submit]').click();stage='login-hydration';await settled(page);
    if(await page.locator('[data-act="scienceSkip"]').count())await page.locator('[data-act="scienceSkip"]').click();
    await open(page,f.student);
    // Row from real HTTP; the subsequent edit test must match actual persisted targets.
    const row=yes(await rpc('efg_read_bound_guide',f.coach.token,{p_student:f.student.id}),'browser initial read');
    const meal=row.guide.meals[0],item=meal.items[0];
-   results.push({width,...await verifyClinicalBridgeDOM({page,mealLabel:meal.label,mealSlot:meal.slot,quantity:item.qty+1,initialReadRow:row,expectedFrame:frame(row),expectedRevision:row.draft_revision+1,openAfterReload:p=>open(p,f.student),artifactPath:join(out,`clinical-bridge-${width}.png`)})});
+   stage='edit-save-reload-'+width;results.push({width,...await verifyClinicalBridgeDOM({page,mealLabel:meal.label,mealSlot:meal.slot,quantity:item.qty+1,initialReadRow:row,expectedFrame:frame(row),expectedRevision:row.draft_revision+1,openAfterReload:p=>open(p,f.student),artifactPath:join(out,`clinical-bridge-${width}.png`)})});
   }
   assert.equal(failures.filter(x=>x.kind==='source').length,0,'Source transform must really load');
   writeFileSync(join(out,'bridge-browser.json'),JSON.stringify({status:'PASS_EDIT_SAVE_RELOAD_ONLY',results,resourceFailures:failures,limits:['General explicitly declared fixture; not certified clinical foods','Background expiration DOM is separate and not counted here','No clinical publication or hosted activation']},null,2));
- }catch(error){const diagnostic={name:error.name,code:error.code||null,site:String(error.stack).split('\n').find(x=>/ at .*file:/.test(x))?.trim()||null};console.error('BRIDGE_BROWSER_DIAGNOSTIC '+JSON.stringify(diagnostic));writeFileSync(join(out,'bridge-browser-failure.json'),JSON.stringify({status:'FAIL',diagnostic,resourceFailures:failures},null,2));throw Error('BRIDGE_BROWSER_FAILED: inspect sanitized artifact');}
+ }catch(error){const diagnostic={stage,name:error.name,code:error.code||null,message:String(error.message).split('\n')[0].replace(/eyJ[A-Za-z0-9_.-]+/g,'[REDACTED]').slice(0,250),sites:String(error.stack).split('\n').filter(x=>/^\s+at .+:\d+:\d+/.test(x)).slice(0,5).map(x=>x.trim()),resourceFailures:failures};console.error('BRIDGE_BROWSER_DIAGNOSTIC '+JSON.stringify(diagnostic));writeFileSync(join(out,'bridge-browser-failure.json'),JSON.stringify({status:'FAIL',diagnostic,resourceFailures:failures},null,2));throw Error('BRIDGE_BROWSER_FAILED: inspect sanitized artifact');}
  finally{await Promise.allSettled(contexts.map(c=>c.close()));await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}
 }

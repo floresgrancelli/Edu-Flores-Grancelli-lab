@@ -1803,7 +1803,8 @@ async function addPlannedFood(key){
  if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
  const grams=plannerMeasuredGrams(row.food,shownQty);
  if(plannerSushiPortion(row.food)&&!Number.isFinite(grams))throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
- if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Revisá la cantidad real.");
+ if(!Number.isFinite(grams)||grams<=0||grams>3000||(row.food.unit==="porción"&&grams>20))
+  throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  // Guard the draft against a denied/offline diary write: never show phantom meals.
@@ -1829,7 +1830,7 @@ async function addPlannedFood(key){
   }
   throw error;
  }
- if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
+ if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
  }finally{pendingMealRegistrations.delete(slot);}
 }
 let mealDialogReturnFocus=null;
@@ -1845,7 +1846,8 @@ function openMealDialog(slot,initialGroup="protein"){
  const guided=isGuidedMealSlot(slot);
  activeGuidedMealGroup=guided&&GUIDED_MEAL_GROUPS.some(g=>g.id===initialGroup)?initialGroup:"protein";
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
- const allowed=[...permitted].map(id=>selectableFoods().find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
+ const catalog=selectableFoods();
+ const allowed=[...permitted].map(id=>catalog.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  const displayed=guided?allowed.filter(f=>guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup):allowed;
   const displayedWithSignals=displayed.map(f=>{const signal=foodTrafficLight(f);return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};});
  const marks=guidedMealMarks(activeDiary()?.skipped,slot),current=guidedMealTotals(activeDiary()?.meals?.[slot]);
@@ -1909,7 +1911,8 @@ function filterMealFoods(){
  const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
  // Searching is global so familiar food names still work regardless of
  // the current educational category; blank search shows the chosen section.
- const filtered=[...permittedFoodIds].map(id=>selectableFoods().find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
+ const catalog=selectableFoods();
+ const filtered=[...permittedFoodIds].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
@@ -1933,12 +1936,14 @@ function updateMealEntryMode(foodChanged=false){
  if(foodChanged){mode.value=portion?"units":"weight";qty.value=f?.unit==="porción"?1:portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
  if(!portion)mode.value="weight";
  const counting=!!portion&&mode.value==="units";
- label.textContent=counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
+ label.textContent=f?.unit==="porción"?"Porciones consumidas":counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
  qty.step=counting?"1":f?.unit==="porción"?"0.5":"any";
  qty.min=counting?"1":f?.unit==="porción"?"0.5":"0.1";
  qty.max=f?.unit==="porción"?"20":"5000";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
+ const stateWrap=document.getElementById("mealWeightStateWrap");
+ if(stateWrap)stateWrap.style.display=f?.unit==="porción"?"none":"";
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
  updateMealRecipe();
@@ -1960,6 +1965,11 @@ function updateMealDialogHint(){
  const status=document.getElementById("mealCompatibilityStatus");
   if(status)status.innerHTML=f?foodTrafficLight(f).details:"";
   if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
+ if(f.unit==="porción"){
+  hint.textContent=num(grams,1)+" porción(es) de receta · "+num(f.k*grams)+" kcal · P "+num(f.p*grams,1)+
+   " g · HC "+num(f.c*grams,1)+" g · G "+num(f.f*grams,1)+" g. Valores orientativos de sus ingredientes.";
+  return;
+ }
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+foodProvenance(f)+". "+f.source+

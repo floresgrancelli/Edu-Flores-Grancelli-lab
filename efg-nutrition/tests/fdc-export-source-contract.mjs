@@ -47,4 +47,12 @@ for(const bad of [
  [mapping(apple,'apple'),mapping(oats,'oats_raw')])).status,'unknown');
 assert.equal((await read([apple,oats],'https://api.nal.usda.gov/fdc/v1/foods',
  [mapping(apple,'apple'),{...mapping(oats,'oats_raw'),fdcId:171688}])).status,'unknown');
+const chicken=make(171477,'Chicken, broilers or fryers, breast, meat only, cooked, roasted');
+const chickenResult=await read(chicken,'https://api.nal.usda.gov/fdc/v1/food/171477',
+ [mapping(chicken,'chicken')]);
+assert.equal(chickenResult.status,'unknown');
+assert.equal(chickenResult.reason,'preparation_mismatch_generic_chicken');
+assert.equal(chickenResult.publishable,false);
+// An exact roasted breast record cannot silently validate generic chicken
+// merely because the protein/calorie estimate happens to be similar.
 console.log('PASS 02-03: official FDC endpoint/ID binding; unknown URLs rejected; fictional captures remain non-publishable.');

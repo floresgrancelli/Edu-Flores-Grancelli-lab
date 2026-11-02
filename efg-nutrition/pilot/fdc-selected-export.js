@@ -27,6 +27,13 @@ export async function importSelectedFdcExport({bytes,mappings,metadata,now}={}){
   let url;try{url=new URL(metadata.sourceUrl);}catch{return unknown('untrusted_source_location');}
   if(url.protocol!=='https:'||!['api.nal.usda.gov','fdc.nal.usda.gov'].includes(url.hostname)||
     url.username||url.password||url.search||url.hash)return unknown('untrusted_source_location');
+  // FDC 171477 is *roasted breast meat*, but the legacy UI food ID
+  // "chicken" means generic cooked skinless chicken of unspecified cut.
+  // Its macros may look similar; the identities are NOT interchangeable.
+  // Block this mapping until an explicitly reviewed preparation-specific
+  // catalog ID is introduced. This is a source gate, never a medical claim.
+  if(mappings?.some(m=>m?.foodId==='chicken'&&m?.fdcId===171477))
+    return unknown('preparation_mismatch_generic_chicken');
   if(!Array.isArray(mappings)||!mappings.length||mappings.length>5||
     new Set(mappings.map(m=>m?.fdcId)).size!==mappings.length||
     mappings.some(m=>!m||GUIDE_FDC_IDS[m.foodId]!==m.fdcId||m.dataType!=='SR Legacy'||

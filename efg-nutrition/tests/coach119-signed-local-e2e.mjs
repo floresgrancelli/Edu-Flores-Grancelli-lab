@@ -1,10 +1,12 @@
 // Current Coach release circuit over HTTP with REAL LOCAL GoTrue JWTs.
-// All accounts, legal text, nutrition evidence and history below are fictional.
+// All identities and nutrition evidence are local fiction; the exact two proposed pilot notices are NOT yet approved or hosted.
 // This is integration coverage, NOT physical UAT or production-restore parity.
 import assert from 'node:assert/strict';
 import {randomBytes, randomUUID} from 'node:crypto';
 import {localContext, literal as q, yes, denied} from './helpers/coach119-local.mjs';
 import {createCoachPlanDraftClient} from '../pilot/coach-plan-draft-client.js';
+import {preparePilotNoticePublication} from '../tools/prepare-pilot-notices-release.mjs';
+import {renderCoachPilotLegal} from '../pilot/coach-pilot-legal-client.js';
 
 const {sql, request, rpc, asClient} = localContext();
 assert.equal(sql("select local_only from efg_private.nut57_isolated_staging_marker"), 't');
@@ -61,10 +63,30 @@ forged[2] = (forged[2][0] === 'A' ? 'B' : 'A') + forged[2].slice(1);
 assert.equal((await rpc('efg_coach_pilot_entry_status', forged.join('.'))).status, 401,
   'PostgREST must reject a forged signature, not trust decoded claims');
 
-const text = 'SYNTHETIC LOCAL INTEGRATION FIXTURE. NOT A LEGAL DOCUMENT. '.repeat(8);
-sql(`insert into public.efg_legal_documents(kind,version,body,sha256,is_current,published_at)
- select kind,'synthetic_qa_v1',${q(text)},encode(sha256(convert_to(${q(text)},'UTF8')),'hex'),true,now()
- from unnest(array['terms','privacy']) kind;`);
+// Rehearse the EXACT TWO current PILOT notice proposals in the disposable
+// local stack. This does not approve them, publish them on hosted Supabase,
+ // or activate any production feature. The real bytes/hashes must survive SQL.
+const pilotNotices=preparePilotNoticePublication();
+assert.equal(pilotNotices.status,'PREPARED_NOT_APPLIED');
+assert.equal(pilotNotices.productionWrites,0);
+sql(pilotNotices.sql);
+const localNoticeRows=yes(await read('efg_legal_documents',users.newA),'two proposed notices read via student JWT');
+assert.equal(localNoticeRows.length,2,'Two separate versioned pilot notices must be readable by signed student');
+for(const metadata of pilotNotices.documents){
+ const document=localNoticeRows.find(x=>x.kind===metadata.kind);
+ assert.equal(document?.version,metadata.version);
+ assert.equal(document?.sha256,metadata.sha256,'Exact proposal hash must match the local server receipt source');
+ assert.ok(document?.is_current&&document?.published_at,'Local fixture notices require version+timestamp');
+ assert.equal(document?.body.trim().length,metadata.characters);
+}
+const localNoticeHtml=renderCoachPilotLegal({ready:true,documents:
+ localNoticeRows.map(x=>({...x,accepted:false}))});
+assert.match(localNoticeHtml,/Condiciones de participación en el piloto/);
+assert.match(localNoticeHtml,/Información de privacidad del piloto/);
+assert.match(localNoticeHtml,/<p>Nutrición Con-Ciencia/);
+assert.doesNotMatch(localNoticeHtml,/<input[^>]*\\bchecked\\b/i,'Pilot checkbox must never be preselected');
+const text=localNoticeRows.find(x=>x.kind==='privacy').body;
+console.log('PASS 01-03 local only: exact simple pilot notices, two hashes, safe readable HTML, separate unchecked acceptance; no hosted publication.');
 async function acceptLegal(user) {
   const documents = yes(await rpc('efg_legal_current_status', user.token), 'read current legal kinds');
   assert.deepEqual(documents.map(d => d.kind).sort(), ['privacy', 'terms']);

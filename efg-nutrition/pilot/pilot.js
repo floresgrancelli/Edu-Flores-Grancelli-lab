@@ -1550,7 +1550,7 @@ function plannerCard(){
    out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
     '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
     '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>'+
-    (row.food?'<div class="efg-compat-status" data-plan-compat="'+escapeHTML(key)+'" role="status">'+foodTrafficLight(row.food).details+'</div>':'');
+    '<div class="efg-compat-status" data-plan-compat="'+escapeHTML(key)+'" role="status">'+(row.food?foodTrafficLight(row.food).details:'')+'</div>';
    out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
@@ -1597,6 +1597,8 @@ function syncPlannerSearchActions(key){
  const [slot,category]=pair;
  const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const row=plan.meals?.find(meal=>meal.slot===slot)?.rows?.find(item=>item.category===category);
+ const signalMount=[...panel.querySelectorAll('[data-plan-compat]')].find(el=>el.dataset.planCompat===key);
+ if(signalMount)signalMount.innerHTML=row?.food?foodTrafficLight(row.food).details:'';
  if(!row?.food){
   mount.innerHTML='<p class="pilot-hint planner-skipped">No se añadirá ningún alimento en este espacio.</p>';
   return;
@@ -1623,7 +1625,7 @@ function filterPlannerFoods(input){
  if(!select)return;
  const chosenId=select.value;
  const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
- const available=allPlannerFoods(foods,allowedFoods()); // Respetar la selección autorizada por el coach cuando exista.
+ const available=allPlannerFoods(foods,allowedFoods()); // Único catálogo; el semáforo no oculta alimentos.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=plannerNormalizeQuery(foodSearchText(f)+" "+aliases);
@@ -1635,7 +1637,10 @@ function filterPlannerFoods(input){
  // and change the simulated day before the student chooses a food.
  const nextId=hasQuery?(selectedMatch?.id||"none"):chosenId;
  // El resultado visible debe coincidir con el texto ingresado, también en iOS.
- select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
+ select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched.map(f=>{
+  const signal=foodTrafficLight(f);
+  return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};
+ }),slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
  select.value=nextId;
  if(hasQuery&&nextId!==chosenId){
   state.plannerSelections[key]=nextId;

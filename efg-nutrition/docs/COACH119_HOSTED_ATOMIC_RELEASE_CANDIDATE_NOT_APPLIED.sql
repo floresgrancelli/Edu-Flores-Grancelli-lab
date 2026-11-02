@@ -188,9 +188,10 @@ begin
 end;
 $coach119_legacy_guide$;
 
--- The Coach explicitly approves a catalog for NEW and existing students.
--- This is separate from the five-meal guide. No unreviewed food can be added
--- through browser JSON; this private validator is called by the atomic RPC.
+-- Guard server-reviewed NUTRIENT COMPOSITION for the chosen guide ingredients.
+-- This is NOT medical suitability nor a whitelist for the student's common catalog.
+-- Versioned v2 carries only its guide ingredients; v1 historical contracts retain
+-- the broader Coach-approved list. This is staging-only, never a production write.
 create function efg_private.coach119_reviewed_food_ids(p_guide jsonb)
 returns text[] language plpgsql stable set search_path=''
 as $coach119_foods$
@@ -238,9 +239,19 @@ begin
   cross join lateral pg_catalog.jsonb_array_elements(meal.value->'items') as item(value)
  loop
   if v_item->>'id' is null or not(v_item->>'id'=any(v_selected)) then
-   raise exception 'Guide food not in Coach approved list' using errcode='22023';
+   raise exception 'Guide ingredient does not match submitted reviewed references'
+    using errcode='22023';
   end if;
  end loop;
+ -- A flexible proposal cannot use this array to restrict the student's
+ -- existing catalog or sneak unrelated foods into the published references.
+ if p_guide->>'kind' = 'flexible_meal_guide' and
+   (select pg_catalog.count(distinct item.value->>'id')
+    from pg_catalog.jsonb_array_elements(p_guide->'meals') as meal(value)
+    cross join lateral pg_catalog.jsonb_array_elements(meal.value->'items') as item(value)) <> v_count then
+   raise exception 'Flexible guide references must match its ingredients exactly'
+    using errcode='22023';
+ end if;
  return v_selected;
 end;
 $coach119_foods$;
@@ -369,11 +380,19 @@ begin
  if pg_catalog.jsonb_typeof(v_goal) is distinct from 'object'
   or v_goal->>'goal_type' not in ('fat_loss','recomp','muscle_gain','maintenance')
   or pg_catalog.jsonb_typeof(v_guide) is distinct from 'object'
-  or v_guide->>'kind' is distinct from 'five_meal_example'
-  or v_guide->>'version' is distinct from '1'
-  or pg_catalog.jsonb_typeof(v_guide->'meals') is distinct from 'array'
-  or pg_catalog.jsonb_array_length(v_guide->'meals')<>5 then
-  raise exception 'Goal or five-meal guide missing or invalid' using errcode='22023';
+  or pg_catalog.jsonb_typeof(v_guide->'meals') is distinct from 'array' then
+  raise exception 'Goal or guide missing or invalid' using errcode='22023';
+ end if;
+ if not (
+  (v_guide->>'kind'='five_meal_example'
+    and v_guide->>'version'='1'
+    and pg_catalog.jsonb_array_length(v_guide->'meals')=5)
+  or
+  (v_guide->>'kind'='flexible_meal_guide'
+    and v_guide->>'version'='2'
+    and pg_catalog.jsonb_array_length(v_guide->'meals') between 2 and 6)
+ ) then
+  raise exception 'Invalid guide kind, version or meal count' using errcode='22023';
  end if;
  foreach v_key in array array['kcal','protein_g','carb_g','fat_g','fiber_g'] loop
   if pg_catalog.jsonb_typeof(v_goal->v_key) is distinct from 'number' then
@@ -389,13 +408,14 @@ begin
  select count(*),count(distinct meal.value->>'slot')
   into v_slot_count,v_distinct_slots
  from pg_catalog.jsonb_array_elements(v_guide->'meals') as meal(value);
- if v_slot_count<>5 or v_distinct_slots<>5 or
+ if v_slot_count<>pg_catalog.jsonb_array_length(v_guide->'meals') or
+  v_distinct_slots<>v_slot_count or
   efg_private.coach_guide_foods_verified(v_guide) is distinct from true then
   raise exception 'Guide foods are not independently reviewed and current'
    using errcode='42501';
  end if;
- -- Require a reviewed, explicitly Coach-selected catalog (not just the
- -- five guide ingredients) before granting food-planning access.
+ -- Verify every guide ingredient against the private reviewed nutrition source.
+ -- The common student food catalog is NOT gated by this reference selection.
  v_food_ids:=efg_private.coach119_reviewed_food_ids(v_guide);
 
  -- The private transaction marker, not the client-settable GUC alone,

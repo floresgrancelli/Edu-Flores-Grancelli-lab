@@ -212,6 +212,11 @@ jobs:
       - name: COACH119 atomic publication NOT APPLIED, reviewed food/legal prerequisites and no legacy privilege revocation
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach119-atomic-candidate-contract.mjs
+      - name: COACH119 current hosted preflight matrix contract (READ-ONLY, OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tests/coach119-hosted-preflight-contract.mjs
+          node efg-nutrition/tests/coach119-hosted-preflight-contract.mjs
       - name: COACH118 default-OFF server student diary write gate and historical compatibility
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-disabled-diary-write-gate.mjs

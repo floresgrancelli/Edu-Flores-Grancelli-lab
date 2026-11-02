@@ -1,0 +1,22 @@
+name: NCC Starter Food Source Screening (offline)
+on:
+  push:
+    branches: [qa/ncc-starter-food-identity-20261102]
+    paths:
+      - 'efg-nutrition/tests/starter-food-source-identity-20261102.mjs'
+      - 'efg-nutrition/docs/NCC_STARTER_FOOD_PRE_REVIEW_20261102.md'
+      - '.github/workflows/ncc-starter-food-identity-qa.yml'
+permissions:
+  contents: read
+jobs:
+  source-screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check efg-nutrition/tests/starter-food-source-identity-20261102.mjs
+          node efg-nutrition/tests/starter-food-source-identity-20261102.mjs

@@ -34,8 +34,9 @@ for(const r of extra.records){
  assert.equal(parsed.description,r.expectedDescription);assert.equal(parsed.dataType,'SR Legacy');
  records.set(r.fdcId,r);
 }
+// Exact roasted breast is test-only; the legacy PWA chicken remains REJECTED for FDC171477.
 const mappings=[['apple',171688,'raw'],['oats_raw',173904,'raw'],['spinach_cooked',168463,'cooked'],
- ['yogurt_greek_light',170894,'as_sold'],['chicken',171477,'cooked'],['oil',171413,'as_sold'],
+ ['yogurt_greek_light',170894,'as_sold'],['chicken_breast_roasted',171477,'cooked'],['oil',171413,'as_sold'],
  ['brownrice',169704,'cooked'],['potato',170440,'cooked'],['banana',173944,'raw']];
 for(const [,id] of mappings)assert.ok(Number.isFinite(Date.parse(records.get(id).captureCompletedAtUTC)));
 const now=Math.max(...mappings.map(([,id])=>Date.parse(records.get(id).captureCompletedAtUTC)))+60000;
@@ -68,9 +69,9 @@ const fruit=qty=>group(['apple','banana'],qty);
 const template=[
  {slot:'desayuno',label:'Desayuno',groups:[group(['yogurt_greek_light'],200),group(['oats_raw'],50),fruit(130)]},
  {slot:'media_manana',label:'Media mañana',groups:[group(['yogurt_greek_light'],200),fruit(130)]},
- {slot:'almuerzo',label:'Almuerzo',groups:[group(['chicken'],175),group(['brownrice'],185),group(['spinach_cooked'],150),group(['oil'],10)]},
+ {slot:'almuerzo',label:'Almuerzo',groups:[group(['chicken_breast_roasted'],175),group(['brownrice'],185),group(['spinach_cooked'],150),group(['oil'],10)]},
  {slot:'merienda',label:'Merienda',groups:[group(['yogurt_greek_light'],200),group(['oats_raw'],30),fruit(130)]},
- {slot:'cena',label:'Cena',groups:[group(['chicken'],175),group(['potato'],230),group(['spinach_cooked'],150),group(['oil'],10)]}
+ {slot:'cena',label:'Cena',groups:[group(['chicken_breast_roasted'],175),group(['potato'],230),group(['spinach_cooked'],150),group(['oil'],10)]}
 ];
 const goal={kcal:2100,protein_g:190,carb_g:240,fat_g:45,fiber_g:32}; // fictional scenario, no clinical recommendation
 const context={now,restrictions:[],dislikedIds:[],pattern:{kind:'general'}};
@@ -113,7 +114,7 @@ const syntheticTemplate=template.map(m=>({slot:m.slot,label:m.label,groups:[{ids
 const syntheticGoal={kcal:2000,protein_g:200,carb_g:200,fat_g:400/9,fiber_g:180};
 const impossible=proposeAdaptedGuide({catalog:[synthetic],template:syntheticTemplate,goal:syntheticGoal,context});
 assert.equal(impossible.ok,false);assert.equal(impossible.code,'no_solution_found');assert.equal(impossible.plan,null);
-const refused=generate({context:{...context,dislikedIds:['chicken']}});
+const refused=generate({context:{...context,dislikedIds:['chicken_breast_roasted']}});
 assert.equal(refused.ok,false);assert.equal(refused.code,'no_candidates');assert.equal(refused.plan,null);
 let editor=createGuideEditor(initial,environment);const original=structuredClone(editor.committed);
 editor=updateGuideEditor(editor,{type:'begin'},environment);
@@ -147,7 +148,7 @@ console.log(JSON.stringify({status:'PASS_OFFICIAL_NINE_PRIVATE_SCENARIO',sourceR
  excludedAppleDraft:withoutApple,editSubstitutionRecalculationCancelRestore:'PASS',
  targetTolerance:GUIDE_TARGET_TOLERANCE,initialMaxDeviation:maxDeviation(initial),withoutAppleMaxDeviation:maxDeviation(withoutApple),
  fivePercentNegatives:'PASS: six-percent edit, widened parameter and impossible generator ratios rejected',
- varietyLimitation:'Repeated yogurt/chicken across the day; this fixture is not a varied menu or clinical approval.',
+ varietyLimitation:'Repeated yogurt/source-only roasted breast across the day; this fixture is not a varied menu or clinical approval.',
  unknownClinicalEvidence:'rejected',publishable:false,backendWrites:0,
  evidence:catalog.map(f=>({id:f.id,description:f.name,preparation:f.preparation,unit:f.unit,
   perUnit:f.composition.perUnit,source:f.composition.url,capturedAt:f.composition.sourceCapturedAt,

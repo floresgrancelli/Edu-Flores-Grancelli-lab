@@ -53,6 +53,13 @@ const chickenResult=await read(chicken,'https://api.nal.usda.gov/fdc/v1/food/171
 assert.equal(chickenResult.status,'unknown');
 assert.equal(chickenResult.reason,'preparation_mismatch_generic_chicken');
 assert.equal(chickenResult.publishable,false);
+// An exact roasted-breast identity may normalize OFFLINE without granting
+// approval to legacy generic chicken, publishing, or editing the PWA catalog.
+const precise=await read(chicken,'https://api.nal.usda.gov/fdc/v1/food/171477',
+ [{...mapping(chicken,'chicken_breast_roasted'),preparation:'cooked'}]);
+assert.equal(precise.status,'import_report');
+assert.equal(precise.results[0].result.status,'normalized_candidate');
+assert.equal(precise.publishable,false);
 // An exact roasted breast record cannot silently validate generic chicken
 // merely because the protein/calorie estimate happens to be similar.
 // Unexpected mappings must fail closed instead of throwing due to an

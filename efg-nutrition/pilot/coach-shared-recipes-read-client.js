@@ -1,6 +1,12 @@
 // GU-06 staged signed read: never use a Coach's localStorage as a source
 // for another person's recipe. Server resolves Coach ownership, RLS and consent.
+export const COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false; // NO GO / hosted RPC not installed
 const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const coachRecipeScopeMatches=(current,ticket)=>!!current&&!!ticket&&
+ current.role==='coach'&&current.consented===true&&current.shared===true&&
+ current.coachId===ticket.coachId&&current.studentId===ticket.studentId&&
+ current.organizationId===ticket.organizationId&&Number.isSafeInteger(current.epoch)&&
+ current.epoch===ticket.epoch&&[current.coachId,current.studentId,current.organizationId].every(x=>UUID.test(x||''));
 const nutr=['k','p','c','f','fi'];
 const isNonneg=x=>typeof x==='number'&&Number.isFinite(x)&&x>=0;
 export async function loadCoachSharedStudentRecipes(sb,{profile,studentId,organizationId}={}){

@@ -27,6 +27,7 @@ import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=20261102-r1";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=20261102-gu06";
+import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=20261102-gu06-scope";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
 import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
@@ -486,6 +487,7 @@ const authHydration=createAuthHydrationGate({
 });
 
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
+state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -2444,10 +2446,18 @@ function guidedTargetFeedback(deviations){
   ?"Menú cercano al objetivo (energía y macros dentro del 5%). Los valores son orientativos."
   :"Todavía hay diferencias con el objetivo. Recalculá las demás porciones o revisá el menú; se conservan los gramos que fijaste.";
 }
+function currentCoachRecipeScope(){
+ return {role:state.profile?.role,coachId:state.session?.user?.id||null,
+  studentId:state.selectedStudent||null,organizationId:state.org?.id||null,
+  epoch:state.authContextEpoch||0,consented:state.consent?.accepted===true,
+  shared:!!state.coachIntakeForms?.[state.selectedStudent]?.shared_at};
+}
 function coachGuidePickerFoods(){
- // Existing full catalog + Fit recipes. Student-owned recipes require a
- // separately authorized, server-scoped Coach read; no owner cache sharing.
- return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES}));
+ const scoped=COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
+  coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope);
+ return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
+  personalRecipes:scoped?state.coachSharedRecipes:[],
+  userId:scoped?state.selectedStudent:null}));
 }
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
@@ -3255,11 +3265,25 @@ async function loadStudentDetail(studentId){
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
+ state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
  const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle());
  if(c.error)throw c.error;
  state.consent=c.data;
  // Never reuse a previously cached shared intake after its consent or record changed.
  await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true));
+ if(COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
+    state.profile?.role==="coach"&&c.data?.accepted===true&&
+    state.coachIntakeForms?.[studentId]?.shared_at){
+  const loaded=await contextRead(loadCoachSharedStudentRecipes(sb,{
+   profile:state.profile,studentId,organizationId:state.org?.id
+  }));
+  if(state.selectedStudent!==studentId||state.session?.user?.id!==loaded.coachId||
+    state.org?.id!==loaded.organizationId)
+   throw Object.assign(Error("STUDENT_CONTEXT_CHANGED"),{code:"STALE_AUTH_CONTEXT"});
+  state.coachSharedRecipeScope={coachId:loaded.coachId,studentId,
+   organizationId:loaded.organizationId,epoch:contextEpoch};
+  state.coachSharedRecipes=loaded.recipes;
+ }
  if(c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
   // Private, RLS-guarded health read. No localStorage and no unverified
   // free-text restriction data. Hosted RPC may not yet be installed: FAIL CLOSED
@@ -3329,7 +3353,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;authHydration.verified(ticket,id);
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
+  if(switchingUser){state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   // getUser above is authoritative; cached session supplies only JWT correlation metadata.
   const currentSession=await contextRead(sb.auth.getSession());
   // Epoch was revalidated after getSession; same-user token rotation is harmless.
@@ -4161,9 +4185,27 @@ if(el.dataset.foodbulk){
       !window.confirm("Hay ingredientes que no coinciden con el perfil declarado. ¿Querés incluirlos bajo tu revisión de coach?"))return;
    if(Array.isArray(food.recipeIngredients)){
     const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
-    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal);
+    let actual=food,auth={};
+    if(food.privateRecipe===true){
+     if(!COACH_ATOMIC_PLAN_UI_ENABLED||!COACH_SHARED_STUDENT_RECIPES_UI_ENABLED||
+        !coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope))
+      throw Error("La receta personal necesita autorización actual del alumno.");
+     const scope=currentCoachRecipeScope();
+     const fresh=await loadCoachSharedStudentRecipes(sb,{
+      profile:state.profile,studentId:scope.studentId,organizationId:scope.organizationId
+     });
+     if(!coachRecipeScopeMatches(currentCoachRecipeScope(),scope)||
+       state.selectedStudent!==scope.studentId||fresh.coachId!==scope.coachId)
+      throw Error("Cambió la cuenta o el alumno; reabrí la guía.");
+     actual=recipeCatalogEntries({foods,personalRecipes:fresh.recipes,userId:scope.studentId})
+       .find(x=>x.id===food.id);
+     if(!actual)throw Error("La receta ya no está compartida.");
+     state.coachSharedRecipes=fresh.recipes;
+     auth={authorizedStudentId:scope.studentId,authorizedScopedRecipeRead:true};
+    }
+    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,actual,Number(input?.value||1),foods,goal,auth);
     showGuidedEditor();
-    notify("Receta Fit incorporada por porciones. Sus ingredientes y macros se cuentan una sola vez; verificá fuentes antes de publicar.");
+    notify("Receta incorporada por porciones y componentes, sin macros duplicados. Revisá las fuentes antes de publicar.");
    }else{
     state.coachGuidedDraft=addFlexibleFood(draft,slot,{id:food.id},foods,goal);
     showGuidedEditor();notify("Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario.");
@@ -4430,6 +4472,7 @@ function resetPrivateSession(){
  state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;
  state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakeGoals={};
  state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;
+ state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];
  state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;
  state.calculatedGoalBase=null;state.selectedStudent=null;state.consent=null;

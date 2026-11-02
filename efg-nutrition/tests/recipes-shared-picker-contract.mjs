@@ -65,6 +65,23 @@ assert.doesNotMatch(rpcSQL,/create policy|alter policy|grant select on public\.e
 import {loadCoachSharedStudentRecipes} from '../pilot/coach-shared-recipes-read-client.js';
 const linkedCoach='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',linkedStudent='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',linkedOrg='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const ownerProfile={user_id:linkedCoach,role:'coach',active:true};
+import {coachRecipeScopeMatches,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED} from '../pilot/coach-shared-recipes-read-client.js';
+assert.equal(COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,false);
+const ticket={coachId:linkedCoach,studentId:linkedStudent,organizationId:linkedOrg,epoch:7};
+const currentScope={...ticket,role:'coach',consented:true,shared:true};
+assert.equal(coachRecipeScopeMatches(currentScope,ticket),true);
+for(const bad of [
+ {...currentScope,studentId:linkedCoach},{...currentScope,coachId:linkedStudent},
+ {...currentScope,organizationId:linkedStudent},{...currentScope,epoch:8},
+ {...currentScope,role:'admin'},{...currentScope,consented:false},{...currentScope,shared:false}
+])assert.equal(coachRecipeScopeMatches(bad,ticket),false);
+const coachUI=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+for(const fragment of ['coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope)',
+ 'personalRecipes:scoped?state.coachSharedRecipes:[]',
+ 'state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];',
+ 'loadCoachSharedStudentRecipes(sb,{'])
+ assert.ok(coachUI.includes(fragment),'Private Coach recipe guard missing: '+fragment);
+
 const authorized={
  id:'dddddddd-dddd-4ddd-8ddd-dddddddddddd',student_id:linkedStudent,
  organization_id:linkedOrg,name:'Mi receta',portions:2,

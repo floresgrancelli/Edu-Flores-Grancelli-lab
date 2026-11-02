@@ -11,8 +11,8 @@
       "sha256": "a5b0550d67239d356ee4d3607f445bb025205c67ba777be2605a3abb98ea988d"
     },
     "runner/run.mjs": {
-      "sha256": "e9aed9e628b6971bec9524822d16b8df3cb8925683871effecc1273311c648e9",
-      "bytes": 20759
+      "bytes": 21089,
+      "sha256": "b259acc1ac2e8f29d4e2f7ed873247a14cfeabdd47a2eb5efb3fe8446a2b82fa"
     },
     "runner/config.py": {
       "bytes": 805,
@@ -245,6 +245,34 @@
     "bridge/hidden-ttl-case.mjs": {
       "bytes": 5516,
       "sha256": "7081c6217c62e3e2ca42a6dd95493e16174a9e8def23b85427c940646f5d6b90"
+    },
+    "diary-fixture/run.mjs": {
+      "bytes": 2054,
+      "sha256": "edc6340e1517e40b0ec9f7adb0fff6b869410091106171aeab7c23c8ecc785ef"
+    },
+    "diary-fixture/http-cases.mjs": {
+      "bytes": 2954,
+      "sha256": "907f31ed278ad3fd41e89dea1dcd64217643c80eb1d2a802ab7e17417025ab94"
+    },
+    "diary-fixture/tables.PROPOSAL.sql": {
+      "bytes": 3080,
+      "sha256": "ab4ed44c5ed580aab520ebab5814abf9f76354f655c896c9bc5bf58b67fcab64"
+    },
+    "diary-fixture/browser.mjs": {
+      "bytes": 13703,
+      "sha256": "7da36f07d72dbe1f4cc0a0be11a900494ea421466fc1a779b1939c132185750b"
+    },
+    "diary-fixture/install.mjs": {
+      "bytes": 2810,
+      "sha256": "c1bd6eddae87df7c40f45e0fe624a91995d6984cc72dd05bebb5dc9911e794bc"
+    },
+    "diary-fixture/mail-config.py": {
+      "bytes": 1251,
+      "sha256": "0c1d0be22a61e0207cf7fb3a739bf90d0ffb2ff5f1394332e796a091f28eabb9"
+    },
+    "dom-fixture/install.mjs": {
+      "bytes": 5118,
+      "sha256": "d2e976d07dec96bbc1475a973477ef73734cf6501073b0442cf33d0b8f46859a"
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",

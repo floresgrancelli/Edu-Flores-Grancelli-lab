@@ -19,7 +19,7 @@ function expectedNewAcl(sql,kind){
 }
 export function installDomFixture({sql,out}){
  assert.equal(process.env.EFG_QA_DOM_FIXTURE,'1');
- assert.ok(process.env.EFG_QA_DOM_FIXTURE_ONLY==='1'||process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom');
+ assert.ok(process.env.EFG_QA_DOM_FIXTURE_ONLY==='1'||process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom'||process.env.EFG_QA_DIARY_FIXTURE==='1');
  const identity=attestDatabase(sql); // Docker identity, system ID, ports/config, no hosted override.
  assert.equal(sql('select count(*) from auth.users'),'0');
  assert.equal(sql('select count(*) from public.efg_profiles'),'0');assert.equal(sql('select count(*) from public.efg_organizations'),'0');
@@ -49,3 +49,4 @@ export function installDomFixture({sql,out}){
  writeFileSync(out+'/dom-fixture-acl.json',JSON.stringify({before,after,containerId:identity.containerId,verified:true,limits:['Synthetic read-only fixture; not hosted policy restoration']},null,2));
  return after;
 }
+

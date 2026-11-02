@@ -532,7 +532,7 @@ jobs:
   # Add only after review to existing auth workflow; preserve every current job.
   # Marker branch condition is intentional, no schedule/main trigger.
   incremental-install-local:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[hydration-fixture]'))
+    if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[diary-fixture]'))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     permissions:
@@ -540,7 +540,8 @@ jobs:
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
       EFG_QA_DOM_FIXTURE_ONLY: ${{ contains(github.event.head_commit.message, '[hydration-fixture]') && '1' || '0' }}
-      EFG_QA_DOM_FIXTURE: ${{ (contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[clinical-bridge]')) && '1' || '0' }}
+      EFG_QA_DIARY_FIXTURE: ${{ contains(github.event.head_commit.message, '[diary-fixture]') && '1' || '0' }}
+      EFG_QA_DOM_FIXTURE: ${{ (contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[clinical-bridge]') || contains(github.event.head_commit.message, '[diary-fixture]')) && '1' || '0' }}
       EFG_QA_CLINICAL_BRIDGE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && '1' || '0' }}
       EFG_QA_CLINICAL_BRIDGE_MODE: ${{ contains(github.event.head_commit.message, '[clinical-bridge]') && 'rpc-dom' || '' }}
       EFG_QA_CLINICAL_COMPATIBILITY: ${{ contains(github.event.head_commit.message, '[clinical-compatibility]') && '1' || '0' }}
@@ -578,6 +579,14 @@ jobs:
           node private-installation/bridge/tests/bridge-http-contract-private.mjs
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Diary fixture syntax and existing pinned browser tooling
+        if: env.EFG_QA_DIARY_FIXTURE == '1'
+        run: |
+          set -euo pipefail
+          for f in private-installation/diary-fixture/*.mjs; do node --check "$f"; done
+          python3 -m py_compile private-installation/diary-fixture/mail-config.py
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Clinical source preflight before stack (opt-in)
         if: env.EFG_QA_CLINICAL_COMPATIBILITY == '1'
         run: |
@@ -606,6 +615,9 @@ jobs:
           python3 "$GITHUB_WORKSPACE/private-installation/runner/config.py" "$PWD"
           if [ "$EFG_QA_CLINICAL_BRIDGE" = '1' ]; then
             python3 "$GITHUB_WORKSPACE/private-installation/bridge/mail-config.py" "$PWD"
+          fi
+          if [ "$EFG_QA_DIARY_FIXTURE" = '1' ]; then
+            python3 "$GITHUB_WORKSPACE/private-installation/diary-fixture/mail-config.py" "$PWD"
           fi
           if ! supabase start > "$RUNNER_TEMP/incremental-start-private.log" 2>&1; then
             echo 'Local stack start failed; raw private log is not uploaded'; exit 1
@@ -647,3 +659,4 @@ jobs:
           path: artifacts/incremental-install/
           retention-days: 7
           if-no-files-found: warn
+

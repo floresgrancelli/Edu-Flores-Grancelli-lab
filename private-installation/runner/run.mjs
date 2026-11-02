@@ -34,7 +34,8 @@ try{
  const exactTypes=JSON.parse(read('runner/confirmed-types.json'));
  for(const c of exactTypes.columns){const actual=JSON.parse(sql(`select jsonb_build_object('type',format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull) from pg_attribute a where a.attrelid=${q(c.schema_name+'.'+c.table_name)}::regclass and a.attname=${q(c.column_name)} and a.attnum>0 and not a.attisdropped`));assert.deepEqual(actual,{type:c.exact_type,not_null:c.not_null});}
  record('ten confirmed exact types and nullability');
- if(process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom') (await import('../dom-fixture/install.mjs')).installDomFixture({sql,out});
+ if(process.env.EFG_QA_CLINICAL_BRIDGE_MODE==='rpc-dom'||process.env.EFG_QA_DIARY_FIXTURE==='1') (await import('../dom-fixture/install.mjs')).installDomFixture({sql,out});
+ if(process.env.EFG_QA_DIARY_FIXTURE==='1') (await import('../diary-fixture/install.mjs')).installDiaryFixture({sql,out});
  writeFileSync(out+'/acl-before.json',JSON.stringify(aclSnapshot(sql),null,2));
  const input=officialInput(),goal={...input.goal,goal_type:'maintenance'};
  const password=randomBytes(24).toString('hex')+'!Aa9',suffix=randomBytes(6).toString('hex'),users={};
@@ -144,6 +145,7 @@ try{
  assert.equal(yes(await request('/rest/v1/efg_food_plans?student_id=eq.'+s.id,{token:users.studentB.token}),'other student').length,0);
  assert.equal(yes(await rpc('efg_coach_pilot_entry_status',s.token),'student entry').route,'ready');record('concurrent single publication, student JWT read, one notice, idempotence');
  const second=await secondPublicationCase({sql,rpc,request,yes,coach,student:s,prep,provider,guide,firstReceipt:rec,firstGoal:published,tables:mutationTables});record('second publication archives first guide and retains both receipts; retry has no mutation');
+ if(process.env.EFG_QA_DIARY_FIXTURE==='1')await (await import('../diary-fixture/run.mjs')).runDiaryFixture({sql,request,users,input,ids,out,mutationTables,record});
  // Revocation is now tested against a valid fresh review draft, not published status.
  yes(await rpc('efg_revoke_coach_health_intake',s.token,{p_expected_revision:1}),'revoke');
  await noMutation(()=>rpc('efg_read_bound_guide',coach.token,{p_student:s.id}),'revoked read',['PT409']);
@@ -162,3 +164,4 @@ try{
  try{if(installed){sql("update efg_private.coach_release_switches set enabled=false where switch_key='pilot_coach_atomic_publication'");assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_coach_atomic_publication'"),'f');assert.equal(sql('select count(*) from efg_private.coach119_atomic_transactions'),'0');result.restored=true;}}catch(e){result.status='FAIL_RESTORE';result.restored=false;throw e;}finally{
  writeFileSync(out+'/result.json',JSON.stringify(result,null,2));}
 }
+

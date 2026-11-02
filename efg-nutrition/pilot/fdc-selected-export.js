@@ -39,6 +39,12 @@ export async function importSelectedFdcExport({bytes,mappings,metadata,now}={}){
   if(records.length!==mappings.length||records.some(r=>!r||typeof r!=='object')||
     new Set(records.map(r=>r.fdcId)).size!==records.length||
     records.some(r=>!mappings.some(m=>m.fdcId===r.fdcId)))return unknown('selection_mismatch');
+  // Require exact API details path and pinned IDs, not merely an official-looking host.
+  // This does NOT verify provenance: only a trusted ingestion process can do so.
+  const expectedPath=records.length===1
+    ?'/fdc/v1/food/'+records[0].fdcId:'/fdc/v1/foods';
+  if(url.origin!=='https://api.nal.usda.gov'||url.pathname!==expectedPath)
+    return unknown('untrusted_source_location');
   const exportDigest=await digest(bytes), results=[];
   for(const mapping of mappings){
     const record=records.find(r=>r.fdcId===mapping.fdcId);

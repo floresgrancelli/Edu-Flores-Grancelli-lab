@@ -223,6 +223,11 @@ jobs:
       - name: COACH114 private reviewed source prerequisite for atomic guides (STATIC; UNSEEDED)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach114-reviewed-guide-source-contract.mjs
+      - name: NCC 02-03 FDC exact official endpoint and identity (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/pilot/fdc-selected-export.js
+          node efg-nutrition/tests/fdc-export-source-contract.mjs
       - name: COACH118 staging-only signed diary DML gate (NOT APPLIED)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-diary-write-gate-staging-contract.mjs

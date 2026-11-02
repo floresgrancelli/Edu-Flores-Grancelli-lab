@@ -12,24 +12,38 @@ assert.ok(draft.blockers.includes('TERMS_REVIEW_FIELDS_MISSING'));
 assert.ok(draft.blockers.includes('PRIVACY_REVIEW_FIELDS_MISSING'));
 assert.equal(draft.documents[0].sha256,createHash('sha256').update(terms.trim()).digest('hex'));
 assert.notEqual(draft.documents[0].sha256,draft.documents[1].sha256);
-const filled=body=>body.replace(/^BORRADOR INTERNO — NO PUBLICAR\n/,'')
- .replace(/\[PENDIENTE: nombre real o razón social\]/g,'Entidad de simulación QA')
- .replace(/\[PENDIENTE: domicilio de contacto\]/g,'Domicilio de ejemplo 100, CABA')
- .replace(/\[PENDIENTE: correo real de soporte y privacidad\]/g,'soporte@example.invalid')
- .replace(/\[PENDIENTE: correo real para ejercer derechos de datos\]/g,'privacidad@example.invalid')
- .replace(/\[PENDIENTE: plazo concreto y tratamiento de copias de respaldo\]/g,'30 días tras finalizar piloto, sujeto a auditoría');
-const checked=inspectPilotLegalDrafts({terms:filled(terms),privacy:filled(privacy),version});
+// Preserve the public-facing copy exactly as requested. The following
+// synthetic enrichment is ONLY for the local review contract: never put
+// fictional names/addresses into documents seen by pilot participants.
+const filled=(body,kind)=>{
+ const src=body.replace(/^BORRADOR INTERNO — NO PUBLICAR\n/,'');
+ const heading=kind==='terms'
+  ?'# Condiciones para participar en el piloto de Nutrición Con-Ciencia\n'
+  :'# Aviso de datos y privacidad del piloto de Nutrición Con-Ciencia\n';
+ const fields='Versión propuesta: pilot_20261102_v1\n'+
+  'Responsable: Entidad de simulación QA\n'+
+  'Domicilio: Domicilio de ejemplo 100, CABA\n'+
+  'Contacto: soporte@example.invalid\n';
+ const provider=kind==='privacy'
+  ?'Conservación: 30 días tras finalizar piloto, sujeto a auditoría.\n'+
+   'Infraestructura sintética: Supabase y Render.\n'
+  :'';
+ return heading+fields+provider+src;
+};
+const fillTerms=()=>filled(terms,'terms');
+const fillPrivacy=()=>filled(privacy,'privacy');
+const checked=inspectPilotLegalDrafts({terms:fillTerms(),privacy:fillPrivacy(),version});
 assert.deepEqual(checked.blockers,[],'Only synthetic, populated copies pass technical review');
 assert.equal(checked.readyForManualReview,true);
 assert.equal(checked.publishable,false,'Technical review never activates the hosted app');
 assert.equal(checked.uploaded,false);
 for(const changed of [
- {privacy:filled(privacy).replace('Supabase','otro servicio')},
- {terms:filled(privacy),privacy:filled(terms)},
+ {privacy:fillPrivacy().replace('Supabase','otro servicio')},
+ {terms:fillPrivacy(),privacy:fillTerms()},
  {version:'pilot_20261103_v1'},
- {privacy:filled(terms)}
+ {privacy:fillTerms()}
 ]){
- const r=inspectPilotLegalDrafts({terms:filled(terms),privacy:filled(privacy),version,...changed});
+ const r=inspectPilotLegalDrafts({terms:fillTerms(),privacy:fillPrivacy(),version,...changed});
  assert.ok(r.blockers.length>0,JSON.stringify(changed).slice(0,70));
  assert.equal(r.publishable,false);
 }

@@ -5,6 +5,7 @@ import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-sel
 // COACH119 / legacy and flexible versioned guide contracts.
 const WHEN="2026-10-29T12:00:00.000Z";
 const ORG="50000000-0000-4000-8000-000000000001";
+const STU="00000000-0000-4000-8000-000000000011",REQ="30000000-0000-4000-8000-000000000001",GOAL="40000000-0000-4000-8000-000000000001";
 const goal={goal_type:"recomp",kcal:2100,protein_g:140,carb_g:230,fat_g:70,fiber_g:28};
 const food={id:"tofu_firm",unit:"g",qty:100,k:0.8,p:0.1,c:0.03,f:0.04,fi:0.02};
 const guide={kind:"five_meal_example",version:1,meals:["desayuno","media_manana","almuerzo","merienda","cena"].map(slot=>({slot,items:[{...food}]})),supplementNote:""};

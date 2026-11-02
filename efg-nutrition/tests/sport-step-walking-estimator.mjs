@@ -88,4 +88,69 @@ assert.match(migration,/add column walking_weight_kg numeric/);
 assert.doesNotMatch(migration,/update public\.efg_activities/i,'No backfill changes existing records.');
 const index=readFileSync(new URL('../pilot/index.html',import.meta.url),'utf8');
 assert.match(index,/walking-activity\.css\?v=/);
+
+// WALK-02: new flexible inputs, preserving old step-only behaviour.
+const fromKm=estimateWalkingSteps({steps:0,distanceKm:5,durationMinutes:60,weightKg:80,
+ pace:'moderate',avgHeartRateBpm:118});
+assert.equal(fromKm.distanceKm,5);
+assert.equal(fromKm.durationMinutes,60);
+assert.equal(fromKm.activeKcal,224,'Active only: (3.8 - 1) * 80 * 1 hour');
+assert.equal(fromKm.distanceSource,'reported');
+assert.equal(fromKm.durationSource,'reported');
+assert.equal(fromKm.heartRateBpm,118);
+assert.equal(fromKm.heartRateAffectsCalories,false);
+assert.equal(fromKm.noAutomaticDietCredit,true);
+assert.equal(estimateWalkingSteps({steps:0,distanceKm:5,durationMinutes:60,weightKg:80,pace:'moderate',avgHeartRateBpm:150}).activeKcal,224,
+ 'HR must not change calories without individual calibration');
+const onlyKm=estimateWalkingSteps({steps:0,distanceKm:5,pace:'moderate',weightKg:80});
+assert.equal(onlyKm.durationMinutes,60);
+assert.equal(onlyKm.activeKcal,224);
+const onlyTime=estimateWalkingSteps({steps:0,durationMinutes:60,pace:'moderate',weightKg:80});
+assert.equal(onlyTime.distanceKm,5);
+assert.equal(onlyTime.activeKcal,224);
+assert.equal(onlyTime.distanceSource,'pace_inferred');
+const manualWins=estimateWalkingSteps({steps:8000,pace:'moderate',heightCm:174,weightKg:80,distanceKm:5,durationMinutes:60});
+assert.equal(manualWins.distanceKm,5,'User measured km override step approximation');
+assert.equal(manualWins.distanceSource,'reported');
+assert.equal(estimateStoredWalkingActivity({steps:0,walking_pace:'moderate',walking_distance_km:5,
+ walking_duration_minutes:60,walking_weight_kg:80,walking_avg_heart_rate_bpm:118}).activeKcal,224);
+assert.match(renderWalkingActivityHistory({steps:0,walking_pace:'moderate',walking_distance_km:5,
+ walking_duration_minutes:60,walking_weight_kg:80,walking_avg_heart_rate_bpm:118}),/FC 118 lpm/);
+const inconsistent=estimateWalkingSteps({steps:0,distanceKm:10,durationMinutes:25,weightKg:80,pace:'moderate'});
+assert.equal(inconsistent.activeKcal,null,'Do not use walking MET at running speed');
+assert.equal(inconsistent.invalidWalkingSpeed,true);
+for(const invalid of [
+ {steps:0,distanceKm:-1},{steps:0,distanceKm:101},{steps:0,durationMinutes:0},
+ {steps:0,durationMinutes:1441},{steps:0,avgHeartRateBpm:25},
+ {steps:0,avgHeartRateBpm:240}
+])assert.throws(()=>estimateWalkingSteps(invalid));
+const walkFields={activitySteps:'',activityPace:'moderate',activityHeightCm:'',
+ activityWeightKg:'80',activityMinutes:'0',activityKind:'Caminata',
+ activityDistanceKm:'5',activityWalkingMinutes:'60',activityHeartRateBpm:'118'};
+const walkDoc={getElementById:id=>({value:walkFields[id]??''})};
+const flexibleEntry=readWalkingActivityForm(walkDoc);
+assert.equal(flexibleEntry.steps,0);
+assert.equal(flexibleEntry.walking_distance_km,5);
+assert.equal(flexibleEntry.walking_duration_minutes,60);
+assert.equal(flexibleEntry.walking_avg_heart_rate_bpm,118);
+assert.equal(flexibleEntry.estimate.activeKcal,224);
+walkFields.activityDistanceKm='';
+walkFields.activityWalkingMinutes='';
+assert.throws(()=>readWalkingActivityForm(walkDoc),/pasos, distancia o minutos/);
+walkFields.activityHeartRateBpm='';
+assert.equal(readWalkingActivityForm(walkDoc).estimate.activeKcal,null);
+const newHtml=renderWalkingActivityCard({lastWeightKg:80});
+for(const id of ['activityDistanceKm','activityWalkingMinutes','activityHeartRateBpm'])
+ assert.ok(newHtml.includes('id="'+id+'"'),id);
+assert.ok(newHtml.includes('no cambia el cálculo de calorías'));
+const newSql=readFileSync(new URL('../docs/NCC_WALKING_V2_STAGING_ONLY.sql',import.meta.url),'utf8');
+assert.match(newSql,/add column walking_distance_km numeric/);
+assert.match(newSql,/add column walking_duration_minutes integer/);
+assert.match(newSql,/add column walking_avg_heart_rate_bpm integer/);
+assert.doesNotMatch(newSql,/update public\.efg_activities/i,'No historical rewrite');
+assert.match(app,/activityDistanceKm/);
+assert.match(app,/activityWalkingMinutes/);
+assert.match(app,/activityHeartRateBpm/);
+console.log('PASS WALK-02: optional distance/time/bpm; HR does not modify kcal; old step-only records preserved; no dietary credit.');
+
 console.log('PASS SPORT-STEP: 2024 MET, 8000-step distance and active kcal, pace differences, missing weight/legacy safe, Deportes+Mi progreso, no diet deductions, additive migration.');

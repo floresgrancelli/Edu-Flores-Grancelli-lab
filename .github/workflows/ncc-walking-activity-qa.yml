@@ -1,0 +1,32 @@
+name: NCC Walking Activity V2 QA (isolated)
+
+on:
+  push:
+    branches: [feature/ncc-walking-activity-20261102]
+    paths:
+      - 'efg-nutrition/pilot/walking-*'
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/pilot/index.html'
+      - 'efg-nutrition/tests/sport-step-walking-estimator.mjs'
+      - 'efg-nutrition/docs/NCC_WALKING_V2_STAGING_ONLY.sql'
+      - '.github/workflows/ncc-walking-activity-qa.yml'
+  pull_request:
+    branches: [release/ncc-pilot-fast-track-20261102]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  walking-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check efg-nutrition/pilot/walking-steps-estimator.js
+          node --check efg-nutrition/pilot/walking-activity-ui.js
+          node --check efg-nutrition/pilot/pilot.js
+          node --check efg-nutrition/tests/sport-step-walking-estimator.mjs
+      - run: node efg-nutrition/tests/sport-step-walking-estimator.mjs

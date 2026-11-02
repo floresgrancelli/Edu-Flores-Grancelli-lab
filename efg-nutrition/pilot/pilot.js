@@ -27,7 +27,7 @@ import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261030-sport-step03";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
 import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
@@ -2015,9 +2015,9 @@ function movementCard(){
 }
 function sportView(){
  let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e));
- const walks=(state.activities||[]).filter(a=>a.steps!==null&&a.steps!==undefined&&Number.isSafeInteger(Number(a.steps))).slice(0,4);
+ const walks=(state.activities||[]).filter(a=>Number(a.steps)>0||Number(a.walking_distance_km)>0||Number(a.walking_duration_minutes)>0).slice(0,4);
  const recentWalks='<section class="card efg-walk-recent"><h3>Mis últimos pasos registrados</h3>'+
-  (walks.length?walks.map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<p class="pilot-hint">Tu primer registro de pasos aparecerá acá.</p>')+'</section>';
+  (walks.length?walks.map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos':'Caminata registrada')+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<p class="pilot-hint">Tu primer registro de pasos aparecerá acá.</p>')+'</section>';
  return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+
   movementCard()+recentWalks+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar bebida o producto de entrenamiento</h2><p class="pilot-hint">Creatina, colágeno, magnesio y omega-3 están en Suplementos del día, debajo de Cena.</p><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports.filter(x=>!supplementRecord(x)&&x.id!=="whey"))+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
@@ -2072,7 +2072,7 @@ function progressView(){
  weights.map(w=>'<tr><td>'+escapeHTML(weightDateLabel(w))+'</td><td><b>'+num(w.kg,1)+' kg</b></td></tr>').join("")+'</tbody></table></div>':'<div class="empty">Todavía no registraste tu peso.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>Mi evolución del peso</h2>'+weightTrendChart(state.weights)+'</div>'+
  movementCard()+
- '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
+ '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
@@ -3386,7 +3386,7 @@ async function saveActivity(){
  },{onConflict:"student_id,activity_day"});
  if(error)throw error;
  await loadPersonalData();await render();
- notify("Pasos y actividad guardados. "+num(estimate.distanceKm,2)+" km aproximados"+
+ notify("Actividad guardada. "+num(estimate.distanceKm,2)+(estimate.distanceSource==='reported'?" km registrados":" km aproximados")+
   (estimate.activeKcal===null?". Agregá tu peso para estimar calorías.":" · "+num(estimate.activeKcal)+" kcal activas estimadas."));
 }
 async function savePersonalTargets(){
@@ -4141,7 +4141,7 @@ function foodSearchReadyForInput(event){
  return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
 }
 root.addEventListener("input",e=>{
- if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
+ if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
   const model=buildCurrentLuxuryModel();
   luxuryWeeklyEditor.update(luxuryEditorContext(model),
@@ -4165,7 +4165,7 @@ root.addEventListener("input",e=>{
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
 root.addEventListener("change",e=>{
- if(["activitySteps","activityPace","activityHeightCm","activityWeightKg"].includes(e.target.id))refreshWalkingActivityPreview(document);
+ if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(COACH_STUDENT_JOURNEY_ENABLED&&["efgPilotParticipate","efgPilotShare"].includes(e.target.id)){
   syncPilotParticipationContinueButton(document);return;
  }

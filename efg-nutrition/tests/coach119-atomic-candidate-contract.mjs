@@ -105,9 +105,9 @@ const foodFilterStart=pilotSource.indexOf('function allowedFoods(){');
 const foodFilterEnd=pilotSource.indexOf('// El sushi se muestra por piezas;',foodFilterStart);
 assert.ok(foodFilterStart>=0&&foodFilterEnd>foodFilterStart,'Student catalog resolver must exist');
 const catalogFixture=['egg','sushi_maki_salmon','pizza_muzzarella','rice'].map(id=>({id}));
-const allowedFor=(role,foodPlan)=>new Function('state','foods',
+const allowedFor=(role,foodPlan)=>new Function('state','foods','selectableFoods',
  pilotSource.slice(foodFilterStart,foodFilterEnd)+';return allowedFoods();')
- ({profile:{role},foodPlan},catalogFixture);
+ ({profile:{role},foodPlan},catalogFixture,()=>catalogFixture);
 const wholeCatalog=catalogFixture.map(f=>f.id);
 for(const role of ['student','coach','admin']){
  for(const plan of [null,{approved_food_ids:null},{approved_food_ids:[]},

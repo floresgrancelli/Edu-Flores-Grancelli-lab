@@ -18,7 +18,7 @@ function optionalWalkingDecimal(doc,id,min,max,places=2){
 function optionalWalkingInt(doc,id,min,max){
  const raw=val(doc,id).trim();
  if(!raw)return null;
- if(!/^\\d+$/.test(raw)||!Number.isSafeInteger(Number(raw))||
+ if(!/^\d+$/.test(raw)||!Number.isSafeInteger(Number(raw))||
     Number(raw)<min||Number(raw)>max)
   throw Error(id==='activityWalkingMinutes'?
    'Ingresá minutos de caminata entre 1 y 1.440.':
@@ -118,7 +118,7 @@ export function renderWalkingActivityCard({todayActivity=null,lastWeightKg=null}
   '<div class="field"><label for="activityPace">Ritmo de caminata</label><select id="activityPace">'+
   Object.entries(WALKING_PACES).map(([key,p])=>'<option value="'+key+'"'+(selectedPace===key?' selected':'')+'>'+p.label+' · '+n(p.kmh,1)+' km/h</option>').join('')+'</select></div></div>'+
   '<div class="field-row">'+
-  '<div class="field"><label for="activityDistanceKm">Distancia real (km) · opcional</label><input id="activityDistanceKm" type="number" min="0.01" max="100" step="0.01" inputmode="decimal" placeholder="Ej.: 5,2" value="'+html(distance)+'"></div>'+
+  '<div class="field"><label for="activityDistanceKm">Distancia real (km) · opcional</label><input id="activityDistanceKm" type="number" min="0.01" max="100" step="0.01" inputmode="decimal" placeholder="Ej.: 5.2" value="'+html(distance)+'"></div>'+
   '<div class="field"><label for="activityWalkingMinutes">Minutos caminados · opcional</label><input id="activityWalkingMinutes" type="number" min="1" max="1440" step="1" inputmode="numeric" placeholder="Ej.: 65" value="'+html(walkingMinutes)+'"></div></div>'+
   '<div class="field-row"><div class="field"><label for="activityHeightCm">Altura (cm) · opcional</label><input id="activityHeightCm" type="number" inputmode="decimal" min="100" max="250" step="0.1" placeholder="Mejora distancia" value="'+html(height)+'"></div>'+
   '<div class="field"><label for="activityWeightKg">Peso (kg) · para calorías</label><input id="activityWeightKg" type="number" inputmode="decimal" min="20" max="400" step="0.1" placeholder="Ej.: 78" value="'+html(weight)+'"></div></div>'+

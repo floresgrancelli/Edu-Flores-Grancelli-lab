@@ -233,6 +233,11 @@ jobs:
       - name: COACH114 private reviewed source prerequisite for atomic guides (STATIC; UNSEEDED)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach114-reviewed-guide-source-contract.mjs
+      - name: NCC 02-03 actual catalog provenance coverage and approval separation (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tests/coach114-catalog-release-coverage.mjs
+          node efg-nutrition/tests/coach114-catalog-release-coverage.mjs
       - name: NCC 02-03 FDC exact official endpoint and identity (OFFLINE)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

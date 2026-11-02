@@ -8,7 +8,7 @@ import {approvedFoodGuide} from "./coach-food-selection.js";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=false;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const SLOTS=new Set(["desayuno","media_manana","almuerzo","merienda","cena"]);
+const SLOTS=new Set(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"]);
 const TYPES=new Set(["fat_loss","recomp","muscle_gain","maintenance"]);
 const numBounds={kcal:[1200,10000],protein_g:[0,1000],carb_g:[0,2000],fat_g:[0,1000],fiber_g:[0,150]};
 const fieldErr="La propuesta todavía no cumple los requisitos de revisión de la guía.";
@@ -21,12 +21,17 @@ export function validateCoachPlanProposal(goal,guide){
   if(!Number.isInteger(n)||n<min||n>max)throw Error("Revisá "+field+"; los objetivos deben ser números enteros dentro del rango.");
   clean[field]=n;
  }
- if(!guide||guide.kind!=="five_meal_example"||guide.version!==1||
-   !Array.isArray(guide.meals)||guide.meals.length!==5)throw Error("La guía debe incluir exactamente cinco comidas.");
+ const flexible=guide?.kind==="flexible_meal_guide"&&guide?.version===2;
+ const legacy=guide?.kind==="five_meal_example"&&guide?.version===1;
+ if(!(flexible||legacy)||!Array.isArray(guide.meals)||
+    flexible&&(guide.meals.length<2||guide.meals.length>6)||
+    legacy&&guide.meals.length!==5)
+  throw Error("La Dieta Guía necesita horarios válidos.");
  const seen=new Set();
  for(const meal of guide.meals){
   if(!SLOTS.has(meal?.slot)||seen.has(meal.slot)||
-    !Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw Error("Revisá las cinco comidas y sus alimentos.");
+    !Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)
+    throw Error("Revisá los horarios y alimentos de la guía.");
   seen.add(meal.slot);
   for(const item of meal.items){
    if(typeof item?.id!=="string"||!/^[a-z0-9_-]{1,100}$/i.test(item.id)||
@@ -35,8 +40,8 @@ export function validateCoachPlanProposal(goal,guide){
     throw Error("Revisá cantidades, unidades y nutrientes de los alimentos.");
   }
  }
- if(guide.approvedFoodIds!==undefined)
-  guide=approvedFoodGuide(guide,guide.approvedFoodIds);
+ if(flexible||guide.approvedFoodIds!==undefined)
+  guide=approvedFoodGuide(guide,guide.approvedFoodIds??null);
  if(guide.supplementNote!==undefined&&
     (typeof guide.supplementNote!=="string"||guide.supplementNote.length>300))
   throw Error("La nota de suplementos supera los 300 caracteres.");

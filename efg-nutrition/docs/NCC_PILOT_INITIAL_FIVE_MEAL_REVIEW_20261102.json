@@ -18,10 +18,10 @@
     "spinach_cooked",
     "oil",
     "potato",
-    "chicken_breast_roasted_skinless"
+    "chicken_breast_roasted"
   ],
   "preciseChickenCandidate": {
-    "foodId": "chicken_breast_roasted_skinless",
+    "foodId": "chicken_breast_roasted",
     "fdcId": 2705956,
     "description": "Chicken breast, baked, broiled, or roasted, skin not eaten, from raw",
     "basis": "FNDDS 2021-2023; cooked edible portion, 100 g",
@@ -33,7 +33,9 @@
       "fi": 0
     },
     "needsPrimarySourceCaptureAndHumanReview": true,
-    "publishable": false
+    "publishable": false,
+    "pwaCatalogIdAlreadyExists": true,
+    "fdcIdentityAlreadyListed": true
   },
   "blockedMappings": [
     {
@@ -76,7 +78,7 @@
       "slot": "almuerzo",
       "items": [
         {
-          "foodId": "chicken_breast_roasted_skinless",
+          "foodId": "chicken_breast_roasted",
           "grams": 150
         },
         {
@@ -110,7 +112,7 @@
       "slot": "cena",
       "items": [
         {
-          "foodId": "chicken_breast_roasted_skinless",
+          "foodId": "chicken_breast_roasted",
           "grams": 150
         },
         {
@@ -131,8 +133,16 @@
   "gateToPublish": [
     "La persona autorizada confirma preparación e identidad exacta de cada ID y su fuente primaria",
     "Resolver macronutrientes, fibra, peso comestible, unidades y cantidades con evidencia",
-    "Crear ID diferenciado para pechuga al horno sin piel; no reutilizar pollo genérico",
+    "Usar el ID PWA existente chicken_breast_roasted con FNDDS 2705956; no sustituir chicken genérico, no duplicar el catálogo",
     "Registrar aprobación por operador autorizado en tabla privada; este JSON nunca aprueba ni siembra alimentos",
     "Probar sustitución, borrador de cinco comidas y publicación atómica con JWT reales"
-  ]
+  ],
+  "catalogVerification": {
+    "checkedAgainst": "efg-nutrition/pilot/food-catalog.js + pilot/pilot.js",
+    "chickenId": "chicken_breast_roasted",
+    "chickenExists": true,
+    "chickenSourceId": "2705956",
+    "chickenPwaStatus": "tabla_referenciada (NO aprobación del coach)",
+    "otherCandidates": "comparar USDA/per100g y gramaje con fichas existentes antes de que un operador habilite nuevas guías"
+  }
 }

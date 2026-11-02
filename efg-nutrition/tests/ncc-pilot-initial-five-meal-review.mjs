@@ -1,6 +1,8 @@
 // 02-03: proposal-only selected five-meal menu; NEVER a nutrition or server-approval record.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {EXTRA_FOODS} from '../pilot/food-catalog.js';
+import {approvedFoodGuide} from '../pilot/coach-food-selection.js';
 const read=name=>JSON.parse(readFileSync(new URL('../docs/'+name,import.meta.url),'utf8'));
 const menu=read('NCC_PILOT_INITIAL_FIVE_MEAL_REVIEW_20261102.json');
 const source=read('NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json');
@@ -13,6 +15,36 @@ assert.deepEqual(menu.meals.map(x=>x.slot),['desayuno','media_manana','almuerzo'
 assert.ok(menu.blockedMappings.some(x=>x.catalogFoodId==='chicken'));
 assert.ok(menu.blockedMappings.some(x=>x.catalogFoodId==='milk_skim'));
 const matches=new Map(source.records.map(x=>[x.foodId,x]));
+const pwaById=new Map(EXTRA_FOODS.map(x=>[x.id,x]));
+const chickenPwa=pwaById.get('chicken_breast_roasted');
+assert.ok(chickenPwa,'FNDDS chicken must be present in the actual PWA catalog');
+assert.equal(chickenPwa.unit,'g');
+assert.equal(chickenPwa.sourceId,'2705956');
+assert.equal(chickenPwa.k,1.61);
+assert.equal(chickenPwa.p,.3022);
+assert.equal(chickenPwa.c,0);
+assert.equal(chickenPwa.f,.0352);
+assert.equal(chickenPwa.fi,0);
+assert.notEqual(chickenPwa.validationStatus,'reviewed','PWA source reference is not an operator approval');
+const legacy=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+for(const id of ['brownrice','potato','banana','oil']){
+ assert.match(legacy,new RegExp('\\\\{id:"'+id+'",name:','g'),'Missing PWA legacy food '+id);
+}
+for(const id of menu.candidateFoodIds){
+ assert.ok(pwaById.has(id)||['brownrice','potato','banana','oil'].includes(id),
+  'Selected ID is not in legacy or extended PWA catalog: '+id);
+}
+// This is a simulated draft. Never call a hosted RPC or set review flags.
+const proposal={kind:'five_meal_example',version:1,meals:menu.meals.map(x=>({
+ slot:x.slot,items:x.items.map(i=>({id:i.foodId,unit:'g',qty:i.grams}))
+}))};
+assert.deepEqual(approvedFoodGuide(proposal,menu.candidateFoodIds,
+ {knownIds:[...pwaById.keys(),'brownrice','potato','banana','oil']}).approvedFoodIds,
+ [...menu.candidateFoodIds].sort());
+assert.throws(()=>approvedFoodGuide(proposal,
+ menu.candidateFoodIds.filter(id=>id!=='chicken_breast_roasted'),
+ {knownIds:[...pwaById.keys(),'brownrice','potato','banana','oil']}),/no está seleccionado/);
+
 assert.equal(source.readiness,'NOT_REVIEWED');
 assert.equal(source.publishable,false);
 assert.equal(source.rawSourceBackendSeeded,false);
@@ -22,6 +54,9 @@ assert.equal(precise.publishable,false);
 assert.equal(precise.needsPrimarySourceCaptureAndHumanReview,true);
 assert.equal(matches.get('chicken').fdcId,171477);
 assert.notEqual(precise.foodId,'chicken');
+assert.equal(precise.foodId,'chicken_breast_roasted');
+assert.equal(precise.pwaCatalogIdAlreadyExists,true);
+assert.equal(precise.fdcIdentityAlreadyListed,true);
 const totals={k:0,p:0,c:0,f:0,fi:0};
 const named=new Set(menu.candidateFoodIds);
 for(const meal of menu.meals){

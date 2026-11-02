@@ -25,6 +25,7 @@ const glutenNames=/\b(pan|tostadas?|trigo|centeno|cebada|cusc[uú]s|s[eé]itan|p
 const wheatIds=new Set(['bread','bread_white','bread_rye','toast_whole','tortilla_wheat','pasta','pasta_raw','protein_pasta','pasta_dry','couscous_cooked','bulgur_cooked','barley_cooked','seitan_cooked']);
 const lactoseIds=new Set(['milk','milk_skim','milk_whole','cheese','yogurt','yogurt_greek','yogurt_greek_light','yogurt_high_protein','ricotta_light','ricotta_whole','cottage_cheese','cream_cheese_light']);
 const animalIds=new Set(['egg','egg_white','egg_boiled','chicken','beef','pork','fish_hake','fish_salmon','milk','milk_skim','milk_whole','milk_lactosefree','cheese','yogurt','yogurt_greek_light','yogurt_high_protein','whey_powder','honey','turkey_breast_cooked']);
+const meatIds=new Set(['chicken','beef','pork','turkey_breast_cooked','ham_cooked','lamb','duck']);
 const fishIds=new Set(['fish_hake','fish_salmon','fish_sardines','fish_mackerel','tuna','fish_shrimp','mussels_cooked']);
 const dairyNames=/\b(leche|yogur|queso|ricota|l[aá]cteo|crema|whey)\b/i;
 const highCarbIds=new Set(['bread','bread_white','bread_rye','toast_whole','rice','brownrice','pasta','potato','sweetpotato','oats_raw','banana','apple','mandarin','quince','milk_skim','corn_cooked']);
@@ -32,9 +33,9 @@ const naturallySimple=new Set(['egg','egg_white','banana','apple','pear','mandar
 const plainName=x=>String(x?.name||'').toLocaleLowerCase('es-AR');
 function normalizeProfile(raw={}){
  const restrictions=[...new Set((raw.restrictions||[]).filter(x=>typeof x==='string').map(x=>x.toLowerCase().trim()))];
- const pattern=String(raw.patternId||raw.dietaryPattern||'balanced').toLowerCase();
- const fasting=String(raw.windowId||'regular');
- const disliked=[...new Set((raw.dislikedIds||[]).filter(x=>typeof x==='string'))];
+ const pattern=String(raw.patternId||raw.dietaryPattern||raw.pattern||'balanced').toLowerCase();
+ const fasting=String(raw.windowId||raw.fasting||'regular');
+ const disliked=[...new Set((raw.dislikedIds||raw.disliked||[]).filter(x=>typeof x==='string'))];
  if(restrictions.length>16||!['balanced','omnivore','mediterranean','flexitarian','vegetarian','vegan','pescatarian','keto','low_carb','dash','portfolio'].includes(pattern)||
   !['regular','12_12','14_10','16_8'].includes(fasting)||disliked.length>100)
   throw Error('Perfil alimentario inválido.');
@@ -52,10 +53,16 @@ export function guideFoodSignal(food,raw={}){
  if(lactose&&(lactoseIds.has(id)||dairyNames.test(name)&&!(/sin lactosa|deslactosad/.test(name))))
   return {status:'avoid',reason:'Contiene lácteo convencional en su presentación común'};
  const vegan=profile.pattern==='vegan',vegetarian=profile.pattern==='vegetarian';
- if((vegan||vegetarian)&&(animalIds.has(id)||fishIds.has(id)||/^(meat|fish|shellfish)$/.test(food?.category||'')))
-  return {status:'avoid',reason:'No corresponde al patrón alimentario'};
- if((vegan||vegetarian)&&/(pollo|pescado|carne|cerdo|jam[oó]n|at[uú]n|merluza)/.test(name))
-  return {status:'avoid',reason:'Ingrediente animal evidente'};
+ const pescatarian=profile.pattern==='pescatarian';
+ if(vegan&&(animalIds.has(id)||fishIds.has(id)||
+    /^(meat|fish|shellfish|dairy|egg)$/.test(food?.category||'')))
+  return {status:'avoid',reason:'El patrón vegano no incluye alimentos animales'};
+ if((vegetarian||pescatarian)&&(meatIds.has(id)||/^(meat)$/.test(food?.category||'')||
+    /\b(pollo|carne vacuna|cerdo|jam[oó]n|pavo)\b/i.test(name)))
+  return {status:'avoid',reason:'El patrón declarado excluye carnes'};
+ if(vegetarian&&(fishIds.has(id)||/^(fish|shellfish)$/.test(food?.category||'')||
+    /(pescado|at[uú]n|merluza|salm[oó]n|camarones)/i.test(name)))
+  return {status:'avoid',reason:'El patrón vegetariano excluye pescado y mariscos'};
  if(profile.pattern==='keto'&&highCarbIds.has(id))
   return {status:'avoid',reason:'No se usa como alimento base de esta guía baja en hidratos'};
  if(restricted.includes('food_allergy'))return {status:'review',reason:'Revisar alérgeno específico e ingredientes'};
@@ -171,8 +178,8 @@ export function addFlexibleFood(existing,slot,food,catalog,goal){
  assertFlexible(existing);
  const next=structuredClone(existing),meal=next.meals.find(m=>m.slot===slot);
  const found=(catalog||[]).find(x=>x.id===food?.id);
- if(!meal||!found||meal.items.length>=15||meal.items.some(x=>x.id===found.id))
-  throw Error('Revisá el alimento elegido; ya existe o no está disponible.');
+ if(!meal||!found||meal.items.length>=15)throw Error('Revisá el alimento: no está disponible o supera el límite por comida.');
+ if(meal.items.some(x=>x.id===found.id))throw Error('El alimento está duplicado en esta comida.');
  const [min,max]=guidedPortionBounds(found.id);
  meal.items.push({...ensureSource(found,Math.max(min,Math.min(max,Number(food.qty)||min))),locked:true});
  return rebalanceGuidedDay(next,goal);

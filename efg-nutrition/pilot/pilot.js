@@ -654,7 +654,7 @@ async function loadCloudHabituales(){
   }catch(_){validV1Backup=false;}
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){
-   if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
+   if(remote.some(x=>x.name===item.name&&sameRecipeIngredients(x.items,item.items)))continue;
    if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
    if(!sameUser())return;
    // Rejected best-effort migration must not erase the local copy.
@@ -670,7 +670,7 @@ async function loadCloudHabituales(){
    remote.push(created.data);cloudHabituales.push(created.data);
   }
   // Respaldo local ya importado: evita que una comida eliminada reaparezca.
-  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
+  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&sameRecipeIngredients(x.items,item.items)))){
    // Never destroy a malformed backup; it may still be manually recoverable.
    if(validV2Backup)localStorage.removeItem(habitualListKey(slot));
    if(validV1Backup)localStorage.removeItem(habitualKey(slot));

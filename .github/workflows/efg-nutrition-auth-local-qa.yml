@@ -585,6 +585,7 @@ jobs:
           set -euo pipefail
           for f in private-installation/diary-fixture/*.mjs; do node --check "$f"; done
           node --experimental-default-type=module efg-nutrition/tests/recipe-ingredients-equal-private.mjs
+          node --experimental-default-type=module efg-nutrition/tests/habitual-recovery-private.mjs
           node --experimental-default-type=module --check efg-nutrition/pilot/pilot.js
           node --experimental-default-type=module --check efg-nutrition/pilot/auth-hydration-gate.js
           node --experimental-default-type=module efg-nutrition/tests/auth-hydration-gate-private.mjs

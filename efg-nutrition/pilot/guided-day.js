@@ -126,7 +126,9 @@ function score(plan,goal){
  const macro=Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
  // Normalize meal shares across the *active* slots. If the coach removes a
  // slot, the remaining meals inherit its daily energy target, never its diary.
- const ratios={desayuno:.22,media_manana:.11,almuerzo:.28,media_tarde:.09,merienda:.13,cena:.17};
+ const ratios=plan.kind==="five_meal_example"
+  ?{desayuno:.22,media_manana:.13,almuerzo:.29,merienda:.14,cena:.22}
+  :{desayuno:.22,media_manana:.11,almuerzo:.28,media_tarde:.09,merienda:.13,cena:.17};
  const totalShares=plan.meals.reduce((v,m)=>v+(ratios[m.slot]||.15),0);
  const split=guideTotals(plan).perMeal.reduce((n,m)=>{
   const expected=((ratios[m.slot]||.15)/totalShares)*Number(goal.kcal);
@@ -229,7 +231,8 @@ export function validateGuidedDay(plan,goal){
  // Legacy example validation is unchanged. The six-slot coach guide may have
  // fewer meals; if its bounded portions cannot match the target, report the
  // deviation for coach review instead of forcing absurd gram amounts.
- const needsReview=["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>20);
+ const reviewKeys=diff.fi.target>0?["k","p","c","f","fi"]:["k","p","c","f"];
+ const needsReview=reviewKeys.some(k=>Math.abs(diff[k].percent)>20);
  if(legacy&&["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>30))
   throw new Error("El ejemplo se aleja más del 30% de la meta. Ajustá cantidades antes de enviarlo.");
  return {totals:guideTotals(plan).totals,deviations:diff,needsReview};

@@ -3,12 +3,13 @@ import {readFileSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {readVerifiedCoachRestrictionScope} from '../pilot/coach-guide-restriction-scope.js';
 const source=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const start=source.indexOf('async function loadStudentDetail(studentId){'),end=source.indexOf('\nasync function refresh(){',start);
 assert.ok(start>0&&end>start);
 const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,CLINICAL_GUIDE_CONNECTION_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today}=env;\n'+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,CLINICAL_GUIDE_CONNECTION_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build}=await import(pathToFileURL(path).href);
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){
   const state={session:{user:{id:'coach'}},roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{revision:1,shared_at:'date'}}};
@@ -23,26 +24,32 @@ try{
   assert.deepEqual(state.coachGuidedDraft,expected?guide:null);
  }
  // Sharing a general intake alone must never initiate the private health read.
- const scopedHealth={student_id:'student',organization_id:'org',viewer_id:'coach',revision:1,
+ const clinicalStudent='11111111-1111-4111-8111-111111111111';
+ const clinicalCoach='22222222-2222-4222-8222-222222222222';
+ const clinicalOrg='33333333-3333-4333-8333-333333333333';
+ const otherStudent='44444444-4444-4444-8444-444444444444';
+ const otherCoach='55555555-5555-4555-8555-555555555555';
+ const otherOrg='66666666-6666-4666-8666-666666666666';
+ const scopedHealth={student_id:clinicalStudent,organization_id:clinicalOrg,viewer_id:clinicalCoach,revision:1,
   shared_with_coach:true,processing_consent:true,followup_consent:true,conditions:{celiac:'confirmed'}};
  for(const [flag,role,overrides,reads,accepted] of [
   [false,'coach',{},0,false],[true,'admin',{},0,false],[true,'coach',{},1,true],
   [true,'coach',{processing_consent:false},1,false],[true,'coach',{followup_consent:false},1,false],
-  [true,'coach',{organization_id:'other-org'},1,false],[true,'coach',{viewer_id:'another-coach'},1,false],
-  [true,'coach',{student_id:'another-student'},1,false],[true,'coach',{revoked:true},1,false]
+  [true,'coach',{organization_id:otherOrg},1,false],[true,'coach',{viewer_id:otherCoach},1,false],
+  [true,'coach',{student_id:otherStudent},1,false],[true,'coach',{revoked:true},1,false]
  ]){
   let healthReads=0;
-  const state={session:{user:{id:'coach'}},org:{id:'org',coach_id:'coach'},profile:{user_id:'coach',active:true,role},
-   roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{shared_at:'date'}}};
+  const state={session:{user:{id:clinicalCoach}},org:{id:clinicalOrg,coach_id:clinicalCoach},profile:{user_id:clinicalCoach,active:true,role},
+   roster:[{user_id:clinicalStudent,active:true}],coachIntakeForms:{[clinicalStudent]:{shared_at:'date'}}};
   const sb={from:table=>({select(){return this;},eq(){return this;},gte(){return this;},order(){return this;},limit(){return this;},
     maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:null}),then(resolve){return Promise.resolve({data:[]}).then(resolve);}}),
-   auth:{getUser:async()=>({data:{user:{id:'coach'}}})},rpc:async name=>{
+   auth:{getUser:async()=>({data:{user:{id:clinicalCoach}}})},rpc:async name=>{
     assert.equal(name,'efg_get_coach_health_intake');healthReads++;return {data:{...scopedHealth,...overrides}};
    }};
   const run=build({state,sb,coachAdaptedWorkspace:{close(){}},coachIntakeFlow:{refreshCoachDetail:async()=>{}},
    COACH_ATOMIC_PLAN_UI_ENABLED:false,CLINICAL_GUIDE_CONNECTION_ENABLED:flag,
-   loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
-  await run('student');
+   readVerifiedCoachRestrictionScope,loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
+  await run(clinicalStudent);
   assert.equal(healthReads,reads,'Only a specifically enabled Coach can initiate the health RPC');
   assert.deepEqual(state.coachGuideHealth?.restrictions??null,accepted?['celiac']:null);
   assert.equal(state.consent.accepted,true,'General intake remains usable independently of clinical eligibility');

@@ -345,9 +345,9 @@ console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key p
  }};
  const st={profile:{role:'student'},session:{user:{id:uid}},habitualSelection:{}};
  const local={getItem:k=>store.get(k)||null,removeItem:k=>store.delete(k)};
- const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','console',
+ const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','console','sameRecipeIngredients',
   subsystem+';return {loadCloudHabituales,getHabitualList};')(
-  db,st,mealSlots,local,new Set(),{warn(){}});
+  db,st,mealSlots,local,new Set(),{warn(){}},sameRecipeIngredients);
  await api.loadCloudHabituales();
  assert.deepEqual(api.getHabitualList('cena').map(x=>x.name),[pending.name]);
  assert.equal(attempts,0,'No writes when SELECT rejected');
@@ -386,10 +386,10 @@ console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key p
     hosted.push(row);return Promise.resolve({data:row,error:null});
    }};
  }};
- const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','activeDiary','prompt','notify','render','console',
+ const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations','activeDiary','prompt','notify','render','console','sameRecipeIngredients',
   subsystem+';return {habitualAction,getHabitualList,loadCloudHabituales};')(
   db,st,mealSlots,storage,new Set(),()=>diary,()=>names.shift(),
-  msg=>notices.push(msg),async()=>{},{warn(){}});
+  msg=>notices.push(msg),async()=>{},{warn(){}},sameRecipeIngredients);
  await api.habitualAction('desayuno','save');
  failure='returned';await api.habitualAction('desayuno','save');
  const key='efg-nutrition-habitual-v2:'+uid+':desayuno';

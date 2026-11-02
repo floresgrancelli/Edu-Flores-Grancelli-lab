@@ -35,6 +35,51 @@ begin
  end if;
 end $coach119_preflight$;
 
+-- NCC 02/11: production's original efg_guided_plan_shape allows only the
+-- five-meal example. Expand it inside the SAME guarded release transaction.
+-- This preserves ALL historical five-meal records and their timestamps while
+-- allowing the approved flexible V2 guide (2 through 6 coach-selected slots).
+-- Existing diary rows and the six fixed MI DÍA diary slots are not modified.
+do $coach119_shape_preflight$
+declare v_definition text;
+begin
+ select pg_catalog.pg_get_constraintdef(c.oid) into v_definition
+ from pg_catalog.pg_constraint c
+ where c.conrelid='public.efg_food_plans'::regclass
+  and c.conname='efg_guided_plan_shape' and c.contype='c'
+  and c.convalidated;
+ if v_definition is null
+  or pg_catalog.strpos(v_definition,'five_meal_example')=0
+  or pg_catalog.strpos(v_definition,'jsonb_array_length')=0
+  or pg_catalog.strpos(v_definition,'30000')=0
+  or pg_catalog.strpos(v_definition,'flexible_meal_guide')>0 then
+  raise exception 'COACH119 STOP: unexpected existing guide CHECK, inspect before replacing'
+   using errcode='55000';
+ end if;
+end
+$coach119_shape_preflight$;
+alter table public.efg_food_plans drop constraint efg_guided_plan_shape;
+alter table public.efg_food_plans
+ add constraint efg_guided_plan_shape check(
+  guided_plan is null or (
+   pg_catalog.jsonb_typeof(guided_plan)='object'
+   and pg_catalog.octet_length(guided_plan::text)<30000
+   and guided_goal_id is not null
+   and guided_plan_approved_at is not null
+   and pg_catalog.coalesce(
+    case when pg_catalog.jsonb_typeof(guided_plan->'meals')='array' then
+     ( (guided_plan->>'kind'='five_meal_example'
+         and pg_catalog.jsonb_array_length(guided_plan->'meals')=5)
+       or (guided_plan->>'kind'='flexible_meal_guide'
+         and guided_plan->>'version'='2'
+         and pg_catalog.jsonb_array_length(guided_plan->'meals') between 2 and 6))
+     else false end,false)
+  )
+ ) not valid;
+alter table public.efg_food_plans validate constraint efg_guided_plan_shape;
+-- Everything above is inside the outer COACH119 BEGIN/COMMIT. A failure rolls
+-- back to the unchanged original constraint; no schema is applied by this file.
+
 -- COACH108's original policy inspected owner-only participation receipts
 -- directly as the Coach JWT. RLS hid those receipts, so a valid Coach could
 -- SAVE a draft but could never SELECT it. Use the existing narrowly scoped

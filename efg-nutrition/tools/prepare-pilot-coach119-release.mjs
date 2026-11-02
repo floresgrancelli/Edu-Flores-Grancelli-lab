@@ -25,7 +25,7 @@ export const RELEASE_SOURCES=Object.freeze([
   },
   {
     "path": "efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql",
-    "sha": "f41be1a7d5ec67cdbf76503873a9bb8759e6dfa7",
+    "sha": "de2a999405bf2626c9f25d847b45102afd206c68",
     "key": "COACH119"
   },
   {

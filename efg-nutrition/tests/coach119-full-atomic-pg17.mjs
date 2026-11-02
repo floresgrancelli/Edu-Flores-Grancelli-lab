@@ -49,6 +49,12 @@ sql(shareHelper[0]);
 sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check; alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check check(source_url ~ '^https://[^[:space:]]{8,1990}$')");
 sql(read('../migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql'));
 sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
+const guideConstraint=sql("select pg_get_constraintdef(oid) from pg_constraint where conrelid='public.efg_food_plans'::regclass and conname='efg_guided_plan_shape'");
+assert.match(guideConstraint,/flexible_meal_guide/);
+assert.match(guideConstraint,/five_meal_example/);
+assert.match(guideConstraint,/jsonb_array_length/);
+assert.equal(sql("select convalidated from pg_constraint where conrelid='public.efg_food_plans'::regclass and conname='efg_guided_plan_shape'"),'t',
+ 'The expanded constraint must be validated against ALL existing historic food plans');
 const coach='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
 const student='33333333-3333-4333-8333-333333333333',studentB='44444444-4444-4444-8444-444444444444';
 const org='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',orgB='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';

@@ -3,6 +3,18 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const sql=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
 for(const part of [
+ 'drop constraint efg_guided_plan_shape',
+ 'add constraint efg_guided_plan_shape check(',
+ 'validate constraint efg_guided_plan_shape',
+ "guided_plan->>'kind'='five_meal_example'",
+ "guided_plan->>'kind'='flexible_meal_guide'",
+ "pg_catalog.jsonb_array_length(guided_plan->'meals') between 2 and 6",
+ 'COACH119 STOP: unexpected existing guide CHECK'
+])assert.ok(sql.includes(part),'Signed guide shape migration missing '+part);
+assert.ok(sql.indexOf('validate constraint efg_guided_plan_shape')<
+ sql.indexOf('create table public.efg_coach_plan_publish_receipts'),
+ 'Publish RPC must never run before the corrected guide shape is installed');
+for(const part of [
  'create table public.efg_coach_plan_publish_receipts',
  'create function public.efg_publish_coach_plan_draft_atomic(',
  "values('pilot_coach_atomic_publication',false",

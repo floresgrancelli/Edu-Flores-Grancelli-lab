@@ -73,6 +73,15 @@ assert.ok(!ids(lactose).some(id=>['cheese','milk_skim','yogurt'].includes(id)));
 const vegan=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegan'});
 assert.ok(ids(vegan).some(id=>['tofu_firm','tempeh','chickpeas_cooked'].includes(id)));
 assert.ok(!ids(vegan).some(id=>['egg','chicken','fish_hake','yogurt','cheese','milk_skim'].includes(id)));
+// A dietary pattern must continue working while independent health processing
+// consent is absent. Every choice remains amber for Coach review, not "safe".
+const unknownVegan=generateFlexibleGuidedDay(catalog,goal,{patternId:'vegan',restrictionStatus:'unknown'});
+assert.equal(unknownVegan.meals.length,6,'Unknown health status must not prevent a general vegan Coach draft');
+assert.ok(!ids(unknownVegan).some(id=>['egg','chicken','fish_hake','yogurt','cheese','milk_skim'].includes(id)),
+ 'Unknown health status must not retain animal foods prohibited by the chosen vegan pattern');
+assert.ok(ids(unknownVegan).some(id=>['tofu_firm','tempeh','chickpeas_cooked'].includes(id)));
+assert.ok(unknownVegan.profileReviewNotes.some(x=>x.includes('Restricciones sin verificar')),
+ 'The draft must disclose unverified medical compatibility without claiming safety');
 const keto=generateFlexibleGuidedDay(catalog,goal,{patternId:'keto'});
 assert.equal(keto.meals.length,6,'Keto alone is not fasting');
 assert.ok(keto.profileReviewNotes.some(x=>x.includes('keto')),'Coach warned about carb target');

@@ -8,6 +8,11 @@ const directory=mkdtempSync(join(tmpdir(),'ncc-auth-hydration-'));let moduleInde
 import {createAuthHydrationGate} from '../pilot/auth-hydration-gate.js';
 import {sameRecipeIngredients} from '../pilot/recipe-ingredients-equal.js';
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+const boot=app.slice(app.indexOf('(async function init(){'));
+assert.equal(boot.split('sb.auth.onAuthStateChange(handleAuthStateChange);').length,2,'Exactly one real startup subscription');
+assert.ok(boot.indexOf('sb.auth.onAuthStateChange(handleAuthStateChange);')<boot.indexOf('await sb.auth.getSession()'),'Subscribe before initial Auth await');
+assert.ok(boot.indexOf('sb.auth.onAuthStateChange(handleAuthStateChange);')<boot.indexOf('await refresh()'),'Subscribe before initial hydration');
+
 const fn=name=>{const a=app.indexOf('function '+name+'(');assert.ok(a>=0);const b=app.indexOf('\n}',a)+2;assert.ok(b>a);return app.slice(app.slice(Math.max(0,a-6),a)==='async '?a-6:a,b);};
 const defer=()=>{let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};};
 async function until(test){for(let i=0;i<100;i++){if(test())return;await Promise.resolve();}assert.fail('Expected synthetic wait point not reached');}

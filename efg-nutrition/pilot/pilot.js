@@ -4308,10 +4308,10 @@ const pullRefresh=createPullToRefresh({
  refresh:refreshVisibleWorkspace
 });
 (async function init(){
+ sb.auth.onAuthStateChange(handleAuthStateChange);
  const {data,error}=await sb.auth.getSession();
  if(error)fail(error);
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
- sb.auth.onAuthStateChange(handleAuthStateChange);
 })();
 
 

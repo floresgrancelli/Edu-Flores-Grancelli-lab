@@ -26,6 +26,7 @@ const wheatIds=new Set(['bread','bread_white','bread_rye','toast_whole','tortill
 const lactoseIds=new Set(['milk','milk_skim','milk_whole','cheese','yogurt','yogurt_greek','yogurt_greek_light','yogurt_high_protein','ricotta_light','ricotta_whole','cottage_cheese','cream_cheese_light']);
 const animalIds=new Set(['egg','egg_white','egg_boiled','chicken','beef','pork','fish_hake','fish_salmon','milk','milk_skim','milk_whole','milk_lactosefree','cheese','yogurt','yogurt_greek_light','yogurt_high_protein','whey_powder','honey','turkey_breast_cooked']);
 const fishIds=new Set(['fish_hake','fish_salmon','fish_sardines','fish_mackerel','tuna','fish_shrimp','mussels_cooked']);
+const meatAndFishIds=new Set(['chicken','beef','pork','turkey_breast_cooked','ham_cooked','chicken_breast_raw','lean_ground_beef',...fishIds]);
 const dairyNames=/\b(leche|yogur|queso|ricota|l[aá]cteo|crema|whey)\b/i;
 const highCarbIds=new Set(['bread','bread_white','bread_rye','toast_whole','rice','brownrice','pasta','potato','sweetpotato','oats_raw','banana','apple','mandarin','quince','milk_skim','corn_cooked']);
 const naturallySimple=new Set(['egg','egg_white','banana','apple','pear','mandarin','orange','strawberry','rice','brownrice','potato','sweetpotato','pumpkin','rocket','oil','avocado','chicken','fish_hake','tofu_firm','broccoli_cooked','zucchini']);
@@ -52,10 +53,12 @@ export function guideFoodSignal(food,raw={}){
  if(lactose&&(lactoseIds.has(id)||dairyNames.test(name)&&!(/sin lactosa|deslactosad/.test(name))))
   return {status:'avoid',reason:'Contiene lácteo convencional en su presentación común'};
  const vegan=profile.pattern==='vegan',vegetarian=profile.pattern==='vegetarian';
- if((vegan||vegetarian)&&(animalIds.has(id)||fishIds.has(id)||/^(meat|fish|shellfish)$/.test(food?.category||'')))
-  return {status:'avoid',reason:'No corresponde al patrón alimentario'};
+ if(vegan&&(animalIds.has(id)||fishIds.has(id)||/^(meat|fish|shellfish|dairy|egg)$/.test(food?.category||'')))
+  return {status:'avoid',reason:'No corresponde al patrón vegano'};
+ if(vegetarian&&(meatAndFishIds.has(id)||/^(meat|fish|shellfish)$/.test(food?.category||'')))
+  return {status:'avoid',reason:'No corresponde al patrón vegetariano'};
  if((vegan||vegetarian)&&/(pollo|pescado|carne|cerdo|jam[oó]n|at[uú]n|merluza)/.test(name))
-  return {status:'avoid',reason:'Ingrediente animal evidente'};
+  return {status:'avoid',reason:'Ingrediente de carne o pescado evidente'};
  if(profile.pattern==='keto'&&highCarbIds.has(id))
   return {status:'avoid',reason:'No se usa como alimento base de esta guía baja en hidratos'};
  if(restricted.includes('food_allergy'))return {status:'review',reason:'Revisar alérgeno específico e ingredientes'};
@@ -75,10 +78,16 @@ const roleOf=(id,slot)=>{
 function fallbackOrder(food,slot,profile){
  const role=roleOf(food.id,slot);
  if(profile.pattern==='vegan'){
-  if(['protein','breakfastProtein','snackProtein'].includes(role))return ['tofu_firm','tempeh','soy_textured_hydrated','chickpeas_cooked','lentils_cooked','walnuts'];
+  if(role==='breakfastProtein')return ['tofu_firm','tempeh','chickpeas_cooked','walnuts'];
+  if(role==='snackProtein')return ['walnuts','tempeh','chickpeas_cooked','tofu_firm'];
+  if(role==='protein')return slot==='cena'
+   ?['tempeh','tofu_firm','chickpeas_cooked','lentils_cooked']
+   :['soy_textured_hydrated','tofu_firm','tempeh','chickpeas_cooked','lentils_cooked'];
  }
  if(profile.pattern==='keto'){
-  if(role==='carb')return ['strawberry','broccoli_cooked','rocket','zucchini','avocado'];
+  if(role==='carb')return ['almuerzo','cena'].includes(slot)
+   ?['zucchini','broccoli_cooked','rocket','avocado','strawberry']
+   :['strawberry','avocado','broccoli_cooked','rocket','zucchini'];
   if(role==='protein'||role==='snackProtein')return ['egg','chicken','fish_hake','tofu_firm'];
   if(role==='fat')return ['avocado','oil','walnuts'];
  }

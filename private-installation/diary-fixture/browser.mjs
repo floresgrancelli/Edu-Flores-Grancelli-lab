@@ -14,7 +14,7 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1).replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
- const root=process.cwd(),origin='http://127.0.0.1:4173',failures=[],results=[];let browser,context,stage='server',failedWait=null,diagnosticPage=null,diagnosticPeer=null,expectedUser=null;
+ const root=process.cwd(),origin='http://127.0.0.1:4173',failures=[],results=[],caseFailures=[];let browser,context,stage='server',failedWait=null,diagnosticPage=null,diagnosticPeer=null,expectedUser=null;
  const step=async(name,page,fn)=>{failedWait=name;diagnosticPage=page;return await fn();};
  async function diagnostics(){
   if(!diagnosticPage||diagnosticPage.isClosed())return {pageAvailable:false};
@@ -134,6 +134,8 @@ window.__DIARY_AUTH_DIAGNOSTICS__=()=>({appActor:diaryAlias(state.session?.user?
    const latePost=hold(page,tables[1],'POST');await page.route(latePost.pattern,latePost.handler);
    try{await createRecipe(page,'TEST_ONLY late POST',async()=>{await latePost.entered;await login(switchPage,users.studentB);await settled(page,users.studentB);latePost.release();await latePost.finish();});assert.ok(!(await page.locator('body').innerText()).includes('TEST_ONLY late POST'));assert.equal((await owned(users.studentB,tables[1])).length,0);assert.equal((await owned(users.studentA,tables[1])).length,1);}finally{latePost.release();await page.unroute(latePost.pattern,latePost.handler);}
    await login(switchPage,users.studentA);await settled(page,users.studentA);await page.reload();await open(page);await clean(users.studentA);
+   let capacityPassed=false;
+   try{
    stage='capacity-20-30-'+width;
    const hs=await api(users.studentA,tables[0],'POST',Array.from({length:20},(_,i)=>habitual('TEST_ONLY H'+i)));
    const rs=await api(users.studentA,tables[1],'POST',Array.from({length:30},(_,i)=>recipe('TEST_ONLY R'+i)));
@@ -143,15 +145,21 @@ window.__DIARY_AUTH_DIAGNOSTICS__=()=>({appActor:diaryAlias(state.session?.user?
    await page.reload();await open(page);assert.equal((await owned(users.studentA,tables[0])).length,20);assert.equal((await owned(users.studentA,tables[1])).length,30);assert.ok(await backup(page,hkey(users.studentA.id)));assert.ok(await backup(page,rkey(users.studentA.id)));
    await api(users.studentA,tables[0],'DELETE',undefined,'id=eq.'+hs[0].id+'&select=id');await api(users.studentA,tables[1],'DELETE',undefined,'id=eq.'+rs[0].id+'&select=id');
    await page.reload();await open(page);await page.reload();await open(page);
-   for(const [t,name,count,key]of [[tables[0],pendingH.name,20,hkey(users.studentA.id)],[tables[1],pendingR.name,30,rkey(users.studentA.id)]]){const rows=await owned(users.studentA,t);assert.equal(rows.length,count);assert.equal(rows.filter(x=>x.name===name).length,1);assert.equal(await backup(page,key),null);}
+   for(const [t,name,count,key]of [[tables[0],pendingH.name,20,hkey(users.studentA.id)],[tables[1],pendingR.name,30,rkey(users.studentA.id)]]){stage='capacity-confirmation-'+t+'-'+width;const rows=await owned(users.studentA,t);assert.equal(rows.length,count);assert.equal(rows.filter(x=>x.name===name).length,1);assert.equal(await backup(page,key),null);}
    assert.deepEqual((await owned(users.studentA,tables[0])).find(x=>x.id===hs[1].id),hs[1]);assert.deepEqual((await owned(users.studentA,tables[1])).find(x=>x.id===rs[1].id),rs[1]);
-   await page.screenshot({path:join(out,`diary-capacity-${width}.png`),fullPage:true});await clean(users.studentA);
+   await page.screenshot({path:join(out,`diary-capacity-${width}.png`),fullPage:true});capacityPassed=true;
+   }catch(error){
+    const failure={width,stage,error:error.name,sourceLocations:String(error.stack||'').match(/browser\.mjs:\d+:\d+/g)||[],actualIsNull:error.actual===null,expectedIsNull:error.expected===null};
+    caseFailures.push(failure);console.error('DIARY_CASE_FAIL '+JSON.stringify(failure));
+   }finally{await clean(users.studentA);}
    assert.deepEqual(await snapshot(),baseline,'All tracked database rows preserved after cleanup');
-   results.push({width,status:'PASS',cases:['save/reload/select/cancel','lost response dedup','late GET A-B','late POST A-B','capacity20/30 and recovery'],diaryRegistration:'NOT_TESTED'});
+   results.push({width,status:capacityPassed?'PASS':'FAIL',passedCases:['save/reload/select/cancel','lost response dedup','late GET A-B','late POST A-B'],capacity:capacityPassed?'PASS':'FAIL',diaryRegistration:'NOT_TESTED'});
    await context.close();context=null;
   }
+  stage='completed-widths-with-case-results';failedWait=null;
+  assert.equal(caseFailures.length,0,'Every capacity case must pass; failures are retained after both widths');
   assert.equal(failures.filter(x=>x.kind==='source'||tables.some(t=>x.path==='/rest/v1/'+t)&&x.status===404).length,0,'No missing fixture endpoints hidden');
-  writeFileSync(join(out,'diary-browser.json'),JSON.stringify({status:'PASS',results,resourceFailures:failures},null,2));
- }catch(e){const diagnostic=await diagnostics();const safeError={name:e.name,code:typeof e.code==='string'?e.code:null,sourceLocations:String(e.stack||'').match(/browser\.mjs:\d+:\d+/g)||[],actual:typeof e.actual==='number'?e.actual:null,expected:typeof e.expected==='number'?e.expected:null};const report={status:'FAIL',stage,failedWait,error:safeError,diagnostic,results,resourceFailures:failures};writeFileSync(join(out,'diary-browser.json'),JSON.stringify(report,null,2));console.error('DIARY_BROWSER_DIAGNOSTIC '+JSON.stringify({stage,failedWait,error:safeError,diagnostic}));throw Error('DIARY_BROWSER_FAILED: see sanitized stage');}
+  writeFileSync(join(out,'diary-browser.json'),JSON.stringify({status:'PASS',results,caseFailures,resourceFailures:failures},null,2));
+ }catch(e){const diagnostic=await diagnostics();const safeError={name:e.name,code:typeof e.code==='string'?e.code:null,sourceLocations:String(e.stack||'').match(/browser\.mjs:\d+:\d+/g)||[],actual:typeof e.actual==='number'?e.actual:null,expected:typeof e.expected==='number'?e.expected:null};const report={status:'FAIL',stage,failedWait,error:safeError,diagnostic,results,caseFailures,resourceFailures:failures};writeFileSync(join(out,'diary-browser.json'),JSON.stringify(report,null,2));console.error('DIARY_BROWSER_DIAGNOSTIC '+JSON.stringify({stage,failedWait,error:safeError,diagnostic}));throw Error('DIARY_BROWSER_FAILED: see sanitized stage');}
  finally{await context?.close();await browser?.close();if(server.listening)await new Promise(r=>server.close(r));}
 }

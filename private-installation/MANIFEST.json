@@ -259,8 +259,8 @@
       "sha256": "ab4ed44c5ed580aab520ebab5814abf9f76354f655c896c9bc5bf58b67fcab64"
     },
     "diary-fixture/browser.mjs": {
-      "bytes": 16615,
-      "sha256": "eeaf3e42250fa4d8073e0aa1f9b38f045e523785fd5d7f4a6bfd54478577abe3"
+      "bytes": 17777,
+      "sha256": "a62198e5b544e32896ed6c94981eaed4adb270e490187a4f21952f8190cd03e5"
     },
     "diary-fixture/install.mjs": {
       "bytes": 2810,

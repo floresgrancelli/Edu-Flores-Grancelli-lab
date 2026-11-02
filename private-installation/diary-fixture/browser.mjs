@@ -14,20 +14,32 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1).replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
  const readOtp=createLocalMailReader({origin:env.MAILPIT_URL||env.INBUCKET_URL});
- const root=process.cwd(),origin='http://127.0.0.1:4173',failures=[],results=[];let browser,context,stage='server',failedWait=null,diagnosticPage=null,expectedUser=null;
+ const root=process.cwd(),origin='http://127.0.0.1:4173',failures=[],results=[];let browser,context,stage='server',failedWait=null,diagnosticPage=null,diagnosticPeer=null,expectedUser=null;
  const step=async(name,page,fn)=>{failedWait=name;diagnosticPage=page;return await fn();};
  async function diagnostics(){
   if(!diagnosticPage||diagnosticPage.isClosed())return {pageAvailable:false};
-  return await diagnosticPage.evaluate(expected=>{
+  const primary=await diagnosticPage.evaluate(expected=>{
    const s=window.__SDK_ENTRY_QA__?.snapshot();
    const selectors=['#loginEmail','#loginOtp','#pilot-login-form button[type=submit]','#pilot-otp-form button[type=submit]','[data-act=logout]','[data-tab=home]','[data-act=createPersonalRecipe]','[data-habitualsave=desayuno]','[data-act=scienceSkip]'];
-   return {pageAvailable:true,hookAvailable:!!s,loading:s?.loading??null,role:['student','coach','admin'].includes(s?.role)?s.role:null,route:['home','coachStudents','login','education','ready','legal','participation','intake','review','private','retry'].includes(s?.route)?s.route:'other',identityMatchesExpected:!!expected&&s?.userId===expected,hasSession:!!s?.sessionId,selectors:Object.fromEntries(selectors.map(q=>{const nodes=[...document.querySelectorAll(q)];return[q,{count:nodes.length,visible:nodes.some(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return r.width>0&&r.height>0&&c.visibility!=='hidden'&&c.display!=='none';})}];}))};
+   return {auth:window.__DIARY_AUTH_DIAGNOSTICS__?.()||null,pageAvailable:true,hookAvailable:!!s,loading:s?.loading??null,role:['student','coach','admin'].includes(s?.role)?s.role:null,route:['home','coachStudents','login','education','ready','legal','participation','intake','review','private','retry'].includes(s?.route)?s.route:'other',identityMatchesExpected:!!expected&&s?.userId===expected,hasSession:!!s?.sessionId,selectors:Object.fromEntries(selectors.map(q=>{const nodes=[...document.querySelectorAll(q)];return[q,{count:nodes.length,visible:nodes.some(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return r.width>0&&r.height>0&&c.visibility!=='hidden'&&c.display!=='none';})}];}))};
   },expectedUser?.id).catch(()=>({pageAvailable:true,diagnosticUnavailable:true}));
+  return {...primary,peer:diagnosticPeer&&!diagnosticPeer.isClosed()?await diagnosticPeer.evaluate(()=>window.__DIARY_AUTH_DIAGNOSTICS__?.()||null).catch(()=>null):null};
  }
  const server=createServer((req,res)=>{try{
   const path=new URL(req.url,origin).pathname,file=resolve(root,'.'+decodeURIComponent(path)+(path.endsWith('/')?'index.html':''));assert.ok(file.startsWith(root+'/'));
   let bytes=readFileSync(file);
-  if(path==='/efg-nutrition/pilot/pilot.js')bytes=Buffer.from(localSdkEntrySource(bytes.toString(),{apiUrl:env.API_URL,publishableKey:env.ANON_KEY||env.PUBLISHABLE_KEY,origin,declarationPanel:true,official:{template:input.template,ids}}));
+  if(path==='/efg-nutrition/pilot/pilot.js')bytes=Buffer.from(localSdkEntrySource(bytes.toString(),{apiUrl:env.API_URL,publishableKey:env.ANON_KEY||env.PUBLISHABLE_KEY,origin,declarationPanel:true,official:{template:input.template,ids}})+`
+// TEST_ONLY read-only Auth event observation; output aliases only, no credentials.
+const diaryActors=${JSON.stringify({A:users.studentA.id,B:users.studentB.id})};
+const diaryAlias=id=>!id?'none':id===diaryActors.A?'A':id===diaryActors.B?'B':'other';
+const diaryAuthEvents=[];
+sb.auth.onAuthStateChange((event,session)=>{
+ if(!['INITIAL_SESSION','SIGNED_IN','SIGNED_OUT','TOKEN_REFRESHED'].includes(event))return;
+ diaryAuthEvents.push({event,sdkActor:diaryAlias(session?.user?.id),appActor:diaryAlias(state.session?.user?.id),epoch:state.authContextEpoch||0,loading:state.loading===true});
+ if(diaryAuthEvents.length>30)diaryAuthEvents.shift();
+});
+window.__DIARY_AUTH_DIAGNOSTICS__=()=>({appActor:diaryAlias(state.session?.user?.id),profileActor:diaryAlias(state.profile?.user_id),epoch:state.authContextEpoch||0,visibility:document.visibilityState,events:diaryAuthEvents.slice()});
+`);
   else if(extname(file)==='.js')bytes=Buffer.from(localSdkEntryFlag(path,bytes.toString()));
   res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.mjs':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.avif':'image/avif'})[extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(bytes);
  }catch{failures.push({kind:'source',path:new URL(req.url,origin).pathname});res.writeHead(500);res.end('LOCAL_SOURCE_FAILURE');}});
@@ -92,7 +104,7 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
    const baseline=await snapshot();
    context=await browser.newContext({viewport:{width,height:860},serviceWorkers:'block'});
    await context.route('**/*',route=>[origin,env.API_URL,'https://esm.sh'].includes(new URL(route.request().url()).origin)?route.continue():route.abort());
-   const page=await context.newPage(),switchPage=await context.newPage();
+   const page=await context.newPage(),switchPage=await context.newPage();diagnosticPeer=switchPage;
    page.on('response',r=>{if(r.status()>=400)failures.push({kind:'http',path:new URL(r.url()).pathname,status:r.status()});});
    stage='login-'+width;await login(page,users.studentA);await open(page);
    stage='save-reload-select-'+width;

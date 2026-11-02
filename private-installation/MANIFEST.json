@@ -11,8 +11,8 @@
       "sha256": "a5b0550d67239d356ee4d3607f445bb025205c67ba777be2605a3abb98ea988d"
     },
     "runner/run.mjs": {
-      "bytes": 19919,
-      "sha256": "bb173fdcabdfee00249fcb97f2d20ef5d00b93c6f0b690901a41357153f00c82"
+      "bytes": 20122,
+      "sha256": "68f0791e81701576e5da9fc78e6b4021de86046e1dd4ec307eac41ab4697c907"
     },
     "runner/config.py": {
       "bytes": 805,
@@ -145,8 +145,54 @@
     "installation/proposed/legacy-write-cutover.PROPOSAL.sql": {
       "bytes": 3811,
       "sha256": "755e9b38e6cc3ae90368c2d365b8fdd964d78850ea092897a7e926bc29da58bc"
+    },
+    "runner/clinical-cases.mjs": {
+      "bytes": 15871,
+      "sha256": "1dbac3b42c73f4595e9fe2640b0559e01cfda68571595239554f7286877debe0"
+    },
+    "clinical/sql/clinical-provider.PROPOSAL.sql": {
+      "bytes": 6877,
+      "sha256": "a10191f782ee3bb7efdd417c78de35a49e537e640826d09ee04d60004c2bd5e2"
+    },
+    "clinical/sql/backend-compatibility.PROPOSAL.sql": {
+      "bytes": 17801,
+      "sha256": "c1bd6e196c4a5b23211b81f8930b8c62161141b311e5079be3d11d45fb3f5c51"
+    },
+    "clinical/sql/existing-rpc-hooks.PROPOSAL.sql": {
+      "bytes": 22620,
+      "sha256": "082974dfc2d4332225336ed2852e9b84bcdd87f0a0dc935981939d0ea68e90b5"
+    },
+    "clinical/tests/pattern-revision-local.PROPOSAL.sql": {
+      "bytes": 1610,
+      "sha256": "0f9a6f2f53c305222855b575b94778059290a575f990ad2c6718acca1e6bc49b"
+    },
+    "clinical/tests/publication-withdrawal-local.mjs": {
+      "bytes": 5401,
+      "sha256": "9c07823542bfb91dee5b5ed3b2b0e42b7be60ef0dff9f823f0e15f6100216c44"
+    },
+    "clinical/tests/common-parity-private.mjs": {
+      "bytes": 1591,
+      "sha256": "f7af3ee0bfea14d4dd3ffc645457ff8e0b16e194bdf33475c21dfee65521c164"
+    },
+    "clinical/tests/common-parity-cases.json": {
+      "bytes": 2620,
+      "sha256": "68071549ffab3f286f69ce9f081b5f409dd8214abbcee388faf8362b714ccbac"
+    },
+    "clinical/tests/clinical-provider-private.mjs": {
+      "bytes": 7538,
+      "sha256": "62201eb559d7d677f9bc62ffb6e9cef88ed7e903c407cc2525d61e061afe71aa"
+    },
+    "clinical/server/clinical-provider.mjs": {
+      "bytes": 9807,
+      "sha256": "52056ed953b6b3d0d473b85f9cc38adf4bc943bbc2853df4cceed8c84b3a55ee"
+    },
+    "clinical/reference/guide-compatibility.mjs": {
+      "bytes": 5148,
+      "sha256": "a691b3ae6c3ccd4f959ad9cf8198bdff080eff9827dbbed4bdfb4be61c4516fd"
     }
   },
   "cutover_source_library": "libfile_e43ad14b2a188191b1ea1c2835b203b1",
-  "cutover_source_zip_sha256": "b7cd0175e22bb9344392e60953bcdc2f4094caf09a04ef7e05d0cfd6cb7af48f"
+  "cutover_source_zip_sha256": "b7cd0175e22bb9344392e60953bcdc2f4094caf09a04ef7e05d0cfd6cb7af48f",
+  "clinical_source_library": "libfile_86516fc1a8908191a56c7deda164885a",
+  "clinical_source_zip_sha256": "98ae5adc48233e1c104580d1d43e19d12169e5477b5eb4ac74b7f38f4c5480f8"
 }

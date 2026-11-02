@@ -152,7 +152,9 @@ try{
   const before=JSON.parse(originalRows[t]).filter(x=>x.student_id===users.studentB.id);
   const after=JSON.parse(rowSnapshot(sql,[t])[t]).filter(x=>x.student_id===users.studentB.id);assert.deepEqual(after,before);
  }
- record('legacy B goal/draft/intake/receipt retained');result.status='PASS';
+ record('legacy B goal/draft/intake/receipt retained');
+ if(process.env.EFG_QA_CLINICAL_COMPATIBILITY==='1')await (await import('./clinical-cases.mjs')).clinicalCases({sql,rpc,request,users,orgs,goal,guide,ids,doc,digest,intake,mutationTables,record,out});
+ result.status='PASS';
 }catch(e){result.status='FAIL';result.error={name:e.name,message:String(e.message).replace(/eyJ[A-Za-z0-9_.-]+/g,'[REDACTED]').slice(0,1600)};throw e;
 }finally{
  try{if(installed){sql("update efg_private.coach_release_switches set enabled=false where switch_key='pilot_coach_atomic_publication'");assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_coach_atomic_publication'"),'f');assert.equal(sql('select count(*) from efg_private.coach119_atomic_transactions'),'0');result.restored=true;}}catch(e){result.status='FAIL_RESTORE';result.restored=false;throw e;}finally{

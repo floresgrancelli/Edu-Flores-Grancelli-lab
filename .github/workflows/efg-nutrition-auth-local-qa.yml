@@ -539,6 +539,7 @@ jobs:
       contents: read
     env:
       EFG_QA_INCREMENTAL_INSTALL: '1'
+      EFG_QA_CLINICAL_COMPATIBILITY: ${{ contains(github.event.head_commit.message, '[clinical-compatibility]') && '1' || '0' }}
     steps:
       - name: Resolve disposable paths on runner
         run: |
@@ -556,6 +557,13 @@ jobs:
           for f in private-installation/runner/*.mjs; do node --check "$f"; done
           node private-installation/runner/identity-regression.mjs
           python3 private-installation/runner/build_baseline.py
+      - name: Clinical source preflight before stack (opt-in)
+        if: env.EFG_QA_CLINICAL_COMPATIBILITY == '1'
+        run: |
+          set -euo pipefail
+          for f in private-installation/clinical/server/*.mjs private-installation/clinical/reference/*.mjs private-installation/clinical/tests/*.mjs; do node --check "$f"; done
+          node private-installation/clinical/tests/clinical-provider-private.mjs
+          node private-installation/clinical/tests/common-parity-private.mjs
       - uses: supabase/setup-cli@v3
         with:
           version: 2.84.2

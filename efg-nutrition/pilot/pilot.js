@@ -26,6 +26,7 @@ import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=20261030-lux
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=20261102-r1";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=20261102-gu06";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
 import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
@@ -2443,6 +2444,11 @@ function guidedTargetFeedback(deviations){
   ?"Menú cercano al objetivo (energía y macros dentro del 5%). Los valores son orientativos."
   :"Todavía hay diferencias con el objetivo. Recalculá las demás porciones o revisá el menú; se conservan los gramos que fijaste.";
 }
+function coachGuidePickerFoods(){
+ // Existing full catalog + Fit recipes. Student-owned recipes require a
+ // separately authorized, server-scoped Coach read; no owner cache sharing.
+ return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES}));
+}
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
@@ -2452,11 +2458,11 @@ function guidedDayContents(plan,goal,editable=false){
   // Nunca duplicar un plato preparado ni alterar la cuenta de nutrientes.
   const foodRow=(f,i)=>{
    const alt=editable?guidedFoodAlternatives(f.id,foods):[];
-   const [min,max]=guidedPortionBounds(f.id);
+   const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
    const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
    return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+
-     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
+     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
+    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="'+(f.recipeComponent?'0.01':'1')+'" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
      (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
      '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
   };
@@ -2477,9 +2483,10 @@ function guidedDayContents(plan,goal,editable=false){
    '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
    (editable&&flexible?'<div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
-    '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento del catálogo…"></label>'+
+    '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
     '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
-     '<option value="">Elegí un alimento</option>'+option(foods)+'</select>'+
+     '<option value="">Elegí alimento o receta Fit</option>'+option(coachGuidePickerFoods())+'</select>'+
+    '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
     '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar a guía</button></div>':'')+
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
@@ -2697,7 +2704,8 @@ function readGuidedEditor(){
  const draft=state.coachGuidedDraft;if(!draft)throw new Error("Primero generá un borrador.");
  for(const el of document.querySelectorAll("[data-guideqty]")){
   const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)],qty=Number(el.value);
-  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<guidedPortionBounds(food.id)[0]||qty>guidedPortionBounds(food.id)[1])throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
+  const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id);
+  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
   // Respect the coach's manual choice even if a browser skips an intermediate input event.
   if(food.qty!==qty){food.qty=qty;food.locked=true;}
  }
@@ -4143,12 +4151,24 @@ if(el.dataset.foodbulk){
   const goal=activeCoachGuideGoal(),draft=readGuidedEditor(),slot=el.dataset.guideaddfood;
   if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
   const control=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
-  const food=foods.find(x=>x.id===control?.value);
-  if(!food)throw Error("Elegí un alimento de los ya disponibles.");
-  const compatibility=guideFoodSignal(food,currentCoachGuideProfile());
-  if(compatibility.status==="avoid"&&!window.confirm("Este alimento no coincide con el perfil declarado. ¿Querés incluirlo igualmente bajo tu revisión de coach?"))return;
-  state.coachGuidedDraft=addFlexibleFood(draft,slot,{id:food.id},foods,goal);
-  showGuidedEditor();notify("Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario.");return;
+   const food=coachGuidePickerFoods().find(x=>x.id===control?.value);
+   if(!food)throw Error("Elegí un alimento o receta Fit disponible.");
+   const ingredients=Array.isArray(food.recipeIngredients)
+    ?food.recipeIngredients.map(x=>foods.find(y=>y.id===x.foodId)).filter(Boolean):[food];
+   if(!ingredients.length||(Array.isArray(food.recipeIngredients)&&ingredients.length!==food.recipeIngredients.length))
+    throw Error("La receta tiene ingredientes sin ficha alimentaria.");
+   if(ingredients.some(x=>guideFoodSignal(x,currentCoachGuideProfile()).status==="avoid")&&
+      !window.confirm("Hay ingredientes que no coinciden con el perfil declarado. ¿Querés incluirlos bajo tu revisión de coach?"))return;
+   if(Array.isArray(food.recipeIngredients)){
+    const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
+    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal);
+    showGuidedEditor();
+    notify("Receta Fit incorporada por porciones. Sus ingredientes y macros se cuentan una sola vez; verificá fuentes antes de publicar.");
+   }else{
+    state.coachGuidedDraft=addFlexibleFood(draft,slot,{id:food.id},foods,goal);
+    showGuidedEditor();notify("Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario.");
+   }
+   return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
  if(action==="balanceGuidedDay"){
@@ -4315,9 +4335,9 @@ root.addEventListener("input",e=>{
   const slot=e.target.dataset.guidefoodsearch,select=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
   if(select){
    const q=plannerNormalizeQuery(e.target.value),terms=q.split(/\s+/).filter(Boolean);
-   const filtered=foods.filter(f=>terms.every(w=>plannerNormalizeQuery(foodSearchText(f)).includes(w)));
+   const filtered=coachGuidePickerFoods().filter(f=>terms.every(w=>plannerNormalizeQuery(foodSearchText(f)).includes(w)));
    const previous=select.value;
-   select.innerHTML='<option value="">Elegí un alimento</option>'+option(filtered);
+   select.innerHTML='<option value="">Elegí alimento o receta Fit</option>'+option(filtered);
    select.value=filtered.some(x=>x.id===previous)?previous:"";
   }
  }

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
-const STU="00000000-0000-4000-8000-000000000011",REQ="30000000-0000-4000-8000-000000000001",GOAL="40000000-0000-4000-8000-000000000001";
+assert.match(app,/approvedFoodGuide\(guide,guide.kind==="flexible_meal_guide"\?null:coachFoodChoicesFromDom\(root\)/,
+ "Flexible guide uses actual item references; legacy list still validated");
 const WHEN="2026-10-29T12:00:00.000Z";
 const ORG="50000000-0000-4000-8000-000000000001";
 const goal={goal_type:"recomp",kcal:2100,protein_g:140,carb_g:230,fat_g:70,fiber_g:28};

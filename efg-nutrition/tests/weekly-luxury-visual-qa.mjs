@@ -58,6 +58,24 @@ try{
   const output=join(dir,'report-luxury-'+engineTag+'-'+v.name+'.png');
   await page.screenshot({path:output,fullPage:true});
   results.push({variant:v.name,...ready,screenshot:output});
+  if(engine==='chromium'&&v.name==='desktop'){
+   // The report has the same A4 page count when a long coach dashboard surrounds it.
+   await page.locator('.lux-report').evaluate(el=>el.classList.add('efg-lux-print-target'));
+   await page.emulateMedia({media:'print'});
+   const countPages=async()=>{
+    const pdf=await page.pdf({format:'A4',printBackground:true,preferCSSPageSize:true});
+    return (pdf.toString('latin1').match(/\/Type\s*\/Page\b/g)||[]).length;
+   };
+   const reportPages=await countPages();
+   assert.ok(reportPages>0);
+   await page.locator('.lux-report').evaluate(el=>{
+    const sidebar=document.createElement('aside');sidebar.style.height='5600px';
+    sidebar.textContent='Información privada de otro alumno ficticio';el.before(sidebar);
+   });
+   assert.equal(await countPages(),reportPages,'Dashboard siblings must not generate extra PDF pages');
+   assert.equal(await page.locator('aside').isVisible(),false,'Private content must be excluded from printing');
+   ready.pdfPageCount=reportPages;
+  }
   await page.close();
  }
 }finally{await browser.close();}

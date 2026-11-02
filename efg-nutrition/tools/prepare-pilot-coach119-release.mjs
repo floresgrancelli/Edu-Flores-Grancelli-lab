@@ -1,5 +1,5 @@
-// Construct an operator-reviewed, all-or-nothing SQL *candidate* from four
-// existing audited scripts. NO database connection or deployment is possible here.
+// Construct an operator-reviewed, all-or-nothing SQL *candidate* from five
+// audited scripts (including the existing signed six-meal entry status). NO database connection or deployment is possible here.
 // Intentionally does not ingest real records, seed nutrition review or enable flags.
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
@@ -27,6 +27,11 @@ export const RELEASE_SOURCES=Object.freeze([
     "path": "efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql",
     "sha": "05a8ce29081b2292b8bd65f9696dbb1c7b540fce",
     "key": "COACH119"
+  },
+  {
+    "path": "efg-nutrition/migrations/20261030_coach116_legal_first_student_status.sql",
+    "sha": "b551798c460a80c82dc156ca9fa4a3770250accc",
+    "key": "COACH116"
   }
 ]);
 const root=new URL('../../',import.meta.url);
@@ -39,11 +44,21 @@ export function buildPilotCoach119Transaction(){
   const observed=hashGitBlob(bytes);
   assert.equal(observed,item.sha,'SOURCE_CHANGED_'+item.key+': audited Git blob digest drift');
   let src=bytes.toString('utf8');
-  assert.equal((src.match(/^begin;\s*$/gim)||[]).length,1,'Need exactly one outer BEGIN '+item.key);
-  assert.equal((src.match(/^commit;\s*$/gim)||[]).length,1,'Need exactly one outer COMMIT '+item.key);
+  const begins=(src.match(/^begin;\s*$/gim)||[]).length;
+  const commits=(src.match(/^commit;\s*$/gim)||[]).length;
+  // COACH116 is a CREATE OR REPLACE FUNCTION script without an outer SQL
+  // transaction. It is inserted INSIDE this bundle's single transaction.
+  // All previous audited scripts keep their exact BEGIN/COMMIT verification.
+  if(item.key==='COACH116'){
+   assert.equal(begins,0,'COACH116 must not open another transaction');
+   assert.equal(commits,0,'COACH116 must not commit prematurely');
+  }else{
+   assert.equal(begins,1,'Need exactly one outer BEGIN '+item.key);
+   assert.equal(commits,1,'Need exactly one outer COMMIT '+item.key);
+   src=src.replace(/^begin;\s*\r?\n/gim,'').replace(/^commit;\s*\r?\n/gim,'');
+  }
   assert.doesNotMatch(src,/\\(?:i|include|copy)\b|\bcreate\s+index\s+concurrently\b/i,
     'Cannot safely combine client-side includes or concurrent indexes');
-  src=src.replace(/^begin;\s*\r?\n/gim,'').replace(/^commit;\s*\r?\n/gim,'');
   assert.doesNotMatch(src,/^begin;\s*$|^commit;\s*$/gim,'Unexpected remaining transaction wrapper');
   blocks.push('-- BEGIN AUDITED SOURCE '+item.key+' '+item.sha+'\n'+src.trim()+
     '\n-- END AUDITED SOURCE '+item.key);
@@ -51,8 +66,9 @@ export function buildPilotCoach119Transaction(){
  const header=[
  '-- NUTRICION CON-CIENCIA: PILOT BACKEND DDL CANDIDATE -- DO NOT AUTO-APPLY.',
  '-- Source scripts pinned by exact Git blob SHA1; review again if sources change.',
- '-- No hosted writes until operator verifies timestamped backup, private Storage,',
- '-- current preflight, rollback, and Edu explicitly authorizes the release.',
+ '-- No hosted writes until operator checks the current read-only preflight,',
+ '-- isolated rehearsal and Edu explicitly authorizes production changes.',
+ '-- Full backup/Storage restoration drill is deferred POST-GO by owner decision.',
  '-- Pilot TERMS, PRIVACY and reviewed foods are separate prerequisites before enabling.',
  '-- NOTE: schema transaction rollback protects DDL errors, NOT all customer data.',
  '-- COACH119 remains OFF after successful installation.',
@@ -103,6 +119,16 @@ begin
    and not has_function_privilege('anon',p.oid,'EXECUTE')
    and has_function_privilege('authenticated',p.oid,'EXECUTE'))
  then raise exception 'NCC_ABORT: atomic publish EXECUTE permissions unsafe'; end if;
+ -- Six-meal approval must activate MI DIA on signed server status. A UI-only
+ -- change cannot fix the older hosted five-meal-only status function.
+ if to_regprocedure('public.efg_coach_pilot_entry_status()') is null
+  or coalesce(pg_catalog.strpos(
+   pg_catalog.pg_get_functiondef(to_regprocedure('public.efg_coach_pilot_entry_status()')),
+   'flexible_meal_guide'),0)=0
+  or coalesce(pg_catalog.strpos(
+   pg_catalog.pg_get_functiondef(to_regprocedure('public.efg_coach_pilot_entry_status()')),
+   'v_intake.age_years is null'),0)=0
+ then raise exception 'NCC_ABORT: signed student entry must support complete intake and flexible 2-6 meal guide'; end if;
 end
 $ncc_release_post$;
 notify pgrst, 'reload schema';

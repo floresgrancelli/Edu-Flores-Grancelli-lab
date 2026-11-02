@@ -1,0 +1,121 @@
+// Construct an operator-reviewed, all-or-nothing SQL *candidate* from four
+// existing audited scripts. NO database connection or deployment is possible here.
+// Intentionally does not ingest real records, seed nutrition review or enable flags.
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import assert from 'node:assert/strict';
+
+export const RELEASE_SOURCES=Object.freeze([
+  {
+    "path": "efg-nutrition/migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql",
+    "sha": "10b48a94c50dcaf74349bb5d80db0452ffe1cc1b",
+    "key": "SEC09"
+  },
+  {
+    "path": "efg-nutrition/migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql",
+    "sha": "45d67af67dab8228c3251c7b918822e2eca0a2a7",
+    "key": "OPT01"
+  },
+  {
+    "path": "efg-nutrition/migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql",
+    "sha": "75416fd2f88275ad62f8ec813063ec14650af311",
+    "key": "FOOD_URL"
+  },
+  {
+    "path": "efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql",
+    "sha": "5067c7846c6cedd4a6d901d61aab6d72a2ef9507",
+    "key": "COACH119"
+  }
+]);
+const root=new URL('../../',import.meta.url);
+const hashGitBlob=b=>createHash('sha1').update(Buffer.from('blob '+b.length+'\0')).update(b).digest('hex');
+
+export function buildPilotCoach119Transaction(){
+ const blocks=[];
+ for(const item of RELEASE_SOURCES){
+  const bytes=readFileSync(new URL(item.path,root));
+  const observed=hashGitBlob(bytes);
+  assert.equal(observed,item.sha,'SOURCE_CHANGED_'+item.key+': audited Git blob digest drift');
+  let src=bytes.toString('utf8');
+  assert.equal((src.match(/^begin;\s*$/gim)||[]).length,1,'Need exactly one outer BEGIN '+item.key);
+  assert.equal((src.match(/^commit;\s*$/gim)||[]).length,1,'Need exactly one outer COMMIT '+item.key);
+  assert.doesNotMatch(src,/\\(?:i|include|copy)\b|\bcreate\s+index\s+concurrently\b/i,
+    'Cannot safely combine client-side includes or concurrent indexes');
+  src=src.replace(/^begin;\s*\r?\n/gim,'').replace(/^commit;\s*\r?\n/gim,'');
+  assert.doesNotMatch(src,/^begin;\s*$|^commit;\s*$/gim,'Unexpected remaining transaction wrapper');
+  blocks.push('-- BEGIN AUDITED SOURCE '+item.key+' '+item.sha+'\n'+src.trim()+
+    '\n-- END AUDITED SOURCE '+item.key);
+ }
+ const header=[
+ '-- NUTRICION CON-CIENCIA: PILOT BACKEND DDL CANDIDATE -- DO NOT AUTO-APPLY.',
+ '-- Source scripts pinned by exact Git blob SHA1; review again if sources change.',
+ '-- No hosted writes until operator verifies timestamped backup, private Storage,',
+ '-- current preflight, rollback, and Edu explicitly authorizes the release.',
+ '-- Pilot TERMS, PRIVACY and reviewed foods are separate prerequisites before enabling.',
+ '-- NOTE: schema transaction rollback protects DDL errors, NOT all customer data.',
+ '-- COACH119 remains OFF after successful installation.',
+ 'begin;',
+ "set local lock_timeout='5s';",
+ "set local statement_timeout='300s';"
+ ].join('\n');
+ const gates=`
+-- Abort the SINGLE transaction if minimum nonclinical structural gates fail.
+do $ncc_release_post$
+begin
+ if to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is null
+  or to_regclass('public.efg_coach_plan_publish_receipts') is null
+  or to_regclass('efg_private.coach_guide_history') is null
+  or to_regprocedure('efg_private.coach_pilot_share_active(uuid,uuid)') is null
+ then raise exception 'NCC_ABORT: COACH119 RPC, receipts/history or sharing helper missing'; end if;
+ if exists(select 1 from efg_private.coach_release_switches where enabled)
+   or not exists(select 1 from efg_private.coach_release_switches
+     where switch_key='pilot_coach_atomic_publication' and enabled is false)
+ then raise exception 'NCC_ABORT: release flags must remain OFF'; end if;
+ if not exists(select 1 from pg_policies where schemaname='public'
+   and tablename='efg_coach_relaunch_intakes'
+   and policyname='efg_coach_relaunch_owner_select'
+   and qual like '%efg_coach_relaunch_intakes.organization_id%')
+ or not exists(select 1 from pg_policies where schemaname='public'
+   and tablename='efg_pilot_participation_receipts'
+   and policyname='efg_pilot_participation_owner_read'
+   and qual like '%efg_pilot_participation_receipts.organization_id%')
+ then raise exception 'NCC_ABORT: owner organization RLS not qualified'; end if;
+ if exists(select 1 from pg_constraint
+  where conrelid=to_regclass('public.efg_pilot_participation_receipts')
+    and conname='efg_pilot_participation_receipts_sharing_accepted_check')
+ then raise exception 'NCC_ABORT: sharing still mandatory'; end if;
+ if not exists(select 1 from pg_policies where schemaname='public'
+   and tablename='efg_coach_relaunch_intakes'
+   and policyname='efg_coach_relaunch_shared_coach_select'
+   and qual like '%coach_pilot_share_active%')
+ then raise exception 'NCC_ABORT: shared Coach SELECT is not scoped'; end if;
+ if not exists(select 1 from pg_constraint
+  where conrelid=to_regclass('efg_private.coach_reviewed_foods')
+   and conname='coach_reviewed_foods_source_url_check'
+   and pg_get_constraintdef(oid) like '%char_length%'
+   and pg_get_constraintdef(oid) not like '%{8,1990}%')
+ then raise exception 'NCC_ABORT: reviewed food URL constraint invalid'; end if;
+ if not exists(select 1 from pg_proc p
+  where p.oid=to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)')
+   and p.prosecdef
+   and not has_function_privilege('anon',p.oid,'EXECUTE')
+   and has_function_privilege('authenticated',p.oid,'EXECUTE'))
+ then raise exception 'NCC_ABORT: atomic publish EXECUTE permissions unsafe'; end if;
+end
+$ncc_release_post$;
+notify pgrst, 'reload schema';
+commit;
+`.trim();
+ const result=header+'\n\n'+blocks.join('\n\n')+'\n\n'+gates+'\n';
+ assert.equal((result.match(/^begin;\s*$/gim)||[]).length,1,'Must have one outer begin');
+ assert.equal((result.match(/^commit;\s*$/gim)||[]).length,1,'Must have one outer commit');
+ const digest=createHash('sha256').update(result).digest('hex');
+ return {sql:result,sha256:digest,blocks:RELEASE_SOURCES.map(x=>x.key)};
+}
+const mode=process.argv[2]||'--check';
+if(import.meta.url==='file://'+process.argv[1]){
+ const x=buildPilotCoach119Transaction();
+ if(mode==='--check')console.log(JSON.stringify({status:'PREPARED_NOT_APPLIED',sha256:x.sha256,phases:x.blocks,transactions:1,productionWrites:0,flagsEnabled:0}));
+ else if(mode==='--emit'&&process.argv[3]==='--ack=PREPARE_ONLY_NOT_GO')process.stdout.write(x.sql);
+ else throw Error('Use --check or --emit --ack=PREPARE_ONLY_NOT_GO (operator review only)');
+}

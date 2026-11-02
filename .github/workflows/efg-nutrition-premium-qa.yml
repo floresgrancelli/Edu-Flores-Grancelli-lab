@@ -217,6 +217,11 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach119-hosted-preflight-contract.mjs
           node efg-nutrition/tests/coach119-hosted-preflight-contract.mjs
+      - name: PRE-GO only - four audited Coach119 SQL sources in one transaction (NO EXECUTE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tools/prepare-pilot-coach119-release.mjs
+          node efg-nutrition/tests/coach119-transactional-package-contract.mjs
       - name: COACH118 default-OFF server student diary write gate and historical compatibility
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach118-disabled-diary-write-gate.mjs

@@ -1,0 +1,27 @@
+// Static-only CI gate. No Supabase connections, no SQL execution or secrets.
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {buildPilotCoach119Transaction,RELEASE_SOURCES} from '../tools/prepare-pilot-coach119-release.mjs';
+const pack=buildPilotCoach119Transaction();
+assert.deepEqual(pack.blocks,['SEC09','OPT01','FOOD_URL','COACH119']);
+assert.equal(RELEASE_SOURCES.length,4);
+assert.match(pack.sha256,/^[a-f0-9]{64}$/);
+assert.match(pack.sql,/^begin;$/m);
+assert.equal((pack.sql.match(/^begin;\s*$/gm)||[]).length,1);
+assert.equal((pack.sql.match(/^commit;\s*$/gm)||[]).length,1);
+assert.ok(pack.sql.indexOf('BEGIN AUDITED SOURCE SEC09')<pack.sql.indexOf('BEGIN AUDITED SOURCE OPT01'));
+assert.ok(pack.sql.indexOf('BEGIN AUDITED SOURCE OPT01')<pack.sql.indexOf('BEGIN AUDITED SOURCE FOOD_URL'));
+assert.ok(pack.sql.indexOf('BEGIN AUDITED SOURCE FOOD_URL')<pack.sql.indexOf('BEGIN AUDITED SOURCE COACH119'));
+assert.match(pack.sql,/NCC_ABORT: release flags must remain OFF/);
+assert.match(pack.sql,/values\s*\(\s*'pilot_coach_atomic_publication'\s*,\s*false/i);
+assert.doesNotMatch(pack.sql,/[\n\r]\s*\\(?:i|copy|include)\b/i);
+const check=JSON.parse(execFileSync(process.execPath,['efg-nutrition/tools/prepare-pilot-coach119-release.mjs','--check'],{encoding:'utf8'}));
+assert.equal(check.status,'PREPARED_NOT_APPLIED');
+assert.equal(check.sha256,pack.sha256);
+assert.equal(check.transactions,1);
+assert.equal(check.productionWrites,0);
+assert.equal(check.flagsEnabled,0);
+assert.throws(()=>execFileSync(process.execPath,['efg-nutrition/tools/prepare-pilot-coach119-release.mjs','--emit'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}),/Command failed/);
+const emitted=execFileSync(process.execPath,['efg-nutrition/tools/prepare-pilot-coach119-release.mjs','--emit','--ack=PREPARE_ONLY_NOT_GO'],{encoding:'utf8'});
+assert.equal(emitted,pack.sql);
+console.log('PASS: 4 SHA-pinned audited SQL candidates -> one transaction, NO deployment, switches OFF, manual GO required.');

@@ -32,6 +32,7 @@ declare
  v_plan public.efg_student_plan_access%rowtype;
  v_guide_goal uuid;
  v_guide_at timestamptz;
+ v_guide jsonb;
  v_goal_ok boolean := false;
  v_follow_up boolean := false;
  v_route text := 'verify';
@@ -79,6 +80,10 @@ begin
      or v_intake.revision is null or v_intake.revision<1
      or v_intake.updated_at<v_intake.completed_at then
    v_route:='intake';
+  elsif v_intake.objective is null or v_intake.age_years is null
+     or v_intake.height_cm is null or v_intake.weight_kg is null
+     or v_intake.activity_level is null or v_intake.dietary_pattern is null then
+   v_route:='intake'; -- Incomplete or cleared intake cannot unlock daily logging.
   elsif v_intake.shared_at is null or not v_follow_up or not v_sharing then
    v_route:='private'; -- Completed intake; sharing declined or revoked.
   else
@@ -90,8 +95,8 @@ begin
      and v_plan.published_goal_id is not null
      and v_plan.published_at >= v_intake.updated_at
      and v_plan.published_by=v_coach then
-    select f.guided_goal_id,f.guided_plan_approved_at
-     into v_guide_goal,v_guide_at
+    select f.guided_goal_id,f.guided_plan_approved_at,f.guided_plan
+     into v_guide_goal,v_guide_at,v_guide
      from public.efg_food_plans f
      where f.student_id=v_uid and f.coach_id=v_coach;
     select exists(select 1 from public.efg_goals g
@@ -100,14 +105,15 @@ begin
       into v_goal_ok;
     if v_goal_ok and v_guide_goal=v_plan.published_goal_id
       and v_guide_at is not null and v_guide_at>=v_intake.updated_at
-      and pg_catalog.jsonb_typeof((
-       select f.guided_plan from public.efg_food_plans f
-       where f.student_id=v_uid and f.coach_id=v_coach
-      )->'meals')='array'
-      and pg_catalog.jsonb_array_length((
-       select f.guided_plan from public.efg_food_plans f
-       where f.student_id=v_uid and f.coach_id=v_coach
-      )->'meals')=5 then
+      and case
+     when pg_catalog.jsonb_typeof(v_guide->'meals')='array' then (
+      (v_guide->>'kind'='five_meal_example' and v_guide->>'version'='1'
+        and pg_catalog.jsonb_array_length(v_guide->'meals')=5)
+      or
+      (v_guide->>'kind'='flexible_meal_guide' and v_guide->>'version'='2'
+        and pg_catalog.jsonb_array_length(v_guide->'meals') between 2 and 6)
+     ) else false
+    end then
       v_route:='ready';
     end if;
    end if;

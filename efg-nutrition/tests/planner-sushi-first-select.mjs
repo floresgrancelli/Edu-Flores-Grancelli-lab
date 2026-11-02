@@ -694,7 +694,7 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
  const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
   "foods","allowedFoods","foodSearchText","groupedFoodOptions","state",
   "syncPlannerSearchActions","updatePlannerPreview",
-  source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
+  "const selectableFoods=()=>foods;\n"+source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
   {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog.map(f=>f.id),
   food=>food.name,items=>items.map(f=>'<option value="'+f.id+'">'+f.name+'</option>').join(""),
   plannerState,()=>{syncCount++;},()=>{previewCount++;}
@@ -736,7 +736,7 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
   "foodAllowedForMeal","state","isGuidedMealSlot","guidedMealGroupFor",
   "groupIdFor","activeGuidedMealGroup","foodSearchText","groupedFoodOptions",
   "renderMealSearchSuggestions","updateMealEntryMode",
-  source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
+  "const selectableFoods=()=>foods;\n"+source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
   {getElementById:id=>id==="mealEditorFood"?foodSelector:id==="mealFoodSearch"?mealSearchInput:null},
   mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
   ()=>false,()=>false,()=>"",null,food=>food.name,
@@ -772,7 +772,7 @@ console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quan
  const search={value:"",focus(){}};
  const changes=[];
  const pick=new Function("document","foods","hideMealSearchSuggestions","updateMealEntryMode",
-  source.slice(begin,end)+";return pickMealSearchSuggestion;")(
+  "const selectableFoods=()=>foods;\n"+source.slice(begin,end)+";return pickMealSearchSuggestion;")(
   {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
   [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
  );

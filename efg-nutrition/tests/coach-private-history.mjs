@@ -31,6 +31,14 @@ assert.equal(h.logs.length,1);
 const html=renderCoachPrivateHistory(h,{userId:id});
 assert.match(html,/Mi historial, sin compartir la ficha/);
 assert.match(html,/Huevos/);
+// Historic approved v2 guides must expose all six meals while the student
+// waits for a newly published guide, without unlocking edit or diary actions.
+const sixMealSlots=['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'];
+const historicSix={...h,plan:{...h.plan,guided_plan:{kind:'flexible_meal_guide',version:2,
+ meals:sixMealSlots.map(slot=>({slot,items:[{name:'Histórico '+slot,qty:100,unit:'g'}]}))}}};
+const sixHTML=renderCoachPrivateHistory(historicSix,{userId:id});
+assert.match(sixHTML,/Histórico cena/,'Do not truncate the sixth approved meal in read-only history');
+assert.equal((sixHTML.match(/Histórico (?:desayuno|media_manana|almuerzo|media_tarde|merienda|cena)/g)||[]).length,6);
 assert.doesNotMatch(html,/corresponde a un objetivo anterior/);
 assert.match(renderCoachPrivateHistory({...h,plan:{...h.plan,guided_goal_id:org}},{userId:id}),/corresponde a un objetivo anterior/);
 assert.match(html,/5\.000/);

@@ -10,6 +10,12 @@ assert.match(ui,/acceptPilotParticipation\(sb,choice,\{explicitSubmit:true\}\)/)
 assert.match(ui,/readPilotParticipationSelection\(document,\{explicitClick:true\}\)/);
 assert.match(ui,/syncPilotParticipationContinueButton\(document\)/);
 assert.match(ui,/renderCoachPlanWaiting\(\)/);
+assert.doesNotMatch(ui,/\["history","home","summaries"\]\.includes\(state\.tab\)\|\|pilot\.route==="private"/,
+ 'Student HOME after submitting a shared intake cannot hide the waiting-for-Coach view');
+assert.match(ui,/else if\(\["history","summaries"\]\.includes\(state\.tab\)\)/);
+assert.match(ui,/else if\(pilot\.route==="private"\)/,
+ 'A private unshared intake needs a distinct message, not a misleading Coach waiting state');
+assert.match(ui,/else\s+\/\/ Home after submission must show the promised waiting-for-coach screen\./);
 assert.match(ui,/state\.tab="messages";await render\(\)/);
 assert.match(ui,/submitCoachPilotGeneralIntake\(sb,\{profile:state\.profile,payload:data\.payload/);
 assert.match(ui,/expectedRevision:state\.coachPilotIntake\?\.revision\?\?0/);

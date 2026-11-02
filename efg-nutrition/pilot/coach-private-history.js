@@ -84,7 +84,7 @@ export function renderCoachPrivateHistory(history,{userId}={}){
   '<p class="pilot-hint">Todavía no hay objetivos aprobados.</p>';
  const guide=history.plan?.guided_plan;
  const meals=guide&&typeof guide==='object'&&Array.isArray(guide.meals)?guide.meals:[];
- const guideRows=meals.slice(0,5).map(meal=>'<li><strong>'+esc(meal.label||meal.slot||'Comida')+'</strong>: '+
+ const guideRows=meals.slice(0,6).map(meal=>'<li><strong>'+esc(meal.label||meal.slot||'Comida')+'</strong>: '+
   (Array.isArray(meal.items)?meal.items.slice(0,30).map(f=>esc(f?.name||'Alimento')+
     (numeric(f?.qty)!==null?' · '+numeric(f.qty)+' '+esc(f?.unit||''):'')).join(', '):'Sin detalle')+'</li>');
  const reports=history.reports.map(r=>'<details class="pilot-record"><summary>Semana hasta '+

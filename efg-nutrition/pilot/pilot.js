@@ -2969,8 +2969,15 @@ async function render(){
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
-    else if(["history","home","summaries"].includes(state.tab)||pilot.route==="private")frame(renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
-     else frame(renderCoachPlanWaiting()+renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
+    else if(pilot.route==="private")
+     // The owner chose NOT to share. Never imply the Coach received the form.
+     frame('<section class="card efg-coach-private-notice" role="status"><h2>Tu ficha está guardada como privada</h2><p>Tu coach todavía no puede verla ni preparar el nuevo plan. Podés revisar el permiso desde Mi ficha. Tu historial permanece disponible.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y el permiso</button></section>'+
+      renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
+    else if(["history","summaries"].includes(state.tab))
+     frame(renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
+    else
+     // Home after submission must show the promised waiting-for-coach screen.
+     frame(renderCoachPlanWaiting()+renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
    }else
     root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
    return;

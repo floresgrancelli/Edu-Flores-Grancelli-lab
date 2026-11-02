@@ -61,6 +61,10 @@ export async function registrationCases(ctx){
   // Re-establish an actual OTP/session after the revocation workflow; the
   // old UI may have legitimately gated the page before the server restore.
   await login(page,users.studentA);await open(page);
+  const restoredView=await page.evaluate(()=>window.__SDK_ENTRY_QA__?.snapshot());
+  assert.equal(restoredView?.userId,users.studentA.id,'Restored consent must rehydrate the correct actor');
+  assert.equal(restoredView?.route,'ready','Restored consent must return to the ready diary route');
+  assert.equal((await read()).length,0,'Revoked attempt may not create a diary record');
   await page.screenshot({path:join(out,`diary-revocation-${width}.png`),fullPage:true});
   return {status:'PASS',width,stages,transport:'real local SDK/HTTP/JWT',explicitRecipeRetryAfterLostResponse:'NOT_TESTED (not idempotent by request key)'};
  }catch(e){e.diaryRegistrationStage=stage;throw e;}finally{page.off('request',listener);await restoreRows();}

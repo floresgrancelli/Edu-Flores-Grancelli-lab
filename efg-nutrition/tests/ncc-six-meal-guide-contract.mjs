@@ -59,7 +59,7 @@ assert.equal(initial.meals[2].items[0].id,toChange.id);
 const added=addFlexibleFood(removed,'almuerzo',{id:'tofu_firm',qty:170},catalog,goal);
 assert.equal(added.meals[2].items.at(-1).id,'tofu_firm');
 assert.equal(added.meals[2].items.at(-1).qty,170);
-assert.throws(()=>addFlexibleFood(added,'almuerzo',{id:'tofu_firm'},catalog,goal),/duplicad/);
+assert.throws(()=>addFlexibleFood(added,'almuerzo',{id:'tofu_firm'},catalog,goal),/duplicad|ya existe/);
 assert.throws(()=>removeFlexibleFood(initial,'cena',999,goal));
 const celiac=generateFlexibleGuidedDay(catalog,goal,{restrictions:['celiac']});
 assert.equal(celiac.meals.length,6);

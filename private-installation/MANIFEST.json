@@ -203,8 +203,8 @@
       "bytes": 1194
     },
     "bridge/browser.mjs": {
-      "sha256": "dc06f1832383a36c86e7b415bd01cb522aebbff30ba02fcd110d297e961295b8",
-      "bytes": 6832
+      "bytes": 7143,
+      "sha256": "77274510e5c5dab981a5ce520ff3bb098e36d4a3c000a75a0656614b16abd1ef"
     },
     "bridge/fixtures.mjs": {
       "sha256": "5b38880d16d2f63ad7e3438681fc44ed00af93fd2b490dda44c11d4aa699d6df",

@@ -31,7 +31,11 @@ export async function bridgeBrowser({sql,rpc,users,input,ids,newFixture,out}){
  const settled=page=>page.waitForFunction(()=>window.__SDK_ENTRY_QA__?.snapshot().role&&!window.__SDK_ENTRY_QA__.snapshot().loading);
  async function open(page,student){
   stage='open-settled';await settled(page);stage='coach-students-tab';await page.locator('[data-tab="coachStudents"]:visible').first().click();stage='select-student';await page.locator(`[data-student="${student.id}"]`).first().click();
-  const details=page.locator('#coachStudentGoals');if(await details.count()&&!await details.getAttribute('open'))await details.locator(':scope > summary').click();
+  // Selecting a student awaits real HTTP before rendering the details. Do not
+  // count the previous DOM and skip opening a still-unmounted details element.
+  stage='student-goals-rendered';const details=page.locator('#coachStudentGoals');await details.waitFor({state:'visible'});
+  if(await details.getAttribute('open')===null)await details.locator(':scope > summary').click();
+  assert.notEqual(await details.getAttribute('open'),null,'Real goals details must be open');
   stage='open-preview';await page.locator('[data-act="openCoachAdaptedPreview"]').click();stage='read-persisted';await page.locator('[data-persisted-revision]').waitFor();
  }
  try{

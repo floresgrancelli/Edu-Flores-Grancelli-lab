@@ -21,7 +21,7 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
   return await diagnosticPage.evaluate(expected=>{
    const s=window.__SDK_ENTRY_QA__?.snapshot();
    const selectors=['#loginEmail','#loginOtp','#pilot-login-form button[type=submit]','#pilot-otp-form button[type=submit]','[data-act=logout]','[data-tab=home]','[data-act=createPersonalRecipe]','[data-habitualsave=desayuno]','[data-act=scienceSkip]'];
-   return {pageAvailable:true,hookAvailable:!!s,loading:s?.loading??null,role:['student','coach','admin'].includes(s?.role)?s.role:null,route:['home','coachStudents','login','education'].includes(s?.route)?s.route:'other',identityMatchesExpected:!!expected&&s?.userId===expected,hasSession:!!s?.sessionId,selectors:Object.fromEntries(selectors.map(q=>{const nodes=[...document.querySelectorAll(q)];return[q,{count:nodes.length,visible:nodes.some(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return r.width>0&&r.height>0&&c.visibility!=='hidden'&&c.display!=='none';})}];}))};
+   return {pageAvailable:true,hookAvailable:!!s,loading:s?.loading??null,role:['student','coach','admin'].includes(s?.role)?s.role:null,route:['home','coachStudents','login','education','ready','legal','participation','intake','review','private','retry'].includes(s?.route)?s.route:'other',identityMatchesExpected:!!expected&&s?.userId===expected,hasSession:!!s?.sessionId,selectors:Object.fromEntries(selectors.map(q=>{const nodes=[...document.querySelectorAll(q)];return[q,{count:nodes.length,visible:nodes.some(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return r.width>0&&r.height>0&&c.visibility!=='hidden'&&c.display!=='none';})}];}))};
   },expectedUser?.id).catch(()=>({pageAvailable:true,diagnosticUnavailable:true}));
  }
  const server=createServer((req,res)=>{try{
@@ -52,12 +52,18 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
  async function open(page){
   await settled(page,users.studentA);
   await step('signed-route-home',page,()=>page.locator('[data-tab="home"]:visible').first().click());
-  await step('mi-dia-create-recipe-control',page,()=>page.locator('[data-act="createPersonalRecipe"]:visible').first().waitFor());
+  await step('mi-dia-breakfast-control',page,()=>page.locator('[data-habitualsave="desayuno"]:visible').first().waitFor());
   const breakfast=page.locator('[data-habitualsave="desayuno"]').locator('xpath=ancestor::details[1]');
   const isOpen=await step('mi-dia-breakfast-container',page,()=>breakfast.getAttribute('open'));
   if(isOpen===null)await step('open-breakfast',page,()=>breakfast.locator(':scope > summary').click());
  }
+ async function openRecipes(page){
+  await open(page);
+  await step('navigate-real-recipes',page,()=>page.locator('[data-tab="recipes"]:visible').first().click());
+  await step('recipes-create-control',page,()=>page.locator('[data-act="createPersonalRecipe"]:visible').first().waitFor());
+ }
  async function createRecipe(page,name,done){
+  await openRecipes(page);
   const answers=[name,'banana','1','100','','2'];let fault;
   const handler=async d=>{try{assert.equal(d.type(),'prompt');assert.ok(answers.length);await d.accept(answers.shift());}catch(e){fault=e;await d.dismiss();}};
   page.on('dialog',handler);
@@ -95,6 +101,7 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
    const r=(await waitRows(users.studentA,tables[1],1))[0];assert.deepEqual(r.ingredients,[{foodId:'banana',grams:100}]);assert.equal(r.portions,2);
    const diaryBefore=await api(users.studentA,'efg_daily_logs');await page.reload();await open(page);
    await page.locator('#habitualChoice_desayuno').selectOption(h.id);await page.locator('#habitualPreview_desayuno').waitFor({state:'visible'});
+   await page.screenshot({path:join(out,`diary-habitual-${width}.png`),fullPage:true});await openRecipes(page);
    await page.locator('[data-act="registerPersonalRecipe"]:visible').first().click();await page.locator('#efgRecipeRegisterId').selectOption(r.id);
    assert.match(await page.locator('#efgRecipeRegisterId option:checked').textContent(),/TEST_ONLY UI recipe/);
    await page.screenshot({path:join(out,`diary-select-${width}.png`),fullPage:true});await page.locator('[data-act="closeRecipeRegistration"]').first().click();

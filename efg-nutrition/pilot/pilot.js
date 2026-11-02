@@ -4105,6 +4105,30 @@ if(el.dataset.foodbulk){
   });
   showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
  }
+ if(action==="removeGuidedMeal"){
+  const goal=activeCoachGuideGoal(),draft=readGuidedEditor();
+  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
+  state.coachGuidedDraft=removeFlexibleMeal(draft,el.dataset.guideremovemeal,goal);
+  showGuidedEditor();notify("Horario quitado SOLO de la guía; recalculé las porciones de las otras comidas.");return;
+ }
+ if(action==="removeGuidedFood"){
+  const goal=activeCoachGuideGoal(),draft=readGuidedEditor();
+  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
+  const [slot,index]=String(el.dataset.guideremovefood||"").split(":");
+  state.coachGuidedDraft=removeFlexibleFood(draft,slot,Number(index),goal);
+  showGuidedEditor();notify("Alimento quitado de la guía; recalculé las cantidades restantes.");return;
+ }
+ if(action==="addGuidedFood"){
+  const goal=activeCoachGuideGoal(),draft=readGuidedEditor(),slot=el.dataset.guideaddfood;
+  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
+  const control=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
+  const food=foods.find(x=>x.id===control?.value);
+  if(!food)throw Error("Elegí un alimento de los ya disponibles.");
+  const compatibility=guideFoodSignal(food,currentCoachGuideProfile());
+  if(compatibility.status==="avoid"&&!window.confirm("Este alimento no coincide con el perfil declarado. ¿Querés incluirlo igualmente bajo tu revisión de coach?"))return;
+  state.coachGuidedDraft=addFlexibleFood(draft,slot,{id:food.id},foods,goal);
+  showGuidedEditor();notify("Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario.");return;
+ }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
  if(action==="balanceGuidedDay"){
   const draft=readGuidedEditor(),proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
@@ -4220,7 +4244,9 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
- state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),targetGoal);
+ state.coachGuidedDraft=draft.kind==="flexible_meal_guide"
+  ?replaceFlexibleFood(draft,slot,Number(index),{id:e.target.value},foods,targetGoal)
+  :rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),targetGoal);
  showGuidedEditor();
  notify("Ingrediente cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.dataset.guideqty){
@@ -4263,6 +4289,16 @@ root.addEventListener("input",e=>{
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value);
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
+ }
+ if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){
+  const slot=e.target.dataset.guidefoodsearch,select=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
+  if(select){
+   const q=plannerNormalizeQuery(e.target.value),terms=q.split(/\s+/).filter(Boolean);
+   const filtered=foods.filter(f=>terms.every(w=>plannerNormalizeQuery(foodSearchText(f)).includes(w)));
+   const previous=select.value;
+   select.innerHTML='<option value="">Elegí un alimento</option>'+option(filtered);
+   select.value=filtered.some(x=>x.id===previous)?previous:"";
+  }
  }
  if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch"&&foodSearchReadyForInput(e))filterMealFoods();if(e.target.dataset.plansearch&&foodSearchReadyForInput(e))filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
  const key=e.target.id.slice("planQty_".length);

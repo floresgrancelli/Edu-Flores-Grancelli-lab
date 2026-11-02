@@ -259,8 +259,8 @@
       "sha256": "ab4ed44c5ed580aab520ebab5814abf9f76354f655c896c9bc5bf58b67fcab64"
     },
     "diary-fixture/browser.mjs": {
-      "bytes": 18652,
-      "sha256": "c78bd18e43e283dd47b297bf45006b3ce28749168a889c5b86639ce47715ef5b"
+      "bytes": 18701,
+      "sha256": "4c01d277c513eed73dd316cd361f6bcbd3774af2f253b8b7046b59a35a6be331"
     },
     "diary-fixture/install.mjs": {
       "bytes": 2810,
@@ -275,8 +275,8 @@
       "sha256": "d2e976d07dec96bbc1475a973477ef73734cf6501073b0442cf33d0b8f46859a"
     },
     "diary-registration/run.mjs": {
-      "bytes": 2898,
-      "sha256": "c569f029f1b2e85a9408d0837652cecd3f42cc693c3eb6bfafb226925243b583"
+      "bytes": 3407,
+      "sha256": "fac79d8243baeabc82ca2f7511945eca524a00a81c6f55218a9ec20d9f6fd2e1"
     },
     "diary-registration/restore.PROPOSAL.sql": {
       "bytes": 474,
@@ -287,8 +287,8 @@
       "sha256": "e096adb7231f22e9b418afca28ec7b0fd7a23aa7d06fa389b296e9ba7a4e9fab"
     },
     "diary-registration/browser-cases.mjs": {
-      "bytes": 6721,
-      "sha256": "a23ae50154aa05ad3e4f51d50478cf7c4625f6dc4681bc964f52dbc5592da976"
+      "bytes": 8007,
+      "sha256": "89168fddde0e2a6806885286425ecbf862bde419de346d6964c047aae6386779"
     },
     "diary-registration/install.mjs": {
       "bytes": 3831,

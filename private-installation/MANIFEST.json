@@ -211,8 +211,8 @@
       "bytes": 5745
     },
     "bridge/tests/bridge-dom-local.mjs": {
-      "bytes": 6739,
-      "sha256": "7bd9a4f4d1d277b1770ca7b10a677b26a1d470e1f3ef12aba2418e2a9e04f132"
+      "bytes": 6774,
+      "sha256": "d27fa7acf544205f02ef4db8758d5ad2258ba25dbe6d96fbceaf1b447eaadaed"
     },
     "bridge/tests/bridge-http-contract.mjs": {
       "sha256": "b3c0010c85259659cbc456043c27226a275ccf68d1cfd5ed99c8051a6d272af5",

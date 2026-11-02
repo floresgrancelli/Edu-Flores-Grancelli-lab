@@ -41,7 +41,7 @@ export async function verifyClinicalBridgeDOM({page,mealLabel,mealSlot,ingredien
   await page.getByRole('button',{name:'Conservar borrador editado',exact:true}).click();
   // The conserve action may preview again. It cannot satisfy the save waiter.
   phase='efg_save_clinical_bound_recipe';const saveWaiting=waitEdited();
-  await page.getByRole('button',{name:'Guardar borrador privado',exact:true}).click();
+  await page.locator('#coachAdaptedDraftMount').getByRole('button',{name:'Guardar borrador privado',exact:true}).click();
   const saveResponse=await saveWaiting,saveRequest=eligible.get(saveResponse.request());
   assert.equal(saveResponse.status(),200);const saved=await saveResponse.json();
   assertReply(saveRequest.body,saved,saveRequest.expected);assert.equal(saved.draft_revision,expectedRevision);

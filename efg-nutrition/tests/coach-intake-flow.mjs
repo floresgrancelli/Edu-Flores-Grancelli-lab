@@ -201,7 +201,7 @@ assert.equal(flow.details("student-fixture"),"","Coach must not display cached i
 state.coachIntakeForms["student-fixture"]={notes:"stale fixture",shared_at:"2026-10-29T00:00:00Z"};
 await flow.refreshCoachDetail("student-fixture",false);
 assert.equal(flow.details("student-fixture"),"","Revoked coach-following consent clears cached intake");
-assert.match(app,/await coachIntakeFlow\.refreshCoachDetail\(studentId,c\.data\?\.accepted===true\)/,
+assert.match(app,/await contextRead\(coachIntakeFlow\.refreshCoachDetail\(studentId,c\.data\?\.accepted===true\)\)/,
  "Coach must revalidate consented intake when opening a pupil");
 assert.equal(state.planAccess.status,"published","Erasing intake must never unpublish the plan");
 assert.doesNotMatch(flow.view(),/Eliminar solamente mi ficha inicial/,"No delete option when there is no intake");

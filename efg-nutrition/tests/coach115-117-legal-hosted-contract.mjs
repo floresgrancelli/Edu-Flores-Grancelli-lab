@@ -119,7 +119,7 @@ const upgraded=readFileSync(new URL('../migrations/20261030_coach116_legal_first
 assert.match(upgraded,/if v_current_legal_count<>2 then/);
 assert.match(upgraded,/\x27route\x27,\x27legal\x27,\x27can_log_meals\x27,false/);
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-assert.match(app,/state\.coachPilotLegal=await loadCoachPilotLegal\(sb/);
+assert.match(app,/state\.coachPilotLegal=await contextRead\(loadCoachPilotLegal\(sb/);
 assert.match(app,/renderCoachPilotLegal\(state\.coachPilotLegal\)/);
 assert.match(app,/if\(action==="acceptCoachPilotLegal"\)/);
 assert.match(app,/await submitCoachPilotLegal\(sb/);

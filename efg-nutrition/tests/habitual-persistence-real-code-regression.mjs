@@ -3,6 +3,7 @@
 // No real users or hosted credentials; validates save -> readback -> reload -> dropdown.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {sameRecipeIngredients} from '../pilot/recipe-ingredients-equal.js';
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const begin=app.indexOf('let cloudHabituales=[];');
 const end=app.indexOf('function recipeStoreKey(){',begin);
@@ -35,14 +36,16 @@ const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','
 const pendingMealRegistrations=new Set();
 const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',
- 'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations','today',
+ 'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations','today','sameRecipeIngredients',
  subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,applyChosenHabitual,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
  sb,state,mealSlots,localStorage,()=>diary,
  msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
  msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),
- [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations,()=>diary.log_day
+ [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations,()=>diary.log_day,sameRecipeIngredients
 );
+assert.equal(sameRecipeIngredients([{id:'egg',qty:100}], [{qty:100,id:'egg'}]),true,'Real ingredient comparison ignores JSONB object key order');
+assert.equal(sameRecipeIngredients([{id:'egg',qty:100}], [{id:'egg',qty:101}]),false,'Distinct quantity must never deduplicate');
 await api.loadCloudHabituales();
 assert.equal(api.getHabitualList('desayuno').length,0);
 await api.habitualAction('desayuno','save');

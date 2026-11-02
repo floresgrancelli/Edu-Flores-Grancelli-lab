@@ -37,7 +37,8 @@ import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1"
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-flex1";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-restrictions1";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=20261102-guard1";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
@@ -2666,13 +2667,13 @@ function currentCoachGuideProfile(){
  const intake=state.coachIntakeForms?.[state.selectedStudent]||{};
  const pattern=profilePatternForCompatibility(intake.dietary_pattern||'balanced');
  const windowId=['12_12','14_10','16_8'].includes(intake.eating_window)?intake.eating_window:'regular';
- // Never infer restrictions from free-text notes or from a blank health field.
- // A separate private server-owned consented health read is required.
+ // Unknown medical status is never interpreted as a negative declaration.
  const shared=state.coachGuideHealth;
- const restrictions=shared?.studentId===state.selectedStudent&&shared.shared===true&&
-  shared.viewerId===state.session?.user?.id&&shared.consentVerified===true
-  ?shared.restrictions:[];
- return {patternId:pattern,windowId,restrictions};
+ const verified=shared?.studentId===state.selectedStudent&&shared.shared===true&&
+  shared.viewerId===state.session?.user?.id&&shared.consentVerified===true;
+ return {patternId:pattern,windowId,restrictions:verified?shared.restrictions:[],
+  restrictionStatus:verified?shared.restrictionStatus:"unknown",
+  restrictionReviewNotes:verified?shared.reviewNotes:[]};
 }
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
@@ -3315,16 +3316,11 @@ async function loadStudentDetail(studentId){
    const result=await contextRead(sb.rpc("efg_get_coach_health_intake",{p_student:studentId}));
    if(result.error)throw result.error;
    const h=result.data;
-   if(h?.student_id===studentId&&h?.viewer_id===viewer&&
-      h.organization_id===state.org?.id&&h.shared_with_coach===true&&
-      h.processing_consent===true&&h.followup_consent===true&&
-      h.revoked!==true&&Number.isSafeInteger(h.revision)&&h.revision>0&&
-      h.conditions&&typeof h.conditions==="object"&&!Array.isArray(h.conditions)){
-    state.coachGuideHealth={studentId,viewerId:viewer,shared:true,consentVerified:true,
-     restrictions:Object.entries(h.conditions).filter(([k,v])=>
-      /^[a-z_]{2,40}$/.test(k)&&["confirmed","suspected"].includes(v)).map(([k])=>k)};
-   }
-  }catch(error){
+   const checked=readVerifiedCoachRestrictionScope(h,{studentId,coachId:viewer,organizationId:state.org?.id});
+    if(checked.verified)state.coachGuideHealth={studentId,viewerId:viewer,shared:true,
+     consentVerified:true,restrictions:checked.restrictions,restrictionStatus:checked.restrictionStatus,
+     reviewNotes:checked.reviewNotes};
+   }catch(error){
    if(error?.code==="STALE_AUTH_CONTEXT")throw error;
    state.coachGuideHealth=null; // No health record is not a declaration of no restrictions.
    console.warn("Lectura sanitaria privada aún no habilitada; guía automática clínica no autorizada.",error?.message);
@@ -4195,21 +4191,12 @@ if(el.dataset.foodbulk){
   state.coachGuidedDraft=generateFlexibleGuidedDay(foods,goal,{
    ...currentCoachGuideProfile(),includeWhey:!!document.getElementById("guideWhey")?.checked
   });
-  if(COACH_ATOMIC_PLAN_UI_ENABLED&&!(
-    state.coachGuideHealth?.studentId===state.selectedStudent&&
-    state.coachGuideHealth?.viewerId===state.session?.user?.id&&
-    state.coachGuideHealth?.shared===true&&
-    state.coachGuideHealth?.consentVerified===true&&
-    Array.isArray(state.coachGuideHealth.restrictions)&&
-    state.coachGuideHealth.restrictions.length>0
-   )){
-    // Unknown medical status is never interpreted as "sin restricciones".
-    // The coach must inspect suitability before approving any guide.
+  if(COACH_ATOMIC_PLAN_UI_ENABLED&&currentCoachGuideProfile().restrictionStatus==="unknown"){
     const warning="Restricciones alimentarias no verificadas: no presupongas ausencia de celiaquía, intolerancias o alergias. Confirmá el perfil del alumno antes de aprobar alimentos.";
     state.coachGuidedDraft.profileReviewNotes=
      [...new Set([...(state.coachGuidedDraft.profileReviewNotes||[]),warning])].slice(0,25);
-  }
-  showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
+   }
+   showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="removeGuidedMeal"){
   const goal=activeCoachGuideGoal(),draft=readGuidedEditor();
@@ -4255,12 +4242,15 @@ if(el.dataset.foodbulk){
    const ingredients=Array.isArray(food.recipeIngredients)
     ?food.recipeIngredients.map(x=>foods.find(y=>y.id===x.foodId)):[food];
    if(!ingredients.length||ingredients.some(x=>!x))throw Error("La receta tiene ingredientes sin ficha alimentaria.");
-   if(ingredients.some(x=>guideFoodSignal(x,currentCoachGuideProfile()).status==="avoid")&&
-      !window.confirm("Hay ingredientes que no coinciden con el perfil declarado. ¿Querés incluirlos bajo tu revisión de coach?")){
-    if(food.privateRecipe)showGuidedEditor();
-    return;
-   }
-   if(Array.isArray(food.recipeIngredients)){
+   const flagged=ingredients.map(x=>reviewCoachGuideFoodChange(x,currentCoachGuideProfile())).filter(x=>x.needsReview);
+    if(flagged.length&&!window.confirm(
+     "Hay ingredientes con compatibilidad pendiente o que no coinciden con el perfil. "+
+     flagged.slice(0,2).map(x=>x.reason).join(" · ")+
+     ". ¿Incluirlos bajo revisión expresa del coach?")){
+     if(food.privateRecipe)showGuidedEditor();
+     return;
+    }
+    if(Array.isArray(food.recipeIngredients)){
     const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
     state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal,auth);
     showGuidedEditor();
@@ -4386,6 +4376,14 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
+ if(draft.kind==="flexible_meal_guide"){
+  const candidate=foods.find(x=>x.id===e.target.value);
+  if(!candidate)throw Error("La alternativa ya no está en el catálogo.");
+  const signal=reviewCoachGuideFoodChange(candidate,currentCoachGuideProfile());
+  if(signal.needsReview&&!window.confirm(signal.message)){
+   showGuidedEditor();return;
+  }
+ }
  state.coachGuidedDraft=draft.kind==="flexible_meal_guide"
   ?replaceFlexibleFood(draft,slot,Number(index),{id:e.target.value},foods,targetGoal)
   :rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),targetGoal);

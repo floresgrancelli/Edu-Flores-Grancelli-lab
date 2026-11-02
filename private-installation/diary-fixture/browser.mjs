@@ -116,7 +116,7 @@ export async function runDiaryBrowser({request,users,input,ids,out,snapshot}){
    await page.reload();await open(page);await page.reload();await open(page);assert.equal((await owned(users.studentA,tables[1])).length,1);assert.equal(await backup(page,rkey(users.studentA.id)),null);
    stage='late-get-A-B-'+width;
    const late=hold(page,tables[1],'GET');await page.route(late.pattern,late.handler);
-   try{await page.reload({waitUntil:'domcontentloaded'});await late.entered;await login(switchPage,users.studentB);await settled(page,users.studentB);late.release();await late.finish();assert.ok(!(await page.locator('body').innerText()).includes('TEST_ONLY lost response'));assert.equal((await owned(users.studentB,tables[1])).length,0);}finally{late.release();await page.unroute(late.pattern,late.handler);}
+   try{await page.reload({waitUntil:'domcontentloaded'});await late.entered;await login(switchPage,users.studentB);late.release();await late.finish();await settled(page,users.studentB);assert.ok(!(await page.locator('body').innerText()).includes('TEST_ONLY lost response'));assert.equal((await owned(users.studentB,tables[1])).length,0);}finally{late.release();await page.unroute(late.pattern,late.handler);}
    await login(switchPage,users.studentA);await settled(page,users.studentA);await page.reload();await open(page);await clean(users.studentA);await page.reload();await open(page);
    stage='late-post-A-B-'+width;
    const latePost=hold(page,tables[1],'POST');await page.route(latePost.pattern,latePost.handler);

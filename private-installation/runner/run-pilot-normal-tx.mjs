@@ -32,6 +32,19 @@ try {
  sql(baseline);
  assert.equal(sql('select count(*) from auth.users'),'0');
  verifyObserved(sql,JSON.parse(readFileSync(new URL('evidence/hosted-metadata-20261101-2212.json',root),'utf8')));
+ // The generated PG17 facsimile omits COACH111, even though it IS installed
+ // in hosted and mandatory for the current OPT01 preflight. Apply the
+ // exact reviewed additive migration to THIS EMPTY DISPOSABLE FIXTURE only.
+ const entryPath=new URL('../../efg-nutrition/migrations/20261030_coach_pilot_student_entry_status.sql',import.meta.url);
+ const entryBytes=readFileSync(entryPath);
+ const {createHash}=await import('node:crypto');
+ const gitBlob=createHash('sha1').update('blob '+entryBytes.length+'\\0').update(entryBytes).digest('hex');
+ assert.equal(gitBlob,'715bfde2cb9eefe6c1ac828514cd72bf82cac685',
+  'COACH111 source digest changed; stop before installing synthetic entry');
+ assert.equal(sql("select to_regprocedure('public.efg_coach_pilot_entry_status()') is null"),'t');
+ sql(entryBytes.toString('utf8'));
+ assert.equal(sql("select to_regprocedure('public.efg_coach_pilot_entry_status()') is not null"),'t');
+ record('Existing hosted COACH111 function installed from exact source in disposable fixture');
  record('Synthetic production-shaped baseline installed and verified');
  const initial=aclSnapshot(sql);
  const requireAbsent=()=> {

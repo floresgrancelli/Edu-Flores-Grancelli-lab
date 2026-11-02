@@ -3353,7 +3353,7 @@ async function refresh(){
   if(!result.data.user){state.profile=null;return loginView();}
   const id=result.data.user.id;authHydration.verified(ticket,id);
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.foodCompatEvidence=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
+  if(switchingUser){state.foodCompatEvidence=[];state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
   // getUser above is authoritative; cached session supplies only JWT correlation metadata.
   const currentSession=await contextRead(sb.auth.getSession());
   // Epoch was revalidated after getSession; same-user token rotation is harmless.

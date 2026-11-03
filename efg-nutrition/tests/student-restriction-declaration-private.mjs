@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {createStudentRestrictionDeclaration} from '../pilot/student-restriction-declaration.js';
+import {createStudentRestrictionDeclaration,normalizeRestrictionChoices,RESTRICTION_CHOICES} from '../pilot/student-restriction-declaration.js';
 const user='11111111-1111-4111-8111-111111111111',org='22222222-2222-4222-8222-222222222222',session='33333333-3333-4333-8333-333333333333';
 function fixture(){
  let scope={userId:user,organizationId:org,sessionId:session,role:'student',active:true,epoch:1};
@@ -8,6 +8,9 @@ function fixture(){
   calls.push({name,args});
   if(name==='efg_current_coach_health_document')return {data:{id:session,sha256:'b'.repeat(64),version:'TEST_ONLY',content:'Fictional consent for unit test only.'}};
   if(name==='efg_get_coach_health_intake')return {data:row};
+  if(name==='efg_submit_coach_health_intake'){const revision=(row?.revision??0)+1;
+   row={student_id:user,organization_id:org,revision,conditions:structuredClone(args.p_conditions),
+    restriction_declaration:null};return {data:revision};}
   if(name==='efg_declare_no_restrictions'){const revision=(row?.revision??0)+1;
    row={student_id:user,organization_id:org,revision,conditions:{},restriction_declaration:{version:1,kind:'none_declared',
     source_revision:revision,declared_by:user,confirmed_at:new Date().toISOString()}};return {data:row.revision};}
@@ -41,6 +44,41 @@ function fixture(){
  await assert.rejects(f.client.declare({noneDeclared:true,processing:true,sharing:'true'}));
  assert.equal(f.calls.some(x=>x.name==='efg_declare_no_restrictions'),false);
 }
+assert.equal(RESTRICTION_CHOICES.length,8);
+assert.deepEqual(normalizeRestrictionChoices({celiac:'confirmed',lactose_intolerance:'suspected'}),
+ {celiac:'confirmed',lactose_intolerance:'suspected'});
+for(const data of [null,{},[],{celiac:true},{celiac:'not_reported'},{unknown:'confirmed'}])
+ assert.throws(()=>normalizeRestrictionChoices(data));
+{
+ const f=fixture();await f.client.load();
+ const saved=await f.client.declareConditions({
+  conditions:{celiac:'confirmed',lactose_intolerance:'suspected'},
+  processing:true,sharing:false
+ });
+ assert.equal(saved.revision,1);
+ const call=f.calls.find(x=>x.name==='efg_submit_coach_health_intake');
+ assert.equal(call.args.p_share_with_coach,false,'Never infer Coach sharing from processing consent');
+ assert.equal(call.args.p_processing_consent,true);
+ assert.deepEqual(call.args.p_conditions,{celiac:'confirmed',lactose_intolerance:'suspected'});
+ const loaded=await f.client.load();
+ assert.equal(loaded.declaration,'declared');
+ assert.deepEqual(loaded.conditions,{celiac:'confirmed',lactose_intolerance:'suspected'});
+ const none=await f.client.declare({noneDeclared:true,processing:true,sharing:false});
+ assert.equal(none.revision,2);
+ assert.equal((await f.client.load()).declaration,'none_declared');
+ assert.deepEqual((await f.client.load()).conditions,{});
+ assert.equal((await f.client.revoke()).revoked,true);
+}
+{
+ const f=fixture();await f.client.load();
+ for(const invalid of [
+  {conditions:{},processing:true,sharing:false},
+  {conditions:{food_allergy:'true'},processing:true,sharing:false},
+  {conditions:{celiac:'confirmed'},processing:false,sharing:false},
+  {conditions:{celiac:'confirmed'},processing:true}
+ ])await assert.rejects(f.client.declareConditions(invalid));
+ assert.equal(f.calls.some(x=>x.name==='efg_submit_coach_health_intake'),false);
+}
 {
  const f=fixture();await f.client.load();f.hold(async()=>{f.change();});
  await assert.rejects(f.client.declare({noneDeclared:true,processing:true,sharing:true}),/cambiaron/);
@@ -63,4 +101,4 @@ function fixture(){
  const f=fixture();f.setRow({student_id:user,organization_id:org,revision:1,conditions:{}});
  assert.equal((await f.client.load()).declaration,'unknown','Empty conditions never imply none');
 }
-console.log('PASS declaration component: separate choices, unknown, revoke, identity, invalidation, Auth-race no write. Synthetic unit transport only.');
+console.log('PASS declaration component: eight optional conditions, separate processing/share, explicit none vs unknown, revoke, identity and auth-race; synthetic unit transport only.');

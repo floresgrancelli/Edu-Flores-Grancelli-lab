@@ -4,7 +4,7 @@ import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve,join,extname} from 'node:path';
 import {chromium} from 'playwright';
 import {localSdkEntrySource,localSdkEntryFlag} from './sdk-entry-source-private.mjs';
-import {createLocalMailReader} from './sdk-entry-mail-local.mjs';
+import {createLocalMailReader,requestLocalBrowserOtp} from './sdk-entry-mail-local.mjs';
 export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql}){
  assert.equal(typeof prepareFlexibleLocal,'function','Missing isolated six-slot source fixture');
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_SDK_ENTRY,'1');
@@ -42,8 +42,9 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   page.on('dialog',dialog=>dialog.accept());return page;
  }
  async function login(page,actor){
-  phase='login-open';await page.goto(origin+'/efg-nutrition/pilot/');phase='login-email';await page.locator('#loginEmail').fill(actor.email);
-  phase='login-request-otp';const after=Date.now();await page.locator('#pilot-login-form button[type=submit]').click();
+  phase='login-open';await page.goto(origin+'/efg-nutrition/pilot/');
+  phase='login-request-otp';
+  const {after}=await requestLocalBrowserOtp(page,{email:actor.email,apiUrl:env.API_URL});
   phase='login-read-local-mail';const code=await readOtp({email:actor.email,after});phase='login-fill-otp';await page.locator('#loginOtp').fill(code);
   phase='login-submit-otp';await page.locator('#pilot-otp-form button[type=submit]').click();phase='login-hydration';await settled(page);
   assert.equal((await snapshot(page)).userId,actor.id);assert.equal(await page.locator('#loginOtp').count(),0);

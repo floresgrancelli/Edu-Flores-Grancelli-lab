@@ -10,7 +10,7 @@ import {tmpdir} from 'node:os';
 import {join,resolve,dirname,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
-import {createLocalMailReader} from './sdk-entry-mail-local.mjs';
+import {createLocalMailReader,requestLocalBrowserOtp} from './sdk-entry-mail-local.mjs';
 import {literal as q,yes} from './helpers/coach119-local.mjs';
 
 export async function runP23SdkOverlay({users,orgs,request,sql}={}){
@@ -118,10 +118,7 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   async function login(page,identity){
    await page.goto(origin+'/efg-nutrition/pilot/',{waitUntil:'domcontentloaded'});
    await page.locator('#loginEmail').waitFor({timeout:20000});
-   const after=Date.now();
-   await page.locator('#loginEmail').fill(identity.email);
-   await page.locator('#pilot-login-form button[type=submit]').click();
-   await page.locator('#loginOtp').waitFor();
+   const {after}=await requestLocalBrowserOtp(page,{email:identity.email,apiUrl});
    const otp=await readOtp({email:identity.email,after});
    await page.locator('#loginOtp').fill(otp);
    await page.locator('#pilot-otp-form button[type=submit]').click();

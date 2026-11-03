@@ -2771,6 +2771,10 @@ function showGuidedEditor(){
  const node=document.getElementById("coachGuidedSlot");if(!node)return;
  const y=window.scrollY;
  node.outerHTML=coachGuidedSection();
+ // A newly regenerated Coach guide also changes the atomic draft readiness.
+ // Repaint only this already rendered panel, without any persistence or publish.
+ const atomicPanel=root.querySelector(".efg-coach-atomic-draft");
+ if(atomicPanel)atomicPanel.outerHTML=coachAtomicDraftPanel();
  window.scrollTo({top:y,behavior:"instant"});
 }
 async function approveGuidedDay(){
@@ -4248,6 +4252,20 @@ if(el.dataset.foodbulk){
   await coachAdaptedWorkspace.open(mount);return;
  }
  if(action==="makeGuidedDay"){
+  if(COACH_ATOMIC_PLAN_UI_ENABLED&&el.hasAttribute("data-periodic-new-guide")){
+   const student=state.selectedStudent,latest=state.coachGoals[0],review=state.pendingGoalRevision;
+   if(!student||!latest?.id||review?.studentId!==student||review.baseId!==latest.id||
+      !state.consent?.accepted)
+    throw Error("Elegí la revisión del objetivo vigente y verificá el permiso del alumno.");
+   // A periodic revision must use a FRESH current intake and authorization,
+   // including any newly shared restrictions, not an old cached Coach profile.
+   await loadStudentDetail(student);
+   if(state.selectedStudent!==student||state.coachGoals[0]?.id!==review.baseId||
+      !state.consent?.accepted||!state.coachIntakeForms?.[student]?.shared_at)
+    throw Error("El objetivo, la ficha o el permiso cambiaron. Volvé a revisar al alumno.");
+   state.pendingGoalRevision=review;
+   state.pendingGoal=null;state.coachGuidedDraft=null;state.coachIntakeGuidePreview=null;
+  }
   const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
   const goal=activeCoachGuideGoal();
   if(!goal||!state.selectedStudent||!state.consent?.accepted)

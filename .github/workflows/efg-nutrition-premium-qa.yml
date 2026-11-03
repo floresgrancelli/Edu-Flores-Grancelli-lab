@@ -89,6 +89,8 @@ jobs:
         run: |
           node --check efg-nutrition/tests/planner-sushi-first-select.mjs
           node efg-nutrition/tests/planner-sushi-first-select.mjs
+          node --check efg-nutrition/tests/student-session-mutation-races.mjs
+          node efg-nutrition/tests/student-session-mutation-races.mjs
       - name: UX-HABITUAL-REAL-01 user-reported missing saved meals, execute actual save reload picker
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/habitual-persistence-real-code-regression.mjs

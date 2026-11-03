@@ -25,7 +25,8 @@ const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.match(app,/import \{assertCoachGoalWriteSafe\} from "\.\/coach-goal-write-gate\.js/);
 assert.match(app,/await assertCoachGoalWriteSafe\(sb,\{studentId,fromSharedIntake:/);
 assert.match(app,/await assertCoachGoalWriteSafe\(sb,\{studentId:pending\.studentId\}\)/);
-assert.match(app,/goalWriteBlocked\?'<div class="pilot-alert"/);
+assert.match(app,/goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED\?'<div class="pilot-alert"/,
+ "Legacy direct-write warning must remain fail-closed but not mislabel the verified atomic flow");
 assert.match(app,/approveGoalButton"\)\.disabled=!!\(state\.coachIntakePrefill/);
 assert.equal((app.match(/from\("efg_goals"\)\.insert\(/g)||[]).length,2,"Only two direct Coach write paths exist; review if new ones are added.");
 const lines=app.split("\n");

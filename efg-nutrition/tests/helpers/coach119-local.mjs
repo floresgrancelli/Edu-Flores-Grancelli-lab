@@ -27,6 +27,19 @@ export function localContext() {
     assert.equal(r.status, 0, (r.stderr || 'Local PostgreSQL failure').slice(-1800));
     return r.stdout.trim();
   }
+  // Expected-failure transaction rehearsal. The same guarded LOCAL connection
+  // is used as sql(); a mismatched SQL error is NOT considered a rollback pass.
+  function sqlExpectFailure(query, expectedMessage) {
+    assert.equal(typeof expectedMessage, 'string');
+    assert.ok(expectedMessage.length>0 && expectedMessage.length<128);
+    const r = spawnSync('psql', ['-X', '-Atq', '-v', 'ON_ERROR_STOP=1'],
+      {env: pg, input: query, encoding: 'utf8', timeout: 30000});
+    assert.ifError(r.error);
+    assert.equal(typeof r.status, 'number', 'Local PostgreSQL expected-failure run did not exit');
+    assert.notEqual(r.status, 0, 'Expected guarded LOCAL SQL to abort, but it committed');
+    assert.ok((r.stderr||'').includes(expectedMessage),
+      'Wrong LOCAL PostgreSQL failure: '+(r.stderr||'').slice(-1000));
+  }
   assert.equal(sql('select current_database()'), 'postgres');
   assert.ok(sql('show server_version_num').startsWith('17'), 'PostgreSQL 17 required');
   const key = env.ANON_KEY || env.PUBLISHABLE_KEY;
@@ -74,7 +87,7 @@ export function localContext() {
       return query;
     }
   });
-  return {sql, request, rpc, asClient};
+  return {sql, sqlExpectFailure, request, rpc, asClient};
 }
 
 export const literal = value => "'" + String(value).replaceAll("'", "''") + "'";

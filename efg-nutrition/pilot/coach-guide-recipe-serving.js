@@ -7,7 +7,7 @@ const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,100}$/.test(x);
 const nutrients=['k','p','c','f','fi'];
 export const recipeIngredientLimits=item=>item?.recipeComponent===true?[0.01,1000]:null;
 export function addCoachRecipeServing(draft,slot,recipe,servings,catalog,goal,{
- authorizedStudentId=null,authorizedScopedRecipeRead=false
+ authorizedStudentId=null,authorizedScopedRecipeRead=false,replaceIndex=null
 }={}){
  if(draft?.kind!=='flexible_meal_guide'||draft.version!==2||
     !Array.isArray(draft.meals)||draft.meals.length<2||draft.meals.length>6)
@@ -26,6 +26,15 @@ export function addCoachRecipeServing(draft,slot,recipe,servings,catalog,goal,{
  const next=structuredClone(draft),meal=next.meals.find(m=>m.slot===slot);
  if(!meal||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)
   throw Error('El horario seleccionado no existe.');
+ // The coach may replace one item with a recipe using the SAME full picker.
+ // Remove it only on the cloned draft, then expand canonical components;
+ // overlapping ingredients are counted exactly once, never added on top of
+ // the food the coach explicitly chose to replace.
+ if(replaceIndex!==null){
+  if(!Number.isInteger(replaceIndex)||replaceIndex<0||replaceIndex>=meal.items.length)
+   throw Error('Elegí un alimento válido para reemplazar con la receta.');
+  meal.items.splice(replaceIndex,1);
+ }
  const canonical=new Map((catalog||[]).filter(f=>validId(f?.id)).map(f=>[f.id,f]));
  const parts=new Map();
  for(const x of recipe.recipeIngredients){
@@ -55,7 +64,8 @@ export function addCoachRecipeServing(draft,slot,recipe,servings,catalog,goal,{
    validationStatus:food.validationStatus||'generico_pendiente',
    ...Object.fromEntries(nutrients.map(k=>[k,food[k]]))});
  }
- // Optimization may rebalance other foods, NEVER the locked recipe ingredients.
+ // The original draft is untouched. Optimization may rebalance other foods,
+ // NEVER the locked recipe ingredients.
  // The published plan contains only real catalog IDs, no fake recipe ID with ":".
  return rebalanceGuidedDay(next,goal);
 }

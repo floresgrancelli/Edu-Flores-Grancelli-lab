@@ -225,7 +225,21 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   const qty=coachPage.locator('[data-guideqty="almuerzo:0"]').first();
   await qty.fill(String(Number(await qty.inputValue())+1));await qty.press('Tab');
   await coachPage.locator('[data-act="saveCoachAtomicDraft"]').first().click();
-  await coachPage.getByText(/Versión del borrador:/).first().waitFor();
+  try{
+   await coachPage.getByText(/Versión del borrador:/).first().waitFor({timeout:12000});
+  }catch(error){
+   // NO tokens, no full HTML, no student details: diagnose whether the
+   // *actual signed server* saved the private proposal versus a UI readback
+   // failure. The previous CI timed out here without causal evidence.
+   const count=sql("select count(*) from public.efg_coach_plan_drafts where student_id="+q(id)+
+    " and status='draft'");
+   const toast=String(await coachPage.locator('#pilot-toast').textContent()||'')
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+/g,'[fictional-email]')
+    .replace(/\\b[0-9a-f]{8}-[0-9a-f-]{27,}\\b/ig,'[id]')
+    .slice(0,240);
+   throw Error('P23 private draft readback not visible; serverDraftCount='+count+
+    '; local UI error='+toast+'; original='+error.name);
+  }
   assert.equal(sql("select count(*) from public.efg_coach_plan_drafts where student_id="+q(id)+
    " and status='draft'"),'1','Actual server-owned private Coach draft');
   assert.equal(sql('select count(*) from public.efg_goals where student_id='+q(id)),'0');

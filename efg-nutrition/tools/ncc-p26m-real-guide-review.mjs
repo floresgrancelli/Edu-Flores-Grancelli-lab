@@ -35,13 +35,37 @@ export function prepareRealGuideHumanReview({goal=P26M_SYNTHETIC_GOAL,guide=null
   goal,guide:proposal,guideTotals:guideTotals(proposal).totals,review,
   humanApproval:false,hostedWrite:false,mayPublish:false};
 }
+// Export only the nutritional choices needed for independent human review.
+// IDs, intake/consent details and free-text health notes stay inside the
+// authorized application and never enter a downloadable QA packet.
+function reviewOnlyGoal(goal){
+ const fields=['kcal','protein_g','carb_g','fat_g','fiber_g'];
+ const types=['fat_loss','recomp','muscle_gain','maintenance'];
+ return {goal_type:types.includes(goal.goal_type)?goal.goal_type:'unclassified_for_review',
+  ...Object.fromEntries(fields.filter(key=>typeof goal[key]==='number'&&Number.isFinite(goal[key]))
+   .map(key=>[key,goal[key]]))};
+}
+function reviewOnlyGuide(guide){
+ assert.equal(guide?.kind,'flexible_meal_guide');
+ return {kind:guide.kind,version:guide.version,meals:guide.meals.map(meal=>({
+  slot:meal.slot,items:meal.items.map(item=>({
+   id:item.id,unit:item.unit,qty:item.qty,k:item.k,p:item.p,c:item.c,f:item.f,fi:item.fi,
+   ...(item.recipeComponent===true?{recipeComponent:true}:{})
+  }))
+ }))};
+}
 export function writeHumanReviewFiles(caseResult,outputDir){
  assert.ok(caseResult?.review?.publishable===false&&caseResult?.humanApproval===false);
  const folder=resolve(outputDir);mkdirSync(folder,{recursive:true});
  const write=(n,x)=>writeFileSync(resolve(folder,n),x);
- write('coach-guide-unapproved.json',JSON.stringify({source:caseResult.source,
-  goal:caseResult.goal,guide:caseResult.guide,guideTotals:caseResult.guideTotals,
+ const sourceKind=caseResult.source==='coach_supplied_unapproved_draft'
+  ?'coach_supplied_unapproved_draft':'synthetic_or_unspecified';
+ write('coach-guide-unapproved.json',JSON.stringify({source:sourceKind,
+  goal:reviewOnlyGoal(caseResult.goal),guide:reviewOnlyGuide(caseResult.guide),
+  guideTotals:caseResult.guideTotals,
   selectedGuideFingerprintSha256:caseResult.review.selectedGuideFingerprintSha256,
+  privacy:'NUTRITION_FIELDS_ONLY_NO_STUDENT_IDENTIFIERS',
+  separateRestrictedProfileReviewRequired:true,
   approval:'PENDING_HUMAN_REVIEW',mayPublish:false},null,2)+'\n');
  write('selected-food-review.json',JSON.stringify(caseResult.review,null,2)+'\n');
  write('selected-food-review.csv',reviewCsv(caseResult.review));

@@ -130,6 +130,10 @@ function captured(row){
 }
 export function preparePilotSourceReview({guide=null}={}){
  const meals=selectedMeals(guide),ids=[...new Set(meals.flatMap(m=>m.items.map(x=>x.id)))].sort();
+ // Bind any operator worklist to EXACT selected slots, quantities and IDs.
+ // This is a plain fingerprint, NOT an authorization or a signed approval.
+ const selectedGuideFingerprintSha256=createHash('sha256')
+  .update(JSON.stringify(meals)).digest('hex');
  assert.ok(ids.length>0&&ids.length<=90);
  const counts={},foods=ids.map(id=>{
   const f=byId.get(id),row=reviewById.get(id)||null;
@@ -165,7 +169,8 @@ export function preparePilotSourceReview({guide=null}={}){
  });
  return {schemaVersion:1,kind:'NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY',
   sourceCatalogFingerprintSha256:sourceFingerprint,
-  pinnedEvidenceFingerprintSha256:evidenceFingerprint,actualCatalogSize:allFoods.length,
+  pinnedEvidenceFingerprintSha256:evidenceFingerprint,
+  selectedGuideFingerprintSha256,actualCatalogSize:allFoods.length,
   sourceArchiveUrl:archive.sourceArchiveUrl,sourceArchiveSha256:archive.sourceArchiveSha256,
   selectedMeals:meals,selectedUniqueFoodCount:ids.length,countsByEvidenceState:counts,foods,
   approvalsGranted:0,sourceRecordsInserted:0,publishable:false,
@@ -187,6 +192,52 @@ export function reviewCsv(packet){
  ].map(csv).join(','));
  return [columns.map(csv).join(','),...rows].join('\n')+'\n';
 }
+
+// Human-review worklist only. Its empty decision columns are NOT input to a
+// server approval RPC. A qualified, authorized operator must independently
+// examine and sign the CURRENT final guide's selected ingredients.
+export function operatorReviewCsv(packet){
+ assert.equal(packet?.kind,'NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY');
+ assert.equal(packet?.publishable,false);
+ assert.equal(packet?.approvalsGranted,0);
+ assert.equal(packet?.sourceRecordsInserted,0);
+ assert.equal(packet?.notACatalogWhitelist,true);
+ assert.match(packet?.selectedGuideFingerprintSha256||'',/^[a-f0-9]{64}$/);
+ const columns=[
+  'selected_guide_sha256','food_id','food_name','guide_slots','pwa_unit',
+  'source_identity_or_exact_pwa_preparation','fdc_reference_id',
+  'official_fdc_record_url','pinned_source_capture_sha256','source_evidence_file',
+  'source_status',
+  ...nutrients.flatMap(n=>[
+   'pwa_'+n+'_per100unit','source_'+n+'_per100g','delta_'+n+'_per100_comparable'
+  ]),
+  'human_review_status','required_human_action',
+  'operator_decision_BLANK','operator_user_id_BLANK','reviewed_at_utc_BLANK','operator_notes_BLANK'
+ ];
+ const rows=packet.foods.map(f=>{
+  assert.equal(f.humanReview,'PENDING');
+  assert.equal(f.approvedForServer,false);
+  const id=String(f.sourceFdcId||'');
+  // FDC URL is a REFERENCE only; status explicitly differentiates mismatched
+  // preparations, mass/volume mismatches and unaudited records.
+  const fdcUrl=/^[0-9]{4,12}$/.test(id)?
+   'https://fdc.nal.usda.gov/food-details/'+id+'/nutrients':'';
+  const fields=[
+   packet.selectedGuideFingerprintSha256,f.id,f.foodName,f.chosenIn.join('|'),f.unit,
+   f.sourceRecordDescription||f.foodName,id,fdcUrl,f.pinnedRecordSha256,
+   f.sourceEvidenceFile,f.evidenceState,
+   ...nutrients.flatMap(n=>[
+    f.appPer100Unit[n],f.sourcePer100g?.[n]??null,
+    f.deltaPer100ComparableUnits?.[n]??null
+   ]),
+   'PENDING',f.requiredHumanAction,'','','',''
+  ];
+  assert.equal(fields.length,columns.length,'Review export field count drift');
+  return fields.map(csv).join(',');
+ });
+ return [columns.map(csv).join(','),...rows].join('\n')+'\n';
+}
+
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  const args=process.argv.slice(2),outPos=args.indexOf('--output-dir'),guidePos=args.indexOf('--guide-json');
  assert.ok(outPos>=0&&args[outPos+1]&&args.length===(guidePos>=0?4:2),
@@ -196,5 +247,6 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  mkdirSync(folder,{recursive:true});
  writeFileSync(resolve(folder,'selected-food-review.json'),JSON.stringify(packet,null,2)+'\n');
  writeFileSync(resolve(folder,'selected-food-review.csv'),reviewCsv(packet));
- console.log('NCC REVIEW ONLY: '+packet.selectedUniqueFoodCount+' selected foods, 0 approvals, 0 DB writes.');
+ writeFileSync(resolve(folder,'operator-review-worklist.csv'),operatorReviewCsv(packet));
+ console.log('NCC REVIEW ONLY: '+packet.selectedUniqueFoodCount+' selected foods, 0 approvals, 0 DB writes. Operator worklist requires an independent human decision.');
 }

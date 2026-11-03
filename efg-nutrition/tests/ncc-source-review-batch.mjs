@@ -1,7 +1,7 @@
 // NCC P1 selected-source evidence: exact six-slot review and arbitrary coach
 // substitutions, including canonical recipe ingredients. No hosted writes.
 import assert from 'node:assert/strict';
-import {preparePilotSourceReview,reviewCsv} from '../tools/prepare-ncc-source-review-batch.mjs';
+import {preparePilotSourceReview,reviewCsv,operatorReviewCsv} from '../tools/prepare-ncc-source-review-batch.mjs';
 const packet=preparePilotSourceReview();
 const get=id=>packet.foods.find(x=>x.id===id);
 assert.equal(packet.kind,'NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY');
@@ -13,6 +13,17 @@ assert.equal(packet.selectedUniqueFoodCount,17);
 assert.equal(packet.foods.length,17);
 assert.ok(packet.actualCatalogSize>150);
 assert.match(packet.sourceCatalogFingerprintSha256,/^[a-f0-9]{64}$/);
+assert.match(packet.selectedGuideFingerprintSha256,/^[a-f0-9]{64}$/);
+const operatorDefault=operatorReviewCsv(packet);
+assert.equal(operatorDefault.split('\n').filter(Boolean).length,18,
+ 'Default operator worklist includes exactly 17 selected foods');
+assert.match(operatorDefault,/official_fdc_record_url/);
+assert.match(operatorDefault,/operator_decision_BLANK/);
+assert.match(operatorDefault,/source_fi_per100g/);
+assert.match(operatorDefault,/delta_p_per100_comparable/);
+assert.match(operatorDefault,/reviewed_at_utc_BLANK/);
+assert.match(operatorDefault,/food-details\/171688\/nutrients/);
+assert.doesNotMatch(operatorDefault,/"APPROVED"/);
 assert.match(packet.pinnedEvidenceFingerprintSha256,/^[a-f0-9]{64}$/);
 assert.equal(packet.publishable,false);
 assert.equal(packet.notACatalogWhitelist,true);
@@ -106,6 +117,23 @@ const exactSourceCandidate={kind:'flexible_meal_guide',version:2,meals:[
 ]};
 const exactReview=preparePilotSourceReview({guide:exactSourceCandidate});
 assert.equal(exactReview.selectedUniqueFoodCount,9);
+assert.match(exactReview.selectedGuideFingerprintSha256,/^[a-f0-9]{64}$/);
+const operatorNine=operatorReviewCsv(exactReview);
+assert.equal(operatorNine.split('\n').filter(Boolean).length,10);
+assert.match(operatorNine,/food-details\/2705956\/nutrients/);
+assert.match(operatorNine,/food-details\/170894\/nutrients/);
+assert.match(operatorNine,/food-details\/168463\/nutrients/);
+assert.match(operatorNine,/FNDDS_CAPTURE_PENDING_OPERATOR/);
+assert.match(operatorNine,/RECONCILIATION_REQUIRED/);
+assert.doesNotMatch(operatorNine,/"APPROVED"/);
+assert.doesNotMatch(operatorNine,/MUST_NOT_LEAK/);
+const changedQty=structuredClone(exactSourceCandidate);
+changedQty.meals[0].items[0].qty+=1;
+assert.notEqual(preparePilotSourceReview({guide:changedQty}).selectedGuideFingerprintSha256,
+ exactReview.selectedGuideFingerprintSha256,
+ 'Operator fingerprint must change whenever a guide portion changes');
+assert.throws(()=>operatorReviewCsv({...exactReview,publishable:true}));
+assert.throws(()=>operatorReviewCsv({...exactReview,approvalsGranted:1}));
 assert.ok(exactReview.foods.every(f=>f.sourcePer100g!==null),
  'Optional nine-food case should reuse all already captured official source records');
 assert.equal(exactReview.foods.find(f=>f.id==='yogurt_greek_light').sourceFdcId,'170894');
@@ -124,4 +152,4 @@ assert.doesNotThrow(()=>preparePilotSourceReview({guide:{...exactSourceCandidate
 for(const wrong of [[...validIds,'chicken'],validIds.slice(1),[...validIds.slice(1),validIds[1]]])
  assert.throws(()=>preparePilotSourceReview({guide:{...exactSourceCandidate,approvedFoodIds:wrong}}),
   /approvedFoodIds must equal actual selected ingredients/);
-console.log('PASS NCC P1 selected sources: default17, precise optional9/6 with pinned official captures, rice/fndds reconciliation, full catalog unchanged, approval stays pending, no server writes.');
+console.log('PASS NCC P1 selected sources + reviewer worklist: default17, optional9/6 with pinned evidence, per-nutrient PWA/source deltas, guide-bound fingerprint, empty approvals and no server writes.');

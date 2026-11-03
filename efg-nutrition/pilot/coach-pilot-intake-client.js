@@ -97,6 +97,16 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
  if((before?.revision??0)!==expectedRevision)
   throw Error('La ficha cambió en otro dispositivo: volvé a cargarla.');
  await requireSameSession(sb,userId);
+ // P26M: sharing intake and authorizing follow-up are independent decisions.
+ // Check only a current signed, owner-scoped grant; do not accept an inferred permission.
+ if(shareWithCoach){
+  const followup=await sb.from('efg_consents').select('student_id,accepted')
+   .eq('student_id',userId).maybeSingle();
+  await requireSameSession(sb,userId);
+  if(followup.error)throw Error('No se pudo verificar el seguimiento. Guardá la ficha privada y revisá Privacidad.');
+  if(followup.data?.student_id!==userId||followup.data?.accepted!==true)
+   throw Error('Antes de compartir tu ficha, autorizá el seguimiento en Privacidad. Podés guardarla privada sin compartir.');
+ }
  const res=await sb.rpc('efg_submit_coach_relaunch_intake',{
   p_completed_version:COACH_RELEASE_INTAKE_VERSION,p_payload:general,
   p_expected_revision:expectedRevision,p_share_with_coach:shareWithCoach

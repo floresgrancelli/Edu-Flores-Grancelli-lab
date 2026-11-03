@@ -17,7 +17,7 @@ import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=20261030-coach101";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=20261030-coach101";
 import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261030-brand78-finale";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261103-p26m-nine";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
@@ -68,6 +68,7 @@ import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=20261102-health-private-off";
+import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=20261103-p26m";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2262,6 +2263,8 @@ function coachIntakeView(){
  const profileCard=(p,stage)=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+stage+'</small></div><div class="coach-intake-actions"><button type="button" class="btn small light" data-student="'+p.user_id+'">Ver alumno</button><button type="button" class="btn small ghost" data-intake-message="'+p.user_id+'">Mensaje</button></div></div>';
  const section=(title,description,entries,renderer,empty)=>'<section class="card coach-intake-group"><div class="section-head"><h2>'+title+'</h2><span class="pilot-pill">'+entries.length+'</span></div><p class="pilot-hint">'+description+'</p>'+(entries.length?entries.map(renderer).join(""):'<p class="efg-intake-empty">'+empty+'</p>')+'</section>';
  return rootText("NUEVOS INGRESOS","De la invitación a la planificación: identificá rápidamente qué necesita cada alumno.")+
+  '<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="refreshCoachRoster">Actualizar ingresos y permisos</button></div>'+
+  (state.coachIntakeRefreshNotice?'<p class="pilot-alert" role="status">'+escapeHTML(state.coachIntakeRefreshNotice)+'</p>':'')+
  '<section class="coach-intake-intro"><div class="eyebrow">Nutrición Con-Ciencia · CON COACH</div><h2>Bienvenidas, fichas y planes en un solo lugar.</h2><p>Esta primera vista organiza alumnos e invitaciones existentes. La ficha compartida y la publicación formal se mostrarán al activar el backend seguro. Hasta entonces, solo se muestran estados realmente verificables.</p></section>'+
  '<div class="coach-intake-summary">'+
   '<div><strong>'+pending.length+'</strong><span>Invitaciones pendientes</span></div>'+
@@ -2291,6 +2294,8 @@ function coachView(){
  const pending=(state.profile.role==="admin"&&isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const seats=Number(org?.seat_limit)||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length,available=Math.max(0,seats-used),commercialReady=isTest||["active","grace"].includes(org?.status);
  return rootText("Mis alumnos","Buscá alumnos, administrá autorizaciones y abrí sus fichas individuales.")+
+  '<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="refreshCoachRoster">Actualizar alumnos y permisos</button></div>'+
+  (state.coachIntakeRefreshNotice?'<p class="pilot-alert" role="status">'+escapeHTML(state.coachIntakeRefreshNotice)+'</p>':'')+
  ' <div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
  '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest&&state.profile.role==="admin"?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
  (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 '+(state.profile.role==="admin"?"Laboratorio de EFG":"Coach piloto EFG")+' — '+seats+' cupos gratuitos de prueba</strong><small>Solo ves alumnos de este espacio que hayan autorizado el seguimiento. No se generan cobros de licencias durante la prueba.</small></div>':'')+
@@ -3360,6 +3365,14 @@ async function loadCoachRosterConsent(){
  if(error)throw error;
  for(const consent of data||[])coachRosterConsent[consent.student_id]=consent.accepted===true;
 }
+// P26M: deliberately reuse the stable editor when roster/consent are unchanged.
+const refreshCoachRosterForView=createCoachRosterRefresh({sb,state,
+ setConsents:next=>{coachRosterConsent=next},
+ loadForms:ids=>coachIntakeFlow.loadCoach(ids),
+ loadGoals:()=>loadCoachIntakeGoals(),
+ loadDraftStatuses:()=>loadCoachIntakeDraftStatuses(),
+ loadDetail:id=>loadStudentDetail(id),
+ closeWorkspace:()=>coachAdaptedWorkspace.close()});
 async function loadRoleData(){
  const contextEpoch=state.authContextEpoch||0;
  const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
@@ -3788,7 +3801,9 @@ async function mainClick(event){
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
-  state.tab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
+  const nextTab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
+  if(["coachIntake","coachStudents"].includes(nextTab))await refreshCoachRosterForView();
+  state.tab=nextTab;
   if(state.tab==="payments")await loadOrgAndPayments();
   if(state.tab==="reports"&&!state.selectedStudent){
    const student=(state.roster||[]).find(p=>p.active);
@@ -3832,9 +3847,13 @@ if(el.dataset.reportstudent){
 }
 if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+(state.session?.user?.id||"local"),JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
 if(el.dataset.student){
- if(state.tab==="coach"||state.tab==="testCoach")state.tab="coachStudents";
+ const studentId=el.dataset.student,sameEditor=state.selectedStudent===studentId&&state.consent?.accepted===true;
+ await refreshCoachRosterForView();
+ if(state.tab==="coach"||state.tab==="testCoach"||state.tab==="coachIntake")state.tab="coachStudents";
  state.reportDate=null;
- await loadStudentDetail(el.dataset.student);
+ if(!sameEditor||state.selectedStudent!==studentId||state.consent?.accepted!==true)
+  await loadStudentDetail(studentId);
+ // If still same signed Coach + student + consent, leave local unsaved guide untouched.
  await render();
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
  notify("Ficha de "+(state.roster.find(p=>p.user_id===el.dataset.student)?.nickname||"alumno")+" abierta.");
@@ -4046,6 +4065,10 @@ if(el.dataset.foodbulk){
   const action=el.dataset.act;if(!action)return;
   if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
    assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
+ if(action==="refreshCoachRoster"){
+  await refreshCoachRosterForView();await render();
+  notify("Ingresos y permisos actualizados. Los históricos permanecen intactos.");return;
+ }
  if(action==="showAccessInstructions"){
   const instructions=document.getElementById("efgAccessInstructions");
   if(instructions){

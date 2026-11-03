@@ -56,3 +56,20 @@
 
 /* Full visible name of the approved tab; avoid clipping on narrow Coach navigation. */
 @media(max-width:720px){body .pilot-layout .pilot-nav button[data-tab="nutritionScience"] .nav-label{font-size:9px!important;line-height:1.08!important;white-space:normal!important;overflow-wrap:break-word;text-align:center;max-width:100%;}}
+
+/* P26M: eight illustrated owner-reference topics plus ninth serotonin finale. */
+.ns-welcome-slide[data-science-step="1"]{background:radial-gradient(ellipse at 13% 15%,#f7daef 0,transparent 39%),radial-gradient(ellipse at 90% 20%,#f0e3ae 0,transparent 40%),linear-gradient(140deg,#f9f0ed,#e3f4f0 66%,#d5eaf8);border:1px solid #c7e2e8}
+.ns-welcome-slide[data-science-step="2"]{background:linear-gradient(160deg,#fff,#fff5e7)}
+.ns-welcome-slide[data-science-step="3"]{background:linear-gradient(160deg,#fff,#f0f8f6)}
+.ns-welcome-slide[data-science-step="4"]{background:linear-gradient(160deg,#fff,#f0f6fd)}
+.ns-welcome-slide[data-science-step="5"]{background:linear-gradient(160deg,#fff,#fff0eb)}
+.ns-welcome-slide[data-science-step="6"]{background:linear-gradient(160deg,#fff,#f1f9f0)}
+.ns-welcome-slide[data-science-step="7"]{background:linear-gradient(160deg,#fff,#fff7ee)}
+.ns-welcome-slide[data-science-step="8"]{background:linear-gradient(150deg,#fff,#f1f4fd 60%,#f5ebf8)}
+.ns-welcome-slide[data-science-step="8"] .ns-conclusions{background:transparent;border:0;margin:0;padding:clamp(16px,3vw,34px)}
+.ns-welcome-slide[data-science-step="9"]{background:radial-gradient(circle at 28% 22%,#fee1f3 0,transparent 37%),radial-gradient(circle at 73% 26%,#fef1b6 0,transparent 38%),radial-gradient(circle at 50% 85%,#caeeea 0,transparent 51%),#f9fafd;border:1px solid #d9e6eb}
+.ns-welcome-slide[data-science-step="9"] .ns-wellbeing{box-shadow:none;background:transparent;border:0;max-width:810px;margin:0 auto}
+.ns-welcome-slide[data-science-step="9"] .ns-wellbeing-logo{filter:drop-shadow(0 13px 23px #324e6930)}
+.ns-welcome-slide .ns-conclusions article{border-color:#e1e8f1;box-shadow:0 2px 8px #203f5310}
+.ns-welcome-header{border-radius:14px;background:#ffffffb8;padding:5px 10px}
+@media(max-width:520px){.ns-welcome-slide[data-science-step="8"] .ns-conclusions{padding:10px}.ns-welcome-slide[data-science-step="9"] .ns-wellbeing{padding:4px}}

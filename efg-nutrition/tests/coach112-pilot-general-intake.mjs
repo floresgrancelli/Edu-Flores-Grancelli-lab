@@ -14,10 +14,10 @@ const payload={objective:'recomp',age_years:40,height_cm:174.0,weight_kg:79.3,
  activity_level:'moderate',dietary_pattern:'keto',eating_window:'16_8',
  notes:'Entreno 5 días por semana'};
 let nRPC=0;
-function fake({signed=uid,pilot=receipt,stored=null,switchAt=null}={}){
+function fake({signed=uid,pilot=receipt,stored=null,switchAt=null,followup=true}={}){
  let row=stored,authReads=0;
  return {auth:{getUser:async()=>({data:{user:{id:switchAt!==null&&++authReads>=switchAt?org:signed}},error:null})},
- from:name=>({select:()=>({eq(){return this},maybeSingle:async()=>({data:name==='efg_pilot_participation_receipts'?pilot:row,error:null})})}),
+ from:name=>({select:()=>({eq(){return this},maybeSingle:async()=>({data:name==='efg_pilot_participation_receipts'?pilot:name==='efg_consents'?{student_id:uid,accepted:followup}:row,error:null})})}),
  rpc:async(name,params)=>{
   nRPC++;
   assert.equal(name,'efg_submit_coach_relaunch_intake');
@@ -57,6 +57,10 @@ assert.equal(privateFirst.shared,false);
 assert.equal(privateFirst.intake.shared_at,null,
  "First intake can remain private after an explicit no-share decision");
 
+const beforeFollowupDenied=nRPC;
+await assert.rejects(submitCoachPilotGeneralIntake(fake({followup:false}),{
+ profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true}),/seguimiento en Privacidad/);
+assert.equal(nRPC,beforeFollowupDenied,'Missing follow-up consent cannot share intake');
 const s=await submitCoachPilotGeneralIntake(sb,{profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true});
 assert.equal(s.intake.revision,1);
 assert.equal(s.intake.dietary_pattern,'keto');

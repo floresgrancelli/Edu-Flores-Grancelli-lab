@@ -100,10 +100,18 @@ jobs:
       - name: Validate role-specific UX contracts
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/premium-ui-smoke.mjs
+      - name: P26M signed Coach roster refresh, no stale permission or unsaved-guide deletion (SYNTHETIC)
+        run: |
+          node --check efg-nutrition/pilot/coach-roster-freshness.js
+          node efg-nutrition/tests/ncc-p26m-coach-roster-freshness.mjs
+      - name: P26M real six-meal engine and exact selected-source packet (OFFLINE PENDING HUMAN REVIEW)
+        run: |
+          node --check efg-nutrition/tools/ncc-p26m-real-guide-review.mjs
+          node efg-nutrition/tests/ncc-p26m-real-guide-human-review.mjs
       - name: BRAND-78 check new visible brand across PWA, coach and weekly reports (OFFLINE)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/brand-con-ciencia-surface-contract.mjs
-      - name: BRAND77B eight-step intro, user-scoped receipts and vertical library (OFFLINE)
+      - name: P26M nine-step intro, user-scoped receipts and vertical library (OFFLINE)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
           node --check efg-nutrition/pilot/science-welcome.js

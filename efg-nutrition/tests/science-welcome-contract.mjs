@@ -5,9 +5,9 @@ import {SCIENCE_STEPS,SCIENCE_WELCOME_ENABLED,SCIENCE_WELCOME_VERSION,sciencePan
  renderScienceWelcomeStep,renderScienceVerticalView,readScienceWelcomeStatus,
  acknowledgeScienceWelcome} from "../pilot/science-welcome.js";
 assert.equal(SCIENCE_WELCOME_ENABLED,false);
-assert.equal(SCIENCE_STEPS.length,8);
+assert.equal(SCIENCE_STEPS.length,9);
 const panels=sciencePanels();
-assert.equal(panels.length,8);
+assert.equal(panels.length,9);
 assert.match(panels[3],/¿Por qué importa moverse\?/);
 assert.match(panels[3],/Caminar, bailar, andar en bicicleta/);
 assert.match(renderScienceVerticalView(),/¿Por qué importa moverse\?/);
@@ -18,32 +18,34 @@ assert.match(eduSource,/NUTRICIÓN CON-CIENCIA · APRENDÉ EN 5 MINUTOS/);
 
 const texts=["Nutrición","¿Qué son las calorías?","Los tres macros",
  "¿Por qué importa la proteína","¿Más proteínas que grasas?",
- "Los hidratos no son el villano","Cómo combinar tus alimentos","Más que nutrición"];
-for(let i=0;i<8;i++){
+ "Los hidratos no son el villano","Cómo combinar tus alimentos","Conclusiones para recordar","Más que nutrición"];
+for(let i=0;i<9;i++){
  assert.ok(panels[i].includes(texts[i]),"missing content step "+(i+1));
  const html=renderScienceWelcomeStep(i);
  assert.ok(html.includes('data-science-step="'+(i+1)+'"'));
- assert.ok(html.includes((i+1)+" de 8"));
+ assert.ok(html.includes((i+1)+" de 9"));
  assert.match(html,/data-act="scienceSkip"/);
  if(i===0){assert.doesNotMatch(html,/data-act="sciencePrev"/);assert.match(html,/data-act="scienceNext"/);}
- else if(i===7){assert.match(html,/data-act="scienceFinish"/);assert.match(html,/Comenzar/);assert.doesNotMatch(html,/data-act="scienceNext"/);}
+ else if(i===8){assert.match(html,/data-act="scienceFinish"/);assert.match(html,/Comenzar/);assert.doesNotMatch(html,/data-act="scienceNext"/);}
  else{assert.match(html,/data-act="sciencePrev"/);assert.match(html,/data-act="scienceNext"/);}
 }
 assert.throws(()=>renderScienceWelcomeStep(-1),RangeError);
-assert.throws(()=>renderScienceWelcomeStep(8),RangeError);
+assert.throws(()=>renderScienceWelcomeStep(9),RangeError);
 const errorHtml=renderScienceWelcomeStep(3,{busy:true,error:"No <b> permitido"});
 assert.match(errorHtml,/role="alert"/);
 assert.match(errorHtml,/No &lt;b&gt; permitido/);
 assert.doesNotMatch(errorHtml,/No <b>/);
 assert.match(errorHtml,/aria-busy="true"/);
 const vertical=renderScienceVerticalView();
-assert.equal((vertical.match(/class="ns-library-panel"/g)||[]).length,8);
-assert.equal((vertical.match(/data-science-step="/g)||[]).length,8);
+assert.equal((vertical.match(/class="ns-library-panel"/g)||[]).length,9);
+assert.equal((vertical.match(/data-science-step="/g)||[]).length,9);
 assert.match(vertical,/Preguntas que aparecen siempre/);
 assert.match(vertical,/¿De dónde sale esta información/);
 assert.match(vertical,/Conocimiento hoy. Mejores decisiones mañana/);
 assert.ok(vertical.indexOf("Conclusiones para recordar")<vertical.indexOf("Más que nutrición"),"scientific summary precedes approved brand finale");
-const finale=renderScienceWelcomeStep(7);
+const finale=renderScienceWelcomeStep(8);
+assert.match(renderScienceWelcomeStep(7),/Conclusiones para recordar/);
+assert.doesNotMatch(renderScienceWelcomeStep(7),/data-act="scienceFinish"/);
 assert.match(finale,/data-act="scienceFinish"/);
 assert.match(finale,/Más que nutrición/);
 assert.match(finale,/serotonina-acuarela\.avif/);
@@ -127,9 +129,9 @@ const welcomeFirst=pilot.indexOf('if(state.profile.role==="student"&&SCIENCE_WEL
 const releaseLegal=pilot.indexOf('if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease');
 const pilotLegal=pilot.indexOf('if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){');
 assert.ok(welcomeFirst>0&&welcomeFirst<releaseLegal&&releaseLegal<pilotLegal,
- 'The eight introductory screens precede BOTH current legal routes');
+ 'The nine introductory screens precede BOTH current legal routes');
 assert.match(pilot,/state\.scienceWelcomePending=true;\s*state\.scienceWelcomeError=/,
- 'A failed introduction receipt lookup cannot silently skip the eight screens');
+ 'A failed introduction receipt lookup cannot silently skip the nine screens');
 assert.match(pilot,/renderScienceWelcomeStep\(state\.scienceWelcomeStep/);
 assert.match(pilot,/scienceFinish","scienceSkip/);
 assert.match(pilot,/scienceWelcomePending=false;state\.scienceWelcomeStep=0/);
@@ -139,4 +141,4 @@ assert.match(pilot,/:role==="admin"\?\[\["admin"[\s\S]*?\["nutritionScience","�
 assert.match(pilot,/state\.scienceWelcomePending=intro\.pending/);
 assert.match(pilot,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
 assert.match(pilot,/if\(state\.welcomePending\)return welcomeView\(\);/);
-console.log("PASS BRAND78: watercolor serotonin closing screen and 8 shared slide/vertical panels, navigation, escaping, no implicit acceptance, account scoped server readback and staging-only RLS SQL. NO HOSTED RELEASE.");
+console.log("PASS P26M: eight illustrated topics, Conclusions #8 and watercolor serotonin closing #9; nine shared panels, receipts and safe navigation. OFFLINE ONLY.");

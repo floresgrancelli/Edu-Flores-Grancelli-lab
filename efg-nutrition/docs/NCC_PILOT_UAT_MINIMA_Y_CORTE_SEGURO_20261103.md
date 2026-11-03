@@ -56,6 +56,28 @@ node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --emit \
 ```
 El comando exige que el SHA coincida con el checkout y produce `review-manifest.json`, un `index.html` propuesto y versiones de los módulos importadores que necesitan `?v=` nuevo; incluye dependencias anidadas y estilos. Las hojas fuente NO se editan ni se publica el paquete. El CI Premium comprueba el modo solo lectura, el paquete temporal y el rechazo de SHA incorrecto, sin tocar Supabase ni Render. Después del GO, revisar este artefacto y aplicar de forma controlada antes de comprobar el SHA realmente servido.
 
+### P20 · Propuesta de activación UI, SIN GO ni despliegue
+El recorrido definitivo tiene **una sola ruta de ingreso**: `COACH_STUDENT_JOURNEY_ENABLED`. Nunca activarlo a la vez que `COACH_RELAUNCH_ONBOARDING_ENABLED`: la aplicación lo rechaza expresamente. Para un piloto con ficha vigente, Términos y Privacidad separados, guía automática y visto bueno del coach, el paquete revisable habilita **solo en la propuesta externa** estos seis switches:
+`COACH_STUDENT_JOURNEY_ENABLED`, `COACH_ATOMIC_PLAN_UI_ENABLED`,
+`COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED`,
+`COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED`, `LEGAL_ONBOARDING_ENABLED`
+y `COACH_SHARED_STUDENT_RECIPES_UI_ENABLED`. La versión de ficha se deriva automáticamente de la ruta de ingreso; nunca editarla a mano.
+
+El relanzamiento de notificaciones forzadas depende de un manifiesto firmado real; por ahora `MAJOR_RELEASE_FLOW_ENABLED` y `RELEASE_COMMUNICATIONS_ENABLED` continúan OFF. También permanecen OFF la ruta alternativa, los módulos clínicos privados, Autogestión, el motor privado de guía y la promoción de coaches POST-GO. `FOOD_COMPATIBILITY_ENABLED` mantiene su estado orientativo existente. **Ningún interruptor de cliente sustituye la autorización o los controles del servidor.**
+
+Para inspeccionar la combinación segura, sin cambiar un byte del checkout:
+```bash
+node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --check
+```
+Para emitir únicamente un expediente de revisión externo con HTML, assets y switches propuestos en conjunto:
+```bash
+node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --emit --pilot-ui-draft \
+  --ack=PREPARE_ONLY_NOT_GO --expected-sha=SHA_COMPLETO_REVISADO \
+  --build=ncc-pilot-PRIMEROS_12_CARACTERES_DEL_SHA \
+  --out=/tmp/ncc-pilot-ui-activation-review
+```
+**La salida NO ES UN DESPLIEGUE.** El manifest deja explícito que falta GO, huella final de alimentos revisados, prueba alojada de identidad/compartir/OTP/RLS y las dos flags privadas del backend. Sin verificar primero esos requisitos y la secuencia de publicación, está prohibido aplicar la propuesta a la rama productiva. El alumno debe aceptar realmente los avisos al entrar; no generar aceptaciones previas ficticias.
+
 ## 3. Secuencia de GO y reversión — preparar, NO ejecutar
 1. Verificar SHA final de PR43, 6/6 CI y estado productivo. Mantener sin merge/despliegue y detectar cambios de otros ejecutores. Conservar hashes/estado base sin alterar datos reales.
 2. El sistema genera la Dieta Guía automáticamente en **borrador privado** desde la ficha nutricional vigente y las metas calculadas/ajustadas. El coach la revisa y **da el visto bueno o modifica** alimentos, recetas, gramos y horarios; se recalcula sin tocar Mi Día. Solo sobre los ingredientes que quedan en ese borrador final —incluidos componentes expandidos de recetas— generar `operator-review-worklist.csv` con huella `selectedGuideFingerprintSha256`. Un revisor humano autorizado verifica identidad, preparación, unidad, kcal/P/HC/G/fibra, fuente y diferencias. **Nunca aprobar alimentos automáticamente**, ni convertir la lista de fuentes revisadas en una lista blanca del catálogo. La aprobación del coach para publicar es posterior a esa verificación y no se presume por haber generado la guía.

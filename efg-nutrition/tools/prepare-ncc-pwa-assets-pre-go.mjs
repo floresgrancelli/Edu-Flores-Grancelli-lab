@@ -1,5 +1,6 @@
 // NCC PRE-GO only. Generate a reviewable cache-bust patch outside the repository.
-// NO merge, deployment, hosted calls, flags, source edits, or approvals.
+// NO merge, deployment, hosted calls, source edits or approvals. An OPTIONAL
+// pilot UI activation proposal lives ONLY outside the repo until explicit GO.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
@@ -12,6 +13,44 @@ const pilotDir=join(repoRoot,'efg-nutrition','pilot');
 const projectDir=join(repoRoot,'efg-nutrition');
 const indexPath=join(pilotDir,'index.html');
 const entryPath=join(pilotDir,'pilot.js');
+// Exact, reviewed entry-flow switches; stage ON only in a TEMP review proposal.
+// This is NOT authorization to merge or flip hosted switches. Student journey
+// and relaunch onboarding are mutually exclusive in the actual PWA.
+const pilotActivation=Object.freeze([
+ ['coach-student-journey.js','COACH_STUDENT_JOURNEY_ENABLED'],
+ ['coach-plan-draft-client.js','COACH_ATOMIC_PLAN_UI_ENABLED'],
+ ['coach-release-plan-gate.js','COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED'],
+ ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
+ ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
+ ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED']
+]);
+const keepDisabled=Object.freeze([
+ ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
+ ['coach-adapted-workspace.js','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED'],
+ ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
+ ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
+ ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
+ ['personal-workspace.js','PERSONAL_WORKSPACE_ENABLED'],
+ ['pilot-participation-demo.js','PILOT_PARTICIPATION_ENABLED']
+]);
+const activationByPath=new Map(pilotActivation.map(([file,flag])=>[join(pilotDir,file),flag]));
+function checkedSwitchSource(path,flag){
+ const s=readFileSync(path,'utf8'),needle='export const '+flag+'=false;';
+ assert.equal(s.split(needle).length,2,
+  'Refuse pilot UI proposal: expected one OFF switch '+flag);
+ return s;
+}
+function assertPilotActivationBaseline(){
+ for(const [file,flag]of [...pilotActivation,...keepDisabled])
+  checkedSwitchSource(join(pilotDir,file),flag);
+ const app=readFileSync(entryPath,'utf8');
+ assert.ok(app.includes('if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado'),
+  'New intake journey conflict guard changed: review actual routing');
+ assert.ok(app.includes('const COACH_PILOT_PROMOTION_ENABLED=false;'),
+  'Post-GO coach promotion must remain disabled');
+ assert.ok(app.includes('generateFlexibleGuidedDay(foods,goal'),
+  'The automatic six-meal Coach generator must remain connected');
+}
 const sha256=text=>createHash('sha256').update(text).digest('hex');
 const within=(path,root)=>path===root||path.startsWith(root+sep);
 const basePart=reference=>reference.split(/[?#]/,1)[0];
@@ -49,7 +88,7 @@ for(const style of styles){
 }
 assert.ok(existsSync(entryPath),'PWA entry module missing');
 const nodes=new Map();
-function walk(file,build){
+function walk(file,build,{pilotUiDraft=false}={}){
  if(nodes.has(file))return;
  const source=readFileSync(file,'utf8');
  const node={source,staged:'',imports:[]};
@@ -59,13 +98,33 @@ function walk(file,build){
   if(!/\.m?js$/i.test(asset))return whole;
   const target=resolveLocal(file,reference);
   node.imports.push(relative(repoRoot,target));
-  walk(target,build);
+  walk(target,build,{pilotUiDraft});
   return prefix+quote+versioned(reference,build)+quote;
  });
+ if(pilotUiDraft&&activationByPath.has(file)){
+  const flag=activationByPath.get(file);
+  const from='export const '+flag+'=false;',to='export const '+flag+'=true;';
+  assert.ok(node.staged.includes(from),'Activation flag changed: '+flag);
+  node.staged=node.staged.replace(from,to);
+ }
 }
-function render(build){
+function render(build,{pilotUiDraft=false}={}){
+ assertPilotActivationBaseline();
  nodes.clear();
- walk(entryPath,build);
+ walk(entryPath,build,{pilotUiDraft});
+ for(const [file,flag]of pilotActivation){
+  const resolved=join(pilotDir,file),node=nodes.get(resolved);
+  assert.ok(node,'Activation module not in actual PWA dependency graph: '+file);
+  assert.ok(node.staged.includes('export const '+flag+'='+(pilotUiDraft?'true':'false')+';'),
+   'Staged switch did not match reviewed activation mode: '+flag);
+ }
+ // Explicitly never enable the redundant student entry route, medical/personal,
+ // major-release campaign (requires signed manifest), or private test engine.
+ for(const [file,flag]of keepDisabled){
+  const node=nodes.get(join(pilotDir,file));
+  assert.ok(node&&node.staged.includes('export const '+flag+'=false;'),
+   'A post-GO or conflicting module was enabled: '+flag);
+ }
  const css=originalHtml.replace(cssPattern,(whole,before,href,after)=>
   before+versioned(href,build)+after);
  const html=css.replace(buildPattern,(whole,before,_old,after)=>before+build+after)
@@ -84,6 +143,16 @@ function render(build){
   rewrittenModules:entries.filter(x=>x.updated).length,
   files:entries,htmlSourceSha256:sha256(originalHtml),
   htmlStagedSha256:sha256(html),
+  preparationMode:pilotUiDraft?'PILOT_UI_ACTIVATION_PROPOSAL_NOT_GO':'ASSETS_ONLY',
+  pilotUiDraft,activationFlags:pilotUiDraft?pilotActivation.map(([file,flag])=>({
+   file:'efg-nutrition/pilot/'+file,flag,from:false,proposed:true
+  })):[],
+  deliberatelyDisabledFlags:keepDisabled.map(([file,flag])=>({
+   file:'efg-nutrition/pilot/'+file,flag,enabled:false
+  })),
+  // A true UI flag without server-owned onboarding/atomic/diary switches is
+  // NOT GO and is never permitted by this helper.
+  hostedPrerequisitesUnverified:true,
   noHostedCalls:true,noProductionEdits:true,noPublicationAuthorization:true
  };
  return {html,summary};
@@ -92,7 +161,9 @@ const args=process.argv.slice(2);
 const option=name=>args.find(x=>x.startsWith('--'+name+'='))?.slice(name.length+3);
 const emit=args.includes('--emit');
 const check=args.includes('--check');
+const pilotUiDraft=args.includes('--pilot-ui-draft');
 assert.ok(emit!==check,'Use exactly one mode: --check OR --emit');
+assert.ok(!pilotUiDraft||emit,'Pilot UI draft only permitted with --emit review mode');
 if(check){
  assert.deepEqual(args,['--check'],'--check accepts no write or release arguments');
  const output=render('ncc-pilot-pre-go-preview');
@@ -101,6 +172,8 @@ if(check){
   stylesheets:output.summary.stylesheets,
   jsModules:output.summary.jsModules,
   rewrittenModules:output.summary.rewrittenModules,
+  activationCandidates:pilotActivation.length,
+  deliberatelyDisabled:keepDisabled.length,
   writes:0,hostedCalls:0
  }));
 }else{
@@ -117,7 +190,7 @@ if(check){
  assert.ok(destination,'Write proposal only to an explicit output directory outside the repository');
  const out=resolve(destination);
  assert.ok(!within(out,repoRoot),'Never write staged files into the repository or live PWA');
- const {html,summary}=render(build);
+ const {html,summary}=render(build,{pilotUiDraft});
  const staged=[{path:indexPath,source:originalHtml,staged:html},
   ...[...nodes.entries()].filter(([,node])=>node.source!==node.staged)
    .map(([path,node])=>({path,source:node.source,staged:node.staged}))];
@@ -134,6 +207,8 @@ if(check){
  console.log(JSON.stringify({
   status:'STAGED_OUTSIDE_REPO_NOT_PUBLISHED',
   build,expectedGitSha:expected,outputDirectory:out,
+  preparationMode:summary.preparationMode,
+  activationFlagsProposed:summary.activationFlags.length,
   stagedFiles:staged.length,jsModules:summary.jsModules,
   stylesheets:summary.stylesheets,hostedCalls:0
  }));

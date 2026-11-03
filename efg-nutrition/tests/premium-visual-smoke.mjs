@@ -73,7 +73,37 @@ const scenarios=(coachGuideLayoutMode||adaptedCoachMode||weeklyReportMode||offic
  ["coach",360],["coach",390],["coach",412],["coach",768],["coach",1280],
  ["admin",360],["admin",390],["admin",412],["admin",768],["admin",1280]
 ];
-const sbStub='export function createClient(){const b=()=>{const q={saved:null,select(){return q},upsert(value){q.saved=value;return q},eq(){return q},in(){return q},order(){return q},limit(){return q},maybeSingle:async()=>({data:null,error:null}),single:async()=>({data:q.saved||null,error:null}),then(resolve){resolve({data:[],error:null})}};return q};return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>b(),rpc:async()=>({data:null,error:null})}}';
+// Browser-only synthetic Supabase fixture. No hosted credentials, network or real JWT.
+// P26M navigation now calls getUser and re-reads RLS-scoped roster/consents.
+// Supply matching fictional signed identity and rows; production auth remains unchanged.
+const sbStub=`export function createClient(){
+ const state=()=>globalThis.__EFG_VISUAL_QA__?.state||null;
+ const rows=name=>{
+  const s=state();
+  const eligible=s?.profile?.role==='coach'||(s?.profile?.role==='admin'&&s?.org?.is_test===true);
+  if(!eligible||s?.session?.user?.id!==s?.profile?.user_id||!s?.org?.id)return [];
+  if(name==='efg_profiles')return (s.roster||[]).map(x=>({...x,organization_id:s.org.id,role:'student'}));
+  if(name==='efg_consents')return [
+   {student_id:'demo-student-a',accepted:true},
+   {student_id:'demo-student-b',accepted:false},
+   {student_id:'demo-student-c',accepted:false}
+  ].filter(x=>(s.roster||[]).some(p=>p.user_id===x.student_id));
+  return [];
+ };
+ const b=name=>{
+  const q={saved:null,select(){return q},upsert(v){q.saved=v;return q},
+   eq(){return q},in(){return q},not(){return q},order(){return q},limit(){return q},
+   maybeSingle:async()=>({data:null,error:null}),
+   single:async()=>({data:q.saved||null,error:null}),
+   then(resolve){resolve({data:rows(name),error:null})}};
+  return q;
+ };
+ return {auth:{
+  getSession:async()=>({data:{session:null},error:null}),
+  getUser:async()=>({data:{user:state()?.session?.user||null},error:null}),
+  onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
+ },from:name=>b(name),rpc:async()=>({data:null,error:null})};
+}`;
 try{
  for(const [role,width] of scenarios){
   const context=await browser.newContext(androidMode?{...devices["Pixel 7"],viewport:{width,height:860}}:{viewport:{width,height:860},deviceScaleFactor:1,isMobile:true,hasTouch:true});

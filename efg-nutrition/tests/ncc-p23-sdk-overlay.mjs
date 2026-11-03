@@ -163,7 +163,15 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   await studentPage.locator('[data-tab="intake"]:visible').first().click();
   await studentPage.locator('#coachRelaunch_share').check();
   await studentPage.locator('#efgCoachRelaunchManageForm button[type=submit]').click();
-  await studentPage.locator('.efg-coach-waiting').waitFor();
+  // The intake editor legitimately stays open while its tab is selected.
+  // Check the REAL database receipt, then reload into the Home waiting route.
+  let persistedSharing=false;
+  for(let attempt=0;attempt<60;attempt++){
+   if(sql('select count(*) from public.efg_coach_relaunch_intakes where student_id='+
+    q(id)+' and shared_at is not null')==='1'){persistedSharing=true;break;}
+   await new Promise(resolve=>setTimeout(resolve,100));
+  }
+  assert.equal(persistedSharing,true,'Signed sharing did not persist in local PostgreSQL');
   assert.equal(await studentPage.locator('#studentMeals').count(),0);
   await studentPage.reload();
   await studentPage.locator('.efg-coach-waiting').waitFor();
@@ -192,7 +200,8 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   await coachPage.locator('#proposalGoalKcal').fill('2500');
   await coachPage.locator('[data-act="adjustCalculatedGoal"]').click();
   await coachPage.locator('[data-act="makeGuidedDay"]:not([data-periodic-new-guide])').first().click();
-  assert.equal(await coachPage.locator('.efg-guide-meal').count(),6);
+  assert.equal(await coachPage.locator('#coachGuidedSlot .efg-guide-meal').count(),6,
+   'Count only the editable guide; the automatic read-only preview is a distinct panel');
   assert.equal(sql('select count(*) from public.efg_goals where student_id='+q(id)),'0',
    'Automatic guide generation is NOT a publication');
   const qty=coachPage.locator('[data-guideqty="almuerzo:0"]').first();

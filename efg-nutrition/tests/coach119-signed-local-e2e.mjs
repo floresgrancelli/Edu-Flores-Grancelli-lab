@@ -203,13 +203,14 @@ function guide(qty = 400, approvedFoodIds = ['qa_food_a', 'qa_food_b']) {
     meals: ['desayuno', 'media_manana', 'almuerzo', 'merienda', 'cena'].map(slot => ({slot,
       items: [{id: 'qa_food_a', unit: 'g', qty, k: 1, p: .1, c: .1, f: .02, fi: .01}]}))};
 }
-function flexibleSixMealGuide(qty=250) {
- return {kind:'flexible_meal_guide',version:2,approvedFoodIds:['qa_food_a'],
+function flexibleSixMealGuide(qty=250,foodId='qa_food_a') {
+ assert.ok(['qa_food_a','qa_food_b','qa_food_c'].includes(foodId),'Synthetic fixture only');
+ return {kind:'flexible_meal_guide',version:2,approvedFoodIds:[foodId],
   meals:['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'].map(slot=>({slot,
-   items:[{id:'qa_food_a',unit:'g',qty,k:1,p:.1,c:.1,f:.02,fi:.01}]}))};
+   items:[{id:foodId,unit:'g',qty,k:1,p:.1,c:.1,f:.02,fi:.01}]}))};
 }
 const intakeA = await selectIntake(users.newA);
-const draftBody = (student, intake, expected = null, g = goal, menu = guide()) => ({
+const draftBody = (student, intake, expected = null, g = goal, menu = flexibleSixMealGuide()) => ({
   p_student: student.id, p_goal: g, p_guide: menu,
   p_intake_updated_at: intake.updated_at, p_intake_revision: intake.revision,
   p_expected_revision: expected
@@ -218,7 +219,7 @@ const save = (actor, body) => rpc('efg_save_coach_plan_draft', actor.token, body
 const clientA = createCoachPlanDraftClient({sb: asClient(users.coachA), enabled: true,
   relaunchEnabled: true, versionedBackendVerified: true});
 const initialSave = await clientA.save({studentId: users.newA.id, sourceUpdatedAt: intakeA.updated_at,
-  sourceRevision: intakeA.revision, goal, guide: guide()});
+  sourceRevision: intakeA.revision, goal, guide: flexibleSixMealGuide()});
 assert.equal(initialSave.revision, 1, 'Actual application client saves through signed RPC');
 denied(await save(users.coachB, draftBody(users.newA, intakeA)), 'other organization cannot save draft');
 denied(await save(users.newA, draftBody(users.newA, intakeA)), 'student cannot save coach draft');
@@ -263,9 +264,12 @@ sql("update public.efg_legal_documents set is_current=true where kind='privacy'"
 sql("update public.efg_legal_documents set body=body||'TAMPERED' where kind='privacy'");
 denied(await publish(users.coachA, body), 'changed legal body hash refused');
 sql(`update public.efg_legal_documents set body=${q(text)} where kind='privacy'`);
+// A v2 Dieta Guía reviews ONLY its actual ingredients. A source for an
+// unrelated catalog food must not become a hidden whitelist/gate.
+sql("update efg_private.coach_reviewed_foods set expires_at=now()-interval '1 minute' where food_id='qa_food_a'");
+denied(await publish(users.coachA, body), 'expired selected v2 guide ingredient blocks publication');
+sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='qa_food_a'");
 sql("update efg_private.coach_reviewed_foods set expires_at=now()-interval '1 minute' where food_id='qa_food_b'");
-denied(await publish(users.coachA, body), 'expired selected food outside guide still blocks publication');
-sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='qa_food_b'");
 sql(`update public.efg_coach_relaunch_intakes set age_years=null where student_id=${q(users.newA.id)}`);
 denied(await publish(users.coachA,body),'incomplete signed nutrition intake cannot publish',['42501']);
 sql(`update public.efg_coach_relaunch_intakes set age_years=41 where student_id=${q(users.newA.id)}`);
@@ -288,7 +292,17 @@ assert.equal(sql(`select count(*) from public.efg_goals where student_id=${q(use
 assert.equal(sql(`select count(*) from public.efg_notifications where recipient_id=${q(users.newA.id)} and kind='plan_update'`), '1');
 assert.equal((await status(users.newA)).route, 'ready');
 assert.equal((await status(users.newA)).can_log_meals, true);
+const studentSix=yes(await read('efg_food_plans',users.newA),'new student published guide readback')[0]?.guided_plan;
+assert.equal(studentSix?.kind,'flexible_meal_guide','New student must receive the v2 coach guide');
+assert.deepEqual(studentSix.meals.map(m=>m.slot),
+ ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'],
+ 'All six default Coach-guide slots must survive an atomic publish');
+assert.deepEqual(studentSix.approvedFoodIds,['qa_food_a'],
+ 'Unselected catalog IDs must NOT become a publication whitelist');
 yes(await diaryWrite(users.newA), 'published student REST diary now allowed');
+// Restore unrelated fictional legacy source only AFTER the v2 publication
+// demonstrated that its expiration could not block a selected 6-slot guide.
+sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='qa_food_b'");
 denied(await request('/rest/v1/efg_daily_logs', {method: 'POST', token: users.studentB.token,
   body: {student_id: users.newA.id, log_day: '2026-11-02', meals: {}, totals: {}}}), 'other student cannot write diary');
 assert.deepEqual(yes(await read('efg_food_plans', users.studentB), 'other student cannot read guide'), []);
@@ -300,8 +314,12 @@ console.log('PASS publication: exact current RPC, legal/hash/evidence/license ga
 
 // A failed final write must roll back goal, guide, archive, access and notice.
 const replacementGoal = {...goal, kcal: 2100, protein_g: 210, carb_g: 210, fat_g: 42, fiber_g: 21};
-const replacement = draftBody(users.newA, intakeA, 2, replacementGoal, guide(420, ['qa_food_a', 'qa_food_c']));
-assert.equal(Number(yes(await save(users.coachA, replacement), 'replacement draft')), 3);
+const fourSlotReplacement=flexibleSixMealGuide(300,'qa_food_c');
+fourSlotReplacement.meals=fourSlotReplacement.meals.filter(m=>!['media_manana','media_tarde'].includes(m.slot));
+assert.deepEqual(fourSlotReplacement.meals.map(m=>m.slot),
+ ['desayuno','almuerzo','merienda','cena']);
+const replacement = draftBody(users.newA, intakeA, 2, replacementGoal, fourSlotReplacement);
+assert.equal(Number(yes(await save(users.coachA, replacement), 'replacement draft 6 to 4 slots')), 3);
 function snapshot(student) {
   const sid = q(student.id);
   return sql(`select jsonb_build_object(
@@ -328,13 +346,22 @@ sql('drop trigger coach119_qa_fail_last_write on public.efg_coach_plan_drafts; d
 const secondGoal = yes(await publish(users.coachA, replacementBody), 'replacement succeeds after rollback');
 assert.notEqual(secondGoal, firstGoal);
 assert.equal(sql(`select guided_goal_id from efg_private.coach_guide_history where student_id=${q(users.newA.id)}`), firstGoal);
-assert.equal(sql(`select array_to_string(approved_food_ids,',') from public.efg_food_plans where student_id=${q(users.newA.id)}`), 'qa_food_a,qa_food_c');
-assert.equal(sql(`select array_to_string(approved_food_ids,',') from efg_private.coach_guide_history where student_id=${q(users.newA.id)}`), 'qa_food_a,qa_food_b');
+assert.equal(sql(`select array_to_string(approved_food_ids,',') from public.efg_food_plans where student_id=${q(users.newA.id)}`), 'qa_food_c');
+assert.equal(sql(`select array_to_string(approved_food_ids,',') from efg_private.coach_guide_history where student_id=${q(users.newA.id)}`), 'qa_food_a');
+const fourSlotReadback=yes(await read('efg_food_plans',users.newA),'Coach-reduced guide readback')[0].guided_plan;
+assert.deepEqual(fourSlotReadback.meals.map(m=>m.slot),['desayuno','almuerzo','merienda','cena'],
+ 'Coach can remove two guide slots without reintroducing them');
+assert.equal(sql(`select jsonb_array_length(guided_plan->'meals') from efg_private.coach_guide_history where student_id=${q(users.newA.id)}`),'6',
+ 'Previous 6-slot approved plan must remain in the private history');
+assert.equal(yes(await read('efg_daily_logs',users.newA),'four-slot guide cannot delete actual diary').length,1,
+ 'Guide changes must never modify a student diary');
+assert.equal((await status(users.newA)).route,'ready','Coach removes guide slots, not MI DIA access');
 
 // Both organizations and returning students must also have a positive path.
 for (const [student, coach] of [[users.returningA, users.coachA], [users.studentB, users.coachB]]) {
   const intake = await selectIntake(student);
-  const sixMeals=student===users.returningA;
+  const sixMeals=student===users.studentB;
+  // Legacy v1 stays readable for returning students; all new guides use v2.
   const menu=sixMeals?flexibleSixMealGuide():guide();
   assert.equal(Number(yes(await save(coach, draftBody(student, intake,null,goal,menu)), 'independent valid draft')), 1);
   yes(await publish(coach, publishBody(student, 1, randomUUID())), 'independent valid publication');
@@ -369,5 +396,5 @@ assert.equal(Number(yes(await rpc('efg_submit_coach_relaunch_intake', users.newA
 assert.equal((await status(users.newA)).route, 'review');
 denied(await diaryWrite(users.newA), 'old published plan cannot authorize a newer intake');
 denied(await publish(users.coachA, replacementBody), 'old draft cannot bypass newer intake', ['PT409']);
-console.log('PASS rollback/history: all resources restored after injected failure; authoritative new food list; previous guide archived; new and returning students in BOTH orgs; opt-out and new intake revoke diary eligibility.');
+console.log('PASS rollback/history: initial 6-slot v2, Coach 6-to-4 edits, old six-slot history intact, legacy five-slot readback, two orgs, opt-out and new intake revoke diary eligibility.');
 console.log('PASS COACH119 CURRENT LOCAL INTEGRATION. Signed fictional GoTrue accounts only; not hosted parity, external legal/nutrition review, OTP email or physical device UAT.');

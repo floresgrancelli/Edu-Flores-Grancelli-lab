@@ -105,6 +105,17 @@ assert.equal(guideFoodSignal({id:'banana'},{restrictions:[]}).status,'possible')
 const references=approvedFoodGuide(initial,null,{knownIds:catalog.map(x=>x.id)});
 const allIds=[...new Set(ids(initial))].sort();
 assert.deepEqual(references.approvedFoodIds,allIds);
+// P23: a complete 537-food/recipe picker may include noncanonical preview IDs.
+// Only SELECTED ingredients need canonical, server-publishable identifiers;
+// never use the whole catalog as a whitelist or a reason to block every guide.
+const fullPickerIds=[...catalog.map(x=>x.id),'fit-recipe:pancakes','custom-recipe:fictional'];
+assert.deepEqual(approvedFoodGuide(initial,null,{knownIds:fullPickerIds}).approvedFoodIds,allIds);
+const pseudoSelected=structuredClone(initial);
+pseudoSelected.meals[0].items[0].id='fit-recipe:pancakes';
+assert.throws(()=>approvedFoodGuide(pseudoSelected,null,{knownIds:fullPickerIds}),
+ /inexistente o inválido/,'Recipe preview IDs cannot be published as unexpanded ingredients');
+assert.throws(()=>approvedFoodGuide(initial,null,{knownIds:[...fullPickerIds,null]}),
+ /catálogo no tiene identificadores válidos/);
 assert.throws(()=>approvedFoodGuide(initial,['egg'],{knownIds:catalog.map(x=>x.id)}));
 assert.deepEqual(initial.approvedFoodIds,undefined);
 assert.equal(validateCoachPlanProposal(goal,initial).guide.kind,FLEXIBLE_GUIDE_KIND);

@@ -14,7 +14,11 @@ export function approvedFoodGuide(guide,selectedIds=null,{knownIds=null}={}){
   new Set(guide.meals.map(m=>m?.slot)).size!==guide.meals.length||
   guide.meals.some(m=>!SLOTS.has(m?.slot)||!Array.isArray(m.items)||m.items.length<1||m.items.length>15))
   throw Error("Revisá los horarios y alimentos de la Dieta Guía.");
- if(knownIds!==null&&(!Array.isArray(knownIds)||!knownIds.every(id=>typeof id==="string"&&ID.test(id))))
+ // The global diary/Coach picker is intentionally complete: some preview,
+ // composite or recipe identifiers are not publishable canonical IDs. Their
+ // presence must NOT prevent saving a guide whose selected ingredients ARE
+ // canonical. Validate the selected food IDs strictly below instead.
+ if(knownIds!==null&&(!Array.isArray(knownIds)||!knownIds.every(id=>typeof id==="string"&&id.length>0)))
   throw Error("El catálogo no tiene identificadores válidos.");
  const known=knownIds===null?null:new Set(knownIds);
  const guideIds=[];

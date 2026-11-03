@@ -363,8 +363,8 @@ jobs:
           assert not config.get('auth',{}).get('email',{}).get('smtp',{}).get('enabled',False)
           for kind in ('magic_link','confirmation'):
               section='auth.email.template.'+kind
-              assert not re.search(r'(?m)^\\['+re.escape(section)+r'\\]',content)
-              content+='\\n['+section+']\\nsubject = "NCC fictional OTP (LOCAL ONLY)"\\ncontent_path = "./supabase/templates/ncc-coach119-otp.html"\\n'
+              assert not re.search(r'(?m)^\['+re.escape(section)+r'\]',content)
+              content+='\n['+section+']\nsubject = "NCC fictional OTP (LOCAL ONLY)"\ncontent_path = "./supabase/templates/ncc-coach119-otp.html"\n'
           templates=root/'supabase/templates'
           templates.mkdir(exist_ok=True)
           (templates/'ncc-coach119-otp.html').write_text('<p>FICTIONAL ONLY</p><p>NCC_LOCAL_OTP={{ .Token }}</p>')

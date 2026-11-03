@@ -132,6 +132,35 @@ assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p
 assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
 assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),5);
 bad(await rpc('efg_revoke_coach_health_intake',u.coachA.token,{p_expected_revision:4}),'Coach cannot erase student conditions');
+// AL-05: explicit NONE differs from a blank/unknown private health record.
+const noneArgs={p_document:healthDoc,p_sha256:hash,p_expected_revision:5,
+ p_processing_consent:true,p_share_with_coach:false};
+bad(await rpc('efg_declare_no_restrictions',null,noneArgs),'Anonymous cannot declare none');
+bad(await rpc('efg_declare_no_restrictions',u.coachA.token,noneArgs),'Coach cannot declare none for pupil');
+bad(await rpc('efg_declare_no_restrictions',u.studentA.token,{...noneArgs,p_processing_consent:false}),'No separate health processing consent');
+bad(await rpc('efg_declare_no_restrictions',u.studentA.token,{...noneArgs,p_expected_revision:4}),'Old none marker revision blocked');
+assert.equal(Number(good(await rpc('efg_declare_no_restrictions',u.studentA.token,noneArgs),'Signed explicit negative')),6);
+const negative=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Signed owner reads none');
+assert.deepEqual(negative.conditions,{});
+assert.equal(negative.revision,6);
+assert.equal(negative.restriction_declaration.kind,'none_declared');
+assert.equal(negative.restriction_declaration.version,1);
+assert.equal(negative.restriction_declaration.declared_by,u.studentA.id);
+assert.equal(negative.restriction_declaration.source_revision,6);
+assert.ok(Number.isFinite(Date.parse(negative.restriction_declaration.confirmed_at)));
+assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'No coach share means no access to negative'),null);
+bad(await rpc('efg_declare_no_restrictions',u.studentA.token,noneArgs),'Replay of negative statement rejected');
+// New positive statement MUST invalidate the previous negative statement.
+assert.equal(Number(good(await rpc('efg_submit_coach_health_intake',u.studentA.token,{
+ ...args,p_expected_revision:6,p_share_with_coach:false
+}),'Re-declared conditions after negative')),7);
+const changed=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Read positive revision after none');
+assert.equal(changed.restriction_declaration,null);
+assert.equal(changed.conditions.celiac,'suspected');
+assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:7}),'Erase conditions and negative marker'),true);
+assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
+assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),8);
+console.log('PASS isolated explicit-none declaration: signed owner, separate consent, revision conflicts, no cross-account visibility, re-declare clears old none, revocation erases.');
 console.log('PASS CLIN-GUT-03 REAL LOCAL JWT: 2 organizations, 4 GoTrue identities, scoped viewer/org/consents in BASE RPC, terms/privacy + distinct private health document, revoke and erasure; NO hosted authorization or clinical sign-off.');
 
 if(providerContract)console.log('PASS V5 private scope RPC: server org/viewer/consents, anon401-or-403/42501, orgB and revocation; local synthetic only.');

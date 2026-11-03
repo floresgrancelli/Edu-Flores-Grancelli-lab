@@ -197,4 +197,20 @@ assert.match(revisionUI,/data-periodic-new-guide/);
 assert.match(revisionUI,/Generar nueva Dieta Guía · borrador/);
 assert.match(revisionUI,/el ALUMNO debe actualizar su declaración privada/);
 assert.match(revisionUI,/goal.kcal===Number\(latest.kcal\)&&!COACH_ATOMIC_PLAN_UI_ENABLED/);
+
+ // Explicit product contract: the Coach requests an AUTOMATIC proposal, then
+ // may approve it unchanged or edit it. Generation is never a publication.
+ assert.match(app,/state\\.coachGuidedDraft=generateFlexibleGuidedDay\\(foods,goal,\\{/,
+   'Current goals and authorized intake create the automatic six-slot Coach draft');
+ const generation=app.slice(app.indexOf('if(action==="makeGuidedDay"){'),app.indexOf('if(action==="removeGuidedMeal"){'));
+ assert.match(generation,/showGuidedEditor\\(\\);notify\\(/,'Automatic draft is shown for Coach review');
+ assert.doesNotMatch(generation,/coachDraftClient\\.publish\\(/,'Generating must never publish to a student');
+ const publication=app.slice(app.indexOf('async function publishCoachAtomicDraft(){'),
+   app.indexOf('function activeCoachGuideGoal(){'));
+ assert.match(publication,/if\\(!window\\.confirm\\("¿Aprobar y publicar juntos el objetivo y la guía\\?/,
+   'Coach must explicitly approve before atomic publication');
+ assert.match(publication,/coachDraftClient\\.publish\\(\\{studentId,expectedRevision:draft\\.draft_revision,[\\s\\S]*?confirmed:true\\}/,
+   'Server publication requires confirmed true after Coach approval');
+ assert.ok(initial.meals.length===6,'Generated default guide has six slots before Coach edits');
+
 console.log('PASS NCC six-meal guide and periodic review: 2500→2100 goal + six meals, same-calorie new guide, prior goal untouched, verified-profile warning, publish remains Coach atomic-only.');

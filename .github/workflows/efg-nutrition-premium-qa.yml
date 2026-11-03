@@ -277,6 +277,11 @@ jobs:
           node --check efg-nutrition/tests/ncc-source-review-batch.mjs
           node efg-nutrition/tests/ncc-source-review-batch.mjs
           node efg-nutrition/tools/prepare-ncc-source-review-batch.mjs --output-dir "$RUNNER_TEMP/ncc-food-source-review"
+      - name: NCC P18 automatic Coach guide to exact human-source handoff (OFFLINE)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tests/ncc-source-review-batch.mjs
+          node efg-nutrition/tests/ncc-source-review-batch.mjs
       - name: Preserve source-comparison JSON/CSV for an authorized human reviewer (NO APPROVAL)
         if: ${{ !cancelled() && steps.source_review.outcome == 'success' }}
         uses: actions/upload-artifact@v4

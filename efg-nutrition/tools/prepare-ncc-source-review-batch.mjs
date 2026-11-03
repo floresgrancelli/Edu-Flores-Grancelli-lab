@@ -7,6 +7,8 @@ import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {GUIDE_MEALS} from '../pilot/guided-day.js';
 import {EXTRA_FOODS} from '../pilot/food-catalog.js';
+import {applyRecipeModels,RECIPE_MODELS} from '../pilot/recipe-models.js';
+import {applyRegionalCompositeModels,REGIONAL_COMPOSITE_MODELS} from '../pilot/regional-composite-models.js';
 
 const text=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 const json=p=>JSON.parse(text(p));
@@ -44,7 +46,45 @@ assert.match(v2Source,/GUIDE_MEALS\.slice\(0,3\)/);
 assert.match(v2Source,/slot:'media_tarde',label:'Media tarde',items:\[\['yogurt',150\],\['banana',85\],\['cheese',25\]\]/);
 assert.match(v2Source,/GUIDE_MEALS\.slice\(3\)/);
 assert.deepEqual(template.map(m=>m.slot),slots);
-const allFoods=[...legacy,...EXTRA_FOODS],byId=new Map();
+// Mirror the live PWA catalog's pure model transformations. The review
+// packet MUST use exactly the same per-unit values that the Coach sees.
+const allFoods=[...legacy,...EXTRA_FOODS].map(x=>({...x}));
+applyRecipeModels(allFoods);
+applyRegionalCompositeModels(allFoods);
+function localBuiltRecipe(name,endMarker,expectedId){
+ const start=app.indexOf('const '+name+'={');
+ const end=app.indexOf(endMarker,start);
+ assert.ok(start>=0&&end>start,'Live composite recipe source moved: '+name);
+ const block=app.slice(start,end),id=block.match(/\bid:"([^"]+)"/)?.[1];
+ assert.equal(id,expectedId,'Recipe identity changed: '+name);
+ const portionGrams=Number(block.match(/\bportionGrams:([0-9.]+)/)?.[1]);
+ const portions=Number(block.match(/\bportions:([0-9]+)/)?.[1]||1);
+ const ingredients=[...block.matchAll(/foodId:"([A-Za-z0-9_-]+)",grams:([0-9.]+)/g)]
+  .map(m=>({id:m[1],grams:Number(m[2])}));
+ assert.ok(portionGrams>0&&portions>0&&ingredients.length>=4,
+  'Incomplete built-in recipe source: '+name);
+ return {id,yieldGrams:portionGrams*portions,ingredients,modelType:'PWA_ILLUSTRATIVE_RECIPE'};
+}
+const budin=localBuiltRecipe('BUDIN_RECIPE','function setBudinNutrition(){','cake');
+const fruitSalad=localBuiltRecipe('FRUIT_SALAD_RECIPE','function setFruitSaladNutrition(){','fruit_salad_basic');
+for(const model of [budin,fruitSalad]){
+ const target=allFoods.find(f=>f.id===model.id);
+ assert.ok(target,'Missing canonical composite: '+model.id);
+ for(const n of nutrients){
+  target[n]=model.ingredients.reduce((sum,ingredient)=>{
+   const f=allFoods.find(x=>x.id===ingredient.id);
+   assert.ok(f&&Number.isFinite(f[n]),'Missing recipe component '+ingredient.id);
+   return sum+f[n]*ingredient.grams;
+  },0)/model.yieldGrams;
+ }
+}
+const compositeModels=[...RECIPE_MODELS,...REGIONAL_COMPOSITE_MODELS,budin,fruitSalad];
+const compositeById=new Map(compositeModels.map(model=>[model.id,model]));
+assert.equal(compositeById.size,compositeModels.length,'Duplicated composite recipe ID');
+export function sourceReviewCatalogForSyntheticCoach(){
+ return structuredClone(allFoods);
+}
+const byId=new Map();
 for(const f of allFoods){
  assert.ok(f?.id&&!byId.has(f.id),'Duplicate/missing PWA ID: '+f?.id);
  assert.ok(['g','ml'].includes(f.unit),'Unsupported PWA food unit: '+f.id);
@@ -75,7 +115,11 @@ assert.equal(extraSources.size,2);
 assert.ok(!reviewById.has('chicken_breast_roasted')&&byId.has('chicken_breast_roasted'));
 assert.equal(exactChicken.publishable,false);
 assert.equal(exactChicken.reviewStatus,'pending_operator_review');
-const sourceFingerprint=createHash('sha256').update([app,catalogSource,v2Source].join('\nNCC-SOURCE\n')).digest('hex');
+const sourceFingerprint=createHash('sha256').update([
+ app,catalogSource,v2Source,
+ text('../pilot/recipe-models.js'),
+ text('../pilot/regional-composite-models.js')
+].join('\nNCC-SOURCE\n')).digest('hex');
 const evidenceFingerprint=createHash('sha256').update([
  text('../docs/NCC_PILOT_17_SOURCE_REVIEW_20261103.json'),
  text('../docs/NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json'),
@@ -135,6 +179,28 @@ export function preparePilotSourceReview({guide=null}={}){
  const selectedGuideFingerprintSha256=createHash('sha256')
   .update(JSON.stringify(meals)).digest('hex');
  assert.ok(ids.length>0&&ids.length<=90);
+ const recipeComponents=meals.flatMap(meal=>meal.items.flatMap(item=>{
+  const model=compositeById.get(item.id);
+  if(!model)return [];
+  assert.ok(model.yieldGrams>0&&Array.isArray(model.ingredients));
+  return model.ingredients.map(part=>{
+   const ingredient=byId.get(part.id)||null;
+   const componentQty=rounded(item.qty*part.grams/model.yieldGrams);
+   assert.ok(componentQty>0,'Invalid modeled ingredient share: '+part.id);
+   return {
+    slot:meal.slot,parentFoodId:item.id,parentFoodName:byId.get(item.id)?.name,
+    parentSelectedQty:item.qty,modelYieldGrams:model.yieldGrams,
+    ingredientFoodId:part.id,ingredientFoodName:ingredient?.name||part.id,
+    componentQty,componentUnit:ingredient?.unit||'g',
+    inPwaCatalog:!!ingredient,modelType:model.modelType||'PWA_ESTIMATED_RECIPE_MODEL',
+    evidenceStatus:ingredient?'COMPONENT_SOURCE_REQUIRES_HUMAN_REVIEW':
+      'UNVERIFIED_PROXY_NOT_IN_PWA_CATALOG',
+    humanReview:'PENDING',approvedForServer:false
+   };
+  });
+ }));
+ const recipeComponentsFingerprintSha256=createHash('sha256')
+  .update(JSON.stringify(recipeComponents)).digest('hex');
  const counts={},foods=ids.map(id=>{
   const f=byId.get(id),row=reviewById.get(id)||null;
   const extra=extraSources.get(id)||null;
@@ -173,11 +239,45 @@ export function preparePilotSourceReview({guide=null}={}){
   selectedGuideFingerprintSha256,actualCatalogSize:allFoods.length,
   sourceArchiveUrl:archive.sourceArchiveUrl,sourceArchiveSha256:archive.sourceArchiveSha256,
   selectedMeals:meals,selectedUniqueFoodCount:ids.length,countsByEvidenceState:counts,foods,
+  recipeComponents,recipeComponentsFingerprintSha256,
+  componentReviewRequired:recipeComponents.length>0,
+  unverifiedRecipeProxyCount:recipeComponents.filter(x=>!x.inPwaCatalog).length,
   approvalsGranted:0,sourceRecordsInserted:0,publishable:false,
   operatorReviewRequired:true,notACatalogWhitelist:true,
   note:'A source capture or numeric match is not approval. Every ingredient chosen in the final guide, including expanded recipes, needs operator-reviewed evidence. No PII, network calls or database writes.'};
 }
 const csv=x=>'"'+String(x??'').replaceAll('"','""')+'"';
+// A SEPARATE review-only sheet for every selected built-in composite model.
+// Do not transform proxy ingredients into regular catalog foods or credentials.
+// No data here is an authorization to publish a recipe or approve a nutrient.
+export function recipeComponentReviewCsv(packet){
+ assert.equal(packet?.kind,'NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY');
+ assert.equal(packet.publishable,false);
+ assert.equal(packet.approvalsGranted,0);
+ assert.equal(packet.notACatalogWhitelist,true);
+ assert.match(packet.recipeComponentsFingerprintSha256||'',/^[a-f0-9]{64}$/);
+ const cols=[
+  'selected_guide_sha256','recipe_components_sha256','meal_slot',
+  'selected_pwa_recipe_food_id','selected_pwa_recipe_food_name',
+  'recipe_selected_qty','modeled_recipe_yield_g',
+  'ingredient_id','ingredient_name','modeled_ingredient_qty',
+  'ingredient_unit','in_pwa_catalog','model_type','evidence_status',
+  'human_review_status','operator_decision_BLANK',
+  'operator_user_id_BLANK','operator_notes_BLANK'
+ ];
+ const rows=packet.recipeComponents.map(row=>{
+  assert.equal(row.humanReview,'PENDING');
+  assert.equal(row.approvedForServer,false);
+  return [
+   packet.selectedGuideFingerprintSha256,packet.recipeComponentsFingerprintSha256,
+   row.slot,row.parentFoodId,row.parentFoodName,row.parentSelectedQty,
+   row.modelYieldGrams,row.ingredientFoodId,row.ingredientFoodName,
+   row.componentQty,row.componentUnit,row.inPwaCatalog,row.modelType,
+   row.evidenceStatus,'PENDING','','',''
+  ].map(csv).join(',');
+ });
+ return [cols.map(csv).join(','),...rows].join('\n')+'\n';
+}
 export function reviewCsv(packet){
  const columns=['food_id','food_name','unit','slots','pwa_kcal_per100','pwa_protein_per100',
   'pwa_carbs_per100','pwa_fat_per100','pwa_fiber_per100','fdc_id',
@@ -248,5 +348,6 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  writeFileSync(resolve(folder,'selected-food-review.json'),JSON.stringify(packet,null,2)+'\n');
  writeFileSync(resolve(folder,'selected-food-review.csv'),reviewCsv(packet));
  writeFileSync(resolve(folder,'operator-review-worklist.csv'),operatorReviewCsv(packet));
+ writeFileSync(resolve(folder,'recipe-component-review-worklist.csv'),recipeComponentReviewCsv(packet));
  console.log('NCC REVIEW ONLY: '+packet.selectedUniqueFoodCount+' selected foods, 0 approvals, 0 DB writes. Operator worklist requires an independent human decision.');
 }

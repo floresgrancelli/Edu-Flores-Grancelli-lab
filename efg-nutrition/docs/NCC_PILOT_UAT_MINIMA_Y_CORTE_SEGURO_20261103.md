@@ -15,6 +15,11 @@ En la rama candidata y los ejecutores **ya existentes**, sin crear infraestructu
 - Premium QA: primer alimento al primer toque, sushi por piezas, múltiples habituales y recuperación, búsquedas/autocompletado, recetas por porción, fallos de persistencia y reconexión, IME/Gboard emulado, scroll, sesión A→B→A, respuestas desordenadas y cambio a medianoche.
 - Etiquetar pruebas automatizadas como **LOCAL/CI**. No declararlas JWT hosted, aceptación de usuarios reales ni UAT en dispositivo físico.
 
+## Revisión nutricional de la guía generada automáticamente
+El coach recibe una **propuesta automática**, ajusta alimentos, recetas, porciones u horarios y la guarda como borrador privado. La exportación de fuentes se realiza sobre **ese borrador revisado**, sin pedir que el coach construya manualmente el menú. El operador coteja únicamente los alimentos e ingredientes incluidos. En recetas compuestas como tartas, pizzas, sushi, budín o ensalada de frutas, un expediente adicional `recipe-component-review-worklist.csv` enumera los ingredientes del modelo, sus cantidades orientativas y los proxies sin ficha del catálogo. Los modelos no son análisis nutricionales ni autorizaciones.
+
+La hoja de componentes y la de fuentes principales conservan decisiones humanas en blanco, huella de selección exacta, estado PENDING y cero aprobaciones. Si el coach cambia porciones o el modelo de receta cambia, el expediente debe generarse nuevamente para esa versión. El catálogo visible de alimentos no se limita ni se modifica.
+
 ## 2. Plan mínimo de UAT en equipos reales — SIN EJECUTAR
 El propietario o tester autorizado debe usar **iPhone Safari/PWA, Android Chrome/Gboard/PWA y escritorio**, después de autorización expresa para disponer de la candidata en un entorno habilitado y sin gastos adicionales. No introducir fichas clínicas reales ni credenciales en capturas.
 

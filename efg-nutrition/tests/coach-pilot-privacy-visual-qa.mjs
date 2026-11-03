@@ -101,8 +101,9 @@ try{
   });
   assert.equal(await page.locator('[data-science-step="1"]').count(),1,'education before major-release legal');
   assert.equal(await page.evaluate(()=>window.__introTest.legalReads),0);
-  for(let step=1;step<8;step++)await page.locator('[data-act="scienceNext"]').click();
-  const finish=page.locator('[data-act="scienceFinish"]');
+  for(let step=1;step<9;step++)await page.locator('[data-act="scienceNext"]').click();
+  assert.equal(await page.locator('[data-science-step="9"] .ns-wellbeing').count(),1,'serotonin finale is ninth');
+   const finish=page.locator('[data-act="scienceFinish"]');
   await finish.click();
   await page.locator('.ns-welcome-error').waitFor();
   assert.equal(await finish.isEnabled(),true,'retry after a failed educational receipt');

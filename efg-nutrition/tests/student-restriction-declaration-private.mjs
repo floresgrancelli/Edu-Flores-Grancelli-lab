@@ -95,7 +95,8 @@ for(const data of [null,{},[],{celiac:true},{celiac:'not_reported'},{unknown:'co
 }
 {
  const f=fixture();f.setRow({student_id:user,organization_id:org,revision:1,conditions:{celiac:true}});
- assert.equal((await f.client.load()).declaration,'unknown');
+ await assert.rejects(f.client.load(),/validar/,
+  'Malformed health condition status must fail closed');
 }
 {
  const f=fixture();f.setRow({student_id:user,organization_id:org,revision:1,conditions:{}});

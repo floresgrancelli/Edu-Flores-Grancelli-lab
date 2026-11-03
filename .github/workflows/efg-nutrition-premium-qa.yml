@@ -262,6 +262,22 @@ jobs:
         run: |
           node --check efg-nutrition/tests/coach114-catalog-release-coverage.mjs
           node efg-nutrition/tests/coach114-catalog-release-coverage.mjs
+      - name: NCC P1 selected guide source review batch - six slots, replacements and expanded recipes (READ ONLY)
+        id: source_review
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tools/prepare-ncc-source-review-batch.mjs
+          node --check efg-nutrition/tests/ncc-source-review-batch.mjs
+          node efg-nutrition/tests/ncc-source-review-batch.mjs
+          node efg-nutrition/tools/prepare-ncc-source-review-batch.mjs --output-dir "$RUNNER_TEMP/ncc-food-source-review"
+      - name: Preserve source-comparison JSON/CSV for an authorized human reviewer (NO APPROVAL)
+        if: ${{ !cancelled() && steps.source_review.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncc-selected-food-source-review-${{ github.sha }}
+          path: ${{ runner.temp }}/ncc-food-source-review/
+          retention-days: 14
+          if-no-files-found: error
       - name: NCC 02-03 USDA official ten-record review manifest and prep mismatch (OFFLINE)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

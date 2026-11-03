@@ -200,8 +200,29 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   await coachPage.locator('#proposalGoalKcal').fill('2500');
   await coachPage.locator('[data-act="adjustCalculatedGoal"]').click();
   await coachPage.locator('[data-act="makeGuidedDay"]:not([data-periodic-new-guide])').first().click();
-  assert.equal(await coachPage.locator('#coachGuidedSlot .efg-guide-meal').count(),6,
-   'Count only the editable guide; the automatic read-only preview is a distinct panel');
+  // DOM dispatch may finish before the async application handler completes.
+  // Distinguish a render race from a real rejected Coach intake/guide.
+  try{
+   await coachPage.waitForFunction(
+    ()=>document.querySelectorAll('#coachGuidedSlot .efg-guide-meal').length===6,
+    null,{timeout:9000});
+  }catch{
+   // Local synthetic-only diagnostics: no JWT, emails, health values or payloads.
+   const diagnostic=await coachPage.evaluate(()=>{
+    const guide=document.querySelector('#coachGuidedSlot');
+    const toast=document.querySelector('#pilot-toast');
+    return {
+     guidePanelPresent:!!guide,
+     guideMeals:guide?.querySelectorAll('.efg-guide-meal').length??-1,
+     toastVisible:toast?.style.display==='block',
+     notice:String(toast?.textContent||'').slice(0,180),
+     guideButtonPresent:!!guide?.querySelector('[data-act="makeGuidedDay"]'),
+     autoPreviewPresent:!!document.querySelector('#coachIntakeGeneratedGuide')
+    };
+   });
+   console.log('NCC_P23_SYNTHETIC_GUIDE_DIAGNOSTIC '+JSON.stringify(diagnostic));
+   throw Error('NCC P23 Coach generator must show six editable slots or explicit rejection');
+  }
   assert.equal(sql('select count(*) from public.efg_goals where student_id='+q(id)),'0',
    'Automatic guide generation is NOT a publication');
   const qty=coachPage.locator('[data-guideqty="almuerzo:0"]').first();

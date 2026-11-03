@@ -111,7 +111,7 @@ for(const record of postflight.split('\n').filter(Boolean)){
  assert.ok(!structuralChecks.has(id)&&!contentChecks.has(id),'Duplicate postinstall check: '+id);
  group.set(id,{passed,status});
 }
-assert.equal(structuralChecks.size,22,'Structural post-install matrix must have exactly 22 gates');
+assert.equal(structuralChecks.size,23,'Structural post-install matrix must have exactly 23 gates, including NCC P25C hosted verifier drift');
 assert.equal(contentChecks.size,2,'Pilot notice and selected-food gates stay independent');
 for(const [id,result] of structuralChecks){
  assert.equal(result.passed,'t','LOCAL postinstall FAILED: '+id);

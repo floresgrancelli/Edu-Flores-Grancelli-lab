@@ -89,6 +89,18 @@ with checks(phase,check_id,passed,explanation) as (
      and pg_catalog.strpos(pg_catalog.pg_get_constraintdef(c.oid),'flexible_meal_guide')>0
      and pg_catalog.strpos(pg_catalog.pg_get_constraintdef(c.oid),'jsonb_array_length')>0),
    'Validated constraint retains legacy five and accepts flexible v2 guide'),
+ ('04_ATOMIC','COACH119_NUTRITION_SOURCE_VERIFIER_FLEXIBLE_V2',
+   exists(select 1 from pg_catalog.pg_proc p
+    where p.oid=pg_catalog.to_regprocedure('efg_private.coach_guide_foods_verified(jsonb)')
+     and not p.prosecdef
+     and p.proconfig @> array['search_path=""']::text[]
+     and not pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE')
+     and not pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE')
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'five_meal_example')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'flexible_meal_guide')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'media_tarde')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'reviewed_at')>0),
+   'Private verifier must retain legacy V1 and accept flexible V2 2-6 with current reviewed ingredients'),
  ('04_ATOMIC','COACH119_GUIDE_WRITE_GUARD_ENABLED',
    exists(select 1 from pg_catalog.pg_trigger t
     where t.tgrelid=pg_catalog.to_regclass('public.efg_food_plans')

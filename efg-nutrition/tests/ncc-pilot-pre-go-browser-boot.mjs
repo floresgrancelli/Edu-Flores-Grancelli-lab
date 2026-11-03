@@ -121,6 +121,13 @@ try{
  for(const path of requiredOverlay)assert.ok(servedOverlay.has(path),'Staged asset was not actually served: '+path);
  assert.equal(remoteAttempts,0,'No production or hosted backend requests allowed');
  assert.deepEqual(misses,[],'The versioned import graph must resolve without missing local assets');
+ if(process.env.EFG_QA_P22_FLOW==='1'){
+  const {runStagedPilotFlow}=await import('./ncc-pilot-pre-go-browser-flow.mjs');
+  await runStagedPilotFlow(page,build);
+  assert.equal(remoteAttempts,0,'P22 local flow must never touch hosted backend');
+  assert.deepEqual(misses,[],'P22 staged module imports require complete assets');
+  assert.deepEqual(pageErrors,[],'P22 browser must remain free of JS page errors');
+ }
  assert.deepEqual(pageErrors,[],'Real browser must have no JavaScript page errors');
  for(const [file,flag]of featureOn)
   assert.ok(readFileSync(join(repoRoot,'efg-nutrition/pilot',file),'utf8')

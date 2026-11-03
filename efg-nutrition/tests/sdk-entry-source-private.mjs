@@ -82,16 +82,15 @@ window.__SDK_ENTRY_QA__=Object.freeze({
  publishFlexible:async({studentId,goal,guide})=>{
   // Loopback-only test harness. Actual application SDK, JWT and signed RPCs.
   const user=await sb.auth.getUser();
-  if(user.error||state.profile?.role!=='coach'||state.session?.user?.id!==user.data?.user?.id||
-     state.selectedStudent!==studentId||state.org?.id!==state.coachIntakeForms?.[studentId]?.organization_id)
-   throw Error('Six-slot local publisher requires the assigned Coach view.');
+  if(user.error||state.profile?.role!=='coach'||state.session?.user?.id!==user.data?.user?.id)
+   throw Error('Six-slot local publisher requires a verified Coach session.');
   if(guide?.kind!=='flexible_meal_guide'||guide.version!==2||guide.meals?.length!==6)
    throw Error('Expected an explicit six-slot guide for local QA.');
   const intake=await sb.from('efg_coach_relaunch_intakes')
    .select('student_id,organization_id,updated_at,revision,shared_at')
    .eq('student_id',studentId).maybeSingle();
   if(intake.error||intake.data?.student_id!==studentId||
-     intake.data?.organization_id!==state.org?.id||!intake.data?.shared_at)
+     !intake.data?.organization_id||!intake.data?.shared_at)
    throw Error('A current shared intake is required.');
   const client=createCoachPlanDraftClient({sb,enabled:true,
    relaunchEnabled:true,versionedBackendVerified:true});

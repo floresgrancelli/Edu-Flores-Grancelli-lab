@@ -50,7 +50,6 @@ const SLOTS=["protein","carbs","vegetable","fat"];
 const NUTRIENTS=["k","p","c","f","fi"];
 const EMPTY={k:0,p:0,c:0,f:0,fi:0};
 function portionMax(food,slot="cena"){
- if(food?.unit==='porción')return 4; // Practical portions, not grams.
  const id=food?.id||"",category=food?.category||"";
  const snack=slot==="merienda"||slot==="media_tarde";
  // Merienda: porciones orientativas plausibles; cualquier déficit pasa a la cena.
@@ -78,7 +77,6 @@ function portionMax(food,slot="cena"){
  return 400;
 }
 function suggestedStep(food,slot="cena"){
- if(food?.unit==='porción')return 0.5;
  if(food?.id==="egg"||food?.id==="egg_boiled"||/^huevo_frito/.test(food?.id||""))return 50;
  const serving=Number(food?.servingGrams);
  if(Number.isFinite(serving)&&serving>0&&serving<=portionMax(food,slot))return serving;
@@ -86,7 +84,6 @@ function suggestedStep(food,slot="cena"){
 }
 function minPracticalPortion(food,slot){
  if(!food)return 0;
- if(food.unit==='porción')return 0.5;
  if(slot!=="merienda"&&slot!=="media_tarde")return suggestedStep(food,slot);
  const id=food.id||"",cat=food.category||"",step=suggestedStep(food,slot);
  if(id.startsWith("yogurt")||/kefir/i.test(id))return 90;

@@ -449,15 +449,3 @@ body{background:#f7faf8}.pilot-loader{min-height:100vh;display:flex;flex-directi
 .efg-guide-food{align-items:flex-start}
 .efg-guide-food>label{white-space:nowrap;font-size:.77rem}
 .efg-guide-food>label input{background:#fff}
-
-/* NCC 02/11 — Interactive six-slot Coach guide; mobile-friendly, no diary mutation. */
-.efg-guide-meal-head{flex-wrap:wrap;align-items:center}
-.efg-guide-food{flex-wrap:wrap;align-items:flex-start}
-.efg-guide-food>.btn{flex:0 0 auto}
-.efg-guide-add-food{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end;padding:12px 0;margin-top:12px;border-top:1px solid #dce8e1}
-.efg-guide-add-food label{grid-column:1/-1;font-size:.84rem;font-weight:600;color:inherit;min-width:0}
-.efg-guide-add-food input,.efg-guide-add-food select{display:block;width:100%;min-width:0;box-sizing:border-box;margin-top:5px;padding:11px;border:1px solid #b9cfc3;border-radius:10px;background:var(--panel,#fff);color:inherit;font:inherit}
-.efg-guide-add-food select:focus-visible,.efg-guide-add-food input:focus-visible{outline:2px solid #507eb9;outline-offset:2px}
-.efg-guide-add-food button{min-height:42px;white-space:nowrap}
-.efg-guide-meal-head button{white-space:normal;max-width:100%}
-@media(max-width:450px){.efg-guide-add-food{grid-template-columns:1fr}.efg-guide-food{gap:7px}.efg-guide-food>label{width:auto}.efg-guide-add-food button{width:100%}}

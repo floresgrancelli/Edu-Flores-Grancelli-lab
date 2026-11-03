@@ -55,6 +55,14 @@ const replaced=replaceFlexibleFood(initial,'almuerzo',0,{id:'tofu_firm',qty:190}
 assert.equal(replaced.meals[2].items[0].id,'tofu_firm');
 assert.equal(replaced.meals[2].items[0].qty,190);
 assert.equal(replaced.meals[2].items[0].locked,true);
+// The coach may replace a food with ANY catalogue food, not only the
+// contextual swap suggestions. This does not restrict the student's catalog.
+const anywhere=replaceFlexibleFood(initial,'almuerzo',0,{id:'peanut_butter',qty:25},catalog,goal);
+assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].id,'peanut_butter');
+assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].qty,25);
+assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].locked,true);
+assert.equal(initial.meals.find(m=>m.slot==='almuerzo').items[0].id,toChange.id);
+assert.doesNotThrow(()=>validateGuidedDay(anywhere,goal));
 const removed=removeFlexibleFood(replaced,'almuerzo',0,goal);
 assert.equal(removed.meals[2].items.some(i=>i.id==='tofu_firm'),false,'Removed food never reappears on automatic rebalance');
 assert.equal(initial.meals[2].items[0].id,toChange.id);
@@ -106,6 +114,23 @@ const selectedRecipe=recipeCatalogEntries({foods:catalog,fitRecipes:[
  {id:'pancakes',name:'Panqueques de banana y avena',portions:2,
   ingredients:[['egg',100],['banana',100],['oats_raw',30]]}
 ]})[0];
+// One-step replacement with a Fit recipe removes the selected original
+// ingredient first, then expands the recipe into real foods. If an ingredient
+// overlaps the replaced food it must NOT be counted twice.
+const recipeSwap=addCoachRecipeServing(initial,'desayuno',selectedRecipe,1,catalog,goal,{replaceIndex:0});
+const swappedBreakfast=recipeSwap.meals.find(x=>x.slot==='desayuno');
+const eggFromRecipe=swappedBreakfast.items.find(x=>x.id==='egg');
+assert.equal(eggFromRecipe?.qty,50,'One recipe serving contributes 50 g egg, not old egg + 50 g');
+assert.equal(eggFromRecipe?.locked,true);
+assert.equal(swappedBreakfast.items.find(x=>x.id==='banana')?.qty,50);
+assert.equal(swappedBreakfast.items.find(x=>x.id==='oats_raw')?.qty,15);
+assert.equal(swappedBreakfast.items.filter(x=>x.id==='egg').length,1);
+assert.deepEqual(initial,old,'Replacing a guide food must not mutate the source draft');
+assert.doesNotThrow(()=>validateGuidedDay(recipeSwap,goal));
+for(const index of [-1,999,0.5]){
+ assert.throws(()=>addCoachRecipeServing(initial,'desayuno',selectedRecipe,1,catalog,goal,
+  {replaceIndex:index}),/reemplazar/);
+}
 const cooked=addCoachRecipeServing(initial,'desayuno',selectedRecipe,1,catalog,goal);
 const breakfast=cooked.meals.find(x=>x.slot==='desayuno');
 const originalBreakfast=initial.meals.find(x=>x.slot==='desayuno');
@@ -131,9 +156,15 @@ const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 for(const key of [
  'generateFlexibleGuidedDay(foods,goal','removeFlexibleMeal(draft','removeFlexibleFood(draft',
  'addFlexibleFood(draft','data-guideremovemeal','data-guideremovefood','data-guideaddfood',
- 'data-guidefoodsearch','function currentCoachGuideProfile()',
+ 'data-guidefoodsearch','data-guidereplaceindex','function currentCoachGuideProfile()',
  'efg_get_coach_health_intake','guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root)'
 ])assert.ok(app.includes(key),'Missing real Coach UX connection: '+key);
+assert.match(app,/return foods\.concat\(recipeCatalogEntries\(/,
+ 'One full food and recipe catalog must serve every Coach add/replace action');
+assert.match(app,/replaceFlexibleFood\(draft,slot,replaceIndex/,
+ 'The same full-catalog picker must allow one-step replacement');
+assert.match(app,/addCoachRecipeServing\(draft,slot,food,Number\(input\?\.value\|\|1\),foods,goal,[\s\S]*?\.\.\.auth,replaceIndex/,
+ 'Replacing food with a recipe must go through canonical ingredients, not a fake ID');
 const sql=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
 const sourceSql=readFileSync(new URL('../migrations/20261030_coach_reviewed_guide_nutrition_source.sql',import.meta.url),'utf8');
 for(const text of ["v_guide->>'kind'='flexible_meal_guide'","jsonb_array_length(v_guide->'meals') between 2 and 6"])

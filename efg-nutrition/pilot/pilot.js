@@ -656,8 +656,11 @@ function recoverableOfflineWrite(error){
 async function loadCloudHabituales(){
  const contextEpoch=state.authContextEpoch||0;
  const userId=state.session?.user?.id;
+ // Latest-request-wins: concurrent refreshes must not replay an older list.
+ const loadToken=Symbol("habituales-load");
+ state.habitualesLoadToken=loadToken;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
- const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId;
+ const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId&&state.habitualesLoadToken===loadToken;
  // Offline fetch can reject, not just resolve with {error}; preserve backup.
  let data,error;
  try{({data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
@@ -822,6 +825,8 @@ async function deleteChosenHabitual(slot){
   if(state.session?.user?.id!==userId)return;
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
+ // A SELECT started before deletion must not resurrect this confirmed favorite.
+ state.habitualesLoadToken=null;
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
  state.habitualSelection[slot]="";
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
@@ -879,13 +884,18 @@ async function habitualAction(slot,action){
     backups.push({name:clean,items});
    try{localStorage.setItem(key,JSON.stringify(backups));}
    catch(_){throw Error("No pudimos guardar el habitual sin conexión en este dispositivo.");}
+   // Protect the local pending backup from an older cloud refresh.
+   state.habitualesLoadToken=null;
    state.lastEditedMeal=slot;
    await render();notify("Guardaste «"+clean+"» en este dispositivo, pendiente de sincronizar con tu cuenta.");
    return;
   }
   if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó el habitual.");
   const data=remoteResult.data;
+  // Cancel any older SELECT snapshot before displaying the confirmed insert.
+  state.habitualesLoadToken=null;
   cloudHabituales.push(data);
+  state.cloudHabitualesUserId=userId;
   state.habitualSelection[slot]=String(data.id);
   // Keep this meal expanded after save so the new choice and its ingredient
   // preview are visible immediately, rather than hidden in a closed <details>.
@@ -4682,6 +4692,7 @@ function resetPrivateSession(){
  state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
  // A pending request belongs to the old auth epoch: do not lock the next user.
  state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
+ state.habitualesLoadToken=null;
  pendingMealRegistrations.clear();pendingHabitualSlots.clear();
  recipeRegistrationBusy=false;
  state.goals=[];state.foodPlan=null;state.personalTargets=null;

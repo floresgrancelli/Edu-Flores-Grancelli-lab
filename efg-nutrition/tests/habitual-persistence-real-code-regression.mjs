@@ -427,3 +427,71 @@ console.log('PASS UX-04-03 offline local deletion, cancellation, malformed key p
  assert.equal(notices.length,2,'Failed writes must not claim success');
  console.log('PASS UX-OFFLINE-NEW-HABITUAL-01: two offline saves, import once, 403 denies local write, damaged backups preserved.');
 }
+
+
+// UX-04-03 same-session race: a delayed cloud SELECT must not hide a
+// favorite saved after the read began or overwrite a newer refresh.
+{
+ const uid='student-favorite-race';
+ const first={id:'cloud-old',student_id:uid,meal_slot:'desayuno',name:'Desayuno existente',
+  items:[{id:'egg',name:'Huevo',qty:100}],created_at:'2026-11-01T09:00:00Z'};
+ const hosted=[structuredClone(first)],waitingReads=[];
+ let delayNextRead=false,writeCount=0;
+ const db={from(table){
+  assert.equal(table,'efg_habitual_meals');
+  return {
+   select(){return this;},eq(){return this;},
+   order(){
+    if(delayNextRead){
+     delayNextRead=false;
+     return new Promise(resolve=>waitingReads.push(resolve));
+    }
+    return Promise.resolve({data:structuredClone(hosted),error:null});
+   },
+   insert(value){this.value=value;return this;},
+   single(){
+    writeCount++;
+    const row={...structuredClone(this.value),id:'cloud-'+writeCount,
+     created_at:'2026-11-02T09:00:00Z'};
+    hosted.push(row);
+    return Promise.resolve({data:structuredClone(row),error:null});
+   }
+  };
+ }};
+ const st={profile:{role:'student'},session:{user:{id:uid}},habitualSelection:{}};
+ const diary={meals:{desayuno:[{id:'oats',name:'Avena',qty:80}]},skipped:{}};
+ const storage={getItem:()=>null,removeItem(){}};
+ const api=new Function('sb','state','mealSlots','localStorage','pendingMealRegistrations',
+  'activeDiary','prompt','render','notify','sameRecipeIngredients',
+  subsystem+';return {loadCloudHabituales,getHabitualList,habitualAction};')(
+   db,st,mealSlots,storage,new Set(),()=>diary,()=>'Desayuno recién guardado',
+   async()=>{},()=>{},sameRecipeIngredients);
+ await api.loadCloudHabituales();
+ assert.deepEqual(api.getHabitualList('desayuno').map(x=>x.name),['Desayuno existente']);
+ delayNextRead=true;
+ const staleSnapshot=structuredClone(hosted);
+ const staleLoad=api.loadCloudHabituales();
+ assert.equal(waitingReads.length,1);
+ await api.habitualAction('desayuno','save');
+ assert.equal(writeCount,1);
+ assert.equal(api.getHabitualList('desayuno').length,2);
+ waitingReads.shift()({data:staleSnapshot,error:null});
+ await staleLoad;
+ assert.deepEqual(api.getHabitualList('desayuno').map(x=>x.name),
+  ['Desayuno existente','Desayuno recién guardado'],
+  'A stale SELECT after successful save must not hide the persisted habitual');
+ delayNextRead=true;
+ const olderSnapshot=structuredClone(hosted);
+ const olderLoad=api.loadCloudHabituales();
+ assert.equal(waitingReads.length,1);
+ hosted.push({id:'cloud-third',student_id:uid,meal_slot:'desayuno',name:'Nuevo desde otro dispositivo',
+  items:[{id:'bread',name:'Pan',qty:40}],created_at:'2026-11-03T07:00:00Z'});
+ await api.loadCloudHabituales();
+ assert.equal(api.getHabitualList('desayuno').length,3);
+ waitingReads.shift()({data:olderSnapshot,error:null});
+ await olderLoad;
+ assert.deepEqual(api.getHabitualList('desayuno').map(x=>x.name),
+  ['Desayuno existente','Desayuno recién guardado','Nuevo desde otro dispositivo'],
+  'Out-of-order SELECT responses must not roll back a refreshed list');
+ console.log('PASS UX-HABITUAL-LOAD-RACE: insert and newest refresh survive stale reads.');
+}

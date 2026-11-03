@@ -25,6 +25,35 @@ try{
  const csv=readFileSync(join(dir,'operator-review-worklist.csv'),'utf8');
  assert.match(csv,/operator_decision_BLANK/);assert.match(csv,/PENDING/);
  assert.equal(csv.trim().split('\n').length,p.review.selectedUniqueFoodCount+1);
+ // Privacy guard: real Coach drafts may include confidential identifiers
+ // or health notes. Export only the exact nutritional selection and totals.
+ const sentinel='NCC_TEST_PRIVATE_IDENTIFIERS_MUST_NOT_EXPORT';
+ const draftWithPrivateExtras=structuredClone(p.guide);
+ draftWithPrivateExtras.studentId=sentinel;
+ draftWithPrivateExtras.coachId=sentinel;
+ draftWithPrivateExtras.profileReviewNotes=[sentinel];
+ draftWithPrivateExtras.meals[0].label=sentinel;
+ draftWithPrivateExtras.meals[0].items[0].name=sentinel;
+ draftWithPrivateExtras.meals[0].items[0].studentNotes=sentinel;
+ const privateGoal={...P26M_SYNTHETIC_GOAL,student_id:sentinel,health_intake:sentinel};
+ const privacyCase=prepareRealGuideHumanReview({
+  goal:privateGoal,guide:draftWithPrivateExtras,source:sentinel});
+ writeHumanReviewFiles(privacyCase,dir);
+ for(const name of ['coach-guide-unapproved.json','selected-food-review.json',
+   'selected-food-review.csv','operator-review-worklist.csv',
+   'recipe-component-review-worklist.csv']){
+  assert.doesNotMatch(readFileSync(join(dir,name),'utf8'),new RegExp(sentinel),
+   'Private fields leaked into '+name);
+ }
+ const redacted=JSON.parse(readFileSync(join(dir,'coach-guide-unapproved.json'),'utf8'));
+ assert.deepEqual(redacted.goal,P26M_SYNTHETIC_GOAL);
+ assert.deepEqual(redacted.guide.meals.map(m=>m.slot),p.guide.meals.map(m=>m.slot));
+ assert.equal(redacted.guide.meals[0].items[0].id,p.guide.meals[0].items[0].id);
+ assert.equal(redacted.selectedGuideFingerprintSha256,privacyCase.review.selectedGuideFingerprintSha256);
+ assert.equal(redacted.privacy,'NUTRITION_FIELDS_ONLY_NO_STUDENT_IDENTIFIERS');
+ assert.equal(redacted.separateRestrictedProfileReviewRequired,true);
+ assert.equal(redacted.approval,'PENDING_HUMAN_REVIEW');
+ assert.equal(redacted.mayPublish,false);
  const fake={...p.guide,meals:[...p.guide.meals.slice(0,1),
   {...p.guide.meals[1],items:[{...p.guide.meals[1].items[0],id:'P26_RLS_ONLY_NOT_A_NUTRITION_PLAN'}]},
   ...p.guide.meals.slice(2)]};

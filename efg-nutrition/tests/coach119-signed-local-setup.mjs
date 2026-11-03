@@ -96,6 +96,68 @@ for(const [name,required] of [
  const definition=sql("select pg_get_functiondef('"+name+"'::regprocedure)");
  assert.ok(definition.includes(required),'CURRENT signed RPC lost invariant '+required);
 }
+// NCC P25D · rehearse the prepared hosted verifier fix ONLY on this local stack.
+// The live hosted function is V1-only, unlike the audited COACH114 source.
+// Simulate exactly that incompatible V1-only CONDITION in an otherwise
+// byte-for-byte canonical function; no hosted SQL or customer data is used.
+// This is a temporary LOCAL test fixture, NOT a migration of the release app.
+const verifiedSource=read('../migrations/20261030_coach_reviewed_guide_nutrition_source.sql');
+const canonicalBlock=verifiedSource.match(
+ /create function efg_private\\.coach_guide_foods_verified\\(p_guide jsonb\\)\\n[\\s\\S]*?\\n\\$verify\\$;/
+)?.[0];
+assert.ok(canonicalBlock,'Cannot locate COACH114 audited verifier');
+const v2Block=canonicalBlock.replace(/^create function/,'create or replace function');
+const v2Condition=`  or not (
+   (p_guide->>'kind'='five_meal_example' and p_guide->>'version'='1'
+    and pg_catalog.jsonb_array_length(p_guide->'meals')=5)
+   or
+   (p_guide->>'kind'='flexible_meal_guide' and p_guide->>'version'='2'
+    and pg_catalog.jsonb_array_length(p_guide->'meals') between 2 and 6)
+  ) then`;
+const v1Condition=`  or p_guide->>'kind' is distinct from 'five_meal_example'
+  or p_guide->>'version' is distinct from '1'
+  or pg_catalog.jsonb_array_length(p_guide->'meals')<>5 then`;
+assert.equal(v2Block.split(v2Condition).length,2,
+ 'COACH114 verifier header changed: review test fixture before proceeding');
+const localLegacy=v2Block.replace(v2Condition,v1Condition);
+assert.ok(!localLegacy.includes('flexible_meal_guide'),
+ 'Local V1 fixture must not have flexible V2 capability');
+assert.equal(sql('select count(*) from auth.users'),'0');
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+sql(localLegacy);
+const verifierDefinition=()=>sql("select pg_get_functiondef('efg_private.coach_guide_foods_verified(jsonb)'::regprocedure)");
+assert.ok(verifierDefinition().includes('five_meal_example'));
+assert.ok(!verifierDefinition().includes('flexible_meal_guide'),
+ 'Local fixture must reproduce the hosted V1-only blocker');
+// Before the fix, new read-only gate MUST detect the mismatch.
+const detectV2Gate=()=>{
+ const lines=sql(read('./sql/coach119-postinstall-readonly-preflight.sql')).split('\\n');
+ const row=lines.find(x=>x.includes('|COACH119_NUTRITION_SOURCE_VERIFIER_FLEXIBLE_V2|'));
+ assert.ok(row,'NCC P25D gate missing from 25-check preflight');
+ return row.split('|')[2];
+};
+assert.equal(detectV2Gate(),'f','Hosted-like V1-only verifier must fail the new gate');
+const hostedV2Patch=read('../docs/NCC_P25_HOSTED_V2_NUTRITION_VERIFIER_NOT_APPLIED.sql');
+assert.equal(hostedV2Patch.split(v2Block).length,2,
+ 'Correction must embed the exact tested original V2 verifier');
+const patchRollback=hostedV2Patch.replace(/\\ncommit;\\s*$/,
+ "\\ndo $ncc_p25_local_abort$ begin raise exception 'NCC_P25D_LOCAL_ROLLBACK'; end $ncc_p25_local_abort$;\\ncommit;\\n");
+assert.notEqual(patchRollback,hostedV2Patch,'Unable to inject local rollback');
+sqlExpectFailure(patchRollback,'NCC_P25D_LOCAL_ROLLBACK');
+assert.equal(detectV2Gate(),'f','Verifier must remain V1-only after forced rollback');
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+sql(hostedV2Patch); // LOCAL PostgreSQL 17 ONLY, NOT Supabase hosted.
+assert.equal(detectV2Gate(),'t','Prepared correction must restore V2 on PG17');
+assert.ok(verifierDefinition().includes('flexible_meal_guide'));
+assert.ok(verifierDefinition().includes('five_meal_example'));
+sqlExpectFailure(hostedV2Patch,'NCC_P25C_ABORT: unexpected or already-upgraded verifier');
+assert.equal(detectV2Gate(),'t','Refused replay must preserve corrected verifier');
+assert.equal(sql('select count(*) from auth.users'),'0');
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+assert.equal(sql('select count(*) from public.efg_coach_plan_publish_receipts'),'0');
+assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
+console.log('PASS NCC P25D REAL PG17 LOCAL ONLY: V1 drift detected, pre-commit rollback preserves V1, V2 patch applies safely, replay denied, zero approvals/identities/flags.');
+
 // Execute the same POST-install SELECT used for hosted diagnosis against the
 // actual six-source LOCAL installation. It must prove all structural gates,
 // while the intentionally unseeded pilot notices/food approvals stay NOT READY.
@@ -123,7 +185,7 @@ for(const id of ['PILOT_TERMS_AND_PRIVACY_CURRENT','ANY_CURRENT_REVIEWED_FOOD'])
  assert.equal(result.passed,'f','Unapproved local pilot content must stay absent: '+id);
  assert.equal(result.status,'NOT_INSTALLED_OR_NOT_READY');
 }
-console.log('PASS CURRENT PG17 postinstall SELECT: 22 structural gates PASS, 2 deliberately absent content gates; server flags OFF, not hosted.');
+console.log('PASS CURRENT PG17 postinstall SELECT: 23 structural gates PASS, 2 deliberately absent content gates; server flags OFF, not hosted.');
 
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
 if(process.env.EFG_QA_SDK_ENTRY==='1'){

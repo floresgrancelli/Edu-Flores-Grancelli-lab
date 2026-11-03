@@ -54,7 +54,7 @@ const server=createServer((req,res)=>{
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -191,6 +191,65 @@ try{
    setConsentMap({"demo-student-a":true,"demo-student-b":false,"demo-student-c":false});
    await render();
   },role);
+
+  // NCC PILOT SIX: real PWA coach editor interactions on a synthetic account.
+  // No backend calls, source approvals, consent receipts or publication are simulated.
+  // Complements (never replaces) the separate signed LOCAL Coach119 six-slot PG17 QA.
+  if(role==='coach'&&engine==='chromium'&&!androidMode&&
+     !coachGuideLayoutMode&&!adaptedCoachMode&&!weeklyReportMode&&!officialCoachMode&&
+     [390,1280].includes(width)){
+   const baseline=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary.meals));
+   const forbiddenBefore=blockedBackendCalls;
+   page.on('dialog',d=>d.accept()); // Synthetic coach explicitly confirms a test-only food change.
+   await page.evaluate(async()=>{
+    const v=window.__EFG_VISUAL_QA__,s=v.state;
+    s.roster.forEach(student=>{student.organization_id='demo-org';});
+    s.selectedStudent='demo-student-a';
+    s.consent={accepted:true,student_id:'demo-student-a',organization_id:'demo-org'};
+    s.coachGuidedDraft=v.createSixGuide({...s.coachGoals[0],goal_type:'recomp'});
+    s.tab='coachStudents';await v.render();
+   });
+   await page.locator('#coachStudentGoals > summary').click();
+   const editor=page.locator('#coachGuidedSlot');
+   assert.equal(await editor.locator('.efg-guide-meal').count(),6,
+    'Coach must initially see six guide cards in actual PWA');
+   const catalogSize=await page.evaluate(()=>window.__EFG_VISUAL_QA__.foods.length);
+   assert.ok((await editor.locator('[data-guidefoodpick="almuerzo"] option').count())>=catalogSize,
+    'Coach must retain full catalog when editing a guide');
+   assert.equal(await editor.locator('[data-guidefoodpick="almuerzo"] option[value="tofu_firm"]').count(),1);
+   await editor.locator('[data-guidereplaceindex="almuerzo"]').selectOption('0');
+   await editor.locator('[data-guidefoodpick="almuerzo"]').selectOption('tofu_firm');
+   await editor.locator('[data-guideaddfood="almuerzo"]').click();
+   await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft
+    ?.meals.find(m=>m.slot==='almuerzo')?.items[0]?.id==='tofu_firm');
+   await editor.locator('[data-guideremovemeal="media_tarde"]').click();
+   await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft?.meals.length===5);
+   await editor.locator('[data-guideremovemeal="media_manana"]').click();
+   await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft?.meals.length===4);
+   const checked=await page.evaluate(()=>({
+    kind:window.__EFG_VISUAL_QA__.state.coachGuidedDraft.kind,
+    guideSlots:window.__EFG_VISUAL_QA__.state.coachGuidedDraft.meals.map(m=>m.slot),
+    dailySlots:Object.keys(window.__EFG_VISUAL_QA__.state.diary.meals),
+    diary:JSON.stringify(window.__EFG_VISUAL_QA__.state.diary.meals),
+    overflow:document.documentElement.scrollWidth>innerWidth
+   }));
+   assert.equal(checked.kind,'flexible_meal_guide');
+   assert.deepEqual(checked.guideSlots,['desayuno','almuerzo','merienda','cena']);
+   assert.deepEqual(checked.dailySlots,
+    ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']);
+   assert.equal(checked.diary,baseline,'Preview must never change actual diary foods');
+   assert.equal(checked.overflow,false,'Coach six-slot editor must fit viewport');
+   assert.equal(blockedBackendCalls,forbiddenBefore,'Preview never calls hosted backend');
+   await page.screenshot({path:join(outDir,'ncc-six-guide-editor-real-'+width+'.png'),
+    fullPage:true,animations:'disabled'});
+   await page.evaluate(async()=>{
+    const v=window.__EFG_VISUAL_QA__,s=v.state;
+    s.coachGuidedDraft=null;s.pendingGoal=null;s.selectedStudent=null;
+    s.tab='coach';await v.render();
+   });
+   console.log('PASS NCC six-slot real browser Coach editor '+width+
+    ': 6 to 5 to 4, full food selector, tofu replacement, fixed six-slot diary untouched');
+  }
 
   if(coachGuideLayoutMode){
    results.push(await runCoachGuideContainer(page,width,outDir));

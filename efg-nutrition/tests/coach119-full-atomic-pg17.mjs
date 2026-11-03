@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
+import {GUIDE_MEALS} from '../pilot/guided-day.js';
 assert.equal(process.env.GITHUB_ACTIONS,'true');
 assert.equal(process.env.PGHOST,'127.0.0.1');
 assert.equal(process.env.PGPORT,'5432');
@@ -140,4 +141,61 @@ assert.equal(sql('select count(*) from public.efg_goals'),'2');
 assert.equal(sql('select count(*) from public.efg_notifications'),'2');
 assert.equal(sql('select count(*) from efg_private.coach_guide_history'),'1');
 assert.equal(sql('select guided_goal_id from efg_private.coach_guide_history'),goalId);
+
+// NCC P1 real 17-source coverage against PostgreSQL (ALL QA REVIEWS ARE FICTIONAL).
+// The six-slot balanced template is NOT a whitelist for students or Coach.
+// This verifies the EXACT installed verifier using final guide items, including
+// a recipe ingredient not present in the initial template. Nothing hosted is read or written.
+const sixSlotSourceTemplate=[
+ ...GUIDE_MEALS.slice(0,3),
+ {slot:'media_tarde',items:[['yogurt',150],['banana',85],['cheese',25]]},
+ ...GUIDE_MEALS.slice(3)
+];
+const templateIds=[...new Set(sixSlotSourceTemplate.flatMap(m=>m.items.map(([id])=>id)))].sort();
+assert.equal(sixSlotSourceTemplate.length,6);
+assert.equal(templateIds.length,17,'All 17 real default IDs must be represented, without limiting the catalog');
+const fakeRate={k:1,p:.1,c:.1,f:.02,fi:.01};
+const fakeUnit=id=>['milk_skim','coffee_black'].includes(id)?'ml':'g';
+const finalSixGuide={kind:'flexible_meal_guide',version:2,meals:sixSlotSourceTemplate.map(m=>({
+ slot:m.slot,items:m.items.map(([id,qty])=>({id,unit:fakeUnit(id),qty,...fakeRate}))
+}))};
+const verifiedNcc=g=>sql('select efg_private.coach_guide_foods_verified('+quote(JSON.stringify(g))+'::jsonb)')==='t';
+assert.equal(verifiedNcc(finalSixGuide),false,'Missing evidence must reject all 17 selected ingredients');
+sql(`insert into efg_private.coach_reviewed_foods
+ (food_id,catalog_version,unit,k,p,c,f,fi,source_kind,source_url,evidence_id,
+ evidence_status,reviewed_by,reviewed_at,expires_at)
+ select id,'qa-synthetic-v2',case when id in ('milk_skim','coffee_black') then 'ml' else 'g' end,
+ 1,.1,.1,.02,.01,'validated_composition','https://example.org/ncc-qa-fake',
+ id||'_nccqa_fixture','reviewed','${coach}',now()-interval '1 hour',now()+interval '1 day'
+ from pg_catalog.jsonb_array_elements_text(${quote(JSON.stringify(templateIds))}::jsonb) as ids(id);`);
+assert.equal(verifiedNcc(finalSixGuide),true,
+ 'Synthetic six-slot guide passes ONLY after every final ingredient has fictional local review');
+const alteredUnit=structuredClone(finalSixGuide);
+alteredUnit.meals[0].items[0].unit='ml';
+assert.equal(verifiedNcc(alteredUnit),false,'Never substitute grams for millilitres');
+const alteredEnergy=structuredClone(finalSixGuide);
+alteredEnergy.meals[0].items[0].k=1.02;
+assert.equal(verifiedNcc(alteredEnergy),false,'Energy drift in one item must block the entire guide');
+const alteredFiber=structuredClone(finalSixGuide);
+alteredFiber.meals[2].items[0].fi=.014;
+assert.equal(verifiedNcc(alteredFiber),false,'Unreviewed fiber change must block the entire guide');
+const recipeExpanded=structuredClone(finalSixGuide);
+recipeExpanded.meals[0].items.push({id:'raisins',unit:'g',qty:15,...fakeRate});
+assert.equal(verifiedNcc(recipeExpanded),false,
+ 'An added recipe ingredient MUST be checked even if all 17 template foods are locally reviewed');
+sql(`insert into efg_private.coach_reviewed_foods
+ (food_id,catalog_version,unit,k,p,c,f,fi,source_kind,source_url,evidence_id,
+ evidence_status,reviewed_by,reviewed_at,expires_at)
+ values('raisins','qa-synthetic-v2','g',1,.1,.1,.02,.01,'validated_composition',
+ 'https://example.org/ncc-qa-fake','raisins_nccqa_fixture','reviewed',
+ '${coach}',now()-interval '1 hour',now()+interval '1 day');`);
+assert.equal(verifiedNcc(recipeExpanded),true,'Expanded recipe requires its own source evidence');
+sql("update efg_private.coach_reviewed_foods set evidence_status='pending' where food_id='raisins'");
+assert.equal(verifiedNcc(recipeExpanded),false,'Pending evidence cannot be published');
+sql("update efg_private.coach_reviewed_foods set evidence_status='reviewed',expires_at=now()-interval '30 minutes' where food_id='raisins'");
+assert.equal(verifiedNcc(recipeExpanded),false,'Expired review cannot be published');
+sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='raisins'");
+assert.equal(verifiedNcc(recipeExpanded),true,'Reactivated fictional local evidence passes again');
+console.log('PASS NCC P1 PG17: 17/17 six-slot ingredients + expanded recipe item: missing review, g/ml, energy/fiber drift, pending/expired evidence all fail closed; fictional local reviewer ONLY.');
+
 console.log('PASS exact COACH119 PG17: draft save + cross-org RLS denial + legal/evidence gates + revocation + stale revision + publication + retry + unique notice + injected final-write rollback + replacement history. Synthetic claims only.');

@@ -23,9 +23,9 @@ assert.deepEqual(packet.countsByEvidenceState,{
  CATALOG_FDC_REFERENCE_ONLY:2,
  NO_EXACT_PRIMARY_SOURCE:7,
  BLOCKED_UNIT_MASS_VS_VOLUME:1,
- RECONCILIATION_REQUIRED:3,
+ RECONCILIATION_REQUIRED:1,
  BLOCKED_PREPARATION:1,
- ARCHIVE_CAPTURE_PENDING_OPERATOR:3
+ ARCHIVE_CAPTURE_PENDING_OPERATOR:5
 });
 assert.equal(packet.foods.filter(x=>x.sourcePer100g!==null).length,8);
 assert.equal(get('milk_skim').unit,'ml');
@@ -37,12 +37,14 @@ assert.equal(get('chicken').sourceFdcId,'171477');
 assert.equal(get('egg').sourceFdcId,'748967');
 assert.equal(get('egg').sourcePer100g,null,'A catalog FDC ID is not an independent official capture');
 assert.equal(get('yogurt').sourcePer100g,null);
-assert.equal(get('apple').appPer100Unit.k,58.2);
+assert.equal(get('apple').appPer100Unit.k,52);
 assert.equal(get('apple').sourcePer100g.k,52);
-assert.equal(get('apple').deltaPer100ComparableUnits.k,6.2);
-assert.equal(get('oats_raw').appPer100Unit.k,382.1);
+assert.equal(get('apple').deltaPer100ComparableUnits.k,0);
+assert.equal(get('oats_raw').appPer100Unit.k,379);
 assert.equal(get('oats_raw').sourcePer100g.k,379);
-assert.equal(get('oats_raw').deltaPer100ComparableUnits.k,3.1);
+assert.equal(get('oats_raw').deltaPer100ComparableUnits.k,0);
+assert.equal(get('oats_raw').deltaPer100ComparableUnits.f,-0.02);
+assert.equal(get('apple').deltaPer100ComparableUnits.c,0.01);
 assert.equal(get('brownrice').appPer100Unit.fi,1.8);
 assert.equal(get('brownrice').sourcePer100g.fi,1.6);
 assert.equal(get('brownrice').deltaPer100ComparableUnits.fi,0.2);

@@ -26,7 +26,7 @@ declare v_uid uuid := (select auth.uid()); v_row record; v_owner boolean; v_coac
  v_rev integer; v_followup boolean;
 begin
  if v_uid is null or p_student is null then return null; end if;
- select h.student_id,h.organization_id,h.conditions,h.sibo_phase,
+ select h.student_id,h.organization_id,h.conditions,h.restriction_declaration,h.sibo_phase,
   h.consent_document_id,h.consent_accepted_at,h.revision,h.shared_at,h.revised_at
  into v_row from efg_private.efg_coach_health_intakes h
  join public.efg_profiles p on p.user_id=h.student_id
@@ -56,6 +56,7 @@ begin
   'processing_consent',v_row.consent_accepted_at is not null,
   'followup_consent',v_followup,
   'revision',v_row.revision,'conditions',v_row.conditions,
+  'restriction_declaration',v_row.restriction_declaration,
   'sibo_phase',v_row.sibo_phase,'shared_with_coach',v_row.shared_at is not null,
   'revised_at',v_row.revised_at,'document_id',v_row.consent_document_id);
 end $f$;

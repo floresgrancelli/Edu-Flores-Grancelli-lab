@@ -2515,8 +2515,14 @@ function guidedDayContents(plan,goal,editable=false){
     '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
     '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
      '<option value="">Elegí alimento o receta Fit</option>'+option(coachGuidePickerFoods())+'</select>'+
+    // Reuse this one full-catalog picker for both add and replace. No 500-option
+    // dropdown for every ingredient and no restriction of the common catalog.
+    '<label>Acción sobre la comida <select data-guidereplaceindex="'+escapeHTML(meal.slot)+'" aria-label="Agregar o reemplazar alimento en '+escapeHTML(meal.label)+'">'+
+     '<option value="">Agregar sin reemplazar</option>'+
+     meal.items.map((item,index)=>'<option value="'+index+'">Reemplazar '+escapeHTML(item.name||item.id)+'</option>').join('')+
+     '</select></label>'+
     '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
-    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar a guía</button></div>':'')+
+    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div>':'')+
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
@@ -4268,6 +4274,14 @@ if(el.dataset.foodbulk){
   const control=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
    let food=coachGuidePickerFoods().find(x=>x.id===control?.value);
    if(!food)throw Error("Elegí un alimento o receta disponible.");
+   // Validate the original item index BEFORE any async private recipe read.
+   // Missing selector is legacy add-only behaviour.
+   const actionControl=[...root.querySelectorAll("[data-guidereplaceindex]")].find(x=>x.dataset.guidereplaceindex===slot);
+   const rawReplace=actionControl?.value??"";
+   const replaceIndex=rawReplace===""?null:Number(rawReplace);
+   if(replaceIndex!==null&&(!Number.isInteger(replaceIndex)||replaceIndex<0||
+      replaceIndex>=(draft.meals?.find(m=>m.slot===slot)?.items?.length??0)))
+    throw Error("Elegí un alimento válido de esta comida para reemplazar.");
    let auth={};
    if(food.privateRecipe===true){
     const ticket=state.coachSharedRecipeScope;
@@ -4303,12 +4317,20 @@ if(el.dataset.foodbulk){
     }
     if(Array.isArray(food.recipeIngredients)){
     const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
-    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal,auth);
+    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal,
+     {...auth,replaceIndex});
     showGuidedEditor();
-    notify("Receta incorporada por porciones y componentes, sin macros duplicados. Revisá las fuentes antes de publicar.");
+    notify(replaceIndex===null
+     ?"Receta incorporada por porciones y componentes, sin macros duplicados. Revisá las fuentes antes de publicar."
+     :"Alimento sustituido por receta: recalculé sus componentes y macros sin duplicarlos.");
    }else{
-    state.coachGuidedDraft=addFlexibleFood(draft,slot,{id:food.id},foods,goal);
-    showGuidedEditor();notify("Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario.");
+    state.coachGuidedDraft=replaceIndex===null
+     ?addFlexibleFood(draft,slot,{id:food.id},foods,goal)
+     :replaceFlexibleFood(draft,slot,replaceIndex,{id:food.id},foods,goal);
+    showGuidedEditor();
+    notify(replaceIndex===null
+     ?"Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario."
+     :"Alimento reemplazado desde el catálogo completo; recalculé sin tocar el diario.");
    }
    return;
  }

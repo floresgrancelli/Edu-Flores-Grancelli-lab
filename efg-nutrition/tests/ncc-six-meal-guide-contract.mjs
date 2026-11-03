@@ -57,9 +57,9 @@ assert.equal(replaced.meals[2].items[0].qty,190);
 assert.equal(replaced.meals[2].items[0].locked,true);
 // The coach may replace a food with ANY catalogue food, not only the
 // contextual swap suggestions. This does not restrict the student's catalog.
-const anywhere=replaceFlexibleFood(initial,'almuerzo',0,{id:'peanut_butter',qty:25},catalog,goal);
+const anywhere=replaceFlexibleFood(initial,'almuerzo',0,{id:'peanut_butter',qty:30},catalog,goal);
 assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].id,'peanut_butter');
-assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].qty,25);
+assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].qty,30);
 assert.equal(anywhere.meals.find(m=>m.slot==='almuerzo').items[0].locked,true);
 assert.equal(initial.meals.find(m=>m.slot==='almuerzo').items[0].id,toChange.id);
 assert.doesNotThrow(()=>validateGuidedDay(anywhere,goal));

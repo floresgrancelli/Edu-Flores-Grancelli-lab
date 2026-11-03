@@ -54,7 +54,7 @@ function selectedMeals(guide){
  }))}));
  assert.ok(guide?.kind==='flexible_meal_guide'&&guide.version===2&&Array.isArray(guide.meals),
   'The optional guide must be an expanded flexible_meal_guide v2');
- assert.ok(guide.meals.length>=2&&guide.meals.length<=6);
+ assert.ok(guide.meals.length>=2&&guide.meals.length<=6,'Guide slot count must be between 2 and 6');
  const seen=new Set();
  return guide.meals.map(meal=>{
   assert.ok(slots.includes(meal.slot)&&!seen.has(meal.slot),'Duplicate/unknown meal slot');

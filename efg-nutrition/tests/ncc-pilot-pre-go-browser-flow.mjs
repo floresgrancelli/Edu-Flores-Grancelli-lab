@@ -103,7 +103,7 @@ export async function runStagedPilotFlow(page,build){
     return {data:null,error:{message:'Unknown local RPC '+name}};
    }
   };
-  check(education.SCIENCE_STEPS.length===8,'Eight educational steps missing');
+  check(education.SCIENCE_STEPS.length===9,'Nine educational steps missing: eight reference lessons plus serotonin closing');
   for(let i=0;i<8;i++)check(education.renderScienceWelcomeStep(i)
    .includes('data-science-step="'+(i+1)+'"'),'Education step '+(i+1));
   check((await education.readScienceWelcomeStatus(sb,{profile,userId:student})).pending,

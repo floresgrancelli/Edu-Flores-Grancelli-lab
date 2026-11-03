@@ -3163,6 +3163,10 @@ function adjustCalculatedGoal(){
  document.getElementById("goalPreviewSummary").innerHTML=showGoalComparison(base,goal);
  regenerateCoachIntakeGuidePreview();
  document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
+ // P23: a newly calculated or adjusted goal must immediately reveal the
+ // automatic six-slot Coach draft button. Repaint only the guide panel,
+ // never mutate the student diary or publish a goal here.
+ showGuidedEditor();
 }
 async function approveGoalRevision(){
  if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Primero guardá una revisión privada con su guía. El objetivo vigente se mantiene.");
@@ -3220,6 +3224,10 @@ function calculateGoal(){
  '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
  regenerateCoachIntakeGuidePreview();
  document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
+ // P23: a newly calculated or adjusted goal must immediately reveal the
+ // automatic six-slot Coach draft button. Repaint only the guide panel,
+ // never mutate the student diary or publish a goal here.
+ showGuidedEditor();
 }
 async function saveDiary(){
  // A diary row is a single JSONB record. Per-slot locks alone permit two

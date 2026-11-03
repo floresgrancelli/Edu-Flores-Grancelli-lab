@@ -2443,17 +2443,25 @@ function showGoalComparison(base,goal){
 function goalRevisionSection(latest){
  if(!latest)return "";
  const goals=state.coachGoals||[];
+ const pending=state.pendingGoalRevision;
+ const readyToRegenerate=COACH_ATOMIC_PLAN_UI_ENABLED&&
+  pending?.studentId===state.selectedStudent&&pending.baseId===latest.id;
  const history='<details style="margin-top:15px"><summary>Historial de objetivos ('+goals.length+')</summary>'+
  goals.map(g=>'<div class="pilot-macro"><span>Desde '+escapeHTML(String(g.start_on||"").split("-").reverse().join("/"))+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' / HC '+num(g.carb_g)+' / G '+num(g.fat_g)+' g</b></div>').join("")+
  '<p class="pilot-hint">Los objetivos anteriores y registros alimentarios no se borran.</p></details>';
- return '<div class="divider"></div><h3>✏️ Revisar objetivo durante el plan</h3>'+
- '<p class="pilot-hint">Podés revisar el objetivo en cualquier momento, incluso al día siguiente o varias veces el mismo día, sin plazo mínimo. Si el alumno refiere poca energía, hambre, fatiga o dificultades de adaptación, evaluá sus registros, actividad y evolución y ajustá las calorías y los macros. El cambio comienza al aprobarlo; los planes anteriores quedan guardados.</p>'+
+ return '<div class="divider"></div><h3>✏️ Actualizar plan y Dieta Guía</h3>'+
+ '<p class="pilot-hint">Podés revisar este plan cuando haga falta, por ejemplo de 2.500 a 2.100 kcal tras dos meses. También podés renovar solo los alimentos y horarios manteniendo las calorías. La meta y la nueva Dieta Guía se publican JUNTAS tras tu aprobación; hasta entonces el alumno conserva su plan anterior y todos sus registros.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label for="reviseGoalKcal">Nuevo objetivo (kcal/día)</label><input id="reviseGoalKcal" type="number" min="1200" max="10000" step="1" value="'+Number(latest.kcal)+'"></div>'+
  '<div class="field"><label for="reviseGoalMode">Reparto de macros</label><select id="reviseGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn block light" data-act="previewGoalRevision">Ver nuevo reparto de macros</button></div>'+
  '<div class="pilot-notice" id="revisedGoalPreview" aria-live="polite" style="margin-top:10px">Objetivo actual: '+num(latest.kcal)+' kcal. Elegí un cambio para previsualizar.</div>'+
  '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Aplicar ajuste ahora</button>'+
- '<p class="pilot-hint">No hay período de espera ni límite de revisiones. Podés aumentar o reducir las calorías según la respuesta del alumno. Si reducís todo proporcionalmente, también baja la proteína; evaluá conservarla para objetivos de fuerza o masa muscular.</p>'+history;
+ (COACH_ATOMIC_PLAN_UI_ENABLED?
+  '<section class="pilot-notice" data-periodic-plan-review aria-label="Renovar Dieta Guía" style="margin-top:12px"><strong>Renovar la Dieta Guía del alumno</strong>'+
+  '<p class="pilot-hint">1. Revisá la meta y la ficha VIGENTE. 2. Generá y editá una nueva guía de seis horarios. 3. Guardá borrador privado. 4. Publicá meta y guía juntas y notificá al alumno. No se registra ninguna comida en MI DÍA.</p>'+
+  '<p class="pilot-hint">Si cambiaron alergias, celiaquía, intolerancias o diagnósticos, el ALUMNO debe actualizar su declaración privada y autorizar compartirla. No supongas que no tiene restricciones ni reutilices permisos revocados. No publiques una guía incompatible mientras la nueva declaración no esté verificada.</p>'+
+  '<button type="button" class="btn block" data-act="makeGuidedDay" data-periodic-new-guide '+(readyToRegenerate?'':'disabled aria-disabled="true"')+'>Generar nueva Dieta Guía · borrador</button></section>':'')+
+ '<p class="pilot-hint">No hay período mínimo entre revisiones. Si reducís calorías, podés conservar proteína y grasa o redistribuir macronutrientes. La última palabra es del coach.</p>'+history;
 }
 
 /* Five-meal guide: draft only on coach until explicit approval; not a diary entry. */
@@ -2807,7 +2815,7 @@ function studentDetailView(p,consent){
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  coachGuidedSection()+coachAtomicDraftPanel()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
- intakeWarnings+(goalWriteBlocked?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
+ intakeWarnings+(goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
@@ -3093,10 +3101,24 @@ function previewGoalRevision(){
  const latest=state.coachGoals[0];
  if(!latest||!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno con un plan aprobado y consentimiento activo.");
  const goal=adjustNutritionGoal(latest,Number(document.getElementById("reviseGoalKcal")?.value),document.getElementById("reviseGoalMode")?.value);
- if(goal.kcal===Number(latest.kcal))throw new Error("Ingresá calorías distintas de la meta actual.");
+ // A periodic review may change foods/restrictions even when calories stay equal.
+ if(goal.kcal===Number(latest.kcal)&&!COACH_ATOMIC_PLAN_UI_ENABLED)
+  throw new Error("Ingresá calorías distintas de la meta actual.");
+ if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachGuidedDraft&&
+    !window.confirm("Hay una guía en edición. Para recalcular desde la ficha vigente necesitás descartar esa copia local. El plan publicado no cambiará. ¿Continuar?"))return;
+ if(COACH_ATOMIC_PLAN_UI_ENABLED){
+  state.coachGuidedDraft=null;
+  state.coachIntakeGuidePreview=null;
+  state.pendingGoal=null;
+  state.calculatedGoalBase=null;
+  state.coachPlanPublishRequestId=null;
+  showGuidedEditor();
+ }
  state.pendingGoalRevision={studentId:state.selectedStudent,baseId:latest.id,proposal:goal};
  document.getElementById("revisedGoalPreview").innerHTML=showGoalComparison(latest,goal);
  document.getElementById("approveGoalRevisionButton").disabled=false;
+ const newGuide=document.querySelector("[data-periodic-new-guide]");
+ if(newGuide){newGuide.disabled=false;newGuide.removeAttribute("aria-disabled");}
 }
 function adjustCalculatedGoal(){
  const base=state.calculatedGoalBase;

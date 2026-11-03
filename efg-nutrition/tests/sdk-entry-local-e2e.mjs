@@ -106,9 +106,13 @@ const prepareFlexibleLocal=side=>{
   return {id,name:id,unit:item.unit,qty,...Object.fromEntries(
    ['k','p','c','f','fi'].map(k=>[k,Number(item[k])]))};
  })}));
- return {kind:'flexible_meal_guide',version:2,meals,
+ const guide={kind:'flexible_meal_guide',version:2,meals,
   approvedFoodIds:sixSourceIds.slice().sort(),supplementNote:'',
   profileReviewNotes:['LOCAL QA ficticia: no es un plan nutricional ni una aprobación humana.']};
+ assert.equal(sql('select efg_private.coach_guide_foods_verified('+
+  q(JSON.stringify(guide))+'::jsonb)'),'t',
+  'Six-slot local evidence must pass unchanged verified per-food nutrient and provenance checks');
+ return guide;
 };
 try{
  await runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql});

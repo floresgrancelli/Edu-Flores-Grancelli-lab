@@ -5,6 +5,7 @@ import {generateGuidedDay,validateGuidedDay,guideTotals,guideDeviation} from '..
 import {FLEXIBLE_GUIDE_KIND,SIX_GUIDE_SLOTS,generateFlexibleGuidedDay,removeFlexibleMeal,
  removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from '../pilot/guided-day-v2.js';
 import {approvedFoodGuide} from '../pilot/coach-food-selection.js';
+import {adjustNutritionGoal} from '../pilot/goal-adjustments.js';
 import {recipeCatalogEntries} from '../pilot/recipe-catalog-bridge.js';
 import {addCoachRecipeServing,recipeIngredientLimits} from '../pilot/coach-guide-recipe-serving.js';
 import {validateCoachPlanProposal} from '../pilot/coach-plan-draft-client.js';
@@ -179,4 +180,21 @@ assert.match(app,/intake\?\.completed_version!==COACH_RELEASE_INTAKE_VERSION/);
 assert.match(app,/required\.some\(k=>intake\[k\]===null/);
 assert.match(app,/Unknown medical status is never interpreted/);
 assert.match(app,/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED/);
-console.log('PASS NCC six-meal guide: original model + 6 default, 5/4/2 after coach edits, source untouched, full daily goal, dietary pattern/fasting separated, conservative allergens, live UI contracts, staged SQL.');
+const publishedGoal={goal_type:'recomp',kcal:2500,protein_g:160,carb_g:300,fat_g:80,fiber_g:35};
+const revisedGoal=adjustNutritionGoal(publishedGoal,2100,'protect_protein');
+assert.equal(revisedGoal.kcal,2100);
+assert.equal(revisedGoal.protein_g,160,'Coach may protect protein when dropping calories');
+const revisedPlan=generateFlexibleGuidedDay(catalog,revisedGoal,{patternId:'balanced',restrictionStatus:'unknown'});
+assert.equal(revisedPlan.meals.length,6);
+assert.ok(revisedPlan.profileReviewNotes.some(x=>x.includes('Restricciones sin verificar')));
+assert.deepEqual(publishedGoal,{goal_type:'recomp',kcal:2500,protein_g:160,carb_g:300,fat_g:80,fiber_g:35},
+ 'Drafting the two-month update must not mutate the previous goal');
+const sameCalorieGoal=adjustNutritionGoal(publishedGoal,2500,'protect_protein');
+assert.equal(sameCalorieGoal.kcal,2500,'Food-only reviews are allowed when calories stay unchanged');
+const revisionUI=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+assert.match(revisionUI,/data-periodic-plan-review/);
+assert.match(revisionUI,/data-periodic-new-guide/);
+assert.match(revisionUI,/Generar nueva Dieta Guía · borrador/);
+assert.match(revisionUI,/el ALUMNO debe actualizar su declaración privada/);
+assert.match(revisionUI,/goal.kcal===Number\(latest.kcal\)&&!COACH_ATOMIC_PLAN_UI_ENABLED/);
+console.log('PASS NCC six-meal guide and periodic review: 2500→2100 goal + six meals, same-calorie new guide, prior goal untouched, verified-profile warning, publish remains Coach atomic-only.');

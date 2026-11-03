@@ -39,9 +39,27 @@ for(const token of [
  'RELEASE_SWITCHES_ALL_OFF','OWNER_INTAKE_RLS_QUALIFIED',
  'OWNER_RECEIPTS_RLS_QUALIFIED','OPTIONAL_SHARING_HELPER_EXISTS',
  'COACH_SELECT_REQUIRES_ACTIVE_SHARE','REVIEWED_FOOD_URL_CHECK_FIXED',
- 'PILOT_TERMS_AND_PRIVACY_CURRENT','ANY_CURRENT_REVIEWED_FOOD'])
+ 'PILOT_TERMS_AND_PRIVACY_CURRENT','ANY_CURRENT_REVIEWED_FOOD',
+ 'COACH119_FLEXIBLE_GUIDE_CONSTRAINT_VALIDATED',
+ 'COACH119_GUIDE_WRITE_GUARD_ENABLED',
+ 'COACH119_GUIDE_HISTORY_ARCHIVE_ENABLED',
+ 'COACH116_SIGNED_ENTRY_FLEXIBLE','GU06_SCOPED_COACH_RECIPE_RPC',
+ 'GU06_PERSONAL_RECIPES_OWNER_RLS'])
  assert.ok(afterBody.includes(token),'Missing post-install check '+token);
 assert.doesNotMatch(afterBody,/select\s+\*/i);
+assert.match(afterBody,/c\.convalidated[\s\S]*?flexible_meal_guide/,
+ 'Post-install must confirm the 2-6 meal CHECK was validated');
+assert.match(afterBody,/coach119_guard_flexible_guide_write[\s\S]*?t\.tgenabled='O'/,
+ 'A disabled v2 write guard cannot pass hosted postflight');
+assert.match(afterBody,/coach119_archive_previous_approved_guide[\s\S]*?t\.tgenabled='O'/,
+ 'A disabled history trigger cannot pass hosted postflight');
+assert.match(afterBody,/COACH116_SIGNED_ENTRY_FLEXIBLE[\s\S]*?p\.prosecdef[\s\S]*?flexible_meal_guide/,
+ 'Signed student entry status must verify flexible guide support');
+assert.match(afterBody,/GU06_SCOPED_COACH_RECIPE_RPC[\s\S]*?coach_pilot_share_active/,
+ 'Coach recipe RPC cannot bypass current sharing permission');
+assert.match(afterBody,/GU06_PERSONAL_RECIPES_OWNER_RLS[\s\S]*?qual like '%auth\.uid\(\)%'/,
+ 'Coach recipe sharing must not widen student-owned table policies');
+
 assert.ok(afterBody.includes("to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is not null"));
 assert.ok(body.includes("to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is null"));
 console.log('PASS: independent PRE vs POST install SQL contracts; one READ-ONLY SELECT each, no GO inferred.');

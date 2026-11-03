@@ -1,74 +1,24 @@
-import {createAuthHydrationGate} from "./auth-hydration-gate.js";
-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261029-5pct1";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261029-coach-commercial-r1";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=20261030-coach101";
-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=20261030-coach101";
-import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261103-owner-eight";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261028-regional2-photo1";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
 import {weeklyNumbers} from "./weekly-metrics.js?v=1";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=20261030-lux-r1";
-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=20261030-lux-review1";
 import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=20261102-r1";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=20261102-gu06";
-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=20261102-gu06-scope";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
 import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
-import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-restrictions1";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=20261102-guard1";
+import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261028-guide4";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261103-login-fix1";
-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261030-coach119-catalog1";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=20261030-coach119-catalog1";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=20261030-review-rev1";
-import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
-import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentminor1";
-import {signOutCurrentDevice} from "./logout-session.js?v=20261030-session01";
-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=20261030-ux35-major1";
-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=20261030-coach120";
-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=20261030-coach121";
-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=20261031-intake1";
-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=20261031-coachopt05";
-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=20261030-coach106";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=20261102-health-private-off";
-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=20261103-p26m";
+import {createPullToRefresh} from "./pull-refresh.js?v=20261028-pull1";
+import {createVersionNotice} from "./version-notice.js?v=20261028-diag1";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -192,8 +142,7 @@ function fruitSaladRecipeHTML(){
  '</ul><p>Por bol: <b>'+num(salad.k*portion)+' kcal</b> · P '+num(salad.p*portion,1)+' g · HC '+num(salad.c*portion,1)+' g · G '+num(salad.f*portion,1)+' g.</p>'+
  '<small>Podés registrar 1 bol (200 g) o elegir «Peso» y cargar lo realmente consumido. Si la mezcla es diferente, los valores son aproximados. Azúcar, miel, almíbar, jugo o yogur se registran por separado.</small></details>';
 }
-// Every food/recipe may be recorded in every meal; preferred timings never restrict the diary.
-const foodAllowedForMeal=()=>true;
+const foodAllowedForMeal=(food,meal)=>food?.id!=="cake" || BUDIN_RECIPE.allowedMeals.includes(meal);
 function budinRecipeHTML(){
  const cake=foods.find(f=>f.id==="cake"),portion=BUDIN_RECIPE.portionGrams;
  return '<details class="budin-recipe" open><summary>📖 Receta · '+BUDIN_RECIPE.name+'</summary>'+
@@ -208,7 +157,7 @@ function updateMealRecipe(){
  const holder=document.getElementById("mealRecipeDetail");
  if(!holder)return;
  const choice=document.getElementById("mealEditorFood")?.value;
- holder.innerHTML=choice==="cake"?budinRecipeHTML():choice==="fruit_salad_basic"?fruitSaladRecipeHTML():"";
+ holder.innerHTML=choice==="cake"&&BUDIN_RECIPE.allowedMeals.includes(state.activeMeal)?budinRecipeHTML():choice==="fruit_salad_basic"?fruitSaladRecipeHTML():"";
 }
 const BEVERAGE_IDS=new Set(["coffee_black","coffee_decaf","coffee_milk","coffee_cortado","tea_plain","tea_green","tea_milk","herbal_tea","chamomile_tea","mint_tea","tilo_tea","cedron_tea","mate_plain","mate_cocido","mate_cocido_milk"]);
 const MILK_BEVERAGES={coffee_milk:125,coffee_cortado:30,tea_milk:80,mate_cocido_milk:125};
@@ -258,7 +207,7 @@ function calculateBeverage(f,totalMl){
  };
 }
 const FOOD_GROUP_MAP=Object.fromEntries(foods.map(f=>[f.id,f.category||LEGACY_CATEGORIES[f.id]||"extra"]));
-const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||f.category||"extra";
+const groupIdFor=(f)=>FOOD_GROUP_MAP[f.id]||"extra";
 const SNACK_FOOD_IDS=new Set(["cake","whey_powder","walnuts","almonds","peanuts","cashews","pistachios","mixed_nuts"]);
 const groupedFoodOptions=(items,meal=null)=>{
  const snack=meal==="media_manana"||meal==="media_tarde";
@@ -350,36 +299,16 @@ function updateSupplementHint(){
  if(label)label.textContent="Cantidad consumida ("+(item?.unit||"según envase")+")";
  if(hint)hint.textContent=item?.source||"Elegí un suplemento.";
 }
-// Supplements and sports share the same JSONB diary list. Protect it from
-// repeated taps and restore the previous list when REST rejects the write.
-let pendingSportDiaryMutation=false;
-async function mutateSportDiary(mutate,message){
- if(pendingSportDiaryMutation)return;
- pendingSportDiaryMutation=true;
- const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
- const previousSports=structuredClone(d.sports||[]);
- const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
- try{
-  d.sports ||= [];d.skipped ||= {};
-  mutate(d);
-  d.skipped._closed=false;
-  try{await saveDiary();}
-  catch(error){
-   d.sports=previousSports;d.skipped=previousSkipped;
-   // A late failure from account A must not replace account B's diary.
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
-   throw error;
-  }
-  if(message&&state.session?.user?.id===ownerId&&today()===ownerDay)notify(message);
- }finally{pendingSportDiaryMutation=false;}
-}
 async function addDailySupplement(){
  const item=SUPPLEMENTS.find(x=>x.id===document.getElementById("supplementItem")?.value);
  const qty=Number(document.getElementById("supplementQty")?.value);
  const moment=document.getElementById("supplementMoment")?.value||"otro";
  if(!item||!Number.isFinite(qty)||qty<=0||qty>100000||!document.getElementById("supplementQty")?.value?.trim())throw new Error("Ingresá el suplemento y una cantidad positiva de su etiqueta.");
+ const d=activeDiary();
+ d.sports ||= [];
  const entry=normItem(item,qty,moment);entry.kind="supplement";
- return mutateSportDiary(d=>d.sports.push(entry),"Suplemento guardado por separado; balance actualizado cuando corresponde.");
+ d.sports.push(entry);d.skipped=d.skipped||{};d.skipped._closed=false;
+ await saveDiary();notify("Suplemento guardado por separado; balance actualizado cuando corresponde.");
 }
 function dayComment(d){return String(d?.skipped?._comment||"").slice(0,1000);}
 function readDayComment(){
@@ -387,41 +316,23 @@ function readDayComment(){
  if(text.length>1000)throw new Error("El comentario puede tener hasta 1000 caracteres.");
  return text;
 }
-let pendingDayCommentSave=false;
 async function saveDayComment(){
  if(state.profile?.role!=="student")throw new Error("Solo el alumno puede escribir comentarios del día.");
- if(pendingDayCommentSave)return;
- const comment=readDayComment(); // Read the draft before acquiring the write lock.
- pendingDayCommentSave=true;
- const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
- const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
- try{
-  d.skipped=d.skipped||{};
-  d.skipped._comment=comment;
-  try{await saveDiary();}
-  catch(error){
-   d.skipped=previousSkipped;
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
-   throw error;
-  }
-  if(state.session?.user?.id===ownerId&&today()===ownerDay)notify("Comentario guardado para el informe de tu coach.");
- }finally{pendingDayCommentSave=false;}
+ const d=activeDiary();
+ d.skipped=d.skipped||{};
+ d.skipped._comment=readDayComment();
+ await saveDiary();notify("Comentario guardado para el informe de tu coach.");
 }
 let coachRosterConsent={};
 let myWeeklyReports=[];
 async function loadMyWeeklyReports(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  if(state.profile?.role!=="student"){myWeeklyReports=[];return;}
- const {data,error}=await contextRead(sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12));
+ const {data,error}=await sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12);
  if(error)throw error;myWeeklyReports=data||[];
 }
 function weeklyStudentPanel(){
  if(state.profile?.role!=="student")return "";
- const items=myWeeklyReports.map((r,i)=>{const luxury=parseLuxuryWeeklyReport(r.report_text);
-  return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
-   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
-   '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
+ const items=myWeeklyReports.map(r=>'<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+'</summary><p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p></details>').join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
 }
 function weeklyReportEnd(){
@@ -435,84 +346,29 @@ function weeklyReportWindow(){
  from.setUTCDate(from.getUTCDate()-7);to.setUTCDate(to.getUTCDate()-1);
  return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
 }
-let weeklyPublishPending=false;
 async function publishWeeklyReport(){
- if(weeklyPublishPending)throw Error("Esperá a que termine la publicación anterior.");
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
- if((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))throw Error("Ya existe un informe publicado para esa semana. El historial compartido no se sobrescribe.");
- const model=buildCurrentLuxuryModel();
- const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
- const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
- // The coach must have viewed the EXACT data and final text that will be sent.
- const approved=luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),conclusion,flexible);
- const reportText=reportAsStoredText(approved,approved.conclusion,approved.flexibleNote);
- if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
- if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
- const session=state.session,organizationId=state.org?.id,weekEnding=model.friday;
- const currentScope=()=>state.session===session&&state.selectedStudent===student.user_id&&
-  state.org?.id===organizationId&&state.consent?.accepted&&
-  (state.roster||[]).some(x=>x.user_id===student.user_id&&x.active);
- const record={student_id:student.user_id,coach_id:session.user.id,week_ending:weekEnding,
-  report_text:reportText,updated_at:new Date().toISOString()};
- weeklyPublishPending=true;
- try{
-  const {error}=await sb.from("efg_weekly_reports").insert(record);
-  if(error)throw error;
-  if(!currentScope())return;
-  // INSERT is confirmed. A failed refresh must not invite a duplicate send.
-  state.coachHistory=[record,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
-  luxuryWeeklyEditor.reset();
-  let refreshFailed=false;
-  try{
-   const latest=await sb.from("efg_weekly_reports")
-    .select("id,week_ending,report_text,created_at").eq("student_id",student.user_id)
-    .order("week_ending",{ascending:false}).limit(52);
-   if(latest.error)throw latest.error;
-   if(!latest.data?.some(r=>r.week_ending===weekEnding&&r.report_text===reportText))throw Error("Historial confirmado todavía no disponible");
-   if(!currentScope())return;
-   state.coachHistory=latest.data||[];
-  }catch{refreshFailed=true;}
-  if(!currentScope())return;
-  await render();
-  notify(refreshFailed?"Informe compartido. No se pudo actualizar el historial; reabrilo para consultarlo. No hace falta reenviar.":
-   "Informe Luxury Pro compartido con el alumno y conservado en su historial.");
- }finally{weeklyPublishPending=false;}
+ const reportText=document.getElementById("weeklyCoachDraftText")?.value?.trim();
+ if(!reportText||reportText.length>8000)throw Error("Revisá el borrador antes de compartirlo.");
+ if(!confirm("¿Confirmás que revisaste el informe y querés compartirlo con el alumno?"))return;
+ const {error}=await sb.from("efg_weekly_reports").upsert({student_id:student.user_id,coach_id:state.session.user.id,week_ending:weeklyReportEnd(),report_text:reportText,updated_at:new Date().toISOString()},{onConflict:"student_id,week_ending"});
+ if(error)throw error;
+ notify("Informe compartido con el alumno.");
 }
-const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
-const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
-const authHydration=createAuthHydrationGate({
- readIdentity:()=>state.session?.user?.id||null,
- invalidate:epoch=>{resetPrivateSession();state.authContextEpoch=epoch;loginView();},
- schedule:queueMicrotask,refresh:()=>refresh()
-});
-
-state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
-state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
-// Private health cache lives exclusively in RAM and dies on sign-out.
-state.privateHealthSessionNonce=null;
-state.privateHealthDeclaration=createStudentRestrictionDeclaration({sb,
- enabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,
- readContext:()=>({
-  userId:state.session?.user?.id,organizationId:state.profile?.organization_id,
-  sessionId:state.privateHealthSessionNonce,role:state.profile?.role,
-  active:state.profile?.active,
-  epoch:Number.isSafeInteger(state.authContextEpoch)?state.authContextEpoch+1:1
- })
-});
+const state={session:null,profile:null,org:null,tab:"home",fitFilter:"all",diary:null,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,coachGuidedDraft:null,rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
   const coachMode=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
-  const targets=new Set(["home","reports","coachStudents","coachIntake","summaries","payments","messages"]);
+  const targets=new Set(["home","reports","coachStudents","summaries","payments","messages"]);
   let target=targets.has(n.target_tab)?n.target_tab:"notifications";
   if(!coachMode&&["reports","coachStudents"].includes(target))target="home";
-  if(coachMode&&n.target_student&&["reports","coachStudents","coachIntake","messages"].includes(target)){
+  if(coachMode&&n.target_student&&["reports","coachStudents","messages"].includes(target)){
    const p=(state.roster||[]).find(p=>p.user_id===n.target_student&&p.active);
-   if(p&&target!=="messages"&&target!=="coachIntake")await loadStudentDetail(p.user_id);
+   if(p&&target!=="messages")await loadStudentDetail(p.user_id);
    if(p&&target==="messages")messages.selectStudent(p.user_id);
   }
   state.tab=target;
@@ -531,335 +387,106 @@ const messages=createMessagesCenter({sb,
  afterSend:()=>inbox.refresh()
 });
 const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
-const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
-const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,
- versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED});
-function compatibilityPattern(){
- const pattern=state.profile?.role==="student"
-  ?state.coachPilotIntake?.dietary_pattern||state.coachPilotEntry?.status?.dietary_pattern||state.coachRelaunchEntry?.status?.dietary_pattern||state.studentIntake?.dietary_pattern
-  :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
- return profilePatternForCompatibility(pattern);
-}
-function foodTrafficLight(food){
- if(!FOOD_COMPATIBILITY_ENABLED)return {symbol:"",color:"neutral",details:"",canRecord:true};
- const plan=state.profile?.role==="student"?state.foodPlan:state.coachFoodPlan;
- const inPlan=Array.isArray(plan?.guided_plan?.meals)&&
-  plan.guided_plan.meals.some(m=>Array.isArray(m.items)&&m.items.some(x=>x.id===food?.id));
- const pattern=compatibilityPattern();
- if(Array.isArray(food?.recipeIngredients))return recipeFoodSignal(food,{pattern,inPlan});
- return describeTrafficLight(food,{pattern,inPlan,evidence:state.foodCompatEvidence});
-}
-async function refreshFoodCompatibilityEvidence(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
- const pattern=compatibilityPattern();
- state.foodCompatEvidence=[];
- if(!FOOD_COMPATIBILITY_ENABLED||pattern==="balanced")return;
- try{
-  state.foodCompatEvidence=await contextRead(loadReviewedFoodEvidence(sb,{foodIds:foods.map(f=>f.id),patterns:[pattern]}));
- }catch(error){
-  if((state.authContextEpoch||0)!==contextEpoch)return;
-  state.foodCompatEvidence=[];
-  console.warn("Semáforo: revisiones no disponibles; se mostrará amarillo.",error?.message);
- }
-}
-const studentPlanPending=()=>coachIntakeFlow.pending();
 const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
-// Keep the first, not-yet-persisted day's diary as a stable draft. Previously
-// activeDiary() returned a NEW blank object on each call: the first food was
-// added to object A, while saveDiary() persisted empty object B. This made the
-// first selection appear lost until the user registered it a second time.
-const activeDiary=()=>{
- const day=today();
- if(state.diary?.log_day===day&&state.diary.student_id===state.session?.user?.id)return state.diary;
- const uid=state.session?.user?.id;
- if(!uid)return blankDiary();
- if(!state.pendingDiaryDraft||state.pendingDiaryDraft.student_id!==uid||state.pendingDiaryDraft.log_day!==day)
-  state.pendingDiaryDraft=blankDiary();
- return state.pendingDiaryDraft;
-};
+const activeDiary=()=>state.diary?.log_day===today()?state.diary:blankDiary();
 async function ensureCurrentDay(){
- const uid=state.session?.user?.id,nowDay=today();
- if(!uid||!state.profile||!state.renderedDay||state.renderedDay===nowDay)return;
- // Scope midnight reads to their account and day. A stale account A read
- // must not block or overwrite a newly authenticated account B.
- if(state.daySwitching&&state.daySwitchingOwner===uid&&state.daySwitchingForDay===nowDay)
-  return state.daySwitching;
- const writeRevision=state.diaryWriteRevision||0;
- const work=(async()=>{
+ if(!state.session?.user?.id||!state.profile||!state.renderedDay||state.renderedDay===today())return;
+ if(state.daySwitching)return state.daySwitching;
+ const nowDay=today(),uid=state.session.user.id;
+ state.daySwitching=(async()=>{
   const {data,error}=await sb.from("efg_daily_logs").select("*").eq("student_id",uid).eq("log_day",nowDay).maybeSingle();
-  if(state.session?.user?.id!==uid||today()!==nowDay)return;
   if(error)throw error;
-  const draft=state.pendingDiaryDraft;
-  const editedDraft=draft?.student_id===uid&&draft.log_day===nowDay&&(
-   Object.values(draft.meals||{}).some(items=>Array.isArray(items)&&items.length>0)||
-   (draft.sports||[]).length>0||
-   Object.entries(draft.skipped||{}).some(([key,value])=>key!=="_closed"&&!!value));
-  // A later diary save, confirmed REST row, or edited local draft wins
-  // over SELECT started earlier. Never erase the first meal at midnight.
-  if((state.diary?.student_id===uid&&state.diary.log_day===nowDay)||
-   (state.diaryWriteRevision||0)!==writeRevision||
-   (state.diaryWritePending&&state.diaryWriteOwner===uid)||editedDraft){
-   state.renderedDay=nowDay;state.activeMeal=null;
-   return;
-  }
-  state.diary=data||null;state.pendingDiaryDraft=null;state.renderedDay=nowDay;state.activeMeal=null;
+  if(state.session?.user?.id===uid&&today()===nowDay){state.diary=data||null;state.renderedDay=nowDay;state.activeMeal=null;}
  })();
- state.daySwitching=work;state.daySwitchingOwner=uid;state.daySwitchingForDay=nowDay;
- try{await work;}
- finally{
-  if(state.daySwitching===work){
-   state.daySwitching=null;state.daySwitchingOwner=null;state.daySwitchingForDay=null;
-  }
- }
+ try{await state.daySwitching;}finally{state.daySwitching=null;}
 }
-const activeGoal=()=>{ const p=state.profile; const own=state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
+const activeGoal=()=>state.profile?.role==="student"?(state.goals[0]?{k:state.goals[0].kcal,p:state.goals[0].protein_g,c:state.goals[0].carb_g,f:state.goals[0].fat_g,fi:state.goals[0].fiber_g}:null):(state.personalTargets?{k:state.personalTargets.kcal,p:state.personalTargets.protein_g,c:state.personalTargets.carb_g,f:state.personalTargets.fat_g,fi:state.personalTargets.fiber_g}:null);
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 let cloudHabituales=[];
-// Each asynchronous diary/favorite operation owns an individual lock lease.
-// Signing out releases ALL old-session locks; an old completion cannot delete
-// a new user's lease for the same meal slot.
-function createSessionScopedSlotLocks(){
- const leases=new Map();
- return {
-  has:slot=>leases.has(slot),
-  add(slot){const lease=Symbol(String(slot));leases.set(slot,lease);return lease;},
-  delete(slot,lease){
-   if(lease!==undefined&&leases.get(slot)!==lease)return false;
-   return leases.delete(slot);
-  },
-  clear:()=>leases.clear()
- };
-}
-// Per-slot lock: repeated taps must not create duplicate cloud meals or
-// register/delete a favorite while another operation for that slot is pending.
-const pendingHabitualSlots=createSessionScopedSlotLocks();
-async function runHabitualSlotAction(slot,work){
- // Favorite writes and diary additions affect the SAME meal slot. Share the
- // per-slot lock so neither can race the other across asynchronous REST writes.
- if(pendingHabitualSlots.has(slot)||pendingMealRegistrations.has(slot))return;
- const habitualLease=pendingHabitualSlots.add(slot),slotLease=pendingMealRegistrations.add(slot);
- try{return await work();}
- finally{pendingHabitualSlots.delete(slot,habitualLease);pendingMealRegistrations.delete(slot,slotLease);}
-}
-// Only transport/transient service failures justify a local pending copy.
-// Never turn authentication, permission/RLS or validation denials into offline writes.
-function recoverableOfflineWrite(error){
- const status=Number(error?.status||0),code=String(error?.code||"");
- return (!code||/^PGRST00[0-3]$/.test(code)||/^08\d{3}$/.test(code))&&
-  (!status||status===408||status===429||status>=500);
-}
 async function loadCloudHabituales(){
- const contextEpoch=state.authContextEpoch||0;
- const userId=state.session?.user?.id;
- // Latest-request-wins: concurrent refreshes must not replay an older list.
- const loadToken=Symbol("habituales-load");
- state.habitualesLoadToken=loadToken;
- if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];state.cloudHabitualesUserId=null;return;}
- const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId&&state.habitualesLoadToken===loadToken;
- // Offline fetch can reject, not just resolve with {error}; preserve backup.
- let data,error;
- try{({data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
- catch(networkError){error=networkError;}
- if(!sameUser())return; // Ignore late response belonging to a previous account.
- if(error){
-  // Offline reads must preserve this account's cached and local favorites.
-  if(state.cloudHabitualesUserId!==userId)cloudHabituales=[];
-  state.cloudHabitualesUserId=userId;
-  console.warn("Habituales en la nube no disponibles; respaldos locales conservados.",error.message);
-  return;
- }
+ if(!["student","coach","admin"].includes(state.profile?.role)){cloudHabituales=[];return;}
+ const {data,error}=await sb.from("efg_habitual_meals").select("id,meal_slot,name,items,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
  cloudHabituales=data||[];
- state.cloudHabitualesUserId=userId;
  // Importar favoritos locales anteriores sin perderlos y sin duplicarlos.
  for(const [slot] of mealSlots){
-  if(!sameUser())return;
-  let local=[],validV2Backup=true,validV1Backup=true;
-  // Parse the two legacy formats independently. A damaged new list must not
-  // prevent recovery of an older valid meal (and vice versa).
+  let local=[];
   try{
    const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-   if(saved!==null&&!Array.isArray(saved))validV2Backup=false;
-   if(Array.isArray(saved)&&saved.length)local=saved.slice();
-  }catch(_){validV2Backup=false;}
-  try{
-   const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
-   if(older!==null&&!Array.isArray(older))validV1Backup=false;
-   if(Array.isArray(older)&&older.length&&!local.some(item=>JSON.stringify(item?.items)===JSON.stringify(older)))
-    local.push({name:"Mi habitual anterior",items:older});
-  }catch(_){validV1Backup=false;}
+   if(Array.isArray(saved)&&saved.length)local=saved;
+   else {const older=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");if(Array.isArray(older)&&older.length)local=[{name:"Mi habitual anterior",items:older}];}
+  }catch(_){} 
   const remote=cloudHabituales.filter(x=>x.meal_slot===slot);
   for(const item of local){
-   if(remote.some(x=>x.name===item.name&&sameRecipeIngredients(x.items,item.items)))continue;
+   if(remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))continue;
    if(!Array.isArray(item.items)||!item.items.length||remote.length>=20)continue;
-   if(!sameUser())return;
-   // Rejected best-effort migration must not erase the local copy.
-   let created;
-   try{created=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();}
-   catch(networkError){created={error:networkError};}
-   if(!sameUser())return; // Keep local backup after account switch.
-   if(created.error){
-    // Migration is best-effort; network failure must not erase local meals.
-    console.warn("Habitual local pendiente de sincronizar.",created.error.message);
-    return;
-   }
+   const created=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:String(item.name||"Habitual").slice(0,60),items:item.items}).select("id,meal_slot,name,items,created_at").single();
+   if(created.error)throw created.error;
    remote.push(created.data);cloudHabituales.push(created.data);
   }
   // Respaldo local ya importado: evita que una comida eliminada reaparezca.
-  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&sameRecipeIngredients(x.items,item.items)))){
-   // Never destroy a malformed backup; it may still be manually recoverable.
-   if(validV2Backup)localStorage.removeItem(habitualListKey(slot));
-   if(validV1Backup)localStorage.removeItem(habitualKey(slot));
+  if(local.length&&local.every(item=>remote.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items)))){
+   localStorage.removeItem(habitualListKey(slot));localStorage.removeItem(habitualKey(slot));
   }
  }
 }
 function habitualKey(slot){return "efg-nutrition-habitual-v1:"+state.session?.user?.id+":"+slot;}
 function habitualListKey(slot){return "efg-nutrition-habitual-v2:"+state.session?.user?.id+":"+slot;}
 function getHabitualList(slot){
- // A local backup that cannot yet be imported (20 cloud favorites reached,
- // network unavailable, or migration pending) must remain SELECTABLE. Showing
- // only cloud entries hid those saved meals even while the local backup survived.
  try{
-  const entries=(state.cloudHabitualesUserId===state.session?.user?.id?cloudHabituales:[])
-   .filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length)
-   .map(x=>({id:x.id,name:x.name,items:x.items}));
-  const exists=(item)=>entries.some(x=>x.name===item.name&&JSON.stringify(x.items)===JSON.stringify(item.items));
-  const append=(item,source)=>{
-   if(item&&Array.isArray(item.items)&&item.items.length&&!exists(item))
-    entries.push({name:String(item.name||"Habitual"),items:item.items,pendingLocal:true,localSource:source});
-  };
-  // Both legacy backup formats coexist until each is safely migrated.
-  // Independently parse them so corrupt v2 never hides a recoverable v1.
-  try{
-   const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
-   if(Array.isArray(saved))for(const item of saved)append(item,"v2");
-  }catch(_){}
-  try{
-   const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
-   if(Array.isArray(legacy)&&legacy.length&&!entries.some(x=>JSON.stringify(x.items)===JSON.stringify(legacy)))
-    append({name:"Mi habitual anterior",items:legacy},"v1");
-  }catch(_){}
-  return entries;
+  const remote=cloudHabituales.filter(x=>x.meal_slot===slot&&Array.isArray(x.items)&&x.items.length).map(x=>({id:x.id,name:x.name,items:x.items}));
+  if(remote.length)return remote;
+  const saved=JSON.parse(localStorage.getItem(habitualListKey(slot))||"null");
+  if(Array.isArray(saved)&&saved.length)return saved.filter(x=>x&&Array.isArray(x.items)&&x.items.length);
+  const legacy=JSON.parse(localStorage.getItem(habitualKey(slot))||"null");
+  return Array.isArray(legacy)&&legacy.length?[{name:"Mi habitual anterior",items:legacy}]:[];
  }catch(_){return [];}
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
-const habitualEntryKey=(item,index)=>String(item.id||"local-"+index);
 function habitualPickerHTML(slot){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
- const requested=state.habitualSelection[slot]||"";
- const selectedIndex=list.findIndex((item,i)=>habitualEntryKey(item,i)===requested);
- const choice=selectedIndex>=0?selectedIndex:0; // Preview first saved habitual even when multiple choices exist; never registers until explicit button.
- const selected=choice<0?null:list[choice];
- const selectedKey=selected?habitualEntryKey(selected,choice):"";
- state.habitualSelection[slot]=selectedKey;
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
- '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
- list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
- '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
+ '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" selected>Elegí una de tus '+list.length+' comidas habituales</option>'+
+ list.map(x=>'<option value="'+escapeHTML(x.id||'')+'">'+escapeHTML(x.name)+'</option>').join('')+'</select>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
- '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
-}
-function updateHabitualPreview(slot){
- const id=document.getElementById('habitualChoice_'+slot)?.value||"";
- state.habitualSelection[slot]=id;
- const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
- const host=document.getElementById('habitualPreview_'+slot);
- if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
-}
-function validateHabitualCatalog(habitual){
- // Older favorites stay visible as historical records, but a recognized catalog
- // food removed by the Coach must not be re-added through a saved-meal shortcut.
- if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return;
- const approved=new Set(allowedFoods());
- for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(approved.has(cooked))approved.add(raw);
- const catalogIds=new Set(foods.map(food=>food.id));
- const forbidden=(habitual?.items||[]).filter(item=>catalogIds.has(item?.id)&&!approved.has(item.id));
- if(forbidden.length)throw Error('Este habitual contiene alimentos que tu coach ya no incluyó en tu catálogo. Revisá tu plan antes de registrarlo.');
+ '<small>Elegí una alternativa guardada para este horario. Se registrará únicamente al tocar «Registrar habitual».</small></div>';
 }
 function chosenHabitual(slot){
  const id=document.getElementById('habitualChoice_'+slot)?.value;
  if(!id)throw Error('Primero elegí una comida habitual de la lista.');
- const item=getHabitualList(slot).find((x,index)=>habitualEntryKey(x,index)===String(id));
+ const item=getHabitualList(slot).find(x=>String(x.id)===String(id));
  if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
  return item;
 }
 async function deleteChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
- return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
+ if(!fav.id)throw Error('No se puede eliminar este habitual antiguo. Primero sincronizá la cuenta.');
  if(!confirm('¿Eliminar «'+fav.name+'» de tus habituales? No se borrarán comidas ya registradas.'))return;
- const userId=state.session?.user?.id;
- if(!fav.id){
-  // Only the explicitly confirmed local item may be deleted: never another
-  // user's backup, another favorite or a malformed legacy backup.
-  if(!fav.pendingLocal||!["v1","v2"].includes(fav.localSource)||!userId)
-   throw Error('No se pudo identificar el respaldo local. Recargá tus habituales.');
-  const key=fav.localSource==="v2"?habitualListKey(slot):habitualKey(slot);
-  let saved;
-  try{saved=JSON.parse(localStorage.getItem(key)||"null");}
-  catch(_){throw Error('El respaldo local está dañado. No se eliminó ningún archivo.');}
-  if(!Array.isArray(saved))throw Error('El respaldo local cambió. Recargá tus habituales.');
-  if(state.session?.user?.id!==userId)return;
-  if(fav.localSource==="v1"){
-   if(JSON.stringify(saved)!==JSON.stringify(fav.items))throw Error('El habitual antiguo cambió. Volvé a elegirlo.');
-   localStorage.removeItem(key);
-  }else{
-   const index=saved.findIndex(x=>String(x?.name||"Habitual")===fav.name&&JSON.stringify(x?.items)===JSON.stringify(fav.items));
-   if(index<0)throw Error('El habitual local cambió. Volvé a elegirlo.');
-   const remaining=saved.filter((_,i)=>i!==index);
-   if(remaining.length)localStorage.setItem(key,JSON.stringify(remaining));
-   else localStorage.removeItem(key);
-  }
-  state.habitualSelection[slot]="";
-  await render();
-  notify('Habitual local eliminado. Tus diarios históricos están intactos.');
-  return;
- }
-  const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",userId).eq("meal_slot",slot).select("id");
-  if(state.session?.user?.id!==userId)return;
+ const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",state.session.user.id).eq("meal_slot",slot).select("id");
  if(error)throw error;
  if(!data?.length)throw Error('No se pudo confirmar la eliminación del habitual.');
- // A SELECT started before deletion must not resurrect this confirmed favorite.
- state.habitualesLoadToken=null;
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
- state.habitualSelection[slot]="";
  await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
- });
 }
 async function applyChosenHabitual(slot){
  if(!mealSlots.some(m=>m[0]===slot))throw Error('Horario inválido.');
- return runHabitualSlotAction(slot,async()=>{
  const fav=chosenHabitual(slot);
- validateHabitualCatalog(fav);
- const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
+ const d=activeDiary();d.meals[slot] ||= [];
  if(d.meals[slot].length&&!confirm('Esta comida ya tiene alimentos. ¿Reemplazarlos por «'+fav.name+'»?'))return;
- const previousItems=structuredClone(d.meals[slot]);
- const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
- const previousEdited=state.lastEditedMeal;
  d.meals[slot]=structuredClone(fav.items);
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
- try{await saveDiary();}
- catch(error){
-  d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;
-  d.skipped._closed=previousClosed;
-  if(state.session?.user?.id===ownerId&&today()===ownerDay)state.lastEditedMeal=previousEdited;
-  throw error;
- }
- // An A-account write must not toast or mutate B after an account/day switch.
- if(state.session?.user?.id===ownerId&&today()===ownerDay)
-  notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
- });
+ await saveDiary();notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
 }
 async function habitualAction(slot,action){
  if(!mealSlots.some(m=>m[0]===slot))throw Error("Comida inválida.");
- return runHabitualSlotAction(slot,async()=>{
  const d=activeDiary();d.meals[slot] ||= [];
  if(action==="save"){
   if(!d.meals[slot].length)throw Error("Primero registrá alimentos en esta comida.");
@@ -869,41 +496,10 @@ async function habitualAction(slot,action){
   const clean=name.trim().slice(0,60);
   if(!clean)throw Error("Ingresá un nombre para identificarla.");
   if(existing.length>=20)throw Error("Máximo 20 comidas habituales por horario.");
-  const userId=state.session?.user?.id,items=structuredClone(d.meals[slot]);
-  let remoteResult;
-  try{remoteResult=await sb.from("efg_habitual_meals").insert({student_id:userId,meal_slot:slot,name:clean,items}).select("id,meal_slot,name,items,created_at").single();}
-  catch(networkError){remoteResult={error:networkError};}
-  if(state.session?.user?.id!==userId)return;
-  if(remoteResult?.error){
-   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
-   const key=habitualListKey(slot);
-   let backups;
-   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
-   catch(_){throw Error("No pudimos leer el respaldo local; no sobrescribimos tus favoritos.");}
-   // A lost response may follow a committed insert. Next login deduplicates.
-   if(!backups.some(x=>x?.name===clean&&JSON.stringify(x.items)===JSON.stringify(items)))
-    backups.push({name:clean,items});
-   try{localStorage.setItem(key,JSON.stringify(backups));}
-   catch(_){throw Error("No pudimos guardar el habitual sin conexión en este dispositivo.");}
-   // Protect the local pending backup from an older cloud refresh.
-   state.habitualesLoadToken=null;
-   state.lastEditedMeal=slot;
-   await render();notify("Guardaste «"+clean+"» en este dispositivo, pendiente de sincronizar con tu cuenta.");
-   return;
-  }
-  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó el habitual.");
-  const data=remoteResult.data;
-  // Cancel any older SELECT snapshot before displaying the confirmed insert.
-  state.habitualesLoadToken=null;
+  const {data,error}=await sb.from("efg_habitual_meals").insert({student_id:state.session.user.id,meal_slot:slot,name:clean,items:structuredClone(d.meals[slot])}).select("id,meal_slot,name,items,created_at").single();
+  if(error)throw error;
   cloudHabituales.push(data);
-  state.cloudHabitualesUserId=userId;
-  state.habitualSelection[slot]=String(data.id);
-  // Keep this meal expanded after save so the new choice and its ingredient
-  // preview are visible immediately, rather than hidden in a closed <details>.
-  state.lastEditedMeal=slot;
-  await render();
-  notify("Guardaste «"+clean+"». Ya podés verlo y elegirlo en Mis habituales.");
-  return;
+  notify("Guardaste «"+clean+"» en tu cuenta.");return render();
  }
  const favorites=getHabitualList(slot);
  if(!favorites.length)throw Error("No hay comidas habituales guardadas.");
@@ -913,151 +509,42 @@ async function habitualAction(slot,action){
  if(!/^[0-9]+$/.test(answer.trim()))throw Error("Ingresá un número de la lista.");
  const index=Number(answer.trim())-1,fav=favorites[index];
  if(!fav)throw Error("Número de comida habitual inválido.");
- validateHabitualCatalog(fav);
  if(d.meals[slot].length&&!confirm("Esta comida ya tiene alimentos. ¿Querés reemplazarlos por «"+fav.name+"»?"))return;
- const ownerId=state.session?.user?.id,ownerDay=d.log_day;
- const previousItems=structuredClone(d.meals[slot]);
- const previousSkipped=d.skipped[slot],previousClosed=d.skipped._closed;
  d.meals[slot]=structuredClone(fav.items);d.skipped[slot]=false;d.skipped._closed=false;
- try{await saveDiary();}
- catch(error){
-  d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;d.skipped._closed=previousClosed;
-  throw error;
- }
- if(state.session?.user?.id===ownerId&&today()===ownerDay)
-  notify("Comida habitual registrada; balance recalculado.");
- });
+ await saveDiary();notify("Comida habitual registrada; balance recalculado.");
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
 let cloudRecipes=[];
-function myRecipes(){
- const userId=state.session?.user?.id;
- if(!userId)return [];
- const result=state.cloudRecipesUserId===userId?cloudRecipes.slice():[];
- // Local recipes that could not migrate (30 remote slots, offline) must
- // remain visible and registrable. Keep malformed backups intact but hidden.
- try{
-  const saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");
-  if(!Array.isArray(saved))return result;
-  saved.forEach((recipe,index)=>{
-   if(!recipe||typeof recipe.name!=="string"||!recipe.name.trim()||
-    !Array.isArray(recipe.ingredients)||!recipe.ingredients.length||
-    !Number.isFinite(Number(recipe.portions))||Number(recipe.portions)<=0||
-    !recipe.totals||!["k","p","c","f"].every(k=>Number.isFinite(Number(recipe.totals[k]))))return;
-   if(result.some(x=>x.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))return;
-   result.push({...recipe,id:"local-recipe-"+index,pendingLocal:true});
-  });
- }catch(_){} // Never destroy malformed local data.
- return result;
-}
+function myRecipes(){return cloudRecipes;}
 async function loadCloudRecipes(){
- const contextEpoch=state.authContextEpoch||0;
- const userId=state.session?.user?.id;
- // A late SELECT must not replace a newer list or a just-saved recipe.
- const loadToken=Symbol("recipes-load");
- state.recipesLoadToken=loadToken;
- if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
- const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId&&state.recipesLoadToken===loadToken;
- // Lost transport must not hide a recoverable recipe stored on this device.
- let data,error;
- try{({data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
- catch(networkError){error=networkError;}
- if(!sameUser())return;
- if(error){
-  // Offline recipes remain usable; never display another account's cache.
-  if(state.cloudRecipesUserId!==userId)cloudRecipes=[];
-  state.cloudRecipesUserId=userId;
-  console.warn("Recetas en la nube no disponibles; respaldos locales conservados.",error.message);
-  return;
- }
+ if(!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];return;}
+ const {data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",state.session.user.id).order("created_at",{ascending:true});
+ if(error)throw error;
  cloudRecipes=data||[];
- state.cloudRecipesUserId=userId;
- const backupKey=recipeStoreKey();
  let saved=[];
- try{saved=JSON.parse(localStorage.getItem(backupKey)||"[]");}catch(_){}
- // Remove only recipes confirmed remotely (including existing duplicates).
- // Keep capacity-limited or malformed local backups for recovery; the old code
- // discarded ALL local recipes after importing only the first free slots.
- const pendingLocal=[];
+ try{saved=JSON.parse(localStorage.getItem(recipeStoreKey())||"[]");}catch(_){}
  if(Array.isArray(saved))for(const recipe of saved){
-  if(!sameUser())return;
-  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals){pendingLocal.push(recipe);continue;}
-  if(cloudRecipes.some(x=>x.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))continue;
-  if(cloudRecipes.length>=30){pendingLocal.push(recipe);continue;}
-  let created;
-  try{created=await sb.from("efg_personal_recipes").insert({student_id:userId,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
-  catch(networkError){created={error:networkError};}
-  if(!sameUser())return; // Keep backup if import returned after user switch.
-  if(created.error){
-   // Keep unsynchronized backups intact for next login or reconnect.
-   console.warn("Receta local pendiente de sincronizar.",created.error.message);
-   return;
-  }
+  if(!recipe||!Array.isArray(recipe.ingredients)||!recipe.ingredients.length||!recipe.portions||!recipe.totals)continue;
+  if(cloudRecipes.some(x=>x.name===recipe.name&&JSON.stringify(x.ingredients)===JSON.stringify(recipe.ingredients)))continue;
+  if(cloudRecipes.length>=30)break;
+  const created=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:String(recipe.name).slice(0,70),ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+  if(created.error)throw created.error;
   cloudRecipes.push(created.data);
  }
- if(!sameUser())return;
- if(Array.isArray(saved)&&saved.length){
-  if(pendingLocal.length)localStorage.setItem(backupKey,JSON.stringify(pendingLocal));
-  else localStorage.removeItem(backupKey);
- }
-}
-// Shared picker projection (no canonical food mutations).
-function selectableFoods(){
- const userId=state.session?.user?.id||null;
- return foods.concat(recipeCatalogEntries({
-  foods,fitRecipes:FIT_RECIPES,personalRecipes:userId?myRecipes():[],userId
- }));
-}
-function attachRecipeSnapshot(entry,food){
- if(Array.isArray(food?.recipeIngredients))
-  entry.ingredients=food.recipeIngredients.map(x=>({foodId:x.foodId,grams:x.grams}));
- return entry;
-}
-function recipeFoodSignal(food,{pattern,inPlan}={}){
- const rows=Array.isArray(food?.recipeIngredients)?food.recipeIngredients:[];
- const signals=rows.map(row=>{
-  const item=foods.find(x=>x.id===row.foodId);
-  return item?describeTrafficLight(item,{pattern,evidence:state.foodCompatEvidence}):
-   {color:'yellow'};
- });
- const color=!signals.length?'yellow':signals.some(x=>x.color==='red')?'red':
-  signals.some(x=>x.color==='yellow')?'yellow':
-  signals.every(x=>x.color==='green')?'green':'neutral';
- const symbol={neutral:'',green:'🟢',yellow:'🟡',red:'🔴'}[color];
- const note={green:'Ingredientes compatibles según la revisión disponible; revisar preparación.',
-  yellow:'Revisar ingredientes, trazas y preparación de esta receta.',
-  red:'Algún ingrediente es incompatible con el patrón declarado.'}[color];
- return {color,symbol,canRecord:true,verified:false,details:
-  (inPlan?'<span class="efg-in-plan">Incluido en mi plan</span>':'')+
-  (note?'<span class="efg-food-compatibility efg-compat-'+color+'">'+note+'</span>':'')};
-}
-// Recipes remain visible as history; registering one must respect a published
-// Coach food list just like the direct meal picker and saved habitual meals.
-// No clinical suitability is inferred from this catalog membership.
-function allowedRecipeIngredientIds(){
- const approved=new Set(allowedFoods());
- if(state.profile?.role==="student"&&Array.isArray(state.foodPlan?.approved_food_ids))
-  for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(approved.has(cooked))approved.add(raw);
- return approved;
-}
-function validateRecipeIngredientAccess(ingredients){
- if(state.profile?.role!=="student"||!Array.isArray(state.foodPlan?.approved_food_ids))return;
- const approved=allowedRecipeIngredientIds();
- if(!Array.isArray(ingredients)||!ingredients.length||
-  ingredients.some(row=>!approved.has(Array.isArray(row)?row[0]:row?.foodId)))
-  throw Error("Esta receta contiene ingredientes que tu coach no incluyó en el catálogo aprobado. Revisá tu plan antes de registrarla.");
+ // Al completar la importación, retirar el respaldo local para no recrear recetas eliminadas.
+ if(Array.isArray(saved)&&saved.length)localStorage.removeItem(recipeStoreKey());
 }
 async function createPersonalRecipe(){
  const name=prompt("Nombre de la receta propia (ej.: Bowl de granola y yogur)");
  if(name===null)return;
  if(!name.trim()||name.trim().length>70)throw Error("Usá un nombre de 1 a 70 caracteres.");
- const ingredients=[],permittedIngredients=allowedRecipeIngredientIds();
+ const ingredients=[];
  for(let i=0;i<12;i++){
   const nameInput=prompt("Ingrediente "+(i+1)+". Escribí su nombre; dejalo vacío para terminar.\nEj.: yogur, granola, banana",i===0?"":"");
   if(nameInput===null){if(!ingredients.length)return;break;}
   const term=nameInput.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
   if(!term){if(!ingredients.length)throw Error("Agregá al menos un ingrediente.");break;}
-  const matches=foods.filter(f=>permittedIngredients.has(f.id)&&f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
+  const matches=foods.filter(f=>f.name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").includes(term)).slice(0,12);
   if(!matches.length){notify("No encontramos ese ingrediente en el catálogo.");i--;continue;}
   const chosen=prompt("Elegí el número del ingrediente:\n"+matches.map((f,j)=>(j+1)+". "+f.name).join("\n"),"1");
   if(chosen===null)return;
@@ -1068,85 +555,30 @@ async function createPersonalRecipe(){
   ingredients.push({foodId:matches[idx].id,grams});
  }
  if(!ingredients.length)return;
- validateRecipeIngredientAccess(ingredients);
  const portionsText=prompt("¿Cuántas porciones rinde la receta?","1");if(portionsText===null)return;
  const portions=Number(portionsText);if(!Number.isInteger(portions)||portions<1||portions>50)throw Error("Cantidad de porciones inválida.");
  const totals={k:0,p:0,c:0,f:0,fi:0};
  for(const x of ingredients){const f=foods.find(y=>y.id===x.foodId);if(!f)throw Error("Ingrediente no encontrado.");for(const key of Object.keys(totals))totals[key]+=Number(f[key]||0)*x.grams;}
  const recipe={name:name.trim(),ingredients,portions,totals};
  const saved=myRecipes();if(saved.length>=30)throw Error("Límite de 30 recetas propias.");
-  const userId=state.session?.user?.id;
-  let remoteResult;
-  try{remoteResult=await sb.from("efg_personal_recipes").insert({student_id:userId,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();}
-  catch(networkError){remoteResult={error:networkError};}
-  if(state.session?.user?.id!==userId)return;
-  if(remoteResult?.error){
-   if(!recoverableOfflineWrite(remoteResult.error))throw remoteResult.error;
-   const key=recipeStoreKey();
-   let backups;
-   try{backups=JSON.parse(localStorage.getItem(key)||"[]");if(!Array.isArray(backups))throw Error("invalid backup");}
-   catch(_){throw Error("No pudimos leer el respaldo local; la receta no se sobrescribió.");}
-   if(!backups.some(x=>x?.name===recipe.name&&sameRecipeIngredients(x.ingredients,recipe.ingredients)))
-    backups.push(recipe);
-   try{localStorage.setItem(key,JSON.stringify(backups));}
-   catch(_){throw Error("No pudimos guardar la receta sin conexión en este dispositivo.");}
-   state.recipesLoadToken=null; // Keep local pending backup ahead of stale cloud reads.
-   notify("Receta guardada sólo en este dispositivo, pendiente de sincronizar.");
-   return render();
-  }
-  if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó la receta.");
-  state.recipesLoadToken=null; // Invalidate a SELECT started before this insert.
-  cloudRecipes.push(remoteResult.data);
-  state.cloudRecipesUserId=userId;
-  notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
+ const {data,error}=await sb.from("efg_personal_recipes").insert({student_id:state.session.user.id,name:recipe.name,ingredients:recipe.ingredients,portions:recipe.portions,totals:recipe.totals}).select("id,name,ingredients,portions,totals,created_at").single();
+ if(error)throw error;
+ cloudRecipes.push(data);
+ notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
-let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
-function closeRecipeRegistration(){
- document.getElementById("efgRecipeRegisterOverlay")?.remove();
- if(recipeDialogReturnFocus?.isConnected)recipeDialogReturnFocus.focus({preventScroll:true});
- recipeDialogReturnFocus=null;
-}
-function registerPersonalRecipe(){
+async function registerPersonalRecipe(){
  const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
- closeRecipeRegistration();
- recipeDialogReturnFocus=document.activeElement;
- root.insertAdjacentHTML("beforeend",'<div class="efg-recipe-register-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle">'+
- '<div class="between"><h2 id="efgRecipeRegisterTitle">Registrar receta propia</h2><button type="button" class="btn small ghost" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">✕</button></div>'+
- '<p class="pilot-hint">Elegí la preparación, el horario y las porciones realmente consumidas. Nada se registrará hasta que confirmes.</p>'+
- '<div class="field"><label for="efgRecipeRegisterId">Mi receta</label><select id="efgRecipeRegisterId">'+saved.map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.name)+' · '+num(r.totals.k/r.portions)+' kcal por porción'+(r.pendingLocal?' · pendiente de sincronizar':'')+'</option>').join("")+'</select></div>'+
- '<div class="field"><label for="efgRecipeRegisterSlot">Horario de comida</label><select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+escapeHTML(m[0])+'">'+escapeHTML(m[1])+'</option>').join("")+'</select></div>'+
- '<div class="field"><label for="efgRecipeRegisterQty">Porciones consumidas</label><input type="number" id="efgRecipeRegisterQty" value="1" min="0.1" max="20" step="any" inputmode="decimal"></div>'+
- '<div class="efg-recipe-register-actions"><button type="button" class="btn light" data-act="closeRecipeRegistration">Cancelar</button><button type="button" class="btn" data-act="confirmRecipeRegistration">Registrar y recalcular</button></div></section></div>');
- document.getElementById("efgRecipeRegisterId")?.focus({preventScroll:true});
+ const choice=prompt("Elegí la receta a registrar:\n"+saved.map((r,i)=>(i+1)+". "+r.name+" · "+num(r.totals.k/r.portions)+" kcal/porción").join("\n"),"1");
+ if(choice===null)return;const selected=saved[Number(choice)-1];if(!selected)throw Error("Número de receta inválido.");
+ const meal=prompt("Elegí la comida:\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"5");
+ if(meal===null)return;const slot=mealSlots[Number(meal)-1]?.[0];if(!slot)throw Error("Comida inválida.");
+ const qtyText=prompt("¿Cuántas porciones comiste?","1");if(qtyText===null)return;
+ const qty=Number(qtyText.replace(",","."));if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Número de porciones inválido.");
+ const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+ for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
+ const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;await saveDiary();notify("Receta registrada y macros recalculados.");
 }
-async function confirmRecipeRegistration(){
- if(recipeRegistrationBusy)return;
- const selected=myRecipes().find(r=>r.id===document.getElementById("efgRecipeRegisterId")?.value);
- const slot=document.getElementById("efgRecipeRegisterSlot")?.value;
- const qty=Number(document.getElementById("efgRecipeRegisterQty")?.value);
- if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
- validateRecipeIngredientAccess(selected.ingredients);
- if(pendingMealRegistrations.has(slot))return;
- recipeRegistrationBusy=true;const slotLease=pendingMealRegistrations.add(slot);
- try{
-  const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
-  for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
-  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
-  const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
-  d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;
-  try{await saveDiary();}
-  catch(error){
-   d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
-   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))state.diary=beforeDiary;
-   throw error;
-  }
-  // A delayed account A completion must not close B's popup or toast B.
-  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-   closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
-  }
- }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot,slotLease);}
-}
-function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">Nutrición Con-Ciencia</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
+function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">EFG NUTRITION PRO</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
 function efgNavIcon(tab){
@@ -1154,10 +586,8 @@ function efgNavIcon(tab){
  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
  planner:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18m-12 5h6m-3-3v6"/>',
  weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
- nutritionScience:'<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/><path d="m10 2 2 3 2-3"/>',
  studentMore:'<circle cx="5" cy="6" r="1"/><path d="M9 6h12"/><circle cx="5" cy="12" r="1"/><path d="M9 12h12"/><circle cx="5" cy="18" r="1"/><path d="M9 18h12"/>',
  coach:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 15l3-3 3 2 4-5M7 18h10"/>',
- coachIntake:'<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>',
  coachStudents:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>',
  reports:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
  payments:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h5"/>',
@@ -1174,20 +604,16 @@ function efgAvatarLetters(name){
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route)?[["history","⌂","Mi historial"],["intake","▣","Mi ficha"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
+  ?[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["studentMore","☷","Más"]]
   :role==="coach"
-  ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
-  :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
- const visibleMenu=role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&
-  ["private","review","ready"].includes(state.coachPilotEntry?.route)
-  ?menu.concat([["privateHealth","◌","Mis restricciones"]]):menu;
+  ?[["coach","⌂","Inicio"],["home","◷","MI DÍA"],["coachStudents","♧","Alumnos"],["studentMore","☷","MI ESPACIO"],["payments","▤","Pagos"]]
+  :[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["adminMore","☷","Más"]];
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
- root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
+ root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>EFG NUTRITION <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
+ menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
- '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
- pilotGuideLifecycle.mountStudent(root);
+ '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>EFG Nutrition</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">EFG NUTRITION · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
 function welcomeView(){
@@ -1195,7 +621,7 @@ function welcomeView(){
  root.innerHTML='<div class="efg-onboard" role="main" aria-labelledby="efg-onboard-heading">'+
   '<section class="efg-onboard-sheet">'+
    '<header class="efg-onboard-brand"><img class="efg-onboard-leaf efg-onboard-serotonin" src="./assets/serotonina-acuarela.avif" width="70" height="42" alt="" aria-hidden="true">'+
-    '<strong>Nutrición Con-Ciencia</strong><small>PRO · PRIVADO</small></header>'+
+    '<strong>EFG</strong><small>NUTRITION PRO</small></header>'+
    '<div class="efg-onboard-photo" role="img" aria-label="Bol de vegetales frescos, palta, tomate, zanahoria, hojas verdes y cereales"></div>'+
    '<div class="efg-onboard-copy">'+
     '<h1 id="efg-onboard-heading">Hoy comienza una <em>nueva forma de cuidarte.</em></h1>'+
@@ -1208,12 +634,9 @@ function welcomeView(){
   '</section></div>';
 }
 async function loadWelcomeStatus(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  state.welcomePending=false;
- if(SCIENCE_WELCOME_ENABLED)return; // Replace generic old student welcome with science intro on new release.
  if(state.profile?.role!=="student"||!state.profile?.active)return;
- const {data,error}=await contextRead(sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle());
+ const {data,error}=await sb.from("efg_student_onboarding").select("seen_at").eq("user_id",state.session.user.id).maybeSingle();
  // Un error de red o configuración nunca impide consultar los diarios privados.
  if(error){console.warn("No se pudo comprobar la bienvenida:",error.message);return;}
  state.welcomePending=!data;
@@ -1234,14 +657,14 @@ async function completeWelcome(){
 }
 function loginView(message=""){
  const verification=!!state.otpEmail;
- const title=verification?"Revisá tu correo":"Ingresá a tu espacio privado.";
+ const title=verification?"Ingresá el código que recibiste":"Ingresá a tu espacio privado.";
  const details=verification
-  ?"Si tu cuenta está habilitada, recibirás un código de verificación en <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
+  ?"Enviamos un código de verificación a <b>"+escapeHTML(state.otpEmail)+"</b>. Copialo acá, sin salir de la aplicación."
   :"Ingresá con el correo que habilitó EFG o tu entrenador. En vez de abrir enlaces, recibirás un código numérico.";
  const form=verification
-  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Este código verifica únicamente tu identidad. No autoriza a compartir tus datos nutricionales, peso, actividad ni suplementos. Si sos alumno, podrás autorizar o revocar el seguimiento por separado desde Privacidad y seguimiento.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
+  ?'<form id="pilot-otp-form"><div class="field"><label for="loginOtp">Código de acceso</label><input type="text" inputmode="numeric" pattern="[0-9]{6,10}" autocomplete="one-time-code" id="loginOtp" required minlength="6" maxlength="10" placeholder="Código numérico" class="pilot-otp-input"></div><p class="pilot-hint">Al ingresar con este código, autorizás a tu coach asignado a consultar tus registros nutricionales, peso, actividad y suplementos para tu seguimiento. Podrás revocar el acceso desde la app. El código verifica tu identidad; ingresarlo confirma esta autorización.</p><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Verificando…":"Ingresar con mi código")+'</button></form><div class="pilot-auth-help"><button class="btn small ghost" data-act="loginBack">Cambiar correo</button><button class="btn small light" data-act="resendOtp" '+(state.loggingIn?'disabled':'')+'>Reenviar código</button></div><p class="pilot-footnote">Si recibiste el correo anterior con un enlace de confirmación, también podés abrirlo mientras terminamos la configuración del código numérico.</p>'
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
- root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><img class="efg-login-brandmark" src="./assets/serotonina-acuarela.avif" width="100" height="56" alt="" aria-hidden="true" decoding="async"><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A Nutrición Con-Ciencia</div><h2>'+title+'</h2><p>'+details+'</p>'+
+ root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><img class="efg-login-brandmark" src="./assets/serotonina-acuarela.avif" width="100" height="56" alt="" aria-hidden="true" decoding="async"><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A EFG NUTRITION</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
  form+'<p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
 }
@@ -1261,10 +684,8 @@ async function requestOtp(email){
   loginView("Si tu correo está habilitado, recibirás un código numérico de acceso. Puede tardar unos instantes; revisá Spam si es necesario.");
  }catch(err){
   state.loggingIn=false;
-  // Do not reveal provider messages that could expose email/account existence.
-  console.warn("EFG OTP request",err?.code||"failed");
-  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
-  loginView(connection?"No pudimos conectar con el servicio. Revisá tu conexión y volvé a intentarlo.":"No pudimos solicitar el código en este momento. Intentá nuevamente en unos instantes.");
+  fail(err);
+  loginView(err.message);
  }
 }
 async function confirmOtp(token){
@@ -1272,20 +693,18 @@ async function confirmOtp(token){
  const code=String(token||"").trim();
  if(!email||!/^\d{6,10}$/.test(code))throw new Error("El código debe tener entre 6 y 10 dígitos numéricos.");
  state.loggingIn=true;
- let verified=false;
  try{
   const {error}=await sb.auth.verifyOtp({email,token:code,type:"email"});
   if(error)throw error;
-  verified=true;
+  const who=(await sb.auth.getUser()).data?.user;
+  if(who?.id)sessionStorage.setItem("efgNutritionCoachConsent:"+who.id,"yes");
   state.otpEmail=null;
   state.loggingIn=false;
   await refresh();
  }catch(err){
   state.loggingIn=false;
-  console.warn("EFG OTP verification",err?.code||"failed");
-  if(verified){sessionConnectionRetry();return;}
-  const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
-  loginView(connection?"No pudimos verificar tu código por un problema de conexión. Volvé a intentarlo.":"El código es incorrecto o venció. Revisá el correo o solicitá otro.");
+  fail(err);
+  loginView("El código es incorrecto o venció. Revisá el correo o solicitá otro.");
  }
 }
 function sessionConnectionRetry(){
@@ -1294,21 +713,13 @@ function sessionConnectionRetry(){
  '<div class="pilot-toolbar"><button class="btn" data-act="retry">Reintentar conexión</button>'+
  '<button class="btn small ghost" data-act="logout">Salir e ingresar nuevamente</button></div></div>';
 }
-function unauthorized(_msg){
- // Only after authentication: do not echo provider errors, invitation status,
- // addresses or whether another email is registered in our directory.
- root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>Nutrición Con-Ciencia muestra únicamente las herramientas autorizadas para tu cuenta.</p></div>'+
- '<div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">ACCESO PRIVADO · NUTRICIÓN CON-CIENCIA</div><h2>Necesitamos verificar tu habilitación</h2>'+
- '<p>Por ahora no podemos abrir un espacio de Nutrition Coach en esta sesión. No se muestran datos de ninguna otra persona.</p>'+
- '<div class="pilot-alert" role="status" style="margin:20px 0">Si recibiste una invitación, consultá con quien te la envió antes de intentar ingresar de nuevo.</div>'+
- '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions" aria-expanded="false">Cómo solicitar acceso</button>'+
- '<div id="efgAccessInstructions" class="pilot-hint" hidden><p>Pedile a tu entrenador que verifique la invitación y el cupo de tu cuenta. Si sos coach, contactá al administrador de EFG a través del canal habitual con el que te invitaron. No compartas códigos de ingreso ni contraseñas.</p><p>La aplicación no envía una solicitud automáticamente desde este botón.</p></div>'+
- '<button class="btn block ghost" data-act="logout" style="margin-top:12px">Salir e ingresar con otro correo</button></div></div></div>';
+function unauthorized(msg){
+ root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><div class="food-hero">🔒 🌿</div><h1>Un espacio privado, con permisos.</h1><p>EFG Nutrition protege los datos personales y nutricionales de cada alumno.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><h2>Cuenta pendiente de habilitación</h2><p>'+escapeHTML(msg||"Este correo aún no fue habilitado.")+'</p><div class="pilot-alert" style="margin:20px 0">Tu entrenador debe crear tu usuario antes de que puedas usar la aplicación. Si sos el administrador, ingresá con el correo habilitado por EFG.</div><button class="btn block" data-act="logout">Cerrar sesión</button></div></div></div>';
 }
 function macroCard(name,key,t,goal){let target=goal?.[key];let ratio=target?Math.min(100,Math.max(0,t[key]/target*100)):0;return '<div class="card metric-card metric-'+key+'"><div class="metric-label">'+name+'</div><div class="metric-value">'+num(t[key],1)+' <span>'+ (target?'/ '+num(target):'') +' '+(key==='k'?'kcal':'g')+'</span></div>'+ (target?'<div class="meter"><div style="width:'+ratio+'%"></div></div><div class="metric-remaining">'+num(Math.max(0,target-t[key]),1)+' restante</div>':'<div class="metric-remaining" style="margin-top:9px">Sin objetivo asignado</div>')+'</div>';}
 
 function versionCheckCard(){
- return '<section class="card efg-version-settings"><h3>🔄 Versión de Nutrición Con-Ciencia</h3>'+
+ return '<section class="card efg-version-settings"><h3>🔄 Versión de EFG Nutrition Pro</h3>'+
  '<p class="pilot-hint">Comprobá si hay una publicación nueva sin salir de tu cuenta.</p>'+
  '<button type="button" class="btn small light" data-act="checkAppVersion">Comprobar actualizaciones</button>'+
  '<p class="pilot-hint" id="efgBuildStatus" role="status" aria-live="polite">La app también revisa versiones automáticamente.</p></section>';
@@ -1325,7 +736,6 @@ function efgMenuIcon(kind){
   weight:'<path d="m3 18 6-6 4 4 8-9"/><path d="M15 7h6v6"/><path d="M3 21h18"/>',
   sport:'<circle cx="14" cy="4" r="2"/><path d="m12 9-4 4-5 1m8-6 5 5 4 1M12 10l-1 6-5 5m6-6 4 3 2 4"/>',
   planner:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v4m10-4v4M3 10h18m-12 5h6m-3-3v6"/>',
-  nutritionScience:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8m-8 4h8m-8 4h5"/>',
   recipes:'<path d="M3 14c.5 5 4 7 9 7s8.5-2 9-7H3z"/><path d="M7 12c-1-3 1-6 5-7m1 7c0-4 2-6 5-7"/>',
   supplements:'<rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-38 12 12)"/><path d="m9 10 5 6"/>',
   payments:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h5"/>',
@@ -1347,13 +757,12 @@ function coachPersonalMoreView(){
  ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
- ["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],
  ["messages","💬","Mensajería interna","mint"],["payments","💳","Pagos y licencias","cream"]
  ]);
 }
 function studentMoreView(){
  return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
- ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["nutritionScience","🧠","Nutrición Con-Ciencia","lilac"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+ ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
 }
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
@@ -1372,13 +781,12 @@ function studentRecipesView(){
  '<div class="efg-fit-grid">'+FIT_RECIPES.filter(r=>!state.fitFilter||state.fitFilter==="all"||r.category===state.fitFilter).map(fitRecipeCard).join("")+'</div>'+
  '<p class="efg-fit-disclaimer">Las preparaciones no reemplazan un plan nutricional. Las porciones y valores se calculan según el catálogo EFG; pueden variar por marcas, peso comestible y método de cocción.</p></section>'+
  '<section class="card efg-content-card efg-own-recipes"><div class="efg-own-recipes-header"><div><span class="eyebrow">TU RECETARIO</span><h2>Mis preparaciones guardadas</h2><p class="pilot-hint">Tus recetas personales siguen siendo privadas y editables mediante una nueva carga.</p></div><div class="efg-actions"><button class="btn" data-act="createPersonalRecipe">+ Crear receta</button><button class="btn light" data-act="registerPersonalRecipe" '+(!rs.length?'disabled':'')+'>Registrar receta propia</button></div></div>'+
- (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
+ (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
 }
 async function registerFitRecipe(id){
  if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
  const recipe=FIT_RECIPES.find(r=>r.id===id);
  if(!recipe)throw new Error("No encontramos esa receta.");
- validateRecipeIngredientAccess(recipe.ingredients);
  const meal=prompt("¿En qué comida querés registrar «"+recipe.name+"»?\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"1");
  if(meal===null)return;
  const slot=mealSlots[Number(meal)-1]?.[0];
@@ -1387,23 +795,11 @@ async function registerFitRecipe(id){
  if(answer===null)return;
  const qty=Number(answer.replace(",","."));
  if(!Number.isFinite(qty)||qty<=0||qty>20)throw new Error("Ingresá entre 0,1 y 20 porciones.");
- if(pendingMealRegistrations.has(slot))return; // Avoid racing a manual/favorite diary write.
- const slotLease=pendingMealRegistrations.add(slot);
- try{
-  const {perPortion}=recipeTotals(recipe,foods);
-  const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
-  for(const key of ["k","p","c","f","fi"])item[key]=Math.round(perPortion[key]*qty*100)/100;
-  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
-  const beforeItems=structuredClone(d.meals[slot]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
-  d.meals[slot].push(item);d.skipped=d.skipped||{};d.skipped[slot]=false;d.skipped._closed=false;
-  try{await saveDiary();}
-  catch(error){
-   d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
-   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))state.diary=beforeDiary;
-   throw error;
-  }
-  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
+ const {perPortion}=recipeTotals(recipe,foods);
+ const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
+ for(const key of ["k","p","c","f","fi"])item[key]=Math.round(perPortion[key]*qty*100)/100;
+ const d=activeDiary();d.meals[slot] ||= [];d.meals[slot].push(item);d.skipped[slot]=false;d.skipped._closed=false;
+ await saveDiary();notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
 }
 function studentSupplementsView(){
  return rootText("Suplementos","Registrá tus suplementos del día independientemente de las comidas.")+
@@ -1424,9 +820,7 @@ function studentSummariesView(){
 function studentPrivacyView(){
  const c=state.consent;
  return rootText("Privacidad","Vos decidís si autorizás a tu coach a consultar tus registros.")+
- '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>'+
- (state.profile.role==="student"&&(state.planAccessSupported||state.coachPilotIntake)?
- '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
+ '<section class="card efg-content-card"><h2>Seguimiento nutricional</h2><p class="pilot-hint">Tu coach asignado puede consultar alimentación, peso, actividad y suplementos únicamente con tu consentimiento.</p><div class="pilot-notice"><strong>'+(c?.accepted?'Acceso autorizado':'Acceso no autorizado')+'</strong><small>Podés modificar este permiso cuando lo necesites.</small></div><button class="btn" data-act="'+(c?.accepted?'revokeConsent':'grantConsent')+'">'+(c?.accepted?'Revocar autorización':'Autorizar seguimiento')+'</button></section>';
 }
 function studentPlannerView(){
  return rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
@@ -1434,7 +828,7 @@ function studentPlannerView(){
 }
 function adminMoreView(){
  return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
- ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"]]);
+ ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["payments","💳","Pagos y licencias","blue"]]);
 }
 /* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
    de una fila RLS creada/aprobada por el coach; sin tabla, permiso = NO. */
@@ -1446,17 +840,13 @@ function weeklyScoreForCoach(){
  return calculateWeeklyConsistency({today:today(),logs:state.coachProgressLogs||[],
    goals:state.coachGoals||[],totalOf:dailyTotals,goalForDate});
 }
-async function loadSundayPermission(studentId,assertCoachDetail){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
+async function loadSundayPermission(studentId){
  state.rewardApproval=null;state.rewardFeatureReady=false;
  if(!studentId||!state.session?.user?.id)return;
- if(state.profile.role!=="student"&&!assertCoachDetail)return;
- assertCoachDetail?.();
- const {data,error}=await contextRead(sb.from("efg_sunday_rewards")
+ if(state.profile.role!=="student"&&(!state.selectedStudent||!state.consent?.accepted))return;
+ const {data,error}=await sb.from("efg_sunday_rewards")
    .select("student_id,week_monday,coach_id,approved,approved_at")
-   .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle());
- assertCoachDetail?.();
+   .eq("student_id",studentId).eq("week_monday",currentWeekMonday()).maybeSingle();
  if(error){
   // La migración todavía puede estar pendiente: nunca atribuir una
   // autorización sin prueba persistida, y nunca bloquear el diario.
@@ -1520,7 +910,7 @@ function homeView(){
    }),{opened:state.rewardOpened===true,personal:isPersonalProfessional,
     verified:!isPersonalProfessional&&state.rewardFeatureReady===true,
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
- const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
+ const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas guardadas en tu cuenta</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -1528,14 +918,11 @@ function homeView(){
    return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span>'+portion+' · '+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
-  const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
-  const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
-  const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
   return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  detail+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
+  detail+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
- const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
+ const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos cuando autorizás el seguimiento al ingresar con tu código. Podés retirar el permiso cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
  const closePanel=showConsent?'<div class="nutrition-day-close"><h3>📝 Comentario del día</h3>'+
  '<p class="pilot-hint">¿Tuviste dificultades con una comida, los horarios, el apetito o la saciedad? Podés contárselo a tu coach. Es opcional.</p>'+
  '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
@@ -1549,44 +936,16 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  pastelDaySummary(tot,goal,d,mealSlots)+
  weeklyPanel+
  '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
- (state.profile.role==="student"?nutritionTipCardHTML({
-  allowExplore:!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending"
- }):"")+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
  '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div><div id="mealDialogContainer"></div>'+goalForm;
 }
 
-// One catalog across student, coach, planner and diary. A guided example and
-// its selected ingredients are NOT a whitelist for the student's food diary.
-// Compatibility signals are annotations, not catalog membership or clinical approval.
-function allowedFoods(){
- return selectableFoods().map(f=>f.id);
-}
-// El sushi se muestra por piezas; el diario conserva gramos equivalentes.
-function plannerSushiPortion(food){
- const portion=food?.id?.startsWith("sushi_")?FOOD_UNIT_PORTIONS[food.id]:null;
- return Number(portion?.grams)>0?portion:null;
-}
-function plannerShownQty(food,grams){
- const portion=plannerSushiPortion(food);
- return portion?Math.max(1,Math.round(Number(grams||0)/portion.grams)):grams;
-}
-function plannerMeasuredGrams(food,shownQty){
- const portion=plannerSushiPortion(food);
- if(portion&&(!Number.isInteger(shownQty)||shownQty<1||shownQty>100))
-  return NaN; // No interrumpir la vista previa mientras se edita el número.
- return portion?shownQty*portion.grams:shownQty;
-}
-function plannerQtyLabel(food,unit){
- if(food?.unit==='porción')return 'porciones';
- const portion=plannerSushiPortion(food);
- return portion?"piezas (≈ "+num(portion.grams)+" g cada una, estimados)":unit;
-}
+function allowedFoods(){return foods.map(f=>f.id);}
 function plannerCard(){
  const goal=activeGoal(),d=activeDiary(),tot=dailyTotals(d),mode=state.plannerMode;
- const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
+ const plan=makePlan({foods,approved:allowedFoods(),diary:d,goals:goal,totals:tot,dinnerOnly:mode==="dinner",selections:state.plannerSelections});
  let out='<section class="card planner-panel" id="planSuggestionCard"><div class="eyebrow">TU PLAN FLEXIBLE</div><h2>✨ Resolver lo que me falta</h2>'+
  '<p class="pilot-hint">Elegí qué querés comer. Primero calculamos proteína, después hidratos y, solo si los elegís, extras para completar calorías. Las grasas se contabilizan, pero no se imponen.</p>'+
  '<div class="planner-mode"><button class="'+(mode==="both"?"on":"")+'" data-planmode="both">Merienda + cena</button><button class="'+(mode==="dinner"?"on":"")+'" data-planmode="dinner">Solo cena</button></div>';
@@ -1594,13 +953,7 @@ function plannerCard(){
  const left=plan.remaining||{};
  out+='<div class="planner-remaining"><b>Saldo REAL · lo que falta hoy</b><span>'+num(left.k,1)+' kcal · P '+num(left.p,1)+' g · HC '+num(left.c,1)+' g · G '+num(left.f,1)+' g</span><small>Los mismos valores de Mi alimentación: solo lo que ya registraste.</small></div>';
  if(!plan.ready)return out+'<div class="pilot-alert">'+escapeHTML(plan.reason)+'</div></section>';
- const all=allPlannerFoods(selectableFoods(),allowedFoods());
- // Same full catalog, annotated by the SAME semaphore used by daily meal search.
- // No user-specific second catalog; no hidden foods for uncertain evidence.
- const plannerDisplayFoods=all.map(f=>{
-  const signal=foodTrafficLight(f);
-  return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};
- });
+ const all=allPlannerFoods(foods,allowedFoods());
  const slotNames={protein:"Proteína",carbs:"Hidratos",vegetable:"Extra para calorías · opcional 1",fat:"Extra para calorías · opcional 2"};
  for(const meal of plan.meals){
   const title=mealSlots.find(m=>m[0]===meal.slot)?.[1]||meal.slot;
@@ -1628,34 +981,33 @@ function plannerCard(){
     if(suggestions.length){
      out+='<div class="planner-extras-helper"><b>¿Querés completar calorías con un extra?</b>'+
        '<p data-plan-extra-remaining="'+escapeHTML(meal.slot)+'">Las calorías que faltan aparecen arriba. Elegí un extra solo si querés.</p>'+
-       '<div class="planner-extra-actions">'+suggestions.map(f=>'<button type="button" class="planner-extra-chip" data-planextra="'+escapeHTML(meal.slot)+'|vegetable" data-planfood="'+escapeHTML(f.id)+'">+ '+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+" ":"")+f.name)+'</button>').join("")+'</div>'+
+       '<div class="planner-extra-actions">'+suggestions.map(f=>'<button type="button" class="planner-extra-chip" data-planextra="'+escapeHTML(meal.slot)+'|vegetable" data-planfood="'+escapeHTML(f.id)+'">+ '+escapeHTML(f.name)+'</button>').join("")+'</div>'+
        '<small>Elegir uno solo prepara la sugerencia de gramos; no registra alimentos automáticamente.</small></div>';
     }
    }
    const key=meal.slot+"|"+row.category;
    const label=slotNames[row.category]||"Alimento";
    const currentId=row.food?.id||"none";
-   let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(plannerDisplayFoods,meal.slot);
+   let options='<option value="none"'+(currentId==="none"?' selected':'')+'>No agregar</option>'+groupedFoodOptions(available,meal.slot);
    if(currentId!=="none")options=options.replace('<option value="'+escapeHTML(currentId)+'">','<option value="'+escapeHTML(currentId)+'" selected>');
    out+='<div class="planner-item"><label for="planSearch_'+escapeHTML(key)+'">'+label+'</label>'+
     '<input class="planner-food-search" type="search" autocomplete="off" data-plansearch="'+escapeHTML(key)+'" id="planSearch_'+escapeHTML(key)+'" placeholder="Buscar entre todos los alimentos…">'+
-    '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>'+
-    '<div class="efg-compat-status" data-plan-compat="'+escapeHTML(key)+'" role="status">'+(row.food?foodTrafficLight(row.food).details:'')+'</div>';
+    '<select aria-label="'+escapeHTML(label)+'" data-planselect="'+escapeHTML(key)+'">'+options+'</select>';
    out+='<div class="planner-row-actions" data-plancontrols="'+escapeHTML(key)+'">';
    if(row.food){
     const unsupported=Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id);
-    const qty=row.grams,portion=plannerSushiPortion(row.food),shownQty=plannerShownQty(row.food,qty);
+    const qty=row.grams;
     const nutrientLabel=row.targetNutrient==="p"?"proteínas":row.targetNutrient==="c"?"hidratos":"calorías";
     const targetExplanation=row.capped?' <small>'+(meal.split==="snack-third"?"Se sugiere una porción moderada de merienda. Lo que falte pasará a la cena.":"Para cubrir el objetivo solo con este alimento harían falta aproximadamente "+num(row.neededGrams)+" "+escapeHTML(row.unit)+". Se recomienda una porción limitada; el resto quedará indicado abajo.")+'</small>':"";
     out+='<div class="planner-qty"><div class="planner-recommendation">'+
-      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(shownQty)+' '+escapeHTML(portion?"piezas":row.unit)+'</b>'+(portion?' <small>(≈ '+num(shownQty*portion.grams)+' g estimados)</small>':'')+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
+      (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(qty)+' '+escapeHTML(row.unit)+'</b>'+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
       (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+
       (["egg","egg_boiled","huevo_frito","huevo_frito_fritolim"].includes(row.food.id)&&qty>0?' <small>(≈ '+num(qty/50)+' huevos de 50 g)</small>':"")+
       '</div>';
     if(unsupported){
       out+='<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">Registrar con ingredientes</button>';
     }else{
-      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(plannerQtyLabel(row.food,row.unit))+')<input type="number" min="'+(portion?"1":"0.1")+'" max="'+(portion?"100":"3000")+'" step="'+(portion?"1":"any")+'" id="planQty_'+escapeHTML(key)+'" value="'+shownQty+'" inputmode="'+(portion?"numeric":"decimal")+'" placeholder="'+(portion?"Piezas consumidas":"Gramos consumidos")+'"></label>'+
+      out+='<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+qty+'" inputmode="decimal"></label>'+
        '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">Registrar</button>';
     }
     out+='</div>';
@@ -1685,10 +1037,8 @@ function syncPlannerSearchActions(key){
  const pair=parsePlannerKey(key);
  if(!pair)return;
  const [slot,category]=pair;
- const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const row=plan.meals?.find(meal=>meal.slot===slot)?.rows?.find(item=>item.category===category);
- const signalMount=[...panel.querySelectorAll('[data-plan-compat]')].find(el=>el.dataset.planCompat===key);
- if(signalMount)signalMount.innerHTML=row?.food?foodTrafficLight(row.food).details:'';
  if(!row?.food){
   mount.innerHTML='<p class="pilot-hint planner-skipped">No se añadirá ningún alimento en este espacio.</p>';
   return;
@@ -1699,13 +1049,13 @@ function syncPlannerSearchActions(key){
     '<button type="button" class="btn small light" data-planopenmeal="'+escapeHTML(key)+'">REGISTRAR CON INGREDIENTES</button></div>';
   return;
  }
- const suggested=Number(row.grams),portion=plannerSushiPortion(row.food),shownQty=plannerShownQty(row.food,suggested);
+ const suggested=Number(row.grams);
  const hint=suggested>0?
-  'Cantidad sugerida: <b>'+num(shownQty)+' '+escapeHTML(portion?"piezas":row.unit)+'</b>'+(portion?' (≈ '+num(shownQty*portion.grams)+' g estimados).':'.')+' Modificala por la que realmente comiste.':
+  'Cantidad sugerida: <b>'+num(suggested)+' '+escapeHTML(row.unit)+'</b>. Modificala por la que realmente comiste.':
   'No necesitás este extra para el objetivo, pero podés registrar la cantidad que realmente comiste.';
  mount.innerHTML='<div class="planner-qty"><div class="planner-recommendation">'+hint+'</div>'+
-  '<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(plannerQtyLabel(row.food,row.unit))+')'+
-  '<input type="number" min="'+(portion?"1":"0.1")+'" max="'+(portion?"100":"3000")+'" step="'+(portion?"1":"any")+'" id="planQty_'+escapeHTML(key)+'" value="'+(suggested>0?num(shownQty):'')+'" inputmode="'+(portion?"numeric":"decimal")+'" placeholder="'+(portion?"Piezas consumidas":"Gramos consumidos")+'"></label>'+
+  '<label for="planQty_'+escapeHTML(key)+'">Cantidad real ('+escapeHTML(row.unit)+')'+
+  '<input type="number" min="0.1" max="3000" step="any" id="planQty_'+escapeHTML(key)+'" value="'+(suggested>0?num(suggested):'')+'" inputmode="decimal" placeholder="Gramos consumidos"></label>'+
   '<button type="button" class="btn small" data-planadd="'+escapeHTML(key)+'">AGREGAR AL REGISTRO</button></div>';
 }
 function filterPlannerFoods(input){
@@ -1715,7 +1065,7 @@ function filterPlannerFoods(input){
  if(!select)return;
  const chosenId=select.value;
  const words=plannerNormalizeQuery(input.value).split(/\s+/).filter(Boolean);
- const available=allPlannerFoods(selectableFoods(),allowedFoods()); // Único catálogo; el semáforo no oculta alimentos.
+ const available=allPlannerFoods(foods,allowedFoods()); // Buscar sobre todo el catálogo.
  const matched=available.filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=plannerNormalizeQuery(foodSearchText(f)+" "+aliases);
@@ -1723,14 +1073,9 @@ function filterPlannerFoods(input){
  });
  const hasQuery=words.length>0;
  const selectedMatch=matched.find(f=>f.id===chosenId);
- // A query filters the choices; it must not silently select the first match
- // and change the simulated day before the student chooses a food.
- const nextId=hasQuery?(selectedMatch?.id||"none"):chosenId;
+ const nextId=hasQuery?(selectedMatch?.id||matched[0]?.id||"none"):chosenId;
  // El resultado visible debe coincidir con el texto ingresado, también en iOS.
- select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched.map(f=>{
-  const signal=foodTrafficLight(f);
-  return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};
- }),slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
+ select.innerHTML='<option value="none">No agregar</option>'+groupedFoodOptions(matched,slot)+(matched.length?"":'<option disabled>Sin coincidencias</option>');
  select.value=nextId;
  if(hasQuery&&nextId!==chosenId){
   state.plannerSelections[key]=nextId;
@@ -1750,16 +1095,15 @@ function updatePlannerPreview(){
  let hasUnsupported=false;
  for(const select of notice.closest("#planSuggestionCard").querySelectorAll("[data-planselect]")){
   const key=select.dataset.planselect;
-  const food=selectableFoods().find(f=>f.id===select.value);
+  const food=foods.find(f=>f.id===select.value);
   if(!food)continue;
   if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,food.id)){hasUnsupported=true;gramChoices[key]=0;continue;}
-  const shownQty=Number(document.getElementById("planQty_"+key)?.value)||0;
-  const grams=plannerMeasuredGrams(food,shownQty);
+  const grams=Number(document.getElementById("planQty_"+key)?.value)||0;
   if(grams<0||!Number.isFinite(grams))continue;
   gramChoices[key]=grams;
   chosenFoods.push({food,grams});
  }
- const energyPlan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const energyPlan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:goal,totals:balance,dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const energy=plannerEnergyBreakdown(energyPlan,gramChoices);
  for(const [i,entry] of energy.entries()){
   const section=[...notice.closest("#planSuggestionCard").querySelectorAll("[data-plan-energy]")].find(el=>el.dataset.planEnergy===entry.slot);
@@ -1836,7 +1180,7 @@ function openPlannedFoodEditor(key){
  if(!pair)throw new Error("Selección inválida.");
  const [slot,category]=pair;
  const id=state.plannerSelections[key]||"";
- const selected=selectableFoods().find(f=>f.id===id);
+ const selected=foods.find(f=>f.id===id);
  if(!selected)throw new Error("Seleccioná un alimento.");
  openMealDialog(slot);
  const picker=document.getElementById("mealEditorFood");
@@ -1844,118 +1188,34 @@ function openPlannedFoodEditor(key){
  picker.value=selected.id;
  updateMealEntryMode(true);
 }
-// Lock a meal slot while a network write is pending. This also protects against
-// an overlapping direct-editor submit or removal triggered by repeated taps.
-const pendingMealRegistrations=createSessionScopedSlotLocks();
 async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
- const [slot,category]=pair,shownQty=Number(document.getElementById("planQty_"+key)?.value);
- if(pendingMealRegistrations.has(slot))return; // Ignore repeated taps, not the first.
- const slotLease=pendingMealRegistrations.add(slot);
- try{
- if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
- const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
+ const [slot,category]=pair, grams=Number(document.getElementById("planQty_"+key)?.value);
+ if(!Number.isFinite(grams)||grams<=0||grams>3000)throw new Error("Ingresá el peso real.");
+ const plan=makePlan({foods,approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
  const meal=plan.meals?.find(m=>m.slot===slot),row=meal?.rows.find(r=>r.category===category);
  if(!row?.food)throw new Error("Seleccioná un alimento antes de registrarlo.");
- const grams=plannerMeasuredGrams(row.food,shownQty);
- if(plannerSushiPortion(row.food)&&!Number.isFinite(grams))throw new Error("Ingresá una cantidad entera de 1 a 100 piezas.");
- if(!Number.isFinite(grams)||grams<=0||grams>3000||(row.food.unit==="porción"&&grams>20))
-  throw new Error("Revisá la cantidad real.");
  if(Object.prototype.hasOwnProperty.call(MILK_BEVERAGES,row.food.id))return openPlannedFoodEditor(key);
- const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
- // Guard the draft against a denied/offline diary write: never show phantom meals.
- const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
- const previousDiary=state.diary,previousSelection=state.plannerSelections[key];
- const previousDraft=state.plannerDraftGrams;
- d.skipped[slot]=false;
- // A planner choice must keep the user-visible sushi piece count after saving.
- // Nutrition calculation still uses grams; never duplicate the stored item.
- const item=attachRecipeSnapshot(normItem(row.food,grams,slot),row.food),portion=plannerSushiPortion(row.food);
- if(portion){item.displayQty=shownQty;item.displayUnit=portion.label;item.unitEstimate=true;}
- d.meals[slot].push(item);
+ const d=activeDiary();d.meals[slot] ||= [];d.skipped[slot]=false;
+ d.meals[slot].push(normItem(row.food,grams,slot));
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
- try{await saveDiary();}
- catch(error){
-  d.meals[slot]=previousItems;d.skipped=previousSkipped;
-  // Preserve the local rollback, but never overwrite the next account's planner.
-  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-   state.diary=previousDiary;
-   state.plannerSelections[key]=previousSelection;state.plannerDraftGrams=previousDraft;
-  }
-  throw error;
- }
- if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
+ await saveDiary();notify("Registraste "+num(grams)+" g de "+row.food.name+". Recalculamos lo que falta.");
 }
-let mealDialogReturnFocus=null;
-let activeGuidedMealGroup="protein";
-function closeMealDialog(){
- const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
- state.activeMeal=null;
- if(mealDialogReturnFocus?.isConnected)mealDialogReturnFocus.focus({preventScroll:true});
- mealDialogReturnFocus=null;
-}
-function openMealDialog(slot,initialGroup="protein"){
+function openMealDialog(slot){
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
- const guided=isGuidedMealSlot(slot);
- activeGuidedMealGroup=guided&&GUIDED_MEAL_GROUPS.some(g=>g.id===initialGroup)?initialGroup:"protein";
  const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
- const catalog=selectableFoods();
- const allowed=[...permitted].map(id=>catalog.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
- const displayed=guided?allowed.filter(f=>guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup):allowed;
-  const displayedWithSignals=displayed.map(f=>{const signal=foodTrafficLight(f);return {...f,name:(signal.symbol?signal.symbol+" ":"")+f.name};});
- const marks=guidedMealMarks(activeDiary()?.skipped,slot),current=guidedMealTotals(activeDiary()?.meals?.[slot]);
- const guidedPanel=guided?'<section class="efg-meal-guidance" aria-label="Armá tu comida por partes">'+
-  '<p class="pilot-hint">Elegí qué comiste. Podés agregar más de un alimento por sección o usar un plato preparado. Omitir es opcional: no obliga a consumir ese grupo.</p>'+
-  '<div class="efg-meal-guidance-grid">'+GUIDED_MEAL_GROUPS.map(g=>
-   '<div class="efg-meal-guidance-choice"><button type="button" data-act="guidedMealGroup" data-mealgroup="'+g.id+'" aria-pressed="'+(g.id===activeGuidedMealGroup)+'" class="efg-guidance-tab'+(g.id===activeGuidedMealGroup?' selected':'')+'">'+escapeHTML(g.title)+'</button>'+
-   ((g.id==="protein"||g.id==="carb")?'<button type="button" class="efg-guidance-omit" data-act="guidedMealOmit" data-mealomit="'+g.id+'" aria-pressed="'+marks[g.id]+'">'+(marks[g.id]?'✓ Omitido':'Omitir')+'</button>':'')+
-   '</div>').join("")+'</div>'+
-  '<p class="efg-meal-guidance-hint" id="mealGuidanceHint" aria-live="polite">'+escapeHTML(GUIDED_MEAL_GROUPS.find(g=>g.id===activeGuidedMealGroup).hint)+'</p>'+
-  '<p class="efg-meal-guidance-fat">Grasas registradas en esta comida: <strong>'+num(current.f,1)+' g</strong>. Se calculan solas con todo lo que elegís.</p>'+
-  '<small>Una tarta de atún va en «Plato preparado» y aporta proteínas, hidratos y grasas. No se registra de nuevo en las otras secciones. Omitir una sección significa no agregar una fuente por separado: un plato mixto igualmente aporta sus nutrientes.</small></section>':"";
+ const allowed=[...permitted].map(id=>foods.find(x=>x.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,slot));
  state.activeMeal=slot;state.lastEditedMeal=slot;
- mealDialogReturnFocus=document.activeElement;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
- '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
- guidedPanel+
- '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
- '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div>'+
+ '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button class="btn small ghost" data-act="closeMeal">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
+ '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off"></div>'+
+ '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(allowed,slot)+'</select></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
- '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div>'+
- (guided?'<div class="efg-guided-save-actions"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button>')+'</div></div></div>';
+ '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div><button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button></div></div></div>';
  updateMealEntryMode(true);
- document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
-}
-function hideMealSearchSuggestions(){
- const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
- if(panel){panel.hidden=true;panel.innerHTML="";}
- if(input)input.setAttribute("aria-expanded","false");
-}
-function renderMealSearchSuggestions(items,term){
- const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
- if(!panel||!input)return;
- if(!term){hideMealSearchSuggestions();return;}
- const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
- const rank=f=>{const name=normalize(f.name);return name===term?0:name.startsWith(term)?1:name.includes(" "+term)?2:3;};
- const ranked=items.slice().sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,"es-AR")).slice(0,8);
- panel.innerHTML=ranked.length?
-  '<p class="efg-meal-search-count">'+items.length+' coincidencia'+(items.length===1?'':'s')+' · Elegí el alimento para continuar</p>'+
-  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</span><small>Elegir</small></button>').join(""):
-  '<p class="efg-meal-search-count" role="status">No encontramos alimentos con ese nombre. Probá otra palabra o revisá el catálogo habilitado.</p>';
- panel.hidden=false;input.setAttribute("aria-expanded","true");
-}
-function pickMealSearchSuggestion(foodId){
- const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
- const food=selectableFoods().find(f=>f.id===foodId);
- if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
- const foodChanged=selector.value!==food.id;
- selector.value=food.id;search.value=food.name;
- hideMealSearchSuggestions();updateMealEntryMode(foodChanged);
- search.focus({preventScroll:true});
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -1965,10 +1225,7 @@ function filterMealFoods(){
  const words=term.split(/\s+/).filter(Boolean);
  const previous=selector.value;
  const permittedFoodIds=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permittedFoodIds.has(cooked))permittedFoodIds.add(raw);
- // Searching is global so familiar food names still work regardless of
- // the current educational category; blank search shows the chosen section.
- const catalog=selectableFoods();
- const filtered=[...permittedFoodIds].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>words.length>0||!isGuidedMealSlot(state.activeMeal)||guidedMealGroupFor(f,groupIdFor(f))===activeGuidedMealGroup).filter(f=>{
+ const filtered=[...permittedFoodIds].map(id=>foods.find(f=>f.id===id)).filter(Boolean).filter(f=>foodAllowedForMeal(f,state.activeMeal)).filter(f=>{
   const aliases=f.id==="milanesa_chicken_baked"?"suprema de pollo horno":f.id==="milanesa_chicken_fried"?"suprema frita":f.id==="milanesa_beef_baked"?"milanesa horno de carne":"";
   const name=normalizeQuery(foodSearchText(f)+" "+aliases);
   return words.every(w=>name.includes(w));
@@ -1976,30 +1233,25 @@ function filterMealFoods(){
  selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  else selector.value="";
- renderMealSearchSuggestions(filtered,term);
  // No autoseleccionar la primera opción: iOS no emite "change" si el
  // usuario elige un valor que el select ya consideraba seleccionado.
- // When a typed query keeps the same selection, do not reset its custom quantity.
- updateMealEntryMode(previous!==selector.value);
+ updateMealEntryMode(true);
 }
 function updateMealEntryMode(foodChanged=false){
  const id=document.getElementById("mealEditorFood")?.value;
- const f=selectableFoods().find(x=>x.id===id);
+ const f=foods.find(x=>x.id===id);
  const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
  const mode=document.getElementById("mealEntryMode"),wrap=document.getElementById("mealEntryModeWrap"),qty=document.getElementById("mealEditorQty"),label=document.getElementById("mealEditorQtyLabel");
  if(!mode||!qty||!label||!wrap)return;
  wrap.style.display=portion?"":"none";
- if(foodChanged){mode.value=portion?"units":"weight";qty.value=f?.unit==="porción"?1:portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
+ if(foodChanged){mode.value=portion?"units":"weight";qty.value=portion?(f.id==="egg"?2:1):100;updateMealBeverage();}
  if(!portion)mode.value="weight";
  const counting=!!portion&&mode.value==="units";
- label.textContent=f?.unit==="porción"?"Porciones consumidas":counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
- qty.step=counting?"1":f?.unit==="porción"?"0.5":"any";
- qty.min=counting?"1":f?.unit==="porción"?"0.5":"0.1";
- qty.max=f?.unit==="porción"?"20":"5000";
+ label.textContent=counting?"Cantidad ("+portion.label+(portion.grams?" · estimación":"")+")":"Cantidad ("+(f?.unit||"g")+")";
+ qty.step=counting?"1":"any";
+ qty.min=counting?"1":"0.1";
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
- const stateWrap=document.getElementById("mealWeightStateWrap");
- if(stateWrap)stateWrap.style.display=f?.unit==="porción"?"none":"";
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
  updateMealRecipe();
@@ -2007,7 +1259,7 @@ function updateMealEntryMode(foodChanged=false){
 }
 function measureMealEntry(){
  const id=document.getElementById("mealEditorFood")?.value;
- const f=selectableFoods().find(x=>x.id===id);
+ const f=foods.find(x=>x.id===id);
  const qty=Number(document.getElementById("mealEditorQty")?.value);
  const portion=f?FOOD_UNIT_PORTIONS[f.id]:null;
  const useUnits=!!portion&&document.getElementById("mealEntryMode")?.value==="units";
@@ -2018,78 +1270,38 @@ function updateMealDialogHint(){
  const hint=document.getElementById("mealEditorHint");
  if(!hint)return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- const status=document.getElementById("mealCompatibilityStatus");
-  if(status)status.innerHTML=f?foodTrafficLight(f).details:"";
-  if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
- if(f.unit==="porción"){
-  hint.textContent=num(grams,1)+" porción(es) de receta · "+num(f.k*grams)+" kcal · P "+num(f.p*grams,1)+
-   " g · HC "+num(f.c*grams,1)+" g · G "+num(f.f*grams,1)+" g. Valores orientativos de sus ingredientes.";
-  return;
- }
+ if(!f||!Number.isFinite(grams)||grams<=0){hint.textContent="Elegí un alimento y una cantidad válida.";return;}
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.textContent=(useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
  num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína · "+foodProvenance(f)+". "+f.source+
  (useUnits?(f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):"");
 }
-async function saveSelectedMeal(continueGuided=false){
+async function saveSelectedMeal(){
  const slot=state.activeMeal;
- if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
- if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
- const slotLease=pendingMealRegistrations.add(slot);
- try{
- const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
- const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
- const previousDiary=state.diary,previousActiveMeal=state.activeMeal;
+ if(!slot||!f||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ const d=activeDiary();d.meals[slot] ||= [];
  const drink=BEVERAGE_IDS.has(f.id)?calculateBeverage(f,grams):null;
- const entry=attachRecipeSnapshot(normItem(f,grams,slot),f);
+ const entry=normItem(f,grams,slot);
  if(drink){entry.name=drink.name;entry.source=drink.source;entry.ingredients=drink.ingredients;Object.assign(entry,drink.totals);}
  if(useUnits){entry.displayQty=qty;entry.displayUnit=portion.label;entry.unitEstimate=true;}
- d.meals[slot].push(entry);d.skipped[slot]=false;d.skipped._closed=false;
- if(isGuidedMealSlot(slot)){
-  const group=guidedMealGroupFor(f,groupIdFor(f));
-  if((group==="protein"||group==="carb")&&d.skipped._guidedComponents?.[slot])
-   d.skipped._guidedComponents[slot][group]=false;
- }
- if(!state.diary||state.diary.log_day!==today())state.diary=d;
- state.activeMeal=null;
- try{await saveDiary();}
- catch(error){
-  d.meals[slot]=previousItems;d.skipped=previousSkipped;
-  // A delayed failure must not restore A's diary/editor into account B.
-  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-   state.diary=previousDiary;
-   state.activeMeal=previousActiveMeal; // Keep the editor open for retry.
-  }
-  throw error;
- }
- if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-  if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
-  notify("Alimento agregado, balance actualizado.");
- }
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
+ d.meals[slot].push(entry);d.skipped[slot]=false;d.skipped._closed=false;state.activeMeal=null;
+ await saveDiary();notify("Alimento agregado, balance actualizado.");
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
- if(COACH_ATOMIC_PLAN_UI_ENABLED)return '<section class="card" aria-label="Catálogo alimentario compartido">'+
-  '<h3>Un catálogo para todos</h3><p class="pilot-hint">Todos los alimentos del catálogo siguen disponibles para el alumno. Los ingredientes de la Dieta Guía se calculan y revisan en el borrador, sin una lista blanca por estudiante.</p></section>';
- const selected=new Set(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachPlanDraftRecord?.guide_proposal?.approvedFoodIds?.length
-  ?state.coachPlanDraftRecord.guide_proposal.approvedFoodIds
-  :state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
+ const selected=new Set(state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS);
  const sections=FOOD_CATEGORIES.map(([id,title],index)=>{
   const items=foods.filter(f=>groupIdFor(f)===id).sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
   if(!items.length)return "";
   return '<details class="coach-food-group" data-foodgroup="'+id+'" '+(index===0?'open':'')+'><summary><span>'+escapeHTML(title)+'</span><small>'+items.length+' opciones</small></summary>'+
   '<div class="coach-food-bulk"><button type="button" class="btn small light" data-foodbulk="'+id+'" data-foodchecked="yes">Marcar categoría</button><button type="button" class="btn small ghost" data-foodbulk="'+id+'" data-foodchecked="no">Desmarcar</button></div>'+
-  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(plannerNormalizeQuery(foodSearchText(f)))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</label>').join("")+'</div></details>';
+  '<div class="coach-food-choices">'+items.map(f=>'<label data-foodname="'+escapeHTML(plannerNormalizeQuery(foodSearchText(f)))+'"><input type="checkbox" data-coachfood="'+escapeHTML(f.id)+'" '+(selected.has(f.id)?'checked':'')+'> '+escapeHTML(f.name)+'</label>').join("")+'</div></details>';
  }).join("");
- return '<div class="divider"></div><h3>Alimentos disponibles para planificar</h3>'+ 
-  '<p class="pilot-hint">Semáforo por patrón alimentario: 🟢 compatible revisado, 🟡 verificar etiqueta o composición, 🔴 incompatible con el patrón según evidencia. Sin restricciones: sin color. Los colores no indican calorías y no impiden registrar alimentos.</p>'+ 
- '<p class="pilot-hint">Esta selección es orientativa para la guía; no restringe el catálogo compartido. Todos los alumnos pueden buscar y registrar cualquier alimento, independientemente del semáforo. Los productos de marca requieren comprobar su etiqueta.</p>'+
+ return '<div class="divider"></div><h3>Alimentos permitidos para planificar</h3>'+
+ '<p class="pilot-hint">Elegí lo que verá este alumno al registrar comidas y planificar porciones. Referencias genéricas; los alimentos de marca requieren comprobar la etiqueta.</p>'+
  '<div class="food-library-tools"><label for="coachFoodSearch">Buscar alimentos</label><input type="search" id="coachFoodSearch" placeholder="Buscar entre '+foods.length+' alimentos…" autocomplete="off"><p id="coachFoodCount" class="pilot-hint">'+selected.size+' alimentos seleccionados de '+foods.length+'</p></div>'+
- sections+(COACH_ATOMIC_PLAN_UI_ENABLED
-  ?'<p class="pilot-hint" role="note">Los ingredientes de la guía se revisan al guardar el borrador. No son una lista blanca ni limitan el catálogo de Mi Día; tampoco certifican aptitud clínica.</p>'
-  :'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar selección orientativa (catálogo completo)</button>');
+ sections+'<button class="btn block" data-act="saveCoachFoodPlan" style="margin-top:13px">Guardar alimentos del alumno</button>';
 }
 function filterCoachFoodLibrary(){
  const input=document.getElementById("coachFoodSearch");
@@ -2112,7 +1324,6 @@ function updateCoachFoodCount(){
  if(e)e.textContent=root.querySelectorAll('input[data-coachfood]:checked').length+" alimentos seleccionados de "+foods.length;
 }
 async function saveCoachFoods(){
- if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("La lista de alimentos debe integrarse a la aprobación atómica; no se modifica directamente durante esta etapa.");
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test))||!state.selectedStudent||!state.consent?.accepted)throw new Error("El alumno tiene que autorizarte primero.");
  const ids=[...root.querySelectorAll("input[data-coachfood]:checked")].map(x=>x.dataset.coachfood).filter(id=>foods.some(f=>f.id===id));
  if(!ids.length)throw new Error("Seleccioná por lo menos un alimento.");
@@ -2121,18 +1332,9 @@ async function saveCoachFoods(){
  state.coachFoodPlan=row;await render();notify("Lista alimentaria guardada para este alumno.");
 }
 
-function movementCard(){
- const todaySaved=(state.activities||[]).find(a=>a.activity_day===today())||null;
- const latestWeight=(state.weights||[]).find(w=>Number.isFinite(Number(w.kg))&&Number(w.kg)>0)?.kg??null;
- return renderWalkingActivityCard({todayActivity:todaySaved,lastWeightKg:latestWeight});
-}
 function sportView(){
  let d=activeDiary(),entries=(d.sports||[]).map((e,index)=>({...e,_originalIndex:index})).filter(e=>!supplementRecord(e));
- const walks=(state.activities||[]).filter(a=>Number(a.steps)>0||Number(a.walking_distance_km)>0||Number(a.walking_duration_minutes)>0).slice(0,4);
- const recentWalks='<section class="card efg-walk-recent"><h3>Mis últimos pasos registrados</h3>'+
-  (walks.length?walks.map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos':'Caminata registrada')+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<p class="pilot-hint">Tu primer registro de pasos aparecerá acá.</p>')+'</section>';
- return rootText("Hidratación y deporte","Registrá tus pasos y ritmo de caminata. La hidratación y los productos de entrenamiento se administran por separado.")+
-  movementCard()+recentWalks+
+ return rootText("Hidratación y deporte","La proteína whey se registra en comidas; los demás suplementos están debajo de Cena.")+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Registrar bebida o producto de entrenamiento</h2><p class="pilot-hint">Creatina, colágeno, magnesio y omega-3 están en Suplementos del día, debajo de Cena.</p><div class="pilot-form"><div class="field"><label>Producto</label><select id="sportItem">'+option(sports.filter(x=>!supplementRecord(x)&&x.id!=="whey"))+'</select></div><div class="field-row"><div class="field"><label>Momento</label><select id="sportTime">'+sportTimes.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select></div><div class="field"><label id="sportQtyLabel">Cantidad</label><input id="sportQty" type="number" min=".1" max="3000" step="any" value="30"></div></div><div class="note" id="sportInfo">Consultar etiqueta.</div><button class="btn block" data-act="addSport">Registrar consumo</button></div></div>'+
  '<div class="card"><h2>Consumos de hoy</h2>'+(entries.length?entries.map((x,i)=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(x.name)+'</strong><small>'+num(x.qty,1)+' '+escapeHTML(x.unit)+' · '+escapeHTML(x.when||"")+'</small></div><span class="pilot-pill">'+num(x.k)+' kcal</span></div><button class="btn small ghost" style="margin-top:8px" data-removesport="'+x._originalIndex+'">Eliminar</button></div>').join(""):'<div class="empty">No registraste suplementos ni bebidas.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>¿Qué conviene tomar?</h2><div class="pilot-notice"><strong>💧 Agua o agua gasificada</strong><small>Ambas hidratan; elegí según tolerancia y preferencia.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🥤 Bebidas zero</strong><small>Pueden sustituir bebidas azucaradas cuando se busca reducir calorías, pero no son superiores al agua.</small></div><div class="pilot-notice" style="margin-top:10px"><strong>🏃 Geles e isotónicas</strong><small>Más relevantes en entrenamientos prolongados o con necesidades específicas de hidratos y electrolitos.</small></div><p class="pilot-hint" style="margin-top:15px">El scoop no equivale siempre a 30 g. Omega-3 y magnesio necesitan datos reales de etiqueta y pertinencia individual.</p></div></div></div>';
@@ -2184,8 +1386,11 @@ function progressView(){
  '<div class="card"><h2>Historial de pesajes</h2>'+(weights.length?'<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Fecha y hora</th><th>Peso</th></tr></thead><tbody>'+
  weights.map(w=>'<tr><td>'+escapeHTML(weightDateLabel(w))+'</td><td><b>'+num(w.kg,1)+' kg</b></td></tr>').join("")+'</tbody></table></div>':'<div class="empty">Todavía no registraste tu peso.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>Mi evolución del peso</h2>'+weightTrendChart(state.weights)+'</div>'+
- movementCard()+
- '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
+ '<div class="card"><h2>Movimiento de hoy</h2><div class="pilot-form"><div class="field"><label>Pasos</label><input id="activitySteps" type="number" min="0" max="100000" placeholder="Ej. 8000"></div>'+
+ '<div class="field"><label>Minutos de ejercicio</label><input id="activityMinutes" type="number" min="0" max="1440" placeholder="Ej. 60"></div>'+
+ '<div class="field"><label>Tipo</label><select id="activityKind"><option>Entrenamiento de fuerza</option><option>Running</option><option>Cardio</option><option>Caminata</option><option>Otro</option></select></div>'+
+ '<button class="btn" data-act="saveActivity">Guardar actividad</button></div></div>'+
+ '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps)+' pasos · '+num(a.exercise_minutes)+' minutos · '+escapeHTML(a.kind)+'</small></div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
@@ -2202,14 +1407,14 @@ const fatOptions=(f=".9")=>[['0.6','0,6 g/kg'],['0.8','0,8 g/kg'],['0.9','0,9 g/
 function macroPlayground(){
  const i=state.macroInputs||{sex:"male",age:30,height:170,weight:75,activity:1.5,model:"mifflin",protein:"auto",fat:.9,recompMode:"deficit05"};
  const fields=[["previewAge","Edad",i.age,18,90],["previewHeight","Altura (cm)",i.height,120,220],["previewWeight","Peso (kg)",i.weight,35,300]];
- const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label for="'+q[0]+'">'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
- '<div class="field-row"><div class="field"><label for="previewSex">Sexo utilizado por la ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
- '<div class="field"><label for="previewActivity">Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
- '<div class="field-row"><div class="field"><label for="previewModel">Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
- '<div class="field"><label for="previewProtein">Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
- '<div class="field"><label for="previewFat">Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
+ const form='<div class="pilot-form"><div class="field-row">'+fields.map(q=>'<div class="field"><label>'+q[1]+'</label><input type="number" id="'+q[0]+'" min="'+q[3]+'" max="'+q[4]+'" step=".1" value="'+q[2]+'"></div>').join("")+'</div>'+
+ '<div class="field-row"><div class="field"><label>Ecuación</label><select id="previewSex"><option value="male" '+(i.sex==="male"?"selected":"")+'>Hombre</option><option value="female" '+(i.sex==="female"?"selected":"")+'>Mujer</option></select></div>'+
+ '<div class="field"><label>Actividad</label><select id="previewActivity">'+activityOptions(i.activity)+'</select></div></div>'+
+ '<div class="field-row"><div class="field"><label>Ecuación de metabolismo en reposo</label><select id="previewModel">'+equationOptions(i.model)+'</select></div>'+
+ '<div class="field"><label>Proteína</label><select id="previewProtein">'+proteinOptions(i.protein)+'</select></div>'+
+ '<div class="field"><label>Grasas</label><select id="previewFat">'+fatOptions(i.fat)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. Ten Haaf es alternativa para deportistas entrenados, no una garantía de precisión. Proteína automática: 2,0 g/kg para recomposición y descenso, 1,8 g/kg para aumento muscular; grasas iniciales de 0,9 g/kg, ambas ajustables.</p>'+
- '<div class="field"><label for="previewRecompMode">Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
+ '<div class="field"><label>Recomposición · estrategia energética</label><select id="previewRecompMode">'+recompOptions(i.recompMode||"deficit05")+'</select></div>'+activityHint+recompHint+
  '<button class="btn" data-act="previewMacros">Calcular los 3 objetivos</button></div>';
  let cards="";
  if(state.macroPreview){
@@ -2223,88 +1428,43 @@ function coachDisplayName(p){return coachPreferredNames()[p.user_id]||p.nickname
 function coachAvatarLetters(p){return String(coachDisplayName(p)).trim().split(/\s+/).slice(0,2).map(w=>w.charAt(0)).join("").toUpperCase()||"?"}
 
 function coachHomeView(){
- const test=!!state.org?.is_test;
+ const test=state.profile.role==="admin"&&state.org?.is_test;
  const roster=(state.roster||[]).filter(p=>p.active);
- const pending=(state.profile.role==="admin"&&test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
+ const pending=(test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
  const testOrgSeats=Number(state.org?.seat_limit)||0;
  const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);
- return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Ingresos nuevos, planes por preparar y seguimiento: cada cosa en su lugar.")+
- '<section class="efg-coach-banner"><div><span class="eyebrow">NUTRICIÓN CON-CIENCIA · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
+ return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Alumnos, seguimiento e informes: lo importante está a un toque.")+
+ '<section class="efg-coach-banner"><div><span class="eyebrow">EFG · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
-  ["coachIntake","📋","Nuevos ingresos","peach"],["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
+  ["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
  '<section class="card efg-content-card"><div class="section-head"><h2>Mis alumnos</h2><button type="button" class="btn small light" data-tab="coachStudents">Ver todos</button></div>'+
  (roster.length?roster.slice(0,5).map(p=>'<div class="efg-student-compact"><span class="coach-roster-avatar">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+(coachRosterConsent[p.user_id]===true?'Seguimiento autorizado':'Autorización pendiente')+'</small></div><button class="btn small light" data-student="'+p.user_id+'">Abrir</button></div>').join(""):'<div class="empty">Todavía no hay alumnos activos. Podés invitarlos desde Mis alumnos.</div>')+
  '</section>';
-}
-function coachIntakeView(){
- const canView=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
- if(!canView)return rootText("Nuevos ingresos","Este espacio corresponde a entrenadores habilitados.");
- const active=(state.roster||[]).filter(p=>p.active);
- const pending=(state.profile.role==="admin"&&state.org?.is_test?state.testInvitations:state.invitations||[])
-  .filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
- const waitingConsent=active.filter(p=>coachRosterConsent[p.user_id]!==true);
- const submitted=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeForms[p.user_id]);
- const activated=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeAccess[p.user_id]?.status==="published");
- const drafted=active.filter(p=>coachRosterConsent[p.user_id]===true&&
-  state.coachIntakeDraftVerified&&
-  state.coachIntakeAccess[p.user_id]?.status!=="published"&&
-  currentCoachIntakeDraft(state.coachIntakeDraftStatuses[p.user_id],
-   state.coachIntakeForms[p.user_id],{studentId:p.user_id,
-    organizationId:state.org?.id,coachId:state.session?.user?.id}));
- const draftedIds=new Set(drafted.map(p=>p.user_id));
- const waitingPlan=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&!state.coachIntakeGoals[p.user_id]&&!draftedIds.has(p.user_id)&&!activated.some(x=>x.user_id===p.user_id));
- const existingGoal=active.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeVerified&&state.coachIntakeGoals[p.user_id]&&!draftedIds.has(p.user_id)&&!activated.some(x=>x.user_id===p.user_id));
- const remaining=active.filter(p=>coachRosterConsent[p.user_id]===true&&!state.coachIntakeVerified);
- const invitationCard=i=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">✉</span><div><strong>'+escapeHTML(i.nickname)+'</strong><small>Invitación enviada · todavía no ingresó</small></div><span class="efg-intake-status">Pendiente</span></div>';
- const profileCard=(p,stage)=>'<div class="coach-intake-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+stage+'</small></div><div class="coach-intake-actions"><button type="button" class="btn small light" data-student="'+p.user_id+'">Ver alumno</button><button type="button" class="btn small ghost" data-intake-message="'+p.user_id+'">Mensaje</button></div></div>';
- const section=(title,description,entries,renderer,empty)=>'<section class="card coach-intake-group"><div class="section-head"><h2>'+title+'</h2><span class="pilot-pill">'+entries.length+'</span></div><p class="pilot-hint">'+description+'</p>'+(entries.length?entries.map(renderer).join(""):'<p class="efg-intake-empty">'+empty+'</p>')+'</section>';
- return rootText("NUEVOS INGRESOS","De la invitación a la planificación: identificá rápidamente qué necesita cada alumno.")+
-  '<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="refreshCoachRoster">Actualizar ingresos y permisos</button></div>'+
-  (state.coachIntakeRefreshNotice?'<p class="pilot-alert" role="status">'+escapeHTML(state.coachIntakeRefreshNotice)+'</p>':'')+
- '<section class="coach-intake-intro"><div class="eyebrow">Nutrición Con-Ciencia · CON COACH</div><h2>Bienvenidas, fichas y planes en un solo lugar.</h2><p>Esta primera vista organiza alumnos e invitaciones existentes. La ficha compartida y la publicación formal se mostrarán al activar el backend seguro. Hasta entonces, solo se muestran estados realmente verificables.</p></section>'+
- '<div class="coach-intake-summary">'+
-  '<div><strong>'+pending.length+'</strong><span>Invitaciones pendientes</span></div>'+
-  '<div><strong>'+waitingConsent.length+'</strong><span>Esperando autorización</span></div>'+
-  '<div><strong>'+(state.coachIntakeVerified?waitingPlan.length:"—")+'</strong><span>Sin objetivo configurado</span></div>'+
-  '<div><strong>'+(state.coachIntakeVerified?existingGoal.length:"—")+'</strong><span>Con objetivo existente</span></div>'+
- '</div>'+
- '<section class="card coach-intake-steps"><h2>El camino de un nuevo alumno</h2><ol><li><strong>Ingreso y autorización</strong><small>El alumno acepta su acceso y sus permisos de privacidad.</small></li><li><strong>Ficha inicial</strong><small>Completa sus datos voluntarios y decide qué compartir con el coach. Próxima implementación.</small></li><li><strong>Preparación del plan</strong><small>El entrenador revisa la información y prepara sus objetivos y su propuesta.</small></li><li><strong>Publicación y activación</strong><small>El plan se publica expresamente y se habilitan las herramientas nutricionales. Próxima implementación.</small></li></ol></section>'+
- section("01 · Invitaciones por aceptar","Todavía no ingresaron a Nutrición Con-Ciencia.",pending,invitationCard,"No hay invitaciones pendientes.")+
- section("02 · Esperando autorización","El coach todavía no cuenta con permiso para consultar el seguimiento del alumno.",waitingConsent,p=>profileCard(p,"Acceso confirmado · autorización pendiente"),"Todos los alumnos activos autorizaron o todavía no hay alumnos.")+
- section("03 · Fichas recibidas","La ficha llega cuando el alumno decide compartirla y autoriza el seguimiento.",submitted,p=>profileCard(p,"Ficha compartida voluntariamente · lista para revisar"),"Todavía no hay fichas compartidas.")+
- section("04 · Borrador en preparación","Solo borradores privados confirmados por el servidor, nunca metas históricas.",drafted,p=>profileCard(p,"Borrador privado del coach · todavía sin publicar"),state.coachIntakeDraftVerified?"No hay borradores vigentes.":"Borradores no verificables hasta habilitar el circuito de publicación.")+
- section("05 · Plan por preparar","Alumnos autorizados que todavía no tienen un objetivo configurado.",waitingPlan,p=>profileCard(p,"Seguimiento autorizado · sin objetivo cargado"),"No hay alumnos en esta etapa.")+
- section("06 · Objetivos existentes","Una meta guardada no habilita por sí sola la app; falta publicar el plan.",existingGoal,p=>profileCard(p,"Objetivo configurado · publicación aún no verificable"),"No se encontraron objetivos en este grupo.")+
- section("07 · Plan publicado","Estado confirmado por el servidor; el alumno tiene las funciones habilitadas.",activated,p=>profileCard(p,"Plan publicado · acceso completo"),"Todavía no hay planes publicados en el nuevo circuito.")+
- (remaining.length?'<section class="card coach-intake-group"><h2>Estado temporalmente no disponible</h2><p class="pilot-hint">No fue posible comprobar algunos objetivos. No se muestran estados inventados.</p>'+remaining.map(p=>profileCard(p,"Estado del objetivo sin verificar")).join("")+'</section>':"")+
- '<section class="card coach-intake-privacy"><h2>Privacidad y próximos pasos</h2><p>Las futuras fichas deben ser compartidas voluntariamente. Sin consentimiento, el entrenador no debe acceder a datos sensibles. El bloqueo nutricional de alumnos nuevos también deberá aplicarse en el servidor, nunca únicamente ocultando botones.</p><button class="btn light" data-tab="coachStudents">Administrar mis alumnos e invitaciones</button></section>';
 }
 function coachToolsView(){
  return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground()+versionCheckCard();
 }
 function coachView(){
  const org=state.org;
- const isTest=!!org?.is_test;
+ const isTest=state.profile.role==="admin"&&!!org?.is_test;
  const roster=state.roster||[];
  const current=state.selectedStudent&&roster.find(p=>p.user_id===state.selectedStudent);
- const pending=(state.profile.role==="admin"&&isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
+ const pending=(isTest?state.testInvitations:state.invitations).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const seats=Number(org?.seat_limit)||0,activeRoster=roster.filter(p=>p.active),used=activeRoster.length+pending.length,available=Math.max(0,seats-used),commercialReady=isTest||["active","grace"].includes(org?.status);
  return rootText("Mis alumnos","Buscá alumnos, administrá autorizaciones y abrí sus fichas individuales.")+
-  '<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="refreshCoachRoster">Actualizar alumnos y permisos</button></div>'+
-  (state.coachIntakeRefreshNotice?'<p class="pilot-alert" role="status">'+escapeHTML(state.coachIntakeRefreshNotice)+'</p>':'')+
  ' <div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
- '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest&&state.profile.role==="admin"?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
- (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 '+(state.profile.role==="admin"?"Laboratorio de EFG":"Coach piloto EFG")+' — '+seats+' cupos gratuitos de prueba</strong><small>Solo ves alumnos de este espacio que hayan autorizado el seguimiento. No se generan cobros de licencias durante la prueba.</small></div>':'')+
+ '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
+ (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 Laboratorio de EFG — '+seats+' cupos gratuitos de prueba</strong><small>Conservás tu cuenta de administrador. Solo ves datos de alumnos vinculados a este espacio que hayan dado consentimiento. No se generan cobros automáticos.</small></div>':'')+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="coachRosterSection"><div class="coach-roster-heading"><div><div class="eyebrow">PERSONAS PRIMERO</div><h2>Mis alumnos</h2><p class="pilot-hint">Avatares individuales. Las fotografías se mostrarán solamente cuando el alumno las autorice.</p></div><span class="coach-roster-total">'+activeRoster.length+' activos</span></div>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
  (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
  (roster.length?roster.map(p=>'<div class="pilot-record" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML((p.nickname+" "+(p.email||"")).toLocaleLowerCase("es-AR"))+'"><div class="between"><div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+((coachDisplayName(p)!==p.nickname)?escapeHTML(p.nickname)+' · ':'')+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button>'+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
- '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de Nutrición Con-Ciencia con esa persona.</p>'+
+ '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de EFG Nutrition con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
  '<button class="btn block" data-act="inviteStudent" '+(used>=seats||!commercialReady?'disabled':'')+'>Habilitar alumno</button><button class="btn light" data-act="copyStudentLink">Copiar enlace para enviar</button></div><p class="pilot-hint">El alumno recibirá el código o enlace de ingreso en su propio correo y deberá autorizarte a consultar sus registros.</p></div>'+
  (isTest?'<div class="pilot-notice"><strong>Sin pagos en modo prueba</strong><small>Estos cupos no se facturan. Tu administración comercial continúa en la pestaña Administración.</small></div>':
@@ -2356,59 +1516,37 @@ function weeklyAdherenceSummary(){
  '<div><small>Proteína ≥90% del objetivo</small><strong>'+(proteinWithin===null?'Sin objetivo':proteinWithin+'/'+metrics.proteinDaysCompared)+'</strong></div></div>'+
  '<p class="pilot-hint">Se mide la cobertura del registro, no la disciplina de la persona. Los días sin información no se interpretan como incumplimiento ni consumo cero. La meta proteica se compara con el objetivo aprobado vigente en cada fecha registrada.</p></section>';
 }
-function buildCurrentLuxuryModel(){
+function weeklyDraftText(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const window=weeklyReportWindow();
- const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),null);
- const student=(state.roster||[]).find(p=>p.user_id===state.selectedStudent);
- return buildLuxuryWeeklyReport({
-  ...window,studentName:student?.nickname||"Alumno",
-  coachName:state.profile?.nickname||state.profile?.full_name||"Entrenador EFG",
-  days:report.days,logs:state.coachLogs,goals:state.coachGoals
- });
-}
-function luxuryEditorContext(model){
- return {coachId:state.session?.user?.id,studentId:state.selectedStudent,weekEnding:model.friday,model};
-}
-function coachLuxuryHistoryPanel(){
- const list=state.coachHistory||[];
- const items=list.map((r,i)=>{
-  const luxury=parseLuxuryWeeklyReport(r.report_text);
-  return '<details><summary>'+escapeHTML(r.week_ending)+' · '+(luxury?'Luxury Pro':'Informe anterior')+'</summary>'+
-   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn light small" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
-   '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text||'')+'</p>')+'</details>';
- }).join('');
- return '<section class="card"><h2>📚 Historial de informes por alumno y fecha</h2><p class="pilot-hint">Solo informes que ya fueron aprobados y compartidos. Los anteriores se conservan en su formato original.</p>'+
-  '<div class="lux-report-history">'+(items||'<p class="pilot-hint">Este alumno todavía no tiene informes compartidos.</p>')+'</div></section>';
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!week.length)return "Semana del "+window.from+" al "+window.to+": sin registros alimentarios suficientes. No corresponde emitir conclusiones.";
+ const avg=k=>week.reduce((v,d)=>v+Number(d[k]||0),0)/week.length;
+ const goal=state.coachGoals[0]||null;
+ const notes=["EFG Nutrition Pro · Borrador semanal para revisión del entrenador","Período: "+window.from+" a "+window.to+" (se presenta el viernes "+window.friday+").","Registros alimentarios: "+week.length+"/7 días. Los días ausentes NO se contabilizan como cero.","Promedio de los días con registros: "+num(avg("k"))+" kcal, P "+num(avg("p"),1)+" g, HC "+num(avg("c"),1)+" g, G "+num(avg("f"),1)+" g."];
+ if(goal?.protein_g>0)notes.push("Proteínas: "+num(100*avg("p")/goal.protein_g)+"% de la referencia actual. Si hubo ajustes de objetivos esta semana, verificar el histórico antes de interpretar.");
+ if(goal?.kcal>0)notes.push("Energía: "+num(100*avg("k")/goal.kcal)+"% de la referencia actual. Los registros incompletos pueden subestimar el consumo.");
+ const weights=(state.coachWeights||[]).filter(w=>Number(w.kg)>0).sort((a,b)=>String(b.measured_on).localeCompare(String(a.measured_on)));
+ if(weights.length>=2)notes.push("Peso: cambio entre los dos últimos pesajes disponibles "+num(Number(weights[0].kg)-Number(weights[1].kg),2)+" kg. No equivale necesariamente a cambios de grasa ni de masa magra.");
+ else notes.push("Peso: faltan al menos dos mediciones para comparar una tendencia.");
+ const comments=week.filter(d=>d.comment).map(d=>d.date+": "+d.comment).slice(-3);
+ if(comments.length)notes.push("Comentarios del alumno para revisar: "+comments.join(" | "));
+ notes.push("Propuesta para conversar: revisar regularidad de registros y elegir uno o dos ajustes de hábitos sostenibles, según preferencias y objetivos aprobados.");
+ notes.push("BORRADOR SIN ENVÍO. El entrenador debe corregir, aprobar y compartirlo por el canal que acuerde con el alumno.");
+ return notes.join("\\n\\n");
 }
 function weeklyCoachDraft(){
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const window=weeklyReportWindow();
- const generated=buildCurrentLuxuryModel();
- const sharedRecord=(state.coachHistory||[]).find(r=>r.week_ending===window.friday);
- const published=!!sharedRecord;
- const shared=sharedRecord?parseLuxuryWeeklyReport(sharedRecord.report_text):null;
- const draftState=published?null:luxuryWeeklyEditor.scope(luxuryEditorContext(generated));
- const model=shared||generated;
- const conclusion=published?(shared?.conclusion||"Informe anterior ya compartido."):(draftState?.conclusion||generated.conclusion);
- const flexibleNote=published?(shared?.flexibleNote||""):(draftState?.flexibleNote??generated.flexibleNote);
- const previewModel=published?model:{...generated,conclusion,flexibleNote};
- const ready=!!draftState?.ready;
- return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
- '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Conclusiones automáticas, siempre revisadas antes del envío.</p>'+
- '<div class="field"><label for="weeklyCoachConclusion">Conclusión automática · editable por el coach</label>'+
- '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
- '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
- '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published?'disabled':'')+'>'+escapeHTML(flexibleNote)+'</textarea></div>'+
- '<div class="lux-report-toolbar">'+(published?'<span class="pilot-pill">Informe de esta semana ya compartido · historial protegido</span>':
- '<button type="button" class="btn small light" data-act="previewLuxuryReport">Actualizar vista previa del alumno</button>'+
- '<button type="button" class="btn small" id="weeklyLuxuryPublishButton" data-act="publishWeeklyReport" '+(ready?'':'disabled')+'>Aprobar y compartir con alumno</button>')+
- '<button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="-1">Exportar vista previa a PDF</button></div>'+
- '<h3 class="lux-report-preview-heading">Así lo verá el alumno</h3>'+
- '<p class="pilot-hint" id="weeklyLuxuryPreviewStatus" role="status">'+(published?'Informe compartido: esta vista muestra la versión enviada.':
- ready?'Vista previa revisada: podés aprobar el envío.':
- draftState?.sourceChanged?'Los datos del registro cambiaron. Volvé a revisar y actualizar la vista previa.':
- 'Revisá el texto y tocá «Actualizar vista previa» antes de compartir.')+'</p>'+
- '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(previewModel)+'</div>'+
- '<p class="pilot-hint">El borrador se conserva solo mientras permanezcas en esta sesión del coach; no se guarda en el navegador ni se envía solo. No se indican permisos alimentarios como premios ni recomendaciones clínicas automáticas.</p></section>';
+ const week=(report.days||[]).filter(d=>d.hasData&&d.date>=window.from&&d.date<=window.to);
+ return '<section class="card" id="coachReportWeek"><h2>🌱 Informe del viernes '+window.friday+'</h2><p class="pilot-hint">Período evaluado: '+window.from+' a '+window.to+'. El borrador se construye con registros reales guardados, y debe ser revisado antes de compartir.</p>'+
+ '<p class="pilot-hint">Lectura semanal de registros reales. Los datos faltantes no se interpretan como incumplimiento. Revisá las conclusiones y sus motivos antes de compartir el informe con el alumno. Esta versión todavía no utiliza IA generativa.</p>'+
+ '<div class="nutrition-report-kpis"><div><small>Días registrados</small><strong>'+week.length+'/7</strong></div>'+
+ '<div><small>Proteína media</small><strong>'+(week.length?num(week.reduce((v,d)=>v+Number(d.p||0),0)/week.length,1)+' g':'—')+'</strong></div></div>'+
+ '<div class="pilot-notice"><strong>🧬 Entender para mejorar</strong><small>Proteínas: se analiza la cercanía al objetivo del coach, no la calidad de la persona. Peso: un cambio aislado puede incluir agua y glucógeno. Días sin registro: faltan datos, no significa que se haya comido menos. Las recomendaciones deben considerar objetivos, evolución y comentarios del alumno.</small></div>'+
+ '<div class="field"><label for="weeklyCoachDraftText">Borrador editable del entrenador</label><textarea id="weeklyCoachDraftText" rows="13" maxlength="8000">'+escapeHTML(weeklyDraftText())+'</textarea></div>'+
+ '<button type="button" class="btn small light" data-act="copyWeeklyDraft">Copiar texto revisado</button><button type="button" class="btn small" data-act="publishWeeklyReport">Aprobar y compartir con alumno</button>'+
+ '<p class="pilot-hint">La copia no representa aprobación ni entrega. No emitir recomendaciones clínicas automáticas.</p></section>';
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -2427,7 +1565,6 @@ function coachReportsView(){
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
  out+=weeklyAdherenceSummary();
  out+=weeklyCoachDraft();
- out+=coachLuxuryHistoryPanel();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
  out+='<section class="card">'+coachDailyReport(p)+'</section>';
@@ -2479,287 +1616,56 @@ function showGoalComparison(base,goal){
 function goalRevisionSection(latest){
  if(!latest)return "";
  const goals=state.coachGoals||[];
- const pending=state.pendingGoalRevision;
- const readyToRegenerate=COACH_ATOMIC_PLAN_UI_ENABLED&&
-  pending?.studentId===state.selectedStudent&&pending.baseId===latest.id;
  const history='<details style="margin-top:15px"><summary>Historial de objetivos ('+goals.length+')</summary>'+
  goals.map(g=>'<div class="pilot-macro"><span>Desde '+escapeHTML(String(g.start_on||"").split("-").reverse().join("/"))+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' / HC '+num(g.carb_g)+' / G '+num(g.fat_g)+' g</b></div>').join("")+
  '<p class="pilot-hint">Los objetivos anteriores y registros alimentarios no se borran.</p></details>';
- return '<div class="divider"></div><h3>✏️ Actualizar plan y Dieta Guía</h3>'+
- '<p class="pilot-hint">Podés revisar este plan cuando haga falta, por ejemplo de 2.500 a 2.100 kcal tras dos meses. También podés renovar solo los alimentos y horarios manteniendo las calorías. La meta y la nueva Dieta Guía se publican JUNTAS tras tu aprobación; hasta entonces el alumno conserva su plan anterior y todos sus registros.</p>'+
+ return '<div class="divider"></div><h3>✏️ Revisar objetivo durante el plan</h3>'+
+ '<p class="pilot-hint">Podés revisar el objetivo en cualquier momento, incluso al día siguiente o varias veces el mismo día, sin plazo mínimo. Si el alumno refiere poca energía, hambre, fatiga o dificultades de adaptación, evaluá sus registros, actividad y evolución y ajustá las calorías y los macros. El cambio comienza al aprobarlo; los planes anteriores quedan guardados.</p>'+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label for="reviseGoalKcal">Nuevo objetivo (kcal/día)</label><input id="reviseGoalKcal" type="number" min="1200" max="10000" step="1" value="'+Number(latest.kcal)+'"></div>'+
  '<div class="field"><label for="reviseGoalMode">Reparto de macros</label><select id="reviseGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn block light" data-act="previewGoalRevision">Ver nuevo reparto de macros</button></div>'+
  '<div class="pilot-notice" id="revisedGoalPreview" aria-live="polite" style="margin-top:10px">Objetivo actual: '+num(latest.kcal)+' kcal. Elegí un cambio para previsualizar.</div>'+
- '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Aplicar ajuste ahora</button>'+
- (COACH_ATOMIC_PLAN_UI_ENABLED?
-  '<section class="pilot-notice" data-periodic-plan-review aria-label="Renovar Dieta Guía" style="margin-top:12px"><strong>Renovar la Dieta Guía del alumno</strong>'+
-  '<p class="pilot-hint">1. Revisá la meta y la ficha VIGENTE. 2. Generá y editá una nueva guía de seis horarios. 3. Guardá borrador privado. 4. Publicá meta y guía juntas y notificá al alumno. No se registra ninguna comida en MI DÍA.</p>'+
-  '<p class="pilot-hint">Si cambiaron alergias, celiaquía, intolerancias o diagnósticos, el ALUMNO debe actualizar su declaración privada y autorizar compartirla. No supongas que no tiene restricciones ni reutilices permisos revocados. No publiques una guía incompatible mientras la nueva declaración no esté verificada.</p>'+
-  '<button type="button" class="btn block" data-act="makeGuidedDay" data-periodic-new-guide '+(readyToRegenerate?'':'disabled aria-disabled="true"')+'>Generar nueva Dieta Guía · borrador</button></section>':'')+
- '<p class="pilot-hint">No hay período mínimo entre revisiones. Si reducís calorías, podés conservar proteína y grasa o redistribuir macronutrientes. La última palabra es del coach.</p>'+history;
+ '<button type="button" class="btn block" data-act="approveGoalRevision" id="approveGoalRevisionButton" disabled style="margin-top:10px">Aplicar ajuste ahora</button>'+
+ '<p class="pilot-hint">No hay período de espera ni límite de revisiones. Podés aumentar o reducir las calorías según la respuesta del alumno. Si reducís todo proporcionalmente, también baja la proteína; evaluá conservarla para objetivos de fuerza o masa muscular.</p>'+history;
 }
 
 /* Five-meal guide: draft only on coach until explicit approval; not a diary entry. */
-const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g · Fibra "+num(t.fi,1)+" g";
-function guidedTargetFeedback(deviations){
- const keys=["k","p","c","f"];
- const close=keys.every(k=>Number.isFinite(deviations[k]?.percent)&&Math.abs(deviations[k].percent)<=5);
- return close
-  ?"Menú cercano al objetivo (energía y macros dentro del 5%). Los valores son orientativos."
-  :"Todavía hay diferencias con el objetivo. Recalculá las demás porciones o revisá el menú; se conservan los gramos que fijaste.";
-}
-function currentCoachRecipeScope(){
- return {role:state.profile?.role,coachId:state.session?.user?.id||null,
-  studentId:state.selectedStudent||null,organizationId:state.org?.id||null,
-  epoch:state.authContextEpoch||0,consented:state.consent?.accepted===true,
-  shared:!!state.coachIntakeForms?.[state.selectedStudent]?.shared_at};
-}
-function coachGuidePickerFoods(){
- const scoped=COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
-  coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope);
- return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
-  personalRecipes:scoped?state.coachSharedRecipes:[],
-  userId:scoped?state.selectedStudent:null}));
-}
+const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g";
 function guidedDayContents(plan,goal,editable=false){
- const flexible=plan.kind==="flexible_meal_guide";
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
   const mt=totals.perMeal.find(r=>r.slot===meal.slot)?.totals;
-  // Mantener índice ORIGINAL aunque se presenten los alimentos por grupos.
-  // Nunca duplicar un plato preparado ni alterar la cuenta de nutrientes.
-  const foodRow=(f,i)=>{
-   const alt=editable?guidedFoodAlternatives(f.id,foods):[];
-   const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
-   const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
-   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+
-     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="'+(f.recipeComponent?'0.01':'1')+'" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
-     (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
-     '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
-  };
-  const sections=educationalGuideSections(meal,groupIdFor);
-  const contents=sections?
-   '<div class="efg-guide-education" aria-label="Grupos alimentarios de '+escapeHTML(meal.label)+'">'+
-    '<p class="efg-guide-education-intro">Aprendé a armar el plato: reconocé las fuentes de proteína y de hidratos. Cada alimento aporta todos sus nutrientes, no solamente los del grupo en que aparece.</p>'+
-    sections.map(group=>'<section class="efg-guide-food-group" data-guidefoodgroup="'+group.id+'" data-guideslot="'+escapeHTML(meal.slot)+'">'+
-     '<h4>'+escapeHTML(group.title)+'</h4>'+
-     '<p class="efg-guide-food-group-hint">'+escapeHTML(group.hint)+'</p>'+
-     (group.entries.length?group.entries.map(({food,index})=>foodRow(food,index)).join(''):
-       '<p class="efg-guide-food-group-empty">No hay una fuente separada de este grupo en la guía. No es obligatorio agregarla.</p>')+
-     '</section>').join('')+
-    '<p class="efg-guide-education-foot">Las grasas se calculan a partir de todos los alimentos y de los aceites que figuren en la guía. Un plato preparado se cuenta una sola vez.</p></div>':
-   meal.items.map(foodRow).join("");
-  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
-   (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
+  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span></div>'+
    '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
-   contents+
-   (editable&&flexible?'<div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
-    '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
-    '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
-     '<option value="">Elegí alimento o receta Fit</option>'+option(coachGuidePickerFoods())+'</select>'+
-    // Reuse this one full-catalog picker for both add and replace. No 500-option
-    // dropdown for every ingredient and no restriction of the common catalog.
-    '<label>Acción sobre la comida <select data-guidereplaceindex="'+escapeHTML(meal.slot)+'" aria-label="Agregar o reemplazar alimento en '+escapeHTML(meal.label)+'">'+
-     '<option value="">Agregar sin reemplazar</option>'+
-     meal.items.map((item,index)=>'<option value="'+index+'">Reemplazar '+escapeHTML(item.name||item.id)+'</option>').join('')+
-     '</select></label>'+
-    '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
-    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div>':'')+
-   '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
+  meal.items.map((f,i)=>{
+  const alt=editable?guidedFoodAlternatives(f.id,foods):[];
+  const [min,max]=guidedPortionBounds(f.id);
+  const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
+  return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+'</div>'+
+  (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="1" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>':
+   '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
+ }).join("")+
+  '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
- '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
- (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
+ '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+'</small></div>'+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
  '<p class="pilot-hint">Referencia educativa, no ingesta registrada. Las porciones y macros dependen de la marca, cocción y datos del catálogo. Considerá alergias, hábitos y contexto clínico.</p>';
 }
-function coachAtomicDraftPanel(){
- if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
- if(COACH_VERSIONED_INTAKE_ENABLED&&!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED)
-  return '<section class="card" aria-label="Plan del relanzamiento en preparación">'+
-   '<h3>Plan de Nutrition Coach en revisión</h3>'+
-   '<p>La ficha nueva está disponible para revisión, pero la publicación de objetivo y guía de seis comidas está detenida hasta verificar su versión, los permisos y los alimentos directamente en el servidor. El plan anterior del alumno continúa intacto.</p></section>';
- const student=state.selectedStudent,intake=state.coachIntakeForms?.[student];
- if(!student||!state.consent?.accepted||!intake?.shared_at)return "";
- const saved=state.coachPlanDraftRecord;
- const goal=state.pendingGoal||state.pendingGoalRevision?.proposal,guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
- const checkedGuide=COACH_ATOMIC_PLAN_UI_ENABLED&&saved?.guide_proposal?.approvedFoodIds&&guide
-  ?{...guide,approvedFoodIds:saved.guide_proposal.approvedFoodIds}:guide;
- const publication=assessCoachDraftPublication({studentId:student,intake,savedDraft:saved,goal,guide:checkedGuide});
- const active=saved?.status==="draft"&&coachDraftSourceCurrent(intake,saved);
- return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
- '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
- '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
- '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
- (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft" '+(publication.ready?'':'disabled')+'>Revisar y publicar juntos</button>':'')+'</div>'+
- (!publication.ready?'<p class="pilot-hint" role="status">'+escapeHTML(publication.reason)+'</p>':'')+'</section>';
-}
-async function saveCoachAtomicDraft(){
- const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
- if(!COACH_ATOMIC_PLAN_UI_ENABLED||!intake?.shared_at||!state.consent?.accepted)
-  throw Error("El circuito seguro de borradores todavía no está habilitado.");
- const sessionUserId=state.session?.user?.id,previousDraft=state.coachPlanDraftRecord;
- const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
- if(!goal||!guide)throw Error("Prepará primero el objetivo y la Dieta Guía.");
- validateGuidedDay(guide,goal);
- // Capture exactly what was submitted BEFORE network waits: later edits cannot
- // silently become the "saved" version through a shared mutable goal object.
- const finalGuide=COACH_ATOMIC_PLAN_UI_ENABLED
-  ?approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)})
-  :guide;
- const snapshot=validateCoachPlanProposal(goal,finalGuide);
- const r=await coachDraftClient.save({
-  studentId,sourceUpdatedAt:intake.updated_at,
-   sourceRevision:COACH_VERSIONED_INTAKE_ENABLED?intake.revision:null,
-   goal:snapshot.goal,guide:snapshot.guide,
-  expectedRevision:previousDraft?.draft_revision??null
- });
- const serverDraft=await coachDraftClient.load(studentId);
- const verified=verifyCoachDraftReadback({
-  studentId,intake,savedDraft:serverDraft,expectedRevision:r.revision,
-  goal:snapshot.goal,guide:snapshot.guide
- });
- if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
- state.coachPlanDraftRecord=verified;
- state.coachPlanPublishRequestId=null;
- await render();
- notify("Borrador privado confirmado en el servidor. El alumno conserva su plan vigente.");
-}
-async function publishCoachAtomicDraft(){
- const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
- if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
-    draft.status!=="draft"||!Number.isSafeInteger(draft.draft_revision))
-  throw Error("No hay un borrador seguro disponible para publicar.");
- const sessionUserId=state.session?.user?.id,previousDraft=draft;
- const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
- const finalGuide=approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
- const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide:finalGuide});
- if(!review.ready)throw Error(review.reason);
- if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
- if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
-  throw Error("Cambió la ficha o el alumno seleccionado; volvé a revisar antes de publicar.");
- state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||crypto.randomUUID();
- await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
-  requestId:state.coachPlanPublishRequestId,confirmed:true});
- // The server may have committed even if navigation occurred meanwhile.
- // Never overwrite the currently visible student's workspace or request UUID.
- if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
- // Keep the SAME request UUID until the server state is reloaded and rendered.
- // A successful commit followed by a failed read must be safely retryable;
- // clearing the UUID early risks an accidental second publication.
- await loadStudentDetail(studentId);await render();
- state.coachPlanPublishRequestId=null;
- notify("Meta y guía publicadas conjuntamente por el servidor.");
-}
-function activeCoachGuideGoal(){
- // While preparing an atomic Coach draft, NEVER silently fall back to the student's published goal.
- return COACH_ATOMIC_PLAN_UI_ENABLED
-  ? (state.pendingGoal||state.pendingGoalRevision?.proposal||null)
-  : (state.coachGoals[0]||null);
-}
-// PERSISTED_COACH_SCOPE_BEGIN: extracted verbatim by the private regression.
-let adaptedSourceEpoch=0,adaptedSourceFingerprint=null;
-function coachSessionIdentity(session,user){
- // Correlation only, never authorization: the provider validates getUser and server JWT session_id.
- // Retain only the opaque session ID; never put access/refresh tokens in application state or logs.
- try{
-  if(!user?.id||session?.user?.id!==user.id||typeof session.access_token!=='string')return null;
-  const parts=session.access_token.split('.');if(parts.length!==3)return null;
-  const claims=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-  if(claims.sub!==user.id||typeof claims.session_id!=='string'||
-   !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(claims.session_id)||
-   !Number.isFinite(claims.exp)||claims.exp*1000<=Date.now())return null;
-  return claims.session_id;
- }catch{return null;}
-}
-function setCoachSessionIdentity(session,user){
- const id=coachSessionIdentity(session,user);
- if(state.session?.user?.id!==user?.id||state.session?.session_id!==id){
-  coachAdaptedWorkspace.close();
- }
- state.session=user?{user,session_id:id}:null;
-}
-function adaptedCoachScope(){
- const student=state.roster.find(p=>p.user_id===state.selectedStudent);
- const intake=state.coachIntakeForms?.[state.selectedStudent];
- const fingerprint=JSON.stringify([state.session?.user?.id,state.session?.session_id,
-  state.selectedStudent,state.org?.id,state.org?.coach_id,student?.organization_id,student?.active,
-  state.consent?.accepted,state.consent?.student_id,state.consent?.organization_id,
-  intake?.revision,intake?.updated_at,intake?.shared_at,state.coachIntakeAccess?.[state.selectedStudent],
-  state.coachPlanDraftRecord?.draft_revision,state.pendingGoalRevision?.revision]);
- if(fingerprint!==adaptedSourceFingerprint){
-  const hadContext=adaptedSourceFingerprint!==null;
-  adaptedSourceFingerprint=fingerprint;adaptedSourceEpoch++;
-  if(hadContext)coachPersistedGuideSource?.invalidate();
- }
- return {sourceEpoch:adaptedSourceEpoch,sessionId:state.session?.session_id,userId:state.session?.user?.id,profileId:state.profile?.user_id,role:state.profile?.role,
-  active:state.profile?.active,organizationId:state.org?.id,ownerId:state.org?.coach_id,
-  studentId:student?.user_id,studentActive:student?.active,studentOrganizationId:student?.organization_id,
-  consent:state.consent?.accepted,consentStudentId:state.consent?.student_id,
-  consentOrganizationId:state.consent?.organization_id};
-}
-// PERSISTED_COACH_SCOPE_END
-const coachGuideProviders=null; // Pending authorized provider; no browser-supplied verified flag.
-const coachGuideConnection=createCoachGuideConnection({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,providers:coachGuideProviders});
-const installedGuideEnabled=PILOT_GUIDE_INSTALL.enabled&&COACH_ADAPTED_GUIDE_PREVIEW_ENABLED;
-if(installedGuideEnabled&&(!PILOT_GUIDE_INSTALL.template.length||!PILOT_GUIDE_INSTALL.foodIds.length))throw Error('Falta configurar la plantilla revisada.');
-const coachBoundPublication=installedGuideEnabled&&PILOT_GUIDE_INSTALL.publicationEnabled?createBoundGuidePublication({sb,readScope:adaptedCoachScope,enabled:true}):null;
-const coachPersistedGuideSource=installedGuideEnabled?createPersistedGuideProvider({client:sb,readScope:adaptedCoachScope,template:PILOT_GUIDE_INSTALL.template}):null;
-const coachAdaptedWorkspace=coachPersistedGuideSource?createCoachAdaptedWorkspace({enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,persistedSource:coachPersistedGuideSource,publicationClient:coachBoundPublication}):coachGuideConnection?.workspace||createCoachAdaptedWorkspace({
- enabled:COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,readScope:adaptedCoachScope,loadInput:null
-});
-const pilotGuideLifecycle=createPilotGuideLifecycle({sb,enabled:installedGuideEnabled,
- readStudent:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,organizationId:state.profile?.organization_id,role:state.profile?.role,active:state.profile?.active,intakeRevision:state.coachPilotIntake?.revision,sharedAt:state.coachPilotIntake?.shared_at}),
- readScope:adaptedCoachScope,readGoal:()=>state.pendingGoal,foodIds:PILOT_GUIDE_INSTALL.foodIds,
- onSaved:async (id,assertCurrent)=>{
-  // Read into a local value: loadStudentDetail clears pendingGoal before awaiting.
-  // Do not mutate current UI state until both request context and goal still match.
-  const saved=await coachDraftClient.load(id);assertCurrent();
-  if(saved?.status!=="draft"||!coachDraftSourceCurrent(state.coachIntakeForms[id],saved)||
-   ['goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].some(k=>saved.goal_proposal?.[k]!==state.pendingGoal?.[k]))throw Error('Cambió el borrador durante la actualización.');
-  state.coachPlanDraftRecord=saved;
-  state.coachGuidedDraft=saved.guide_proposal?structuredClone(saved.guide_proposal):null;
-  await render();
- }
-});
-function currentCoachGuideProfile(){
- const intake=state.coachIntakeForms?.[state.selectedStudent]||{};
- const pattern=profilePatternForCompatibility(intake.dietary_pattern||'balanced');
- const windowId=['12_12','14_10','16_8'].includes(intake.eating_window)?intake.eating_window:'regular';
- // Unknown medical status is never interpreted as a negative declaration.
- const shared=state.coachGuideHealth;
- const verified=shared?.studentId===state.selectedStudent&&shared.shared===true&&
-  shared.viewerId===state.session?.user?.id&&shared.consentVerified===true;
- return {patternId:pattern,windowId,restrictions:verified?shared.restrictions:[],
-  restrictionStatus:verified?shared.restrictionStatus:"unknown",
-  restrictionReviewNotes:verified?shared.reviewNotes:[]};
-}
 function coachGuidedSection(){
- const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const goal=activeCoachGuideGoal();
- const saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal?.id&&saved?.guided_goal_id===goal.id;
+ const goal=state.coachGoals[0],saved=state.coachFoodPlan,old=saved?.guided_plan,matching=goal&&saved?.guided_goal_id===goal.id;
  const draft=state.coachGuidedDraft,plan=draft||(matching?old:null);
- const pending=COACH_ATOMIC_PLAN_UI_ENABLED&&!!proposed;
- const adaptedEntry=coachAdaptedWorkspace.available()?'<section class="card"><button class="btn small light" type="button" data-act="openCoachAdaptedPreview">Revisar guía adaptada · prueba privada</button><div id="coachAdaptedDraftMount"></div></section>':"";
- return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Dieta Guía automática e interactiva</h3>'+adaptedEntry+
- '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
- (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus comidas de guía.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
+ return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">EFG · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Guía alimentaria de cinco comidas</h3>'+
+ '<p class="pilot-hint">El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.</p>'+
+ (!goal?'<div class="pilot-notice">Primero aprobá el objetivo nutricional de este alumno.</div>':
  '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
- '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
+ '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' cinco comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
- (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
- (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':
- draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':
- '<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
- (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">'+(pending?'Esta guía es solo una propuesta; guardala junto con la nueva meta.':'Para revisarla, generá un nuevo borrador privado.')+'</p>':
- '<p class="pilot-hint">Guía aprobada: la publicación y el desbloqueo son un paso separado.</p><button type="button" class="btn" data-act="publishCoachStudentPlan">Publicar plan y habilitar MI DÍA</button>')):
- '<p class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Generá y revisá las comidas de este borrador, antes de guardar.':'El ejemplo se genera después de calcular y aprobar el objetivo.')+'</p>'))+'</section>';
+ (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Ajustar porciones a la meta</button><button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button></div>':
+ '<p class="pilot-hint">Guía aprobada y disponible para el alumno. Para editarla, generá otra versión.</p>'):
+ '<p class="pilot-notice">El ejemplo se genera después de calcular y aprobar el objetivo.</p>'))+'</section>';
 }
 function studentGuidedSection(){
  if(state.profile?.role!=="student"||!state.foodPlan?.guided_plan)return "";
@@ -2767,9 +1673,9 @@ function studentGuidedSection(){
  if(!goal)return "";
  const stale=state.goals[0]?.id!==goal.id;
  return '<section class="card efg-guide-student"><span class="eyebrow">GUÍA APROBADA POR TU COACH</span><h2>🍽️ Mi día de alimentación, explicado</h2>'+
- '<p>Conocé una guía orientativa y cantidades. Podés comer algo distinto y seguir registrando normalmente.</p>'+
+ '<p>Conocé un ejemplo de cinco comidas y cantidades. Podés comer algo distinto y seguir registrando normalmente.</p>'+
  (stale?'<div class="pilot-alert">Tu objetivo cambió después de este ejemplo: pedile al coach una nueva guía.</div>':'')+
- '<details><summary>Ver las comidas de la Dieta Guía</summary>'+guidedDayContents(guide,goal)+'</details>'+
+ '<details><summary>Ver las cinco comidas de ejemplo</summary>'+guidedDayContents(guide,goal)+'</details>'+
  '<button type="button" class="btn small light" data-tab="planner">Resolver lo que me falta hoy</button></section>';
 }
 function baselinePreview(){
@@ -2783,21 +1689,18 @@ function readGuidedEditor(){
  const draft=state.coachGuidedDraft;if(!draft)throw new Error("Primero generá un borrador.");
  for(const el of document.querySelectorAll("[data-guideqty]")){
   const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)],qty=Number(el.value);
-  const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id);
-  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
-  // Respect the coach's manual choice even if a browser skips an intermediate input event.
-  if(food.qty!==qty){food.qty=qty;food.locked=true;}
+  if(!food||!Number.isFinite(qty)||qty<guidedPortionBounds(food.id)[0]||qty>guidedPortionBounds(food.id)[1])throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
+  food.qty=qty;
  }
  draft.supplementNote=String(document.getElementById("guideSupplementNote")?.value||"").trim();
  return draft;
 }
 function updateGuidedTotalsUI(){
- const plan=state.coachGuidedDraft,goal=activeCoachGuideGoal();if(!plan||!goal)return;
+ const plan=state.coachGuidedDraft,goal=state.coachGoals[0];if(!plan||!goal)return;
  const sums=guideTotals(plan),dev=guideDeviation(plan,goal);
  const all=document.querySelector("[data-guideoverall]");if(all)all.textContent="Menú modelo: "+guideNumbers(sums.totals);
  const deviations=document.querySelector("[data-guidedeviations]");
  if(deviations)deviations.textContent="Desvíos: "+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(dev[k].percent>0?"+":"")+num(dev[k].percent,1)+"%").join(" · ");
- const status=document.querySelector("[data-guidetargetstatus]");if(status)status.textContent=guidedTargetFeedback(dev);
  for(const m of sums.perMeal){
   const k=document.querySelector('[data-guidemealmetric="'+m.slot+'"]');if(k)k.textContent=num(m.totals.k)+" kcal";
   const t=document.querySelector('[data-guidemealnumbers="'+m.slot+'"]');if(t)t.textContent=guideNumbers(m.totals);
@@ -2807,25 +1710,16 @@ function showGuidedEditor(){
  const node=document.getElementById("coachGuidedSlot");if(!node)return;
  const y=window.scrollY;
  node.outerHTML=coachGuidedSection();
- // A newly regenerated Coach guide also changes the atomic draft readiness.
- // Repaint only this already rendered panel, without any persistence or publish.
- const atomicPanel=root.querySelector(".efg-coach-atomic-draft");
- if(atomicPanel)atomicPanel.outerHTML=coachAtomicDraftPanel();
  window.scrollTo({top:y,behavior:"instant"});
 }
 async function approveGuidedDay(){
- if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Usá el borrador privado y la publicación conjunta: no está permitido enviar guías por separado.");
  const student=state.selectedStudent,goal=state.coachGoals[0],draft=readGuidedEditor();
- if(draft?.kind==="flexible_meal_guide")
-  throw Error("La Dieta Guía de seis comidas requiere publicación atómica validada. La vía heredada no está habilitada.");
  if(!(state.profile.role==="coach"||(state.profile.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session.user.id))||!state.consent?.accepted||!student||!goal)throw new Error("No tenés permiso para enviar esta guía.");
  validateGuidedDay(draft,goal);
- // Never edit a published guide directly after the transactional access schema exists.
- await assertCoachGoalWriteSafe(sb,{studentId:student,fromSharedIntake:!!state.coachIntakeForms?.[student]?.shared_at});
  const latest=await sb.from("efg_goals").select("id").eq("student_id",student).order("approved_at",{ascending:false}).limit(1).single();
  if(latest.error)throw latest.error;
  if(latest.data.id!==goal.id)throw new Error("La meta cambió: recargá la ficha antes de generar la guía.");
- if(!window.confirm("¿Aprobar esta Dieta Guía de ejemplo para el alumno? No se cargarán en su diario."))return;
+ if(!window.confirm("¿Aprobar estas cinco comidas de ejemplo para el alumno? No se cargarán en su diario."))return;
  const updated={
   student_id:student,coach_id:state.session.user.id,
   approved_food_ids:state.coachFoodPlan?.approved_food_ids?.length?state.coachFoodPlan.approved_food_ids:FOOD_DEFAULTS,
@@ -2842,32 +1736,25 @@ async function approveGuidedDay(){
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
- const intakeDraft=state.coachIntakePrefill?.studentId===p.user_id?state.coachIntakePrefill:null;
- const goalWriteBlocked=!!(intakeDraft||state.coachIntakeAccess?.[p.user_id]);
- const intakeValue=(key,fallback="")=>escapeHTML(intakeDraft?(intakeDraft.fields[key]??""):fallback);
- const intakeWarnings=intakeDraft?'<div class="efg-intake-prefill" role="status"><strong>Ficha aplicada a la calculadora · borrador</strong><p>Confirmá los valores antes de calcular; todavía no se envió ningún plan.</p><ul>'+intakeDraft.warnings.map(w=>'<li>'+escapeHTML(w)+'</li>').join("")+'</ul>'+
- (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
- (intakeDraft.dislikedFoods?'<p><strong>Evita por gusto:</strong> '+escapeHTML(intakeDraft.dislikedFoods)+'</p>':"")+
- (intakeDraft.mealRoutine?'<p><strong>Horarios:</strong> '+escapeHTML(intakeDraft.mealRoutine)+'</p>':"")+'</div>':"";
- return coachIntakeFlow.details(p.user_id)+'<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
  coachRewardPanel()+
  '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Objetivos y plan nutricional</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- coachGuidedSection()+coachAtomicDraftPanel()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
- intakeWarnings+(goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
+ coachGuidedSection()+baselinePreview()+goalRevisionSection(latest)+'<div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
+ '<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="fat_loss">Pérdida de grasa</option><option value="recomp">Recomposición</option><option value="muscle_gain">Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="30" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="170" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+(state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity">'+activityOptions(1.5)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
  '<div class="field"><label>Recomposición · estrategia energética</label><select id="targetRecompMode">'+recompOptions("deficit05")+'</select></div>'+activityHint+recompHint+
- '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button></details></section>';
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px">Aprobar y enviar al alumno</button></details></section>';
 }
 
 function adminHomeView(){
  const orgs=state.orgs||[];
  return rootText("HOLA, "+escapeHTML(state.profile.nickname),"Tu centro de control EFG. Todos los espacios, en un único lugar.")+
- '<section class="efg-admin-banner"><span class="eyebrow">Nutrición Con-Ciencia · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
- '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>!o.is_test&&["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(o.is_test?0:Number(o.seat_limit)||0),0)+'</strong><span>Cupos comerciales</span></div></div>'+
+ '<section class="efg-admin-banner"><span class="eyebrow">EFG NUTRITION PRO · ADMINISTRACIÓN</span><h2>Todo bajo control.</h2><p>Seguimiento de la plataforma, alumnos de prueba y tu propia alimentación.</p></section>'+
+ '<div class="efg-coach-stat-grid"><div><strong>'+orgs.length+'</strong><span>Entrenadores</span></div><div><strong>'+orgs.filter(o=>["active","trial","grace"].includes(o.status)).length+'</strong><span>Licencias vigentes</span></div><div><strong>'+orgs.reduce((n,o)=>n+(Number(o.seat_limit)||0),0)+'</strong><span>Cupos comerciales</span></div></div>'+
  (state.org?.is_test?'<section class="card efg-seats-panel"><div class="section-head"><h2>MI LABORATORIO DE PRUEBA</h2><button type="button" class="btn small light" data-tab="testCoach">Ver alumnos</button></div><p><strong>'+Math.max(0,Number(state.org.seat_limit)-state.roster.filter(p=>p.active).length-state.testInvitations.filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at).length)+' cupos disponibles</strong> de '+Number(state.org.seat_limit)+' habilitados. No se cuentan como licencias comerciales.</p></section>':'')+
  '<section class="efg-menu-grid">'+[
  ["home","🍽️","MI DÍA","mint"],["testCoach","👥","Coach de prueba","blue"],
@@ -2880,16 +1767,9 @@ function adminView(){
  const orgs=state.orgs;
  return rootText("Organizaciones y licencias","Gestioná entrenadores, cupos y permisos sin acceder a la información nutricional privada.")+
  '<div class="efg-roster-summary"><span class="pilot-pill">'+orgs.length+' entrenadores registrados</span><button type="button" class="btn small light" data-tab="admin">Volver al inicio</button></div>'+
- '<div class="pilot-kpis"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&['active','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">LICENCIAS PENDIENTES</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&o.status==="trial").length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+(o.is_test?0:o.seat_limit),0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
- '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+(org.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes · ':'Sin precio mensual · ')+escapeHTML(org.is_test?'Piloto gratuito · sin facturación':org.status==='active'&&org.paid_through>=today()?'Activa hasta '+org.paid_through:'Pendiente de pago / suspendida')+' · '+(org.coach_id?'Ingreso registrado':'Pendiente de ingreso')+'</small></div><div class="pilot-toolbar">'+(org.is_test?'<span class="pilot-pill">10 cupos de prueba</span>':
-  '<button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button>'+
-  '<button class="btn small light" data-activatecoach="'+org.id+'" '+(!org.coach_id?'disabled':'')+'>Activar tras pago</button>'+
-  (org.status!=="suspended"?'<button class="btn small ghost" data-orgstatus="'+org.id+'">Suspender</button>':''))+'</div></div></div>').join(""):'<div class="empty">Todavía no se habilitaron entrenadores.</div>')+'</div><div class="card"><h2>Invitaciones de coaches</h2>'+ (state.invitations.length?state.invitations.filter(i=>i.role==="coach").map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+' · '+(i.claimed_by?'Activado':'Pendiente')+'</small>'+(!i.claimed_by&&!i.revoked_at?'<button class="btn small ghost" data-revokeinvite="'+i.id+'" style="margin-top:8px">Cancelar invitación</button>':'')+'</div>').join(""):'<p class="pilot-hint">Sin invitaciones comerciales.</p>')+'</div>'+
- '<div class="card efg-pilot-coach-activation"><div class="eyebrow">NUTRICIÓN CON-CIENCIA · CUPO GRATUITO</div><h2>Habilitar coach piloto existente</h2>'+
-'<p class="pilot-hint">Para Carla u otra persona que ya utiliza EFG como alumna: conserva su correo, cuenta y todo el historial de MI DÍA. El administrador EFG cambia el rol y le asigna exactamente 10 cupos de prueba. No crea otra cuenta ni cobra licencia. Sus alumnos necesitarán autorizar el seguimiento.</p>'+
-'<div class="field"><label for="existingPilotCoachEmail">Correo de la cuenta existente</label><input type="email" id="existingPilotCoachEmail" autocomplete="off" placeholder="Correo actual del alumno" maxlength="254" '+(!COACH_PILOT_PROMOTION_ENABLED?'disabled':'')+'></div>'+
-'<button type="button" class="btn block" data-act="promoteExistingPilotCoach" '+(!COACH_PILOT_PROMOTION_ENABLED?'disabled aria-disabled="true"':'')+'>Habilitar como coach piloto · 10 alumnos</button>'+
-(!COACH_PILOT_PROMOTION_ENABLED?'<small class="pilot-hint">En preparación: requiere base de datos y controles de seguridad verificados antes del lanzamiento.</small>':'<small class="pilot-hint">Esta operación cambia el rol de esa cuenta, sin borrar sus registros. Verificá la identidad antes de confirmar.</small>')+'</div></div>'+'<div class="pilot-stack"><div class="card"><h2>ALTA COMERCIAL DE COACH</h2><p class="pilot-hint">Solo el administrador EFG habilita entrenadores. Escribí el cupo contratado; la cuenta nueva queda pendiente de activación hasta que verifiques el acuerdo y la transferencia.</p><div class="pilot-form"><div class="field"><label>Nombre / usuario profesional</label><input id="newCoachName" placeholder="Ej. CoachCarla" maxlength="70"></div><div class="field"><label>Correo electrónico</label><input id="newCoachEmail" type="email" placeholder="coach@email.com"></div><div class="field"><label for="newCoachSeats">Cupos contratados de alumnos (1 a 10.000)</label><input id="newCoachSeats" type="number" min="1" max="10000" required placeholder="Ej. 50"></div><div class="field"><label for="newCoachFee">Precio mensual acordado (ARS)</label><input id="newCoachFee" type="number" min="1" max="10000000" step=".01" placeholder="Importe del contrato"></div><button class="btn block" data-act="inviteCoach" '+(!state.platformAlias?'disabled':'')+'>Invitar coach · Pendiente de activación</button><small>'+(!state.platformAlias?'Primero configurá tu alias EFG.':'La invitación no activa la licencia hasta aprobar el pago.')+'</small></div></div><div class="card"><h2>ALIAS OFICIAL DE EFG</h2><p class="pilot-hint">Configurá tu alias para cobrar las licencias: se cargará automáticamente en «PAGAR MI LICENCIA A EFG» de todos los coaches. Nunca se modifica desde su cuenta.</p><div class="pilot-form"><div class="field"><label>Alias de cobro</label><input id="platformAlias" value="'+escapeHTML(state.platformAlias||"")+'" maxlength="100" placeholder="EFG.NUTRITION"></div><div class="field"><label for="platformAlias2">Alias alternativo 1 (opcional)</label><input id="platformAlias2" maxlength="100" value="'+escapeHTML(state.platformAliases?.[1]||"")+'"></div><div class="field"><label for="platformAlias3">Alias alternativo 2 (opcional)</label><input id="platformAlias3" maxlength="100" value="'+escapeHTML(state.platformAliases?.[2]||"")+'"></div><button class="btn" data-act="savePlatformAlias">Guardar alias de EFG</button></div></div><div class="card"><h2>Mi cuenta personal</h2><p class="pilot-hint">Como propietario podés usar también tu diario nutricional, pero no ver los diarios de otros entrenadores.</p><button class="btn light" data-tab="home">Abrir mi alimentación</button></div></div></div>';
+ '<div class="pilot-kpis"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>['active','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">LICENCIAS PENDIENTES</div><div class="metric-value">'+orgs.filter(o=>o.status==="trial").length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+o.seat_limit,0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
+ '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+(org.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes · ':'Sin precio mensual · ')+escapeHTML(org.status==='active'&&org.paid_through>=today()?'Activa hasta '+org.paid_through:'Pendiente de pago / suspendida')+' · '+(org.coach_id?'Ingreso registrado':'Pendiente de ingreso')+'</small></div><div class="pilot-toolbar"><button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button><button class="btn small light" data-activatecoach="'+org.id+'" '+(!org.coach_id?'disabled':'')+'>Activar tras pago</button>'+(org.status!=="suspended"?'<button class="btn small ghost" data-orgstatus="'+org.id+'">Suspender</button>':'')+'</div></div></div>').join(""):'<div class="empty">Todavía no se habilitaron entrenadores.</div>')+'</div><div class="card"><h2>Invitaciones de coaches</h2>'+ (state.invitations.length?state.invitations.filter(i=>i.role==="coach").map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+' · '+(i.claimed_by?'Activado':'Pendiente')+'</small>'+(!i.claimed_by&&!i.revoked_at?'<button class="btn small ghost" data-revokeinvite="'+i.id+'" style="margin-top:8px">Cancelar invitación</button>':'')+'</div>').join(""):'<p class="pilot-hint">Sin invitaciones comerciales.</p>')+'</div></div>'+
+ '<div class="pilot-stack"><div class="card"><h2>ALTA COMERCIAL DE COACH</h2><p class="pilot-hint">Solo el administrador EFG habilita entrenadores. Escribí el cupo contratado; la cuenta nueva queda pendiente de activación hasta que verifiques el acuerdo y la transferencia.</p><div class="pilot-form"><div class="field"><label>Nombre / usuario profesional</label><input id="newCoachName" placeholder="Ej. CoachCarla" maxlength="70"></div><div class="field"><label>Correo electrónico</label><input id="newCoachEmail" type="email" placeholder="coach@email.com"></div><div class="field"><label for="newCoachSeats">Cupos contratados de alumnos (1 a 10.000)</label><input id="newCoachSeats" type="number" min="1" max="10000" required placeholder="Ej. 50"></div><div class="field"><label for="newCoachFee">Precio mensual acordado (ARS)</label><input id="newCoachFee" type="number" min="1" max="10000000" step=".01" placeholder="Importe del contrato"></div><button class="btn block" data-act="inviteCoach" '+(!state.platformAlias?'disabled':'')+'>Invitar coach · Pendiente de activación</button><small>'+(!state.platformAlias?'Primero configurá tu alias EFG.':'La invitación no activa la licencia hasta aprobar el pago.')+'</small></div></div><div class="card"><h2>ALIAS OFICIAL DE EFG</h2><p class="pilot-hint">Configurá tu alias para cobrar las licencias: se cargará automáticamente en «PAGAR MI LICENCIA A EFG» de todos los coaches. Nunca se modifica desde su cuenta.</p><div class="pilot-form"><div class="field"><label>Alias de cobro</label><input id="platformAlias" value="'+escapeHTML(state.platformAlias||"")+'" maxlength="100" placeholder="EFG.NUTRITION"></div><div class="field"><label for="platformAlias2">Alias alternativo 1 (opcional)</label><input id="platformAlias2" maxlength="100" value="'+escapeHTML(state.platformAliases?.[1]||"")+'"></div><div class="field"><label for="platformAlias3">Alias alternativo 2 (opcional)</label><input id="platformAlias3" maxlength="100" value="'+escapeHTML(state.platformAliases?.[2]||"")+'"></div><button class="btn" data-act="savePlatformAlias">Guardar alias de EFG</button></div></div><div class="card"><h2>Mi cuenta personal</h2><p class="pilot-hint">Como propietario podés usar también tu diario nutricional, pero no ver los diarios de otros entrenadores.</p><button class="btn light" data-tab="home">Abrir mi alimentación</button></div></div></div>';
 }
 function paymentCard(p){
  const isRecipient=p.recipient_id===state.session.user.id;
@@ -2900,8 +1780,6 @@ function paymentCard(p){
 }
 function paymentsView(){
  const role=state.profile.role,org=state.org;
- if(role==="coach"&&org?.is_test)return rootText("Coach piloto EFG","Tu período de prueba es gratuito.")+
-  '<section class="card"><h2>🧪 Laboratorio de 10 alumnos</h2><p>Esta cuenta no tiene facturación de licencia durante la prueba. Seguí usando MI DÍA, tus herramientas y tus 10 cupos desde Mis alumnos.</p><button type="button" class="btn" data-tab="coachStudents">Ver mis alumnos</button></section>';
  // El administrador sólo cobra licencias; su laboratorio de prueba puede cobrar
  // a sus propios alumnos sin convertirse en coach comercial.
  const coachWorkspace=role==="coach"||(role==="admin"&&org?.is_test===true&&org?.coach_id===state.session.user.id);
@@ -2961,162 +1839,14 @@ function restoreViewContinuity(snapshot){
  // iOS Safari may settle scroll dimensions after the newly rendered content lays out.
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
-// Separate, opt-in health flow. Entire client is OFF until hosted consent,
-// server grants and the signed Coach onboarding release are authorized.
-async function renderPrivateHealthDeclaration(){
- const userId=state.session?.user?.id,profile=state.profile;
- const viewEpoch=state.authContextEpoch||0;
- const intake=state.coachPilotIntake,route=state.coachPilotEntry?.route;
- const allowed=PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&COACH_STUDENT_JOURNEY_ENABLED&&
-  profile?.role==="student"&&profile.active===true&&profile.user_id===userId&&
-  ["private","review","ready"].includes(route)&&
-  intake?.student_id===userId&&intake.organization_id===profile.organization_id&&
-  intake.completed_version===COACH_RELEASE_INTAKE_VERSION&&
-  Number.isSafeInteger(intake.revision)&&intake.revision>0;
- if(!allowed){
-  root.innerHTML='<section class="card" role="alert"><h2>Declaración privada no disponible</h2><p>Verificá la ficha nutricional vigente y tu cuenta.</p><button class="btn" type="button" data-act="retry">Volver a consultar</button></section>';
-  return;
- }
- if(!state.privateHealthSessionNonce){
-  if(typeof window.crypto?.randomUUID!=="function")throw Error("No hay identificador de sesión local seguro para esta vista.");
-  state.privateHealthSessionNonce=window.crypto.randomUUID();
- }
- frame('<section class="card" aria-labelledby="privateHealthTitle"><h2 id="privateHealthTitle">Mis restricciones alimentarias</h2><p>Esta declaración es independiente de los avisos del piloto y no modifica tus registros anteriores. Compartirla con tu coach es opcional y revocable.</p><div id="privateHealthDeclarationMount" role="region" aria-label="Declaración privada"></div></section>');
- const mount=document.getElementById("privateHealthDeclarationMount");
- try{
-  await state.privateHealthDeclaration.open(mount);
- }catch(error){
-  if(state.tab!=="privateHealth"||state.session?.user?.id!==userId||
-   (state.authContextEpoch||0)!==viewEpoch||!mount?.isConnected)return;
-  const message=document.createElement("p");message.setAttribute("role","alert");
-  message.textContent=error?.message||"No se pudo verificar la declaración privada.";
-  mount.replaceChildren(message);
- }
-}
 async function render(){
- const renderEpoch=state.authContextEpoch||0;
- state.privateHealthDeclaration?.invalidate?.();
- pilotGuideLifecycle.invalidate();
- coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
- // NCC 02-11: one-time educational introduction BEFORE the current Terms,
- // Privacy and mandatory nutrition intake for Coach students. Viewing the
- // slides never implies legal/health consent or grants diary access.
- if(state.profile.role==="student"&&SCIENCE_WELCOME_ENABLED&&
-    (COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED)&&
-    state.scienceWelcomePending){
-  root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{
-   busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
-  return;
- }
- // COACH120 exceptional ONE-TIME relaunch: each state is a signed server
- // response. Both flags default OFF. Never use a minor asset build as a trigger.
- if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease?.phase!=="none"&&state.majorRelease){
-  const phase=state.majorRelease.phase;
-  if(phase==="preview"||phase==="reauth_required"){
-   root.innerHTML=renderMajorReleaseAnnouncement(state.majorRelease,state.profile.role);
-   return;
-  }
-  if(phase==="legal"){
-   root.innerHTML=renderCoachPilotLegal(state.majorReleaseLegal);
-   return;
-  }
-  if(phase==="live"){
-   root.innerHTML=renderWhatsNew(state.majorRelease,state.profile.role);
-   return;
-  }
- }
- // Unrecognized roles never inherit legacy Student/Coach/Admin screens.
- // Read-only Personal stays OFF until schema, legal and clinical approvals.
- if(!["student","coach","admin"].includes(state.profile.role)){
-  if(state.profile.role==="personal"&&PERSONAL_WORKSPACE_ENABLED){
-   try{
-    const personal=await loadPersonalWorkspace(sb,{profile:state.profile,
-     userId:state.session?.user?.id,day:today()});
-    root.innerHTML=renderPersonalWorkspace(personal);
-   }catch(error){
-    // A denied/expired role, legal revision or network failure hides private data.
-    console.warn("No se verificó el espacio Personal:",error?.message);
-    root.innerHTML='<div class="pilot-loader"><h2>No pudimos habilitar tu espacio Personal</h2><p>Revisá tu sesión y los documentos legales vigentes. No mostraremos datos de otros perfiles.</p><button class="btn" data-act="retry">Reintentar</button><button class="btn small ghost" data-act="logout">Cerrar sesión</button></div>';
-   }
-   return;
-  }
-  root.innerHTML='<div class="pilot-loader"><h2>Tu espacio Personal está en preparación</h2><p>La modalidad Autogestión todavía no está disponible. Por seguridad, no mostraremos datos ni herramientas de otros perfiles.</p><button class="btn" data-act="logout">Cerrar sesión</button></div>';
-  return;
- }
- // EDUCATION01/02: the eight approved science panels also remain in the vertical tab.
- // The pilot-specific student branch above prioritizes the slides before legal.
- const scienceLegalPending=state.profile.role==="student"&&
-   ((COACH_STUDENT_JOURNEY_ENABLED&&state.coachPilotEntry?.route==="legal")||
-    (COACH_RELAUNCH_ONBOARDING_ENABLED&&state.coachRelaunchEntry?.route==="legal"));
- if(SCIENCE_WELCOME_ENABLED&&state.scienceWelcomePending&&!scienceLegalPending&&
-    !(state.profile.role==="coach"&&state.coachLegalPending)){
-   root.innerHTML=renderScienceWelcomeStep(state.scienceWelcomeStep,{
-     busy:state.scienceWelcomeBusy,error:state.scienceWelcomeError});
-   return;
- }
- // COACH113: signed, server-authoritative PILOT onboarding, not a local/legal draft.
- // This route stays OFF until atomic publication and server DML gating pass.
- if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
-  const pilot=state.coachPilotEntry;
-  if(pilot?.route!=="ready"){
-   if(pilot?.route==="legal")
-    root.innerHTML=renderCoachPilotLegal(state.coachPilotLegal);
-   else if(pilot?.route==="participation")
-    root.innerHTML=renderPilotParticipationNotice({serverReceipts:true});
-   else if(pilot?.route==="intake"){
-    const saved=state.coachPilotIntake;
-    root.innerHTML=renderCoachRelaunchEntry(
-     saved?{route:"ready",status:saved}:{route:"intake",status:null},
-     {editing:!!saved});
-   }else if(pilot?.route==="review"||pilot?.route==="private"){
-    // Reading nutrition education must not allow diary writes before plan.
-    if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
-    else if(state.tab==="messages"){frame(messagesView());messages.mount();}
-    else if(state.tab==="privacy")frame(studentPrivacyView());
-    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
-    else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
-     await renderPrivateHealthDeclaration();
-    else if(pilot.route==="private")
-     // The owner chose NOT to share. Never imply the Coach received the form.
-     frame('<section class="card efg-coach-private-notice" role="status"><h2>Tu ficha está guardada como privada</h2><p>Tu coach todavía no puede verla ni preparar el nuevo plan. Podés revisar el permiso desde Mi ficha. Tu historial permanece disponible.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y el permiso</button></section>'+
-      renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
-    else if(["history","summaries"].includes(state.tab))
-     frame(renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
-    else
-     // Home after submission must show the promised waiting-for-coach screen.
-     frame(renderCoachPlanWaiting()+renderCoachPrivateHistory(state.coachPrivateHistory,{userId:state.session.user.id}));
-   }else
-    root.innerHTML='<section class="card" role="alert"><h2>Tu ingreso necesita verificación</h2><p>No pudimos comprobar tu sesión y tu plan actual.</p><button type="button" class="btn" data-act="retry">Reintentar</button><button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
-   return;
-  }
- }
- if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
-  if(state.coachRelaunchEntry?.route!=="ready"){
-   root.innerHTML=state.coachRelaunchEntry?.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED?
-     renderCoachLegalOnboarding(state.coachLegalSnapshot):
-     renderCoachRelaunchEntry(state.coachRelaunchEntry||{route:"retry",reason:"Revalidá tu sesión."});
-   return;
-  }
- }
- // A coach must explicitly accept CURRENT server-owned Términos y Privacidad.
- // Neither the student's acceptance nor an OTP login authorizes the coach.
- if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED&&state.coachLegalPending){
-  root.innerHTML=state.coachLegalSnapshot?renderCoachLegalOnboarding(state.coachLegalSnapshot):
-   '<section class="card" role="alert"><h2>Consentimiento del coach pendiente</h2><p>Revisá los documentos vigentes antes de preparar planes.</p><button type="button" class="btn" data-act="retry">Reintentar</button></section>';
-  return;
- }
  if(state.welcomePending)return welcomeView();
- if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")return renderPrivateHealthDeclaration();
- if(studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
- if((state.authContextEpoch||0)!==renderEpoch)return;
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
- let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
-   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
-   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+ let page={notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -3141,24 +1871,10 @@ function previewGoalRevision(){
  const latest=state.coachGoals[0];
  if(!latest||!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno con un plan aprobado y consentimiento activo.");
  const goal=adjustNutritionGoal(latest,Number(document.getElementById("reviseGoalKcal")?.value),document.getElementById("reviseGoalMode")?.value);
- // A periodic review may change foods/restrictions even when calories stay equal.
- if(goal.kcal===Number(latest.kcal)&&!COACH_ATOMIC_PLAN_UI_ENABLED)
-  throw new Error("Ingresá calorías distintas de la meta actual.");
- if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachGuidedDraft&&
-    !window.confirm("Hay una guía en edición. Para recalcular desde la ficha vigente necesitás descartar esa copia local. El plan publicado no cambiará. ¿Continuar?"))return;
- if(COACH_ATOMIC_PLAN_UI_ENABLED){
-  state.coachGuidedDraft=null;
-  state.coachIntakeGuidePreview=null;
-  state.pendingGoal=null;
-  state.calculatedGoalBase=null;
-  state.coachPlanPublishRequestId=null;
-  showGuidedEditor();
- }
+ if(goal.kcal===Number(latest.kcal))throw new Error("Ingresá calorías distintas de la meta actual.");
  state.pendingGoalRevision={studentId:state.selectedStudent,baseId:latest.id,proposal:goal};
  document.getElementById("revisedGoalPreview").innerHTML=showGoalComparison(latest,goal);
  document.getElementById("approveGoalRevisionButton").disabled=false;
- const newGuide=document.querySelector("[data-periodic-new-guide]");
- if(newGuide){newGuide.disabled=false;newGuide.removeAttribute("aria-disabled");}
 }
 function adjustCalculatedGoal(){
  const base=state.calculatedGoalBase;
@@ -3166,53 +1882,22 @@ function adjustCalculatedGoal(){
  const goal=adjustNutritionGoal(base,Number(document.getElementById("proposalGoalKcal")?.value),document.getElementById("proposalGoalMode")?.value);
  state.pendingGoal={...goal,student_id:state.selectedStudent};
  document.getElementById("goalPreviewSummary").innerHTML=showGoalComparison(base,goal);
- regenerateCoachIntakeGuidePreview();
- document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
- // P23: a newly calculated or adjusted goal must immediately reveal the
- // automatic six-slot Coach draft button. Repaint only the guide panel,
- // never mutate the student diary or publish a goal here.
- showGuidedEditor();
+ document.getElementById("approveGoalButton").disabled=false;
 }
 async function approveGoalRevision(){
- if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("Primero guardá una revisión privada con su guía. El objetivo vigente se mantiene.");
  const pending=state.pendingGoalRevision, latest=state.coachGoals[0];
  if(!pending||pending.studentId!==state.selectedStudent||!state.consent?.accepted||!latest||latest.id!==pending.baseId)throw new Error("Verificá la propuesta de revisión y los permisos del alumno.");
  const {data,error}=await sb.from("efg_goals").select("id").eq("student_id",pending.studentId).order("approved_at",{ascending:false}).limit(1).single();
  if(error)throw error;
  if(data.id!==pending.baseId)throw new Error("Ya existe un objetivo más reciente. Actualizá la ficha y recalculá.");
  if(!window.confirm("¿Aplicar ahora "+num(pending.proposal.kcal)+" kcal/día para este alumno? Podés volver a ajustarlo cuando haga falta; el objetivo previo se conserva en el historial."))return;
- await assertCoachGoalWriteSafe(sb,{studentId:pending.studentId});
  const {error:saveError}=await sb.from("efg_goals").insert({...pending.proposal,student_id:pending.studentId,approved_by:state.session.user.id,start_on:today()});
  if(saveError)throw saveError;
  state.pendingGoalRevision=null;state.pendingGoal=null;state.calculatedGoalBase=null;
  await loadStudentDetail(pending.studentId);await render();
  notify("Nuevo objetivo aprobado. Plan anterior conservado.");
 }
-function regenerateCoachIntakeGuidePreview(){
- state.coachIntakeGuidePreview=null;
- document.getElementById("coachIntakeGeneratedGuide")?.remove();
- const e=document.getElementById("goalPreview");
- if(!e||!state.pendingGoal)return;
- if(installedGuideEnabled){pilotGuideLifecycle.mountPreparation(e);return;}
- const intakeDraft=state.coachIntakePrefill;
- if(intakeDraft?.studentId===state.selectedStudent&&state.consent?.accepted){
-  if(coachGuidePreviewAllowed(intakeDraft,{studentId:state.selectedStudent,consent:true})){
-   try{
-    const sample=generateFlexibleGuidedDay(foods,state.pendingGoal,{
-     ...currentCoachGuideProfile()
-    });
-    state.coachIntakeGuidePreview={...sample,createdFrom:"coach_intake_unapproved_preview"};
-    e.innerHTML+='<section id="coachIntakeGeneratedGuide"><h4>Dieta Guía automática de seis comidas · SIN APROBAR</h4>'+
-     '<p class="pilot-hint">Propuesta orientativa: NO se envía ni se suma al diario. Verificá ingredientes, alergias y restricciones antes de aprobarla.</p>'+
-     guidedDayContents(state.coachIntakeGuidePreview,state.pendingGoal,false)+'</section>';
-   }catch(error){
-    e.innerHTML+='<p class="pilot-hint">No se pudo preparar el menú automáticamente: '+escapeHTML(error.message)+'. Podés hacer la guía manual.</p>';
-   }
-  }else e.innerHTML+='<p class="pilot-hint">Este patrón alimentario requiere el motor dietético revisado. No generamos una guía genérica con alimentos posiblemente incompatibles.</p>';
- }
-}
 function calculateGoal(){
- state.coachIntakeGuidePreview=null;
  const get=(id)=>document.getElementById(id)?.value;
  const weight=Number(get("targetWeight")),height=Number(get("targetHeight")),age=Number(get("targetAge")),activity=Number(get("targetActivity")),sex=get("targetSex"),goal=get("targetGoal"),model=get("targetModel")||"mifflin";
  const proteinChoice=get("targetProtein")||"auto",fatChoice=Number(get("targetFat")||.8);
@@ -3227,469 +1912,189 @@ function calculateGoal(){
  '<div class="field-row"><div class="field"><label for="proposalGoalKcal">Calorías objetivo</label><input type="number" id="proposalGoalKcal" min="1200" max="10000" step="1" value="'+result.kcal+'"></div>'+
  '<div class="field"><label for="proposalGoalMode">Reparto de macros</label><select id="proposalGoalMode">'+revisionModeChoices()+'</select></div></div>'+
  '<button type="button" class="btn small light" data-act="adjustCalculatedGoal">Recalcular propuesta</button><div id="goalPreviewSummary" style="margin-top:8px"></div>';
- regenerateCoachIntakeGuidePreview();
- document.getElementById("approveGoalButton").disabled=!!(state.coachIntakePrefill?.studentId===state.selectedStudent||state.coachIntakeAccess?.[state.selectedStudent]);
- // P23: a newly calculated or adjusted goal must immediately reveal the
- // automatic six-slot Coach draft button. Repaint only the guide panel,
- // never mutate the student diary or publish a goal here.
- showGuidedEditor();
+ document.getElementById("approveGoalButton").disabled=false;
 }
 async function saveDiary(){
- // A diary row is a single JSONB record. Per-slot locks alone permit two
- // simultaneous writes from different meal slots, supplements or comments:
- // the slower response can overwrite the faster meal. Reject overlapping
- // writes before a second request reaches PostgREST; existing callers restore
- // their optimistic changes and let the user retry.
- if(state.diaryWritePending)throw new Error("Todavía se está guardando otro registro. Esperá la confirmación y volvé a intentar.");
- const d=activeDiary(),studentId=state.session?.user?.id,contextEpoch=state.authContextEpoch||0;
- if(!studentId||d.student_id!==studentId)throw new Error("Revalidá tu sesión antes de registrar alimentos.");
+ const d=activeDiary();
  if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
  if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
  d.skipped=d.skipped||{};
  d.skipped._closed=false; // El día vigente permanece abierto hasta el horario automático.
- // Snapshot BEFORE the first await. A later optimistic change (even one that
- // rolls back) must not leak into the payload of the already started write.
- const payload=structuredClone({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:dailyTotals(d),updated_at:new Date().toISOString()});
- const writeToken=Symbol('diary-write');
- state.diaryWriteToken=writeToken;
- state.diaryWritePending=true;
- state.diaryWriteOwner=studentId;
- state.diaryWriteRevision=(state.diaryWriteRevision||0)+1;
- try{
-  const {data,error}=await sb.from("efg_daily_logs").upsert(payload,{onConflict:"student_id,log_day"}).select().single();
-  if(error)throw error;
-  // The server has committed, but the user may have logged out or midnight
-  // may have passed. Never rehydrate the previous user's/day's row into UI.
-  if(state.session?.user?.id!==studentId||(state.authContextEpoch||0)!==contextEpoch||today()!==payload.log_day)return;
-  state.diary=data;
-  if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
-  const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
-  if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
-  // A render exception is NOT a database failure: preserve confirmed data.
-  try{await render();}
-  catch(error){
-   console.error("Diario confirmado en servidor; falló la actualización visual:",error);
-   try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
-  }
- }finally{
-  // A's late response may not release B's active write after a session switch.
-  if(state.diaryWriteToken===writeToken){
-   state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
-  }
- }
+ d.totals=dailyTotals(d);d.student_id=state.session.user.id;
+ const {data,error}=await sb.from("efg_daily_logs").upsert({student_id:d.student_id,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:d.totals,updated_at:new Date().toISOString()},{onConflict:"student_id,log_day"}).select().single();
+ if(error)throw error;
+ state.diary=data;
+ const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
+ if(idx>=0)state.progressLogs[idx]=data;else state.progressLogs.unshift(data);
+ await render();
 }
 async function loadPersonalData(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
- const id=state.session.user.id,requestedDay=today();
- // An earlier tab load must not rehydrate another account, a previous date,
- // or an older response over a newer refresh / confirmed diary write.
- const loadToken=Symbol("personal-data-load");
- state.personalDataLoadToken=loadToken;
- const writeRevision=state.diaryWriteRevision||0;
- const results=await contextRead(Promise.all([
- sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",requestedDay).maybeSingle(),
- sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(requestedDay+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
+ const id=state.session.user.id;
+ const results=await Promise.all([
+ sb.from("efg_daily_logs").select("*").eq("student_id",id).eq("log_day",today()).maybeSingle(),
+ sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",id).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",id).order("measured_on",{ascending:false}).limit(40),
  sb.from("efg_activities").select("*").eq("student_id",id).order("activity_day",{ascending:false}).limit(20),
  sb.from("efg_goals").select("*").eq("student_id",id).order("approved_at",{ascending:false}).limit(20),
  sb.from("efg_personal_targets").select("*").eq("user_id",id).maybeSingle(),
  sb.from("efg_food_plans").select("*").eq("student_id",id).maybeSingle()
- ]));
+ ]);
  const error=results.find(x=>x.error)?.error;
- if(state.session?.user?.id!==id||today()!==requestedDay||state.personalDataLoadToken!==loadToken)return;
- if((state.diaryWriteRevision||0)!==writeRevision||
-   (state.diaryWritePending&&state.diaryWriteOwner===id))return;
  if(error)throw error;
- state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
+ state.diary=results[0].data||null;state.renderedDay=today();state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
 async function loadOrgAndPayments(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const id=state.session.user.id,role=state.profile.role;
  let orgResult;
- if(role==="coach")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("coach_id",id).maybeSingle());
- if(role==="admin")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("coach_id",id).eq("is_test",true).maybeSingle());
- if(role==="student")orgResult=await contextRead(sb.from("efg_organizations").select("*").eq("id",state.profile.organization_id).maybeSingle());
+ if(role==="coach")orgResult=await sb.from("efg_organizations").select("*").eq("coach_id",id).maybeSingle();
+ if(role==="admin")orgResult=await sb.from("efg_organizations").select("*").eq("coach_id",id).eq("is_test",true).maybeSingle();
+ if(role==="student")orgResult=await sb.from("efg_organizations").select("*").eq("id",state.profile.organization_id).maybeSingle();
  if(orgResult?.error)throw orgResult.error;
  state.org=orgResult?.data||null;
- const [pay,bill]=await contextRead(Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias,additional_aliases").eq("id",1).maybeSingle()]));
+ const [pay,bill]=await Promise.all([sb.from("efg_payments").select("*").order("created_at",{ascending:false}).limit(70),sb.from("efg_billing_settings").select("alias,additional_aliases").eq("id",1).maybeSingle()]);
  if(pay.error)throw pay.error;
  if(bill.error)throw bill.error;
  state.payments=pay.data||[];state.platformAlias=bill.data?.alias||null;state.platformAliases=[state.platformAlias,...(bill.data?.additional_aliases||[])].filter(Boolean);
 }
-async function loadCoachIntakeGoals(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
- state.coachIntakeGoals={};state.coachIntakeVerified=false;
- const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id);
- if(!ids.length){state.coachIntakeVerified=true;return;}
- try{
-  // Only consented students. Database RLS remains authoritative for each row.
-  const {data,error}=await contextRead(sb.from("efg_goals").select("student_id,id").in("student_id",ids).limit(500));
-  if(error)throw error;
-  for(const goal of data||[])state.coachIntakeGoals[goal.student_id]=true;
-  state.coachIntakeVerified=true;
- }catch(error){console.warn("EFG intake goal summary unavailable:",error.message);}
-}
-async function loadCoachIntakeDraftStatuses(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
- state.coachIntakeDraftStatuses={};state.coachIntakeDraftVerified=false;
- // Until the entire atomic release is approved, do not claim private drafts.
- if(!COACH_ATOMIC_PLAN_UI_ENABLED)return;
- const ids=(state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true&&
-  state.coachIntakeForms?.[p.user_id]?.shared_at).map(p=>p.user_id);
- if(!ids.length){state.coachIntakeDraftVerified=true;return;}
- const result=await contextRead(sb.from("efg_coach_plan_drafts")
-  .select("student_id,organization_id,coach_id,status,draft_revision,source_intake_revision")
-  .in("student_id",ids).limit(500));
- if(result.error){console.warn("Coach draft summary unavailable:",result.error.message);return;}
- const authorized=new Set(ids);
- for(const row of result.data||[]){
-  if(authorized.has(row.student_id)&&row.coach_id===state.session?.user?.id&&
-    row.organization_id===state.org?.id)
-   state.coachIntakeDraftStatuses[row.student_id]=row;
- }
- state.coachIntakeDraftVerified=true;
-}
 async function loadCoachRosterConsent(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  // One source of truth for real coaches AND the admin's test-coach workspace.
  // Read only; never infer consent from enrollment or modify a student's decision.
  coachRosterConsent={};
  const ids=(state.roster||[]).map(p=>p.user_id).filter(Boolean);
  if(!ids.length)return;
- const {data,error}=await contextRead(sb.from("efg_consents").select("student_id,accepted").in("student_id",ids));
+ const {data,error}=await sb.from("efg_consents").select("student_id,accepted").in("student_id",ids);
  if(error)throw error;
  for(const consent of data||[])coachRosterConsent[consent.student_id]=consent.accepted===true;
 }
-// P26M: deliberately reuse the stable editor when roster/consent are unchanged.
-const refreshCoachRosterForView=createCoachRosterRefresh({sb,state,
- setConsents:next=>{coachRosterConsent=next},
- loadForms:ids=>coachIntakeFlow.loadCoach(ids),
- loadGoals:()=>loadCoachIntakeGoals(),
- loadDraftStatuses:()=>loadCoachIntakeDraftStatuses(),
- loadDetail:id=>loadStudentDetail(id),
- closeWorkspace:()=>coachAdaptedWorkspace.close()});
 async function loadRoleData(){
- const contextEpoch=state.authContextEpoch||0;
- const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  const role=state.profile.role;
  if(role==="admin"){
-  const [o,inv]=await contextRead(Promise.all([sb.from("efg_organizations").select("*").order("created_at",{ascending:false}),sb.from("efg_invitations").select("*").eq("role","coach").order("created_at",{ascending:false})]));
+  const [o,inv]=await Promise.all([sb.from("efg_organizations").select("*").order("created_at",{ascending:false}),sb.from("efg_invitations").select("*").eq("role","coach").order("created_at",{ascending:false})]);
   if(o.error||inv.error)throw o.error||inv.error;
-  state.orgs=(o.data||[]).filter(o=>!o.is_test||o.coach_id!==state.session.user.id);state.invitations=inv.data||[];
+  state.orgs=(o.data||[]).filter(o=>!o.is_test);state.invitations=inv.data||[];
   if(state.org?.is_test){
-   const [students,pending]=await contextRead(Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",state.org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",state.org.id).eq("role","student")]));
+   const [students,pending]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",state.org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",state.org.id).eq("role","student")]);
    if(students.error||pending.error)throw students.error||pending.error;
    state.roster=students.data||[];state.testInvitations=pending.data||[];
-   await contextRead(loadCoachRosterConsent());
-   await contextRead(loadCoachIntakeGoals());
-   await contextRead(coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id)));
-   await contextRead(loadCoachIntakeDraftStatuses());
-   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await contextRead(loadStudentDetail(state.selectedStudent));
+   await loadCoachRosterConsent();
+   if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
   }
  }
  if(role==="coach"){
   const org=state.org;
   if(!org)throw new Error("Tu espacio de entrenador todavía no está listo.");
-  const [r,inv]=await contextRead(Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]));
+  const [r,inv]=await Promise.all([sb.from("efg_profiles").select("*").eq("organization_id",org.id).eq("role","student"),sb.from("efg_invitations").select("*").eq("organization_id",org.id).eq("role","student")]);
   if(r.error||inv.error)throw r.error||inv.error;
   state.roster=r.data||[];state.invitations=inv.data||[];
-  await contextRead(loadCoachRosterConsent());
-  await contextRead(loadCoachIntakeGoals());
-   await contextRead(coachIntakeFlow.loadCoach((state.roster||[]).filter(p=>p.active&&coachRosterConsent[p.user_id]===true).map(p=>p.user_id)));
-   await contextRead(loadCoachIntakeDraftStatuses());
+  await loadCoachRosterConsent();
 
-  if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await contextRead(loadStudentDetail(state.selectedStudent));
+  if(state.selectedStudent&&state.roster.some(p=>p.user_id===state.selectedStudent))await loadStudentDetail(state.selectedStudent);
  }
  if(role==="student"){
-  const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",state.session.user.id).maybeSingle());
+  const c=await sb.from("efg_consents").select("*").eq("student_id",state.session.user.id).maybeSingle();
   if(c.error)throw c.error;
   state.consent=c.data||null;
  }
 }
 async function loadStudentDetail(studentId){
- const contextEpoch=state.authContextEpoch||0;
  if(!state.roster.some(p=>p.user_id===studentId&&p.active))throw new Error("Alumno no autorizado.");
- const request=(state.coachDetailRequest||0)+1;
- const coachId=state.session?.user?.id,organizationId=state.org?.id;
- state.coachDetailRequest=request;
- const assertCurrent=()=>{
-  if(state.coachDetailRequest!==request||state.selectedStudent!==studentId||
-     (state.authContextEpoch||0)!==contextEpoch||state.session?.user?.id!==coachId||state.org?.id!==organizationId)
-   throw Object.assign(Error("Cambió la ficha abierta."),{code:"STALE_AUTH_CONTEXT"});
- };
- const contextRead=async promise=>{try{return await promise;}finally{assertCurrent();}};
- coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
- state.selectedStudent=studentId;state.consent=null;
- state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];
- state.rewardApproval=null;state.rewardFeatureReady=false;state.coachFoodPlan=null;
- state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
- state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
- const c=await contextRead(sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle());
+ state.selectedStudent=studentId;
+ state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;
+ const c=await sb.from("efg_consents").select("*").eq("student_id",studentId).maybeSingle();
  if(c.error)throw c.error;
- // Never reuse a previously cached shared intake after its consent or record changed.
- await contextRead(coachIntakeFlow.refreshCoachDetail(studentId,c.data?.accepted===true,assertCurrent));
- if(COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
-    state.profile?.role==="coach"&&c.data?.accepted===true&&
-    state.coachIntakeForms?.[studentId]?.shared_at){
-  const loaded=await contextRead(loadCoachSharedStudentRecipes(sb,{
-   profile:state.profile,studentId,organizationId:state.org?.id
-  }));
-  if(state.selectedStudent!==studentId||state.session?.user?.id!==loaded.coachId||
-    state.org?.id!==loaded.organizationId)
-   throw Object.assign(Error("STUDENT_CONTEXT_CHANGED"),{code:"STALE_AUTH_CONTEXT"});
-  state.coachSharedRecipeScope={coachId:loaded.coachId,studentId,
-   organizationId:loaded.organizationId,epoch:contextEpoch};
-  state.coachSharedRecipes=loaded.recipes;
- }
- if(CLINICAL_GUIDE_CONNECTION_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
-    state.profile.user_id===coachId&&state.org?.coach_id===coachId&&
-    c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
-  // General follow-up alone never starts a clinical read. Independent health
-  // permissions and the identities in the server response must also match.
-  try{
-   const user=await contextRead(sb.auth.getUser());
-   const viewer=user?.data?.user?.id;
-   if(user.error||viewer!==state.session?.user?.id)throw Error("Identidad del coach no verificada.");
-   const result=await contextRead(sb.rpc("efg_get_coach_health_intake",{p_student:studentId}));
-   if(result.error)throw result.error;
-   const h=result.data;
-   const checked=readVerifiedCoachRestrictionScope(h,{studentId,coachId:viewer,organizationId:state.org?.id});
-    if(checked.verified)state.coachGuideHealth={studentId,viewerId:viewer,shared:true,
-     consentVerified:true,restrictions:checked.restrictions,restrictionStatus:checked.restrictionStatus,
-     reviewNotes:checked.reviewNotes};
-   }catch(error){
-   if(error?.code==="STALE_AUTH_CONTEXT")throw error;
-   state.coachGuideHealth=null; // No health record is not a declaration of no restrictions.
-   console.warn("Lectura sanitaria privada aún no habilitada; guía automática clínica no autorizada.",error?.message);
-  }
- }
- if(!c.data?.accepted){state.consent=c.data;return;}
- const results=await contextRead(Promise.all([
+ state.consent=c.data;
+ state.rewardApproval=null;state.rewardFeatureReady=false;
+ state.coachFoodPlan=null;
+ if(!c.data?.accepted){state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];return;}
+ const results=await Promise.all([
  sb.from("efg_daily_logs").select("*").eq("student_id",studentId).order("log_day",{ascending:false}).limit(14),
  sb.from("efg_daily_logs").select("log_day,meals,sports,skipped").eq("student_id",studentId).gte("log_day",(()=>{const d=new Date(today()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-89);return d.toISOString().slice(0,10)})()).order("log_day",{ascending:false}).limit(100),
  sb.from("efg_weights").select("*").eq("student_id",studentId).order("measured_on",{ascending:false}).limit(20),
  sb.from("efg_activities").select("*").eq("student_id",studentId).order("activity_day",{ascending:false}).limit(15),
  sb.from("efg_goals").select("*").eq("student_id",studentId).order("approved_at",{ascending:false}).limit(20),
- sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle(),
- sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",studentId).order("week_ending",{ascending:false}).limit(52)
- ]));
+ sb.from("efg_food_plans").select("*").eq("student_id",studentId).maybeSingle()
+ ]);
  const err=results.find(x=>x.error)?.error;if(err)throw err;
- state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;state.coachHistory=results[6].data||[];
- if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
-  const savedDraft=await contextRead(coachDraftClient.load(studentId));
-  state.coachPlanDraftRecord=savedDraft;
-  // Restore only a server-authorized draft based on the CURRENT shared intake.
-  // Never treat this proposal as an approved goal or a student diary entry.
-  if(savedDraft?.status==="draft"&&coachDraftSourceCurrent(state.coachIntakeForms[studentId],savedDraft)
-    &&savedDraft.goal_proposal){
-   state.pendingGoal={...savedDraft.goal_proposal,student_id:studentId};
-   state.coachGuidedDraft=savedDraft.guide_proposal?structuredClone(savedDraft.guide_proposal):null;
-  }
- }
- await contextRead(loadSundayPermission(studentId,assertCurrent));
- state.consent=c.data;
+ state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;
+ await loadSundayPermission(studentId);
 }
 async function refresh(){
  if(state.loading)return;
- const ticket=authHydration.begin();if(!ticket)return;
- const contextRead=promise=>authHydration.read(ticket,promise);
  state.loading=true;
  try{
-  const result=await contextRead(sb.auth.getUser());
+  const result=await sb.auth.getUser();
   if(result.error){
    // Un error de red no debe confundirse con ausencia de sesión.
    // No se muestran datos privados hasta que getUser valide la identidad.
    let savedSession=null;
-   try{savedSession=(await contextRead(sb.auth.getSession())).data?.session||null;}catch(_){}
+   try{savedSession=(await sb.auth.getSession()).data?.session||null;}catch(_){}
    if(savedSession){sessionConnectionRetry();return;}
    state.profile=null;return loginView("Tu sesión no está disponible. Volvé a ingresar si hace falta.");
   }
   if(!result.data.user){state.profile=null;return loginView();}
-  const id=result.data.user.id;authHydration.verified(ticket,id);
+  const id=result.data.user.id;
   const switchingUser=state.session?.user?.id!==id;
-  if(switchingUser){state.foodCompatEvidence=[];state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];state.habitualSelection={};state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";}
-  // getUser above is authoritative; cached session supplies only JWT correlation metadata.
-  const currentSession=await contextRead(sb.auth.getSession());
-  // Epoch was revalidated after getSession; same-user token rotation is harmless.
-  if(!currentSession.error&&currentSession.data?.session?.user?.id!==id)throw Error("AUTH_IDENTITY_MISMATCH");
-  setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
-  let claim=await contextRead(sb.rpc("efg_claim_invitation"));
+  if(switchingUser){state.selectedStudent=null;state.tab="home";state.rewardOpened=false;state.rewardApproval=null;state.rewardFeatureReady=false;}
+  state.session={user:result.data.user};
+  let claim=await sb.rpc("efg_claim_invitation");
   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
-  let p=await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
+  let p=await sb.from("efg_profiles").select("*").eq("user_id",id).single();
   if(p.error)throw p.error;
   state.profile=p.data;
-  state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
-  state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;
-  if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
-  // All four roles receive the exceptional release sequence, including future
-  // Personal, BEFORE role-specific legacy data fetches. Both release flags OFF.
-  state.majorRelease=null;state.majorReleaseLegal=null;
-  state.scienceWelcomePending=false;state.scienceWelcomeStep=0;state.scienceWelcomeError="";state.scienceWelcomeBusy=false;
-  const guidedStudent=state.profile.role==="student"&&
-   (COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED);
-  if(MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED){
-   state.majorRelease=await contextRead(readMajorRelease(sb,{profile:state.profile,explicitlyEnabled:true}));
-   if(!["none","legal"].includes(state.majorRelease.phase))return render();
-  }
-  const releaseLegal=state.majorRelease?.phase==="legal";
-  // EDUCATION01/02: verify the signed user/version receipt before the
-  // early return for students awaiting their Coach's approved plan.
-  if(SCIENCE_WELCOME_ENABLED&&["student","coach"].includes(state.profile.role)&&(!releaseLegal||guidedStudent)){
-   try{
-    const intro=await contextRead(readScienceWelcomeStatus(sb,{profile:state.profile,userId:id}));
-    state.scienceWelcomePending=intro.pending;
-   }catch(error){
-    // Unavailable educational receipts cannot be interpreted as viewed.
-    if(error?.code==="STALE_AUTH_CONTEXT")throw error;
-    // Unknown receipt status cannot mean that education was already viewed.
-    state.scienceWelcomePending=true;
-    state.scienceWelcomeError="No pudimos verificar si ya viste la presentación. Revisá la conexión.";
-    console.warn("No se pudo verificar la presentación educativa:",error?.message);
-   }
-   if(guidedStudent&&state.scienceWelcomePending)return render();
-  }
-  if(releaseLegal){
-   state.majorReleaseLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
-   return render();
-  }
-  // An unimplemented role cannot fetch legacy diaries, Coach data or payments.
-  if(!["student","coach","admin"].includes(state.profile.role))return render();
   if(switchingUser){state.tab=state.profile.role==="coach"?"coach":state.profile.role==="admin"?"admin":"home";}
-  if(state.profile.role==="coach"&&COACH_VERSIONED_INTAKE_ENABLED&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
-   state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
-   state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
-   if(state.coachLegalPending)return render();
+  if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
+  await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
+  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
+  await loadRoleData();
+  if(state.profile.role==="student")await loadSundayPermission(id);
+  await inbox.refresh();
+  if(state.profile.role==="student"&&state.consent&&!state.consent.accepted&&state.consent.updated_at===state.consent.created_at){
+   // Autorización explícita en pantalla de código; nunca volver a activar si se revocó.
+   const acceptedNotice=sessionStorage.getItem("efgNutritionCoachConsent:"+id)==="yes";
+   if(acceptedNotice){const result=await sb.from("efg_consents").update({accepted:true,email_report_opt_in:false,updated_at:new Date().toISOString()}).eq("student_id",id).eq("accepted",false).select().maybeSingle();if(!result.error&&result.data)state.consent=result.data;sessionStorage.removeItem("efgNutritionCoachConsent:"+id);}
   }
-  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED){
-   if(COACH_RELAUNCH_ONBOARDING_ENABLED)throw Error("Ingreso piloto duplicado: versión no publicada.");
-   state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));
-   if(state.coachPilotEntry.route==="legal")
-    state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
-   if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
-    state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
-   if(["review","private"].includes(state.coachPilotEntry.route)){
-    await contextRead(loadRoleData());
-    // The signed private/review route does not authorize new diary writes,
-    // but must not erase the student’s ability to READ their own history.
-    state.coachPrivateHistory=await contextRead(loadCoachPrivateHistory(sb,{profile:state.profile,userId:id,entry:state.coachPilotEntry}));
-   }
-   if(state.coachPilotEntry.route!=="ready")return render();
-  }
-  if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED){
-   state.coachRelaunchEntry=await contextRead(loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id}));
-   if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
-    state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
-   if(state.coachRelaunchEntry.route!=="ready")return render();
-  }
-  await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
-  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
-  await contextRead(loadRoleData());
-  if(state.profile.role==="student")await contextRead(coachIntakeFlow.loadStudent());
-  await contextRead(refreshFoodCompatibilityEvidence());
-  if(state.profile.role==="student")await contextRead(loadSundayPermission(id));
-  await contextRead(inbox.refresh());
-  // Legacy OTP auto-consent tokens must never be interpreted as permission.
-  // Signing in is authentication only; coach consent requires the dedicated action.
-  sessionStorage.removeItem("efgNutritionCoachConsent:"+id);
-  await contextRead(loadWelcomeStatus());
-  await contextRead(render());
- }catch(e){if(!authHydration.current(ticket)||e?.code==="STALE_AUTH_CONTEXT")return;fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
- finally{
-  if(!authHydration.current(ticket))resetPrivateSession();
-  state.loading=false;authHydration.finish(ticket);
- }
+  await loadWelcomeStatus();
+  await render();
+ }catch(e){fail(e);root.innerHTML='<div class="pilot-loader"><h2>Hubo un problema de conexión.</h2><button class="btn" data-act="retry">Reintentar</button><p>'+escapeHTML(e.message)+'</p></div>';}
+ finally{state.loading=false;}
 }
 // Explicit pull-to-refresh: re-fetch role-authorized data but never navigate or reload the page.
 let refreshingWorkspace=false;
 async function refreshVisibleWorkspace(){
  if(refreshingWorkspace||state.loading)throw Error("Ya hay una actualización en curso.");
  if(!state.profile||!state.session?.user?.id||state.welcomePending)throw Error("Ingresá a tu cuenta para actualizar.");
-  // Unknown/Personal accounts must NEVER refresh legacy Coach/Student tables.
-  if(!["student","coach","admin"].includes(state.profile.role))return refresh();
- const ticket=authHydration.begin();if(!ticket)throw Error("Ya hay una actualización en curso.");
- const contextRead=promise=>authHydration.read(ticket,promise);
  refreshingWorkspace=true;
  const id=state.session.user.id,originalView=activeViewKey();
  const selected=state.selectedStudent,goalId=state.coachGoals[0]?.id;
  const coachEdits={guided:state.coachGuidedDraft,pending:state.pendingGoal,
-  base:state.calculatedGoalBase,revision:state.pendingGoalRevision,
-  intakeUpdatedAt:state.coachIntakeForms?.[selected]?.updated_at??null,
-  intakeRevision:state.coachIntakeForms?.[selected]?.revision??null,
-  draftRevision:state.coachPlanDraftRecord?.draft_revision??null,
-  draftStatus:state.coachPlanDraftRecord?.status??null};
+  base:state.calculatedGoalBase,revision:state.pendingGoalRevision};
  try{
   // This check is independent of the potentially slow data synchronization.
   void versionNotice.check({force:true});
-  const user=await contextRead(sb.auth.getUser());
+  const user=await sb.auth.getUser();
   if(user.error||user.data?.user?.id!==id)throw Error("No se pudo validar la sesión. Revisá tu conexión e intentá nuevamente.");
-  // COACH88: refresh is a real server-side legal/intake revalidation.
-  // An expired legal version or withdrawn sharing must block new private reads
-  // and must not resurrect an edited Coach draft from the previous session.
-  if(COACH_VERSIONED_INTAKE_ENABLED&&state.profile.role==="coach"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED){
-   state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
-   state.coachLegalPending=state.coachLegalSnapshot.missing.length>0;
-   if(state.coachLegalPending){
-    state.selectedStudent=null;state.coachPlanDraftRecord=null;state.coachGuidedDraft=null;
-    await contextRead(render());return;
-   }
-  }
-  if(COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"){
-   state.coachPilotEntry=await contextRead(fetchCoachPilotEntry(sb,{profile:state.profile}));
-   state.coachPilotLegal=null;state.coachPilotIntake=null;
-   if(state.coachPilotEntry.route==="legal")
-    state.coachPilotLegal=await contextRead(loadCoachPilotLegal(sb,{profile:state.profile}));
-   if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
-    state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
-   if(!["ready","review","private"].includes(state.coachPilotEntry.route)){await contextRead(render());return;}
-  }
-  if(COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"){
-   state.coachRelaunchEntry=await contextRead(loadCoachRelaunchEntry(sb,{profile:state.profile,userId:id}));
-   if(state.coachRelaunchEntry.route==="legal"&&COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED)
-    state.coachLegalSnapshot=await contextRead(loadCoachLegalOnboarding(sb));
-   if(state.coachRelaunchEntry.route!=="ready"){await contextRead(render());return;}
-  }
-  await contextRead(Promise.all([loadPersonalData(),loadOrgAndPayments()]));
-  await contextRead(Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]));
-  await contextRead(loadRoleData());
-  await contextRead(refreshFoodCompatibilityEvidence());
-  // No refresh can revive edits based on an intake that was changed or unshared
-  // in another device. The staged flow must also match the server draft revision.
-  const draftStillCurrent=!COACH_ATOMIC_PLAN_UI_ENABLED||(
-   !!state.coachIntakeForms?.[selected]?.shared_at&&
-   state.coachIntakeForms?.[selected]?.updated_at===coachEdits.intakeUpdatedAt&&
-   (!COACH_VERSIONED_INTAKE_ENABLED||(
-    Number.isSafeInteger(coachEdits.intakeRevision)&&coachEdits.intakeRevision>=1&&
-    state.coachIntakeForms?.[selected]?.revision===coachEdits.intakeRevision&&
-    (!state.coachPlanDraftRecord||
-      coachDraftSourceCurrent(state.coachIntakeForms?.[selected],state.coachPlanDraftRecord))))&&
-   (state.coachPlanDraftRecord?.draft_revision??null)===coachEdits.draftRevision&&
-   (state.coachPlanDraftRecord?.status??null)===coachEdits.draftStatus
-  );
+  await Promise.all([loadPersonalData(),loadOrgAndPayments()]);
+  await Promise.all([loadCloudHabituales(),loadCloudRecipes(),loadMyWeeklyReports()]);
+  await loadRoleData();
+  // loadStudentDetail clears drafts to protect switching pupils; restore ONLY for
+  // the same pupil with active consent and the same approved nutritional goal.
   if(selected&&state.selectedStudent===selected&&state.consent?.accepted&&
-     state.coachGoals[0]?.id===goalId&&activeViewKey()===originalView&&draftStillCurrent){
+     state.coachGoals[0]?.id===goalId&&activeViewKey()===originalView){
    state.coachGuidedDraft=coachEdits.guided;
    state.pendingGoal=coachEdits.pending;
    state.calculatedGoalBase=coachEdits.base;
    state.pendingGoalRevision=coachEdits.revision;
   }
-  await contextRead(inbox.refresh());
+  await inbox.refresh();
   if(state.tab==="messages"){
    // Leave the message composer mounted to avoid dropping the keyboard or draft.
-   await contextRead(messages.refresh());
+   await messages.refresh();
   }else if(state.tab==="notifications"){
    inbox.repaint();
   }else{
-   await contextRead(render()); // Same-view continuity keeps accordions, draft inputs and scroll.
+   await render(); // Same-view continuity keeps accordions, draft inputs and scroll.
   }
- }catch(error){if(!authHydration.current(ticket)||error?.code==="STALE_AUTH_CONTEXT")return;throw error;}finally{
-  if(!authHydration.current(ticket))resetPrivateSession();
-  refreshingWorkspace=false;authHydration.finish(ticket);
- }
+ }finally{refreshingWorkspace=false;}
 }
 async function saveWeight(){
  const kg=Number(document.getElementById("weightKg")?.value),day=document.getElementById("weightDay")?.value,time=document.getElementById("weightTime")?.value;
@@ -3702,14 +2107,10 @@ async function saveWeight(){
  await loadPersonalData();await render();notify("Pesaje guardado con fecha y hora.");
 }
 async function saveActivity(){
- const {estimate,...entry}=readWalkingActivityForm(document);
- const {error}=await sb.from("efg_activities").upsert({
-  student_id:state.session.user.id,activity_day:today(),...entry
- },{onConflict:"student_id,activity_day"});
- if(error)throw error;
- await loadPersonalData();await render();
- notify("Actividad guardada. "+num(estimate.distanceKm,2)+(estimate.distanceSource==='reported'?" km registrados":" km aproximados")+
-  (estimate.activeKcal===null?". Agregá tu peso para estimar calorías.":" · "+num(estimate.activeKcal)+" kcal activas estimadas."));
+ const steps=Number(document.getElementById("activitySteps").value),mins=Number(document.getElementById("activityMinutes").value),kind=document.getElementById("activityKind").value;
+ if(!Number.isFinite(steps)||!Number.isFinite(mins)||steps<0||steps>100000||mins<0||mins>1440)throw new Error("Revisá los valores de pasos y ejercicio.");
+ const {error}=await sb.from("efg_activities").upsert({student_id:state.session.user.id,activity_day:today(),steps,exercise_minutes:mins,kind},{onConflict:"student_id,activity_day"});
+ if(error)throw error;notify("Actividad registrada.");await loadPersonalData();await render();
 }
 async function savePersonalTargets(){
  let n=id=>{const input=document.getElementById(id);return input.value.trim()===''?NaN:Number(input.value);};
@@ -3750,39 +2151,13 @@ async function showProof(path){
 }
 async function mainClick(event){
  let el=event.target.closest("button");if(!el)return;
- if(el.dataset.act&&["scienceNext","sciencePrev","scienceFinish","scienceSkip"].includes(el.dataset.act)){
-  if(!SCIENCE_WELCOME_ENABLED||!state.scienceWelcomePending||state.scienceWelcomeBusy||
-     !["student","coach"].includes(state.profile?.role))return;
-  const step=state.scienceWelcomeStep;
-  if(el.dataset.act==="scienceNext"){state.scienceWelcomeStep=Math.min(SCIENCE_STEPS.length-1,step+1);state.scienceWelcomeError="";await render();window.scrollTo(0,0);return;}
-  if(el.dataset.act==="sciencePrev"){state.scienceWelcomeStep=Math.max(0,step-1);state.scienceWelcomeError="";await render();window.scrollTo(0,0);return;}
-  if(el.dataset.act==="scienceFinish"&&step!==SCIENCE_STEPS.length-1)throw Error("Completá la presentación antes de confirmar.");
-  state.scienceWelcomeBusy=true;state.scienceWelcomeError="";await render();
-  const userId=state.session?.user?.id,profile=state.profile;
-  try{
-   await acknowledgeScienceWelcome(sb,{profile,userId,
-    action:el.dataset.act==="scienceSkip"?"skipped":"completed",explicitClick:true});
-   // A network response for a previously signed-in account cannot unlock another.
-   if(state.session?.user?.id!==userId||state.profile!==profile)return;
-   state.scienceWelcomePending=false;state.scienceWelcomeStep=0;
-   state.scienceWelcomeBusy=false;
-   if(profile.role==="student"&&(COACH_STUDENT_JOURNEY_ENABLED||COACH_RELAUNCH_ONBOARDING_ENABLED))await refresh();
-   else await render();
-   window.scrollTo(0,0);
-  }catch(error){
-   if(state.session?.user?.id===userId&&state.profile===profile){
-    state.scienceWelcomeBusy=false;state.scienceWelcomeError=error.message;await render();
-   }
-  }
-  return;
- }
  if(state.renderedDay&&state.renderedDay!==today()){
   await ensureCurrentDay();await render();
   notify("Nuevo día: lo anterior sigue guardado en tu historial.");
   // El primer toque de navegación o de abrir una comida NO se descarta.
   // No continuar acciones que pudieran confirmar formularios antiguos.
-  if(el.dataset.setmeal){if(studentPlanPending()){state.tab="intake";await render();return;}openMealDialog(el.dataset.setmeal);return;}
-  if(el.dataset.tab){state.tab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
+  if(el.dataset.tab){state.tab=el.dataset.tab;await render();window.scrollTo(0,0);return;}
   return;
  }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
@@ -3801,9 +2176,7 @@ async function mainClick(event){
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
-  const nextTab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
-  if(["coachIntake","coachStudents"].includes(nextTab))await refreshCoachRosterForView();
-  state.tab=nextTab;
+  state.tab=el.dataset.tab;
   if(state.tab==="payments")await loadOrgAndPayments();
   if(state.tab==="reports"&&!state.selectedStudent){
    const student=(state.roster||[]).find(p=>p.active);
@@ -3813,12 +2186,7 @@ async function mainClick(event){
   window.scrollTo(0,0);
   return;
 }
- if(el.dataset.intakeMessage){
- const p=(state.roster||[]).find(p=>p.user_id===el.dataset.intakeMessage&&p.active);
- if(!p)throw new Error("Ese alumno no está en tu lista de ingresos.");
- messages.selectStudent(p.user_id);state.tab="messages";await render();return;
-}
-if(el.dataset.studentstatus){
+ if(el.dataset.studentstatus){
  const student=state.roster.find(x=>x.user_id===el.dataset.studentstatus);
  if(!student)throw new Error("Ese alumno no pertenece a tus cupos.");
  const next=!student.active;
@@ -3847,13 +2215,9 @@ if(el.dataset.reportstudent){
 }
 if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+(state.session?.user?.id||"local"),JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
 if(el.dataset.student){
- const studentId=el.dataset.student,sameEditor=state.selectedStudent===studentId&&state.consent?.accepted===true;
- await refreshCoachRosterForView();
- if(state.tab==="coach"||state.tab==="testCoach"||state.tab==="coachIntake")state.tab="coachStudents";
+ if(state.tab==="coach"||state.tab==="testCoach")state.tab="coachStudents";
  state.reportDate=null;
- if(!sameEditor||state.selectedStudent!==studentId||state.consent?.accepted!==true)
-  await loadStudentDetail(studentId);
- // If still same signed Coach + student + consent, leave local unsaved guide untouched.
+ await loadStudentDetail(el.dataset.student);
  await render();
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
  notify("Ficha de "+(state.roster.find(p=>p.user_id===el.dataset.student)?.nickname||"alumno")+" abierta.");
@@ -3867,50 +2231,8 @@ if(el.dataset.foodbulk){
  updateCoachFoodCount();return;
 }
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
- if(el.dataset.act==="replyWeeklyReport"){
-  if(state.profile?.role!=="student")throw Error("Solo el alumno puede responder un informe desde su cuenta.");
-  const week=String(el.dataset.week||"");
-  if(!myWeeklyReports.some(r=>r.week_ending===week&&parseLuxuryWeeklyReport(r.report_text)))
-    throw Error("No se encontró un informe compartido válido.");
-  state.tab="messages";await render();
-  await messages.replyToWeeklyReport(state.session.user.id,week);
-  return;
- }
- if(el.dataset.act==="previewLuxuryReport"){
-  if(!state.consent?.accepted)throw Error("El alumno ya no autorizó el seguimiento.");
-  const model=buildCurrentLuxuryModel();
-  const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
-  const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
-  const reviewed=luxuryWeeklyEditor.preview(luxuryEditorContext(model),conclusion,flexible);
-  const target=document.getElementById("weeklyLuxuryPreview");
-  if(!target)throw Error("No se encontró la vista previa.");
-  target.innerHTML=renderLuxuryWeeklyReport(reviewed);
-  const status=document.getElementById("weeklyLuxuryPreviewStatus");
-  if(status)status.textContent="Vista previa actualizada: exactamente este informe se compartirá al aprobar.";
-  const publish=document.getElementById("weeklyLuxuryPublishButton");
-  if(publish)publish.disabled=false;
-  notify("Vista previa actualizada. Todavía no se envió nada.");return;
- }
- if(el.dataset.act==="printLuxuryReport"){
-  const index=Number(el.dataset.reportindex);
-  const reports=state.profile?.role==="student"?myWeeklyReports:state.coachHistory;
-  if(index!==-1&&!(reports||[])[index])throw Error("No existe el informe solicitado.");
-  if(index===-1&&!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))throw Error("Vista previa exclusiva del coach.");
-  if(index===-1&&!((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))){
-   const model=buildCurrentLuxuryModel();
-   luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),
-    document.getElementById("weeklyCoachConclusion")?.value,
-    document.getElementById("weeklyCoachFlexibleNote")?.value);
-  }
-  const source=index===-1?document.querySelector("#weeklyLuxuryPreview .lux-report"):
-    el.closest("details")?.querySelector(".lux-report");
-  if(!source)throw Error("No se encontró el informe para exportar.");
-  source.classList.add("efg-lux-print-target");
-  const clear=()=>{source.classList.remove("efg-lux-print-target");window.removeEventListener("afterprint",clear);};
-  window.addEventListener("afterprint",clear,{once:true});
-  window.print();return;
- }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
+ if(el.dataset.act==="copyWeeklyDraft"){const draft=document.getElementById("weeklyCoachDraftText")?.value?.trim();if(!draft)throw Error("El borrador está vacío.");await navigator.clipboard.writeText(draft);notify("Texto revisado copiado. El envío al alumno queda a cargo del entrenador.");return;}
  if(el.dataset.coachsection){const sec=document.getElementById(el.dataset.coachsection);if(!sec)return;if(sec.tagName==="DETAILS")sec.open=true;sec.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.coachfilter){const target=document.getElementById("coachRosterSection");target?.scrollIntoView({behavior:"smooth",block:"start"});const btn=target?.querySelector('[data-rosterfilter="'+el.dataset.coachfilter+'"]');btn?.click();return;}
  if(el.dataset.coachjump){const target=document.getElementById(el.dataset.coachjump);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return;}
@@ -3921,41 +2243,9 @@ if(el.dataset.foodbulk){
   for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
   return;
  }
- if(el.dataset.recipedelete){
-  const userId=state.session?.user?.id;
-  const recipe=myRecipes().find(r=>r.id===el.dataset.recipedelete);
-  if(!userId||!recipe)return;
-  const message=recipe.pendingLocal?
-   "«"+recipe.name+"» sólo está guardada en este dispositivo. Eliminarla borrará ese respaldo local permanentemente. ¿Continuar?":
-   "¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán.";
-  if(!confirm(message)||state.session?.user?.id!==userId)return;
-  if(recipe.pendingLocal){
-   const key=recipeStoreKey();
-   const index=Number(String(recipe.id).replace(/^local-recipe-/,""));
-   let saved;
-   try{saved=JSON.parse(localStorage.getItem(key)||"[]");}
-   catch(_){throw Error("No pudimos leer el respaldo local. No se eliminó nada.");}
-   if(!Number.isInteger(index)||!Array.isArray(saved)||!saved[index]||
-    saved[index].name!==recipe.name||
-    !sameRecipeIngredients(saved[index].ingredients,recipe.ingredients))
-    throw Error("El respaldo cambió. Actualizá la lista antes de eliminarlo.");
-   saved.splice(index,1);
-   if(saved.length)localStorage.setItem(key,JSON.stringify(saved));
-   else localStorage.removeItem(key);
-   state.recipesLoadToken=null;
-   notify("Receta local eliminada de este dispositivo.");return render();
-  }
-  const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);
-  if(state.session?.user?.id!==userId)return;
-  if(error)throw error;
-  state.recipesLoadToken=null; // Prevent an older SELECT from resurrecting a deleted recipe.
-  cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);
-  notify("Receta eliminada.");return render();
- }
+ if(el.dataset.recipedelete){const recipe=cloudRecipes.find(r=>r.id===el.dataset.recipedelete);if(!recipe)return;if(!confirm("¿Eliminar la receta «"+recipe.name+"»? Los registros anteriores no se modificarán."))return;const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",state.session.user.id);if(error)throw error;cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);notify("Receta eliminada.");return render();}
  if(el.dataset.act==="createPersonalRecipe"){await createPersonalRecipe();return;}
- if(el.dataset.act==="registerPersonalRecipe"){registerPersonalRecipe();return;}
- if(el.dataset.act==="confirmRecipeRegistration"){await confirmRecipeRegistration();return;}
- if(el.dataset.act==="closeRecipeRegistration"){closeRecipeRegistration();return;}
+ if(el.dataset.act==="registerPersonalRecipe"){await registerPersonalRecipe();return;}
  if(el.dataset.habitualsave){await habitualAction(el.dataset.habitualsave,"save");return;}
  if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
@@ -3966,7 +2256,7 @@ if(el.dataset.foodbulk){
   const key=el.dataset.planextra,foodId=el.dataset.planfood;
   const parts=parsePlannerKey(key);
   if(!parts||!["vegetable","fat"].includes(parts[1]))throw new Error("Extra inválido.");
-  const candidate=allPlannerFoods(selectableFoods(),allowedFoods()).find(f=>f.id===foodId);
+  const candidate=allPlannerFoods(foods,allowedFoods()).find(f=>f.id===foodId);
   if(!candidate)throw new Error("Este alimento no está disponible en tu catálogo.");
   const first=parts[0]+"|vegetable",second=parts[0]+"|fat";
   const target=state.plannerSelections[first]&&state.plannerSelections[first]!=="none"?second:first;
@@ -3978,57 +2268,19 @@ if(el.dataset.foodbulk){
  if(el.dataset.planopenmeal){return openPlannedFoodEditor(el.dataset.planopenmeal);}
  if(el.dataset.removefood){
   const [slot,indexValue]=el.dataset.removefood.split(":");
-  if(pendingMealRegistrations.has(slot))return;
-  const index=Number(indexValue),d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
+  const index=Number(indexValue),d=activeDiary();
   if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
-  const slotLease=pendingMealRegistrations.add(slot);
-  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
-  const previousDiary=state.diary;
-  try{
-   d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
-   await saveDiary();
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)
-    notify("Alimento eliminado. Los macros se actualizaron.");
-  }catch(error){
-   d.meals[slot]=previousItems;d.skipped=previousSkipped;
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
-   throw error;
-  }finally{pendingMealRegistrations.delete(slot,slotLease);}
-  return;
+  d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
+  await saveDiary();notify("Alimento eliminado. Los macros se actualizaron.");return;
  }
  if(el.dataset.removesupp!==undefined){
-  const index=Number(el.dataset.removesupp);
-  await mutateSportDiary(d=>{
-   if(!Number.isInteger(index)||index<0||!supplementRecord(d.sports[index]))throw new Error("No encontramos ese suplemento.");
-   d.sports.splice(index,1);
-  },"Suplemento eliminado.");return;
- }
- if(el.dataset.clearm){
-  const slot=el.dataset.clearm;
-  if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
-  if(pendingMealRegistrations.has(slot))return;
-  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
-  const beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
-  const slotLease=pendingMealRegistrations.add(slot);
-  try{
-   d.meals[slot]=[];d.skipped=d.skipped||{};d.skipped._closed=false;
-   try{await saveDiary();}
-   catch(error){
-    d.meals[slot]=beforeItems;d.skipped=beforeSkipped;
-    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=beforeDiary;
-    throw error;
-   }
-  }finally{pendingMealRegistrations.delete(slot,slotLease);}
-  return;
- }
- if(el.dataset.removesport!==undefined){
-  const index=Number(el.dataset.removesport);
-  return mutateSportDiary(d=>{
-   if(!Number.isInteger(index)||index<0||index>=d.sports.length||supplementRecord(d.sports[index]))
-    throw new Error("Consumo deportivo no encontrado.");
-   d.sports.splice(index,1);
-  },"Consumo deportivo eliminado.");
- }
+ const index=Number(el.dataset.removesupp),d=activeDiary(),item=d.sports?.[index];
+ if(!Number.isInteger(index)||!item||!supplementRecord(item))throw new Error("No encontramos ese suplemento.");
+ d.sports.splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
+ await saveDiary();notify("Suplemento eliminado.");return;
+}
+ if(el.dataset.clearm){let d=activeDiary();d.meals[el.dataset.clearm]=[];d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
+ if(el.dataset.removesport!==undefined){let d=activeDiary();d.sports.splice(Number(el.dataset.removesport),1);d.skipped=d.skipped||{};d.skipped._closed=false;return saveDiary();}
  if(el.dataset.approve)return onePaymentAction(el.dataset.approve,"approved");
  if(el.dataset.reject)return onePaymentAction(el.dataset.reject,"rejected");
  if(el.dataset.proof)return showProof(el.dataset.proof);
@@ -4061,146 +2313,9 @@ if(el.dataset.foodbulk){
   const {error}=await sb.rpc("efg_activate_paid_coach",{p_org:org.id});
   if(error)throw error;await loadRoleData();await render();notify("Licencia activada para el período confirmado.");return;
  }
- if(el.dataset.mealsuggestion){pickMealSearchSuggestion(el.dataset.mealsuggestion);return;}
-  const action=el.dataset.act;if(!action)return;
-  if(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.includes(action))
-   assertCoachReleasePlanWriteAllowed(); // Frontend defense. Atomic server RPC review is still required.
- if(action==="refreshCoachRoster"){
-  await refreshCoachRosterForView();await render();
-  notify("Ingresos y permisos actualizados. Los históricos permanecen intactos.");return;
- }
- if(action==="showAccessInstructions"){
-  const instructions=document.getElementById("efgAccessInstructions");
-  if(instructions){
-   instructions.hidden=!instructions.hidden;
-   el.setAttribute("aria-expanded",String(!instructions.hidden));
-  }
-  return;
- }
- if(action==="logout"){
-  const result=await signOutCurrentDevice({
-   auth:sb.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits,
-   confirmDiscard:()=>window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Los registros ya guardados permanecen en tu historial.")
-  });
-  if(!result.signedOut)return;
-  resetPrivateSession();
-  await inbox.refresh();
-  return loginView();
- }
- if(action==="acceptCoachPilotLegal"){
-   const majorLegal=MAJOR_RELEASE_FLOW_ENABLED&&RELEASE_COMMUNICATIONS_ENABLED&&state.majorRelease?.phase==="legal";
-   const pilotLegal=COACH_STUDENT_JOURNEY_ENABLED&&state.profile?.role==="student"&&
-     state.coachPilotEntry?.route==="legal";
-   const snapshot=majorLegal?state.majorReleaseLegal:state.coachPilotLegal;
-   if((!majorLegal&&!pilotLegal)||!snapshot?.ready)
-    throw Error("La aceptación legal actual no está disponible.");
-   const selections=readCoachPilotLegalSelections(document,snapshot);
-   await submitCoachPilotLegal(sb,snapshot,selections,{
-    explicitSubmit:true,profile:state.profile
-   });
-   await refresh();notify("Términos y Política de Privacidad confirmados por separado.");
-   return;
-  }
-  if(["ackReleasePreview","ackReleaseAndSignOut","markReleaseSeen","releaseHelp"].includes(action)){
-    if(!MAJOR_RELEASE_FLOW_ENABLED||!RELEASE_COMMUNICATIONS_ENABLED||
-       !state.majorRelease||state.majorRelease.phase==="none")
-     throw Error("El relanzamiento todavía no está habilitado.");
-    if(action==="releaseHelp"){
-     notify("Para consultar sobre el relanzamiento, contactá a tu coach o al equipo EFG.");
-     return;
-    }
-    const current=state.majorRelease,profile=state.profile;
-    const type=action==="ackReleasePreview"?"announcement_preview_read":
-     action==="ackReleaseAndSignOut"?"reauth_notice_acknowledged":"whats_new_seen";
-    if(action==="ackReleaseAndSignOut"){
-     const out=await confirmMajorRelaunchAndExit(sb,{
-      profile,userId:profile.user_id,releaseId:current.id,
-      currentBuild:document.querySelector('meta[name="efg-build"]')?.content||"",
-      explicitClick:true,enabled:true,hasUnsavedChanges:hasPendingUnsavedEdits,
-      confirmDiscard:()=>window.confirm("Tenés cambios sin guardar. ¿Querés cerrar sesión y descartarlos? Tus registros guardados permanecen intactos.")
-     });
-     if(!out.signedOut)return; // User chose not to discard unsaved edits.
-     resetPrivateSession();await inbox.refresh();return loginView();
-    }
-    await acknowledgeMajorRelease(sb,{profile,release:current,kind:type,
-     explicitClick:true,explicitlyEnabled:true});
-    await refresh();return;
-   }
-  if(action==="pilotDemoContinue"){
-  if(!COACH_STUDENT_JOURNEY_ENABLED||state.profile?.role!=="student"||
-     state.coachPilotEntry?.route!=="participation")
-   throw Error("La participación del piloto no está disponible.");
-  const choice=readPilotParticipationSelection(document,{explicitClick:true});
-  await acceptPilotParticipation(sb,choice,{explicitSubmit:true});
-  await refresh();return;
- }
- if(action==="openMessages"&&COACH_STUDENT_JOURNEY_ENABLED&&state.coachPilotEntry?.route==="review"){
-  state.tab="messages";await render();return;
- }
+ const action=el.dataset.act;if(!action)return;
+ if(action==="logout"){await sb.auth.signOut();state.session=null;state.profile=null;state.tab="home";state.otpEmail=null;state.welcomePending=false;await inbox.refresh();return loginView();}
  if(action==="completeWelcome")return completeWelcome();
- if(action==="confirmLegalAcceptance"){
-  const studentNeedsLegal=state.profile?.role==="student"&&state.coachRelaunchEntry?.route==="legal";
-  const coachNeedsLegal=state.profile?.role==="coach"&&state.coachLegalPending===true;
-  if(!COACH_VERSIONED_INTAKE_ENABLED||!COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED||
-     (!studentNeedsLegal&&!coachNeedsLegal)||!state.coachLegalSnapshot)
-   throw Error("No se pudo verificar el documento legal actual.");
-  const checked={terms:document.getElementById("efgLegalCheck_terms")?.checked===true,
-   privacy:document.getElementById("efgLegalCheck_privacy")?.checked===true};
-  await acceptCoachLegalOnboarding(sb,state.coachLegalSnapshot,checked,{explicitSubmit:true});
-  state.coachLegalSnapshot=null;state.coachLegalPending=false;
-  await refresh(); // Recheck CURRENT acceptance separately for coach and student.
-  return;
- }
- if(action==="revokeCoachRelaunch"||action==="clearCoachRelaunch"){
-  if(COACH_STUDENT_JOURNEY_ENABLED){
-   if(state.profile?.role!=="student"||!state.coachPilotIntake)
-    throw Error("La ficha nueva no está disponible.");
-   const actionName=action==="revokeCoachRelaunch"?"unshare":"clear";
-   if(!window.confirm(actionName==="unshare"?
-    "¿Dejar de compartir tu ficha con el coach? Tus registros anteriores se conservan.":
-    "¿Borrar los datos de esta ficha y retirar el permiso? Tu cuenta, planes y registros anteriores se conservan."))return;
-   await manageCoachPilotGeneralIntake(sb,{profile:state.profile,
-    expectedRevision:state.coachPilotIntake.revision,action:actionName,explicitSubmit:true});
-   await refresh();
-   notify(actionName==="unshare"?"Tu ficha ahora es privada.":"Datos de la ficha borrados. Se conservaron tus registros anteriores.");
-   return;
-  }
-  if(!COACH_RELAUNCH_ONBOARDING_ENABLED||state.profile?.role!=="student"||
-     state.coachRelaunchEntry?.route!=="ready")throw Error("La ficha nueva no está disponible.");
-  if(action==="revokeCoachRelaunch"&&!state.coachRelaunchEntry.status?.shared_at){
-   notify("Tu ficha nueva ya es privada.");return;
-  }
-  const message=action==="revokeCoachRelaunch"?
-   "¿Retirar el permiso de compartir la ficha nueva con tu coach? Tu historial no se borrará.":
-   "¿Borrar los datos de la ficha nueva y retirar el permiso de compartir? No se borrarán tu plan, comidas, peso ni mensajes. La confirmación de ingreso se conserva.";
-  if(!window.confirm(message))return;
-  const options={profile:state.profile,userId:state.session?.user?.id,entry:state.coachRelaunchEntry,explicitSubmit:true};
-  if(action==="revokeCoachRelaunch")await revokeCoachRelaunchSharing(sb,{...options});
-  else await clearCoachRelaunchData(sb,{...options});
-  await refresh();
-  notify(action==="revokeCoachRelaunch"?"Permiso retirado. La ficha ahora es privada.":"Los datos de esta ficha nueva se borraron; tus registros anteriores permanecen.");
-  return;
- }
- if(action==="deleteStudentIntake")return coachIntakeFlow.deleteOwn();
- if(action==="publishCoachStudentPlan")return coachIntakeFlow.publish();
- if(action==="prepareCoachPlanFromIntake"){
-  const eligible=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
-  const studentId=state.selectedStudent;
-  if(!eligible||!studentId||!state.roster.some(p=>p.active&&p.user_id===studentId))
-   throw new Error("Solo podés preparar un plan de un alumno activo y autorizado.");
-  await loadStudentDetail(studentId); // Revalidate RLS/consent; never trust cached intake.
-  state.coachIntakePrefill=createCoachCalculatorPrefill({
-   intake:state.coachIntakeForms?.[studentId],studentId,coachAuthorized:state.consent?.accepted===true,
-    requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
-  });
-  state.coachIntakeGuidePreview=null;
-  state.tab="coachStudents";await render();
-  const panel=document.getElementById("coachStudentGoals");
-  if(panel){panel.open=true;panel.scrollIntoView?.({behavior:"smooth",block:"start"});}
-  notify("Datos autorizados precargados. Confirmá y calculá la propuesta antes de aprobar.");
-  return;
- }
- if(action==="checkCoachPlan"){await coachIntakeFlow.loadStudent();await render();return;}
  if(action==="loginBack"){state.otpEmail=null;return loginView();}
  if(action==="resendOtp"){return requestOtp(state.otpEmail);}
  if(action==="retry")return refresh();
@@ -4221,86 +2336,24 @@ if(el.dataset.foodbulk){
   else window.prompt("Copiá el informe:",content);
   return;
  }
- if(el.dataset.mealgroup){
-  if(isGuidedMealSlot(state.activeMeal)&&GUIDED_MEAL_GROUPS.some(g=>g.id===el.dataset.mealgroup)){
-   activeGuidedMealGroup=el.dataset.mealgroup;
-   document.getElementById("mealFoodSearch").value="";
-   for(const btn of document.querySelectorAll("[data-mealgroup]")){
-    const active=btn.dataset.mealgroup===activeGuidedMealGroup;
-    btn.setAttribute("aria-pressed",String(active));btn.classList.toggle("selected",active);
-   }
-   const hint=document.getElementById("mealGuidanceHint");
-   if(hint)hint.textContent=GUIDED_MEAL_GROUPS.find(g=>g.id===activeGuidedMealGroup).hint;
-   filterMealFoods();
-  }
-  return;
- }
- if(el.dataset.mealomit){
-  const slot=state.activeMeal,group=el.dataset.mealomit;
-  if(!isGuidedMealSlot(slot)||!["protein","carb"].includes(group))return;
-  if(pendingMealRegistrations.has(slot))return;
-  const slotLease=pendingMealRegistrations.add(slot);
-  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
-  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
-  try{
-   d.skipped ||= {};d.skipped._guidedComponents ||= {};
-   d.skipped._guidedComponents[slot] ||= {};
-   d.skipped._guidedComponents[slot][group]=!d.skipped._guidedComponents[slot][group];
-   const omitted=d.skipped._guidedComponents[slot][group];
-   if(!state.diary||state.diary.log_day!==today())state.diary=d;
-   try{await saveDiary();}
-   catch(error){
-    d.skipped=previousSkipped;
-    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
-    throw error;
-   }
-   // Late completion from A must not open a guided editor or notify B.
-   if(state.session?.user?.id===ownerId&&today()===ownerDay){
-    openMealDialog(slot,group==="protein"?"carb":"prepared");
-    notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
-   }
-  }finally{pendingMealRegistrations.delete(slot,slotLease);}
-  return;
- }
- if(action==="closeMeal"){closeMealDialog();return;}
+ if(action==="closeMeal"){document.getElementById("mealDialogContainer").innerHTML="";state.activeMeal=null;return;}
  if(action==="saveSelectedMeal"){return saveSelectedMeal();}
- if(action==="saveSelectedMealContinue"){return saveSelectedMeal(true);}
  if(action==="addDailySupplement"){return addDailySupplement();}
  if(action==="saveDayComment"){return saveDayComment();}
- if(action==="addSport"){
-  const id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value);
-  const when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);
-  if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");
-  if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");
-  await mutateSportDiary(d=>d.sports.push(normItem(product,qty,when)),"Consumo registrado.");
-  return;
- }
+ if(action==="addSport"){let id=document.getElementById("sportItem").value,qty=Number(document.getElementById("sportQty").value),when=document.getElementById("sportTime").value,product=sports.find(x=>x.id===id);if(!product||supplementRecord(product)||product.id==="whey")throw new Error("Registrá ese producto en Mi alimentación.");if(!Number.isFinite(qty)||qty<=0||qty>3000)throw new Error("Cantidad inválida.");let d=activeDiary();d.sports.push(normItem(product,qty,when));d.skipped=d.skipped||{};d.skipped._closed=false;await saveDiary();notify("Consumo registrado.");return;}
  if(action==="revokeConsent"||action==="grantConsent"){
  const accepted=action==="grantConsent";
- if(state.profile?.role!=="student"||!state.consent)throw Error("Permiso de seguimiento exclusivo del alumno.");
- if(accepted&&!window.confirm("¿Autorizás expresamente que tu coach asignado consulte tus registros de alimentación, peso, actividad y suplementos para tu seguimiento? Podés retirar el permiso cuando quieras."))return;
+
  const {data,error}=await sb.from("efg_consents").update({
   accepted,email_report_opt_in:false,updated_at:new Date().toISOString()
  }).eq("student_id",state.session.user.id).select().single();
  if(error)throw error;
  state.consent=data;await render();
- notify(!accepted?"Permisos revocados.":"Seguimiento autorizado dentro de Nutrición Con-Ciencia.");
+ notify(!accepted?"Permisos revocados.":"Seguimiento autorizado dentro de EFG Nutrition.");
  return;
 }
  if(action==="saveWeight")return saveWeight();
  if(action==="saveActivity")return saveActivity();
- if(action==="promoteExistingPilotCoach"){
-   if(state.profile?.role!=="admin"||!COACH_PILOT_PROMOTION_ENABLED)
-    throw Error("La promoción de coaches piloto está pendiente de habilitación segura.");
-   const email=String(document.getElementById("existingPilotCoachEmail")?.value||"").trim().toLowerCase();
-   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))throw Error("Ingresá el correo exacto de la cuenta actual.");
-   if(!window.confirm("¿Convertir la cuenta existente "+email+" en COACH PILOTO con 10 alumnos? Conserva MI DÍA y su historial. El cambio de rol es inmediato y no se cobra licencia."))return;
-   const {error}=await sb.rpc("efg_promote_existing_student_to_pilot_coach",{p_email:email});
-   if(error)throw error;
-   await loadRoleData();await render();
-   notify("Coach piloto habilitado: 10 cupos de prueba. Debe cerrar sesión y volver a entrar para ver el nuevo panel.");
-   return;
- }
  if(action==="inviteCoach"){
   if(state.profile.role!=="admin")throw Error("Solo EFG puede contratar coaches.");
   const email=document.getElementById("newCoachEmail").value.trim(),name=document.getElementById("newCoachName").value.trim();
@@ -4316,176 +2369,27 @@ if(el.dataset.foodbulk){
  if(action==="savePlatformAlias"){let alias=document.getElementById("platformAlias").value.trim(),two=document.getElementById("platformAlias2").value.trim(),three=document.getElementById("platformAlias3").value.trim();let r=await sb.rpc("efg_set_platform_aliases",{p_primary:alias,p_secondary:two||null,p_tertiary:three||null});if(r.error)throw r.error;await loadOrgAndPayments();await render();notify("Alias oficiales de EFG actualizados.");return;}
  if(action==="previewMacros"){const n=id=>Number(document.getElementById(id).value);const input={age:n("previewAge"),height:n("previewHeight"),weight:n("previewWeight"),activity:n("previewActivity"),sex:document.getElementById("previewSex").value,model:document.getElementById("previewModel").value,protein:document.getElementById("previewProtein").value,fat:n("previewFat"),recompMode:document.getElementById("previewRecompMode").value};state.macroPreview=["fat_loss","recomp","muscle_gain"].map(goal=>macroEstimate(input.age,input.height,input.weight,input.activity,input.sex,goal,input.model,input.protein==="auto"?null:Number(input.protein),input.fat,input.recompMode));state.macroInputs=input;await render();notify("Tres propuestas orientativas calculadas sin modificar planes reales.");return;}
  if(action==="copyStudentLink"){const link="https://efg-nutrition.onrender.com/pilot/";if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(link);notify("Enlace copiado; compartilo con el alumno habilitado.");}else{window.prompt("Copiá el enlace para tu alumno:",link);}return;}
- if(action==="openCoachAdaptedPreview"){
-  if(!coachAdaptedWorkspace.available())throw Error("La vista adaptada no está habilitada para este contexto.");
-  const mount=document.getElementById("coachAdaptedDraftMount");
-  if(!mount)throw Error("Volvé al panel de guía del coach.");
-  await coachAdaptedWorkspace.open(mount);return;
- }
  if(action==="makeGuidedDay"){
-  if(COACH_ATOMIC_PLAN_UI_ENABLED&&el.hasAttribute("data-periodic-new-guide")){
-   const student=state.selectedStudent,latest=state.coachGoals[0],review=state.pendingGoalRevision;
-   if(!student||!latest?.id||review?.studentId!==student||review.baseId!==latest.id||
-      !state.consent?.accepted)
-    throw Error("Elegí la revisión del objetivo vigente y verificá el permiso del alumno.");
-   // A periodic revision must use a FRESH current intake and authorization,
-   // including any newly shared restrictions, not an old cached Coach profile.
-   await loadStudentDetail(student);
-   if(state.selectedStudent!==student||state.coachGoals[0]?.id!==review.baseId||
-      !state.consent?.accepted||!state.coachIntakeForms?.[student]?.shared_at)
-    throw Error("El objetivo, la ficha o el permiso cambiaron. Volvé a revisar al alumno.");
-   state.pendingGoalRevision=review;
-   state.pendingGoal=null;state.coachGuidedDraft=null;state.coachIntakeGuidePreview=null;
-  }
-  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
-  const goal=activeCoachGuideGoal();
-  if(!goal||!state.selectedStudent||!state.consent?.accepted)
-   throw new Error(COACH_ATOMIC_PLAN_UI_ENABLED?"Primero calculá una propuesta privada.":"Primero aprobá la meta del alumno.");
-  if(COACH_ATOMIC_PLAN_UI_ENABLED){
-   // A general pilot guide needs a CURRENT, separately shared nutrition intake,
-   // NOT the clinical-only RPC (which remains OFF). Server atomic publish is final.
-   const intake=state.coachIntakeForms?.[state.selectedStudent];
-   const required=["objective","age_years","height_cm","weight_kg","activity_level","dietary_pattern"];
-   const assigned=(state.roster||[]).some(p=>p.user_id===state.selectedStudent&&p.active===true);
-   if(!COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED||!assigned||
-      intake?.student_id!==state.selectedStudent||intake?.organization_id!==state.org?.id||
-      intake?.completed_version!==COACH_RELEASE_INTAKE_VERSION||
-      !Number.isSafeInteger(intake?.revision)||intake.revision<1||
-      typeof intake.shared_at!=="string"||!Number.isFinite(Date.parse(intake.shared_at))||
-      typeof intake.updated_at!=="string"||!Number.isFinite(Date.parse(intake.updated_at))||
-      required.some(k=>intake[k]===null||intake[k]===undefined||intake[k]===""))
-    throw Error("Confirmá primero una ficha nutricional general vigente, completa y compartida.");
-  }
-  state.coachGuidedDraft=generateFlexibleGuidedDay(foods,goal,{
-   ...currentCoachGuideProfile(),includeWhey:!!document.getElementById("guideWhey")?.checked
-  });
-  if(COACH_ATOMIC_PLAN_UI_ENABLED&&currentCoachGuideProfile().restrictionStatus==="unknown"){
-    const warning="Restricciones alimentarias no verificadas: no presupongas ausencia de celiaquía, intolerancias o alergias. Confirmá el perfil del alumno antes de aprobar alimentos.";
-    state.coachGuidedDraft.profileReviewNotes=
-     [...new Set([...(state.coachGuidedDraft.profileReviewNotes||[]),warning])].slice(0,25);
-   }
-   showGuidedEditor();notify(COACH_ATOMIC_PLAN_UI_ENABLED?"Guía privada generada: revisá alimentos y cantidades antes de guardarla.":"Borrador generado: revisalo antes de enviarlo.");return;
- }
- if(action==="removeGuidedMeal"){
-  const goal=activeCoachGuideGoal(),draft=readGuidedEditor();
-  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
-  state.coachGuidedDraft=removeFlexibleMeal(draft,el.dataset.guideremovemeal,goal);
-  showGuidedEditor();notify("Horario quitado SOLO de la guía; recalculé las porciones de las otras comidas.");return;
- }
- if(action==="removeGuidedFood"){
-  const goal=activeCoachGuideGoal(),draft=readGuidedEditor();
-  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
-  const [slot,index]=String(el.dataset.guideremovefood||"").split(":");
-  state.coachGuidedDraft=removeFlexibleFood(draft,slot,Number(index),goal);
-  showGuidedEditor();notify("Alimento quitado de la guía; recalculé las cantidades restantes.");return;
- }
- if(action==="addGuidedFood"){
-  const goal=activeCoachGuideGoal(),draft=readGuidedEditor(),slot=el.dataset.guideaddfood;
-  if(!goal||draft.kind!=="flexible_meal_guide")throw Error("La guía flexible no está preparada.");
-  const control=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
-   let food=coachGuidePickerFoods().find(x=>x.id===control?.value);
-   if(!food)throw Error("Elegí un alimento o receta disponible.");
-   // Validate the original item index BEFORE any async private recipe read.
-   // Missing selector is legacy add-only behaviour.
-   const actionControl=[...root.querySelectorAll("[data-guidereplaceindex]")].find(x=>x.dataset.guidereplaceindex===slot);
-   const rawReplace=actionControl?.value??"";
-   const replaceIndex=rawReplace===""?null:Number(rawReplace);
-   if(replaceIndex!==null&&(!Number.isInteger(replaceIndex)||replaceIndex<0||
-      replaceIndex>=(draft.meals?.find(m=>m.slot===slot)?.items?.length??0)))
-    throw Error("Elegí un alimento válido de esta comida para reemplazar.");
-   let auth={};
-   if(food.privateRecipe===true){
-    const ticket=state.coachSharedRecipeScope;
-    const isCurrent=()=>ticket===state.coachSharedRecipeScope&&coachRecipeScopeMatches(currentCoachRecipeScope(),ticket);
-    if(!COACH_ATOMIC_PLAN_UI_ENABLED||!COACH_SHARED_STUDENT_RECIPES_UI_ENABLED||!isCurrent())
-     throw Error("La receta personal necesita autorización actual del alumno.");
-    let fresh;
-    try{
-     fresh=await loadCoachSharedStudentRecipes(sb,{profile:state.profile,
-      studentId:ticket.studentId,organizationId:ticket.organizationId});
-    }catch(error){
-     if(isCurrent()){state.coachSharedRecipes=[];showGuidedEditor();}
-     throw error;
-    }
-    if(!isCurrent()||fresh.coachId!==ticket.coachId||state.coachGuidedDraft!==draft)
-     throw Error("Cambió la cuenta, el alumno o el borrador; reabrí la guía.");
-    state.coachSharedRecipes=fresh.recipes;
-    const selectedId=food.id;
-    food=recipeCatalogEntries({foods,personalRecipes:fresh.recipes,userId:ticket.studentId}).find(x=>x.id===selectedId);
-    if(!food){showGuidedEditor();throw Error("La receta ya no está compartida.");}
-    auth={authorizedStudentId:ticket.studentId,authorizedScopedRecipeRead:true};
-   }
-   const ingredients=Array.isArray(food.recipeIngredients)
-    ?food.recipeIngredients.map(x=>foods.find(y=>y.id===x.foodId)):[food];
-   if(!ingredients.length||ingredients.some(x=>!x))throw Error("La receta tiene ingredientes sin ficha alimentaria.");
-   const flagged=ingredients.map(x=>reviewCoachGuideFoodChange(x,currentCoachGuideProfile())).filter(x=>x.needsReview);
-    if(flagged.length&&!window.confirm(
-     "Hay ingredientes con compatibilidad pendiente o que no coinciden con el perfil. "+
-     flagged.slice(0,2).map(x=>x.reason).join(" · ")+
-     ". ¿Incluirlos bajo revisión expresa del coach?")){
-     if(food.privateRecipe)showGuidedEditor();
-     return;
-    }
-    if(Array.isArray(food.recipeIngredients)){
-    const input=[...root.querySelectorAll("[data-guiderecipeserving]")].find(x=>x.dataset.guiderecipeserving===slot);
-    state.coachGuidedDraft=addCoachRecipeServing(draft,slot,food,Number(input?.value||1),foods,goal,
-     {...auth,replaceIndex});
-    showGuidedEditor();
-    notify(replaceIndex===null
-     ?"Receta incorporada por porciones y componentes, sin macros duplicados. Revisá las fuentes antes de publicar."
-     :"Alimento sustituido por receta: recalculé sus componentes y macros sin duplicarlos.");
-   }else{
-    state.coachGuidedDraft=replaceIndex===null
-     ?addFlexibleFood(draft,slot,{id:food.id},foods,goal)
-     :replaceFlexibleFood(draft,slot,replaceIndex,{id:food.id},foods,goal);
-    showGuidedEditor();
-    notify(replaceIndex===null
-     ?"Alimento agregado al borrador; recalculé macros y gramos sin tocar el diario."
-     :"Alimento reemplazado desde el catálogo completo; recalculé sin tocar el diario.");
-   }
-   return;
+  const goal=state.coachGoals[0];
+  if(!goal||!state.selectedStudent||!state.consent?.accepted)throw new Error("Primero aprobá la meta del alumno.");
+  state.coachGuidedDraft=(!state.coachGuidedDraft&&state.coachFoodPlan?.guided_plan&&state.coachFoodPlan?.guided_goal_id===goal.id)?
+     structuredClone(state.coachFoodPlan.guided_plan):generateGuidedDay(foods,goal,{includeWhey:!!document.getElementById("guideWhey")?.checked});
+  showGuidedEditor();notify("Borrador generado: revisalo antes de enviarlo.");return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
  if(action==="balanceGuidedDay"){
-  const draft=readGuidedEditor(),proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
-  const goal=activeCoachGuideGoal();
-  if(!goal)throw new Error("El alumno necesita una propuesta válida.");
+  const draft=readGuidedEditor(),goal=state.coachGoals[0];
+  if(!goal)throw new Error("El alumno necesita un objetivo aprobado.");
   state.coachGuidedDraft=rebalanceGuidedDay(draft,goal);showGuidedEditor();
-  notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
+  notify("Porciones ajustadas; revisá el resultado antes de aprobar.");return;
  }
  if(action==="saveGuidedDay")return approveGuidedDay();
- if(action==="saveCoachAtomicDraft")return saveCoachAtomicDraft();
- if(action==="publishCoachAtomicDraft")return publishCoachAtomicDraft();
  if(action==="calculateGoal")return calculateGoal();
  if(action==="adjustCalculatedGoal")return adjustCalculatedGoal();
  if(action==="previewGoalRevision")return previewGoalRevision();
  if(action==="approveGoalRevision")return approveGoalRevision();
  if(action==="saveCoachFoodPlan"){return saveCoachFoods();}
- if(action==="approveGoal"){
-  if(COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("No guardes un objetivo aislado: prepará su guía y guardá un borrador privado.");
-  if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent||!state.consent?.accepted)
-   throw new Error("Calculá primero una propuesta para un alumno autorizado.");
-  const studentId=state.selectedStudent,guide=state.coachIntakeGuidePreview;
-  if(state.coachIntakePrefill?.studentId===studentId){
-   // Re-read the current revision and current consent before approving.
-   const consentNow=await sb.from("efg_consents").select("accepted").eq("student_id",studentId).maybeSingle();
-   if(consentNow.error)throw consentNow.error;
-   if(consentNow.data?.accepted!==true)throw new Error("El alumno revocó el seguimiento. No se guardó el objetivo.");
-   await coachIntakeFlow.refreshCoachDetail(studentId,true);
-   const current=state.coachIntakeForms?.[studentId],source=state.coachIntakePrefill.sourceUpdatedAt;
-   if(!current?.shared_at||!source||current.updated_at!==source)
-    throw new Error("La ficha cambió o dejó de compartirse. Volvé a abrirla antes de aprobar.");
-  }
-  await assertCoachGoalWriteSafe(sb,{studentId,fromSharedIntake:state.coachIntakePrefill?.studentId===studentId});
-  const {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});
-  if(error)throw error;
-  await loadStudentDetail(studentId);
-  if(guide&&state.coachGoals[0])state.coachGuidedDraft=rebalanceGuidedDay(guide,state.coachGoals[0]);
-  await render();
-  if(guide)document.getElementById("coachGuidedSlot")?.scrollIntoView?.({behavior:"smooth",block:"start"});
-  notify(guide?"Objetivo guardado: revisá y aprobá la guía antes de publicar el plan.":"Objetivo guardado: prepará la guía antes de publicar el plan.");
-  return;
- }
+ if(action==="approveGoal"){if(!state.pendingGoal||state.pendingGoal.student_id!==state.selectedStudent)throw new Error("Calculá primero una propuesta.");let {error}=await sb.from("efg_goals").insert({...state.pendingGoal,approved_by:state.session.user.id,start_on:today()});if(error)throw error;await loadStudentDetail(state.selectedStudent);await render();notify("Plan aprobado y disponible para el alumno.");return;}
  if(action==="checkAppVersion"){
   const label=document.getElementById("efgBuildStatus");
   if(label)label.textContent="Comprobando la versión publicada…";
@@ -4493,7 +2397,7 @@ if(el.dataset.foodbulk){
   const status=versionNotice.getStatus();
   if(label)label.textContent=status.working?"La comprobación sigue en curso. Probá de nuevo en unos segundos.":
    status.lastError?"No se pudo comprobar la versión. Revisá tu conexión e intentá otra vez.":
-   status.hasUpdate?"Hay una nueva versión. Guardá tus cambios y volvé a abrir la aplicación para incorporarla.":
+   status.hasUpdate?"Hay una nueva versión: mirá el aviso sobre la barra inferior.":
    status.lastChecked?"Estás al día. No hay una versión nueva para instalar.":"Todavía no pudimos comprobar la versión.";
   return;
  }
@@ -4503,196 +2407,46 @@ if(el.dataset.foodbulk){
 }
 async function updateAtDayChange(){
  if(!state.profile||!state.session||!state.renderedDay)return;
- const ownerId=state.session.user.id,contextEpoch=state.authContextEpoch||0,day=today();
- const sameContext=()=>state.session?.user?.id===ownerId&&
-  (state.authContextEpoch||0)===contextEpoch&&today()===day;
- if(state.renderedDay!==day){
-  await ensureCurrentDay();
-  if(!sameContext()||state.renderedDay!==day)return;
-  await render();
-  if(sameContext())notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
+ if(state.renderedDay!==today()){
+  await ensureCurrentDay();await render();
+  notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
   return;
  }
- if(state.profile.role==="student"&&isNutritionDayClosed(day)&&state.lastAutoCloseNotice!==day){
-  state.lastAutoCloseNotice=day;
-  await render();
-  if(sameContext())notify("El registro de hoy se cerró automáticamente a las 23:59.");
+ if(state.profile.role==="student"&&isNutritionDayClosed(today())&&state.lastAutoCloseNotice!==today()){
+  state.lastAutoCloseNotice=today();
+  await render();notify("El registro de hoy se cerró automáticamente a las 23:59.");
  }
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateAtDayChange().catch(fail);});
 window.addEventListener("focus",()=>updateAtDayChange().catch(fail));
 setInterval(()=>updateAtDayChange().catch(fail),10000);
-const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;state.coachIntakeGuidePreview=null;document.getElementById("coachIntakeGeneratedGuide")?.remove();const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
-// Persist omitted-meal toggles through the same per-slot write gate as foods.
-async function saveSkippedMealChoice(slot,checked,checkbox){
- if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Horario de comida inválido.");
- const d=activeDiary();
- if(pendingMealRegistrations.has(slot)){
-  if(checkbox)checkbox.checked=!!d.skipped?.[slot];
-  return;
- }
- const slotLease=pendingMealRegistrations.add(slot);
- const ownerId=state.session?.user?.id,ownerDay=d.log_day;
- const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
- try{
-  d.skipped=d.skipped||{};
-  d.skipped[slot]=!!checked;d.skipped._closed=false;
-  await saveDiary();
- }catch(error){
-  d.skipped=previousSkipped;
-  // An old A failure cannot restore B's diary or a new account's checkbox.
-  if(state.session?.user?.id===ownerId&&today()===ownerDay){
-   state.diary=previousDiary;
-   if(checkbox)checkbox.checked=!!previousSkipped[slot];
-  }
-  throw error;
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
-}
-root.addEventListener("change",e=>{invalidateCoachDraft(e);
-  if(e.target.id==="efgIntakeShare"){
-   const btn=document.getElementById("efgIntakeSubmitButton");
-   if(btn)btn.textContent=intakeSaveButtonLabel({
-    wasShared:!!state.studentIntake?.shared_at,willShare:!!e.target.checked
-   });
-   return;
-  }
- if(e.target.id==="efgIntakeShare"){
-  const button=document.getElementById("efgIntakeSubmitButton");
-  if(button)button.textContent=e.target.checked?"Enviar mi ficha a mi coach":
-   (state.studentIntake?.shared_at?"Guardar privada y retirar acceso":"Guardar ficha privada");
-  return;
- }
- if(e.target.dataset.habitualchoice){updateHabitualPreview(e.target.dataset.habitualchoice);return;}if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
- const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
+const invalidateCoachDraft=e=>{if(!e.target?.id)return;const id=e.target.id;if(!["targetSex","targetGoal","targetAge","targetHeight","targetWeight","targetActivity","targetModel","targetProtein","targetFat","targetRecompMode"].includes(id))return;state.pendingGoal=null;state.calculatedGoalBase=null;const approve=document.getElementById("approveGoalButton");if(approve)approve.disabled=true;const panel=document.getElementById("goalPreview");if(panel)panel.textContent="Cambiaste un dato de la propuesta. Recalculá antes de aprobarla.";};
+root.addEventListener("change",e=>{invalidateCoachDraft(e);if(["reviseGoalMode","proposalGoalMode"].includes(e.target.id)){if(e.target.id==="reviseGoalMode"){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}else{state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}}if(state.renderedDay&&state.renderedDay!==today()){updateAtDayChange().catch(fail);return;}if(e.target.dataset.guideswap){
  const draft=readGuidedEditor(),[slot,index]=e.target.dataset.guideswap.split(":");
- if(draft.kind==="flexible_meal_guide"){
-  const candidate=foods.find(x=>x.id===e.target.value);
-  if(!candidate)throw Error("La alternativa ya no está en el catálogo.");
-  const signal=reviewCoachGuideFoodChange(candidate,currentCoachGuideProfile());
-  if(signal.needsReview&&!window.confirm(signal.message)){
-   showGuidedEditor();return;
-  }
- }
- state.coachGuidedDraft=draft.kind==="flexible_meal_guide"
-  ?replaceFlexibleFood(draft,slot,Number(index),{id:e.target.value},foods,targetGoal)
-  :rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),targetGoal);
+ state.coachGuidedDraft=rebalanceGuidedDay(swapGuidedFood(draft,slot,Number(index),e.target.value,foods),state.coachGoals[0]);
  showGuidedEditor();
- notify("Ingrediente cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
+ notify("Alternativa cambiada y demás porciones recalculadas sin alterar tus decisiones.");return;
 }if(e.target.dataset.guideqty){
- const targetGoal=activeCoachGuideGoal();if(!targetGoal)return;
  const draft=readGuidedEditor();
- state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
+ state.coachGuidedDraft=rebalanceGuidedDay(draft,state.coachGoals[0]);
  showGuidedEditor();
- notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
-}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
-// Prevent Gboard IME input before compositionend from rebuilding native selects.
-const composingFoodSearchTargets=new WeakSet();
-root.addEventListener("compositionstart",event=>{
- const target=event.target;
- if(target?.id==="mealFoodSearch"||target?.dataset?.plansearch)composingFoodSearchTargets.add(target);
-});
-root.addEventListener("compositionend",event=>{
- const target=event.target;
- if(!target||!composingFoodSearchTargets.has(target))return;
- composingFoodSearchTargets.delete(target);
- if(target.id==="mealFoodSearch")filterMealFoods();
- else if(target.dataset?.plansearch)filterPlannerFoods(target);
-});
-function foodSearchReadyForInput(event){
- return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
-}
-root.addEventListener("input",e=>{
- if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
- if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
-  const model=buildCurrentLuxuryModel();
-  luxuryWeeklyEditor.update(luxuryEditorContext(model),
-   e.target.id==="weeklyCoachConclusion"?"conclusion":"flexibleNote",e.target.value);
-  const publish=document.getElementById("weeklyLuxuryPublishButton");
-  if(publish)publish.disabled=true;
-  const status=document.getElementById("weeklyLuxuryPreviewStatus");
-  if(status)status.textContent="Editaste el informe: actualizá la vista previa para habilitar el envío.";
-  return;
- }
- invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
+ notify("Porciones ajustadas automáticamente; se respetó tu elección.");return;
+}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];e.target.blur();refreshPlannerCard(key);}if(e.target.dataset.skipmeal){const d=activeDiary();d.skipped=d.skipped||{};d.skipped[e.target.dataset.skipmeal]=e.target.checked;d.skipped._closed=false;saveDiary().catch(fail);}});
+root.addEventListener("input",e=>{invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value);
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
  }
- if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){
-  const slot=e.target.dataset.guidefoodsearch,select=[...root.querySelectorAll("[data-guidefoodpick]")].find(x=>x.dataset.guidefoodpick===slot);
-  if(select){
-   const q=plannerNormalizeQuery(e.target.value),terms=q.split(/\s+/).filter(Boolean);
-   const filtered=coachGuidePickerFoods().filter(f=>terms.every(w=>plannerNormalizeQuery(foodSearchText(f)).includes(w)));
-   const previous=select.value;
-   select.innerHTML='<option value="">Elegí alimento o receta Fit</option>'+option(filtered);
-   select.value=filtered.some(x=>x.id===previous)?previous:"";
-  }
- }
- if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch"&&foodSearchReadyForInput(e))filterMealFoods();if(e.target.dataset.plansearch&&foodSearchReadyForInput(e))filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
+ if(e.target.id==="coachFoodSearch")filterCoachFoodLibrary();if(e.target.id==="mealFoodSearch")filterMealFoods();if(e.target.dataset.plansearch)filterPlannerFoods(e.target);if(e.target.id.startsWith("planQty_")){
  const key=e.target.id.slice("planQty_".length);
  const select=[...root.querySelectorAll("[data-planselect]")].find(x=>x.dataset.planselect===key);
  if(select)state.plannerDraftGrams[key]={foodId:select.value,grams:e.target.value};
  updatePlannerPreview();
 }if(["mealEditorQty","beverageMilkMl","beverageSugarG"].includes(e.target.id))updateMealDialogHint();});
-root.addEventListener("change",e=>{
- if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
- if(COACH_STUDENT_JOURNEY_ENABLED&&["efgPilotParticipate","efgPilotShare"].includes(e.target.id)){
-  syncPilotParticipationContinueButton(document);return;
- }
- if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
-document.addEventListener("keydown",event=>{
- const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
- if(!dialog)return;
- // Android Gboard / IMEs: Enter can confirm text composition, not an actual food choice.
- // Do not preventDefault, select a suggestion or close the dialog until composition ends.
- if(event.isComposing||event.keyCode===229)return;
-  const suggestions=document.getElementById("mealFoodSuggestions"),search=document.getElementById("mealFoodSearch");
-  if(dialog.classList.contains("meal-popup")&&suggestions&&!suggestions.hidden){
-   const choices=[...suggestions.querySelectorAll("[data-mealsuggestion]")],index=choices.indexOf(document.activeElement);
-   if(event.key==="Escape"){event.preventDefault();hideMealSearchSuggestions();search?.focus({preventScroll:true});return;}
-   if(event.key==="ArrowDown"&&(event.target===search||index>=0)){event.preventDefault();choices[Math.min(index+1,choices.length-1)]?.focus({preventScroll:true});return;}
-   if(event.key==="ArrowUp"&&index>=0){event.preventDefault();(index===0?search:choices[index-1])?.focus({preventScroll:true});return;}
-   // Enter on a search field (including the Gboard action key) is not an
-   // explicit food choice. Focus a suggestion; only its own click/Enter selects it.
-   if(event.key==="Enter"&&event.target===search&&choices.length){event.preventDefault();choices[0].focus({preventScroll:true});return;}
-  }
- if(event.key==="Escape"){event.preventDefault();if(dialog.classList.contains("meal-popup"))closeMealDialog();else closeRecipeRegistration();return;}
- if(event.key!=="Tab")return;
- const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
- if(!items.length)return;
- const first=items[0],last=items[items.length-1];
- if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){event.preventDefault();last.focus();}
- else if(!event.shiftKey&&(document.activeElement===last||!dialog.contains(document.activeElement))){event.preventDefault();first.focus();}
-});
+root.addEventListener("change",e=>{if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 root.addEventListener("submit",e=>{
- if(e.target.id==="efgCoachRelaunchForm"||e.target.id==="efgCoachRelaunchManageForm"){
-  e.preventDefault();
-  if(COACH_STUDENT_JOURNEY_ENABLED){
-   (async()=>{
-    if(state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))
-     throw Error("La ficha del piloto no está disponible.");
-    const data=readCoachRelaunchForm(document);
-    // A private first intake is valid; no coach sharing is inferred.
-    await submitCoachPilotGeneralIntake(sb,{profile:state.profile,payload:data.payload,
-     shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
-    await refresh();
-    notify(data.shareWithCoach?"Ficha compartida con tu coach. Conservamos todos tus registros anteriores.":"Ficha privada guardada. Conservamos todos tus registros anteriores.");
-   })().catch(fail);
-   return;
-  }
-  if(!COACH_RELAUNCH_ONBOARDING_ENABLED)return;
-  (async()=>{
-   const data=readCoachRelaunchForm(document);
-   await submitCoachRelaunchEntry(sb,{profile:state.profile,userId:state.session?.user?.id,
-    entry:state.coachRelaunchEntry,payload:data.payload,shareWithCoach:data.shareWithCoach,explicitSubmit:true});
-   await refresh();
-   notify("Ficha nueva confirmada. Tus registros anteriores están conservados.");
-  })().catch(fail);
-  return;
- }
- if(e.target.id==="efgStudentIntakeForm"){e.preventDefault();coachIntakeFlow.save().catch(fail);return;}
  if(e.target.id==="pilot-login-form"){
   e.preventDefault();
   if(state.loggingIn)return;
@@ -4707,58 +2461,18 @@ root.addEventListener("submit",e=>{
 });
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
-function resetPrivateSession(){
- state.privateHealthDeclaration?.invalidate?.();
- state.privateHealthSessionNonce=null;
- pilotGuideLifecycle.invalidate();
- coachAdaptedWorkspace.close(); // Includes pending HTTP loads and saves.
- // Clear role-scoped RAM on every SIGNED_OUT, including external session
- // invalidation. Never carry another Coach's private data to a fresh OTP user.
- state.foodCompatEvidence=[];state.habitualSelection={};
- state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;
- state.majorRelease=null;state.majorReleaseLegal=null;
- state.coachLegalPending=false;state.coachLegalSnapshot=null;state.coachRelaunchEntry=null;
- state.planAccess=null;state.studentIntake=null;state.planAccessSupported=false;
- state.coachIntakeForms={};state.coachIntakeAccess={};state.coachIntakeGoals={};
- state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;
- state.coachSharedRecipeScope=null;state.coachSharedRecipes=[];
- state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
- state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;
- state.calculatedGoalBase=null;state.selectedStudent=null;state.consent=null;
- state.roster=[];state.coachLogs=[];state.coachProgressLogs=[];state.coachGoals=[];
- state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;
- state.coachHistory=[];state.testInvitations=[];
- state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
- // A pending request belongs to the old auth epoch: do not lock the next user.
- state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
- state.habitualesLoadToken=null;state.recipesLoadToken=null;
- pendingMealRegistrations.clear();pendingHabitualSlots.clear();
- recipeRegistrationBusy=false;
- state.goals=[];state.foodPlan=null;state.personalTargets=null;
- state.org=null;state.orgs=[];state.payments=[];state.platformAlias=null;
- state.platformAliases=[];state.invitations=[];
- state.session=null;state.profile=null;
- myWeeklyReports=[];cloudRecipes=[];cloudHabituales=[];coachRosterConsent={};
- state.coachPrivateHistory=null;
- state.cloudRecipesUserId=null;state.cloudHabitualesUserId=null;
- state.personalDataLoadToken=null;state.pendingDiaryDraft=null;
- state.renderedDay=null;state.activeMeal=null;state.tab="home";state.otpEmail=null;
- state.welcomePending=false;state.scienceWelcomePending=false;
- state.scienceWelcomeStep=0;state.scienceWelcomeError="";
- state.rewardApproval=null;state.rewardFeatureReady=false;
- state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
- userHasUnconfirmedEdits=false;lastRenderedViewKey=null;
-}
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){
-  const user=session?.user;if(!user)return;
-  if(authHydration.change(user.id))return;
-  if(state.profile?.user_id===user.id&&state.session?.user?.id===user.id)
-   setCoachSessionIdentity(session,user);
+  const user=session?.user;
+  if(user&&state.profile?.user_id===user.id&&state.session?.user?.id===user.id){
+   state.session={user};
+   return;
+  }
+  if(!state.loading)queueMicrotask(()=>refresh());
  }else if(event==="TOKEN_REFRESHED"&&session?.user?.id===state.session?.user?.id){
-  setCoachSessionIdentity(session,session.user);
+  state.session={user:session.user};
  }else if(event==="SIGNED_OUT"){
-  authHydration.change(null);
+  state.session=null;state.profile=null;lastRenderedViewKey=null;loginView();
  }
 }
 // Never auto-reload after a release. Only warn the user, especially when editing.
@@ -4772,26 +2486,22 @@ const meaningfulField=el=>{
 root.addEventListener("input",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 root.addEventListener("change",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 document.addEventListener("input",e=>{if(e.target?.id==="efgMessageText")userHasUnconfirmedEdits=true;},{capture:true});
-const hasPendingUnsavedEdits=()=>userHasUnconfirmedEdits||
+const versionNotice=createVersionNotice({
+ currentVersion:"20261028-version1",
+ canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
+ hasUnsavedChanges:()=>userHasUnconfirmedEdits||
   !!state.coachGuidedDraft||!!state.pendingGoal||!!state.pendingGoalRevision||
   Object.keys(state.plannerDraftGrams||{}).length>0||
   !!document.getElementById("efgMessageText")?.value?.trim()||
-  !!document.querySelector('input[type="file"]')?.files?.length;
-const versionNotice=createVersionNotice({
- currentVersion:"20261030-grand-candidate-nut58",
- canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,
- announceMinorUpdates:false, // UX-35: routine releases have no popups
- hasUnsavedChanges:hasPendingUnsavedEdits
+  !!document.querySelector('input[type="file"]')?.files?.length
 });
 const pullRefresh=createPullToRefresh({
  canRefresh:()=>!!state.profile&&!!state.session?.user?.id&&!state.loading&&!refreshingWorkspace&&!state.welcomePending,
  refresh:refreshVisibleWorkspace
 });
 (async function init(){
- sb.auth.onAuthStateChange(handleAuthStateChange);
  const {data,error}=await sb.auth.getSession();
  if(error)fail(error);
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
+ sb.auth.onAuthStateChange(handleAuthStateChange);
 })();
-
-

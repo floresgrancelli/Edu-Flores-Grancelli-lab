@@ -80,7 +80,9 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   phase='student-legal';await legalAndIntro(page,'student');await page.locator('#efgPilotParticipate').waitFor();
   await page.locator('#efgPilotParticipate').check();await page.locator('#efgPilotShare').check();await page.locator('#efgPilotContinue').click();
   await page.locator('#efgCoachRelaunchForm').waitFor();
-  await page.locator('#coachRelaunch_objective').selectOption('fat_loss');await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
+  await page.locator('#coachRelaunch_objective').selectOption('fat_loss');
+  await page.locator('#coachRelaunch_activity_level').selectOption('moderate');
+  await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
   await page.locator('#coachRelaunch_age_years').fill('40');await page.locator('#coachRelaunch_height_cm').fill('175');await page.locator('#coachRelaunch_weight_kg').fill('86.4');
   await page.locator('#coachRelaunch_preferred_foods').fill('banana');await page.locator('#coachRelaunch_disliked_foods').fill('apple');await page.locator('#coachRelaunch_share').uncheck();
   phase='student-save-private-intake';await page.locator('#efgCoachRelaunchForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===1);await settled(page);

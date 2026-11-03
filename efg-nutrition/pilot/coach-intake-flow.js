@@ -41,6 +41,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  async function loadStudent(){
   const who=actor();
   state.studentIntake=null;state.planAccess=null;state.planAccessSupported=false;
+  state.legacyIntakeUnavailable=false;
   if(who.role!=="student")return;
   assertActor(who);
   const id=who.id;
@@ -49,13 +50,18 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(a.error){if(missing(a.error))return;throw a.error;}
   const f=await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle();
   assertActor(who);
-  if(f.error)throw f.error;
-  if(f.data?.student_id!=null&&f.data.student_id!==id)
+  // The old optional table is absent on some upgraded pilot databases. This
+  // must NOT lock the student out after OTP, nor enable an unreviewed intake.
+  // Fail closed for any other error and for the versioned mandatory intake.
+  const legacyMissing=!COACH_VERSIONED_INTAKE_ENABLED&&!!missing(f.error);
+  if(f.error&&!legacyMissing)throw f.error;
+  if(!legacyMissing&&f.data?.student_id!=null&&f.data.student_id!==id)
    throw Error("La ficha recuperada no corresponde al alumno actual.");
   // Commit both reads together, not a partially hydrated pending/ready state.
   state.planAccessSupported=true;
   state.planAccess=a.data||{status:"pending"};
-  state.studentIntake=f.data||null;
+  state.studentIntake=legacyMissing?null:f.data||null;
+  state.legacyIntakeUnavailable=legacyMissing;
  }
  async function loadCoach(consentedIds){
   const who=actor();
@@ -103,6 +109,19 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  }
  const opt=(id,label,value,selected)=>'<option value="'+id+'" '+(id===selected?'selected':'')+'>'+label+'</option>';
  function view(){
+  // A missing OPTIONAL legacy table must never become a global login failure.
+  // Do not show a Save/Delete form that would write to a non-existent table.
+  if(state.legacyIntakeUnavailable){
+   const awaiting=pending();
+   return rootText("MI FICHA INICIAL","Podés seguir usando las funciones habilitadas de tu cuenta.")+
+    '<section class="card"><h2>Ficha inicial temporalmente no disponible</h2>'+
+    '<p>La ficha opcional anterior todavía no está disponible en este servidor. Tus registros históricos y permisos no se modificaron.</p>'+
+    '<p class="pilot-hint">La nueva ficha del piloto se habilitará únicamente cuando su circuito verificado esté disponible. No interpretamos datos ausentes como ausencia de restricciones.</p>'+
+    '<div class="pilot-toolbar"><button class="btn light" type="button" data-tab="privacy">Privacidad</button>'+
+    (awaiting?'<button class="btn" type="button" data-act="checkCoachPlan">Comprobar mi plan</button>':
+      '<button class="btn" type="button" data-tab="home">Volver a MI DÍA</button>')+
+    '</div></section>';
+  }
   const v=state.studentIntake||{},shared=!!v.shared_at;
   const field=(id,label,value,min,max,step)=>'<div class="field"><label for="'+id+'">'+label+' (opcional)</label><input type="number" inputmode="decimal" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+escapeHTML(value??"")+'"></div>';
   const ready=!pending();
@@ -135,6 +154,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
  }
  async function save(){
+  if(state.legacyIntakeUnavailable)throw Error("La ficha opcional anterior no está disponible. No se guardó nada.");
   if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("Esta versión utiliza una ficha de relanzamiento que requiere revisión segura por versión.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)throw Error("Tu ficha no está disponible en esta sesión.");
@@ -170,6 +190,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
  async function deleteOwn(){
+  if(state.legacyIntakeUnavailable)throw Error("La ficha opcional anterior no está disponible. No se borró nada.");
   if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("La ficha nueva exige el borrado/versionado seguro; el borrado antiguo está deshabilitado.");
   if(state.profile?.role!=="student"||!state.session?.user?.id||!state.planAccessSupported)

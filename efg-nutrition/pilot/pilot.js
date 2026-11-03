@@ -42,7 +42,7 @@ import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./co
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261029-intake2";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261103-login-fix1";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261030-coach119-catalog1";

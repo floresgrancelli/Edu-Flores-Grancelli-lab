@@ -11,7 +11,21 @@ assert.equal(sql('select count(*) from efg_private.coach_release_switches where 
 sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
 sql(read('../docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'));
 const official=importNine(sql);
-sql(read('./sql/persisted-guide-local-overlay.sql'));
+// Current CLIN-GUT-03 bootstrap already owns restriction_declaration and the
+// signed explicit-none RPC. The older persisted-guide overlay predates this
+// canonical definition and attempts to re-add both. Keep the current secure
+// objects unchanged; install only its new bound-guide schema in disposable CI.
+const olderGuideOverlay=read('./sql/persisted-guide-local-overlay.sql');
+const start='alter table efg_private.efg_coach_health_intakes add column restriction_declaration jsonb;';
+const end='create table efg_private.guide_source_bindings(';
+assert.equal(olderGuideOverlay.split(start).length,2,'Legacy duplicate-column marker changed');
+assert.equal(olderGuideOverlay.split(end).length,2,'Bound-guide overlay marker changed');
+assert.ok(olderGuideOverlay.indexOf(start)<olderGuideOverlay.indexOf(end));
+assert.equal(sql("select count(*) from information_schema.columns where table_schema='efg_private' and table_name='efg_coach_health_intakes' and column_name='restriction_declaration'"),'1');
+assert.equal(sql("select to_regprocedure('public.efg_declare_no_restrictions(uuid,text,integer,boolean,boolean)') is not null"),'t');
+sql(olderGuideOverlay.slice(0,olderGuideOverlay.indexOf(start))+
+ '\n-- Existing CLIN-GUT-03 declaration column and signed function retained in local SDK test.\n'+
+ olderGuideOverlay.slice(olderGuideOverlay.indexOf(end)));
 sql(read('./sql/sdk-entry-declaration-readback-local.sql'));
 sql(read('./sql/bound-publication-local-overlay.sql'));
 await import('./sdk-entry-preflight-private.mjs');

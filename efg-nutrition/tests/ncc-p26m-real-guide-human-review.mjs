@@ -6,6 +6,10 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {prepareRealGuideHumanReview,writeHumanReviewFiles,P26M_SYNTHETIC_GOAL}
  from '../tools/ncc-p26m-real-guide-review.mjs';
+import {sourceReviewCatalogForSyntheticCoach} from '../tools/prepare-ncc-source-review-batch.mjs';
+import {generateFlexibleGuidedDay,guideFoodSignal} from '../pilot/guided-day-v2.js';
+import {guideDeviation,validateGuidedDay} from '../pilot/guided-day.js';
+import {adjustNutritionGoal} from '../pilot/goal-adjustments.js';
 const p=prepareRealGuideHumanReview();
 assert.equal(p.guide.meals.length,6);assert.equal(p.guide.kind,'flexible_meal_guide');
 assert.ok(p.review.selectedUniqueFoodCount>=12);
@@ -54,6 +58,48 @@ try{
  assert.equal(redacted.separateRestrictedProfileReviewRequired,true);
  assert.equal(redacted.approval,'PENDING_HUMAN_REVIEW');
  assert.equal(redacted.mayPublish,false);
+ // P26W: two months later the Coach can recalculate from 2500 to 2100 kcal
+ // against a newly declared restriction, without rewriting the old guide.
+ // Full live PWA food catalog, entirely fictitious goals and no hosted writes.
+ const catalog=sourceReviewCatalogForSyntheticCoach();
+ const previousGoal={goal_type:'recomp',kcal:2500,protein_g:160,
+  carb_g:300,fat_g:80,fiber_g:35};
+ const previousGuide=generateFlexibleGuidedDay(catalog,previousGoal,{
+  patternId:'balanced',restrictionStatus:'none_declared',restrictions:[]});
+ const frozenPrevious=structuredClone({goal:previousGoal,guide:previousGuide});
+ const oldPacket=prepareRealGuideHumanReview({goal:previousGoal,guide:previousGuide,
+  source:'synthetic_previous_revision'});
+ const revisedGoal=adjustNutritionGoal(previousGoal,2100,'protect_protein_balanced');
+ assert.equal(revisedGoal.kcal,2100);
+ assert.equal(revisedGoal.protein_g,160,'Coach can preserve protein across revisions');
+ const updatedProfile={patternId:'balanced',restrictionStatus:'declared',
+  restrictions:['celiac','lactose_intolerance']};
+ const revisedGuide=generateFlexibleGuidedDay(catalog,revisedGoal,updatedProfile);
+ assert.equal(revisedGuide.meals.length,6,'Normal dietary revision keeps six slots');
+ assert.doesNotThrow(()=>validateGuidedDay(revisedGuide,revisedGoal));
+ assert.equal(guideDeviation(revisedGuide,revisedGoal).k.target,2100);
+ assert.ok(revisedGuide.meals.every(m=>m.items.length>0));
+ const forbidden=new Set(['bread','bread_white','oats_raw','milk_skim','cheese','yogurt']);
+ assert.ok(revisedGuide.meals.every(m=>m.items.every(item=>
+  !forbidden.has(item.id)&&guideFoodSignal(item,updatedProfile).status!=='avoid')),
+ 'New declared gluten/lactose restrictions must not retain known-incompatible foods');
+ const newPacket=prepareRealGuideHumanReview({goal:revisedGoal,guide:revisedGuide,
+  source:'synthetic_two_month_revision'});
+ assert.notEqual(oldPacket.review.selectedGuideFingerprintSha256,
+  newPacket.review.selectedGuideFingerprintSha256,
+  'A changed guide needs its own human approval and selected-source fingerprint');
+ for(const current of [oldPacket,newPacket]){
+  assert.equal(current.review.publishable,false);
+  assert.equal(current.review.approvalsGranted,0);
+  assert.equal(current.review.sourceRecordsInserted,0);
+  assert.equal(current.review.selectedUniqueFoodCount,current.review.foods.length);
+  assert.ok(current.review.foods.every(f=>f.humanReview==='PENDING'));
+ }
+ assert.deepEqual({goal:previousGoal,guide:previousGuide},frozenPrevious,
+  'Revising the guide must not mutate the previous version');
+ assert.throws(()=>generateFlexibleGuidedDay(catalog,revisedGoal,{
+  restrictions:['food_allergy'],restrictionStatus:'declared'}),/alérgeno/,
+ 'A newly declared allergy needs its exact allergen verified first');
  const fake={...p.guide,meals:[...p.guide.meals.slice(0,1),
   {...p.guide.meals[1],items:[{...p.guide.meals[1].items[0],id:'P26_RLS_ONLY_NOT_A_NUTRITION_PLAN'}]},
   ...p.guide.meals.slice(2)]};

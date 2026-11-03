@@ -154,6 +154,18 @@ const sixSlotSourceTemplate=[
 const templateIds=[...new Set(sixSlotSourceTemplate.flatMap(m=>m.items.map(([id])=>id)))].sort();
 assert.equal(sixSlotSourceTemplate.length,6);
 assert.equal(templateIds.length,17,'All 17 real default IDs must be represented, without limiting the catalog');
+const reviewPacket=JSON.parse(read('../docs/NCC_PILOT_17_SOURCE_REVIEW_20261103.json'));
+assert.equal(reviewPacket.schemaVersion,1);
+assert.deepEqual(reviewPacket.foods.map(f=>f.id).sort(),templateIds,
+ 'The review packet must track all exact initial six-slot ingredients, never a reduced whitelist');
+assert.equal(reviewPacket.dataGovernance.notACatalogWhitelist,true);
+assert.equal(reviewPacket.dataGovernance.approvedForPublication,false);
+assert.equal(reviewPacket.dataGovernance.approvalReceipt,null);
+assert.ok(reviewPacket.foods.every(f=>f.humanReview==='PENDING'&&f.approvedForServer===false),
+ 'A source capture or synthetic test must never impersonate human approvals');
+assert.equal(reviewPacket.foods.find(f=>f.id==='milk_skim').appUnit,'ml');
+assert.equal(reviewPacket.foods.find(f=>f.id==='chicken').evidenceState,'BLOCKED_PREPARATION');
+
 const fakeRate={k:1,p:.1,c:.1,f:.02,fi:.01};
 const fakeUnit=id=>['milk_skim','coffee_black'].includes(id)?'ml':'g';
 const finalSixGuide={kind:'flexible_meal_guide',version:2,meals:sixSlotSourceTemplate.map(m=>({

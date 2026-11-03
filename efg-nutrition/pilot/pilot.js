@@ -620,16 +620,31 @@ function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"sho
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
 let cloudHabituales=[];
+// Each asynchronous diary/favorite operation owns an individual lock lease.
+// Signing out releases ALL old-session locks; an old completion cannot delete
+// a new user's lease for the same meal slot.
+function createSessionScopedSlotLocks(){
+ const leases=new Map();
+ return {
+  has:slot=>leases.has(slot),
+  add(slot){const lease=Symbol(String(slot));leases.set(slot,lease);return lease;},
+  delete(slot,lease){
+   if(lease!==undefined&&leases.get(slot)!==lease)return false;
+   return leases.delete(slot);
+  },
+  clear:()=>leases.clear()
+ };
+}
 // Per-slot lock: repeated taps must not create duplicate cloud meals or
 // register/delete a favorite while another operation for that slot is pending.
-const pendingHabitualSlots=new Set();
+const pendingHabitualSlots=createSessionScopedSlotLocks();
 async function runHabitualSlotAction(slot,work){
  // Favorite writes and diary additions affect the SAME meal slot. Share the
  // per-slot lock so neither can race the other across asynchronous REST writes.
  if(pendingHabitualSlots.has(slot)||pendingMealRegistrations.has(slot))return;
- pendingHabitualSlots.add(slot);pendingMealRegistrations.add(slot);
+ const habitualLease=pendingHabitualSlots.add(slot),slotLease=pendingMealRegistrations.add(slot);
  try{return await work();}
- finally{pendingHabitualSlots.delete(slot);pendingMealRegistrations.delete(slot);}
+ finally{pendingHabitualSlots.delete(slot,habitualLease);pendingMealRegistrations.delete(slot,slotLease);}
 }
 // Only transport/transient service failures justify a local pending copy.
 // Never turn authentication, permission/RLS or validation denials into offline writes.
@@ -1095,7 +1110,7 @@ async function confirmRecipeRegistration(){
  if(!selected||!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20)throw Error("Revisá la receta, el horario y las porciones.");
  validateRecipeIngredientAccess(selected.ingredients);
  if(pendingMealRegistrations.has(slot))return;
- recipeRegistrationBusy=true;pendingMealRegistrations.add(slot);
+ recipeRegistrationBusy=true;const slotLease=pendingMealRegistrations.add(slot);
  try{
   const item={id:"custom-recipe",name:selected.name,qty,unit:"porción",when:slot,source:"Receta propia según ingredientes informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
   for(const key of ["k","p","c","f","fi"])item[key]=Math.round((Number(selected.totals[key]||0)/selected.portions)*qty*100)/100;
@@ -1112,7 +1127,7 @@ async function confirmRecipeRegistration(){
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
    closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
   }
- }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot);}
+ }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot,slotLease);}
 }
 function rootText(title,sub){return '<div class="pilot-top"><div><div class="eyebrow">Nutrición Con-Ciencia</div><h1 class="pilot-title">'+title+'</h1><p class="pilot-lead">'+sub+'</p></div><span class="pilot-tag">Acceso privado</span></div>';}
 function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'">'+escapeHTML(v.name)+'</option>').join("");}
@@ -1356,7 +1371,7 @@ async function registerFitRecipe(id){
  const qty=Number(answer.replace(",","."));
  if(!Number.isFinite(qty)||qty<=0||qty>20)throw new Error("Ingresá entre 0,1 y 20 porciones.");
  if(pendingMealRegistrations.has(slot))return; // Avoid racing a manual/favorite diary write.
- pendingMealRegistrations.add(slot);
+ const slotLease=pendingMealRegistrations.add(slot);
  try{
   const {perPortion}=recipeTotals(recipe,foods);
   const item={id:"fit-recipe:"+recipe.id,name:recipe.name,qty,unit:"porción",when:slot,source:"Receta Fit EFG: cálculo por ingredientes y pesos informados",sourceType:"recipe_estimate",validationStatus:"estimado"};
@@ -1371,7 +1386,7 @@ async function registerFitRecipe(id){
    throw error;
   }
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
- }finally{pendingMealRegistrations.delete(slot);}
+ }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 function studentSupplementsView(){
  return rootText("Suplementos","Registrá tus suplementos del día independientemente de las comidas.")+
@@ -1814,12 +1829,12 @@ function openPlannedFoodEditor(key){
 }
 // Lock a meal slot while a network write is pending. This also protects against
 // an overlapping direct-editor submit or removal triggered by repeated taps.
-const pendingMealRegistrations=new Set();
+const pendingMealRegistrations=createSessionScopedSlotLocks();
 async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
  const [slot,category]=pair,shownQty=Number(document.getElementById("planQty_"+key)?.value);
  if(pendingMealRegistrations.has(slot))return; // Ignore repeated taps, not the first.
- pendingMealRegistrations.add(slot);
+ const slotLease=pendingMealRegistrations.add(slot);
  try{
  if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
  const plan=makePlan({foods:selectableFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
@@ -1855,7 +1870,7 @@ async function addPlannedFood(key){
   throw error;
  }
  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
- }finally{pendingMealRegistrations.delete(slot);}
+ }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 let mealDialogReturnFocus=null;
 let activeGuidedMealGroup="protein";
@@ -2004,7 +2019,7 @@ async function saveSelectedMeal(continueGuided=false){
  if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
- pendingMealRegistrations.add(slot);
+ const slotLease=pendingMealRegistrations.add(slot);
  try{
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -2035,7 +2050,7 @@ async function saveSelectedMeal(continueGuided=false){
   if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
   notify("Alimento agregado, balance actualizado.");
  }
- }finally{pendingMealRegistrations.delete(slot);}
+ }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
@@ -3197,7 +3212,7 @@ async function saveDiary(){
  // writes before a second request reaches PostgREST; existing callers restore
  // their optimistic changes and let the user retry.
  if(state.diaryWritePending)throw new Error("Todavía se está guardando otro registro. Esperá la confirmación y volvé a intentar.");
- const d=activeDiary(),studentId=state.session?.user?.id;
+ const d=activeDiary(),studentId=state.session?.user?.id,contextEpoch=state.authContextEpoch||0;
  if(!studentId||d.student_id!==studentId)throw new Error("Revalidá tu sesión antes de registrar alimentos.");
  if(d.log_day!==today())throw new Error("Empezó un nuevo día. Volvé a registrar el alimento en la fecha actual.");
  if(isNutritionDayClosed(d.log_day))throw new Error("El día se cerró automáticamente a las 23:59, hora de Argentina. Los registros ya están guardados.");
@@ -3206,6 +3221,8 @@ async function saveDiary(){
  // Snapshot BEFORE the first await. A later optimistic change (even one that
  // rolls back) must not leak into the payload of the already started write.
  const payload=structuredClone({student_id:studentId,log_day:d.log_day,meals:d.meals,sports:d.sports,skipped:d.skipped,totals:dailyTotals(d),updated_at:new Date().toISOString()});
+ const writeToken=Symbol('diary-write');
+ state.diaryWriteToken=writeToken;
  state.diaryWritePending=true;
  state.diaryWriteOwner=studentId;
  state.diaryWriteRevision=(state.diaryWriteRevision||0)+1;
@@ -3214,7 +3231,7 @@ async function saveDiary(){
   if(error)throw error;
   // The server has committed, but the user may have logged out or midnight
   // may have passed. Never rehydrate the previous user's/day's row into UI.
-  if(state.session?.user?.id!==studentId||today()!==payload.log_day)return;
+  if(state.session?.user?.id!==studentId||(state.authContextEpoch||0)!==contextEpoch||today()!==payload.log_day)return;
   state.diary=data;
   if(state.pendingDiaryDraft===d)state.pendingDiaryDraft=null; // Only clear after confirmed REST commit.
   const idx=state.progressLogs.findIndex(x=>x.log_day===data.log_day);
@@ -3225,7 +3242,12 @@ async function saveDiary(){
    console.error("Diario confirmado en servidor; falló la actualización visual:",error);
    try{notify("El registro se guardó, pero no pudimos actualizar la pantalla. Volvé a abrir MI DÍA.");}catch(_){}
   }
- }finally{state.diaryWritePending=false;if(state.diaryWriteOwner===studentId)state.diaryWriteOwner=null;}
+ }finally{
+  // A's late response may not release B's active write after a session switch.
+  if(state.diaryWriteToken===writeToken){
+   state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
+  }
+ }
 }
 async function loadPersonalData(){
  const contextEpoch=state.authContextEpoch||0;
@@ -3914,7 +3936,7 @@ if(el.dataset.foodbulk){
   if(pendingMealRegistrations.has(slot))return;
   const index=Number(indexValue),d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
-  pendingMealRegistrations.add(slot);
+  const slotLease=pendingMealRegistrations.add(slot);
   const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
   const previousDiary=state.diary;
   try{
@@ -3926,7 +3948,7 @@ if(el.dataset.foodbulk){
    d.meals[slot]=previousItems;d.skipped=previousSkipped;
    if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
    throw error;
-  }finally{pendingMealRegistrations.delete(slot);}
+  }finally{pendingMealRegistrations.delete(slot,slotLease);}
   return;
  }
  if(el.dataset.removesupp!==undefined){
@@ -3942,7 +3964,7 @@ if(el.dataset.foodbulk){
   if(pendingMealRegistrations.has(slot))return;
   const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   const beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
-  pendingMealRegistrations.add(slot);
+  const slotLease=pendingMealRegistrations.add(slot);
   try{
    d.meals[slot]=[];d.skipped=d.skipped||{};d.skipped._closed=false;
    try{await saveDiary();}
@@ -3951,7 +3973,7 @@ if(el.dataset.foodbulk){
     if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=beforeDiary;
     throw error;
    }
-  }finally{pendingMealRegistrations.delete(slot);}
+  }finally{pendingMealRegistrations.delete(slot,slotLease);}
   return;
  }
  if(el.dataset.removesport!==undefined){
@@ -4168,7 +4190,7 @@ if(el.dataset.foodbulk){
   const slot=state.activeMeal,group=el.dataset.mealomit;
   if(!isGuidedMealSlot(slot)||!["protein","carb"].includes(group))return;
   if(pendingMealRegistrations.has(slot))return;
-  pendingMealRegistrations.add(slot);
+  const slotLease=pendingMealRegistrations.add(slot);
   const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
   try{
@@ -4188,7 +4210,7 @@ if(el.dataset.foodbulk){
     openMealDialog(slot,group==="protein"?"carb":"prepared");
     notify(omitted?"Se registró que no agregaste una fuente separada en esta sección.":"Volviste a habilitar esa sección.");
    }
-  }finally{pendingMealRegistrations.delete(slot);}
+  }finally{pendingMealRegistrations.delete(slot,slotLease);}
   return;
  }
  if(action==="closeMeal"){closeMealDialog();return;}
@@ -4432,14 +4454,20 @@ if(el.dataset.foodbulk){
 }
 async function updateAtDayChange(){
  if(!state.profile||!state.session||!state.renderedDay)return;
- if(state.renderedDay!==today()){
-  await ensureCurrentDay();await render();
-  notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
+ const ownerId=state.session.user.id,contextEpoch=state.authContextEpoch||0,day=today();
+ const sameContext=()=>state.session?.user?.id===ownerId&&
+  (state.authContextEpoch||0)===contextEpoch&&today()===day;
+ if(state.renderedDay!==day){
+  await ensureCurrentDay();
+  if(!sameContext()||state.renderedDay!==day)return;
+  await render();
+  if(sameContext())notify("Nuevo día: empezamos en cero, sin borrar tus registros anteriores.");
   return;
  }
- if(state.profile.role==="student"&&isNutritionDayClosed(today())&&state.lastAutoCloseNotice!==today()){
-  state.lastAutoCloseNotice=today();
-  await render();notify("El registro de hoy se cerró automáticamente a las 23:59.");
+ if(state.profile.role==="student"&&isNutritionDayClosed(day)&&state.lastAutoCloseNotice!==day){
+  state.lastAutoCloseNotice=day;
+  await render();
+  if(sameContext())notify("El registro de hoy se cerró automáticamente a las 23:59.");
  }
 }
 root.addEventListener("click",e=>{mainClick(e).catch(fail);});
@@ -4455,7 +4483,7 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
   if(checkbox)checkbox.checked=!!d.skipped?.[slot];
   return;
  }
- pendingMealRegistrations.add(slot);
+ const slotLease=pendingMealRegistrations.add(slot);
  const ownerId=state.session?.user?.id,ownerDay=d.log_day;
  const previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
  try{
@@ -4470,7 +4498,7 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
    if(checkbox)checkbox.checked=!!previousSkipped[slot];
   }
   throw error;
- }finally{pendingMealRegistrations.delete(slot);}
+ }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 root.addEventListener("change",e=>{invalidateCoachDraft(e);
   if(e.target.id==="efgIntakeShare"){
@@ -4652,6 +4680,10 @@ function resetPrivateSession(){
  state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;
  state.coachHistory=[];state.testInvitations=[];
  state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
+ // A pending request belongs to the old auth epoch: do not lock the next user.
+ state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
+ pendingMealRegistrations.clear();pendingHabitualSlots.clear();
+ recipeRegistrationBusy=false;
  state.goals=[];state.foodPlan=null;state.personalTargets=null;
  state.org=null;state.orgs=[];state.payments=[];state.platformAlias=null;
  state.platformAliases=[];state.invitations=[];

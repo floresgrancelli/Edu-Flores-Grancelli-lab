@@ -64,7 +64,7 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   assert.equal(status.activationFlagsProposed,7);
   assert.equal(manifest.activationFlags.length,7);
   assert.equal(manifest.activationFlags.some(x=>x.flag==='SCIENCE_WELCOME_ENABLED'),true,
-   'Eight panels must be proposed ON as part of the actual pilot release');
+   'Nine panels must be proposed ON: eight reference lessons plus serotonin closing');
   assert.equal(manifest.deliberatelyDisabledFlags.length,7);
   assert.equal(manifest.expectedGitSha,sha);
   assert.equal(manifest.noProductionEdits,true);assert.equal(manifest.noPublicationAuthorization,true);
@@ -130,9 +130,9 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   }
   const studentPage=await pageFor(),coachPage=await pageFor();
   await login(studentPage,{email:fixtureMail});
-  for(let step=1;step<=8;step++){
+  for(let step=1;step<=9;step++){
    await studentPage.locator('.ns-welcome-slide[data-science-step="'+step+'"]').waitFor();
-   if(step<8)await studentPage.locator('[data-act="scienceNext"]').click();
+   if(step<9)await studentPage.locator('[data-act="scienceNext"]').click();
    else await studentPage.locator('[data-act="scienceFinish"]').click();
   }
   const terms=studentPage.locator('#efgCoachPilotLegal_terms');

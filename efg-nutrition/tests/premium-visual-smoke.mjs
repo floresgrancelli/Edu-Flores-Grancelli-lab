@@ -391,6 +391,32 @@ try{
      const row=page.locator('[data-plancontrols="'+key+'"]');
      if(await search.count()!==1){pageReport.errors.push("Extra 1 search is missing");}
      else{
+       // Real browser composition events: no premature filtering or first
+       // option selection while an Android-style IME is still composing.
+       const plannerIme=await page.evaluate(key=>{
+         const input=[...document.querySelectorAll("[data-plansearch]")]
+           .find(x=>x.dataset.plansearch===key);
+         const selector=[...document.querySelectorAll("[data-planselect]")]
+           .find(x=>x.dataset.planselect===key);
+         if(!input||!selector)return {missing:true};
+         input.focus();
+         const before=selector.innerHTML;
+         input.dispatchEvent(new CompositionEvent("compositionstart",{bubbles:true,data:"su"}));
+         input.value="sushi";
+         input.dispatchEvent(new InputEvent("input",{bubbles:true,data:"sushi",
+           inputType:"insertCompositionText",isComposing:true}));
+         const during=selector.innerHTML;
+         input.dispatchEvent(new CompositionEvent("compositionend",{bubbles:true,data:"sushi"}));
+         return {frozen:before===during,filtered:selector.innerHTML!==before,
+          retainsFocus:document.activeElement===input,
+          sameNode:document.querySelector('[data-plansearch="'+key+'"]')===input,
+          hasSushi:!!selector.querySelector('option[value="sushi_maki_salmon"]'),
+          chosenWithoutTap:selector.value==="sushi_maki_salmon"};
+       },key);
+       if(plannerIme.missing||!plannerIme.frozen||!plannerIme.filtered||
+         !plannerIme.retainsFocus||!plannerIme.sameNode||!plannerIme.hasSushi||
+         plannerIme.chosenWithoutTap)
+         pageReport.errors.push("IME planner search changed selection/focus before explicit choice: "+JSON.stringify(plannerIme));
        await search.fill("sandia");
        const selector=page.locator('[data-planselect="'+key+'"]');
        const beforeChoice=await selector.inputValue();
@@ -637,6 +663,30 @@ try{
       pageReport.errors.push("Main meal must offer optional omit for protein and carbs");
     await page.locator('[data-mealgroup="prepared"]').click();
     const foodSearch=page.locator("#mealFoodSearch");
+    // Simulate the actual browser's composition events on the real mobile
+    // search input. A keyboard composing "sushi" must NOT rebuild a native
+    // selector mid-word or steal focus; filtering occurs at compositionend.
+    const mealIme=await page.evaluate(()=>{
+      const input=document.getElementById("mealFoodSearch");
+      const select=document.getElementById("mealEditorFood");
+      if(!input||!select)return {missing:true};
+      input.focus();
+      const before=select.innerHTML;
+      input.dispatchEvent(new CompositionEvent("compositionstart",{bubbles:true,data:"su"}));
+      input.value="sushi";
+      input.dispatchEvent(new InputEvent("input",{bubbles:true,data:"sushi",
+        inputType:"insertCompositionText",isComposing:true}));
+      const during=select.innerHTML;
+      input.dispatchEvent(new CompositionEvent("compositionend",{bubbles:true,data:"sushi"}));
+      return {frozen:before===during,filtered:select.innerHTML!==before,
+       retainsFocus:document.activeElement===input,
+       sameNode:document.getElementById("mealFoodSearch")===input,
+       hasSushi:!!select.querySelector('option[value="sushi_maki_salmon"]'),
+       chosenWithoutTap:select.value==="sushi_maki_salmon"};
+    });
+    if(mealIme.missing||!mealIme.frozen||!mealIme.filtered||!mealIme.retainsFocus||
+      !mealIme.sameNode||!mealIme.hasSushi||mealIme.chosenWithoutTap)
+      pageReport.errors.push("IME meal search lost native control, focus or explicit first choice: "+JSON.stringify(mealIme));
     await foodSearch.fill("lech");
     const firstSuggestion=page.locator('#mealFoodSuggestions [data-mealsuggestion]').first();
     if(!(await firstSuggestion.count())||!(await firstSuggestion.innerText()).toLocaleLowerCase("es-AR").includes("lech"))

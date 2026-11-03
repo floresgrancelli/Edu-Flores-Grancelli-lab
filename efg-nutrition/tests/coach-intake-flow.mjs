@@ -340,4 +340,41 @@ assert.equal(renders,beforeRenders);
 assert.equal(notifications.length,beforeNotices,"A confirmed save must not show success in B's account");
 db.from=originalFrom;
 
+// RELEASE HOTFIX: the hosted database has plan-access rows but no legacy
+// efg_student_intakes table. A missing OPTIONAL table must never block login.
+state.profile={role:"student",organization_id:"org-fixture"};
+state.session={user:{id:"student-fixture"}};
+schemaMissing=false;serverStatus="published";
+const beforeUnavailableWrites=writeCount,beforeUnavailableDeletes=deleteCount;
+const beforeUnavailableFrom=db.from;
+for(const code of ["PGRST205","42P01"]){
+ db.from=table=>table==="efg_student_intakes"?{
+  select(){return this;},eq(){return this;},
+  maybeSingle:async()=>({data:null,error:{code,message:"Could not find optional legacy table"}}),
+  upsert(){throw Error("Missing legacy intake must never be written");},
+  delete(){throw Error("Missing legacy intake must never be deleted");}
+ }:beforeUnavailableFrom.call(db,table);
+ await flow.loadStudent();
+ assert.equal(state.planAccessSupported,true,
+  "Existing published-plan access remains available when optional intake is absent");
+ assert.equal(state.planAccess.status,"published");
+ assert.equal(state.legacyIntakeUnavailable,true);
+ assert.equal(state.studentIntake,null);
+ assert.equal(flow.pending(),false);
+ assert.match(flow.view(),/Ficha inicial temporalmente no disponible/);
+ assert.doesNotMatch(flow.view(),/id="efgStudentIntakeForm"/,
+  "Never show Save when the legacy table cannot receive writes");
+ await assert.rejects(()=>flow.save(),/no está disponible/);
+ await assert.rejects(()=>flow.deleteOwn(),/no está disponible/);
+ assert.equal(writeCount,beforeUnavailableWrites);
+ assert.equal(deleteCount,beforeUnavailableDeletes);
+}
+db.from=beforeUnavailableFrom;
+await flow.loadStudent();
+assert.equal(state.legacyIntakeUnavailable,false,
+ "An available backend must restore the normal intake UI");
+assert.match(flow.view(),/id="efgStudentIntakeForm"/);
+assert.equal(writeCount,beforeUnavailableWrites);
+assert.equal(deleteCount,beforeUnavailableDeletes);
+
 console.log("EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.");

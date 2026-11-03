@@ -37,14 +37,14 @@ export function createStudentRestrictionDeclaration({sb,readContext,enabled=fals
   return {document:doc,revision:snapshot.revision,revoked:snapshot.revoked,
    declaration:explicit&&!snapshot.revoked?'none_declared':'unknown'};
  }
- async function declare({noneDeclared=false,processing=false,sharing=false}={}){
+ async function declare({noneDeclared=false,processing=false,sharing=null}={}){
   if(busy)throw Error('Esperá la confirmación pendiente.');
-  if(!snapshot||noneDeclared!==true||processing!==true||sharing!==true)
+  if(!snapshot||noneDeclared!==true||processing!==true||typeof sharing!=='boolean')
    throw Error('Confirmá la declaración y los dos permisos por separado.');
   const s=snapshot;check(s.t);busy=true;
   try{
    const next=await call(s.t,'efg_declare_no_restrictions',{p_document:s.doc.id,p_sha256:s.doc.sha256,
-    p_expected_revision:s.revision,p_processing_consent:true,p_share_with_coach:true});
+    p_expected_revision:s.revision,p_processing_consent:true,p_share_with_coach:sharing});
    if(next!==s.revision+1)throw Error('La revisión devuelta no coincide.');
    const fresh=await load();if(fresh.revision!==next||fresh.revoked||fresh.declaration!=='none_declared')
     throw Error('No se confirmó la declaración guardada. Volvé a consultar antes de reenviar.');
@@ -77,11 +77,15 @@ export function createStudentRestrictionDeclaration({sb,readContext,enabled=fals
   const status=element.querySelector('[data-restriction-status]');
   const show=message=>{if(gen===generation&&mount===element)status.textContent=message;};
   element.querySelector('form').addEventListener('submit',async e=>{e.preventDefault();
-   const form=e.currentTarget;try{const result=await declare({noneDeclared:form.elements.none.checked,
-    processing:form.elements.processing.checked,sharing:form.elements.sharing.checked});
+   const form=e.currentTarget;try{
+    const sharing=form.elements.sharing.checked;
+    const result=await declare({noneDeclared:form.elements.none.checked,
+     processing:form.elements.processing.checked,sharing});
     if(gen!==generation||mount!==element)return;
     await open(element);
-    element.querySelector('[data-restriction-status]').textContent='Declaración enviada. Revisión '+result.revision+'. El coach debe revisar el plan.';
+    element.querySelector('[data-restriction-status]').textContent=sharing
+     ?'Declaración compartida con tu coach. Revisión '+result.revision+'.'
+     :'Declaración privada guardada. Revisión '+result.revision+'. No se compartió con tu coach.';
    }catch(error){show(error.message);}});
   element.querySelector('[data-restriction-revoke]')?.addEventListener('click',async()=>{
    try{await revoke();if(gen!==generation||mount!==element)return;await open(element);

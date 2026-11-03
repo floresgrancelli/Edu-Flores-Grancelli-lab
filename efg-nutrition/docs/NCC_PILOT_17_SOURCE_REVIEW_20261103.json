@@ -128,8 +128,8 @@
         "fi": 2.4
       },
       "canonicalRecordSha256": "d5672eae44279ddb45cd63165cd020095edc788363af7cb747067743737d9043",
-      "evidenceState": "RECONCILIATION_REQUIRED",
-      "requiredHumanAction": "USDA 52 kcal/100 g frente a ~58,2 kcal/100 g derivadas de PWA; examinar fuente y transformación sin sobrescribir el catálogo.",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "El catálogo ACTUAL usa 52 kcal/100 g (override FDC 171688), igual que la captura USDA; hidratos 13,81 vs 13,8 g/100 g son una diferencia de redondeo. Confirmar identidad, preparación, captura y procedencia con revisión humana; no homologado.",
       "humanReview": "PENDING",
       "approvedForServer": false
     },
@@ -147,8 +147,8 @@
         "fi": 10.1
       },
       "canonicalRecordSha256": "c319e184a086face1537a0b71eea5ac541f8d6af8e74efeb2f77b5724d757f7b",
-      "evidenceState": "RECONCILIATION_REQUIRED",
-      "requiredHumanAction": "USDA 379 kcal/100 g frente a ~382,1 kcal/100 g derivadas en PWA; revisar cálculo y macros; nunca mapear avena cocida.",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "El catálogo ACTUAL usa 379 kcal/100 g (override FDC 173904), igual que la captura USDA; grasa 6,50 vs 6,52 g/100 g requiere constatar redondeo. Confirmar avena SECA, fuente y revisión humana; no homologado.",
       "humanReview": "PENDING",
       "approvedForServer": false
     },
@@ -299,5 +299,10 @@
       "humanReview": "PENDING",
       "approvedForServer": false
     }
-  ]
+  ],
+  "technicalCrosscheck": {
+    "date": "2026-11-03",
+    "kind": "CURRENT_LIVE_PWA_CODE_VS_PINNED_USDA_SNAPSHOT_NOT_REVIEWED",
+    "notes": "Se descartaron los desvíos históricos de 58,2 vs 52 kcal para apple y 382,1 vs 379 kcal para oats_raw: el PWA ACTUAL contiene overrides oficiales de 52 y 379 kcal/100g. La discrepancia pendiente de fibra brownrice 1,8 vs 1,6 g/100 g sigue abierta. No se tocaron macros del catálogo, banderas ni evidencia de servidor."
+  }
 }

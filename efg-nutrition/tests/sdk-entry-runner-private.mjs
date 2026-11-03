@@ -223,9 +223,16 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    assert.deepEqual(await student.evaluate(id=>window.__SDK_ENTRY_QA__.readDiary(id),s.id),
     diaryBefore,'Atomic six-slot guide publication must not register eaten meals');
    await student.locator('[data-tab="home"]:visible').first().click();
-   await student.locator('.efg-pastel-guide > summary').click();
-   const sixView=student.locator('.efg-pastel-guide .efg-guide-student > details');
-   await sixView.locator('summary').click();
+   // The PWA preserves some expanded sections across rerenders. Never
+   // click an already open summary closed, then mistakenly call it missing.
+   const guideShell=student.locator('.efg-pastel-guide').first();
+   await guideShell.waitFor();
+   if((await guideShell.getAttribute('open'))===null)
+    await guideShell.locator(':scope > summary').click();
+   const sixView=guideShell.locator('.efg-guide-student > details');
+   await sixView.waitFor({state:'visible'});
+   if((await sixView.getAttribute('open'))===null)
+    await sixView.locator(':scope > summary').click();
    assert.equal(await sixView.locator('.efg-guide-meal').count(),6,
     'Current PWA must display all six signed published guide slots');
    assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

@@ -53,7 +53,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   // The old optional table is absent on some upgraded pilot databases. This
   // must NOT lock the student out after OTP, nor enable an unreviewed intake.
   // Fail closed for any other error and for the versioned mandatory intake.
-  const legacyMissing=!COACH_VERSIONED_INTAKE_ENABLED&&missing(f.error);
+  const legacyMissing=!COACH_VERSIONED_INTAKE_ENABLED&&!!missing(f.error);
   if(f.error&&!legacyMissing)throw f.error;
   if(!legacyMissing&&f.data?.student_id!=null&&f.data.student_id!==id)
    throw Error("La ficha recuperada no corresponde al alumno actual.");

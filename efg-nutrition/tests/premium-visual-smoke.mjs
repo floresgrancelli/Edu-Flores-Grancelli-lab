@@ -441,6 +441,54 @@ try{
      },diaryBefore);
      await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
    }
+
+   // UAT-N07/N08 preflight: shrink the actual browser viewport to model the
+   // space left above a mobile software keyboard. This is NOT a physical
+   // Gboard/iOS keyboard test; only checks the production PWA's scroll/submit
+   // behavior in existing isolated Pixel Chromium and mobile WebKit engines.
+   if(role==="student"&&width===390&&dest==="home"&&(androidMode||engine==="webkit")){
+     const originalViewport=page.viewportSize();
+     const before=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+     try{
+       await page.evaluate(()=>window.__EFG_VISUAL_QA__.openMealDialog("media_manana"));
+       await page.setViewportSize({width:390,height:520});
+       const search=page.locator("#mealFoodSearch");
+       await search.fill("banana");
+       const input=await page.evaluate(()=>({
+         focused:document.activeElement?.id==="mealFoodSearch",
+         query:document.getElementById("mealFoodSearch")?.value,
+         width:innerWidth,height:innerHeight
+       }));
+       if(!input.focused||input.query!=="banana"||input.width!==390||input.height!==520)
+         pageReport.errors.push("Keyboard-height fixture lost food search focus/value: "+JSON.stringify(input));
+       await page.locator("#mealEditorFood").selectOption("banana");
+       const submit=page.locator('[data-act="saveSelectedMeal"]');
+       await submit.scrollIntoViewIfNeeded();
+       const reach=await submit.evaluate(el=>{
+         const rect=el.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+rect.height/2;
+         const hit=document.elementFromPoint(x,y);
+         return {top:rect.top,bottom:rect.bottom,viewport:innerHeight,scrollWidth:document.documentElement.scrollWidth,
+           reachable:rect.top>=0&&rect.bottom<=innerHeight+1&&rect.left>=0&&rect.right<=innerWidth+1&&
+             (hit===el||el.contains(hit))};
+       });
+       if(!reach.reachable||reach.scrollWidth>390+2)
+         pageReport.errors.push("Keyboard-height viewport cannot reach meal save: "+JSON.stringify(reach));
+       await page.screenshot({path:join(outDir,"uat-keyboard-height-"+captureEngine+"-390.png"),
+         animations:"disabled"});
+       await submit.click();
+       const stored=await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.diary?.meals?.media_manana
+         ?.filter(row=>row.id==="banana").length||0);
+       if(stored!==1)pageReport.errors.push("Keyboard-height first-tap meal registered "+stored+" times instead of once");
+       if(reach.reachable&&stored===1)console.log("PASS UAT-N07/N08 keyboard-height emulation "+
+         captureEngine+": search retained, submit reachable, one food saved; physical device NOT RUN");
+     }finally{
+       await page.setViewportSize(originalViewport);
+       await page.evaluate(async previous=>{
+         const v=window.__EFG_VISUAL_QA__;
+         v.state.diary=previous;v.state.lastEditedMeal=null;await v.render();
+       },before);
+     }
+   }
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".
      // El buscador debe mostrar la acción SIN cerrar el teclado Safari.

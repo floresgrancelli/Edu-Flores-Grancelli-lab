@@ -103,7 +103,7 @@ for(const [name,required] of [
 // This is a temporary LOCAL test fixture, NOT a migration of the release app.
 const verifiedSource=read('../migrations/20261030_coach_reviewed_guide_nutrition_source.sql');
 const canonicalBlock=verifiedSource.match(
- /create function efg_private\\.coach_guide_foods_verified\\(p_guide jsonb\\)\\n[\\s\\S]*?\\n\\$verify\\$;/
+ /create function efg_private\.coach_guide_foods_verified\(p_guide jsonb\)\n[\s\S]*?\n\$verify\$;/
 )?.[0];
 assert.ok(canonicalBlock,'Cannot locate COACH114 audited verifier');
 const v2Block=canonicalBlock.replace(/^create function/,'create or replace function');
@@ -131,7 +131,7 @@ assert.ok(!verifierDefinition().includes('flexible_meal_guide'),
  'Local fixture must reproduce the hosted V1-only blocker');
 // Before the fix, new read-only gate MUST detect the mismatch.
 const detectV2Gate=()=>{
- const lines=sql(read('./sql/coach119-postinstall-readonly-preflight.sql')).split('\\n');
+ const lines=sql(read('./sql/coach119-postinstall-readonly-preflight.sql')).split('\n');
  const row=lines.find(x=>x.includes('|COACH119_NUTRITION_SOURCE_VERIFIER_FLEXIBLE_V2|'));
  assert.ok(row,'NCC P25D gate missing from 25-check preflight');
  return row.split('|')[2];
@@ -140,8 +140,8 @@ assert.equal(detectV2Gate(),'f','Hosted-like V1-only verifier must fail the new 
 const hostedV2Patch=read('../docs/NCC_P25_HOSTED_V2_NUTRITION_VERIFIER_NOT_APPLIED.sql');
 assert.equal(hostedV2Patch.split(v2Block).length,2,
  'Correction must embed the exact tested original V2 verifier');
-const patchRollback=hostedV2Patch.replace(/\\ncommit;\\s*$/,
- "\\ndo $ncc_p25_local_abort$ begin raise exception 'NCC_P25D_LOCAL_ROLLBACK'; end $ncc_p25_local_abort$;\\ncommit;\\n");
+const patchRollback=hostedV2Patch.replace(/\ncommit;\s*$/,
+ "\ndo $ncc_p25_local_abort$ begin raise exception 'NCC_P25D_LOCAL_ROLLBACK'; end $ncc_p25_local_abort$;\ncommit;\n");
 assert.notEqual(patchRollback,hostedV2Patch,'Unable to inject local rollback');
 sqlExpectFailure(patchRollback,'NCC_P25D_LOCAL_ROLLBACK');
 assert.equal(detectV2Gate(),'f','Verifier must remain V1-only after forced rollback');

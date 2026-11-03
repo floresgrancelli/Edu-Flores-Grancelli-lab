@@ -49,6 +49,18 @@ create table efg_private.efg_coach_health_intakes(
  revision integer not null check(revision between 1 and 100000),
  -- JSON object keys limited to the eight optional self-reported condition codes below.
  conditions jsonb not null check(pg_catalog.jsonb_typeof(conditions)='object'),
+ -- Explicit owner declaration; empty conditions alone remain unknown.
+ restriction_declaration jsonb,
+ constraint efg_health_explicit_none_signed check(
+  restriction_declaration is null or (
+   pg_catalog.jsonb_typeof(restriction_declaration)='object'
+   and restriction_declaration->>'kind'='none_declared'
+   and restriction_declaration->>'version'='1'
+   and restriction_declaration->>'declared_by'=student_id::text
+   and restriction_declaration->>'source_revision'=revision::text
+   and conditions='{}'::jsonb
+  )
+ ),
  sibo_phase text not null check(sibo_phase in ('none','short_trial','reintroduction','personalized')),
  shared_at timestamptz
 );
@@ -173,7 +185,8 @@ begin
  consent_sha256=excluded.consent_sha256,
  consent_accepted_at=excluded.consent_accepted_at,
  revised_at=excluded.revised_at,revision=excluded.revision,
- conditions=excluded.conditions,sibo_phase=excluded.sibo_phase,shared_at=excluded.shared_at
+ conditions=excluded.conditions,restriction_declaration=null,
+ sibo_phase=excluded.sibo_phase,shared_at=excluded.shared_at
  where efg_coach_health_intakes.revision=p_expected_revision
  returning revision into v_new;
  if v_new is null then
@@ -186,6 +199,44 @@ revoke all on function public.efg_submit_coach_health_intake(jsonb,uuid,text,int
 grant execute on function public.efg_submit_coach_health_intake(jsonb,uuid,text,integer,boolean,boolean)
  to authenticated;
 
+-- Empty conditions do NOT mean "none". Save a separately confirmed owner-
+-- signed negative statement with the same transaction and CAS revision as the
+-- private health intake. No real documents or accounts are seeded by this SQL.
+create function public.efg_declare_no_restrictions(
+ p_document uuid,p_sha256 text,p_expected_revision integer,
+ p_processing_consent boolean,p_share_with_coach boolean
+) returns integer language plpgsql security definer set search_path=''
+as $none$
+declare v_uid uuid := (select auth.uid()); v_next integer; v_written integer;
+begin
+ if v_uid is null or p_processing_consent is distinct from true
+  or p_share_with_coach is null then
+  raise exception 'Explicit health processing and coach-sharing choice required'
+   using errcode='42501';
+ end if;
+ -- Delegate legal-doc, health-doc, profile/org, consent, and revision checks.
+ v_next:=public.efg_submit_coach_health_intake(
+  '{}'::jsonb,p_document,p_sha256,p_expected_revision,
+  p_processing_consent,p_share_with_coach);
+ update efg_private.efg_coach_health_intakes h
+ set restriction_declaration=pg_catalog.jsonb_build_object(
+  'kind','none_declared','version',1,
+  'declared_by',v_uid,'source_revision',v_next,
+  'confirmed_at',pg_catalog.clock_timestamp()
+ )
+ where h.student_id=v_uid and h.revision=v_next and h.conditions='{}'::jsonb
+ returning h.revision into v_written;
+ if v_written is distinct from v_next then
+  raise exception 'Explicit negative declaration was not saved'
+   using errcode='PT409';
+ end if;
+ return v_written;
+end $none$;
+revoke all on function public.efg_declare_no_restrictions(uuid,text,integer,boolean,boolean)
+ from public,anon,authenticated;
+grant execute on function public.efg_declare_no_restrictions(uuid,text,integer,boolean,boolean)
+ to authenticated;
+
 create function public.efg_get_coach_health_intake(p_student uuid)
 returns jsonb language plpgsql stable security definer set search_path=''
 as $f$
@@ -193,7 +244,7 @@ declare v_uid uuid := (select auth.uid()); v_row record; v_owner boolean; v_coac
  v_rev integer; v_followup boolean;
 begin
  if v_uid is null or p_student is null then return null; end if;
- select h.student_id,h.organization_id,h.conditions,h.sibo_phase,
+ select h.student_id,h.organization_id,h.conditions,h.restriction_declaration,h.sibo_phase,
   h.consent_document_id,h.consent_accepted_at,h.revision,h.shared_at,h.revised_at
  into v_row from efg_private.efg_coach_health_intakes h
  join public.efg_profiles p on p.user_id=h.student_id
@@ -227,6 +278,7 @@ begin
   'processing_consent',v_row.consent_accepted_at is not null,
   'followup_consent',v_followup,
   'revision',v_row.revision,'conditions',v_row.conditions,
+  'restriction_declaration',v_row.restriction_declaration,
   'sibo_phase',v_row.sibo_phase,'shared_with_coach',v_row.shared_at is not null,
   'revised_at',v_row.revised_at,'document_id',v_row.consent_document_id);
 end $f$;

@@ -1,0 +1,130 @@
+{
+  "scope": "TEST_ONLY common color/eligibility/reason contracts; no clinical certification",
+  "food": {
+    "id": "TEST_ONLY-food",
+    "preparation": "raw",
+    "productId": null,
+    "unit": "g",
+    "k": 0.53,
+    "p": 0.1,
+    "c": 0.01,
+    "f": 0.01,
+    "fi": 0.01
+  },
+  "cases": [
+    {
+      "id": "keto-below",
+      "qty": 100,
+      "restrictions": [],
+      "dislikedIds": [],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "keto",
+        "coachConfirmed": true,
+        "maxCarbG": 30
+      },
+      "expected": {
+        "color": "green",
+        "eligible": true,
+        "reason": "Compatible con la propuesta."
+      }
+    },
+    {
+      "id": "keto-boundary",
+      "qty": 3000,
+      "restrictions": [],
+      "dislikedIds": [],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "keto",
+        "coachConfirmed": true,
+        "maxCarbG": 30
+      },
+      "expected": {
+        "color": "green",
+        "eligible": true,
+        "reason": "Compatible con la propuesta."
+      }
+    },
+    {
+      "id": "keto-above",
+      "qty": 4000,
+      "restrictions": [],
+      "dislikedIds": [],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "keto",
+        "coachConfirmed": true,
+        "maxCarbG": 30
+      },
+      "expected": {
+        "color": "red",
+        "eligible": false,
+        "reason": "Esta porci\u00f3n supera los hidratos del patr\u00f3n."
+      }
+    },
+    {
+      "id": "disliked-before-budget",
+      "qty": 4000,
+      "restrictions": [],
+      "dislikedIds": [
+        "TEST_ONLY-food"
+      ],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "keto",
+        "coachConfirmed": true,
+        "maxCarbG": 30
+      },
+      "expected": {
+        "color": "neutral",
+        "eligible": false,
+        "reason": "No elegido por gusto."
+      }
+    },
+    {
+      "id": "general",
+      "qty": 100,
+      "restrictions": [],
+      "dislikedIds": [],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "general"
+      },
+      "expected": {
+        "color": "neutral",
+        "eligible": true,
+        "reason": "Compatible con la propuesta."
+      }
+    },
+    {
+      "id": "documented-gluten",
+      "qty": 100,
+      "restrictions": [
+        "gluten"
+      ],
+      "dislikedIds": [],
+      "goal": {
+        "carb_g": 20
+      },
+      "pattern": {
+        "kind": "general"
+      },
+      "expected": {
+        "color": "red",
+        "eligible": false,
+        "reason": "Contiene gluten."
+      }
+    }
+  ]
+}

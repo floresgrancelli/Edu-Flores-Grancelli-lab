@@ -1,0 +1,105 @@
+# EFG Nutrition Pro — matriz de pruebas para staging de ingreso Con Coach
+**29/10/2026 | PR #34 DRAFT | Documento de auditoría, NO autorización para migrar.**
+
+Esta matriz prepara la comprobación de la migración
+`migrations/20261029_coach_intake_plan_access_DRAFT.sql`.
+**No ejecutar en producción ni usar cuentas de alumnos reales.** El CI sintético confirma
+estructura y comportamiento JS, NO permisos reales ni recuperación de backup.
+
+## Condiciones previas imprescindibles
+1. Staging **separado** de Supabase productivo, credenciales, proyecto y URL propios;
+   evaluar costo del nuevo proyecto/rama y obtener aprobación previa. No copiar PII,
+   correos reales, JWT, documentos de salud ni archivos de pagos.
+2. Esquema y políticas equivalentes a producción mediante migraciones versionadas;
+   inventario de `SECURITY DEFINER`, privilegios, RPC, triggers y vistas. Todas las
+   operaciones adversariales usan identidades ficticias, no `service_role`.
+3. Copia de seguridad y restauración **ejecutada** en ambiente descartable, incluyendo
+   datos y Storage pertinentes; registrar versión, alcance, tiempos, comprobación y
+   procedimiento de reversión. `ROLLBACK` de una prueba transaccional **no equivale**
+   a una restauración verificada después de un despliegue.
+4. Snapshot estructural: cuentas/cohortes previas, perfiles huérfanos, organizaciones sin
+   coach, estado de consents, columnas y constraints, sin exponer información personal.
+   Detener despliegue si cualquier perfil histórico queda fuera del backfill.
+5. Revisar Legal/Privacidad antes de introducir datos sensibles: los campos presentes
+   en el DRAFT actual no incluyen diabetes, celiaquía, glucemia o colesterol. No inferir
+   consentimiento de salud a partir de OTP ni de aceptación general.
+
+## Identidades de prueba
+- **Coach A** activo, **Alumno A1** nuevo, **Alumno A0** histórico con datos sintéticos.
+- **Coach B** activo en otra organización, **Alumno B1** nuevo.
+- **Alumno C** con invitación pendiente y sin consentimiento.
+- **Administrador** con rol real, **Anónimo** sin JWT y cuenta desactivada.
+Crear y destruir solo fixtures en staging. Separar tokens, no compartir sesión.
+
+## Matriz de seguridad, E2E y retrocompatibilidad
+
+| ID | Acción con token real de staging | Resultado esperado |
+|---|---|---|
+| ST-01 | Alta por invitación A1 → OTP válido → efg_claim_invitation | Perfil nuevo y `plan_access.pending` en una transacción; una sola fila por alumno |
+| ST-02 | A0 ya existente antes de migrar | `published`; diarios, pesos, recetas, hábitos y gráficos sin alteración; forzar perfil huérfano en staging debe abortar migración y revertir toda la transacción |
+| ST-03 | A1 intenta escribir diario/peso/actividad/habitual/receta por REST | INSERT/UPDATE/DELETE denegados **en servidor**, aunque altere la UI |
+| ST-04 | A1 lee y guarda ficha sin compartir | Solo A1 tiene lectura; Coach A y B no reciben texto; `shared_at=NULL` |
+| ST-05 | A1 marca compartir explícitamente | Coach A ve ficha; Coach B, admin no autorizado y anónimo no la ven |
+| ST-06 | A1 revoca `shared_at` o consentimiento de vinculación | Coach A pierde lectura en nuevas consultas REST; después de plan publicado A1 puede revisar y revocar su ficha sin bloquear MI DÍA |
+| ST-07 | Coach B intenta publicar plan de A1 con RPC y objetivo inventado | Denegado; ni cambio de estado ni notificación |
+| ST-08 | Coach A intenta publicar sin objetivo o guía aprobada | Denegado, `pending` preservado |
+| ST-09 | Coach A publica con objetivo más reciente y guía correcta | Una transición `pending→published`, notificación genérica, registro permitido |
+| ST-10 | Coach A usa guía de objetivo viejo o alumno B1 | Denegado, no se permite publicar con ID ajeno ni obsoleto |
+| ST-11 | POST REST directo cambia `efg_student_plan_access.status` como alumno | Denegado aun con JSON/ID manipulado |
+| ST-12 | Coach A pierde licencia, vínculo o consentimiento; nuevo intento RPC | Denegado, sin desbloqueo |
+| ST-13 | A1 deja sesión abierta al publicarse plan | Reconsulta consistente de status; sin cache permanente bloqueante |
+| ST-14 | Caída de red al guardar ficha/publicar | No hay estado ficticio ni notificación de éxito; reintento idempotente |
+| ST-15 | Editar/retirar consentimiento o borrar ficha con coach conectado | Al reabrir el alumno, el coach limpia cache y relee RLS; verificar que no reaparezca ficha eliminada; una vista ya abierta requiere actualización |
+| ST-16 | Registro desde admin o coach personal de su propia comida | No es bloqueado por error por el gate previsto para alumnos |
+| ST-17 | A1 intenta RPC de escritura alternativa, vistas o endpoints no contemplados | Mismo rechazo; no existe bypass del estado pending |
+| ST-18 | Invitar dos veces / eventos concurrentes de alta y publicación | Sin duplicados, inconsistencias ni bloqueo accidental de históricos |
+| ST-19 | Interrupción a mitad de migración y recuperación desde backup | Esquema, usuarios históricos y registros restaurados; evidencia auditada |
+| ST-20 | Accesibilidad/visual en 320/360/390/430/768/1280 y WebKit | Textos, contraste, modales, foco, teclado móvil sin pérdida de datos |
+| ST-21 | Términos y privacidad preacceso futuros | Aceptación versionada, no premarcada, separada del permiso de salud; negativa impide acceso funcional |
+| ST-22 | Ficha voluntaria: campos vacíos, inválidos, revocación, borrado | Confirmación expresa, RLS DELETE solo propietario, no modifica cuenta/plan/diarios y permite recrear ficha privada |
+| ST-23 | Plan guía visual y 5 comidas | Datos coherentes, comprobación de estructura **no solo JSON no nulo** |
+| ST-24 | Edición de guía tras aprobación | En staging, aprobar guía A → editar ingredientes/porciones o `guided_goal_id` sin aprobar otra vez → trigger deja `guided_plan_approved_at=NULL` y RPC rechaza publicación; nueva aprobación explícita (timestamp distinto) + cinco comidas válidas permite publicar; modificar solo otros metadatos no revoca aprobación. Probar update concurrente y dos organizaciones con JWT reales. |
+| ST-25 | Ingredientes y nutrientes obligatorios de guía | Intentar publicar con alimento sin `id`, `qty` ausente/cero/excesivo, o `k/p/c/f/fi` ausente, negativo, texto o ficticio; la RPC debe rechazar y conservar `pending`. Probar cinco slots válidos, alimento correcto y métricas numéricas: solo entonces permitir publicación. Contrastar id+composición con catálogo de servidor cuando exista (hoy solo hay guardas de forma/rango). Verificar patrón alimentario declarado y sustituciones con revisión profesional, no inferir aptitud. |
+
+## Hallazgos de revisión preliminar read-only (29/10)
+- GitHub PR #34 sobre `acd79130` tenía Security, Premium y Visual 3/3
+  SUCCESS. Se incorporan tests adicionales en rama DRAFT sin publicar.
+- Supabase productivo no tiene `efg_student_intakes` ni
+  `efg_student_plan_access`; la migración no figura aplicada. Sin ramas staging.
+- Las cinco tablas previstas para el gate tienen `student_id`; objetivos y planes
+  tienen las columnas utilizadas por la RPC. Esto **no verifica** su ejecución.
+- `efg_claim_invitation()` inserta perfil antes del consentimiento inicial: la nueva
+  trigger `AFTER INSERT` crea `pending` en esa misma transacción. Probar este orden.
+- `efg_private.coach_has_student` exige coach activo, vínculo, consentimiento y
+  licencia válida; confirmar en staging que no hay caminos alternos.
+- La RPC DRAFT fue reforzada para exigir `kind=five_meal_example`,
+  `version=1`, cinco horarios distintos con listas de alimentos no vacías y
+  `guided_plan_approved_at` presente. Se evaluó la expresión con seis JSON
+  ficticios mediante un SELECT de solo lectura: 1 válido / 5 inválidos, resultados
+  esperados. **Todavía falta probar en staging la vigencia real de la aprobación,
+  coherencia de cantidades y el flujo completo con JWT**. La función existente
+  `verify_guide_goal()` verifica vínculo alumno/coach/objetivo, no contenido.
+- Consulta agregada read-only sobre producción el 29/10: 3 perfiles de alumnos,
+  0 sin organización y 0 sin coach asignado. No se consultó ningún dato de salud.
+  Se añadió `LOCK TABLE efg_profiles IN SHARE ROW EXCLUSIVE MODE` solo a la
+  migración DRAFT para impedir altas concurrentes durante backfill/creación de trigger,
+  y un bloque `DO` que **lanza error y revierte íntegramente** si alguna cuenta histórica
+  queda sin fila `published`. Medir tiempo de bloqueo y simular errores en staging;
+  esta verificación puntual NO garantiza cobertura el día de desplegar.
+- El DRAFT ahora incluye permiso SQL `DELETE` de `efg_student_intakes` con RLS
+  restringida a su alumno propietario, y botón `Eliminar solamente mi ficha inicial`
+  con confirmación, independiente del consentimiento de seguimiento y del plan.
+  Test fixture comprueba cancelación, borrado y conservación de estado publicado.
+  Reabrir el perfil desde el coach vuelve a consultar la ficha y elimina el cache
+  previo si se revocó el acceso o el registro fue borrado. Faltan pruebas con JWT
+  de distintas organizaciones, retención de copias de respaldo y revisión jurídica.
+- Supabase Advisors mostró avisos sobre RPC `SECURITY DEFINER` accesibles para
+  `authenticated`, además de protección de contraseñas. Los avisos no implican
+  vulnerabilidad demostrada: evaluar identidad/rol en cada función pertinente.
+
+## Criterio de salida
+Ninguna prueba con fixtures emulados sustituye JWT de dos organizaciones distintas.
+No fusionar PR #33/#34, migrar, activar bloqueo, registrar salud sensible ni publicar
+hasta que ST-01…ST-20 críticos y ST-24 estén documentados y aprobados, restauración real
+confirmada, revisión de privacidad concluida y autorización específica del dueño.
+El merge secuencial de UX1 y luego Coach exige repetir los tres controles de CI.

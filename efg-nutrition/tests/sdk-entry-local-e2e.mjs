@@ -1,0 +1,128 @@
+import assert from 'node:assert/strict';
+import {randomUUID,randomBytes,createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {localContext,literal as q,yes} from './helpers/coach119-local.mjs';
+import {importNine} from './persisted-guide-nine-import.mjs';
+import {runSdkEntryBrowser} from './sdk-entry-runner-private.mjs';
+import {runP23SdkOverlay} from './ncc-p23-sdk-overlay.mjs';
+assert.equal(process.env.EFG_QA_SDK_ENTRY,'1');
+const {sql,request}=localContext(),read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
+assert.equal(sql('select count(*) from auth.users'),'0');
+assert.equal(sql('select count(*) from efg_private.coach_release_switches where enabled'),'0');
+sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
+sql(read('../docs/CLIN_GUT_03_SCOPE_RESPONSE_LOCAL_OPT_IN.sql'));
+const official=importNine(sql);
+// Current CLIN-GUT-03 bootstrap already owns restriction_declaration and the
+// signed explicit-none RPC. The older persisted-guide overlay predates this
+// canonical definition and attempts to re-add both. Keep the current secure
+// objects unchanged; install only its new bound-guide schema in disposable CI.
+const olderGuideOverlay=read('./sql/persisted-guide-local-overlay.sql');
+const start='alter table efg_private.efg_coach_health_intakes add column restriction_declaration jsonb;';
+const end='create table efg_private.guide_source_bindings(';
+assert.equal(olderGuideOverlay.split(start).length,2,'Legacy duplicate-column marker changed');
+assert.equal(olderGuideOverlay.split(end).length,2,'Bound-guide overlay marker changed');
+assert.ok(olderGuideOverlay.indexOf(start)<olderGuideOverlay.indexOf(end));
+assert.equal(sql("select count(*) from information_schema.columns where table_schema='efg_private' and table_name='efg_coach_health_intakes' and column_name='restriction_declaration'"),'1');
+assert.equal(sql("select to_regprocedure('public.efg_declare_no_restrictions(uuid,text,integer,boolean,boolean)') is not null"),'t');
+sql(olderGuideOverlay.slice(0,olderGuideOverlay.indexOf(start))+
+ '\n-- Existing CLIN-GUT-03 declaration column and signed function retained in local SDK test.\n'+
+ olderGuideOverlay.slice(olderGuideOverlay.indexOf(end)));
+// The CLIN-GUT-03 scoped response overlay was already installed above.
+ // The older sdk-entry-declaration-readback overlay tries to patch legacy
+ // function text anchors which no longer exist in the canonical version.
+ // Never re-write the security-definer function; verify the scoped response.
+ const currentReadback=sql("select pg_get_functiondef('public.efg_get_coach_health_intake(uuid)'::regprocedure)");
+ for(const required of [
+  'h.restriction_declaration','v_row.restriction_declaration',
+  'efg_private.coach_has_student(p_student)',
+  'v_followup','v_uid=p_student','if not v_owner and not v_coach then return null'
+ ])assert.ok(currentReadback.includes(required),
+  'Scoped clinical readback invariant missing: '+required);
+ assert.equal(sql("select has_function_privilege('anon','public.efg_get_coach_health_intake(uuid)','EXECUTE')"),'f');
+ assert.equal(sql("select has_function_privilege('authenticated','public.efg_get_coach_health_intake(uuid)','EXECUTE')"),'t');
+sql(read('./sql/bound-publication-local-overlay.sql'));
+await import('./sdk-entry-preflight-private.mjs');
+const users={},orgs={A:randomUUID(),B:randomUUID()},suffix=randomBytes(5).toString('hex');
+// Provision fictional Auth accounts only. No session token is passed to the browser.
+for(const label of ['coachA','coachB','studentA','studentB']){
+ const r=yes(await request('/auth/v1/signup',{method:'POST',body:{email:`sdk-${label.toLowerCase()}-${suffix}@example.invalid`,password:randomBytes(24).toString('hex')+'!Ab3'}}),'fictional account');
+ assert.ok(r.user?.id);users[label]={id:r.user.id,email:r.user.email};
+}
+for(const side of ['A','B']){
+ const c=users['coach'+side],s=users['student'+side],org=orgs[side];
+ sql(`insert into public.efg_organizations(id,coach_id,name,is_test) values(${q(org)},${q(c.id)},'SDK fictional organization',true);
+ insert into public.efg_profiles(user_id,email,nickname,role,active) values(${q(c.id)},${q(c.email)},'SDK fictional coach','coach',true);
+ insert into public.efg_invitations(email,nickname,role,organization_id,invited_by) values(${q(s.email)},'SDK fictional student','student',${q(org)},${q(c.id)});`);
+}
+const text='FICTIONAL LOCAL TEST DOCUMENT. No acceptance for real people. '.repeat(10),digest=createHash('sha256').update(text).digest('hex');
+sql(`insert into public.efg_legal_documents(kind,version,body,sha256,is_current,published_at)
+ select kind,'sdk_local_test_v1',${q(text)},${q(digest)},true,now() from unnest(array['terms','privacy']) kind;
+ insert into efg_private.efg_coach_health_documents(id,version,sha256,content_text,status,published_at)
+ values(${q(randomUUID())},'sdk_local_test_v1',${q(digest)},${q(text)},'published',now());
+ notify pgrst,'reload schema';`);
+assert.equal(sql('select count(*) from public.efg_coach_relaunch_intakes'),'0');
+assert.equal(sql('select count(*) from efg_private.efg_coach_health_intakes'),'0');
+// Later, after real OTP claims, this scoped fixture callback creates pending access/gates only.
+const enableLocalPublication=side=>{
+ const s=users['student'+side],c=users['coach'+side];
+ sql(`insert into public.efg_student_plan_access(student_id,organization_id,coach_id) values(${q(s.id)},${q(orgs[side])},${q(c.id)}) on conflict(student_id) do nothing;
+ insert into efg_private.bound_publication_local_gate(student_id,coach_id,organization_id,enabled) values(${q(s.id)},${q(c.id)},${q(orgs[side])},true);
+ update efg_private.coach_release_switches set enabled=true where switch_key in ('pilot_coach_atomic_publication','pilot_student_diary_write_gate');`);
+};
+
+// A second signed browser publication uses ONLY eight known archive records,
+// marked AUTOMATICALLY VALIDATED inside the disposable local database.
+// No human food review is invented or inserted into hosted.
+const sixSourceIds=['yogurt_greek_light','oats_raw','apple','banana','brownrice',
+ 'spinach_cooked','oil','potato'];
+const localSources=JSON.parse(sql(
+ "select coalesce(jsonb_object_agg(food_id,jsonb_build_object('id',food_id,'unit',unit,"+
+ "'k',k,'p',p,'c',c,'f',f,'fi',fi,'status',evidence_status)),'{}'::jsonb)"+
+ " from efg_private.coach_reviewed_foods where food_id=any(array["+
+ sixSourceIds.map(id=>q(id)).join(',')+"])"
+));
+assert.deepEqual(Object.keys(localSources).sort(),sixSourceIds.slice().sort(),
+ 'The local six-slot QA must use exactly the archived reference identities');
+for(const id of sixSourceIds)assert.equal(localSources[id].status,'automated_validated',
+ 'Do not convert an automated archive match into human-reviewed evidence');
+const sixTemplate=[
+ ['desayuno','Desayuno',[['yogurt_greek_light',200],['oats_raw',50],['apple',100]]],
+ ['media_manana','Media mañana',[['banana',120],['yogurt_greek_light',150]]],
+ ['almuerzo','Almuerzo',[['brownrice',180],['spinach_cooked',150],['oil',10]]],
+ ['media_tarde','Media tarde',[['yogurt_greek_light',180],['banana',80]]],
+ ['merienda','Merienda',[['oats_raw',45],['yogurt_greek_light',180],['apple',100]]],
+ ['cena','Cena',[['potato',220],['spinach_cooked',150],['oil',10]]]
+];
+const prepareFlexibleLocal=side=>{
+ const student=users['student'+side],where='student_id='+q(student.id);
+ assert.equal(sql("select count(*) from efg_private.nut57_isolated_staging_marker where local_only"),'1');
+ assert.equal(sql('select count(*) from efg_private.guide_source_bindings where '+where),'1',
+  'A previous real bound-guide publication must exist');
+ // Remove the OLD bound-guide SOURCE only for the disposable local account.
+ // The replacement must use normal signed GENERAL Coach119, not clinical binding.
+ sql('delete from efg_private.guide_source_bindings where '+where);
+ assert.equal(sql('select count(*) from efg_private.guide_source_bindings where '+where),'0');
+ const meals=sixTemplate.map(([slot,label,refs])=>({slot,label,items:refs.map(([id,qty])=>{
+  const item=localSources[id];
+  return {id,name:id,unit:item.unit,qty,...Object.fromEntries(
+   ['k','p','c','f','fi'].map(k=>[k,Number(item[k])]))};
+ })}));
+ const guide={kind:'flexible_meal_guide',version:2,meals,
+  approvedFoodIds:sixSourceIds.slice().sort(),supplementNote:'',
+  profileReviewNotes:['LOCAL QA ficticia: no es un plan nutricional ni una aprobación humana.']};
+ assert.equal(sql('select efg_private.coach_guide_foods_verified('+
+  q(JSON.stringify(guide))+'::jsonb)'),'t',
+  'Six-slot local evidence must pass unchanged verified per-food nutrient and provenance checks');
+ return guide;
+};
+try{
+ await runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql});
+ await runP23SdkOverlay({users,orgs,request,sql});
+ assert.equal(sql('select count(*) from public.efg_goals'),'4',
+  'Both original five-slot goals must remain after six-slot replacement');
+ assert.equal(sql("select count(*) from public.efg_food_plans where guided_plan->>'kind'='flexible_meal_guide' and jsonb_array_length(guided_plan->'meals')=6"),'2');
+}finally{
+ sql(read('./sql/bound-publication-local-restore.sql'));
+ assert.equal(sql("select count(*) from efg_private.coach_release_switches where enabled and switch_key in ('pilot_coach_atomic_publication','pilot_student_diary_write_gate')"),'0');
+ console.log('PASS SDK local publication switches restored; stack deletion is a separate required cleanup step.');
+}

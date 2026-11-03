@@ -1,0 +1,427 @@
+name: EFG Nutrition Coach Atomic PostgreSQL QA (ephemeral, synthetic claims)
+
+on:
+  pull_request:
+    branches: [efg-nutrition-app, efg-major-integration-20261029]
+    paths:
+      - 'efg-nutrition/docs/COACH_*STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POSTGRES_QA_20261029.md'
+      - 'efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql'
+      - 'efg-nutrition/tests/sql/**'
+      - 'efg-nutrition/tests/coach119-*.mjs'
+      - 'efg-nutrition/docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'
+      - 'efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql'
+      - 'efg-nutrition/tests/nut57-*.mjs'
+      - 'efg-nutrition/scripts/coach-release-bundle.mjs'
+      - 'efg-nutrition/tests/coach-release-bundle-qa.mjs'
+      - 'efg-nutrition/migrations/20261029_coach_intake_plan_access_DRAFT.sql'
+      - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
+      - 'efg-nutrition/docs/NUT57_POSITIVE_STAGING_ROLLBACK_RESTORE_20261029.md'
+      - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: efg_nutrition_ephemeral
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d efg_nutrition_ephemeral"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client present
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+          psql --version
+      - name: Run full schema and real PostgreSQL transaction scenarios (NO SUPABASE)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          # Production is PostgreSQL 17 (Supabase read-only project metadata).
+          # Assert the SERVER major, not the potentially different psql client.
+          server_num="$(psql -Atqc 'SHOW server_version_num')"
+          if ! [[ "$server_num" =~ ^17[0-9]{4}$ ]]; then
+            echo "Expected isolated PostgreSQL 17 server; found: $server_num" >&2
+            exit 1
+          fi
+          echo "Ephemeral PostgreSQL 17 verified; all data and claims below are synthetic."
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_DRAFT_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PUBLICATION_EVIDENCE_POLICY_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT56_LEGACY_NOTIFICATION_COMPAT_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-compat-assertions.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-staging-scenarios.sql
+          echo "PASS: ephemeral PostgreSQL 17 syntax and synthetic transaction scenarios."
+      - name: NUT-57 real PostgreSQL 17 abort-before-DDL when stage marker is absent (SYNTHETIC)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          # This DB is a disposable synthetic fixture; stage authorization marker
+          # is deliberately ABSENT. The preview has NO COMMIT and ends ROLLBACK.
+          node efg-nutrition/tests/nut57-staging-bundle.mjs --preview-sql > "$RUNNER_TEMP/nut57-rollback-only.sql"
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-rollback-only.sql"; then
+            echo "NUT57 unsafe: COMMIT detected" >&2
+            exit 1
+          fi
+          before="$(psql -Atqc 'select count(*) from public.efg_goals')"
+          if psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-rollback-only.sql" > "$RUNNER_TEMP/nut57-stage-probe.log" 2>&1; then
+            echo "NUT57 unsafe: preview did not reject absent staging marker" >&2
+            exit 1
+          fi
+          if ! grep -q "NUT57 STOP: not an approved isolated staging database" "$RUNNER_TEMP/nut57-stage-probe.log"; then
+            echo "NUT57 unexpected failure (not verified safe gate)" >&2
+            tail -n 12 "$RUNNER_TEMP/nut57-stage-probe.log" >&2
+            exit 1
+          fi
+          after="$(psql -Atqc 'select count(*) from public.efg_goals')"
+          test "$before" = "$after"
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = "t"
+          echo "PASS NUT57 PostgreSQL 17: abort before DDL without isolated staging marker; synthetic goals untouched; preview contains no COMMIT."
+      - name: NUT-60 must STOP before any DDL on PostgreSQL 17 with NO staging marker
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_accounts') is null")" = "t"
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/NUT60_PERSONAL_ENROLLMENT_STAGING_ONLY.sql > "$RUNNER_TEMP/nut60-marker-denial.log" 2>&1; then
+            echo 'NUT60 UNSAFE: accepted non-isolated database' >&2
+            exit 1
+          fi
+          if ! grep -q 'NUT60 STOP: isolated staging marker absent' "$RUNNER_TEMP/nut60-marker-denial.log"; then
+            echo 'NUT60 STOP was not due to the explicit isolation marker' >&2
+            tail -n 15 "$RUNNER_TEMP/nut60-marker-denial.log" >&2
+            exit 1
+          fi
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_accounts') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_goals') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_personal_daily_logs') is null")" = "t"
+          echo 'PASS NUT60: markerless PG17 refuses role/registration/schema changes before any DDL.'
+      - name: CLIN-GUT-03 refuse health schema without isolated marker (negative control)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql > "$RUNNER_TEMP/gut03-negative.log" 2>&1; then
+            echo 'CLIN-GUT-03 UNSAFE: accepted missing stage marker' >&2
+            exit 1
+          fi
+          grep -q 'CLIN-GUT-03 STOP: only isolated fixture database' "$RUNNER_TEMP/gut03-negative.log"
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_intakes') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_coach_health_documents') is null")" = 't'
+          echo 'PASS CLIN-GUT-03: missing marker blocks health tables before any DDL on PG17.'
+      - name: COACH-PILOT-10 negative markerless promotion must fail before writes
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is null")" = 't'
+          if psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql > "$RUNNER_TEMP/pilot10-denied.log" 2>&1; then
+            echo 'PILOT10 UNSAFE: accepted nonisolated database' >&2
+            exit 1
+          fi
+          grep -q 'PILOT-10 STOP: isolated staging only' "$RUNNER_TEMP/pilot10-denied.log"
+          test "$(psql -Atqc "select to_regclass('efg_private.efg_pilot_promotions') is null")" = 't'
+          echo 'PASS PILOT-10: no writes and no role conversion without isolated marker.'
+      - name: COACH-PILOT-10 admin promotion of existing student and 10 seat trial (PG17 synthetic)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '5432'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_pilot_ephemeral'
+          export PGDATABASE=efg_pilot_ephemeral
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/COACH_PILOT_10_EXISTING_STUDENT_PROMOTION_STAGING_ONLY.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/coach-pilot-10-scenarios.sql
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs where payload='HISTORIC_PERSONAL_MEAL'")" = 1
+          test "$(psql -Atqc "select count(*) from efg_private.efg_pilot_promotions")" = 1
+          echo 'PASS COACH-PILOT-10: fake existing student becomes trial coach with ten seats; prior food history retained.'
+      - name: LEG-07 versioned legal backend on separate disposable PostgreSQL 17 database (SYNTHETIC)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_legal_ephemeral'
+          export PGDATABASE=efg_legal_ephemeral
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legal-pg17-bootstrap.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legal-pg17-scenarios.sql
+          echo 'PASS LEG-07: separate isolated database, synthetic documents and simulated claim roles; no real consent.'
+      - name: NUT-57 full FIVE-module transaction + restored preupgrade snapshot, always ROLLBACK (SYNTHETIC PG17)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          # SEPARATE empty databases; do NOT connect, link, or export any hosted database.
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_before'
+          export PGDATABASE=efg_nut57_before
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-preupgrade-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut56-prodshape-local-overlay.sql
+          node efg-nutrition/tests/coach70-live-schema-parity.mjs
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-legacy-fictitious-records.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          docker exec "$pg_container" pg_dump -U postgres -Fc efg_nut57_before > "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_restored'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_restored < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_restored
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_food_plans")" = "1"
+          # The real legal backend design is created only on this isolated restore.
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql
+          node efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --assert-preview-sql > "$RUNNER_TEMP/nut57-five-asserted.sql"
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-five-asserted.sql"; then
+            echo 'NUT57 STOP: full staging preview must not contain COMMIT' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-five-asserted.sql" > "$RUNNER_TEMP/nut57-five-success.log" 2>&1 || {
+            tail -n 45 "$RUNNER_TEMP/nut57-five-success.log" >&2
+            exit 1
+          }
+          grep -q "PASS NUT57 INSIDE TRANSACTION" "$RUNNER_TEMP/nut57-five-success.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_intakes') is null")" = "t"
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = "4"
+          test "$(psql -Atqc "select count(*) from public.efg_goals")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_legal_acceptances")" = "0"
+          node efg-nutrition/tests/nut57-integrated-rollback-qa.mjs --inject-failure-sql > "$RUNNER_TEMP/nut57-five-failure.sql"
+          if psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-five-failure.sql" > "$RUNNER_TEMP/nut57-five-failure.log" 2>&1; then
+            echo 'NUT57 STOP: failure injection did not abort' >&2
+            exit 1
+          fi
+          grep -q "NUT57 SYNTHETIC INJECTED FAILURE" "$RUNNER_TEMP/nut57-five-failure.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = "t"
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = "1"
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = "1"
+          echo 'PASS NUT57: restored synthetic historical snapshot; all five modules parsed/executed; in-transaction assertions passed; mandatory and injected rollback preserved historical rows. NOT full production parity.'
+      - name: COACH-71 synthetic fixture MUST FAIL strict hosted metadata parity (negative control)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nut57_before
+        run: |
+          set -euo pipefail
+          # Test AFTER generating NUT57 before snapshot. This DB has incomplete
+          # synthetic RLS policies/triggers/keys, even though column parity passed.
+          # COACH71 must REJECT it with drift status 2, not crash (3) or pass (0).
+          test "$(psql -Atqc "select current_database()")" = 'efg_nut57_before'
+          if node efg-nutrition/scripts/coach71-hosted-preflight.mjs > "$RUNNER_TEMP/coach71-negative.out" 2>&1; then
+            echo 'COACH71 UNSAFE: incomplete synthetic database was treated as hosted parity' >&2
+            exit 1
+          else
+            status=$?
+          fi
+          if test "$status" -ne 2; then
+            echo "COACH71 ERROR: expected drift exit 2, got $status (SQL/test crash)" >&2
+            tail -n 35 "$RUNNER_TEMP/coach71-negative.out" >&2
+            exit 1
+          fi
+          grep -q 'COACH71 NO GO: hosted object-shape parity not demonstrated' "$RUNNER_TEMP/coach71-negative.out"
+          grep -q 'policies DIFFERENT' "$RUNNER_TEMP/coach71-negative.out"
+          echo 'PASS COACH71 NEGATIVE: real local PostgreSQL fixture rejected due to hosted policy/object drift. This is NOT a successful full-parity restore.'
+      - name: COACH-68 parse and ROLLBACK full version-aware Coach SQL in isolated PG17
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nut57_restored
+        run: |
+          set -euo pipefail
+          test "${PGHOST}" = '127.0.0.1'
+          test "${PGPORT}" = '5432'
+          test "${PGDATABASE}" = 'efg_nut57_restored'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          node efg-nutrition/tests/coach68-stage-rollback.mjs --preview-sql > "$RUNNER_TEMP/coach68-only-rollback.sql"
+          test "$(grep -Eic '^[[:space:]]*ROLLBACK[[:space:]]*;' "$RUNNER_TEMP/coach68-only-rollback.sql")" = 1
+          if grep -Eiq '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/coach68-only-rollback.sql"; then
+            echo 'COACH68 STOP: generated SQL may not COMMIT' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/coach68-only-rollback.sql" > "$RUNNER_TEMP/coach68-parsed.log" 2>&1 || {
+            tail -n 70 "$RUNNER_TEMP/coach68-parsed.log" >&2
+            exit 1
+          }
+          grep -q 'PASS COACH68 INSIDE TRANSACTION' "$RUNNER_TEMP/coach68-parsed.log"
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_relaunch_intakes') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_publish_receipts') is null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_goals")" = 1
+          test "$(psql -Atqc "select count(*) from public.efg_notifications")" = 1
+          echo 'PASS COACH68: real PG17 parsed all six version-aware modules inside transaction, rollback preserved synthetic historical records. NOT JWT or production parity.'
+      - name: NUT-57 B3 committed fixture disaster-restore from BEFORE snapshot (CI ONLY, never hosted)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+          NUT57_SYNTHETIC_RESTORE_TEST: 'true'
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test "$PGHOST" = '127.0.0.1'
+          test "$PGDATABASE" = 'efg_nutrition_ephemeral'
+          # The original preupgrade database was created with FAKE profiles and foods.
+          fingerprint_file='efg-nutrition/tests/sql/nut57-synthetic-history-fingerprint.sql'
+          before_digest="$(PGDATABASE=efg_nut57_before psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")"
+          test "${#before_digest}" -eq 32
+          test -s "$RUNNER_TEMP/nut57-before.dump"
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_postcommit
+          test "$(psql -Atqc "select current_database()")" = 'efg_nut57_postcommit'
+          test "$(psql -Atqc "select to_regclass('efg_private.nut57_isolated_staging_marker') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = 't'
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql > "$RUNNER_TEMP/nut57-b3-legal.log"
+          # Only this ephemeral GitHub Actions job may convert the ROLLBACK
+          # preview to a COMMIT scenario. The project bundle itself has NO apply.
+          node efg-nutrition/tests/nut57-staging-bundle.mjs --preview-sql |
+            node efg-nutrition/tests/nut57-ci-fixture-commit.mjs > "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql"
+          test "$(grep -Eic '^[[:space:]]*COMMIT[[:space:]]*;' "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql")" = 1
+          if grep -Eiq '^[[:space:]]*ROLLBACK[[:space:]]*;' "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql"; then
+            echo 'B3 STOP: unexpected ROLLBACK inside commit-only synthetic SQL' >&2
+            exit 1
+          fi
+          psql -v ON_ERROR_STOP=1 -f "$RUNNER_TEMP/nut57-b3-synthetic-commit.sql" > "$RUNNER_TEMP/nut57-b3-commit.log" 2>&1 || {
+            tail -n 40 "$RUNNER_TEMP/nut57-b3-commit.log" >&2
+            exit 1
+          }
+          # Confirm the migration really COMMITTED while all historic rows stayed intact.
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is not null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_publish_receipts') is not null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_student_plan_access where status='published'")" = 2
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          # Simulate a restore decision: destroy ONLY the dedicated fake CI DB.
+          # Real recovery requires PITR/concurrent write handling, NOT proven here.
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'drop database efg_nut57_postcommit with (force)'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_nut57_postcommit'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error -d efg_nut57_postcommit < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_nut57_postcommit
+          test "$(psql -Atqc "select to_regclass('public.efg_student_plan_access') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_legal_documents') is null")" = 't'
+          test "$(psql -Atqc "select to_regclass('public.efg_coach_plan_drafts') is null")" = 't'
+          test "$(psql -Atqc "select count(*) from public.efg_profiles")" = 4
+          test "$(psql -Atqc "select count(*) from public.efg_daily_logs")" = 1
+          test "$(psql -Atq -v ON_ERROR_STOP=1 -f "$fingerprint_file")" = "$before_digest"
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-core-shape-assertions.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/tests/sql/nut57-b3-dependency-contract.sql
+          echo 'PASS NUT57 B3: COMMIT really persisted in isolated synthetic DB; pre-upgrade backup recreated original schema and exact 12-table history digest after destructive restore. No real data, no hosted connection.'
+      - name: Coach complete eight-module installation and recovery on restored PG17 fixture
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test -s "$RUNNER_TEMP/nut57-before.dump"
+          pg_container="$(docker ps --filter ancestor=postgres:17 --format '{{.ID}}' | head -n1)"
+          test -n "$pg_container"
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach_release_rehearsal'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_coach_release_rehearsal
+          evidence="$RUNNER_TEMP/coach-release-before.json"
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs failure "$evidence"
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs install "$evidence"
+          # Restore only this disposable fictional database; NEVER a hosted target.
+          export PGDATABASE=efg_nutrition_ephemeral
+          psql -v ON_ERROR_STOP=1 -c 'drop database efg_coach_release_rehearsal with (force)'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach_release_rehearsal'
+          docker exec -i "$pg_container" pg_restore -U postgres --exit-on-error --single-transaction -d efg_coach_release_rehearsal < "$RUNNER_TEMP/nut57-before.dump"
+          export PGDATABASE=efg_coach_release_rehearsal
+          node efg-nutrition/tests/coach-release-bundle-qa.mjs restored "$evidence"
+      - name: COACH119 PostgreSQL17 real history regression (disposable synthetic DB)
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: efg_nutrition_ephemeral
+        run: |
+          set -euo pipefail
+          test "${GITHUB_ACTIONS:-}" = 'true'
+          test "$PGHOST" = '127.0.0.1'
+          psql -v ON_ERROR_STOP=1 -c 'create database efg_coach119_history'
+          export PGDATABASE=efg_coach119_history
+          node efg-nutrition/tests/coach119-guide-history-pg17.mjs
+          echo "PASS COACH119 real PG17 archive test on synthetic data only. No hosted schema touched."
+          PGDATABASE=postgres psql -v ON_ERROR_STOP=1 -c 'create database efg_coach119_atomic'
+          PGDATABASE=efg_coach119_atomic node efg-nutrition/tests/coach119-full-atomic-pg17.mjs
+      - name: State the limits
+        if: always()
+        run: |
+          echo "No production Supabase connection, real JWT, real patient or clinical data."
+          echo "The health/legal inputs are SYNTHETIC, not verified evidence."
+          echo "A passed test is NOT authorization for migration or deploy."

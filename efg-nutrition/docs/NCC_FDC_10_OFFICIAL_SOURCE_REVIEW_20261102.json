@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "scope": "NCC_02_03_10_FDC_OFFICIAL_ARCHIVE_CAPTURE_NO_HUMAN_APPROVAL",
+  "source": "USDA FoodData Central SR Legacy 2018-04",
+  "sourceArchiveUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+  "sourceArchiveSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef",
+  "artifactRunId": 41463422901,
+  "artifactId": 13150920516,
+  "capturedAtUTC": "2026-11-02T14:35:56.755777+00:00",
+  "readiness": "NOT_REVIEWED",
+  "publishable": false,
+  "rawSourceBackendSeeded": false,
+  "medicalSuitabilityApproved": false,
+  "records": [
+    {
+      "foodId": "apple",
+      "fdcId": 171688,
+      "description": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+      "per100g": {
+        "k": 52,
+        "p": 0.26,
+        "c": 13.8,
+        "f": 0.17,
+        "fi": 2.4
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "d5672eae44279ddb45cd63165cd020095edc788363af7cb747067743737d9043",
+      "reviewStatus": "pending_operator_review",
+      "issue": "GENERAL_REVIEW",
+      "canPublish": false
+    },
+    {
+      "foodId": "oats_raw",
+      "fdcId": 173904,
+      "description": "Cereals, oats, regular and quick, not fortified, dry",
+      "per100g": {
+        "k": 379,
+        "p": 13.2,
+        "c": 67.7,
+        "f": 6.52,
+        "fi": 10.1
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "c319e184a086face1537a0b71eea5ac541f8d6af8e74efeb2f77b5724d757f7b",
+      "reviewStatus": "pending_operator_review",
+      "issue": "DRY_NOT_COOKED",
+      "canPublish": false
+    },
+    {
+      "foodId": "milk_skim",
+      "fdcId": 173432,
+      "description": "Milk, nonfat, fluid, without added vitamin A and vitamin D (fat free or skim)",
+      "per100g": {
+        "k": 35,
+        "p": 3.37,
+        "c": 4.86,
+        "f": 0.18,
+        "fi": 0
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "6cc6d2ce8c0944bd9a82e0613aac5ad56443191c232bb1963abba418d13452a8",
+      "reviewStatus": "pending_operator_review",
+      "issue": "MASS_VOLUME_CONVERSION_NEEDS_REVIEW",
+      "canPublish": false
+    },
+    {
+      "foodId": "yogurt_greek_light",
+      "fdcId": 170894,
+      "description": "Yogurt, Greek, plain, nonfat (Includes foods for USDA's Food Distribution Program)",
+      "per100g": {
+        "k": 59,
+        "p": 10.2,
+        "c": 3.6,
+        "f": 0.39,
+        "fi": 0
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "14e53ecb8a10eadd8e4d91d96f14589aa1bdee8ea573e054f6bd229e27b3d84d",
+      "reviewStatus": "pending_operator_review",
+      "issue": "PLAIN_NONFAT_ONLY",
+      "canPublish": false
+    },
+    {
+      "foodId": "spinach_cooked",
+      "fdcId": 168463,
+      "description": "Spinach, cooked, boiled, drained, without salt",
+      "per100g": {
+        "k": 23,
+        "p": 2.97,
+        "c": 3.75,
+        "f": 0.26,
+        "fi": 2.4
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "4d64ab30cc4b47beb752cca8d68c9233fcf941c0abd4b882463786da83b75a43",
+      "reviewStatus": "pending_operator_review",
+      "issue": "COOKED_DRAINED_NO_SALT",
+      "canPublish": false
+    },
+    {
+      "foodId": "chicken",
+      "fdcId": 171477,
+      "description": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+      "per100g": {
+        "k": 165,
+        "p": 31,
+        "c": 0,
+        "f": 3.57,
+        "fi": 0
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "fc1cc034ea89a5c0f0442de06edad01591aef35f3bdb2acfe1619abdb8f1b52d",
+      "reviewStatus": "pending_operator_review",
+      "issue": "BLOCKED_GENERIC_CHICKEN_NOT_IDENTICAL_TO_ROASTED_BREAST",
+      "canPublish": false
+    },
+    {
+      "foodId": "oil",
+      "fdcId": 171413,
+      "description": "Oil, olive, salad or cooking",
+      "per100g": {
+        "k": 884,
+        "p": 0,
+        "c": 0,
+        "f": 100,
+        "fi": 0
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "09bbe72907b802a43591d804466ba46e65677501dacf867d26c2bdd83ec6f9d3",
+      "reviewStatus": "pending_operator_review",
+      "issue": "OLIVE_ONLY_NOT_GENERIC_OIL",
+      "canPublish": false
+    },
+    {
+      "foodId": "brownrice",
+      "fdcId": 169704,
+      "description": "Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+      "per100g": {
+        "k": 123,
+        "p": 2.74,
+        "c": 25.6,
+        "f": 0.97,
+        "fi": 1.6
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "f5dd56ad302324859ea7956dc8de4b54662e990151b6ce9a6683530400cde85b",
+      "reviewStatus": "pending_operator_review",
+      "issue": "COOKED_ONLY_MACROS_REQUIRE_RECONCILIATION",
+      "canPublish": false
+    },
+    {
+      "foodId": "potato",
+      "fdcId": 170440,
+      "description": "Potatoes, boiled, cooked without skin, flesh, without salt",
+      "per100g": {
+        "k": 86,
+        "p": 1.71,
+        "c": 20,
+        "f": 0.1,
+        "fi": 1.8
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "36735662d7e9ea9234fec5ce05bfa84fd6dfa7e3e4a7a4f2bd43e32e7d5226aa",
+      "reviewStatus": "pending_operator_review",
+      "issue": "BOILED_PEELED_NO_SALT",
+      "canPublish": false
+    },
+    {
+      "foodId": "banana",
+      "fdcId": 173944,
+      "description": "Bananas, raw",
+      "per100g": {
+        "k": 89,
+        "p": 1.09,
+        "c": 22.8,
+        "f": 0.33,
+        "fi": 2.6
+      },
+      "unit": "g",
+      "canonicalRecordSha256": "6248f091bbac576f8717296d612eb4ef554c3a653418d9b017840c9f8313ab13",
+      "reviewStatus": "pending_operator_review",
+      "issue": "RAW_EDIBLE_PORTION",
+      "canPublish": false
+    }
+  ]
+}

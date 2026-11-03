@@ -1,0 +1,39 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba privada · dieta guía</title>
+<style>body{font:1rem system-ui;margin:1.5rem auto;padding:0 1rem;max-width:48rem;background:#f5f8f7;color:#152724}button{font:inherit;padding:.7rem;margin:.25rem}section{background:white;padding:1rem;margin:1rem 0;border:1px solid #cbd7d3;border-radius:.75rem}[data-compatibility=red]{border-left:5px solid #a42929}[data-compatibility=yellow]{border-left:5px solid #b77a00}[data-compatibility=green]{border-left:5px solid #167553}[data-compatibility]{padding:.6rem}summary{cursor:pointer}select,input{max-width:100%;font:inherit} [data-edit-row]{padding:.5rem;border-bottom:1px solid #cbd7d3} [data-edit-row] input{width:6rem}</style>
+<body><h1>Demostración con alimentos ficticios</h1><p>Sin datos personales ni guardado. No es una dieta para consumir.</p>
+<fieldset><legend>Ficha ficticia para la demostración</legend>
+<label><input id="gluten" type="checkbox" checked> Restricción: gluten</label>
+<label><input id="keto" type="checkbox" checked> Patrón: keto (meta ficticia acordada)</label>
+<label><input id="preferred" type="checkbox" checked> Prefiere la opción ficticia “preferred”</label>
+<label><input id="dislike" type="checkbox"> No le gusta la opción ficticia “fresh_a”</label></fieldset>
+<button id="valid">Propuesta compatible</button><button id="conflict">Metas incompatibles</button><button id="empty">Sin opciones</button><main id="preview"></main><div id="editor"></div>
+<script type="module">
+import {catalog,goal,template,context,food} from './adapted-guide-fixtures.mjs';
+import {proposeAdaptedGuide} from '../pilot/adapted-guided-day.js';
+import {evaluateGuideFood} from '../pilot/guide-compatibility.js';
+import {createGuideEditor,updateGuideEditor} from '../pilot/adapted-guide-editor.js';
+import {renderGuideEditor,renderAdaptedGuidePreview} from '../pilot/adapted-guide-view.js';
+const fresh=food('fresh'),bread=food('wheat'),prepared=food('prepared',{preparation:'unknown'});
+bread.glutenEvidence.verdict='contains';
+const samples=[['Carne fresca, sin agregados',fresh],['Pan de trigo',bread],['Preparado',prepared]];
+let editor=null,environment=null;
+const editorCatalog=[...catalog,bread,prepared,food('drink',{unit:'ml'})];
+function drawEditor(){if(editor)renderGuideEditor(document.querySelector('#editor'),{state:editor,catalog:editorCatalog,onAction:action=>{editor=updateGuideEditor(editor,action,environment);drawEditor();}});}
+function show(mode,{refresh=false}={}){const ctx={...context,
+ restrictions:document.getElementById('gluten').checked?['gluten']:[],
+ pattern:document.getElementById('keto').checked?context.pattern:{kind:'general'},
+ dislikedIds:mode==='empty'?catalog.map(f=>f.id):document.getElementById('dislike').checked?['fresh_a']:[]};
+ const target=mode==='conflict'?{...goal,carb_g:150,kcal:2750}:goal;
+ environment={catalog:editorCatalog,goal:target,context:ctx};
+ const proposal=proposeAdaptedGuide({catalog,goal:target,template,context:ctx,preferredIds:document.getElementById('preferred').checked?['preferred']:[]});
+ if(refresh&&editor)editor=updateGuideEditor(editor,{type:'refresh'},environment);
+ else editor=proposal.ok?createGuideEditor(proposal,environment):null;
+ document.querySelector('#editor').replaceChildren();drawEditor();
+ renderAdaptedGuidePreview(document.querySelector('#preview'),{
+ proposal:editor?{ok:false,message:'El borrador editable se muestra a continuación.'}:proposal,
+ foods:samples.map(([name,f])=>({name,assessment:evaluateGuideFood(f,{...ctx,goal:target,qty:100})}))});}
+for(const mode of ['valid','conflict','empty'])document.getElementById(mode).onclick=()=>show(mode);
+for(const id of ['gluten','keto','preferred','dislike'])document.getElementById(id).onchange=()=>show('valid',{refresh:true});
+show('valid');
+</script></body></html>

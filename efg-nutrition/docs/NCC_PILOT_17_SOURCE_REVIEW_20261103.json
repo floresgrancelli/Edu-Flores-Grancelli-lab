@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "title": "NCC P1 - evidence review packet for actual six-slot balanced guide, not food catalog",
+  "createdOn": "2026-11-03",
+  "draftBranch": "release/ncc-pilot-fast-track-20261102",
+  "baselineSha": "37a45226f177f04d85f047292d4ddc03ff152402",
+  "target": "Only the 17 exact PWA IDs from the balanced default GUIDe_MEALS + media_tarde; actual released guides may contain OTHER catalog IDs and every final ingredient requires independent review.",
+  "dataGovernance": {
+    "operatorApproval": "NOT_GIVEN",
+    "backendApprovedCount": 0,
+    "approvedForPublication": false,
+    "approvalReceipt": null,
+    "reviewedBy": null,
+    "reviewedAt": null,
+    "notACatalogWhitelist": true,
+    "sourceValuesDoNotOverridePwa": true,
+    "allCatalogFoodsRemainSelectable": true,
+    "finalGuideCheck": "Each meal item including every expanded recipe ingredient must have a current operator-reviewed matching ID, unit and five nutritional rates before the atomic publication RPC can pass."
+  },
+  "sourceReferences": [
+    {
+      "file": "efg-nutrition/docs/NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json",
+      "kind": "official archived USDA SR Legacy captures, not operator approval",
+      "archiveUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+      "archiveSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef"
+    },
+    {
+      "file": "efg-nutrition/tests/evidence/fndds-2705956.json",
+      "kind": "captured FNDDS specific baked/broiled/roasted chicken breast, not generic chicken and not operator review"
+    }
+  ],
+  "foods": [
+    {
+      "id": "egg",
+      "exactIdentity": "Huevo entero crudo sin cáscara",
+      "appUnit": "g",
+      "sourceFdcId": "748967",
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "CATALOG_FDC_REFERENCE_ONLY",
+      "requiredHumanAction": "Capturar ficha Foundation Foods oficial y cotejar con 148 kcal/100 g PWA; no confundir huevo cocido o aceite de cocción.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "bread",
+      "exactIdentity": "Pan integral genérico",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Elegir pan/fabricante o descripción técnica realmente comparable; PWA estima 247 kcal/100 g; etiqueta o tabla de esa preparación.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "cheese",
+      "exactIdentity": "Queso Port Salut Light convencional",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Identificar fabricante y presentación; la etiqueta debe corresponder al queso PWA que estima 217 kcal/100 g.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "milk_skim",
+      "exactIdentity": "Leche descremada, medida en volumen",
+      "appUnit": "ml",
+      "sourceFdcId": "173432",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 35,
+        "p": 3.37,
+        "c": 4.86,
+        "f": 0.18,
+        "fi": 0
+      },
+      "canonicalRecordSha256": "6cc6d2ce8c0944bd9a82e0613aac5ad56443191c232bb1963abba418d13452a8",
+      "evidenceState": "BLOCKED_UNIT_MASS_VS_VOLUME",
+      "requiredHumanAction": "USDA informa por 100 g y la PWA registra ml; documentar densidad aplicable o etiqueta oficial por 100 ml; no aprobar conversión presumida.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "coffee_black",
+      "exactIdentity": "Café negro sin azúcar, bebida preparada",
+      "appUnit": "ml",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Definir dilución/preparación y fuente por 100 ml; no mapear directamente datos por peso sin conversión validada.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "yogurt",
+      "exactIdentity": "Yogur descremado natural sin azúcar",
+      "appUnit": "g",
+      "sourceFdcId": "2647437",
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "CATALOG_FDC_REFERENCE_ONLY",
+      "requiredHumanAction": "Capturar ficha Foundation Foods original; no equiparar yogur griego, saborizado o marca distinta.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "apple",
+      "exactIdentity": "Manzana cruda con cáscara, porción comestible",
+      "appUnit": "g",
+      "sourceFdcId": "171688",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 52,
+        "p": 0.26,
+        "c": 13.8,
+        "f": 0.17,
+        "fi": 2.4
+      },
+      "canonicalRecordSha256": "d5672eae44279ddb45cd63165cd020095edc788363af7cb747067743737d9043",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "El catálogo ACTUAL usa 52 kcal/100 g (override FDC 171688), igual que la captura USDA; hidratos 13,81 vs 13,8 g/100 g son una diferencia de redondeo. Confirmar identidad, preparación, captura y procedencia con revisión humana; no homologado.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "oats_raw",
+      "exactIdentity": "Avena arrollada seca, no fortificada, sin cocer",
+      "appUnit": "g",
+      "sourceFdcId": "173904",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 379,
+        "p": 13.2,
+        "c": 67.7,
+        "f": 6.52,
+        "fi": 10.1
+      },
+      "canonicalRecordSha256": "c319e184a086face1537a0b71eea5ac541f8d6af8e74efeb2f77b5724d757f7b",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "El catálogo ACTUAL usa 379 kcal/100 g (override FDC 173904), igual que la captura USDA; grasa 6,50 vs 6,52 g/100 g requiere constatar redondeo. Confirmar avena SECA, fuente y revisión humana; no homologado.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "chicken",
+      "exactIdentity": "Pollo cocido sin piel, corte no especificado",
+      "appUnit": "g",
+      "sourceFdcId": "171477",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 165,
+        "p": 31,
+        "c": 0,
+        "f": 3.57,
+        "fi": 0
+      },
+      "canonicalRecordSha256": "fc1cc034ea89a5c0f0442de06edad01591aef35f3bdb2acfe1619abdb8f1b52d",
+      "evidenceState": "BLOCKED_PREPARATION",
+      "requiredHumanAction": "FDC171477 es PECHUGA asada y no sirve para pollo genérico; si realmente es pechuga asada elegir ID ya existente chicken_breast_roasted / FNDDS2705956 y revisar esa fuente por separado.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "brownrice",
+      "exactIdentity": "Arroz integral grano largo cocido",
+      "appUnit": "g",
+      "sourceFdcId": "169704",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 123,
+        "p": 2.74,
+        "c": 25.6,
+        "f": 0.97,
+        "fi": 1.6
+      },
+      "canonicalRecordSha256": "f5dd56ad302324859ea7956dc8de4b54662e990151b6ce9a6683530400cde85b",
+      "evidenceState": "RECONCILIATION_REQUIRED",
+      "requiredHumanAction": "Fibra fuente USDA 1,6 g/100 g frente a PWA 1,8 g/100 g; resolver según preparación y método analítico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "pumpkin",
+      "exactIdentity": "Calabaza cocida de variedad y cocción por precisar",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Determinar variedad, técnica y peso escurrido; no usar zapallo anco al horno como si fuera cocido genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "oil",
+      "exactIdentity": "Aceite de oliva, para ensalada/cocción",
+      "appUnit": "g",
+      "sourceFdcId": "171413",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 884,
+        "p": 0,
+        "c": 0,
+        "f": 100,
+        "fi": 0
+      },
+      "canonicalRecordSha256": "09bbe72907b802a43591d804466ba46e65677501dacf867d26c2bdd83ec6f9d3",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA 884 kcal/100 g, 100 g de grasa; validar aceite de oliva pesado en gramos, nunca ml ni aceite genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "banana",
+      "exactIdentity": "Banana cruda, parte comestible sin cáscara",
+      "appUnit": "g",
+      "sourceFdcId": "173944",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 89,
+        "p": 1.09,
+        "c": 22.8,
+        "f": 0.33,
+        "fi": 2.6
+      },
+      "canonicalRecordSha256": "6248f091bbac576f8717296d612eb4ef554c3a653418d9b017840c9f8313ab13",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA HC 22,8 g/100 g y catálogo 22,84 g/100 g; revisar redondeo y porción sin cáscara.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "mandarin",
+      "exactIdentity": "Mandarina cruda, parte comestible",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Precisar variedad y fuente primaria por 100 g comestibles.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "fish_hake",
+      "exactIdentity": "Merluza cocida",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Definir especie, preparación, pérdida de agua/rendimiento y fuente primaria exacta; no usar pescado genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "potato",
+      "exactIdentity": "Papa hervida sin piel ni sal",
+      "appUnit": "g",
+      "sourceFdcId": "170440",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 86,
+        "p": 1.71,
+        "c": 20,
+        "f": 0.1,
+        "fi": 1.8
+      },
+      "canonicalRecordSha256": "36735662d7e9ea9234fec5ce05bfa84fd6dfa7e3e4a7a4f2bd43e32e7d5226aa",
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA 86 kcal/100 g; corroborar peso hervido, sin piel, sin sal; aceite aparte.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    },
+    {
+      "id": "rocket",
+      "exactIdentity": "Rúcula cruda, parte comestible",
+      "appUnit": "g",
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "canonicalRecordSha256": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Identificar fuente USDA/etiqueta para rúcula cruda, peso comestible, macros y fibra.",
+      "humanReview": "PENDING",
+      "approvedForServer": false
+    }
+  ],
+  "technicalCrosscheck": {
+    "date": "2026-11-03",
+    "kind": "CURRENT_LIVE_PWA_CODE_VS_PINNED_USDA_SNAPSHOT_NOT_REVIEWED",
+    "notes": "Se descartaron los desvíos históricos de 58,2 vs 52 kcal para apple y 382,1 vs 379 kcal para oats_raw: el PWA ACTUAL contiene overrides oficiales de 52 y 379 kcal/100g. La discrepancia pendiente de fibra brownrice 1,8 vs 1,6 g/100 g sigue abierta. No se tocaron macros del catálogo, banderas ni evidencia de servidor."
+  }
+}

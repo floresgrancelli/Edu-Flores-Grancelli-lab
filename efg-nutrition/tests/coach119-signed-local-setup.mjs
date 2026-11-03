@@ -74,6 +74,35 @@ for(const [name,required] of [
  const definition=sql("select pg_get_functiondef('"+name+"'::regprocedure)");
  assert.ok(definition.includes(required),'CURRENT signed RPC lost invariant '+required);
 }
+// Execute the same POST-install SELECT used for hosted diagnosis against the
+// actual six-source LOCAL installation. It must prove all structural gates,
+// while the intentionally unseeded pilot notices/food approvals stay NOT READY.
+// This is PostgreSQL execution on disposable fixtures, not a hosted GO.
+const postflight=sql(read('./sql/coach119-postinstall-readonly-preflight.sql'));
+const structuralChecks=new Map(),contentChecks=new Map();
+for(const record of postflight.split('\n').filter(Boolean)){
+ const fields=record.split('|');
+ assert.equal(fields.length,5,'Malformed postinstall result: '+record.slice(0,120));
+ const [phase,id,passed,status]=fields;
+ assert.match(id,/^[A-Z0-9_]+$/);
+ const group=phase==='05_CONTENT'?contentChecks:structuralChecks;
+ assert.ok(!structuralChecks.has(id)&&!contentChecks.has(id),'Duplicate postinstall check: '+id);
+ group.set(id,{passed,status});
+}
+assert.equal(structuralChecks.size,22,'Structural post-install matrix must have exactly 22 gates');
+assert.equal(contentChecks.size,2,'Pilot notice and selected-food gates stay independent');
+for(const [id,result] of structuralChecks){
+ assert.equal(result.passed,'t','LOCAL postinstall FAILED: '+id);
+ assert.equal(result.status,'PRESENT_OR_SAFE_DEFAULT','Unexpected postinstall status '+id);
+}
+for(const id of ['PILOT_TERMS_AND_PRIVACY_CURRENT','ANY_CURRENT_REVIEWED_FOOD']){
+ const result=contentChecks.get(id);
+ assert.ok(result,'Missing independently blocked content gate: '+id);
+ assert.equal(result.passed,'f','Unapproved local pilot content must stay absent: '+id);
+ assert.equal(result.status,'NOT_INSTALLED_OR_NOT_READY');
+}
+console.log('PASS CURRENT PG17 postinstall SELECT: 22 structural gates PASS, 2 deliberately absent content gates; server flags OFF, not hosted.');
+
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
 if(process.env.EFG_QA_SDK_ENTRY==='1'){
  sql(read('./sql/coach119-browser-current-overlay.sql'));

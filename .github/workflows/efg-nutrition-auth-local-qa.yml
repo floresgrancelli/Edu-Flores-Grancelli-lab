@@ -510,6 +510,7 @@ jobs:
           node --check efg-nutrition/pilot/pilot.js
           node --check efg-nutrition/tests/sdk-entry-local-e2e.mjs
           node --check efg-nutrition/tests/sdk-entry-runner-private.mjs
+          node --check efg-nutrition/tests/ncc-p23-sdk-overlay.mjs
           node --experimental-default-type=module efg-nutrition/tests/student-restriction-declaration-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/sdk-entry-source-contract-private.mjs
           node --experimental-default-type=module efg-nutrition/tests/sdk-entry-mail-private.mjs

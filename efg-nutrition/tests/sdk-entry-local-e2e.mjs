@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {localContext,literal as q,yes} from './helpers/coach119-local.mjs';
 import {importNine} from './persisted-guide-nine-import.mjs';
 import {runSdkEntryBrowser} from './sdk-entry-runner-private.mjs';
+import {runP23SdkOverlay} from './ncc-p23-sdk-overlay.mjs';
 assert.equal(process.env.EFG_QA_SDK_ENTRY,'1');
 const {sql,request}=localContext(),read=p=>readFileSync(new URL(p,import.meta.url),'utf8');
 assert.equal(sql('select count(*) from auth.users'),'0');
@@ -116,6 +117,7 @@ const prepareFlexibleLocal=side=>{
 };
 try{
  await runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql});
+ await runP23SdkOverlay({users,orgs,request,sql});
  assert.equal(sql('select count(*) from public.efg_goals'),'4',
   'Both original five-slot goals must remain after six-slot replacement');
  assert.equal(sql("select count(*) from public.efg_food_plans where guided_plan->>'kind'='flexible_meal_guide' and jsonb_array_length(guided_plan->'meals')=6"),'2');

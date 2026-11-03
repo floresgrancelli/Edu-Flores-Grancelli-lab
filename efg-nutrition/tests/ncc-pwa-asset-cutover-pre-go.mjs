@@ -18,7 +18,8 @@ const candidateFlags=[
  ['coach-release-plan-gate.js','COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED'],
  ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
  ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
- ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED']
+ ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED'],
+ ['science-welcome.js','SCIENCE_WELCOME_ENABLED']
 ];
 const mustStayOff=[
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
@@ -131,7 +132,7 @@ try{
   assert.ok(activationHtml.includes('pilot.css?v='+build));
   assert.equal(readFileSync(htmlPath,'utf8'),beforeHtml);
   assert.equal(readFileSync(entryPath,'utf8'),beforeJs);
-  console.log('PASS NCC P20 pilot UI activation draft: 6 reviewed ON proposal, 7 conflicting/clinical/post-GO OFF, staged versioned modules outside repository, no GO or hosted write.');
+  console.log('PASS NCC P23 pilot UI activation draft: 7 reviewed ON proposals including one-time educational welcome, 7 conflicting/clinical/post-GO OFF, staged versioned modules outside repository, no GO or hosted write.');
  }finally{rmSync(pilotDraftDir,{recursive:true,force:true});}
  console.log('PASS NCC PRE-GO asset cutover: all local module/CSS versions staged, nested imports refreshed, exact HEAD pinned, zero hosted calls and zero source edits.');
 }finally{rmSync(directory,{recursive:true,force:true});}

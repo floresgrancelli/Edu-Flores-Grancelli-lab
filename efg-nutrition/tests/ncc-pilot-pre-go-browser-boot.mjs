@@ -24,7 +24,8 @@ const featureOn=[
  ['coach-release-plan-gate.js','COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED'],
  ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
  ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
- ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED']
+ ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED'],
+ ['science-welcome.js','SCIENCE_WELCOME_ENABLED']
 ];
 const featureOff=[
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
@@ -50,7 +51,7 @@ try{
  const status=JSON.parse(raw),manifest=JSON.parse(readFileSync(join(out,'review-manifest.json'),'utf8'));
  assert.equal(status.status,'STAGED_OUTSIDE_REPO_NOT_PUBLISHED');
  assert.equal(status.preparationMode,'PILOT_UI_ACTIVATION_PROPOSAL_NOT_GO');
- assert.equal(status.activationFlagsProposed,6);
+ assert.equal(status.activationFlagsProposed,7);
  assert.equal(manifest.expectedGitSha,sha);
  assert.equal(manifest.noPublicationAuthorization,true);
  assert.equal(manifest.noHostedCalls,true);
@@ -132,7 +133,7 @@ try{
  for(const [file,flag]of featureOn)
   assert.ok(readFileSync(join(repoRoot,'efg-nutrition/pilot',file),'utf8')
    .includes('export const '+flag+'=false;'),'Source flag was changed: '+flag);
- console.log('PASS NCC P21 '+engine+': staged P20 versioned overlay booted in browser, 6 pilot flags ON only in temp, 7 excluded flags OFF, local login functional, no backend, no source edits; NOT hosted or physical UAT.');
+ console.log('PASS NCC P21 '+engine+': staged P23 corrected overlay booted in browser, 7 pilot flags ON only in temp, 7 excluded flags OFF, local login functional, no backend, no source edits; NOT hosted or physical UAT.');
 }finally{
  await context?.close().catch(()=>{});
  await browser?.close().catch(()=>{});

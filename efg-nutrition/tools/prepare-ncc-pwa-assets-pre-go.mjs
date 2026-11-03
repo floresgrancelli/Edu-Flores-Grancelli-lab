@@ -22,7 +22,8 @@ const pilotActivation=Object.freeze([
  ['coach-release-plan-gate.js','COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED'],
  ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
  ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
- ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED']
+ ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED'],
+ ['science-welcome.js','SCIENCE_WELCOME_ENABLED']
 ]);
 const keepDisabled=Object.freeze([
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],

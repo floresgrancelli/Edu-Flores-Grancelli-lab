@@ -481,7 +481,18 @@ jobs:
 
   sdk-entry-local:
     needs: local-auth-rls
-    if: always() && (needs.local-auth-rls.result == 'success' || needs.local-auth-rls.result == 'skipped') && github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[sdk-entry]')
+    # Pilot fast track: run the previously skipped REAL browser/OTP local-only
+    # entry test on PR43. This job has NO hosted link, SMTP, Render or credentials.
+    if: >-
+      always() &&
+      ((github.event_name == 'pull_request' &&
+        github.event.pull_request.base.ref == 'efg-nutrition-app' &&
+        github.event.pull_request.head.ref == 'release/ncc-pilot-fast-track-20261102' &&
+        needs.local-auth-rls.result == 'success') ||
+       (github.event_name == 'push' &&
+        github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' &&
+        contains(github.event.head_commit.message, '[sdk-entry]') &&
+        (needs.local-auth-rls.result == 'success' || needs.local-auth-rls.result == 'skipped')))
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:

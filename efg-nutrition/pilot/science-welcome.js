@@ -54,17 +54,26 @@ export function renderScienceVerticalView(){
  section(page,"ns-faq")+section(page,"ns-sources")+'</div>';
 }
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ownerReferenceTitles=Object.freeze([
+ "Portada: Nutrición Con-Ciencia","¿Qué son las calorías?","Los macronutrientes",
+ "La proteína y el entrenamiento","¿Qué pasa si consumo más?",
+ "El mito de los hidratos de carbono","Cómo se combinan en tu día","Conclusiones"
+]);
+
 export function renderScienceWelcomeStep(index,{busy=false,error=""}={}){
  const panels=sciencePanels();
  if(!Number.isInteger(index)||index<0||index>=panels.length)throw RangeError("Paso inválido");
  const step=index+1,last=step===panels.length;
  const locked=busy?' disabled aria-busy="true"':'';
  const dots=panels.map((_,i)=>'<i class="'+(i===index?'is-current':'')+'"></i>').join("");
+ // The user-provided eight illustrated panels are preserved as one exact
+ // 4x2 contact sheet; the ninth remains the existing animated serotonin panel.
+ const slide=index<8?'<section class="ns-owner-reference" aria-label="'+esc(ownerReferenceTitles[index])+'"><span class="ns-owner-reference-art ns-owner-reference-art-'+step+'" aria-hidden="true"></span><div class="ns-owner-reference-transcript">'+panels[index]+'</div></section>':panels[index];
  return '<div class="ns-welcome-shell" role="main" aria-label="Presentación de Nutrición Con-Ciencia">'+
  '<header class="ns-welcome-header"><img src="./assets/serotonina-acuarela.avif" alt="" width="47" height="34">'+
  '<strong>Nutrición Con-Ciencia</strong><span aria-live="polite">'+step+' de '+panels.length+'</span></header>'+
  '<div class="ns-welcome-progress" aria-hidden="true">'+dots+'</div>'+
- '<div class="ns-science ns-welcome-slide" data-science-step="'+step+'">'+panels[index]+'</div>'+
+ '<div class="ns-science ns-welcome-slide" data-science-step="'+step+'">'+slide+'</div>'+
  (error?'<p class="ns-welcome-error" role="alert">'+esc(error)+'</p>':'')+
  '<nav class="ns-welcome-actions" aria-label="Avanzar por los conceptos">'+
  (index?'<button type="button" data-act="sciencePrev" class="ns-back"'+locked+'>Anterior</button>':'<span></span>')+

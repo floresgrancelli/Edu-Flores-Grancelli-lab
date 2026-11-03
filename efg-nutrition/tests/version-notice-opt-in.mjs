@@ -11,7 +11,7 @@ const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
 assert.ok(build&&entry&&build===entry,"HTML build identity and PWA entry must match");
 assert.match(build,/ux35-major2/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
-assert.match(appJs,/science-welcome\.js\?v=20261103-p26m-nine/,"Load approved closing slide as a fresh module");
+assert.match(appJs,/science-welcome\.js\?v=20261103-owner-eight/,"Load approved closing slide as a fresh module");
 
 
 function el(tag){

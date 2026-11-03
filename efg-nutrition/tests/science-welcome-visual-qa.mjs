@@ -10,6 +10,7 @@ const css=readFileSync(new URL("../pilot/nutrition-science.css",import.meta.url)
  readFileSync(new URL("../pilot/science-welcome.css",import.meta.url),"utf8")+
  readFileSync(new URL("../pilot/science-wellbeing.css",import.meta.url),"utf8");
 const watercolorLogo=readFileSync(new URL("../pilot/assets/serotonina-acuarela.avif",import.meta.url));
+const ownerEight=readFileSync(new URL("../pilot/assets/ncc-p26m-owner-eight-reference.jpg",import.meta.url));
 const dir="artifacts/premium-visual-qa";mkdirSync(dir,{recursive:true});
 const targets=engine==="webkit"?[{name:"safari-390",width:390}]:
  [{name:"android-pixel-7",device:"Pixel 7"},{name:"mobile-320",width:320},{name:"tablet-768",width:768},{name:"desktop-1280",width:1280}];
@@ -21,12 +22,19 @@ try{
   try{
    const page=await context.newPage();
    await page.route("**/assets/serotonina-acuarela.avif",route=>route.fulfill({status:200,contentType:"image/avif",body:watercolorLogo}));
+   await page.route("**/assets/ncc-p26m-owner-eight-reference.jpg",route=>route.fulfill({status:200,contentType:"image/jpeg",body:ownerEight}));
    page.on("pageerror",e=>failures.push(target.name+": "+e.message));
    const width=page.viewportSize().width;
    for(const step of [0,3,7,8]){
     const body=renderScienceWelcomeStep(step);
     await page.setContent('<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><base href="http://fixture.test/"><style>body{margin:0;font:16px system-ui,sans-serif}'+css+'</style></head><body>'+body+'</body></html>',{waitUntil:"domcontentloaded"});
     if(step===8)await page.locator(".ns-wellbeing-logo").evaluate(img=>img.decode());
+    else {
+     const art=page.locator(".ns-owner-reference-art");
+     if(await art.count()!==1)failures.push(target.name+" missing original illustrated image for step "+(step+1));
+     const source=await art.evaluate(el=>getComputedStyle(el).backgroundImage);
+     if(!source.includes("ncc-p26m-owner-eight-reference.jpg"))failures.push(target.name+" original asset missing for step "+(step+1));
+    }
     const info=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
      panel:document.querySelectorAll(".ns-welcome-slide").length,
      progress:document.querySelectorAll(".ns-welcome-progress i").length,

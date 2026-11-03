@@ -17,7 +17,7 @@ import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=20261030-coach101";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=20261030-coach101";
 import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261103-p26m-nine";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261103-owner-eight";
 import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";

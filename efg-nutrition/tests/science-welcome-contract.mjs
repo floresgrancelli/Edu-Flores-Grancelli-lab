@@ -1,13 +1,21 @@
 // BRAND-77B: synthetic offline tests. Do not claim hosted deployment.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {createHash} from "node:crypto";
 import {SCIENCE_STEPS,SCIENCE_WELCOME_ENABLED,SCIENCE_WELCOME_VERSION,sciencePanels,
  renderScienceWelcomeStep,renderScienceVerticalView,readScienceWelcomeStatus,
  acknowledgeScienceWelcome} from "../pilot/science-welcome.js";
 assert.equal(SCIENCE_WELCOME_ENABLED,false);
+const ownerEight=readFileSync(new URL("../pilot/assets/ncc-p26m-owner-eight-reference.jpg",import.meta.url));
+assert.equal(ownerEight.length,479092);
+assert.equal(createHash("sha256").update(ownerEight).digest("hex"),"4ca3067e7508cf7e887422d0c8b375c6b3a71e563231f06e4ad3e186f802f2b4");
 assert.equal(SCIENCE_STEPS.length,9);
 const panels=sciencePanels();
 assert.equal(panels.length,9);
+assert.match(renderScienceWelcomeStep(0),/ns-owner-reference-art-1/);
+assert.match(renderScienceWelcomeStep(7),/ns-owner-reference-art-8/);
+assert.doesNotMatch(renderScienceWelcomeStep(8),/ns-owner-reference-art/);
+assert.match(renderScienceWelcomeStep(0),/ns-owner-reference-transcript/);
 assert.match(panels[3],/¿Por qué importa moverse\?/);
 assert.match(panels[3],/Caminar, bailar, andar en bicicleta/);
 assert.match(renderScienceVerticalView(),/¿Por qué importa moverse\?/);

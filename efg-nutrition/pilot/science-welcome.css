@@ -73,3 +73,43 @@
 .ns-welcome-slide .ns-conclusions article{border-color:#e1e8f1;box-shadow:0 2px 8px #203f5310}
 .ns-welcome-header{border-radius:14px;background:#ffffffb8;padding:5px 10px}
 @media(max-width:520px){.ns-welcome-slide[data-science-step="8"] .ns-conclusions{padding:10px}.ns-welcome-slide[data-science-step="9"] .ns-wellbeing{padding:4px}}
+
+/* P26M · Reference fidelity: exact eight owner-approved illustrations from the
+   4x2 source montage, shown separately and in source order; one shared JPEG.
+   The underlying scientific HTML remains screen-reader accessible and the
+   ninth panel is still the existing serotonin artwork. */
+.ns-welcome-slide[data-science-step="1"],.ns-welcome-slide[data-science-step="2"],
+.ns-welcome-slide[data-science-step="3"],.ns-welcome-slide[data-science-step="4"],
+.ns-welcome-slide[data-science-step="5"],.ns-welcome-slide[data-science-step="6"],
+.ns-welcome-slide[data-science-step="7"],.ns-welcome-slide[data-science-step="8"]{
+ display:flex;justify-content:center;align-items:center;padding:clamp(8px,2vw,16px);background:linear-gradient(155deg,#f5f0f3,#e7f4ef 70%,#e2eff8)
+}
+.ns-owner-reference{
+ display:block;position:relative;box-sizing:border-box;
+ width:min(100%,380px);aspect-ratio:328/585;margin:0 auto;
+ border-radius:14px;overflow:hidden;background:#fff;
+ box-shadow:0 15px 35px #24485a29;border:1px solid #e6eaf0
+}
+.ns-owner-reference-art{
+ display:block;position:absolute;inset:0;width:100%;height:100%;
+ background-image:url("./assets/ncc-p26m-owner-eight-reference.jpg");
+ background-repeat:no-repeat;background-size:400% 200%
+}
+.ns-owner-reference-art-1{background-position:0% 0%}
+.ns-owner-reference-art-2{background-position:33.333333% 0%}
+.ns-owner-reference-art-3{background-position:66.666667% 0%}
+.ns-owner-reference-art-4{background-position:100% 0%}
+.ns-owner-reference-art-5{background-position:0% 100%}
+.ns-owner-reference-art-6{background-position:33.333333% 100%}
+.ns-owner-reference-art-7{background-position:66.666667% 100%}
+.ns-owner-reference-art-8{background-position:100% 100%}
+.ns-owner-reference-transcript{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+}
+@media(max-width:520px){.ns-owner-reference{border-radius:10px}.ns-welcome-slide[data-science-step="1"],
+.ns-welcome-slide[data-science-step="2"],.ns-welcome-slide[data-science-step="3"],
+.ns-welcome-slide[data-science-step="4"],.ns-welcome-slide[data-science-step="5"],
+.ns-welcome-slide[data-science-step="6"],.ns-welcome-slide[data-science-step="7"],
+.ns-welcome-slide[data-science-step="8"]{padding:7px}}

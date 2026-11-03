@@ -199,3 +199,69 @@ assert.equal(unsafeIndex.calls.replace,0);
 console.log('PASS GU-06 STAGED: personal recipes require signed scoped coach RPC and opt-in; no owner-table RLS widening and no hosted writes.');
 
 console.log('PASS RECIPE CATALOG: 12 editorial + owner-scoped recipes, 0 cross-account leaks, portion-based diary and planner contracts.');
+
+
+// GU-06: run the ACTUAL recipe loader + save handler against two delayed cloud
+// SELECTs. Saving or refreshing recipes must not hide previously confirmed work.
+{
+ const begin=app.indexOf('function recipeStoreKey(){');
+ const end=app.indexOf('// Shared picker projection',begin);
+ const createBegin=app.indexOf('async function createPersonalRecipe(){');
+ const createEnd=app.indexOf('let recipeDialogReturnFocus=',createBegin);
+ assert.ok(begin>0&&end>begin&&createBegin>end&&createEnd>createBegin);
+ const recipeSource=app.slice(begin,end)+'\n'+app.slice(createBegin,createEnd);
+ const uid='student-recipe-race',hosted=[],waitingReads=[];
+ const st={profile:{role:'student'},session:{user:{id:uid}}};
+ let delayRead=false,insertCount=0;
+ const db={from(table){
+  assert.equal(table,'efg_personal_recipes');
+  return {
+   select(){return this;},eq(){return this;},
+   order(){
+    if(delayRead){delayRead=false;return new Promise(resolve=>waitingReads.push(resolve));}
+    return Promise.resolve({data:structuredClone(hosted),error:null});
+   },
+   insert(v){this.value=v;return this;},
+   single(){
+    insertCount++;
+    const data={...structuredClone(this.value),id:'recipe-'+insertCount,
+     created_at:'2026-11-03T09:00:00Z'};
+    hosted.push(data);return Promise.resolve({data:structuredClone(data),error:null});
+   }
+  };
+ }};
+ const prompts=['Tortilla personal','huevo','1','100','','2'];
+ const food=[{id:'egg',name:'Huevo',k:1,p:.1,c:.02,f:.05,fi:0}];
+ const api=new Function('state','sb','localStorage','sameRecipeIngredients','foods',
+  'prompt','notify','render','allowedRecipeIngredientIds','validateRecipeIngredientAccess',
+  'recoverableOfflineWrite','num',recipeSource+
+  ';return {myRecipes,loadCloudRecipes,createPersonalRecipe};')(
+   st,db,{getItem:()=>null},(a,b)=>JSON.stringify(a)===JSON.stringify(b),food,
+   ()=>prompts.shift(),()=>{},async()=>{},()=>new Set(['egg']),()=>{},()=>false,
+   x=>String(x));
+ await api.loadCloudRecipes();
+ assert.deepEqual(api.myRecipes(),[]);
+ delayRead=true;
+ const oldSnapshot=structuredClone(hosted);
+ const lateRead=api.loadCloudRecipes();
+ assert.equal(waitingReads.length,1);
+ await api.createPersonalRecipe();
+ assert.equal(insertCount,1,'One real recipe save creates one cloud row');
+ assert.equal(api.myRecipes().length,1);
+ assert.equal(api.myRecipes()[0].totals.k,100,'100 g of ingredient must not double-count');
+ assert.equal(api.myRecipes()[0].portions,2,'Recipe must preserve serving count');
+ waitingReads.shift()({data:oldSnapshot,error:null});
+ await lateRead;
+ assert.equal(api.myRecipes().length,1,'Late stale read cannot hide the saved recipe');
+ delayRead=true;
+ const olderSnapshot=structuredClone(hosted);
+ const older=api.loadCloudRecipes();
+ hosted.push({...hosted[0],id:'recipe-from-other-device',name:'Vianda nueva'});
+ await api.loadCloudRecipes();
+ assert.equal(api.myRecipes().length,2);
+ waitingReads.shift()({data:olderSnapshot,error:null});
+ await older;
+ assert.deepEqual(api.myRecipes().map(r=>r.name),['Tortilla personal','Vianda nueva'],
+  'Newer recipe read must win when earlier request responds last');
+ console.log('PASS GU-06 recipe stale-read race: saved portions and later list persist.');
+}

@@ -952,8 +952,11 @@ function myRecipes(){
 async function loadCloudRecipes(){
  const contextEpoch=state.authContextEpoch||0;
  const userId=state.session?.user?.id;
+ // A late SELECT must not replace a newer list or a just-saved recipe.
+ const loadToken=Symbol("recipes-load");
+ state.recipesLoadToken=loadToken;
  if(!userId||!["student","coach","admin"].includes(state.profile?.role)){cloudRecipes=[];state.cloudRecipesUserId=null;return;}
- const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId;
+ const sameUser=()=>(state.authContextEpoch||0)===contextEpoch&&state.session?.user?.id===userId&&state.recipesLoadToken===loadToken;
  // Lost transport must not hide a recoverable recipe stored on this device.
  let data,error;
  try{({data,error}=await sb.from("efg_personal_recipes").select("id,name,ingredients,portions,totals,created_at").eq("student_id",userId).order("created_at",{ascending:true}));}
@@ -1086,11 +1089,14 @@ async function createPersonalRecipe(){
     backups.push(recipe);
    try{localStorage.setItem(key,JSON.stringify(backups));}
    catch(_){throw Error("No pudimos guardar la receta sin conexión en este dispositivo.");}
+   state.recipesLoadToken=null; // Keep local pending backup ahead of stale cloud reads.
    notify("Receta guardada sólo en este dispositivo, pendiente de sincronizar.");
    return render();
   }
   if(!remoteResult?.data)throw Error("No recibimos confirmación de la nube; no se guardó la receta.");
+  state.recipesLoadToken=null; // Invalidate a SELECT started before this insert.
   cloudRecipes.push(remoteResult.data);
+  state.cloudRecipesUserId=userId;
   notify("Receta guardada en tu cuenta: "+num(totals.k/portions)+" kcal por porción (estimadas).");return render();
 }
 let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
@@ -3909,11 +3915,13 @@ if(el.dataset.foodbulk){
    saved.splice(index,1);
    if(saved.length)localStorage.setItem(key,JSON.stringify(saved));
    else localStorage.removeItem(key);
+   state.recipesLoadToken=null;
    notify("Receta local eliminada de este dispositivo.");return render();
   }
   const {error}=await sb.from("efg_personal_recipes").delete().eq("id",recipe.id).eq("student_id",userId);
   if(state.session?.user?.id!==userId)return;
   if(error)throw error;
+  state.recipesLoadToken=null; // Prevent an older SELECT from resurrecting a deleted recipe.
   cloudRecipes=cloudRecipes.filter(r=>r.id!==recipe.id);
   notify("Receta eliminada.");return render();
  }
@@ -4692,7 +4700,7 @@ function resetPrivateSession(){
  state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];
  // A pending request belongs to the old auth epoch: do not lock the next user.
  state.diaryWritePending=false;state.diaryWriteOwner=null;state.diaryWriteToken=null;
- state.habitualesLoadToken=null;
+ state.habitualesLoadToken=null;state.recipesLoadToken=null;
  pendingMealRegistrations.clear();pendingHabitualSlots.clear();
  recipeRegistrationBusy=false;
  state.goals=[];state.foodPlan=null;state.personalTargets=null;

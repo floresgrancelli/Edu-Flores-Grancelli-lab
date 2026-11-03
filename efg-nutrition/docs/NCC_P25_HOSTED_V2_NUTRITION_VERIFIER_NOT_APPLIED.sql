@@ -135,7 +135,8 @@ begin
   or pg_catalog.strpos(v_current,'five_meal_example')=0
   or pg_catalog.strpos(v_current,'flexible_meal_guide')=0
   or pg_catalog.strpos(v_current,'media_tarde')=0
-  or pg_catalog.strpos(v_current,'evidence_status = ''reviewed''')=0
+  or pg_catalog.strpos(v_current,'evidence_status')=0
+  or pg_catalog.strpos(v_current,'reviewed_at')=0
  then raise exception 'NCC_P25C_ABORT: installed verifier failed ACL and V2 source checks'; end if;
 end
 $ncc_p25_post$;

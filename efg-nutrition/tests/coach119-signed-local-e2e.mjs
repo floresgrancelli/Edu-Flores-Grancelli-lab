@@ -93,8 +93,8 @@ assert.equal(originalHistory.length, 1);
 // Activate ONLY this disposable database's diary gate. The public API cannot
 // write the private switch, and all other environments remain untouched.
 sql("update efg_private.coach_release_switches set enabled=true where switch_key='pilot_student_diary_write_gate'");
-const diaryWrite = user => request('/rest/v1/efg_daily_logs', {method: 'POST', token: user.token,
-  body: {student_id: user.id, log_day: '2026-11-01', meals: {}, totals: {}}});
+const diaryWrite = (user,meals={}) => request('/rest/v1/efg_daily_logs', {method: 'POST', token: user.token,
+  body: {student_id: user.id, log_day: '2026-11-01', meals, totals: {}}});
 for (const user of [users.newA, users.returningA, users.studentB]) {
   assert.equal((await status(user)).route, 'legal');
   denied(await diaryWrite(user), 'pending student REST diary denied');
@@ -299,7 +299,9 @@ assert.deepEqual(studentSix.meals.map(m=>m.slot),
  'All six default Coach-guide slots must survive an atomic publish');
 assert.deepEqual(studentSix.approvedFoodIds,['qa_food_a'],
  'Unselected catalog IDs must NOT become a publication whitelist');
-yes(await diaryWrite(users.newA), 'published student REST diary now allowed');
+const diarySlots=['desayuno','media_manana','almuerzo','media_tarde','merienda','cena'];
+yes(await diaryWrite(users.newA,Object.fromEntries(diarySlots.map(slot=>[slot,{}]))),
+ 'published student REST diary now allowed with all six fixed MI DIA slots');
 // Restore unrelated fictional legacy source only AFTER the v2 publication
 // demonstrated that its expiration could not block a selected 6-slot guide.
 sql("update efg_private.coach_reviewed_foods set expires_at=now()+interval '1 day' where food_id='qa_food_b'");
@@ -353,8 +355,13 @@ assert.deepEqual(fourSlotReadback.meals.map(m=>m.slot),['desayuno','almuerzo','m
  'Coach can remove two guide slots without reintroducing them');
 assert.equal(sql(`select jsonb_array_length(guided_plan->'meals') from efg_private.coach_guide_history where student_id=${q(users.newA.id)}`),'6',
  'Previous 6-slot approved plan must remain in the private history');
-assert.equal(yes(await read('efg_daily_logs',users.newA),'four-slot guide cannot delete actual diary').length,1,
- 'Guide changes must never modify a student diary');
+const preservedDiary=yes(await read('efg_daily_logs',users.newA),
+ 'four-slot guide cannot delete or reduce the six-slot diary');
+assert.equal(preservedDiary.length,1,'Guide edits must not create extra consumed meals');
+assert.deepEqual(Object.keys(preservedDiary[0].meals||{}).sort(),[...diarySlots].sort(),
+ 'Removing meals from Coach guide must NEVER remove any of the six MI DIA slots');
+assert.equal(preservedDiary[0].log_day,'2026-11-01',
+ 'The Coach replacement must not change the saved diary day');
 assert.equal((await status(users.newA)).route,'ready','Coach removes guide slots, not MI DIA access');
 
 // Both organizations and returning students must also have a positive path.

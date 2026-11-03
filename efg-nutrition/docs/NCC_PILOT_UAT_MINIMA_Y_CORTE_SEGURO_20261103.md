@@ -35,6 +35,22 @@ Registrar en cada caso: ID, fecha/hora ART, equipo, SO, navegador/PWA, SHA/URL s
 
 **Todo UAT-N01…N10 queda NOT RUN hasta su ejecución real.** Si la app nueva no está alojada, la prueba física del recorrido nuevo permanece BLOQUEADA, no se simula desde Render productivo antiguo.
 
+## Preparación de versiones sin GO (paquete NO ejecutable)
+El HTML actual usa una versión de octubre y el módulo principal importa múltiples dependencias con identificadores propios. Un cambio de versión únicamente en el HTML no alcanza para renovar toda la caché de JavaScript de un teléfono. **No modificar estos identificadores todavía en la candidata: se cambian en un corte coordinado y autorizado.**
+
+Para comprobar el inventario sin escribir:
+```bash
+node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --check
+```
+Solo cuando exista SHA definitivo y para producir una propuesta **fuera del repositorio**, sin aplicar nada:
+```bash
+node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --emit \
+  --ack=PREPARE_ONLY_NOT_GO --expected-sha=SHA_COMPLETO_REVISADO \
+  --build=ncc-pilot-PRIMEROS_12_CARACTERES_DEL_SHA \
+  --out=/tmp/ncc-pilot-pre-go-review
+```
+El comando exige que el SHA coincida con el checkout y produce `review-manifest.json`, un `index.html` propuesto y versiones de los módulos importadores que necesitan `?v=` nuevo; incluye dependencias anidadas y estilos. Las hojas fuente NO se editan ni se publica el paquete. El CI Premium comprueba el modo solo lectura, el paquete temporal y el rechazo de SHA incorrecto, sin tocar Supabase ni Render. Después del GO, revisar este artefacto y aplicar de forma controlada antes de comprobar el SHA realmente servido.
+
 ## 3. Secuencia de GO y reversión — preparar, NO ejecutar
 1. Verificar SHA final de PR43, 6/6 CI y estado productivo. Mantener sin merge/despliegue y detectar cambios de otros ejecutores. Conservar hashes/estado base sin alterar datos reales.
 2. El sistema genera la Dieta Guía automáticamente en **borrador privado** desde la ficha nutricional vigente y las metas calculadas/ajustadas. El coach la revisa y **da el visto bueno o modifica** alimentos, recetas, gramos y horarios; se recalcula sin tocar Mi Día. Solo sobre los ingredientes que quedan en ese borrador final —incluidos componentes expandidos de recetas— generar `operator-review-worklist.csv` con huella `selectedGuideFingerprintSha256`. Un revisor humano autorizado verifica identidad, preparación, unidad, kcal/P/HC/G/fibra, fuente y diferencias. **Nunca aprobar alimentos automáticamente**, ni convertir la lista de fuentes revisadas en una lista blanca del catálogo. La aprobación del coach para publicar es posterior a esa verificación y no se presume por haber generado la guía.

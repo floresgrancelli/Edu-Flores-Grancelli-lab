@@ -67,6 +67,7 @@ import {acceptPilotParticipation} from "./pilot-participation-client.js?v=202610
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
 import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
+import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=20261102-health-private-off";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -490,6 +491,17 @@ const authHydration=createAuthHydrationGate({
 
 state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;state.majorRelease=null;state.majorReleaseLegal=null;
 state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
+// Private health cache lives exclusively in RAM and dies on sign-out.
+state.privateHealthSessionNonce=null;
+state.privateHealthDeclaration=createStudentRestrictionDeclaration({sb,
+ enabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,
+ readContext:()=>({
+  userId:state.session?.user?.id,organizationId:state.profile?.organization_id,
+  sessionId:state.privateHealthSessionNonce,role:state.profile?.role,
+  active:state.profile?.active,
+  epoch:Number.isSafeInteger(state.authContextEpoch)?state.authContextEpoch+1:1
+ })
+});
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -1134,10 +1146,13 @@ function frame(content){
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
+ const visibleMenu=role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&
+  ["private","review","ready"].includes(state.coachPilotEntry?.route)
+  ?menu.concat([["privateHealth","◌","Mis restricciones"]]):menu;
  const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
  const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- menu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
+ visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
  pilotGuideLifecycle.mountStudent(root);
@@ -2892,8 +2907,39 @@ function restoreViewContinuity(snapshot){
  // iOS Safari may settle scroll dimensions after the newly rendered content lays out.
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
+// Separate, opt-in health flow. Entire client is OFF until hosted consent,
+// server grants and the signed Coach onboarding release are authorized.
+async function renderPrivateHealthDeclaration(){
+ const userId=state.session?.user?.id,profile=state.profile;
+ const intake=state.coachPilotIntake,route=state.coachPilotEntry?.route;
+ const allowed=PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&COACH_STUDENT_JOURNEY_ENABLED&&
+  profile?.role==="student"&&profile.active===true&&profile.user_id===userId&&
+  ["private","review","ready"].includes(route)&&
+  intake?.student_id===userId&&intake.organization_id===profile.organization_id&&
+  intake.completed_version===COACH_RELEASE_INTAKE_VERSION&&
+  Number.isSafeInteger(intake.revision)&&intake.revision>0;
+ if(!allowed){
+  root.innerHTML='<section class="card" role="alert"><h2>Declaración privada no disponible</h2><p>Verificá la ficha nutricional vigente y tu cuenta.</p><button class="btn" type="button" data-act="retry">Volver a consultar</button></section>';
+  return;
+ }
+ if(!state.privateHealthSessionNonce){
+  if(typeof window.crypto?.randomUUID!=="function")throw Error("No hay identificador de sesión local seguro para esta vista.");
+  state.privateHealthSessionNonce=window.crypto.randomUUID();
+ }
+ frame('<section class="card" aria-labelledby="privateHealthTitle"><h2 id="privateHealthTitle">Mis restricciones alimentarias</h2><p>Esta declaración es independiente de los avisos del piloto y no modifica tus registros anteriores. Compartirla con tu coach es opcional y revocable.</p><div id="privateHealthDeclarationMount" role="region" aria-label="Declaración privada"></div></section>');
+ const mount=document.getElementById("privateHealthDeclarationMount");
+ try{
+  await state.privateHealthDeclaration.open(mount);
+ }catch(error){
+  if(state.tab!=="privateHealth"||state.session?.user?.id!==userId||!mount?.isConnected)return;
+  const message=document.createElement("p");message.setAttribute("role","alert");
+  message.textContent=error?.message||"No se pudo verificar la declaración privada.";
+  mount.replaceChildren(message);
+ }
+}
 async function render(){
  const renderEpoch=state.authContextEpoch||0;
+ state.privateHealthDeclaration?.invalidate?.();
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
@@ -2973,6 +3019,8 @@ async function render(){
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
+    else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
+     await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
      // The owner chose NOT to share. Never imply the Coach received the form.
      frame('<section class="card efg-coach-private-notice" role="status"><h2>Tu ficha está guardada como privada</h2><p>Tu coach todavía no puede verla ni preparar el nuevo plan. Podés revisar el permiso desde Mi ficha. Tu historial permanece disponible.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y el permiso</button></section>'+
@@ -3003,6 +3051,7 @@ async function render(){
   return;
  }
  if(state.welcomePending)return welcomeView();
+ if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")return renderPrivateHealthDeclaration();
  if(studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
@@ -4518,6 +4567,8 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ state.privateHealthDeclaration?.invalidate?.();
+ state.privateHealthSessionNonce=null;
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Includes pending HTTP loads and saves.
  // Clear role-scoped RAM on every SIGNED_OUT, including external session

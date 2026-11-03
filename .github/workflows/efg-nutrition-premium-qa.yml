@@ -146,6 +146,12 @@ jobs:
           node --check efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs
           node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --check
           node efg-nutrition/tests/ncc-pwa-asset-cutover-pre-go.mjs
+      - name: NCC P26 signed hosted actor isolation harness (OFFLINE CONTRACT ONLY, NO OTP/NETWORK)
+        if: ${{ !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          node --check efg-nutrition/tools/ncc-p26-hosted-signed-readonly.mjs
+          node --check efg-nutrition/tests/ncc-p26-hosted-signed-contract.mjs
+          node efg-nutrition/tests/ncc-p26-hosted-signed-contract.mjs
       - name: COACH122 two-device session cutover proof; no stale second-device bypass
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/coach122-major-per-device-cutover.mjs

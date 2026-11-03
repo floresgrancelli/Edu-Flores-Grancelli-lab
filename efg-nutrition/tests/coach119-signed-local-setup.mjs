@@ -1,10 +1,11 @@
-// Assemble CURRENT candidate modules on a FRESH disposable Supabase stack.
-// The guards run before any application DDL. This script never links a project.
+// Rehearse the EXACT six-source release TRANSACTION on a fresh disposable
+// Supabase stack. Never connects to or links an external project.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {localContext} from './helpers/coach119-local.mjs';
+import {buildPilotCoach119Transaction,RELEASE_SOURCES} from '../tools/prepare-pilot-coach119-release.mjs';
 
-const {sql, rpc} = localContext();
+const {sql, sqlExpectFailure, rpc} = localContext();
 assert.equal(sql("select to_regclass('public.efg_profiles') is null"), 't', 'Fresh stack required');
 assert.equal(sql('select count(*) from auth.users'), '0', 'No existing accounts permitted');
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
@@ -19,49 +20,70 @@ const files = [
   '../migrations/20261030_coach_pilot_student_entry_status.sql',
   '../migrations/20261030_coach116_legal_first_student_status.sql',
   '../migrations/20261030_coach118_diary_write_gate_disabled.sql',
-  '../migrations/20261030_coach_reviewed_guide_nutrition_source.sql',
-  '../migrations/20261031_coach_relaunch_owner_org_rls_fix_NOT_APPLIED.sql'
+  '../migrations/20261030_coach_reviewed_guide_nutrition_source.sql'
 ];
 for (const file of files) sql(read(file));
-// Reproduce the installed older sharing constraint before its exact repair.
+// Reconstruct LEGACY hosted prerequisites BEFORE the proposed cutover;
+// never pre-apply SEC09, OPT01, FOOD_URL, COACH119, COACH116-final or GU06.
 sql('alter table public.efg_pilot_participation_receipts add constraint ' +
   'efg_pilot_participation_receipts_sharing_accepted_check check(sharing_accepted=true) not valid');
-sql(read('../migrations/20261031_coach_optional_sharing_NOT_APPLIED.sql'));
-// Assert that SEC09 and OPT01 have actually been applied in the correct order,
-// using disposable local schemas and no existing human accounts.
-for(const [table,policy] of [
+assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
+const urlDef=()=>sql("select pg_get_constraintdef(oid) from pg_constraint where conrelid='efg_private.coach_reviewed_foods'::regclass and conname='coach_reviewed_foods_source_url_check'");
+assert.match(urlDef(),/char_length/, 'Unexpected baseline reviewed-food check');
+sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check;"+
+    "alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check "+
+    "check(source_url ~ '^https://[^[:space:]]{8,1990}$');");
+assert.match(urlDef(),/\{8,1990\}/, 'Legacy URL check not reconstructed');
+// GU06 expects an owner-only table on the observed host. Mirror its RLS/ACL
+// BEFORE the bundle so the transaction verifies this prerequisite.
+sql(read('./sql/coach119-personal-recipes-hostedshape-local.sql'));
+
+const ownerPolicies=[
  ['efg_coach_relaunch_intakes','efg_coach_relaunch_owner_select'],
  ['efg_pilot_participation_receipts','efg_pilot_participation_owner_read']
-]){
+];
+const ownerQual=()=>ownerPolicies.map(([table,policy])=>
+ sql("select qual from pg_policies where schemaname='public' and tablename='"+table+"' and policyname='"+policy+"'"));
+const ownerBefore=ownerQual();
+assert.equal(sql("select to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is null"),'t');
+assert.equal(sql("select to_regprocedure('public.efg_coach_shared_student_recipes(uuid)') is null"),'t');
+
+// Rehearse the exact SHA-pinned six-source transaction. Inject an error
+// IMMEDIATELY BEFORE COMMIT: earlier RLS, trigger and DDL changes must roll
+// back as a unit. This runs against disposable PG17 only.
+const candidate=buildPilotCoach119Transaction();
+assert.deepEqual(candidate.blocks,['SEC09','OPT01','FOOD_URL','COACH119','COACH116','GU06']);
+assert.equal(RELEASE_SOURCES.length,6);
+assert.match(candidate.sha256,/^[a-f0-9]{64}$/);
+const aborted=candidate.sql.replace(/\ncommit;\s*$/,
+  "\ndo $ncc_local_abort$ begin raise exception 'NCC_LOCAL_ROLLBACK_EXPECTED'; end $ncc_local_abort$;\ncommit;\n");
+assert.notEqual(aborted,candidate.sql,'Cannot inject pre-commit failure');
+sqlExpectFailure(aborted,'NCC_LOCAL_ROLLBACK_EXPECTED');
+assert.deepEqual(ownerQual(),ownerBefore,'SEC09 policy survived a failed transaction');
+assert.equal(sql("select count(*) from pg_constraint where conrelid='public.efg_pilot_participation_receipts'::regclass and conname='efg_pilot_participation_receipts_sharing_accepted_check'"),'1');
+assert.match(urlDef(),/\{8,1990\}/, 'FOOD_URL fix survived a failed transaction');
+assert.equal(sql("select to_regclass('public.efg_coach_plan_publish_receipts') is null"),'t');
+assert.equal(sql("select to_regprocedure('public.efg_publish_coach_plan_draft_atomic(uuid,bigint,uuid)') is null"),'t');
+assert.equal(sql("select to_regprocedure('public.efg_coach_shared_student_recipes(uuid)') is null"),'t');
+assert.equal(sql("select count(*) from efg_private.coach_release_switches where enabled"),'0');
+
+// Now install EXACTLY the emitted operator SQL on the local, empty stack.
+sql(candidate.sql);
+for(const [table,policy] of ownerPolicies){
  const qual=sql("select qual from pg_policies where schemaname='public' and tablename='"+table+"' and policyname='"+policy+"'");
  assert.ok(qual.includes(table+'.organization_id'),'SEC09 owner isolation missing: '+table);
 }
 assert.equal(sql("select to_regprocedure('efg_private.coach_pilot_share_active(uuid,uuid)') is not null"),'t');
 assert.equal(sql("select count(*) from pg_constraint where conrelid='public.efg_pilot_participation_receipts'::regclass and conname='efg_pilot_participation_receipts_sharing_accepted_check'"),'0');
-// The hosted COACH114 URL check currently contains {8,1990}, which is invalid
-// for regex evaluation. Recreate that exact LEGACY SHAPE on an EMPTY disposable
-// local table, then exercise its already-reviewed corrective migration.
+assert.match(urlDef(),/char_length/, 'FOOD_URL corrective constraint missing');
+assert.doesNotMatch(urlDef(),/\{8,1990\}/, 'Broken FOOD_URL regex survived cutover');
 assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
-const urlDef=()=>sql("select pg_get_constraintdef(oid) from pg_constraint where conrelid='efg_private.coach_reviewed_foods'::regclass and conname='coach_reviewed_foods_source_url_check'");
-assert.match(urlDef(),/char_length/, 'Unexpected source migration URL check');
-sql("alter table efg_private.coach_reviewed_foods drop constraint coach_reviewed_foods_source_url_check;"+
-    "alter table efg_private.coach_reviewed_foods add constraint coach_reviewed_foods_source_url_check "+
-    "check(source_url ~ '^https://[^[:space:]]{8,1990}$');");
-assert.match(urlDef(),/\{8,1990\}/, 'Legacy hosted URL check was not reconstructed');
-sql(read('../migrations/20261031_coach_reviewed_food_url_constraint_fix_NOT_APPLIED.sql'));
-assert.match(urlDef(),/char_length/, 'COACH114 fix not installed');
-assert.doesNotMatch(urlDef(),/\{8,1990\}/, 'Invalid regex survived COACH114 fix');
-assert.equal(sql('select count(*) from efg_private.coach_reviewed_foods'),'0');
-// Publish remains gated. This is an installation rehearsal, never a hosted write.
-sql(read('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql'));
-// The actual release bundle installs COACH116 LAST. OPT01 intentionally
-// redefines the older student entry RPC, so this disposable JWT integration
-// must reproduce the final server behavior with flexible 2-6 meal plans.
-sql(read('../migrations/20261030_coach116_legal_first_student_status.sql'));
-// GU-06: exercise the exact proposed Coach-to-student recipe read against a
-// faithful, fictional owner-RLS table, with real signed GoTrue identities.
-sql(read('./sql/coach119-personal-recipes-hostedshape-local.sql'));
-sql(read('../migrations/20261102_coach_shared_student_recipes_NOT_APPLIED.sql'));
+// A second one-time installation must fail closed without corrupting the
+// first cutover; this is NOT advertised as a re-runnable migration.
+sqlExpectFailure(candidate.sql,'COACH-OPT-01: expected legacy sharing CHECK absent');
+assert.equal(sql("select count(*) from efg_private.coach_release_switches where switch_key='pilot_coach_atomic_publication' and enabled=false"),'1');
+console.log('PASS exact six-source SQL transaction: pre-COMMIT rollback, one successful install and repeat-install denial; SHA256 '+candidate.sha256);
+
 assert.equal(sql("select relrowsecurity from pg_class where oid='public.efg_personal_recipes'::regclass"),'t');
 assert.equal(sql("select count(*) from pg_policies where tablename='efg_personal_recipes' and cmd='SELECT'"),'1',
  'Recipe table must keep precisely one owner SELECT policy (no Coach table read)');

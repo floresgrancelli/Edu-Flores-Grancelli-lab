@@ -209,7 +209,14 @@ for(const wrong of [[...validIds,'chicken'],validIds.slice(1),[...validIds.slice
  assert.notEqual(preparePilotSourceReview({guide:changedRecipe}).recipeComponentsFingerprintSha256,
   componentPacket.recipeComponentsFingerprintSha256,
   'Recipe component quantities are tied to exact selected serving');
- const cakePacket=preparePilotSourceReview();
+ const cakeGuide={kind:'flexible_meal_guide',version:2,meals:[
+  {slot:'desayuno',items:[{...byId.get('cake'),qty:82.5}]},
+  {slot:'almuerzo',items:[{...byId.get('egg'),qty:100}]}
+ ]};
+ const cakePacket=preparePilotSourceReview({guide:cakeGuide});
+ assert.equal(cakePacket.selectedUniqueFoodCount,2,
+  'Review only selected PWA dish IDs; recipe components remain explicit rows');
+ assert.equal(cakePacket.recipeComponents.filter(x=>x.parentFoodId==='cake').length,5);
  assert.ok(cakePacket.recipeComponents.some(x=>x.parentFoodId==='cake'&&x.ingredientFoodId==='whey_powder'));
  assert.equal(cakePacket.unverifiedRecipeProxyCount,0);
  console.log('PASS NCC P18 auto Coach draft -> edits -> source review, PWA composite macro parity, expanded modeled recipes and proxy evidence NEVER auto-approved.');

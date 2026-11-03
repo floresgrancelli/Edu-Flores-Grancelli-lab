@@ -93,7 +93,20 @@ export async function runHostedSignedReadOnly(config,transport=fetch){
     if(actor.name==='student')assert.equal(p[0].organization_id,orgA,
       'Student not linked to authorized test organization');
   }
+  const foreignProfile=await get(coachB,profilePath(student.id));
+  assert.ok(Array.isArray(foreignProfile)&&foreignProfile.length===0,'Cross-org student profile exposure');
   checks.push('ACTIVE_ROLES_BOUND_TO_SIGNED_USERS');
+  // A private synthetic recipe must exist: empty tables cannot prove isolation.
+  const recipePath='/rest/v1/efg_personal_recipes?select=id,student_id&student_id=eq.'+student.id+'&limit=2';
+  const [ownRecipes,coachRecipes,foreignRecipes]=await Promise.all([
+    get(student,recipePath),get(coachA,recipePath),get(coachB,recipePath)
+  ]);
+  assert.ok(Array.isArray(ownRecipes)&&ownRecipes.length>0&&
+    ownRecipes.every(row=>uuid.test(row.id||'')&&row.student_id===student.id),
+    'Missing owner-visible synthetic private recipe positive control');
+  assert.ok(Array.isArray(coachRecipes)&&coachRecipes.length===0,'Coach private recipe exposure');
+  assert.ok(Array.isArray(foreignRecipes)&&foreignRecipes.length===0,'Cross-org private recipe exposure');
+  checks.push('PRIVATE_RECIPE_OWNER_POSITIVE_COACH_DENIALS');
   for(const [actor,org]of [[coachA,orgA],[coachB,orgB]]){
     const rows=await get(actor,'/rest/v1/efg_organizations?select=id,coach_id,is_test&id=eq.'+org+'&limit=2');
     assert.ok(Array.isArray(rows)&&rows.length===1&&rows[0].id===org&&

@@ -26,7 +26,7 @@ const adminPayload=Buffer.from(JSON.stringify({role:'service_role',sub:ids[1],ex
 assert.throws(()=>validateHostedActors({...env,NCC_P26_COACH_A_JWT:'a.'+adminPayload+'.c'},now));
 const valid=validateHostedActors(env,now);
 const observed=[];
-let crossLeak=false;
+let crossLeak=false,profileLeak=false,recipeLeak=false,ownRecipeMissing=false;
 const json=data=>({status:200,json:async()=>data});
 const fakeGet=async(url,options)=>{
  assert.equal(options.method,'GET','No non-read request permitted');
@@ -38,6 +38,12 @@ const fakeGet=async(url,options)=>{
  assert.equal(u.origin,HOSTED_ORIGIN);
  observed.push({method:options.method,path});
  if(path==='/auth/v1/user')return json({id:actor.id,email_confirmed_at:'2026-11-03T00:00:00Z'});
+ if(path==='/rest/v1/efg_personal_recipes'){
+  const recipe={id:'44444444-4444-4444-8444-444444444444',student_id:ids[0]};
+  return json(actor.name==='student'?(ownRecipeMissing?[]:[recipe]):(recipeLeak?[recipe]:[]));
+ }
+ if(path==='/rest/v1/efg_profiles'&&search.get('user_id')==='eq.'+ids[0]&&actor.name==='coachB')
+  return json(profileLeak?[{user_id:ids[0]}]:[]);
  if(path==='/rest/v1/efg_profiles')return json([{user_id:actor.id,role:actor.name==='student'?'student':'coach',
     organization_id:actor.name==='student'?orgs[0]:null,active:true}]);
  if(path==='/rest/v1/efg_organizations'){
@@ -60,6 +66,15 @@ assert.equal(result.otp_provenance,'REQUIRES_SEPARATE_HUMAN_BROWSER_EVIDENCE');
 assert.ok(observed.every(x=>x.method==='GET'));
 crossLeak=true;
 await assert.rejects(()=>runHostedSignedReadOnly(valid,fakeGet),/Cross-org intake exposure/);
+crossLeak=false;
+profileLeak=true;
+await assert.rejects(()=>runHostedSignedReadOnly(valid,fakeGet),/Cross-org student profile exposure/);
+profileLeak=false;
+recipeLeak=true;
+await assert.rejects(()=>runHostedSignedReadOnly(valid,fakeGet),/private recipe exposure/);
+recipeLeak=false;
+ownRecipeMissing=true;
+await assert.rejects(()=>runHostedSignedReadOnly(valid,fakeGet),/positive control/);
 const original=globalThis.fetch;
 assert.equal(typeof original,'function');
 console.log('PASS NCC P26 OFFLINE: JWT shape rejects privileged/expired/wrong actors, all requests GET, cross-org leak fails, no hosted network/OTP/consent/write. Signed live test NOT RUN.');

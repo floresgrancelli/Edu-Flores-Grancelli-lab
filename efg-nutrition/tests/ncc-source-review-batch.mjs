@@ -13,6 +13,7 @@ assert.equal(packet.selectedUniqueFoodCount,17);
 assert.equal(packet.foods.length,17);
 assert.ok(packet.actualCatalogSize>150);
 assert.match(packet.sourceCatalogFingerprintSha256,/^[a-f0-9]{64}$/);
+assert.match(packet.pinnedEvidenceFingerprintSha256,/^[a-f0-9]{64}$/);
 assert.equal(packet.publishable,false);
 assert.equal(packet.notACatalogWhitelist,true);
 assert.equal(packet.approvalsGranted,0);
@@ -92,4 +93,35 @@ for(const [bad,reason] of [
   extra.meals[1]]},/Expand recipe ingredients/],
  [{...extra,meals:[extra.meals[0],extra.meals[0]]},/Duplicate\/unknown meal slot/]
 ])assert.throws(()=>preparePilotSourceReview({guide:bad}),reason);
-console.log('PASS NCC P1 source packet: real 17/6, exact code fingerprint, 8 captures, identity/unit blocks, apples/oats/rice reconciliation, arbitrary recipe ingredients, fail-closed guide input and zero approvals.');
+
+const exactSourceCandidate={kind:'flexible_meal_guide',version:2,meals:[
+ {slot:'desayuno',items:[{id:'oats_raw',unit:'g',qty:50},{id:'yogurt_greek_light',unit:'g',qty:200},{id:'banana',unit:'g',qty:100}]},
+ {slot:'media_manana',items:[{id:'apple',unit:'g',qty:120},{id:'yogurt_greek_light',unit:'g',qty:125}]},
+ {slot:'almuerzo',items:[{id:'chicken_breast_roasted',unit:'g',qty:170},{id:'brownrice',unit:'g',qty:180},
+  {id:'spinach_cooked',unit:'g',qty:120},{id:'oil',unit:'g',qty:10}]},
+ {slot:'media_tarde',items:[{id:'banana',unit:'g',qty:100},{id:'yogurt_greek_light',unit:'g',qty:180}]},
+ {slot:'merienda',items:[{id:'oats_raw',unit:'g',qty:45},{id:'yogurt_greek_light',unit:'g',qty:180}]},
+ {slot:'cena',items:[{id:'chicken_breast_roasted',unit:'g',qty:150},{id:'potato',unit:'g',qty:200},
+  {id:'spinach_cooked',unit:'g',qty:100},{id:'oil',unit:'g',qty:10}]}
+]};
+const exactReview=preparePilotSourceReview({guide:exactSourceCandidate});
+assert.equal(exactReview.selectedUniqueFoodCount,9);
+assert.ok(exactReview.foods.every(f=>f.sourcePer100g!==null),
+ 'Optional nine-food case should reuse all already captured official source records');
+assert.equal(exactReview.foods.find(f=>f.id==='yogurt_greek_light').sourceFdcId,'170894');
+assert.equal(exactReview.foods.find(f=>f.id==='spinach_cooked').sourceFdcId,'168463');
+assert.equal(exactReview.foods.find(f=>f.id==='chicken_breast_roasted').sourceFdcId,'2705956');
+assert.equal(exactReview.foods.find(f=>f.id==='chicken_breast_roasted').evidenceState,'FNDDS_CAPTURE_PENDING_OPERATOR');
+assert.equal(exactReview.foods.find(f=>f.id==='brownrice').deltaPer100ComparableUnits.fi,0.2);
+assert.equal(exactReview.foods.find(f=>f.id==='chicken_breast_roasted').deltaPer100ComparableUnits.p,0.02);
+assert.ok(exactReview.foods.every(f=>f.humanReview==='PENDING'&&!f.approvedForServer));
+assert.equal(exactReview.publishable,false);
+assert.equal(exactReview.approvalsGranted,0);
+assert.equal(exactReview.sourceRecordsInserted,0);
+assert.equal(exactReview.notACatalogWhitelist,true);
+const validIds=exactReview.foods.map(x=>x.id);
+assert.doesNotThrow(()=>preparePilotSourceReview({guide:{...exactSourceCandidate,approvedFoodIds:validIds}}));
+for(const wrong of [[...validIds,'chicken'],validIds.slice(1),[...validIds.slice(1),validIds[1]]])
+ assert.throws(()=>preparePilotSourceReview({guide:{...exactSourceCandidate,approvedFoodIds:wrong}}),
+  /approvedFoodIds must equal actual selected ingredients/);
+console.log('PASS NCC P1 selected sources: default17, precise optional9/6 with pinned official captures, rice/fndds reconciliation, full catalog unchanged, approval stays pending, no server writes.');

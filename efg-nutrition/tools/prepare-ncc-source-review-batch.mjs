@@ -17,6 +17,21 @@ const template=[...GUIDE_MEALS.slice(0,3),
  ...GUIDE_MEALS.slice(3)];
 const manifest=json('../docs/NCC_PILOT_17_SOURCE_REVIEW_20261103.json');
 const archive=json('../docs/NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json');
+const firstFive=json('../docs/NCC_PILOT_INITIAL_FIVE_MEAL_REVIEW_20261102.json');
+const rawChicken=text('../tests/evidence/fndds-2705956.json');
+const parsedChicken=JSON.parse(rawChicken);
+// These are evidence CAPTURES, never automatic nutrition approval.
+const exactChicken=firstFive.preciseChickenCandidate;
+assert.equal(exactChicken?.foodId,'chicken_breast_roasted');
+assert.equal(parsedChicken.fdcId,exactChicken.fdcId);
+assert.equal(parsedChicken.description,exactChicken.description);
+assert.equal(createHash('sha256').update(rawChicken).digest('hex'),
+ exactChicken.primaryEvidence.sha256,'Pinned FNDDS local file no longer matches review dossier');
+for(const [nutrientId,value] of [[1008,exactChicken.per100g.k],
+ [1003,exactChicken.per100g.p],[1005,exactChicken.per100g.c],[1004,exactChicken.per100g.f]]){
+ const raw=parsedChicken.foodNutrients.find(n=>n.nutrient?.id===nutrientId);
+ assert.ok(raw&&Math.abs(raw.amount-value)<1e-9,'FNDDS nutrient record changed '+nutrientId);
+}
 const app=text('../pilot/pilot.js'),catalogSource=text('../pilot/food-catalog.js'),
  v2Source=text('../pilot/guided-day-v2.js');
 const match=app.match(/const foods=\[([\s\S]*?)\]\.concat\(EXTRA_FOODS\)/);
@@ -46,7 +61,26 @@ assert.equal(manifest.dataGovernance?.approvedForPublication,false);
 assert.equal(manifest.dataGovernance?.backendApprovedCount,0);
 assert.ok(manifest.foods.every(f=>f.humanReview==='PENDING'&&!f.approvedForServer));
 const archiveById=new Map(archive.records.map(f=>[f.foodId,f]));
+// Two otherwise unrecognized Coach substitutions already have exact official
+// captures. Protect the explicit shortlist: no automatic mapping for generic
+// chicken, skim milk measured in ml, or a future unrelated USDA record.
+const supplementalIds=['spinach_cooked','yogurt_greek_light'];
+const extraSources=new Map(supplementalIds.map(id=>{
+ const r=archiveById.get(id);
+ assert.ok(r&&r.unit==='g'&&r.canonicalRecordSha256&&r.reviewStatus==='pending_operator_review'&&r.canPublish===false);
+ assert.ok(!reviewById.has(id),'Supplemental source unexpectedly became part of default 17');
+ return [id,r];
+}));
+assert.equal(extraSources.size,2);
+assert.ok(!reviewById.has('chicken_breast_roasted')&&byId.has('chicken_breast_roasted'));
+assert.equal(exactChicken.publishable,false);
+assert.equal(exactChicken.reviewStatus,'pending_operator_review');
 const sourceFingerprint=createHash('sha256').update([app,catalogSource,v2Source].join('\nNCC-SOURCE\n')).digest('hex');
+const evidenceFingerprint=createHash('sha256').update([
+ text('../docs/NCC_PILOT_17_SOURCE_REVIEW_20261103.json'),
+ text('../docs/NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json'),
+ text('../docs/NCC_PILOT_INITIAL_FIVE_MEAL_REVIEW_20261102.json'),
+ rawChicken].join('\nNCC-REVIEW-EVIDENCE\n')).digest('hex');
 const rounded=n=>Math.round(n*10000)/10000;
 function selectedMeals(guide){
  if(guide==null)return template.map(m=>({slot:m.slot,items:m.items.map(([id,qty])=>({
@@ -56,6 +90,16 @@ function selectedMeals(guide){
   'The optional guide must be an expanded flexible_meal_guide v2');
  assert.ok(guide.meals.length>=2&&guide.meals.length<=6,'Guide slot count must be between 2 and 6');
  const seen=new Set();
+ // In a flexible guide, the optional approvedFoodIds refer to the exact
+ // chosen ingredients, NOT to the food picker. Do not silently ignore drift.
+ if(guide.approvedFoodIds!==undefined){
+  const selected=[...new Set(guide.meals.flatMap(m=>m.items?.map(i=>i.id)||[]))].sort();
+  assert.ok(Array.isArray(guide.approvedFoodIds) &&
+   new Set(guide.approvedFoodIds).size===selected.length &&
+   guide.approvedFoodIds.length===selected.length &&
+   guide.approvedFoodIds.every(id=>selected.includes(id)),
+   'Guide approvedFoodIds must equal actual selected ingredients');
+ }
  return guide.meals.map(meal=>{
   assert.ok(slots.includes(meal.slot)&&!seen.has(meal.slot),'Duplicate/unknown meal slot');
   seen.add(meal.slot);
@@ -89,26 +133,39 @@ export function preparePilotSourceReview({guide=null}={}){
  assert.ok(ids.length>0&&ids.length<=90);
  const counts={},foods=ids.map(id=>{
   const f=byId.get(id),row=reviewById.get(id)||null;
-  const source=captured(row),status=row?.evidenceState||'NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW';
+  const extra=extraSources.get(id)||null;
+  const precise=id==='chicken_breast_roasted'?exactChicken:null;
+  const source=captured(row)||extra?.per100g||precise?.per100g||null;
+  const sourceUnit=row?.sourceUnit||extra?.unit||(precise?'g':null);
+  const status=row?.evidenceState||
+   (precise?'FNDDS_CAPTURE_PENDING_OPERATOR':extra?'ARCHIVE_CAPTURE_PENDING_OPERATOR':
+    'NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW');
   const app100=Object.fromEntries(nutrients.map(n=>[n,rounded(f[n]*100)]));
-  const delta=source&&row.sourceUnit===f.unit
+  const delta=source&&sourceUnit===f.unit
    ?Object.fromEntries(nutrients.map(n=>[n,rounded(app100[n]-source[n])])):null;
   counts[status]=(counts[status]||0)+1;
   return {
    id,foodName:f.name,unit:f.unit,
    chosenIn:meals.filter(m=>m.items.some(x=>x.id===id)).map(m=>m.slot),
    partOfInitial17:reviewById.has(id),appSourceId:f.sourceId||null,
-   appPer100Unit:app100,sourceFdcId:row?.sourceFdcId||null,
-   sourceUnit:row?.sourceUnit||null,sourcePer100g:source,
-   pinnedRecordSha256:row?.canonicalRecordSha256||null,
+   appPer100Unit:app100,
+   sourceFdcId:row?.sourceFdcId||String(extra?.fdcId||precise?.fdcId||'')||null,
+   sourceUnit,sourcePer100g:source,
+   pinnedRecordSha256:row?.canonicalRecordSha256||
+    extra?.canonicalRecordSha256||precise?.primaryEvidence?.sha256||null,
+   sourceRecordDescription:extra?.description||precise?.description||null,
+   sourceEvidenceFile:precise?.primaryEvidence?.file||null,
    deltaPer100ComparableUnits:delta,evidenceState:status,
    requiredHumanAction:row?.requiredHumanAction||
-    'Selected outside the initial 17: match the exact food, preparation, unit and nutrient source, including expanded recipe ingredients.',
+    (precise?'Comparar pechuga al horno/asada, piel no consumida, FNDDS 2705956 con los valores de la ficha PWA; proteína 30,20 vs 30,22 g/100 g es redondeo PENDIENTE de revisión humana. No usar pollo genérico.':
+     extra?'Verificar identidad y preparación exacta ('+extra.description+'), tasa por 100 g, fuente primaria y redondeos antes de cualquier aprobación humana.':
+      'Selected outside the initial 17: match the exact food, preparation, unit and nutrient source, including expanded recipe ingredients.'),
    humanReview:'PENDING',approvedForServer:false,approvedBy:null,approvedAt:null
   };
  });
  return {schemaVersion:1,kind:'NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY',
-  sourceCatalogFingerprintSha256:sourceFingerprint,actualCatalogSize:allFoods.length,
+  sourceCatalogFingerprintSha256:sourceFingerprint,
+  pinnedEvidenceFingerprintSha256:evidenceFingerprint,actualCatalogSize:allFoods.length,
   sourceArchiveUrl:archive.sourceArchiveUrl,sourceArchiveSha256:archive.sourceArchiveSha256,
   selectedMeals:meals,selectedUniqueFoodCount:ids.length,countsByEvidenceState:counts,foods,
   approvalsGranted:0,sourceRecordsInserted:0,publishable:false,

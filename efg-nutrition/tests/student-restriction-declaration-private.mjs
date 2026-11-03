@@ -27,6 +27,21 @@ function fixture(){
  assert.equal((await f.client.revoke()).revoked,true);
 }
 {
+ const f=fixture();await f.client.load();
+ const privateSave=await f.client.declare({noneDeclared:true,processing:true,sharing:false});
+ assert.equal(privateSave.revision,1);
+ const sent=f.calls.find(x=>x.name==='efg_declare_no_restrictions');
+ assert.equal(sent.args.p_share_with_coach,false,'Processing consent must NOT imply sharing with coach');
+ assert.equal(sent.args.p_processing_consent,true);
+ assert.equal((await f.client.load()).declaration,'none_declared');
+ assert.equal((await f.client.revoke()).revoked,true);
+}
+{
+ const f=fixture();await f.client.load();
+ await assert.rejects(f.client.declare({noneDeclared:true,processing:true,sharing:'true'}));
+ assert.equal(f.calls.some(x=>x.name==='efg_declare_no_restrictions'),false);
+}
+{
  const f=fixture();await f.client.load();f.hold(async()=>{f.change();});
  await assert.rejects(f.client.declare({noneDeclared:true,processing:true,sharing:true}),/cambiaron/);
  assert.equal(f.calls.filter(c=>c.name==='efg_declare_no_restrictions').length,0,'No write after context changes during Auth');

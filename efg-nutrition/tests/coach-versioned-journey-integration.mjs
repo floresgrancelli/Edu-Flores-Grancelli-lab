@@ -33,7 +33,12 @@ try{
  const sb={auth:{getUser:async()=>({data:{user:{id:coach}},error:null})},from(table){
   assert.notEqual(table,'efg_student_intakes','New journey must never read old intake');
   reads.push(table);
-  const q={select(){return q},eq(){return q},not(){return q},in(){return q},
+  const q={select(fields){
+   if(table==='efg_coach_relaunch_intakes')
+    assert.ok(String(fields).split(',').includes('organization_id'),
+     'Current versioned Coach intake must read organization_id for safe automatic guide authorization');
+   return q;
+  },eq(){return q},not(){return q},in(){return q},
    limit:async()=>({data:table==='efg_coach_relaunch_intakes'?[intake]:[],error:null}),
    maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:intake,error:null})};
   return q;

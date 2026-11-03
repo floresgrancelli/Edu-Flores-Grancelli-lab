@@ -19,7 +19,12 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  const currentIntakeTable=()=>COACH_VERSIONED_INTAKE_ENABLED?
    "efg_coach_relaunch_intakes":"efg_student_intakes";
  const currentIntakeFields=(includeStudent=false)=>
-   (includeStudent?"student_id,":"")+"objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at"+
+   (includeStudent?"student_id,":"")+
+   // P23: the versioned guide must validate the signed organization's ID.
+   // Omitting this SELECT column makes every valid shared intake fail closed
+   // at Coach automatic guide generation even though its RLS check passed.
+   (COACH_VERSIONED_INTAKE_ENABLED?"organization_id,":"")+
+   "objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,preferred_foods,disliked_foods,meal_routine,notes,shared_at,updated_at"+
    (COACH_VERSIONED_INTAKE_ENABLED?",completed_version,revision,eating_window":"");
  const filterRelease=query=>COACH_VERSIONED_INTAKE_ENABLED?
    query.eq("completed_version",COACH_RELEASE_INTAKE_VERSION):query;

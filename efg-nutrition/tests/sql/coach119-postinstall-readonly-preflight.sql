@@ -2,7 +2,8 @@
 -- Unlike the PRE-install 18-check report, this expects the atomic RPC and receipts
 -- TO EXIST. All switches must REMAIN OFF until explicit owner GO.
 -- DO NOT infer a hosted GO from these metadata checks. Follow with JWT A/B,
--- scoped catalog coverage, verified backup/Storage and physical UAT.
+-- scoped selected-food coverage, real OTP smoke and explicit owner GO.
+-- Integral restore and expanded physical UAT are postponed until POST-GO.
 -- Safe to run on an uninstalled managed DB: missing objects report false.
 with checks(phase,check_id,passed,explanation) as (
  values
@@ -80,6 +81,35 @@ with checks(phase,check_id,passed,explanation) as (
    and exists(select 1 from efg_private.coach_release_switches
     where switch_key='pilot_coach_atomic_publication' and enabled is false),
    'All release switches must remain OFF even after install'),
+ ('04_ATOMIC','COACH119_FLEXIBLE_GUIDE_CONSTRAINT_VALIDATED',
+   exists(select 1 from pg_catalog.pg_constraint c
+    where c.conrelid=pg_catalog.to_regclass('public.efg_food_plans')
+     and c.conname='efg_guided_plan_shape' and c.contype='c' and c.convalidated
+     and pg_catalog.strpos(pg_catalog.pg_get_constraintdef(c.oid),'five_meal_example')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_constraintdef(c.oid),'flexible_meal_guide')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_constraintdef(c.oid),'jsonb_array_length')>0),
+   'Validated constraint retains legacy five and accepts flexible v2 guide'),
+ ('04_ATOMIC','COACH119_GUIDE_WRITE_GUARD_ENABLED',
+   exists(select 1 from pg_catalog.pg_trigger t
+    where t.tgrelid=pg_catalog.to_regclass('public.efg_food_plans')
+     and t.tgname='coach119_guard_flexible_guide_write'
+     and t.tgenabled='O' and not t.tgisinternal),
+   'V2 guide changes require the signed atomic transaction marker'),
+ ('04_ATOMIC','COACH119_GUIDE_HISTORY_ARCHIVE_ENABLED',
+   exists(select 1 from pg_catalog.pg_trigger t
+    where t.tgrelid=pg_catalog.to_regclass('public.efg_food_plans')
+     and t.tgname='coach119_archive_previous_approved_guide'
+     and t.tgenabled='O' and not t.tgisinternal),
+   'Replacing an approved guide must archive its previous revision'),
+ ('04_ATOMIC','COACH116_SIGNED_ENTRY_FLEXIBLE',
+   exists(select 1 from pg_catalog.pg_proc p
+    where p.oid=pg_catalog.to_regprocedure('public.efg_coach_pilot_entry_status()')
+     and p.prosecdef and p.proconfig @> array['search_path=""']::text[]
+     and not pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE')
+     and pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE')
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'flexible_meal_guide')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'v_intake.age_years is null')>0),
+   'Server-owned intake status requires six core fields and accepts 2-6 meals'),
  ('04_ATOMIC','COACH_DRAFT_READ_SCOPED',
    exists(select 1 from pg_policies where schemaname='public'
     and tablename='efg_coach_plan_drafts' and policyname='coach_draft_read_own'
@@ -91,6 +121,26 @@ with checks(phase,check_id,passed,explanation) as (
    and exists(select 1 from pg_trigger where tgrelid=to_regclass('public.efg_food_plans')
     and tgname='trg_efg_notify_food_guide' and tgenabled='O'),
    'Do not silently remove existing plan notification triggers'),
+ ('04_GU06','GU06_SCOPED_COACH_RECIPE_RPC',
+   exists(select 1 from pg_catalog.pg_proc p
+    where p.oid=pg_catalog.to_regprocedure('public.efg_coach_shared_student_recipes(uuid)')
+     and p.prosecdef and p.proconfig @> array['search_path=""']::text[]
+     and not pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE')
+     and pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE')
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'coach_pilot_share_active')>0
+     and pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid),'efg_legal_documents')>0),
+   'Student recipes available to the bound Coach only with current sharing/legal receipts'),
+ ('04_GU06','GU06_PERSONAL_RECIPES_OWNER_RLS',
+   exists(select 1 from pg_catalog.pg_class t
+    where t.oid=pg_catalog.to_regclass('public.efg_personal_recipes')
+     and t.relrowsecurity and not pg_catalog.has_table_privilege('anon',t.oid,'SELECT'))
+   and (select count(*) from pg_catalog.pg_policies
+    where schemaname='public' and tablename='efg_personal_recipes' and cmd='SELECT')=1
+   and exists(select 1 from pg_catalog.pg_policies
+    where schemaname='public' and tablename='efg_personal_recipes'
+     and policyname='Alumno lee sus recetas' and cmd='SELECT'
+     and qual like '%student_id%' and qual like '%auth.uid()%'),
+   'Original student-owned recipe RLS must remain intact without Coach table grants'),
  ('05_CONTENT','PILOT_TERMS_AND_PRIVACY_CURRENT',
    (select count(distinct kind)=2 from public.efg_legal_documents
     where is_current and published_at is not null
@@ -99,7 +149,7 @@ with checks(phase,check_id,passed,explanation) as (
     and body !~* 'BORRADOR[[:space:]]+INTERNO'
     and body !~* 'NO[[:space:]]+PUBLICAR'
     and position('[PENDIENTE' in body)=0),
-   'Still needs manual owner/contact/retention review, hash and acceptance E2E'),
+   'Two simple versioned pilot notices still require signed read/acceptance E2E'),
  ('05_CONTENT','ANY_CURRENT_REVIEWED_FOOD',
    exists(select 1 from efg_private.coach_reviewed_foods
     where evidence_status='reviewed' and reviewed_by is not null

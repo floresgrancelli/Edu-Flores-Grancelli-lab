@@ -5,7 +5,8 @@ import {resolve,join,extname} from 'node:path';
 import {chromium} from 'playwright';
 import {localSdkEntrySource,localSdkEntryFlag} from './sdk-entry-source-private.mjs';
 import {createLocalMailReader} from './sdk-entry-mail-local.mjs';
-export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublication,sql}){
+export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql}){
+ assert.equal(typeof prepareFlexibleLocal,'function','Missing isolated six-slot source fixture');
  assert.equal(process.env.GITHUB_ACTIONS,'true');assert.equal(process.env.EFG_QA_SDK_ENTRY,'1');
  const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV,'utf8').split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{const i=x.indexOf('=');return [x.slice(0,i),x.slice(i+1).trim().replace(/^["']|["']$/g,'')];}));
  assert.ok(['http://127.0.0.1:54321','http://localhost:54321'].includes(env.API_URL));
@@ -200,13 +201,45 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
     'Published guide ingredients should expand in the current PWA');
    assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await student.screenshot({path:join(out,'sdk-student-published-'+width+'.png'),fullPage:true});
+   // In the same REAL SDK browser session, republish through actual COACH119
+   // with six slots and eight auto-validated LOCAL archive-source foods.
+   // These sources are not human approved and NEVER reach hosted.
+   phase='publish-six-flexible-'+width;
+   const diaryBefore=await student.evaluate(id=>window.__SDK_ENTRY_QA__.readDiary(id),s.id);
+   const sixGuide=prepareFlexibleLocal(side);
+   const accepted=await coach.evaluate(async args=>
+    window.__SDK_ENTRY_QA__.publishFlexible(args),
+    {studentId:s.id,goal:finalGoal,guide:sixGuide});
+   assert.deepEqual(accepted.slots,
+    ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']);
+   assert.ok(Number.isSafeInteger(accepted.revision)&&accepted.revision>0);
+   await student.reload();await settled(student);
+   await student.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().route==='ready');
+   const sixRows=await student.evaluate(id=>window.__SDK_ENTRY_QA__.readGuide(id),s.id);
+   assert.equal(sixRows.length,1);
+   assert.equal(sixRows[0].guided_plan.kind,'flexible_meal_guide');
+   assert.equal(sixRows[0].guided_goal_id,accepted.goalId);
+   assert.deepEqual(sixRows[0].guided_plan.meals.map(m=>m.slot),accepted.slots);
+   assert.deepEqual(await student.evaluate(id=>window.__SDK_ENTRY_QA__.readDiary(id),s.id),
+    diaryBefore,'Atomic six-slot guide publication must not register eaten meals');
+   await student.locator('[data-tab="home"]:visible').first().click();
+   await student.locator('.efg-pastel-guide > summary').click();
+   const sixView=student.locator('.efg-pastel-guide .efg-guide-student > details');
+   await sixView.locator('summary').click();
+   assert.equal(await sixView.locator('.efg-guide-meal').count(),6,
+    'Current PWA must display all six signed published guide slots');
+   assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await student.screenshot({path:join(out,'sdk-student-six-published-'+width+'.png'),
+    fullPage:true});
+   console.log('PASS SDK real LOCAL six-slot Coach119 publication '+width+
+    ': signed RPC, published student PWA readback, diary unchanged');
    if(side==='A'){
     await logout(student);await login(student,users.studentB);
     const deniedStudent=await student.evaluate(id=>window.__SDK_ENTRY_QA__.probeForbiddenConsent(id),s.id);assert.equal(deniedStudent.rows,0);assert.ok(deniedStudent.code===null||deniedStudent.code==='42501');
     assert.equal((await snapshot(student)).intakeRevision,null);assert.equal(await student.locator('[data-guide-totals],.efg-guide-student').count(),0);
     assert.deepEqual(await student.evaluate(id=>window.__SDK_ENTRY_QA__.readGuide(id),s.id),[]);
    }
-   results.push({width,entry:true,refresh:true,forms:true,readback:true,delayedResponseDiscarded:true,revocation:true,published:true,goal:finalGoal});
+   results.push({width,entry:true,refresh:true,forms:true,readback:true,delayedResponseDiscarded:true,revocation:true,published:true,sixFlexiblePublished:true,sixRendered:true,diaryUnchanged:true,goal:finalGoal});
   }
   assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/otp'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/verify'&&x.status===200));assert.ok(safeTraffic.some(x=>x.path==='/auth/v1/token'&&x.status===200));
   writeFileSync(join(out,'result.json'),JSON.stringify({status:'PASS_LOCAL_SDK_ENTRY',results,traffic:safeTraffic},null,2));

@@ -78,6 +78,39 @@ window.__SDK_ENTRY_QA__=Object.freeze({
   if(id===u.data.user.id)throw Error('Probe only for a foreign row');
   const r=await sb.from('efg_consents').update({accepted:false,email_report_opt_in:false,updated_at:new Date().toISOString()}).eq('student_id',id).select('student_id');
   return {code:r.error?.code??null,rows:r.data?.length??0};},
+
+ publishFlexible:async({studentId,goal,guide})=>{
+  // Loopback-only test harness. Actual application SDK, JWT and signed RPCs.
+  const user=await sb.auth.getUser();
+  if(user.error||state.profile?.role!=='coach'||state.session?.user?.id!==user.data?.user?.id||
+     state.selectedStudent!==studentId||state.org?.id!==state.coachIntakeForms?.[studentId]?.organization_id)
+   throw Error('Six-slot local publisher requires the assigned Coach view.');
+  if(guide?.kind!=='flexible_meal_guide'||guide.version!==2||guide.meals?.length!==6)
+   throw Error('Expected an explicit six-slot guide for local QA.');
+  const intake=await sb.from('efg_coach_relaunch_intakes')
+   .select('student_id,organization_id,updated_at,revision,shared_at')
+   .eq('student_id',studentId).maybeSingle();
+  if(intake.error||intake.data?.student_id!==studentId||
+     intake.data?.organization_id!==state.org?.id||!intake.data?.shared_at)
+   throw Error('A current shared intake is required.');
+  const client=createCoachPlanDraftClient({sb,enabled:true,
+   relaunchEnabled:true,versionedBackendVerified:true});
+  const previous=await client.load(studentId);
+  const saved=await client.save({studentId,sourceUpdatedAt:intake.data.updated_at,
+   sourceRevision:intake.data.revision,goal,guide,
+   expectedRevision:previous?.draft_revision??null});
+  const result=await client.publish({studentId,expectedRevision:saved.revision,
+   requestId:crypto.randomUUID(),confirmed:true});
+  return {revision:saved.revision,goalId:result.goalId,slots:guide.meals.map(x=>x.slot)};
+ },
+ readDiary:async id=>{
+  const user=await sb.auth.getUser();
+  if(user.error||user.data?.user?.id!==id)throw Error('Own diary only');
+  const r=await sb.from('efg_daily_logs').select('student_id,log_day,meals,totals,skipped')
+   .eq('student_id',id).order('log_day',{ascending:false}).limit(20);
+  if(r.error)throw Error('Signed diary read failed');
+  return r.data;
+ },
  refreshSession:async()=>{const r=await sb.auth.refreshSession();return {ok:!r.error};}
 });\n`;
 }

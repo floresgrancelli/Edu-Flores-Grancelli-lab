@@ -68,9 +68,53 @@ const enableLocalPublication=side=>{
  insert into efg_private.bound_publication_local_gate(student_id,coach_id,organization_id,enabled) values(${q(s.id)},${q(c.id)},${q(orgs[side])},true);
  update efg_private.coach_release_switches set enabled=true where switch_key in ('pilot_coach_atomic_publication','pilot_student_diary_write_gate');`);
 };
+
+// A second signed browser publication uses ONLY eight known archive records,
+// marked AUTOMATICALLY VALIDATED inside the disposable local database.
+// No human food review is invented or inserted into hosted.
+const sixSourceIds=['yogurt_greek_light','oats_raw','apple','banana','brownrice',
+ 'spinach_cooked','oil','potato'];
+const localSources=JSON.parse(sql(
+ "select coalesce(jsonb_object_agg(food_id,jsonb_build_object('id',food_id,'unit',unit,"+
+ "'k',k,'p',p,'c',c,'f',f,'fi',fi,'status',evidence_status)),'{}'::jsonb)"+
+ " from efg_private.coach_reviewed_foods where food_id=any(array["+
+ sixSourceIds.map(id=>q(id)).join(',')+"])"
+));
+assert.deepEqual(Object.keys(localSources).sort(),sixSourceIds.slice().sort(),
+ 'The local six-slot QA must use exactly the archived reference identities');
+for(const id of sixSourceIds)assert.equal(localSources[id].status,'automated_validated',
+ 'Do not convert an automated archive match into human-reviewed evidence');
+const sixTemplate=[
+ ['desayuno','Desayuno',[['yogurt_greek_light',200],['oats_raw',50],['apple',100]]],
+ ['media_manana','Media mañana',[['banana',120],['yogurt_greek_light',150]]],
+ ['almuerzo','Almuerzo',[['brownrice',180],['spinach_cooked',150],['oil',10]]],
+ ['media_tarde','Media tarde',[['yogurt_greek_light',180],['banana',80]]],
+ ['merienda','Merienda',[['oats_raw',45],['yogurt_greek_light',180],['apple',100]]],
+ ['cena','Cena',[['potato',220],['spinach_cooked',150],['oil',10]]]
+];
+const prepareFlexibleLocal=side=>{
+ const student=users['student'+side],where='student_id='+q(student.id);
+ assert.equal(sql("select count(*) from efg_private.nut57_isolated_staging_marker where local_only"),'1');
+ assert.equal(sql('select count(*) from efg_private.guide_source_bindings where '+where),'1',
+  'A previous real bound-guide publication must exist');
+ // Remove the OLD bound-guide SOURCE only for the disposable local account.
+ // The replacement must use normal signed GENERAL Coach119, not clinical binding.
+ sql('delete from efg_private.guide_source_bindings where '+where);
+ assert.equal(sql('select count(*) from efg_private.guide_source_bindings where '+where),'0');
+ const meals=sixTemplate.map(([slot,label,refs])=>({slot,label,items:refs.map(([id,qty])=>{
+  const item=localSources[id];
+  return {id,name:id,unit:item.unit,qty,...Object.fromEntries(
+   ['k','p','c','f','fi'].map(k=>[k,Number(item[k])]))};
+ })}));
+ return {kind:'flexible_meal_guide',version:2,meals,
+  approvedFoodIds:sixSourceIds.slice().sort(),supplementNote:'',
+  profileReviewNotes:['LOCAL QA ficticia: no es un plan nutricional ni una aprobación humana.']};
+};
 try{
- await runSdkEntryBrowser({users,orgs,official,enableLocalPublication,sql});
- assert.equal(sql('select count(*) from public.efg_goals'),'2');
+ await runSdkEntryBrowser({users,orgs,official,enableLocalPublication,prepareFlexibleLocal,sql});
+ assert.equal(sql('select count(*) from public.efg_goals'),'4',
+  'Both original five-slot goals must remain after six-slot replacement');
+ assert.equal(sql("select count(*) from public.efg_food_plans where guided_plan->>'kind'='flexible_meal_guide' and jsonb_array_length(guided_plan->'meals')=6"),'2');
 }finally{
  sql(read('./sql/bound-publication-local-restore.sql'));
  assert.equal(sql("select count(*) from efg_private.coach_release_switches where enabled and switch_key in ('pilot_coach_atomic_publication','pilot_student_diary_write_gate')"),'0');

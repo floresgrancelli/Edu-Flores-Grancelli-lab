@@ -2911,6 +2911,7 @@ function restoreViewContinuity(snapshot){
 // server grants and the signed Coach onboarding release are authorized.
 async function renderPrivateHealthDeclaration(){
  const userId=state.session?.user?.id,profile=state.profile;
+ const viewEpoch=state.authContextEpoch||0;
  const intake=state.coachPilotIntake,route=state.coachPilotEntry?.route;
  const allowed=PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&COACH_STUDENT_JOURNEY_ENABLED&&
   profile?.role==="student"&&profile.active===true&&profile.user_id===userId&&
@@ -2931,7 +2932,8 @@ async function renderPrivateHealthDeclaration(){
  try{
   await state.privateHealthDeclaration.open(mount);
  }catch(error){
-  if(state.tab!=="privateHealth"||state.session?.user?.id!==userId||!mount?.isConnected)return;
+  if(state.tab!=="privateHealth"||state.session?.user?.id!==userId||
+   (state.authContextEpoch||0)!==viewEpoch||!mount?.isConnected)return;
   const message=document.createElement("p");message.setAttribute("role","alert");
   message.textContent=error?.message||"No se pudo verificar la declaración privada.";
   mount.replaceChildren(message);

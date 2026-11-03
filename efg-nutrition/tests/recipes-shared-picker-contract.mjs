@@ -153,6 +153,49 @@ assert.ok(switched.error);
 assert.deepEqual(switched.state.coachSharedRecipes,[]);
 assert.deepEqual(switched.calls,{confirmed:0,added:0,rendered:0});
 
+// Run the ACTUAL delegated Coach click handler, not just the pure helper.
+// One shared picker must replace an arbitrary food in one operation; it must
+// not offer only the old fixed swap-list or silently add another ingredient.
+async function exerciseFullCatalogCoachPick(replaceValue){
+ const slot='almuerzo',choice={id:'peanut_butter',name:'Pasta de maní',unit:'g',
+  k:5.8,p:.25,c:.2,f:.5,fi:.06};
+ const draft={kind:'flexible_meal_guide',meals:[{slot,items:[
+  {id:'chicken',qty:150},{id:'brownrice',qty:130}]}]};
+ const state={coachGuidedDraft:draft},calls={add:0,replace:0,render:0,notices:[]};
+ const select={dataset:{guidefoodpick:slot},value:choice.id};
+ const replaceControl={dataset:{guidereplaceindex:slot},value:replaceValue};
+ const env={state,el:{dataset:{guideaddfood:slot}},activeCoachGuideGoal:()=>({}),
+  readGuidedEditor:()=>draft,root:{querySelectorAll:selector=>
+   selector==='[data-guidefoodpick]'?[select]:
+   selector==='[data-guidereplaceindex]'?[replaceControl]:[]},
+  coachGuidePickerFoods:()=>[choice],foods:[choice],
+  reviewCoachGuideFoodChange:()=>({needsReview:false}),
+  currentCoachGuideProfile:()=>({}),window:{confirm:()=>{throw Error('Unexpected review prompt');}},
+  addFlexibleFood:(_d,_slot,food)=>{calls.add++;return {...draft,operation:'added',food};},
+  replaceFlexibleFood:(_d,_slot,index,food)=>{calls.replace++;return {...draft,operation:'replaced',index,food};},
+  showGuidedEditor:()=>calls.render++,notify:message=>calls.notices.push(message),
+  COACH_ATOMIC_PLAN_UI_ENABLED:true,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED:false};
+ const action=new Function(...Object.keys(env),
+  'return async function(action){'+coachUI.slice(actionStart,actionEnd)+'}')(...Object.values(env));
+ const error=await action('addGuidedFood').then(()=>null,x=>x);
+ return {state,calls,error};
+}
+const fullReplacement=await exerciseFullCatalogCoachPick('1');
+assert.equal(fullReplacement.error,null);
+assert.equal(fullReplacement.calls.replace,1,'Full-catalog replacement uses the same Coach selector');
+assert.equal(fullReplacement.calls.add,0,'Replacement must not accidentally append a duplicate food');
+assert.equal(fullReplacement.state.coachGuidedDraft.index,1);
+assert.equal(fullReplacement.state.coachGuidedDraft.food.id,'peanut_butter');
+assert.equal(fullReplacement.calls.render,1);
+const normalAdd=await exerciseFullCatalogCoachPick('');
+assert.equal(normalAdd.error,null);
+assert.equal(normalAdd.calls.add,1);
+assert.equal(normalAdd.calls.replace,0);
+const unsafeIndex=await exerciseFullCatalogCoachPick('999');
+assert.match(unsafeIndex.error?.message||'',/alimento válido/);
+assert.equal(unsafeIndex.calls.add,0);
+assert.equal(unsafeIndex.calls.replace,0);
+
 console.log('PASS GU-06 STAGED: personal recipes require signed scoped coach RPC and opt-in; no owner-table RLS widening and no hosted writes.');
 
 console.log('PASS RECIPE CATALOG: 12 editorial + owner-scoped recipes, 0 cross-account leaks, portion-based diary and planner contracts.');

@@ -346,6 +346,32 @@ jobs:
           mkdir -p "$RUNNER_TEMP/efg-nutrition-coach119-local"
           cd "$RUNNER_TEMP/efg-nutrition-coach119-local"
           supabase init --yes
+          # OTP for CURRENT Coach119 integration, local Mailpit ONLY.
+          # This does not enable external SMTP, hosted Auth, or production users.
+          python3 - "$PWD" <<'PY'
+          import os,sys,re,tomllib
+          from pathlib import Path
+          assert os.environ.get('GITHUB_ACTIONS')=='true'
+          root=Path(sys.argv[1]).resolve()
+          assert root==Path(os.environ['RUNNER_TEMP']).resolve()/'efg-nutrition-coach119-local'
+          path=root/'supabase/config.toml'
+          content=path.read_text()
+          config=tomllib.loads(content)
+          assert config['project_id']=='efg-nutrition-coach119-local'
+          assert config.get('inbucket',{}).get('enabled') is True
+          assert config['inbucket'].get('port')==54324
+          assert not config.get('auth',{}).get('email',{}).get('smtp',{}).get('enabled',False)
+          for kind in ('magic_link','confirmation'):
+              section='auth.email.template.'+kind
+              assert not re.search(r'(?m)^\\['+re.escape(section)+r'\\]',content)
+              content+='\\n['+section+']\\nsubject = "NCC fictional OTP (LOCAL ONLY)"\\ncontent_path = "./supabase/templates/ncc-coach119-otp.html"\\n'
+          templates=root/'supabase/templates'
+          templates.mkdir(exist_ok=True)
+          (templates/'ncc-coach119-otp.html').write_text('<p>FICTIONAL ONLY</p><p>NCC_LOCAL_OTP={{ .Token }}</p>')
+          tomllib.loads(content)
+          path.write_text(content)
+          print('Local fictional OTP mail template configured (no SMTP).')
+          PY
           if ! supabase start > "$RUNNER_TEMP/supabase-start-private.log" 2>&1; then
             echo "Disposable Supabase startup failed; private startup output is not uploaded."
             exit 1

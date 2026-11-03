@@ -10,7 +10,17 @@ const end=app.indexOf('function recipeStoreKey(){',begin);
 assert.ok(begin>0&&end>begin,'The actual cloud habitual subsystem must remain discoverable');
 const subsystem=app.slice(begin,end);
 let rows=[],seq=0,rendered=0,notified=[],diaryWrites=0;
-let holdNextInsert=false,releaseHeldInsert=null,approvedIds=['egg','oats'];
+let holdNextInsert=false,releaseHeldInsert=null;
+// Execute the application's REAL full-catalog projection, not an outdated
+// fixture which treats the Coach's guide as a student-specific whitelist.
+const fullCatalog=[{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'},{id:'bread',name:'Pan integral'}];
+const allowedBegin=app.indexOf('function allowedFoods(){');
+const allowedEnd=app.indexOf('// El sushi se muestra por piezas;',allowedBegin);
+assert.ok(allowedBegin>0&&allowedEnd>allowedBegin,'Real full-catalog food access must exist');
+const actualAllowedFoods=new Function('selectableFoods',
+ app.slice(allowedBegin,allowedEnd)+';return allowedFoods;')(()=>fullCatalog);
+assert.deepEqual(actualAllowedFoods(),fullCatalog.map(x=>x.id),
+ 'The Coach guide cannot remove canonical foods from MI DÍA');
 const userId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const sb={from(table){
  assert.equal(table,'efg_habitual_meals');
@@ -42,7 +52,7 @@ const api=new Function('sb','state','mealSlots','localStorage','activeDiary','pr
  msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
  msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),
- [{id:'egg',name:'Huevos'},{id:'oats',name:'Avena'}],{},()=>approvedIds,fakeDocument,pendingMealRegistrations,()=>diary.log_day,sameRecipeIngredients
+ fullCatalog,{},actualAllowedFoods,fakeDocument,pendingMealRegistrations,()=>diary.log_day,sameRecipeIngredients
 );
 assert.equal(sameRecipeIngredients([{id:'egg',qty:100}], [{qty:100,id:'egg'}]),true,'Real ingredient comparison ignores JSONB object key order');
 assert.equal(sameRecipeIngredients([{id:'egg',qty:100}], [{id:'egg',qty:101}]),false,'Distinct quantity must never deduplicate');
@@ -93,21 +103,27 @@ assert.equal(rows.length,blockedBefore,'Favorite action cannot race a manual foo
 pendingMealRegistrations.delete('desayuno');
 
 state.foodPlan={approved_food_ids:['oats']};
-approvedIds=['oats'];state.habitualSelection.desayuno=rows[0].id;
-const unchanged=structuredClone(diary.meals.desayuno);
+state.habitualSelection.desayuno=rows[0].id;
 const prevWrites=diaryWrites;
-await assert.rejects(api.applyChosenHabitual('desayuno'),/coach ya no incluyó/);
-assert.equal(diaryWrites,prevWrites,'Disallowed historical foods cannot bypass Coach approval via favorites');
-assert.deepEqual(diary.meals.desayuno,unchanged,'Rejected favorite must not change diary');
-assert.ok(api.getHabitualList('desayuno').some(x=>x.id===rows[0].id),
- 'Historical favorite remains available for review, not erased');
-approvedIds=['egg'];state.foodPlan.approved_food_ids=['egg'];
+assert.deepEqual(actualAllowedFoods(),['egg','oats','bread'],
+ 'Full catalog must remain independent of approvedFoodIds');
 await api.applyChosenHabitual('desayuno');
-assert.equal(diaryWrites,prevWrites+1,'Coach-approved favorite remains reusable');
+assert.equal(diaryWrites,prevWrites+1,
+ 'A previously saved egg can be registered even if Coach guide uses only oats');
 assert.equal(diary.meals.desayuno[0].id,'egg');
-state.foodPlan=null;approvedIds=[];
+assert.ok(api.getHabitualList('desayuno').some(x=>x.id===rows[0].id),
+ 'A historical favorite remains available with its exact ingredients');
+state.foodPlan.approved_food_ids=['egg'];
+state.habitualSelection.desayuno=rows[1].id;
+await api.applyChosenHabitual('desayuno');
+assert.equal(diaryWrites,prevWrites+2,
+ 'An oats favorite stays usable when Coach guide contains only eggs');
+assert.equal(diary.meals.desayuno[0].id,'oats');
+state.foodPlan=null;
+state.habitualSelection.desayuno=rows[0].id;
 await api.habitualAction('desayuno','use');
-assert.equal(diaryWrites,prevWrites+2,'Legacy account without approval list keeps habitual behavior');
+assert.equal(diaryWrites,prevWrites+3,
+ 'Legacy student without a guide keeps habitual behavior');
 
 // Both picker paths must restore the previous diary if the remote write fails.
 assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);

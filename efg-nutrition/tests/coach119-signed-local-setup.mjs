@@ -128,7 +128,21 @@ console.log('PASS CURRENT PG17 postinstall SELECT: 22 structural gates PASS, 2 d
 sql(read('../docs/BRAND77B_SCIENCE_WELCOME_STAGING_ONLY.sql'));
 if(process.env.EFG_QA_SDK_ENTRY==='1'){
  sql(read('./sql/coach119-browser-current-overlay.sql'));
- sql(read('../migrations/etapas12_habituales.sql'));
+ // GU-06 in the exact six-source transaction already installs owner-only
+ // personal recipes and its four RLS policies. The older etapas12 script
+ // would CREATE these policies a second time and abort a fresh SDK stack.
+ // Keep GU-06 untouched and install ONLY the missing habitual-meals half.
+ assert.equal(sql("select to_regclass('public.efg_personal_recipes') is not null"),'t');
+ assert.equal(sql("select count(*) from pg_policies where schemaname='public' and tablename='efg_personal_recipes'"),'4');
+ assert.equal(sql("select to_regclass('public.efg_habitual_meals') is null"),'t');
+ const habitualScript=read('../migrations/etapas12_habituales.sql');
+ const recipeBoundary='-- Recetas propias: propiedad exclusiva del alumno.';
+ assert.equal(habitualScript.split(recipeBoundary).length,2,
+  'Legacy schema changed: review habitual boundary before bootstrapping');
+ sql(habitualScript.slice(0,habitualScript.indexOf(recipeBoundary)));
+ assert.equal(sql("select to_regclass('public.efg_habitual_meals') is not null"),'t');
+ assert.equal(sql("select count(*) from pg_policies where schemaname='public' and tablename='efg_personal_recipes'"),'4',
+  'Existing GU-06 owner-only policies must remain intact');
  sql(read('../migrations/etapas12_informes_semanales.sql'));
 }
 assert.equal(sql('select count(*) from public.efg_legal_documents'), '0');

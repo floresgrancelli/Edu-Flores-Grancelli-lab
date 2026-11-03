@@ -26,7 +26,19 @@ assert.equal(sql("select to_regprocedure('public.efg_declare_no_restrictions(uui
 sql(olderGuideOverlay.slice(0,olderGuideOverlay.indexOf(start))+
  '\n-- Existing CLIN-GUT-03 declaration column and signed function retained in local SDK test.\n'+
  olderGuideOverlay.slice(olderGuideOverlay.indexOf(end)));
-sql(read('./sql/sdk-entry-declaration-readback-local.sql'));
+// The CLIN-GUT-03 scoped response overlay was already installed above.
+ // The older sdk-entry-declaration-readback overlay tries to patch legacy
+ // function text anchors which no longer exist in the canonical version.
+ // Never re-write the security-definer function; verify the scoped response.
+ const currentReadback=sql("select pg_get_functiondef('public.efg_get_coach_health_intake(uuid)'::regprocedure)");
+ for(const required of [
+  'h.restriction_declaration','v_row.restriction_declaration',
+  'efg_private.coach_has_student(p_student)',
+  'v_followup','v_uid=p_student','if not v_owner and not v_coach then return null'
+ ])assert.ok(currentReadback.includes(required),
+  'Scoped clinical readback invariant missing: '+required);
+ assert.equal(sql("select has_function_privilege('anon','public.efg_get_coach_health_intake(uuid)','EXECUTE')"),'f');
+ assert.equal(sql("select has_function_privilege('authenticated','public.efg_get_coach_health_intake(uuid)','EXECUTE')"),'t');
 sql(read('./sql/bound-publication-local-overlay.sql'));
 await import('./sdk-entry-preflight-private.mjs');
 const users={},orgs={A:randomUUID(),B:randomUUID()},suffix=randomBytes(5).toString('hex');

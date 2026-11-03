@@ -70,6 +70,7 @@ jobs:
           node --check efg-nutrition/pilot/student-restriction-declaration.js
           node efg-nutrition/tests/coach-guide-restriction-scope.mjs
           node efg-nutrition/tests/student-restriction-declaration-private.mjs
+          node efg-nutrition/tests/private-health-entry-off-contract.mjs
       - name: UX-ANDROID-01 physical-reported scroll defect, synthetic touch controller regression
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: node efg-nutrition/tests/android-dashboard-scroll-gesture.mjs

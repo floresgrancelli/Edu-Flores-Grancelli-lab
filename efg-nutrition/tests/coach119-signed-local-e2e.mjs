@@ -3,11 +3,13 @@
 // This is integration coverage, NOT physical UAT or production-restore parity.
 import assert from 'node:assert/strict';
 import {randomBytes, randomUUID} from 'node:crypto';
+import {readFileSync} from 'node:fs';
 import {localContext, literal as q, yes, denied} from './helpers/coach119-local.mjs';
 import {createCoachPlanDraftClient} from '../pilot/coach-plan-draft-client.js';
 import {loadCoachSharedStudentRecipes} from '../pilot/coach-shared-recipes-read-client.js';
 import {preparePilotNoticePublication} from '../tools/prepare-pilot-notices-release.mjs';
 import {renderCoachPilotLegal} from '../pilot/coach-pilot-legal-client.js';
+import {createLocalMailReader} from './sdk-entry-mail-local.mjs';
 
 const {sql, request, rpc, asClient} = localContext();
 assert.equal(sql("select local_only from efg_private.nut57_isolated_staging_marker"), 't');
@@ -25,6 +27,33 @@ async function signup(role) {
 }
 const users = {};
 for (const role of ['coachA', 'coachB', 'newA', 'returningA', 'studentB', 'admin']) users[role] = await signup(role);
+
+// NCC P2 real LOCAL OTP → JWT → the SAME actual signed Coach119 journey.
+// Mailpit is loopback-only and accounts use the reserved example.invalid domain.
+// This is not hosted OTP, an email delivery acceptance test, or a real person's consent.
+const statusEnv=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV||'','utf8')
+ .split(/\r?\n/).filter(x=>x.includes('=')).map(x=>{
+  const i=x.indexOf('=');return [x.slice(0,i),x.slice(i+1).trim().replace(/^['"]|['"]$/g,'')];
+ }));
+const readLocalOtp=createLocalMailReader({origin:statusEnv.MAILPIT_URL||statusEnv.INBUCKET_URL});
+for(const role of ['newA','returningA']){
+ const identity=users[role],requestedAfter=Date.now()-1000;
+ yes(await request('/auth/v1/otp',{method:'POST',body:{email:identity.email,create_user:false}}),
+  role+' fictional OTP request to local GoTrue');
+ const code=await readLocalOtp({email:identity.email,after:requestedAfter});
+ assert.match(code,/^\d{6,10}$/);
+ const verified=yes(await request('/auth/v1/verify',{method:'POST',body:{
+  type:'email',email:identity.email,token:code
+ }}),role+' real local OTP verification');
+ assert.ok(verified.access_token?.split('.').length===3);
+ assert.equal(verified.user?.id,identity.id,'OTP must authenticate the existing fictional account');
+ const signed=yes(await request('/auth/v1/user',{token:verified.access_token}),
+  role+' post-OTP signed user');
+ assert.equal(signed.id,identity.id);
+ identity.token=verified.access_token; // All subsequent legal/intake/diary tests use OTP-signed claims.
+}
+console.log('PASS NCC P2 LOCAL ONLY: two email OTPs delivered to Mailpit, verified by GoTrue and reused as signed JWTs for the full Coach119 circuit (new and returning).');
+
 const orgA = randomUUID(), orgB = randomUUID();
 sql(`insert into public.efg_organizations(id,coach_id,name,is_test) values
  (${q(orgA)},${q(users.coachA.id)},'COACH119 SYNTHETIC A',true),

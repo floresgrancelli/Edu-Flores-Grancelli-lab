@@ -1,0 +1,51 @@
+{
+  "source": "https://www.laserenisima.com.ar/ajax/getinfo.php?seccion=getProductos&categoria=X&subcat=4 (and subcat=34)",
+  "records": [
+    {
+      "ID": 68,
+      "nombre": "Port Salut ",
+      "categoria": 13,
+      "subcategoria": 4,
+      "imagen": "images/productos/8604431grandeLIGHT.png",
+      "descripcion": "Queso de consistencia blanda y cremosa. Tiene un 50% menos de grasa y 30% menos de calorías que el Port Salut Tradicional. Ideal para tus meriendas, desayunos y para comer entre comidas, ya sea con galletitas, tostadas o para snakear. Sin lactosa y libre de gluten.\r\n\r\n",
+      "friodesc": "Mantener refrigerado (2 - 8°C)",
+      "presentacion": "Fracción y Horma. Venta al peso",
+      "celiacos": 1,
+      "tablanutricional": "images/tablas/tablaportsaludverde.jpg",
+      "tip": "",
+      "estado": 1,
+      "imagen_s": "images/productos/small/2051391CHLIGHT.png",
+      "orden": 7,
+      "mostrarLN": 1,
+      "nombre_en": "",
+      "descripcion_en": "",
+      "friodesc_en": "",
+      "presentacion_en": "",
+      "tip_en": "",
+      "masinfo": "1"
+    },
+    {
+      "ID": 1320,
+      "nombre": "Leche UAT 0%",
+      "categoria": 9,
+      "subcategoria": 34,
+      "imagen": "images/productos/6789550grande0.png",
+      "descripcion": "Leche Larga Vida Descremada. Es la primera leche del mercado argentino con tenor graso 0%. Ideal para quienes es fundamental ahorrar calorias en cada comida. Fortificada con  vitaminas A y D y fuente de vitaminas C y E.",
+      "friodesc": "Mantener el envase cerrado, en un lugar fresco, seco, y al abrigo de la luz. Una vez abierto mantener refrigerado entre (2-8°C) y consumirlo antes de los 3 días siguientes. No se recomienda consumir si el envase está dañado.",
+      "presentacion": "Botella PET de 1lt.",
+      "celiacos": 1,
+      "tablanutricional": "images/tablas/9523620tabla0.png",
+      "tip": "Producto Apto para Celíacos",
+      "estado": 1,
+      "imagen_s": "images/productos/small/Ch0.png",
+      "orden": 1,
+      "mostrarLN": 1,
+      "nombre_en": "",
+      "descripcion_en": "",
+      "friodesc_en": "",
+      "presentacion_en": "",
+      "tip_en": "",
+      "masinfo": "1"
+    }
+  ]
+}

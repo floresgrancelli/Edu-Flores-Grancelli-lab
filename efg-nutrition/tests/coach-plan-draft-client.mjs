@@ -240,3 +240,25 @@ for(const cryptoSource of [null,{}, {getRandomValues(){throw Error('CSPRNG unava
  assert.throws(()=>makeId(cryptoSource),'No random or timestamp fallback may create publication keys');
 
 console.log("PASS: Coach staged draft adapter OFF; validated five meals, versioned save, confirmed atomic publish, denial on revoked/stale/invalid identity; legacy guide and publish blocked under access schema (SYNTHETIC).");
+// Execute the actual UI publish function: durable safe error and session isolation.
+for(const moved of [false,true]){
+ const panel={hidden:true,textContent:'',isConnected:true};
+ const saved={status:'draft',draft_revision:1};
+ const localState={selectedStudent:STU,consent:{accepted:true},coachPlanDraftRecord:saved,
+  session:{user:{id:COACH}},coachIntakeForms:{[STU]:{}},pendingGoal:{},coachGuidedDraft:{kind:'flexible_meal_guide'}};
+ let current=true;
+ const ctx=vm.createContext({state:localState,COACH_ATOMIC_PLAN_UI_ENABLED:true,
+  root:{querySelector:()=>panel},foods:[],readGuidedEditor:()=>localState.coachGuidedDraft,
+  approvedFoodGuide:x=>x,assessCoachDraftPublication:()=>({ready:true}),window:{confirm:()=>true},
+  coachDraftWorkspaceCurrent:()=>current,createCoachPublicationRequestId:()=>REQ,
+  coachDraftClient:{publish:async()=>{if(moved)current=false;throw {message:'Guide foods are not independently reviewed and current'};}},
+  loadStudentDetail:async()=>{throw Error('Rejected publication must not load success');},render:async()=>{},notify:()=>{throw Error('No success toast');}});
+ vm.runInContext(app.slice(app.indexOf('function coachPublicationFailureMessage('),pubStart)+pub,ctx);
+ await assert.rejects(()=>ctx.publishCoachAtomicDraft());
+ assert.equal(localState.coachPlanPublishRequestId,REQ,'Failure keeps retry key');
+ assert.equal(panel.hidden,moved,'Error only shown in unchanged workspace');
+ if(!moved)assert.match(panel.textContent,/fuentes nutricionales/);
+ assert.doesNotMatch(ctx.coachPublicationFailureMessage({message:'secret SQL details'}),/secret SQL/);
+ assert.match(ctx.coachPublicationFailureMessage({}),/No se confirmó/);
+}
+console.log('PASS P29G: persistent publication error, safe fallback, retry key retained and stale workspace response ignored.');

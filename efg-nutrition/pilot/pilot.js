@@ -2640,6 +2640,7 @@ function coachAtomicDraftPanel(){
  '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
  '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
  (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft" '+(publication.ready?'':'disabled')+'>Revisar y publicar juntos</button>':'')+'</div>'+
+ '<p class="pilot-notice" role="alert" data-coach-publication-error hidden></p>'+
  (!publication.ready?'<p class="pilot-hint" role="status">'+escapeHTML(publication.reason)+'</p>':'')+'</section>';
 }
 async function saveCoachAtomicDraft(){
@@ -2683,6 +2684,18 @@ function createCoachPublicationRequestId(cryptoSource=window.crypto){
  const hex=Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
  return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join("-");
 }
+function coachPublicationFailureMessage(error){
+ const message=String(error?.message||'');
+ if(message==='Guide foods are not independently reviewed and current')
+  return 'No se publicó: falta completar la revisión de las fuentes nutricionales de los alimentos de esta guía. El borrador sigue disponible.';
+ if(message==='QA scope expired or revoked')
+  return 'No se publicó: la habilitación temporal de prueba venció o fue revocada.';
+ if(message==='QA assignment or signed actor invalid')
+  return 'No se publicó: la sesión o asignación de la cuenta de prueba ya no coincide.';
+ if(error?.code==='PT409')
+  return 'No se publicó: cambió la ficha o la versión del plan. Volvé a abrir el alumno y revisá el borrador.';
+ return 'No se confirmó la publicación. Conservamos la clave de reintento; consultá el estado del borrador antes de volver a intentar.';
+}
 async function publishCoachAtomicDraft(){
  const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
@@ -2698,8 +2711,18 @@ async function publishCoachAtomicDraft(){
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
   throw Error("Cambió la ficha o el alumno seleccionado; volvé a revisar antes de publicar.");
  state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||createCoachPublicationRequestId();
- await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
-  requestId:state.coachPlanPublishRequestId,confirmed:true});
+ const errorPanel=root.querySelector('[data-coach-publication-error]');
+ if(errorPanel){errorPanel.hidden=true;errorPanel.textContent='';}
+ try {
+  await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
+   requestId:state.coachPlanPublishRequestId,confirmed:true});
+ } catch(error) {
+  // Do not show a previous student's response after navigation or session change.
+  if(coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft})&&errorPanel?.isConnected){
+   errorPanel.textContent=coachPublicationFailureMessage(error);errorPanel.hidden=false;
+  }
+  throw error;
+ }
  // The server may have committed even if navigation occurred meanwhile.
  // Never overwrite the currently visible student's workspace or request UUID.
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;

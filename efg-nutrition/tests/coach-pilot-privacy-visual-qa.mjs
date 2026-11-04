@@ -55,7 +55,9 @@ try{
   assert.equal(await page.locator('#coachRelaunch_eating_window').inputValue(),'14_10');
   assert.equal(await page.locator('[data-act="revokeCoachRelaunch"]').count(),1);
   assert.equal(await page.locator('[data-act="clearCoachRelaunch"]').count(),1);
-  assert.equal(await page.locator('[name="gutClinicalCondition"]').count(),8);
+  assert.equal(await page.locator('[name="gutClinicalCondition"]').count(),0,
+   'Released private-health flow removes legacy clinical controls from general intake');
+  assert.match(await page.locator('#efgCoachRelaunchManageForm').innerText(),/Mis restricciones/);
   assert.equal(await page.locator('[name="gutClinicalCondition"]:enabled').count(),0);
   await page.evaluate(async()=>{window.__PILOT_QA__.state.tab='privacy';await window.__PILOT_QA__.render()});
   await page.getByRole('button',{name:'Revisar mi ficha y su permiso'}).click();
@@ -119,4 +121,4 @@ try{
  assert.deepEqual(issues,[]);
 }finally{await browser.close();await new Promise(r=>server.close(r))}
 writeFileSync(join(out,`pilot-privacy-${engine}.json`),JSON.stringify({fixture:true,results,issues},null,2));
-console.log('PASS '+engine+': intake privacy, clinical fields disabled, education before release notices, retry and returning-student receipt.');
+console.log('PASS '+engine+': intake privacy, legacy clinical fields absent, private restrictions guidance, education before release notices, retry and returning-student receipt.');

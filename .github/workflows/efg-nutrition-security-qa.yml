@@ -21,6 +21,11 @@ jobs:
           node-version: '22'
       - name: Validate static security contract
         run: node efg-nutrition/tests/security-guardrails.mjs
+      - name: COACH96 educational frontend only and backend features OFF
+        run: |
+          node --check efg-nutrition/pilot/pilot.js
+          node --check efg-nutrition/pilot/science-welcome.js
+          node efg-nutrition/tests/coach96-safe-frontend-contract.mjs
       - name: Declare coverage limitations
         run: |
           echo "Still required: live cross-coach RLS testing, MFA/access review, and verified backup restore."

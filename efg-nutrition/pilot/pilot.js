@@ -3008,7 +3008,7 @@ function paymentCard(p){
 function paymentsView(){
  const role=state.profile.role,org=state.org;
  if(role==="coach"&&org?.is_test)return rootText("Coach piloto EFG","Tu período de prueba es gratuito.")+
-  '<section class="card"><h2>🧪 Laboratorio de 10 alumnos</h2><p>Esta cuenta no tiene facturación de licencia durante la prueba. Seguí usando MI DÍA, tus herramientas y tus 10 cupos desde Mis alumnos.</p><button type="button" class="btn" data-tab="coachStudents">Ver mis alumnos</button></section>';
+  '<section class="card"><h2>🧪 Espacio piloto</h2><p>Esta cuenta no tiene facturación de licencia durante la prueba. Seguí usando MI DÍA y tus herramientas. Consultá tus cupos disponibles en Mis alumnos.</p><button type="button" class="btn" data-tab="coachStudents">Ver mis alumnos</button></section>';
  // El administrador sólo cobra licencias; su laboratorio de prueba puede cobrar
  // a sus propios alumnos sin convertirse en coach comercial.
  const coachWorkspace=role==="coach"||(role==="admin"&&org?.is_test===true&&org?.coach_id===state.session.user.id);

@@ -57,6 +57,26 @@ assert.equal(privateFirst.shared,false);
 assert.equal(privateFirst.intake.shared_at,null,
  "First intake can remain private after an explicit no-share decision");
 
+// P30N: an intake checkbox cannot replace the separate pilot-sharing grant.
+// Deny before the write RPC, keep private saving possible, and allow a later
+// explicit permission change without overwriting the earlier saved revision.
+const noShare={...receipt,sharing_accepted:false};
+const privateDb=fake({pilot:noShare});
+const beforePilotSharing=nRPC;
+await assert.rejects(submitCoachPilotGeneralIntake(privateDb,{
+ profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true}),
+ /Falta el permiso de compartir.*Desmarcá.*Privacidad → Revisar permiso del piloto/);
+assert.equal(nRPC,beforePilotSharing,'Missing pilot-sharing permission never reaches intake RPC');
+const savedPrivate=await submitCoachPilotGeneralIntake(privateDb,{
+ profile,payload,expectedRevision:0,shareWithCoach:false,explicitSubmit:true});
+assert.equal(savedPrivate.intake.revision,1);
+assert.equal(savedPrivate.shared,false);
+noShare.sharing_accepted=true; // Simulates a separately confirmed signed receipt.
+const sharedLater=await submitCoachPilotGeneralIntake(privateDb,{
+ profile,payload,expectedRevision:1,shareWithCoach:true,explicitSubmit:true});
+assert.equal(sharedLater.intake.revision,2);
+assert.equal(sharedLater.shared,true);
+
 const beforeFollowupDenied=nRPC;
 await assert.rejects(submitCoachPilotGeneralIntake(fake({followup:false}),{
  profile,payload,expectedRevision:0,shareWithCoach:true,explicitSubmit:true}),/seguimiento en Privacidad/);

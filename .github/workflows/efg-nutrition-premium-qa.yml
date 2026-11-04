@@ -369,6 +369,7 @@ jobs:
         run: |
           node efg-nutrition/tests/coach-plan-draft-client.mjs
           node efg-nutrition/tests/p29i-reviewed-sources.mjs
+          node efg-nutrition/tests/p29w-pilot-sources.mjs
           node efg-nutrition/tests/p29j-weekly-current.mjs
           node efg-nutrition/tests/period-report.mjs
           node efg-nutrition/tests/period-luxury-report.mjs

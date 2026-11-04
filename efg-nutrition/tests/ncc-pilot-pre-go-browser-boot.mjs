@@ -19,6 +19,9 @@ const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:repoRoot,encoding:'utf8'}
 assert.match(sha,/^[a-f0-9]{40}$/);
 const build='ncc-pilot-'+sha.slice(0,12),out=mkdtempSync(join(tmpdir(),'ncc-p21-isolated-'));
 const featureOn=[
+ ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
+ ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
+ ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
  ['coach-student-journey.js','COACH_STUDENT_JOURNEY_ENABLED'],
  ['coach-plan-draft-client.js','COACH_ATOMIC_PLAN_UI_ENABLED'],
  ['coach-release-plan-gate.js','COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED'],
@@ -30,11 +33,9 @@ const featureOn=[
 const featureOff=[
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
  ['coach-adapted-workspace.js','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED'],
- ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
- ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
- ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
  ['personal-workspace.js','PERSONAL_WORKSPACE_ENABLED'],
- ['pilot-participation-demo.js','PILOT_PARTICIPATION_ENABLED']
+ ['pilot-participation-demo.js','PILOT_PARTICIPATION_ENABLED'],
+ ['qa-reviewed-sources.js','QA_REVIEWED_SOURCES_ENABLED']
 ];
 // Stub only the PUBLIC SDK import; no real auth, profile or database state.
 const fakeSdk='export function createClient(){return {auth:{getSession:async()=>({data:{session:null},error:null}),getUser:async()=>({data:{user:null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>{throw Error("P21 forbids remote DB access")},rpc:async()=>({data:null,error:{message:"P21 sandbox"}})}}';
@@ -51,7 +52,7 @@ try{
  const status=JSON.parse(raw),manifest=JSON.parse(readFileSync(join(out,'review-manifest.json'),'utf8'));
  assert.equal(status.status,'STAGED_OUTSIDE_REPO_NOT_PUBLISHED');
  assert.equal(status.preparationMode,'PILOT_UI_ACTIVATION_PROPOSAL_NOT_GO');
- assert.equal(status.activationFlagsProposed,7);
+ assert.equal(status.activationFlagsProposed,featureOn.length);
  assert.equal(manifest.expectedGitSha,sha);
  assert.equal(manifest.noPublicationAuthorization,true);
  assert.equal(manifest.noHostedCalls,true);

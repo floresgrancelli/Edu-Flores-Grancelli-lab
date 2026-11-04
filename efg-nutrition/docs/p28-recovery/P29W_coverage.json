@@ -1,0 +1,132 @@
+{
+  "scope": "synthetic profiles and goal, actual catalog and generator; not all profiles",
+  "catalogCount": 560,
+  "rows": [
+    {
+      "profile": "balanced",
+      "selected": [
+        "egg",
+        "bread",
+        "cheese",
+        "milk_skim",
+        "coffee_black",
+        "yogurt",
+        "apple",
+        "oats_raw",
+        "brownrice",
+        "pumpkin",
+        "oil",
+        "banana",
+        "mandarin",
+        "fish_hake",
+        "potato",
+        "rocket"
+      ],
+      "missing": [
+        "bread",
+        "cheese",
+        "milk_skim",
+        "yogurt",
+        "oats_raw"
+      ]
+    },
+    {
+      "profile": "celiac",
+      "selected": [
+        "egg",
+        "banana",
+        "egg_white",
+        "tofu_firm",
+        "coffee_black",
+        "apple",
+        "brownrice",
+        "pumpkin",
+        "oil",
+        "mandarin",
+        "fish_hake",
+        "potato",
+        "rocket"
+      ],
+      "missing": []
+    },
+    {
+      "profile": "lactose",
+      "selected": [
+        "egg",
+        "bread",
+        "egg_white",
+        "tofu_firm",
+        "coffee_black",
+        "apple",
+        "oats_raw",
+        "brownrice",
+        "pumpkin",
+        "oil",
+        "banana",
+        "mandarin",
+        "fish_hake",
+        "potato",
+        "rocket"
+      ],
+      "missing": [
+        "bread",
+        "oats_raw"
+      ]
+    },
+    {
+      "profile": "vegan",
+      "selected": [
+        "tofu_firm",
+        "bread",
+        "tempeh",
+        "chickpeas_cooked",
+        "coffee_black",
+        "walnuts",
+        "apple",
+        "oats_raw",
+        "soy_textured_hydrated",
+        "brownrice",
+        "pumpkin",
+        "oil",
+        "banana",
+        "rice",
+        "rocket"
+      ],
+      "missing": [
+        "bread",
+        "tempeh",
+        "chickpeas_cooked",
+        "walnuts",
+        "oats_raw",
+        "soy_textured_hydrated",
+        "rice"
+      ]
+    },
+    {
+      "profile": "keto",
+      "selected": [
+        "egg",
+        "strawberry",
+        "cheese",
+        "egg_white",
+        "coffee_black",
+        "yogurt",
+        "avocado",
+        "chicken",
+        "zucchini",
+        "pumpkin",
+        "oil",
+        "tempeh"
+      ],
+      "missing": [
+        "strawberry",
+        "cheese",
+        "yogurt",
+        "avocado",
+        "chicken",
+        "zucchini",
+        "tempeh"
+      ]
+    }
+  ]
+}

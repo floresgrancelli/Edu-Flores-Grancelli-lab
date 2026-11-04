@@ -74,7 +74,7 @@ export function describeGuidedMeal(meal){
  if(meal?.slot==="merienda"&&has("bread","cheese","mandarin"))
   return "Tostada integral con Port Salut light y mandarina.";
  if(meal?.slot==="cena"&&has("fish_hake","potato","rocket"))
-  return meal.items.find(x=>x.id==="fish_hake")?.validationStatus==="reviewed_qa"
+  return ["reviewed_qa","reviewed_pilot"].includes(meal.items.find(x=>x.id==="fish_hake")?.validationStatus)
    ?"Merluza cocida y escurrida sin aceite ni sal, papa hervida y rúcula; el aceite se agrega por separado."
    :"Merluza al horno con papa hervida y ensalada de rúcula; aceite indicado para condimentar.";
  return "Preparación sugerida con "+items.map(f=>String(f.name||f.id).split(" (")[0]).join(", ")+". Adaptar al gusto y la preparación.";

@@ -1,3 +1,4 @@
+import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=p29w";
 import {createPeriodReportHistory} from "./period-report-history.js?v=p29q";
 import {loadPeriodReportGoals} from "./period-report-goals.js?v=p29p";
 import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
@@ -2856,6 +2857,7 @@ function coachGuidedSection(){
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<button type="button" class="btn small light" data-act="applyPilotReviewedSources">Verificar referencias del piloto y recalcular</button>':'')+
  (qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent)?'<button type="button" class="btn small light" data-act="applyQaReviewedSources">Aplicar referencias aprobadas QA y recalcular</button>':'')+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':
  draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':
@@ -4639,6 +4641,19 @@ if(el.dataset.foodbulk){
    return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
+ if(action==="applyPilotReviewedSources"){
+  if(!COACH_ATOMIC_PLAN_UI_ENABLED)throw Error("El editor seguro no está habilitado.");
+  const studentId=state.selectedStudent,actor=state.session?.user?.id;
+  const intake=state.coachIntakeForms?.[studentId],draft=readGuidedEditor(),goal=activeCoachGuideGoal();
+  const snapshot=JSON.stringify(draft),goalSnapshot=JSON.stringify(goal);
+  const isCurrent=()=>state.selectedStudent===studentId&&state.session?.user?.id===actor&&
+   state.consent?.accepted===true&&state.coachIntakeForms?.[studentId]===intake&&
+   state.coachGuidedDraft===draft&&JSON.stringify(readGuidedEditor())===snapshot&&
+   JSON.stringify(activeCoachGuideGoal())===goalSnapshot;
+  const reviewed=await loadPilotReviewedGuide(sb,{studentId,guide:structuredClone(draft),isCurrent});
+  state.coachGuidedDraft=rebalanceGuidedDay(reviewed,goal,{targetTolerance:.02});
+  showGuidedEditor();notify("Referencias verificadas y porciones recalculadas. Revisá preparaciones y desvíos antes de guardar y publicar.");return;
+ }
  if(action==="applyQaReviewedSources"){
   if(!qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent))throw Error("Ensayo QA no habilitado.");
   state.coachGuidedDraft=rebalanceGuidedDay(applyQaReviewedSources(readGuidedEditor()),activeCoachGuideGoal(),{targetTolerance:.02});

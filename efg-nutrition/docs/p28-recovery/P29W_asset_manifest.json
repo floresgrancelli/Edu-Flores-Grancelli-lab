@@ -1,0 +1,841 @@
+{
+  "status": "PREPARE_ONLY_NOT_GO",
+  "currentBuild": "20261103-ux35-major2-loginfix1",
+  "proposedBuild": "ncc-pilot-0277ae9109c6",
+  "stylesheets": 25,
+  "jsModules": 98,
+  "rewrittenModules": 43,
+  "files": [
+    {
+      "path": "efg-nutrition/pilot/adapted-guide-editor.js",
+      "sourceSha256": "0a09878d899a28b5f28904b18e7e8c93eff2878bb1abc765ca60734efd8881ab",
+      "stagedSha256": "07de859f930a7005a55446fecf9e0ef46006de9fd476a6771b36699b3481e29f",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/adapted-guide-view.js",
+      "sourceSha256": "516e0fc7c4027299aac7d09e38b981beb0f0fd1c48a73aa8f9a48f16dfed789f",
+      "stagedSha256": "516e0fc7c4027299aac7d09e38b981beb0f0fd1c48a73aa8f9a48f16dfed789f",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/adapted-guided-day.js",
+      "sourceSha256": "9adfc92a3f079e80f248b65e79e9eac8ee71fa3e618e4b6735a21c5ffab8ced0",
+      "stagedSha256": "a039655e4787570278f67d366f6b003eec187bf77f941eff9bec08db82d02a14",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/argentine-manufacturer-labels.js",
+      "sourceSha256": "fc1fe56d120f6db045f296864a108a410cd251f9147bde3ef2628ad49d401355",
+      "stagedSha256": "fc1fe56d120f6db045f296864a108a410cd251f9147bde3ef2628ad49d401355",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/auth-hydration-gate.js",
+      "sourceSha256": "9b2f19a5c3ea6ba5d9c6b50188b0346b1e09a2b5d681b3b375482d120d6cfe2b",
+      "stagedSha256": "9b2f19a5c3ea6ba5d9c6b50188b0346b1e09a2b5d681b3b375482d120d6cfe2b",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/bound-guide-publication-client.js",
+      "sourceSha256": "648575f6926e3ca865d9dedbcec29cb1692adcf212cd94bb25fac3d102d8f210",
+      "stagedSha256": "d0cc3473b9c0318a1e1ba67abd6da8c6f82b911059a6ea11049a41c2a4f2ac2b",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/clinical-guide-connection.js",
+      "sourceSha256": "f558da855f3e4d0f996d5d71aae9387b6be31a62651ad8df61019bdd04387e0f",
+      "stagedSha256": "4dda57db355155002d12b990c89f72782cfdf98e6e6b89cddcb1b6ad7ec6936c",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-adapted-workspace.js",
+      "sourceSha256": "e179417a4c6b4df99cf8938b058a851a94c6ce3f64ac982ecc5d1e47d10d93ae",
+      "stagedSha256": "2f75071175a4fb07f49f2f130066697624aeb8e4544cfb5ea0438705868419cd",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-bound-guide-preparation.js",
+      "sourceSha256": "3117725fcb6f55f13aa1806d6660e00798a0ec18c1ea027de480e01a9b62e8e7",
+      "stagedSha256": "a9510b0bc2537155ef99cc5b4cbf4dc4d837335696dacebf142547479c969453",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-draft-review.js",
+      "sourceSha256": "5b2ac21645bfd2d05e1311dd28ffe10bee4969b17e5a7fbb197fa187f215d410",
+      "stagedSha256": "f9975995ff62b5e77e3260f80ccff78a87ecbe409f0b4a7d74b527bbe9e18268",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-food-selection.js",
+      "sourceSha256": "c397643af1c2f5ff60c3ce8078f584621ecd569255899dbcf33d9d4de706f870",
+      "stagedSha256": "c397643af1c2f5ff60c3ce8078f584621ecd569255899dbcf33d9d4de706f870",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-goal-write-gate.js",
+      "sourceSha256": "d857b5ef0e542361e3433c36b1d6fa37e3c5139ae205ff26e0f2eb7163f09e67",
+      "stagedSha256": "d857b5ef0e542361e3433c36b1d6fa37e3c5139ae205ff26e0f2eb7163f09e67",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-connection.js",
+      "sourceSha256": "e8aa0c25df9af436f725404c441f5fe9ea869da5b2b4b6b71631f92f7c502117",
+      "stagedSha256": "9f6f5f0f7eafe6118b46e48140b8dca91a5c877c0d6d164375e8b1469e92ed83",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-intake-adapter.js",
+      "sourceSha256": "cfa4b62635b46de04f6f2b0784d473a31cf2071c0e62fab3af2b26563ac7a03a",
+      "stagedSha256": "8ce6a27922026b01c35c8fac5207b1bcb43bfe296f6007cdce23e980942eea13",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-recipe-serving.js",
+      "sourceSha256": "1494bb6b15300353a2da0d72be87caa70dc9d5ef7deeba83d8546d347fafef5f",
+      "stagedSha256": "0a90a4576bdb654ac59ae51f648f3e08199aeebb5910ca61bf53658984e40148",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-restriction-scope.js",
+      "sourceSha256": "e54a69ccbdb3874c5ee874e176b5ca558bd3b2127bcc9e54b57948095a8399fb",
+      "stagedSha256": "048c1e8319d7ebdef4025d443570e84bd3cb25140e27b21e6b163295b127c630",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-health-response-provider.js",
+      "sourceSha256": "a6eb64a35cb00a58a536b23485567598b22cd6b59c20a4fcfaceec61fdeed242",
+      "stagedSha256": "4201736dafc1cdb6645fa1390d68d4860b9bf61df0692f721011385bfe1f38e3",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-flow.js",
+      "sourceSha256": "c87b6b50c50ceb801ae4e3682a624befbd5828f0f90394b42ca6c6c651ff5e62",
+      "stagedSha256": "c3f5346f88900ac105a76c98db5b269146c5335b51820d203b293f2bb897e462",
+      "updated": true,
+      "directImports": 6
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-prefill.js",
+      "sourceSha256": "c1c5cc98d089589a0fc2949be43d14878ae07c22801337c6adb7f0e1f422adde",
+      "stagedSha256": "c1c5cc98d089589a0fc2949be43d14878ae07c22801337c6adb7f0e1f422adde",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-queue.js",
+      "sourceSha256": "e405fa75f74c5b3e5de6f9ff3d564894b4340b4d0fe0a298ee2e244bc581d47c",
+      "stagedSha256": "e405fa75f74c5b3e5de6f9ff3d564894b4340b4d0fe0a298ee2e244bc581d47c",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-legal-bridge.js",
+      "sourceSha256": "386414c739155c3c70635ebb1270ad948be162ed0ba130d74b47e46233438ccc",
+      "stagedSha256": "6a1341a9454c8734f3a2bdea6528846d50f1e0cb57d1ee5d89876aea0604d4ee",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-entry-client.js",
+      "sourceSha256": "1c2532dcac9fe9a93d1e393aaa41e16e1bfa2beb20ff9d9faab131953ad0003a",
+      "stagedSha256": "d9aae7b9ccd7361b774e8818e241b0e1f098da64c290a84bb78821f568c6d24d",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-intake-client.js",
+      "sourceSha256": "1d24b90fabe676907d097d775322cad34266fbc030ef2e458dc105e16c6a8fce",
+      "stagedSha256": "8bdf4e3811f8346c7d6f75dcdc864b87ae3cbf2608c2bd5242975848db1f1ba4",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-legal-client.js",
+      "sourceSha256": "54fe8ef20ddb74292cbd3aeb07f735d1c1ad3d41f0fd41fd6a0204ef96ed62f7",
+      "stagedSha256": "54fe8ef20ddb74292cbd3aeb07f735d1c1ad3d41f0fd41fd6a0204ef96ed62f7",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-plan-draft-client.js",
+      "sourceSha256": "c1bfcc3ddb2b4ab35b97d17530c56ff0a37924b62177224507b56b3bed196440",
+      "stagedSha256": "d84e7de769aa2aee98ba54e9e7f51efbb43ab382a37d895d44db209dd53ce676",
+      "updated": true,
+      "directImports": 4
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-private-history.js",
+      "sourceSha256": "cee32841e78583ae7cb042e746a7aac031c74305373c92aa39aaafb4da002cdb",
+      "stagedSha256": "cee32841e78583ae7cb042e746a7aac031c74305373c92aa39aaafb4da002cdb",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-relaunch-entry-client.js",
+      "sourceSha256": "81246add1a844612baa04d08c81e60f573a7451eb6101842e8d171148a8e4b73",
+      "stagedSha256": "d30e7af3e94e70a8a32aa22b85ad5ba565b97c36b0c0333d4ff70686e34cd721",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-relaunch-onboarding.js",
+      "sourceSha256": "36bf5d6b2f62029a800e3c5dfbb9b472924f359c3592df0bcd0d8ea318e7e7c6",
+      "stagedSha256": "36bf5d6b2f62029a800e3c5dfbb9b472924f359c3592df0bcd0d8ea318e7e7c6",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-release-plan-gate.js",
+      "sourceSha256": "a0d402502f426c1662898a7d64f9beae89502e8fb36446cdae40721471af7145",
+      "stagedSha256": "f6c8291c718c638de5fbd07f0a363731bfc2d27a8ed47f1fa498c995f792bf78",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-reviewed-sources.js",
+      "sourceSha256": "687893ff37d91e668ea24a866ad43608f56f9507a57fecbff1dd52a5e77d423a",
+      "stagedSha256": "687893ff37d91e668ea24a866ad43608f56f9507a57fecbff1dd52a5e77d423a",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-roster-freshness.js",
+      "sourceSha256": "f8fa99d09b8b533c62a8bcb9c1cfc8cae4ef25b87fdd5316374b413e24661303",
+      "stagedSha256": "f8fa99d09b8b533c62a8bcb9c1cfc8cae4ef25b87fdd5316374b413e24661303",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-shared-recipes-read-client.js",
+      "sourceSha256": "287cded1fa6ed260d33ece15e6b246824c87cb3676d33ab9d3204e37f3b59811",
+      "stagedSha256": "836df8970cfb6b9d57d8bfa1e54536fb3e975d74e57bf8b047865979added049",
+      "updated": true,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-student-journey.js",
+      "sourceSha256": "5762d9d6cf64cea026d2626f2fe78d92cea2a008aa953694706b4437e221eedc",
+      "stagedSha256": "c23b2f90d184a22f78fa253ed47447ca277529adb512dce6bce13e444522d310",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-versioned-mode.js",
+      "sourceSha256": "75e43cc010e73c4899aa3356805591270efab6452f2a6fec7eaf0990be092f11",
+      "stagedSha256": "a6683d056aef2f5886686c6c0f0e5d7f085827332c661f6b37e1c986cc8cdd7d",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/daily-motivation.js",
+      "sourceSha256": "738d866a18b2606b54a847a1c54bdcd836b55e91543a44c07912fcc8cc6d4462",
+      "stagedSha256": "738d866a18b2606b54a847a1c54bdcd836b55e91543a44c07912fcc8cc6d4462",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/daily-report.js",
+      "sourceSha256": "9c6de7948be67de68119025ad052e5a8c78a5308984e9e6d89ecccbe1e4d4e9f",
+      "stagedSha256": "294fa5a343c3da339abe3cbd8c1f47ac5ea8a52826446bc923de6fe0723233f1",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/day-lifecycle.js",
+      "sourceSha256": "89507a5339d8fbff8621b11ace5662713fc176660c7d3e5f8a3318067c567bd4",
+      "stagedSha256": "89507a5339d8fbff8621b11ace5662713fc176660c7d3e5f8a3318067c567bd4",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/diet-pattern-workbench.js",
+      "sourceSha256": "695efe36359fd566805d8eccf0c581090e179eb9ecd0cf0a76c1d6dc44d74d32",
+      "stagedSha256": "695efe36359fd566805d8eccf0c581090e179eb9ecd0cf0a76c1d6dc44d74d32",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/dietary-traffic-light.js",
+      "sourceSha256": "9f42df8411955e33ae5be0b94dd1782d58b1f03e859e8f6d3cbfe2cdf5e59303",
+      "stagedSha256": "9f42df8411955e33ae5be0b94dd1782d58b1f03e859e8f6d3cbfe2cdf5e59303",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fit-recipe-photos.js",
+      "sourceSha256": "38a16781a56e881950d4d63b1f7af1d34b0661cae61043308f4d11b5c2476035",
+      "stagedSha256": "38a16781a56e881950d4d63b1f7af1d34b0661cae61043308f4d11b5c2476035",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fit-recipes.js",
+      "sourceSha256": "1e2ea954ba0e01955ebe136e9e94957c65e2adcc5e193fb56d419d379eba05c2",
+      "stagedSha256": "1e2ea954ba0e01955ebe136e9e94957c65e2adcc5e193fb56d419d379eba05c2",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-catalog.js",
+      "sourceSha256": "c65c1bca7668361491e9f32dfe66426e015e1a78fa4a0954459b213df9e64d13",
+      "stagedSha256": "34ecd6b9fe2b58df9326a3212051d170da93a154a659c1f02aaea54bd607be4b",
+      "updated": true,
+      "directImports": 4
+    },
+    {
+      "path": "efg-nutrition/pilot/food-compatibility-adapter.js",
+      "sourceSha256": "b426425c42127abe02b31eda6faaafc9689669e403eeffca12a3f0c948cece7e",
+      "stagedSha256": "280b97ce041f0844c25100f8bc3b210db039e74e89e4560efee6d6dfb5d5dd0f",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/food-compatibility.js",
+      "sourceSha256": "91a7a9473312ed41e55eaac4fd149aed5515c010a4dbe7265658bb4f666ff33b",
+      "stagedSha256": "a016e5335baa4bb38fe07184e75058c0d670234e8820086fdd364a97ba60c18c",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/food-expansion.js",
+      "sourceSha256": "1cde0a4a6bed561cbb3ae57ba204f6748fb567415d5f4db3c3ccedf22aafd9c8",
+      "stagedSha256": "2a260ccc6987454cb6c69469b7f9b2bcaf3f20d5730eabd63270db7e57135dd5",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/food-plant-bakery-phase3.js",
+      "sourceSha256": "78cb28d63da12bfe22f74c8702c1111f6d5047c693474ade23076847d57b421f",
+      "stagedSha256": "78cb28d63da12bfe22f74c8702c1111f6d5047c693474ade23076847d57b421f",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-source-audit.js",
+      "sourceSha256": "2074077d5227ba39d8db14b088f2348cd11644fd9c71ff737593fa0a464a3167",
+      "stagedSha256": "2074077d5227ba39d8db14b088f2348cd11644fd9c71ff737593fa0a464a3167",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/goal-adjustments.js",
+      "sourceSha256": "a8c5ac160d2c041f7bacf91815c9908de78fc4b2908a5c1a9657bb7ec3cc1c7a",
+      "stagedSha256": "a8c5ac160d2c041f7bacf91815c9908de78fc4b2908a5c1a9657bb7ec3cc1c7a",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guide-compatibility.js",
+      "sourceSha256": "957f3fff64f385bde6b80a444333f0cd22f28bc1e0867cdff3982b786e854b85",
+      "stagedSha256": "957f3fff64f385bde6b80a444333f0cd22f28bc1e0867cdff3982b786e854b85",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guide-meal-education.js",
+      "sourceSha256": "4068cfcf477014f272a0e75cdb82186b20d449d86b0bad34455a0875bfcff131",
+      "stagedSha256": "31cf17679e827267e1a39c4a1c93592a2cc558d3c9184b68bcee4d370088231a",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-day-v2.js",
+      "sourceSha256": "621061bf961c44dc7d2c2b23a2f778752e920843fa01b273f8388fde2144e48c",
+      "stagedSha256": "2a50e0553ab4f7a930ed50698d33ace7e013e6833902109cbaca44b58a3ae34b",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-day.js",
+      "sourceSha256": "b5a271c0726cc906398d24ceb3185e58fb7cd92887feb060011e9803f6f47d89",
+      "stagedSha256": "b5a271c0726cc906398d24ceb3185e58fb7cd92887feb060011e9803f6f47d89",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-meal-picker.js",
+      "sourceSha256": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
+      "stagedSha256": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/gut-clinical-workbench.js",
+      "sourceSha256": "6180000b26c2df4adf28d59c372cdf0fab845851aedb64d223c286dc1a9ab0d3",
+      "stagedSha256": "8cae52634147fd98692b9eed7c3c70ac1648794287b331d04b22f8e8547a590c",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/habitual-preview.js",
+      "sourceSha256": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
+      "stagedSha256": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/legal-onboarding.js",
+      "sourceSha256": "3b37009ac3da4fe02dae42695782a7eeaa19a38da91f9521cd7b6d4ccc1a488b",
+      "stagedSha256": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
+      "updated": true,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/logout-session.js",
+      "sourceSha256": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
+      "stagedSha256": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/macro-engine.js",
+      "sourceSha256": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
+      "stagedSha256": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/major-release-client.js",
+      "sourceSha256": "0a9dcdf3548c8dc2428eb3a6c166589eba9b795636cc5e3693b116dacb9223b6",
+      "stagedSha256": "b7ce7dfc27c396126a05ad6821c00514b723ad6a9f566227767c4845a5cf11c2",
+      "updated": true,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/major-release-reauth-client.js",
+      "sourceSha256": "e8a9f02c80daa23f097b6e7da64ef8ed42425eab3805dd1f7e723f61cb8dcdc5",
+      "stagedSha256": "8a5edeaf26766681631e934ab79e401e3fe3ad678f53ff7b716f391364813db2",
+      "updated": true,
+      "directImports": 3
+    },
+    {
+      "path": "efg-nutrition/pilot/messages-ui.js",
+      "sourceSha256": "b8156f19fbe505e0bb68d451390ab58e03df571fc72a8a1c027d08249ad7d478",
+      "stagedSha256": "b8156f19fbe505e0bb68d451390ab58e03df571fc72a8a1c027d08249ad7d478",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/notifications-ui.js",
+      "sourceSha256": "70ec51c9756d73d4f039d8d4ee7d4843f1f65f6379ea7484a42890f215daa0a1",
+      "stagedSha256": "70ec51c9756d73d4f039d8d4ee7d4843f1f65f6379ea7484a42890f215daa0a1",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/nutrition-daily-tip.js",
+      "sourceSha256": "dcc2ccc6a9e61864958468a8aad62da416bbe64a4bd06f6965174863ad140e65",
+      "stagedSha256": "dcc2ccc6a9e61864958468a8aad62da416bbe64a4bd06f6965174863ad140e65",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/nutrition-science.js",
+      "sourceSha256": "d7d73d0c5e7ff8bbcff40bf092d1bb73df49c9e547f62afaf4d86f0e73f85a56",
+      "stagedSha256": "d7d73d0c5e7ff8bbcff40bf092d1bb73df49c9e547f62afaf4d86f0e73f85a56",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pastel-day.js",
+      "sourceSha256": "038408099c2cd86348edf639467573f851a582f96cfb950e257d9af464aaf8bd",
+      "stagedSha256": "038408099c2cd86348edf639467573f851a582f96cfb950e257d9af464aaf8bd",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-luxury-report.js",
+      "sourceSha256": "43f9f593c9849b45d98159681161aa35e1c8f377476177250cd6e07be4883e22",
+      "stagedSha256": "43f9f593c9849b45d98159681161aa35e1c8f377476177250cd6e07be4883e22",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-goals.js",
+      "sourceSha256": "62fa85f30d4d17630d9ab28620d100e043d4a015f65774402a12b53e665f46f2",
+      "stagedSha256": "62fa85f30d4d17630d9ab28620d100e043d4a015f65774402a12b53e665f46f2",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-history.js",
+      "sourceSha256": "74bfcb3d8bcac55dcf9b9f287a5002b06fcb9ce64b73c38de943d6af2e24dffe",
+      "stagedSha256": "725257087b31e773414b3fc383886d751e840e518f69204925d323a2470be439",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report.js",
+      "sourceSha256": "4dc86e8f320f2f12351503e11e9d9bc50105985434e09b3dea0989840cca0b9e",
+      "stagedSha256": "4dc86e8f320f2f12351503e11e9d9bc50105985434e09b3dea0989840cca0b9e",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/persisted-guide-provider.js",
+      "sourceSha256": "795f83b0d617e7eb698482ae0a2f44b86474476d65dc3dc560913c479ea9c349",
+      "stagedSha256": "0fed70b3342e2db79879eebec97468245fcfa58ad9c45a35d52537afb519327b",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-workspace.js",
+      "sourceSha256": "bd827ac8ba78e3e83dbb6504c673b3f3c3595364f9f59d682f46f37f1694a87b",
+      "stagedSha256": "bd827ac8ba78e3e83dbb6504c673b3f3c3595364f9f59d682f46f37f1694a87b",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-guide-install-config.js",
+      "sourceSha256": "6299327de548e2f403550f8d8d1aeedc02782658aa520fbf6dd3f8977fa554a1",
+      "stagedSha256": "6299327de548e2f403550f8d8d1aeedc02782658aa520fbf6dd3f8977fa554a1",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-guide-lifecycle.js",
+      "sourceSha256": "bba4c1b78c285a84c75a859c7c55c188eb7db57ec2d6de095d9ba691a4a31f7f",
+      "stagedSha256": "11bc2f77b67b4ebeaa46320acffb980083a139a8fa8082fdb741fe4ee80c240b",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-participation-client.js",
+      "sourceSha256": "f3e1f3a6e87371740b63280fccc6e21613a2874ca17b2a880e628f02d5a8c387",
+      "stagedSha256": "cb4aa36d0fce8e48d1cef36554b3b39d54db9d6b928e182a8f124fe3e9173c1f",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-participation-demo.js",
+      "sourceSha256": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
+      "stagedSha256": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot.js",
+      "sourceSha256": "6366cb0969cc860d2bd686cc9d55f47231ac0ed1e8178421ef312ad6ea749261",
+      "stagedSha256": "3dddd42ce255d468a83f06204d6312537d7abb6c6fc307008c4ad45ee00529fa",
+      "updated": true,
+      "directImports": 77
+    },
+    {
+      "path": "efg-nutrition/pilot/planner.js",
+      "sourceSha256": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
+      "stagedSha256": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/progress-charts.js",
+      "sourceSha256": "18c6d14dcb87767169a3adc66320cb68966b53af0339531d43bb86f165a3b148",
+      "stagedSha256": "18c6d14dcb87767169a3adc66320cb68966b53af0339531d43bb86f165a3b148",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pull-refresh.js",
+      "sourceSha256": "a4706e925613b4c480b803c4d1661ea4311a8dda089a2eb286b6ae2700a4f893",
+      "stagedSha256": "a4706e925613b4c480b803c4d1661ea4311a8dda089a2eb286b6ae2700a4f893",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/qa-reviewed-sources.js",
+      "sourceSha256": "2a52b7e4c61a4939994f45e1dfaacb77ac6816e9ef7ab87b45b15ce1d889da4a",
+      "stagedSha256": "2a52b7e4c61a4939994f45e1dfaacb77ac6816e9ef7ab87b45b15ce1d889da4a",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-catalog-bridge.js",
+      "sourceSha256": "eaf6c8106000232ac994cf81dec61eb86297491439da200bc5064387e34da5b1",
+      "stagedSha256": "eaf6c8106000232ac994cf81dec61eb86297491439da200bc5064387e34da5b1",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-ingredients-equal.js",
+      "sourceSha256": "2921d183bf41a59a8bba6fc9e8986a1c81a87014361bc05f1cc3329fd80ce897",
+      "stagedSha256": "2921d183bf41a59a8bba6fc9e8986a1c81a87014361bc05f1cc3329fd80ce897",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-models.js",
+      "sourceSha256": "3bb42bc9902c82b0c63fc3f94fc833d6682f6aa5b81d1b025317f25e10741168",
+      "stagedSha256": "3bb42bc9902c82b0c63fc3f94fc833d6682f6aa5b81d1b025317f25e10741168",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/regional-composite-models.js",
+      "sourceSha256": "25f0be9ccbd4e032a715a325dda7bce5709ef0fe3fdbe6b9ebddcdc0ee909597",
+      "stagedSha256": "8ca2b73783930bad7062e6c99ab2d5bb75549408877c635ec27008b8d18dbe06",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/release-communications.js",
+      "sourceSha256": "bdb0712ff0d884318fac120634f7638af6d0138c9b268e5f3b3c160f2ec4e226",
+      "stagedSha256": "29910e7c611cf813e979cd3b97e69555bfc4bff3cc2975678c73a53f48650e66",
+      "updated": true,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/science-welcome.js",
+      "sourceSha256": "29db5d05d2dc1fd031f0f3c40947e40440d76172432821f5316a0669221d00f6",
+      "stagedSha256": "bcc394cfa69f874a6aae369525ad33fd8767c357b83d92fda5eaca6a3ef8f506",
+      "updated": true,
+      "directImports": 2
+    },
+    {
+      "path": "efg-nutrition/pilot/science-wellbeing.js",
+      "sourceSha256": "b98f2fc11f70c173ab17ce5a30fc81df688ba8f658465594f68a238d4921b8ee",
+      "stagedSha256": "b98f2fc11f70c173ab17ce5a30fc81df688ba8f658465594f68a238d4921b8ee",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/server-compatibility-client.js",
+      "sourceSha256": "34b6ad8ae63c6efce1c89c60671cc44582d255750b97cccb036f2ecd181365c8",
+      "stagedSha256": "34b6ad8ae63c6efce1c89c60671cc44582d255750b97cccb036f2ecd181365c8",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/student-food-restrictions.js",
+      "sourceSha256": "75dfa90413aca002630b6d82bd832a168540f3015de352109d86f90bafc5d954",
+      "stagedSha256": "75dfa90413aca002630b6d82bd832a168540f3015de352109d86f90bafc5d954",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/student-restriction-declaration.js",
+      "sourceSha256": "822da722558ea74ac7f5cd388a14c83ed129d52032f72eaa45b3498a6e0c791d",
+      "stagedSha256": "022cec256f001c645c6f39b179fa206409aac36d9b45503421dfc8dd0a45dd0b",
+      "updated": true,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/user-photo-labels.js",
+      "sourceSha256": "7a7aff351af7b1799205fd9203afee70e45db6e8a05e4783fbfa68a8cc7ed67b",
+      "stagedSha256": "7a7aff351af7b1799205fd9203afee70e45db6e8a05e4783fbfa68a8cc7ed67b",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/version-notice.js",
+      "sourceSha256": "2ec7563086bb889020494878f1000ae9d478ec756398e19d54d3acd6b349d41d",
+      "stagedSha256": "2ec7563086bb889020494878f1000ae9d478ec756398e19d54d3acd6b349d41d",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/walking-activity-ui.js",
+      "sourceSha256": "5a8dcbdd058e4b79e17bdb862110026d945dbc83fdc52a2a5b05561630a615bd",
+      "stagedSha256": "3fcfd9e0d9b95ddbb22090dda24ac4e4f5d95ffb61c4a41ad3a0736e1fe4505f",
+      "updated": true,
+      "directImports": 1
+    },
+    {
+      "path": "efg-nutrition/pilot/walking-steps-estimator.js",
+      "sourceSha256": "79dde7c383d661826f03827e1aa4e39250610241f0cdcd771d7bdc1d789fa1bd",
+      "stagedSha256": "79dde7c383d661826f03827e1aa4e39250610241f0cdcd771d7bdc1d789fa1bd",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-consistency.js",
+      "sourceSha256": "339da3067dc2c69192dad135b5fa899a8d30f5f84ac0cb6b429ccbc5e83c41a0",
+      "stagedSha256": "339da3067dc2c69192dad135b5fa899a8d30f5f84ac0cb6b429ccbc5e83c41a0",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-luxury-editor.js",
+      "sourceSha256": "3ea70015e0ecf138fee009d0331492db54db209c61746b1bf712e3f2077dfa69",
+      "stagedSha256": "3ea70015e0ecf138fee009d0331492db54db209c61746b1bf712e3f2077dfa69",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-luxury-report.js",
+      "sourceSha256": "3f73d85214852df9de3edb0bd19f83dcf9292f544daf454c89f3d639ec752504",
+      "stagedSha256": "3f73d85214852df9de3edb0bd19f83dcf9292f544daf454c89f3d639ec752504",
+      "updated": false,
+      "directImports": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-metrics.js",
+      "sourceSha256": "182dad0fe39f1efbf3824e9438ac1474e7cda6c427275c664a805c203257e5e6",
+      "stagedSha256": "182dad0fe39f1efbf3824e9438ac1474e7cda6c427275c664a805c203257e5e6",
+      "updated": false,
+      "directImports": 0
+    }
+  ],
+  "htmlSourceSha256": "869294934d6aac18e2fd9323c3b95dcdbdcfaf20bf4c5c924a76285f46b69a3f",
+  "htmlStagedSha256": "21f50559280ee1a691153d48dde799cfb56d7ee206811eb25d6496ef836238e6",
+  "preparationMode": "PILOT_UI_ACTIVATION_PROPOSAL_NOT_GO",
+  "pilotUiDraft": true,
+  "activationFlags": [
+    {
+      "file": "efg-nutrition/pilot/coach-student-journey.js",
+      "flag": "COACH_STUDENT_JOURNEY_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/coach-plan-draft-client.js",
+      "flag": "COACH_ATOMIC_PLAN_UI_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/coach-release-plan-gate.js",
+      "flag": "COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/coach-legal-bridge.js",
+      "flag": "COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/legal-onboarding.js",
+      "flag": "LEGAL_ONBOARDING_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/coach-shared-recipes-read-client.js",
+      "flag": "COACH_SHARED_STUDENT_RECIPES_UI_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/student-restriction-declaration.js",
+      "flag": "PRIVATE_HEALTH_DECLARATION_UI_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/major-release-client.js",
+      "flag": "MAJOR_RELEASE_FLOW_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/release-communications.js",
+      "flag": "RELEASE_COMMUNICATIONS_ENABLED",
+      "from": false,
+      "proposed": true
+    },
+    {
+      "file": "efg-nutrition/pilot/science-welcome.js",
+      "flag": "SCIENCE_WELCOME_ENABLED",
+      "from": false,
+      "proposed": true
+    }
+  ],
+  "deliberatelyDisabledFlags": [
+    {
+      "file": "efg-nutrition/pilot/coach-relaunch-onboarding.js",
+      "flag": "COACH_RELAUNCH_ONBOARDING_ENABLED",
+      "enabled": false
+    },
+    {
+      "file": "efg-nutrition/pilot/coach-adapted-workspace.js",
+      "flag": "COACH_ADAPTED_GUIDE_PREVIEW_ENABLED",
+      "enabled": false
+    },
+    {
+      "file": "efg-nutrition/pilot/qa-reviewed-sources.js",
+      "flag": "QA_REVIEWED_SOURCES_ENABLED",
+      "enabled": false
+    },
+    {
+      "file": "efg-nutrition/pilot/personal-workspace.js",
+      "flag": "PERSONAL_WORKSPACE_ENABLED",
+      "enabled": false
+    },
+    {
+      "file": "efg-nutrition/pilot/pilot-participation-demo.js",
+      "flag": "PILOT_PARTICIPATION_ENABLED",
+      "enabled": false
+    }
+  ],
+  "hostedPrerequisitesUnverified": true,
+  "noHostedCalls": true,
+  "noProductionEdits": true,
+  "noPublicationAuthorization": true,
+  "expectedGitSha": "0277ae9109c6f04f93fa038a41119d6bdc16aec3",
+  "stagedChangedPaths": [
+    "efg-nutrition/pilot/adapted-guide-editor.js",
+    "efg-nutrition/pilot/adapted-guided-day.js",
+    "efg-nutrition/pilot/bound-guide-publication-client.js",
+    "efg-nutrition/pilot/clinical-guide-connection.js",
+    "efg-nutrition/pilot/coach-adapted-workspace.js",
+    "efg-nutrition/pilot/coach-bound-guide-preparation.js",
+    "efg-nutrition/pilot/coach-draft-review.js",
+    "efg-nutrition/pilot/coach-guide-connection.js",
+    "efg-nutrition/pilot/coach-guide-intake-adapter.js",
+    "efg-nutrition/pilot/coach-guide-recipe-serving.js",
+    "efg-nutrition/pilot/coach-guide-restriction-scope.js",
+    "efg-nutrition/pilot/coach-health-response-provider.js",
+    "efg-nutrition/pilot/coach-intake-flow.js",
+    "efg-nutrition/pilot/coach-legal-bridge.js",
+    "efg-nutrition/pilot/coach-pilot-entry-client.js",
+    "efg-nutrition/pilot/coach-pilot-intake-client.js",
+    "efg-nutrition/pilot/coach-plan-draft-client.js",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js",
+    "efg-nutrition/pilot/coach-release-plan-gate.js",
+    "efg-nutrition/pilot/coach-shared-recipes-read-client.js",
+    "efg-nutrition/pilot/coach-student-journey.js",
+    "efg-nutrition/pilot/coach-versioned-mode.js",
+    "efg-nutrition/pilot/daily-report.js",
+    "efg-nutrition/pilot/food-catalog.js",
+    "efg-nutrition/pilot/food-compatibility-adapter.js",
+    "efg-nutrition/pilot/food-compatibility.js",
+    "efg-nutrition/pilot/food-expansion.js",
+    "efg-nutrition/pilot/guide-meal-education.js",
+    "efg-nutrition/pilot/guided-day-v2.js",
+    "efg-nutrition/pilot/gut-clinical-workbench.js",
+    "efg-nutrition/pilot/index.html",
+    "efg-nutrition/pilot/legal-onboarding.js",
+    "efg-nutrition/pilot/major-release-client.js",
+    "efg-nutrition/pilot/major-release-reauth-client.js",
+    "efg-nutrition/pilot/period-report-history.js",
+    "efg-nutrition/pilot/persisted-guide-provider.js",
+    "efg-nutrition/pilot/pilot-guide-lifecycle.js",
+    "efg-nutrition/pilot/pilot-participation-client.js",
+    "efg-nutrition/pilot/pilot.js",
+    "efg-nutrition/pilot/regional-composite-models.js",
+    "efg-nutrition/pilot/release-communications.js",
+    "efg-nutrition/pilot/science-welcome.js",
+    "efg-nutrition/pilot/student-restriction-declaration.js",
+    "efg-nutrition/pilot/walking-activity-ui.js"
+  ],
+  "instruction": "Review only. Do NOT deploy or merge without explicit GO."
+}

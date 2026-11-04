@@ -1,0 +1,730 @@
+--- a/efg-nutrition/pilot/adapted-guide-editor.js
++++ b/efg-nutrition/pilot/adapted-guide-editor.js
+@@ -1,7 +1,7 @@
+ // Private in-memory coach draft editor; no approval, storage, auth or RPC.
+-import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js';
+-import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js';
+-import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js';
++import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js?v=ncc-pilot-0277ae9109c6';
++import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-0277ae9109c6';
++import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js?v=ncc-pilot-0277ae9109c6';
+ const keys=['k','p','c','f','fi'];
+ const clone=x=>structuredClone(x);
+ export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=GUIDE_TARGET_TOLERANCE}={}){
+--- a/efg-nutrition/pilot/adapted-guided-day.js
++++ b/efg-nutrition/pilot/adapted-guided-day.js
+@@ -1,6 +1,6 @@
+ // Private educational proposal. Reuses existing portion optimizer, never publishes.
+-import {GUIDE_MEALS,rebalanceGuidedDay,guideTotals,guidedPortionBounds} from './guided-day.js';
+-import {evaluateGuideFood,patternConflict} from './guide-compatibility.js';
++import {GUIDE_MEALS,rebalanceGuidedDay,guideTotals,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-0277ae9109c6';
++import {evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-0277ae9109c6';
+ export const GUIDE_TARGET_TOLERANCE=.05; // Maximum daily deviation; coach targets remain unchanged.
+ const nutrients=['k','p','c','f','fi'];
+ const fail=(code,message)=>({ok:false,code,message,plan:null,requiresCoachReview:true});
+--- a/efg-nutrition/pilot/bound-guide-publication-client.js
++++ b/efg-nutrition/pilot/bound-guide-publication-client.js
+@@ -1,6 +1,6 @@
+ // Dormant adapter. Uses existing COACH119 publisher, never a direct table write.
+-import {createCoachPlanDraftClient} from './coach-plan-draft-client.js';
+-import {adaptedScopeKey} from './coach-adapted-workspace.js';
++import {createCoachPlanDraftClient} from './coach-plan-draft-client.js?v=ncc-pilot-0277ae9109c6';
++import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
+ export function createBoundGuidePublication({sb,readScope,enabled=false}={}){
+  return {async publish(options){
+   if(enabled!==true||options?.confirmed!==true)throw Error('Publicación no habilitada o no confirmada.');
+--- a/efg-nutrition/pilot/clinical-guide-connection.js
++++ b/efg-nutrition/pilot/clinical-guide-connection.js
+@@ -1,7 +1,7 @@
+ // Private connection proposal. No RPC, listener, timer or UI created unless explicitly enabled.
+-import {createPersistedGuideProvider} from './persisted-guide-provider.js';
+-import {createServerCompatibilityClient} from './server-compatibility-client.js';
+-import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js';
++import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-0277ae9109c6';
++import {createServerCompatibilityClient} from './server-compatibility-client.js?v=ncc-pilot-0277ae9109c6';
++import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
+ export const CLINICAL_GUIDE_CONNECTION_ENABLED=false;
+ export function createClinicalGuideConnection({enabled=false,client,readScope,template,clock={}}={}){
+  if(!enabled)return {available:()=>false,open:async()=>{throw Error('CLINICAL_CONNECTION_OFF');},dispose(){}};
+--- a/efg-nutrition/pilot/coach-adapted-workspace.js
++++ b/efg-nutrition/pilot/coach-adapted-workspace.js
+@@ -1,7 +1,7 @@
+ // Preview integration only. No import of test fixtures, persistence or publishing.
+-import {proposeAdaptedGuide} from './adapted-guided-day.js';
+-import {createGuideEditor,updateGuideEditor} from './adapted-guide-editor.js';
+-import {renderGuideEditor} from './adapted-guide-view.js';
++import {proposeAdaptedGuide} from './adapted-guided-day.js?v=ncc-pilot-0277ae9109c6';
++import {createGuideEditor,updateGuideEditor} from './adapted-guide-editor.js?v=ncc-pilot-0277ae9109c6';
++import {renderGuideEditor} from './adapted-guide-view.js?v=ncc-pilot-0277ae9109c6';
+ export const COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false;
+ export function adaptedScopeKey(s){
+  if(!s||s.role!=='coach'||s.active!==true||!s.userId||s.userId!==s.profileId||
+--- a/efg-nutrition/pilot/coach-bound-guide-preparation.js
++++ b/efg-nutrition/pilot/coach-bound-guide-preparation.js
+@@ -1,4 +1,4 @@
+-import {adaptedScopeKey} from './coach-adapted-workspace.js';
++import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
+ export function createBoundGuidePreparation({sb,readScope,readGoal,foodIds,onSaved}){
+  let busy=false,generation=0;
+  const goalKey=()=>{const g=readGoal();return JSON.stringify(g?['student_id','goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].map(k=>g[k]):null);};
+--- a/efg-nutrition/pilot/coach-draft-review.js
++++ b/efg-nutrition/pilot/coach-draft-review.js
+@@ -1,9 +1,9 @@
+-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
++import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-0277ae9109c6";
+ // EFG Nutrition Pro · Coach NUT-50 review contract (pure; no DB, no medical safety claims).
+ // A persisted draft must match the exact currently edited goal and guide.
+ // The RPC still revalidates identity, intake revision, evidence and legal consent.
+-import {validateCoachPlanProposal} from "./coach-plan-draft-client.js";
+-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
++import {validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
+ 
+ // COACH-RELEASE-REV-01: the intake revision is authoritative when the new
+ // versioned Coach onboarding is active. Identical timestamps are NOT enough:
+--- a/efg-nutrition/pilot/coach-guide-connection.js
++++ b/efg-nutrition/pilot/coach-guide-connection.js
+@@ -1,7 +1,7 @@
+ // Composes existing scope-bound intake source with existing coach workspace.
+ // Providers are injected by an authorized environment. No RPC, storage or publish.
+-import {createGuideIntakeSource} from './coach-guide-intake-adapter.js';
+-import {createCoachAdaptedWorkspace,adaptedScopeKey} from './coach-adapted-workspace.js';
++import {createGuideIntakeSource} from './coach-guide-intake-adapter.js?v=ncc-pilot-0277ae9109c6';
++import {createCoachAdaptedWorkspace,adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
+ export function createCoachGuideConnection({enabled=false,readScope,providers=null}={}){
+  if(!providers)return null;
+  for(const method of ['readBinding','readBundle','subscribe'])
+--- a/efg-nutrition/pilot/coach-guide-intake-adapter.js
++++ b/efg-nutrition/pilot/coach-guide-intake-adapter.js
+@@ -1,7 +1,7 @@
+ // Private, synthetic-only bridge. No network, persistence, diagnosis or publication.
+-import {adaptedScopeKey} from './coach-adapted-workspace.js';
+-import {parseGutClinicalDraft} from './gut-clinical-workbench.js';
+-import {proposeAdaptedGuide} from './adapted-guided-day.js';
++import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
++import {parseGutClinicalDraft} from './gut-clinical-workbench.js?v=ncc-pilot-0277ae9109c6';
++import {proposeAdaptedGuide} from './adapted-guided-day.js?v=ncc-pilot-0277ae9109c6';
+ const fail=(code,message)=>Object.assign(new Error(message),{code});
+ const revision=x=>Number.isSafeInteger(x)&&x>0;
+ const id=x=>typeof x==='string'&&x.trim().length>0;
+--- a/efg-nutrition/pilot/coach-guide-recipe-serving.js
++++ b/efg-nutrition/pilot/coach-guide-recipe-serving.js
+@@ -1,7 +1,7 @@
+ // NCC GU-06 · expand recipe portions into canonical food ingredients.
+ // No persistence, RLS bypass, diary write or claim of nutrition approval.
+ // Each ingredient remains subject to source review in COACH119.
+-import {rebalanceGuidedDay} from './guided-day.js';
++import {rebalanceGuidedDay} from './guided-day.js?v=ncc-pilot-0277ae9109c6';
+ const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,100}$/.test(x);
+ const nutrients=['k','p','c','f','fi'];
+--- a/efg-nutrition/pilot/coach-guide-restriction-scope.js
++++ b/efg-nutrition/pilot/coach-guide-restriction-scope.js
+@@ -1,7 +1,7 @@
+ // Coach 01-05 — private health declaration mapping, client-side defense in depth.
+ // The server must independently enforce identity, relationship, legal/health
+ // processing consent, organization and RLS. Clinical module remains OFF.
+-import {guideFoodSignal} from './guided-day-v2.js';
++import {guideFoodSignal} from './guided-day-v2.js?v=ncc-pilot-0277ae9109c6';
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const CODES=new Set(['celiac','lactose_intolerance','food_allergy','sibo','diabetes','hypertension','dyslipidemia','fatty_liver']);
+ const STATUSES=new Set(['confirmed','suspected','not_reported']);
+--- a/efg-nutrition/pilot/coach-health-response-provider.js
++++ b/efg-nutrition/pilot/coach-health-response-provider.js
+@@ -1,5 +1,5 @@
+ // Read-only response binding. No endpoint, JWT, storage or UI activation here.
+-import {adaptedScopeKey} from './coach-adapted-workspace.js';
++import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6';
+ const token=s=>adaptedScopeKey(s)&&typeof s.sessionId==='string'&&s.sessionId&&
+  Number.isSafeInteger(s.sourceEpoch)&&s.sourceEpoch>0?JSON.stringify([adaptedScopeKey(s),s.sessionId,s.sourceEpoch]):null;
+ const unavailable=status=>({status});
+--- a/efg-nutrition/pilot/coach-intake-flow.js
++++ b/efg-nutrition/pilot/coach-intake-flow.js
+@@ -1,9 +1,9 @@
+-import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js";
+-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
+-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js";
+-import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js";
+-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
++import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-0277ae9109c6";
++import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
++import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-0277ae9109c6";
+ // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
+ // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
+ export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
+--- a/efg-nutrition/pilot/coach-legal-bridge.js
++++ b/efg-nutrition/pilot/coach-legal-bridge.js
+@@ -2,8 +2,8 @@
+ // Reads public published legal docs + server-authenticated status; never manufactures
+ // acceptance or authorizes health-data sharing. Must be enabled ONLY after counsel GO.
+ import {LEGAL_ONBOARDING_ENABLED,legalOutstanding,renderLegalOnboarding,
+- makeLegalAcceptanceRequest} from "./legal-onboarding.js";
+-export const COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED=false;
++ makeLegalAcceptanceRequest} from "./legal-onboarding.js?v=ncc-pilot-0277ae9109c6";
++export const COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED=true;
+ const hash=/^[a-f0-9]{64}$/i;
+ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ // Bind server-read legal status and receipts to the currently signed identity.
+--- a/efg-nutrition/pilot/coach-pilot-entry-client.js
++++ b/efg-nutrition/pilot/coach-pilot-entry-client.js
+@@ -1,7 +1,7 @@
+ // COACH111: new Coach pilot entry adapter. OFF until atomic publishing and
+ // server-side diary write gate are validated, then enabled as one release.
+-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js';
+-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js';
++import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6';
++import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-0277ae9109c6';
+ export const COACH_PILOT_ENTRY_BACKEND_VERSION='coach116';
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const ROUTES=new Set(['legal','participation','intake','private','review','ready','verify']);
+--- a/efg-nutrition/pilot/coach-pilot-intake-client.js
++++ b/efg-nutrition/pilot/coach-pilot-intake-client.js
+@@ -1,7 +1,7 @@
+ // COACH112: real general-intake client for the optional Coach PILOT, distinct
+ // from old draft T&C and from clinical/sensitive medical data. OFF in the PWA.
+-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js';
+-import {loadPilotParticipationReceipt} from './pilot-participation-client.js';
++import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6';
++import {loadPilotParticipationReceipt} from './pilot-participation-client.js?v=ncc-pilot-0277ae9109c6';
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const FIELDS=new Set(['objective','age_years','height_cm','weight_kg','activity_level',
+  'dietary_pattern','eating_window','preferred_foods','disliked_foods','meal_routine','notes']);
+--- a/efg-nutrition/pilot/coach-plan-draft-client.js
++++ b/efg-nutrition/pilot/coach-plan-draft-client.js
+@@ -1,11 +1,11 @@
+-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
++import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-0277ae9109c6";
+ // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
+ // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
+ // Never insert new goals or guides directly. No edits to student diary, login or sessions.
+-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
+-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
+-import {approvedFoodGuide} from "./coach-food-selection.js";
+-export const COACH_ATOMIC_PLAN_UI_ENABLED=false;
++import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
++import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-0277ae9109c6";
++import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-0277ae9109c6";
++export const COACH_ATOMIC_PLAN_UI_ENABLED=true;
+ 
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const SLOTS=new Set(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"]);
+--- a/efg-nutrition/pilot/coach-relaunch-entry-client.js
++++ b/efg-nutrition/pilot/coach-relaunch-entry-client.js
+@@ -1,8 +1,8 @@
+ // COACH-RELAUNCH: private owner-only intake entry client, NOT ENABLED.
+ // No local/session storage; signed JWT + server RLS/RPC is authoritative.
+ import {COACH_RELEASE_INTAKE_VERSION,COACH_RELAUNCH_ONBOARDING_ENABLED,
+- resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js";
+-import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=20261030-clingut1";
++ resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
++import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=ncc-pilot-0277ae9109c6";
+ const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
+ const accepted=isCurrentCoachLegalAccepted;
+--- a/efg-nutrition/pilot/coach-release-plan-gate.js
++++ b/efg-nutrition/pilot/coach-release-plan-gate.js
+@@ -1,9 +1,9 @@
+-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
++import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-0277ae9109c6";
+ // COACH-66 · Release-only publication gate. OFF until server-side draft and
+ // atomic publish RPC BOTH verify the new versioned intake and consent.
+ // This is client defense-in-depth; PostgreSQL authorization remains mandatory.
+ 
+-export const COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=false;
++export const COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=true;
+ export const COACH_RELAUNCH_LEGACY_PLAN_ACTIONS=Object.freeze([
+  "approveGoal","approveGoalRevision","saveGuidedDay","saveCoachFoodPlan",
+  "saveCoachFoods","publishCoachStudentPlan","saveCoachAtomicDraft",
+--- a/efg-nutrition/pilot/coach-shared-recipes-read-client.js
++++ b/efg-nutrition/pilot/coach-shared-recipes-read-client.js
+@@ -1,6 +1,6 @@
+ // GU-06 staged signed read: never use a Coach's localStorage as a source
+ // for another person's recipe. Server resolves Coach ownership, RLS and consent.
+-export const COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false; // Hosted RPC verified present 2026-11-04; signed end-to-end QA and activation pending.
++export const COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=true; // Hosted RPC verified present 2026-11-04; signed end-to-end QA and activation pending.
+ const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ export const coachRecipeScopeMatches=(current,ticket)=>!!current&&!!ticket&&
+  current.role==='coach'&&current.consented===true&&current.shared===true&&
+--- a/efg-nutrition/pilot/coach-student-journey.js
++++ b/efg-nutrition/pilot/coach-student-journey.js
+@@ -3,9 +3,9 @@
+ // All reads MUST be server-authenticated/RLS verified. Never infer consents
+ // from OTP, existing goals, a legacy intake or the locally saved form.
+ // Medical conditions are NOT stored or shared by this module.
+-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js';
+-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js';
+-export const COACH_STUDENT_JOURNEY_ENABLED=false;
++import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6';
++import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-0277ae9109c6';
++export const COACH_STUDENT_JOURNEY_ENABLED=true;
+ export const COACH_STUDENT_JOURNEY_STEPS=Object.freeze([
+  {id:'participation',label:'Participación y autorización de compartir ficha'},
+  {id:'intake',label:'Ficha inicial de salud y nutrición'},
+--- a/efg-nutrition/pilot/coach-versioned-mode.js
++++ b/efg-nutrition/pilot/coach-versioned-mode.js
+@@ -1,7 +1,7 @@
+ // Both onboarding routes use the same versioned Coach backend.
+ // This does not enable either route or certify deployment prerequisites.
+-import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js";
+-import {COACH_STUDENT_JOURNEY_ENABLED} from "./coach-student-journey.js";
++import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_STUDENT_JOURNEY_ENABLED} from "./coach-student-journey.js?v=ncc-pilot-0277ae9109c6";
+ export function usesVersionedCoachIntake({relaunchEnabled=false,studentJourneyEnabled=false}={}){
+  return relaunchEnabled===true||studentJourneyEnabled===true;
+ }
+--- a/efg-nutrition/pilot/daily-report.js
++++ b/efg-nutrition/pilot/daily-report.js
+@@ -1,4 +1,4 @@
+-import {isNutritionDayClosed} from "./day-lifecycle.js?v=20261027-auto2359-v1";
++import {isNutritionDayClosed} from "./day-lifecycle.js?v=ncc-pilot-0277ae9109c6";
+ // Resumen de seguimiento: nunca inventar ceros para días sin registro.
+ // Las cifras se recalculan desde los alimentos realmente registrados.
+ export function buildNutritionReport(logs, mealSlots, dailyTotals, currentDay, goal){
+--- a/efg-nutrition/pilot/food-catalog.js
++++ b/efg-nutrition/pilot/food-catalog.js
+@@ -1,7 +1,7 @@
+-import {ARGENTINE_LABEL_FOODS,ARGENTINE_LABEL_PORTIONS} from "./argentine-manufacturer-labels.js?v=20261028-ar-labels1";
+-import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "./user-photo-labels.js?v=20261028-choco1";
+-import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=20261028-phase2src4";
+-import {PLANT_BAKERY_FOODS,PLANT_BAKERY_PORTIONS,PLANT_BAKERY_ALIASES,PLANT_BAKERY_COUNT} from "./food-plant-bakery-phase3.js?v=20261029-plant1";
++import {ARGENTINE_LABEL_FOODS,ARGENTINE_LABEL_PORTIONS} from "./argentine-manufacturer-labels.js?v=ncc-pilot-0277ae9109c6";
++import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "./user-photo-labels.js?v=ncc-pilot-0277ae9109c6";
++import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=ncc-pilot-0277ae9109c6";
++import {PLANT_BAKERY_FOODS,PLANT_BAKERY_PORTIONS,PLANT_BAKERY_ALIASES,PLANT_BAKERY_COUNT} from "./food-plant-bakery-phase3.js?v=ncc-pilot-0277ae9109c6";
+ // EFG Nutrition - biblioteca genérica inicial, no equivalente a un etiquetado de marca.
+ // Macros aproximados por 100 g de alimento comestible (o 100 ml de líquidos).
+ // No se deben utilizar como prescripción ni sustituir la evaluación profesional.
+--- a/efg-nutrition/pilot/food-compatibility-adapter.js
++++ b/efg-nutrition/pilot/food-compatibility-adapter.js
+@@ -1,7 +1,7 @@
+ // COACH101 — READ-ONLY reviewed food compatibility data from protected Supabase table.
+ // No medical conclusions, no localStorage, no user-submitted food evidence.
+ // Table is RLS SELECT reviewed-only and writable solely by private operator.
+-import {classifyFood,renderFoodCompatibility} from './food-compatibility.js';
++import {classifyFood,renderFoodCompatibility} from './food-compatibility.js?v=ncc-pilot-0277ae9109c6';
+ const CODE=/^[A-Za-z0-9_-]{1,100}$/;
+ const RULE=/^[A-Za-z0-9:_-]{3,100}$/;
+ export const COACH101_TRAFFIC_LIGHT_REVISION='pilot_2026_evidence_v1';
+--- a/efg-nutrition/pilot/food-compatibility.js
++++ b/efg-nutrition/pilot/food-compatibility.js
+@@ -3,7 +3,7 @@
+ // Evidence must come from a reviewed server catalog, never user-supplied claims.
+ // The frontend cannot authenticate provenance: backend must supply/catalog-authorize
+ // catalogEvidence separately from editable food/diary payloads. Clinical restrictions remain unverified and yellow.
+-import {DIET_PATTERNS} from './diet-pattern-workbench.js';
++import {DIET_PATTERNS} from './diet-pattern-workbench.js?v=ncc-pilot-0277ae9109c6';
+ export const FOOD_COMPATIBILITY_ENABLED=true;
+ const exclusions={vegan:['meat','fish','shellfish','dairy','egg','honey','animal_derivative'],vegetarian:['meat','fish','shellfish','animal_derivative'],pescatarian:['meat','animal_derivative']};
+ const neutralPatterns=new Set(['balanced','mediterranean','flexitarian']);
+--- a/efg-nutrition/pilot/food-expansion.js
++++ b/efg-nutrition/pilot/food-expansion.js
+@@ -1,4 +1,4 @@
+-import {VERIFIED_FOODS,VERIFIED_SOURCE_COUNT} from "./food-source-audit.js?v=20261028-phase2src4";
++import {VERIFIED_FOODS,VERIFIED_SOURCE_COUNT} from "./food-source-audit.js?v=ncc-pilot-0277ae9109c6";
+ // EFG Nutrition Pro | 2026-10-28 | ampliación regional y alimentos de disfrute.
+ // Macros POR 100 g de porción comestible. Son ESTIMACIONES GENÉRICAS
+ // orientativas, NO valores analíticos individuales, etiquetas verificadas ni
+--- a/efg-nutrition/pilot/guide-meal-education.js
++++ b/efg-nutrition/pilot/guide-meal-education.js
+@@ -1,7 +1,7 @@
+ // Guía alimentaria educativa: presentación por grupos, sin alterar gramos,
+ // composición, totales, permisos, planes guardados ni motor de cálculo.
+ // Se utiliza tanto en la revisión del coach como en la vista del alumno.
+-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor} from "./guided-meal-picker.js";
++import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor} from "./guided-meal-picker.js?v=ncc-pilot-0277ae9109c6";
+ 
+ export const GUIDE_EDUCATION_HINTS=Object.freeze({
+  protein:"Identificá las fuentes de proteína. También pueden aportar grasas e hidratos.",
+--- a/efg-nutrition/pilot/guided-day-v2.js
++++ b/efg-nutrition/pilot/guided-day-v2.js
+@@ -2,7 +2,7 @@
+ // This module does not read or store health data. The caller must supply a CURRENT,
+ // consented and server-authorized profile; this is not a medical decision engine.
+ // The existing food catalog is reused in full, never filtered for a student's diary.
+-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js';
++import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-0277ae9109c6';
+ 
+ export const SIX_GUIDE_SLOTS=Object.freeze([
+  ['desayuno','Desayuno'],['media_manana','Media mañana'],
+--- a/efg-nutrition/pilot/gut-clinical-workbench.js
++++ b/efg-nutrition/pilot/gut-clinical-workbench.js
+@@ -3,7 +3,7 @@
+ // No diagnoses, no automatic diets, no medical guarantees, no server writes.
+ // Clinical data require a distinct server-owned RLS table + explicit consent
+ // before this draft can become an active Coach intake or food compatibility UI.
+-import {assessDietarySignal} from './dietary-traffic-light.js';
++import {assessDietarySignal} from './dietary-traffic-light.js?v=ncc-pilot-0277ae9109c6';
+ export const GUT_CLINICAL_INTAKE_ENABLED=false;
+ export const GUT_CONDITIONS=Object.freeze([
+  Object.freeze({id:'lactose_intolerance',label:'Intolerancia a la lactosa',
+--- a/efg-nutrition/pilot/index.html
++++ b/efg-nutrition/pilot/index.html
+@@ -1,36 +1,36 @@
+ <!doctype html>
+ <html lang="es"><head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+-<meta name="efg-build" content="20261103-ux35-major2-loginfix1">
++<meta name="efg-build" content="ncc-pilot-0277ae9109c6">
+ <meta name="theme-color" content="#DCD8D2">
+ <meta name="description" content="Nutrición Con-Ciencia: acceso privado de entrenadores y alumnos">
+ <title>Nutrición Con-Ciencia · Acceso privado</title>
+-<link rel="stylesheet" href="../styles.css">
+-<link rel="stylesheet" href="../fresh.css">
++<link rel="stylesheet" href="../styles.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="../fresh.css?v=ncc-pilot-0277ae9109c6">
+ <link rel="preload" as="image" href="./loading-option-1.webp">
+-<link rel="stylesheet" href="./pilot.css?v=20261028-guide2">
+-<link rel="stylesheet" href="./guided-meal-picker.css?v=20261029-uxguide1">
+-<link rel="stylesheet" href="./food-compatibility.css?v=20261030-coach101">
+-<link rel="stylesheet" href="./notifications-ui.css?v=20261029-gold-bell1">
+-<link rel="stylesheet" href="./messages-ui.css?v=20261029-chats1">
+-<link rel="stylesheet" href="./pull-refresh.css?v=20261028-pull1">
+-<link rel="stylesheet" href="./version-notice.css?v=20261030-banner-r2">
+-<link rel="stylesheet" href="./coach-experience.css?v=coach2-preview-1">
+-<link rel="stylesheet" href="./student-experience.css?v=student2-draft-1">
+-<link rel="stylesheet" href="./admin-experience.css?v=admin2-release-1">
+-<link rel="stylesheet" href="./premium-system.css?v=20261027-science1">
+-<link rel="stylesheet" href="./pastel-system.css?v=20261029-android-pan1">
+-<link rel="stylesheet" href="./weekly-consistency.css?v=20261028-luxury-pro-r1">
+-<link rel="stylesheet" href="./weekly-luxury-report.css?v=20261030-lux-r1">
+-<link rel="stylesheet" href="./luxury-theme.css?v=20261029-habitual-preview1">
+-<link rel="stylesheet" href="./serotonin-loading.css?v=20261029-serotonin-brand1">
+-<link rel="stylesheet" href="./personal-workspace.css?v=20261030-nut60-readonly1">
+-<link rel="stylesheet" href="./nutrition-science.css?v=20261030-science-edu1">
+-<link rel="stylesheet" href="./nutrition-daily-tip.css?v=20261030-pro60-1">
+-<link rel="stylesheet" href="./science-welcome.css?v=20261103-owner-eight-v2">
+-<link rel="stylesheet" href="./science-wellbeing.css?v=20261030-brand78-final">
+-<link rel="stylesheet" href="./walking-activity.css?v=20261030-sport-step1">
+-<link rel="stylesheet" href="./release-session.css?v=20261030-ux35-mobile1">
++<link rel="stylesheet" href="./pilot.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./guided-meal-picker.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./food-compatibility.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./notifications-ui.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./messages-ui.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./pull-refresh.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./version-notice.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./coach-experience.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./student-experience.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./admin-experience.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./premium-system.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./pastel-system.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./weekly-consistency.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./weekly-luxury-report.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./luxury-theme.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./serotonin-loading.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./personal-workspace.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./nutrition-science.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./nutrition-daily-tip.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./science-welcome.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./science-wellbeing.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./walking-activity.css?v=ncc-pilot-0277ae9109c6">
++<link rel="stylesheet" href="./release-session.css?v=ncc-pilot-0277ae9109c6">
+ </head><body>
+ <div id="app" role="main">
+   <div class="pilot-loader pilot-loader-wellness" aria-live="polite">
+@@ -44,5 +44,5 @@
+   </div>
+ </div>
+ <div id="pilot-toast" role="status" aria-live="polite"></div>
+-<script type="module" src="./pilot.js?v=20261103-ux35-major2-loginfix1"></script>
++<script type="module" src="./pilot.js?v=ncc-pilot-0277ae9109c6"></script>
+ </body></html>
+\ No newline at end of file
+--- a/efg-nutrition/pilot/legal-onboarding.js
++++ b/efg-nutrition/pilot/legal-onboarding.js
+@@ -18,7 +18,7 @@
+  if(!seen.has("terms")||!seen.has("privacy"))throw Error("Faltan los documentos obligatorios.");
+  return Object.fromEntries(documents.map(x=>[x.kind,x]));
+ }
+-export const LEGAL_ONBOARDING_ENABLED=false; // May change ONLY after approved text, staging and gated backend.
++export const LEGAL_ONBOARDING_ENABLED=true; // May change ONLY after approved text, staging and gated backend.
+ export function legalOutstanding(documents,accepted=[]){
+  const docs=asDocs(documents);
+  return ["terms","privacy"].filter(kind=>!accepted.some(a=>a&&a.kind===kind&&a.document_id===docs[kind].id&&
+--- a/efg-nutrition/pilot/major-release-client.js
++++ b/efg-nutrition/pilot/major-release-client.js
+@@ -1,7 +1,7 @@
+ // COACH120 / UX35 major-relauch client. OFF until approved release and QA.
+ // The server owns the phase, version and authenticated receipt. This code
+ // NEVER issues automatic signout; minor PWA asset changes are silent.
+-export const MAJOR_RELEASE_FLOW_ENABLED=false;
++export const MAJOR_RELEASE_FLOW_ENABLED=true;
+ const ID=/^[a-z][a-z0-9_]{6,60}$/;
+ const V=/^[0-9a-zA-Z._-]{2,35}$/;
+ const PHASES=new Set(['none','preview','reauth_required','legal','live']);
+--- a/efg-nutrition/pilot/major-release-reauth-client.js
++++ b/efg-nutrition/pilot/major-release-reauth-client.js
+@@ -2,9 +2,9 @@
+ // manifest/receipt RPCs and legal/privacy/health onboarding are approved.
+ // Only the exceptional MAJOR relaunch may request the new-OTP reauthentication.
+ // PREVIEW and minor updates must never sign users out.
+-import {RELEASE_COMMUNICATIONS_ENABLED} from './release-communications.js';
+-import {signOutCurrentDevice} from './logout-session.js';
+-import {readMajorRelease,acknowledgeMajorRelease} from './major-release-client.js';
++import {RELEASE_COMMUNICATIONS_ENABLED} from './release-communications.js?v=ncc-pilot-0277ae9109c6';
++import {signOutCurrentDevice} from './logout-session.js?v=ncc-pilot-0277ae9109c6';
++import {readMajorRelease,acknowledgeMajorRelease} from './major-release-client.js?v=ncc-pilot-0277ae9109c6';
+ const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ export async function confirmMajorRelaunchAndExit(sb,{
+  profile,userId,releaseId,currentBuild,
+--- a/efg-nutrition/pilot/period-report-history.js
++++ b/efg-nutrition/pilot/period-report-history.js
+@@ -1,4 +1,4 @@
+-import {periodReportAsStoredText,parseLuxuryPeriodReport} from './period-luxury-report.js?v=p29m';
++import {periodReportAsStoredText,parseLuxuryPeriodReport} from './period-luxury-report.js?v=ncc-pilot-0277ae9109c6';
+ // Database RLS decides access. The client retains a request ID across retries.
+ export function createPeriodReportHistory({sb,context}){
+  let pending=false;
+--- a/efg-nutrition/pilot/persisted-guide-provider.js
++++ b/efg-nutrition/pilot/persisted-guide-provider.js
+@@ -1,6 +1,6 @@
+ // Authenticated transport only. Not wired into pilot.js; no synthetic:true bypass.
+-import {recipeProjection,serverCompatibilityFrame} from './server-compatibility-client.js';
+-import {createCoachHealthResponseProvider} from './coach-health-response-provider.js';
++import {recipeProjection,serverCompatibilityFrame} from './server-compatibility-client.js?v=ncc-pilot-0277ae9109c6';
++import {createCoachHealthResponseProvider} from './coach-health-response-provider.js?v=ncc-pilot-0277ae9109c6';
+ export function createPersistedGuideProvider({client,readScope,template,clinical=false}){
+  let generation=0,accepted=null;
+  const key=s=>s&&JSON.stringify([s.userId,s.sessionId,s.studentId,s.organizationId,s.sourceEpoch]);
+--- a/efg-nutrition/pilot/pilot-guide-lifecycle.js
++++ b/efg-nutrition/pilot/pilot-guide-lifecycle.js
+@@ -1,6 +1,6 @@
+ // Direct application lifecycle connection; no HTTP rewriting or state injection.
+-import {createStudentRestrictionDeclaration} from './student-restriction-declaration.js';
+-import {createBoundGuidePreparation} from './coach-bound-guide-preparation.js';
++import {createStudentRestrictionDeclaration} from './student-restriction-declaration.js?v=ncc-pilot-0277ae9109c6';
++import {createBoundGuidePreparation} from './coach-bound-guide-preparation.js?v=ncc-pilot-0277ae9109c6';
+ export function createPilotGuideLifecycle({sb,enabled,readStudent,readScope,readGoal,foodIds,onSaved}){
+  let epoch=0,fingerprint=null,mount=null;
+  function context(){
+--- a/efg-nutrition/pilot/pilot-participation-client.js
++++ b/efg-nutrition/pilot/pilot-participation-client.js
+@@ -1,6 +1,6 @@
+ // COACH106 — real Supabase participation receipts adapter (OFF until E2E).
+ // No legal-document acceptance, sensitive-health collection or localStorage.
+-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js';
++import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-0277ae9109c6';
+ const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
+ async function signedUser(sb){
+  if(typeof sb?.auth?.getUser!=='function')throw Error('Falta verificar la sesión.');
+--- a/efg-nutrition/pilot/pilot.js
++++ b/efg-nutrition/pilot/pilot.js
+@@ -1,81 +1,81 @@
+-import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=p29w";
+-import {createPeriodReportHistory} from "./period-report-history.js?v=p29q";
+-import {loadPeriodReportGoals} from "./period-report-goals.js?v=p29p";
+-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
+-import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=p29k";
+-import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
+-import {createAuthHydrationGate} from "./auth-hydration-gate.js";
+-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
+-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
+-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js';
+-import {createPersistedGuideProvider} from './persisted-guide-provider.js';
+-import {createBoundGuidePublication} from './bound-guide-publication-client.js';
+-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js';
+-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=private-wire1";
+-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=private-connect1";
+-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
++import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-0277ae9109c6";
++import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-0277ae9109c6";
++import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-0277ae9109c6";
++import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-0277ae9109c6";
++import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-0277ae9109c6";
++import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-0277ae9109c6";
++import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-0277ae9109c6";
++import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-0277ae9109c6";
++import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-0277ae9109c6';
++import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-0277ae9109c6';
++import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-0277ae9109c6';
++import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-0277ae9109c6';
++import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-0277ae9109c6';
++import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-0277ae9109c6";
+ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
+-import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
+-import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=20261029-5pct1";
+-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
+-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
+-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
+-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=20261030-coach101";
+-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=20261030-coach101";
+-import {educationalGuideSections} from "./guide-meal-education.js?v=20261029-uxguide1";
+-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=20261103-owner-eight-v2";
+-import {applyRecipeModels} from "./recipe-models.js?v=20261028-recipe1";
+-import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=20261028-regional2";
+-import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=20261027-auto2359-v1";
+-import {weeklyNumbers} from "./weekly-metrics.js?v=1";
+-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=20261030-lux-r1";
+-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=20261030-lux-review1";
+-import {progressDashboard} from "./progress-charts.js?v=20261027-premium33";
+-import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=20261027-fit1";
+-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=20261102-r1";
+-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=20261102-gu06";
+-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=20261102-gu06-scope";
+-import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=20261027-realphotos1";
+-import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=20261027-science1";
+-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=20261102-walk-flex1";
+-import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messages-v1";
+-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1";
+-import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
+-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
+-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
+-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-restrictions1";
+-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=20261102-guard1";
+-import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=20261104-p28";
+-import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
+-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
+-import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
+-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=20261103-login-fix1";
+-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=20261029-prefill1";
+-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=20261029-safe1";
+-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=20261030-coach119-catalog1";
+-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=20261030-coach119-catalog1";
+-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=20261030-review-rev1";
+-import {createPullToRefresh} from "./pull-refresh.js?v=20261029-android-pan1";
+-import {createVersionNotice} from "./version-notice.js?v=20261030-ux35-silentminor1";
+-import {signOutCurrentDevice} from "./logout-session.js?v=20261030-session01";
+-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=20261030-ux35-major1";
+-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=20261030-coach120";
+-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=20261030-coach121";
+-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=20261030-nut60-readonly1";
+-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=20261030-coach-relaunch2";
+-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=20261031-intake1";
+-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=20261030-coach113";
+-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=20261030-coach116";
+-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=20261031-coachopt05";
+-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=20261030-coach117";
+-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=20261030-coach112";
+-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=20261030-coach113";
+-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=20261030-coach106";
+-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=20261030-coach66";
+-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=20261030-coach67";
+-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=20261030-coach-relaunch2";
+-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=20261102-health-private-off";
+-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=20261103-p26m";
++import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-0277ae9109c6";
++import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-0277ae9109c6";
++import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-0277ae9109c6";
++import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-0277ae9109c6";
++import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-0277ae9109c6";
++import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-0277ae9109c6";
++import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-0277ae9109c6";
++import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-0277ae9109c6";
++import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-0277ae9109c6";
++import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-0277ae9109c6";
++import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-0277ae9109c6";
++import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-0277ae9109c6";
++import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-0277ae9109c6";
++import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-0277ae9109c6";
++import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-0277ae9109c6";
++import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-0277ae9109c6";
++import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-0277ae9109c6";
++import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-0277ae9109c6";
++import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-0277ae9109c6";
++import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-0277ae9109c6";
++import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-0277ae9109c6";
++import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-0277ae9109c6";
++import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-0277ae9109c6";
++import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-0277ae9109c6";
++import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-0277ae9109c6";
++import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-0277ae9109c6";
++import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-0277ae9109c6";
++import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-0277ae9109c6";
++import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-0277ae9109c6";
++import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-0277ae9109c6";
++import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-0277ae9109c6";
++import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-0277ae9109c6";
++import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-0277ae9109c6";
++import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-0277ae9109c6";
++import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-0277ae9109c6";
++import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-0277ae9109c6";
++import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-0277ae9109c6";
++import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-0277ae9109c6";
++import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-0277ae9109c6";
++import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-0277ae9109c6";
++import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-0277ae9109c6";
++import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-0277ae9109c6";
++import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-0277ae9109c6";
++import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-0277ae9109c6";
++import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-0277ae9109c6";
++import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-0277ae9109c6";
++import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-0277ae9109c6";
++import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-0277ae9109c6";
++import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-0277ae9109c6";
++import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-0277ae9109c6";
++import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-0277ae9109c6";
++import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-0277ae9109c6";
++import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-0277ae9109c6";
++import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-0277ae9109c6";
++import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-0277ae9109c6";
++import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-0277ae9109c6";
+ 
+ const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
+ const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
+--- a/efg-nutrition/pilot/regional-composite-models.js
++++ b/efg-nutrition/pilot/regional-composite-models.js
+@@ -3,7 +3,7 @@
+ // Las bases de pizza, alga, vinagre y azúcar son proxies ESTIMADOS; el arroz es ya cocido.
+ // Cada ingrediente y el rendimiento final SUPUESTO se muestran al usuario.
+ // No modifica la comida histórica persistida, solo los modelos de la sesión actual.
+-import {calculateRecipeModel} from "./recipe-models.js";
++import {calculateRecipeModel} from "./recipe-models.js?v=ncc-pilot-0277ae9109c6";
+ 
+ const PROXIES=Object.freeze([
+  {id:"pizza_base_efg",name:"Base de pizza horneada genérica (sin toppings, PROXY)",unit:"g",k:2.65,p:.085,c:.50,f:.03,fi:.022,sourceType:"generic_estimate"},
+--- a/efg-nutrition/pilot/release-communications.js
++++ b/efg-nutrition/pilot/release-communications.js
+@@ -1,6 +1,6 @@
+ // Nutrición Con-Ciencia · major-release communications prototype (OFF by default).
+ // Pure rendering / contract helpers. No database writes, mail, sign-out or legal consent.
+-export const RELEASE_COMMUNICATIONS_ENABLED=false;
++export const RELEASE_COMMUNICATIONS_ENABLED=true;
+ const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const roleCopy={admin:"Organizá tu plataforma y acompañá a tu comunidad.",coach:"Más claridad para acompañar a cada alumno.",student:"Tus hábitos, tu historia y tu acompañamiento en un mismo lugar.",personal:"Un espacio para organizar tus hábitos a tu ritmo."};
+ const ROLES=new Set(["admin","coach","student","personal"]);
+--- a/efg-nutrition/pilot/science-welcome.js
++++ b/efg-nutrition/pilot/science-welcome.js
+@@ -1,8 +1,8 @@
+ // P26M — eight owner-reference educational pages plus ninth watercolor serotonin closing page. OFF until authorized.
+ // OFF until a user-scoped, audited server receipt and physical QA are ready.
+-import {renderNutritionScienceView} from "./nutrition-science.js";
+-import {renderScienceWellbeingPanel} from "./science-wellbeing.js";
+-export const SCIENCE_WELCOME_ENABLED=false;
++import {renderNutritionScienceView} from "./nutrition-science.js?v=ncc-pilot-0277ae9109c6";
++import {renderScienceWellbeingPanel} from "./science-wellbeing.js?v=ncc-pilot-0277ae9109c6";
++export const SCIENCE_WELCOME_ENABLED=true;
+ export const SCIENCE_WELCOME_VERSION="con_ciencia_2026_r1";
+ // The owner montage, rather than the separate science-library HTML, defines
+ // the exact order of the first eight introductory images.
+--- a/efg-nutrition/pilot/student-restriction-declaration.js
++++ b/efg-nutrition/pilot/student-restriction-declaration.js
+@@ -1,7 +1,7 @@
+ // Private consented health declaration. Wired for isolated testing but OFF
+ // until the server-side signed health document, RLS, hosted OTP and Edu GO.
+ // It is NEVER a general-intake field or a shortcut around the two pilot notices.
+-export const PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false;
++export const PRIVATE_HEALTH_DECLARATION_UI_ENABLED=true;
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ // These are self-reported dietary considerations, never diagnoses made by the
+--- a/efg-nutrition/pilot/walking-activity-ui.js
++++ b/efg-nutrition/pilot/walking-activity-ui.js
+@@ -1,6 +1,6 @@
+ // SPORT-STEP-03 · premium walking steps UI, shared by Mi progreso and Deportes.
+ // No account writes: caller saves the checked fields in efg_activities.
+-import {WALKING_PACES,estimateWalkingSteps,estimateStoredWalkingActivity} from './walking-steps-estimator.js';
++import {WALKING_PACES,estimateWalkingSteps,estimateStoredWalkingActivity} from './walking-steps-estimator.js?v=ncc-pilot-0277ae9109c6';
+ const n=(x,dp=0)=>Number(x).toLocaleString('es-AR',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+ const fmt=(x)=>typeof x==='number'&&Number.isFinite(x)?String(x):'';
+ const html=(x)=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

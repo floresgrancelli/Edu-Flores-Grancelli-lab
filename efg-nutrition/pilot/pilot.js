@@ -39,6 +39,7 @@ import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-
 import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-restrictions1";
 import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=20261102-guard1";
+import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=20261104-p28";
 import {createNotificationInbox} from "./notifications-ui.js?v=20261029-gold-bell1";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=20261029-habitual-preview1";
 import {createMessagesCenter} from "./messages-ui.js?v=20261029-chats1";
@@ -503,6 +504,18 @@ state.privateHealthDeclaration=createStudentRestrictionDeclaration({sb,
   epoch:Number.isSafeInteger(state.authContextEpoch)?state.authContextEpoch+1:1
  })
 });
+state.foodRestrictionReader=createStudentFoodRestrictionReader({sb,
+ enabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,
+ readContext:()=>({userId:state.session?.user?.id,organizationId:state.profile?.organization_id,
+  epoch:state.authContextEpoch||0,intakeRevision:state.coachPilotIntake?.revision,
+  allowed:COACH_STUDENT_JOURNEY_ENABLED&&state.profile?.role==="student"&&state.profile.active===true&&
+   state.profile.user_id===state.session?.user?.id&&
+   ["private","review","ready"].includes(state.coachPilotEntry?.route)&&
+   state.coachPilotIntake?.student_id===state.session?.user?.id&&
+   state.coachPilotIntake?.organization_id===state.profile.organization_id&&
+   state.coachPilotIntake?.completed_version===COACH_RELEASE_INTAKE_VERSION&&
+   Number.isSafeInteger(state.coachPilotIntake?.revision)&&state.coachPilotIntake.revision>0})
+});
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
  navigate:async n=>{
@@ -540,14 +553,25 @@ function compatibilityPattern(){
   :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
  return profilePatternForCompatibility(pattern);
 }
+function foodCompatibilityRestrictions(){
+ if(!PRIVATE_HEALTH_DECLARATION_UI_ENABLED)return [];
+ if(state.profile?.role==="student")return state.foodRestrictionReader.current().restrictions;
+ const h=state.coachGuideHealth;
+ if(state.profile?.role==="coach"&&h?.studentId===state.selectedStudent&&
+  h.viewerId===state.session?.user?.id&&h.consentVerified===true&&h.shared===true&&
+  state.consent?.accepted===true&&state.coachIntakeForms?.[state.selectedStudent]?.shared_at)
+  return h.restrictions;
+ return state.profile?.role==="coach"?['health_status_unknown']:[];
+}
 function foodTrafficLight(food){
  if(!FOOD_COMPATIBILITY_ENABLED)return {symbol:"",color:"neutral",details:"",canRecord:true};
  const plan=state.profile?.role==="student"?state.foodPlan:state.coachFoodPlan;
  const inPlan=Array.isArray(plan?.guided_plan?.meals)&&
   plan.guided_plan.meals.some(m=>Array.isArray(m.items)&&m.items.some(x=>x.id===food?.id));
  const pattern=compatibilityPattern();
- if(Array.isArray(food?.recipeIngredients))return recipeFoodSignal(food,{pattern,inPlan});
- return describeTrafficLight(food,{pattern,inPlan,evidence:state.foodCompatEvidence});
+ const restrictions=foodCompatibilityRestrictions();
+ if(Array.isArray(food?.recipeIngredients))return recipeFoodSignal(food,{pattern,inPlan,restrictions});
+ return describeTrafficLight(food,{pattern,inPlan,restrictions,evidence:state.foodCompatEvidence});
 }
 async function refreshFoodCompatibilityEvidence(){
  const contextEpoch=state.authContextEpoch||0;
@@ -1013,11 +1037,11 @@ function attachRecipeSnapshot(entry,food){
   entry.ingredients=food.recipeIngredients.map(x=>({foodId:x.foodId,grams:x.grams}));
  return entry;
 }
-function recipeFoodSignal(food,{pattern,inPlan}={}){
+function recipeFoodSignal(food,{pattern,inPlan,restrictions=[]}={}){
  const rows=Array.isArray(food?.recipeIngredients)?food.recipeIngredients:[];
  const signals=rows.map(row=>{
   const item=foods.find(x=>x.id===row.foodId);
-  return item?describeTrafficLight(item,{pattern,evidence:state.foodCompatEvidence}):
+  return item?describeTrafficLight(item,{pattern,restrictions,evidence:state.foodCompatEvidence}):
    {color:'yellow'};
  });
  const color=!signals.length?'yellow':signals.some(x=>x.color==='red')?'red':
@@ -2999,6 +3023,10 @@ async function render(){
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
+ if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&COACH_STUDENT_JOURNEY_ENABLED){
+  await state.foodRestrictionReader.refresh();
+  if((state.authContextEpoch||0)!==renderEpoch)return;
+ }
  // NCC 02-11: one-time educational introduction BEFORE the current Terms,
  // Privacy and mandatory nutrition intake for Coach students. Viewing the
  // slides never implies legal/health consent or grants diary access.
@@ -4708,6 +4736,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ state.foodRestrictionReader?.invalidate?.();
  state.privateHealthDeclaration?.invalidate?.();
  state.privateHealthSessionNonce=null;
  pilotGuideLifecycle.invalidate();

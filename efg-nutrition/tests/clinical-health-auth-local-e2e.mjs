@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {randomBytes,randomUUID} from 'node:crypto';
+import {createStudentFoodRestrictionReader} from '../pilot/student-food-restrictions.js';
 const providerContract=process.env.EFG_QA_PROVIDER_CONTRACT==='1';
 if(providerContract)assert.equal(process.env.GITHUB_ACTIONS,'true','V5 requires actual authorized runner');
 const env=Object.fromEntries(readFileSync(process.env.EFG_LOCAL_STATUS_ENV||'', 'utf8')
@@ -85,6 +86,13 @@ assert.equal(own.organization_id,orgA);
 assert.equal(own.viewer_id,u.studentA.id);
 assert.equal(own.processing_consent,true);
 assert.equal(own.followup_consent,true);
+const foodReader=createStudentFoodRestrictionReader({enabled:true,
+ readContext:()=>({userId:u.studentA.id,organizationId:orgA,epoch:1,intakeRevision:1,allowed:true}),
+ sb:{auth:{getUser:async()=>({data:{user:good(await request('/auth/v1/user',{token:u.studentA.token}),'Food reader signed owner')}})},
+  rpc:async(name,body)=>{const result=await rpc(name,u.studentA.token,body);return {data:result.data,error:result.ok?null:result.data};}}
+});
+assert.equal((await foodReader.refresh()).status,'declared','Private own declaration feeds annotations without coach sharing');
+assert.ok(foodReader.current().restrictions.includes('celiac'));
 if(providerContract){
  const denied=bad(await rpc('efg_get_coach_health_intake',null,{p_student:u.studentA.id}),'Anonymous lacks EXECUTE');
  assert.ok([401,403].includes(denied.status),'Expected HTTP authorization denial');
@@ -121,6 +129,7 @@ const erased=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_st
 assert.equal(erased.revoked,true);
 assert.equal(erased.revision,3);
 assert.deepEqual(erased.conditions,{});
+assert.equal((await foodReader.refresh()).status,'unknown','Signed revocation clears compatibility scope');
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'Coach cannot read erasure marker'),null);
 assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
 assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),3);
@@ -148,6 +157,7 @@ assert.equal(negative.restriction_declaration.version,1);
 assert.equal(negative.restriction_declaration.declared_by,u.studentA.id);
 assert.equal(negative.restriction_declaration.source_revision,6);
 assert.ok(Number.isFinite(Date.parse(negative.restriction_declaration.confirmed_at)));
+assert.equal((await foodReader.refresh()).status,'none_declared','Only current signed explicit none can be neutral');
 assert.equal(good(await rpc('efg_get_coach_health_intake',u.coachA.token,{p_student:u.studentA.id}),'No coach share means no access to negative'),null);
 bad(await rpc('efg_declare_no_restrictions',u.studentA.token,noneArgs),'Replay of negative statement rejected');
 // New positive statement MUST invalidate the previous negative statement.
@@ -157,6 +167,7 @@ assert.equal(Number(good(await rpc('efg_submit_coach_health_intake',u.studentA.t
 const changed=good(await rpc('efg_get_coach_health_intake',u.studentA.token,{p_student:u.studentA.id}),'Read positive revision after none');
 assert.equal(changed.restriction_declaration,null);
 assert.equal(changed.conditions.celiac,'suspected');
+assert.equal((await foodReader.refresh()).status,'declared','New health revision replaces previous none in food scope');
 assert.equal(good(await rpc('efg_revoke_coach_health_intake',u.studentA.token,{p_expected_revision:7}),'Erase conditions and negative marker'),true);
 assert.equal(Number(sql('select count(*) from efg_private.efg_coach_health_intakes where student_id='+quote(u.studentA.id))),0);
 assert.equal(Number(sql('select last_revision from efg_private.efg_coach_health_revocations where student_id='+quote(u.studentA.id))),8);
@@ -164,3 +175,4 @@ console.log('PASS isolated explicit-none declaration: signed owner, separate con
 console.log('PASS CLIN-GUT-03 REAL LOCAL JWT: 2 organizations, 4 GoTrue identities, scoped viewer/org/consents in BASE RPC, terms/privacy + distinct private health document, revoke and erasure; NO hosted authorization or clinical sign-off.');
 
 if(providerContract)console.log('PASS V5 private scope RPC: server org/viewer/consents, anon401-or-403/42501, orgB and revocation; local synthetic only.');
+console.log('PASS P28 food restriction reader against real LOCAL signed Auth/PostgREST: private self-read, revoked, explicit none and changed declaration.');

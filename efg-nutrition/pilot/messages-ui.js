@@ -265,6 +265,14 @@ export function createMessagesCenter({sb,context,afterSend}){
  });
  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn);});
  setInterval(()=>{if(!document.hidden&&document.getElementById("efgMessagesContent"))load().catch(console.warn);},25000);
+ function prepareReportDraft(student,text){
+  resetIfChanged();
+  const body=String(text||'').trim();
+  if(!isCoach()||!contacts().some(x=>x.student===student))throw Error('Alumno sin autorización para mensajes.');
+  if(!body||body.length>2000)throw Error('El informe debe tener entre 1 y 2000 caracteres.');
+  if(String(drafts.get(student)||(selectedStudent===student?formDraft:'')).trim())throw Error('Ya hay un mensaje sin enviar para este alumno. Revisalo antes de preparar el informe.');
+  drafts.set(student,body);if(selectedStudent===student)formDraft=body;
+ }
  async function replyToWeeklyReport(student,weekEnding){
   resetIfChanged();
   const c=context(),validWeek=/^\d{4}-\d{2}-\d{2}$/.test(String(weekEnding||""));
@@ -280,6 +288,6 @@ export function createMessagesCenter({sb,context,afterSend}){
  }
  return {mount:()=>{resetIfChanged();paint({force:true});load().catch(console.warn);},
   selectStudent:student=>{openStudent(student).catch(console.warn);},
-  replyToWeeklyReport,
+  replyToWeeklyReport,prepareReportDraft,
   refresh:load};
 }

@@ -328,7 +328,7 @@ const themes=[
  ],
  [
   "Placer y comidas compartidas",
-  "gnocchi",
+  "breakfast",
   [
    [
     "Comer también es disfrutar",
@@ -438,7 +438,7 @@ const gnocchi=[
  ]
 ];
 export const DAILY_TIP_LIBRARY_SIZE=72;
-export const DAILY_TIP_VERSION="pro60-20261030-1";
+export const DAILY_TIP_VERSION="pro60-20261104-2";
 const zone="America/Argentina/Buenos_Aires";
 export function argentinaDayParts(instant=new Date()){
  const pieces=new Intl.DateTimeFormat("en-US",{
@@ -451,19 +451,8 @@ export function argentinaDayParts(instant=new Date()){
  return {year,month,day,iso:`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`};
 }
 function photoFor(key){return photos.find(x=>x.key===key)||photos[0];}
-// On a real 29th the special ñoquis story owns the month's rotating photo.
-// A normal tip shown immediately before/after it must not accidentally reuse
-// that exact photograph. Only rotate among existing credited ñoquis photos;
-// never change the editorial tip ID, text, special 29th or Unsplash credit.
-function regularPhotoForDate(date,key){
- const regular=photoFor(key);
- const adjacent=date.day===30||
-  (date.day===28&&new Date(Date.UTC(date.year,date.month-1,29)).getUTCMonth()===date.month-1);
- if(!adjacent)return regular;
- const n=(date.year*12+date.month)%gnocchiPhotos.length;
- return regular.src===gnocchiPhotos[n].src?
-  gnocchiPhotos[(n+1)%gnocchiPhotos.length]:regular;
-}
+// Ñoquis photographs belong exclusively to the 29th.
+function regularPhotoForDate(date,key){return photoFor(key==='gnocchi'?'breakfast':key);}
 export function nutritionTipForDate(instant=new Date()){
  const date=argentinaDayParts(instant);
  const serial=Math.floor(Date.UTC(date.year,date.month-1,date.day)/86400000);

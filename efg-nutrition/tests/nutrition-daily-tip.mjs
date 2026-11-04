@@ -105,3 +105,9 @@ assert.match(style,/color:transparent;font-size:0/,
 assert.match(style,/@media\(max-width:720px\)/);
 assert.match(style, /prefers-reduced-motion:reduce/);
 console.log("PASS PRO60: 72 Argentine daily editorial tips, monthly 29 incl leap year, photos/crédits, no repeated next day, gated recipe links, responsive CSS contract.");
+for(let t=Date.UTC(2026,0,1,16);t<=Date.UTC(2040,11,31,16);t+=86400000){
+ const tip=nutritionTipForDate(new Date(t));
+ if(!tip.special)assert.doesNotMatch(tip.alt,/ñoqui/i,'Ñoquis photo reserved exclusively for day29');
+}
+assert.doesNotMatch(nutritionTipForDate(new Date('2026-11-04T16:00:00Z')).alt,/ñoqui/i);
+console.log('PASS P29K: no ñoquis photograph outside day29 in 15 Argentine calendar years.');

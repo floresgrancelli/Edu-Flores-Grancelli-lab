@@ -1,3 +1,4 @@
+import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=p29k";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
@@ -2446,6 +2447,14 @@ function weeklyCoachDraft(){
  '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(previewModel)+'</div>'+
  '<p class="pilot-hint">El borrador se conserva solo mientras permanezcas en esta sesión del coach; no se guarda en el navegador ni se envía solo. No se indican permisos alimentarios como premios ni recomendaciones clínicas automáticas.</p></section>';
 }
+function coachPeriodReportPanel(){
+ const end=today(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-9);
+ return '<section class="card" id="coachPeriodReport"><h2>Informe por período</h2><p>Elegí las fechas que querés revisar, hasta 90 días. El informe semanal se mantiene independiente.</p>'+
+ '<label>Desde <input type="date" id="periodReportFrom" max="'+end+'" value="'+start.toISOString().slice(0,10)+'"></label>'+
+ '<label>Hasta <input type="date" id="periodReportTo" max="'+end+'" value="'+end+'"></label>'+
+ '<button class="btn small" data-act="generatePeriodReport">Generar informe del período</button>'+
+ '<div id="periodReportResult" aria-live="polite"></div></section>';
+}
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
  const roster=(state.roster||[]).filter(p=>p.active);
@@ -2463,6 +2472,7 @@ function coachReportsView(){
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
  out+=weeklyAdherenceSummary();
  out+=weeklyCoachDraft();
+ out+=coachPeriodReportPanel();
  out+=coachLuxuryHistoryPanel();
  out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
  out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
@@ -4315,6 +4325,28 @@ if(el.dataset.foodbulk){
   document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});
   notify("Informe actualizado con los consumos registrados.");
   return;
+ }
+ if(action==="generatePeriodReport"){
+  const studentId=state.selectedStudent,session=state.session,epoch=state.authContextEpoch;
+  const p=state.roster.find(x=>x.user_id===studentId&&x.active);
+  if(!p||!state.consent?.accepted||!['coach','admin'].includes(state.profile?.role))throw Error('Acceso no autorizado.');
+  const from=document.getElementById('periodReportFrom').value,to=document.getElementById('periodReportTo').value;
+  validateReportPeriod(from,to,today());
+  const host=document.getElementById('periodReportResult');
+  const ticket=Symbol();host.periodTicket=ticket;host.textContent='Consultando registros del período…';
+  const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',studentId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
+  if(error)throw error;
+  if(state.session!==session||state.selectedStudent!==studentId||state.authContextEpoch!==epoch||!state.consent?.accepted||!host.isConnected||host.periodTicket!==ticket)return;
+  if(document.getElementById('periodReportFrom').value!==from||document.getElementById('periodReportTo').value!==to)return;
+  const report=buildPeriodReport({from,to,today:today(),logs:data,studentName:p.nickname,totalOf:dailyTotals});
+  host.innerHTML='<label>Informe generado · revisá y editá antes de enviarlo<textarea id="periodReportText" rows="16" maxlength="2000">'+escapeHTML(report.text)+'</textarea></label><p>Se preparará como mensaje para este alumno. No reemplaza el informe semanal.</p><button class="btn small" data-act="preparePeriodReportMessage" '+(report.daysRecorded?'':'disabled')+'>Revisar en Mensajes</button>';
+  host.periodFrom=from;host.periodTo=to;return;
+ }
+ if(action==="preparePeriodReportMessage"){
+  const host=document.getElementById('periodReportResult');
+  if(!state.consent?.accepted||!host||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Generá de nuevo el informe para las fechas elegidas.');
+  messages.prepareReportDraft(state.selectedStudent,document.getElementById('periodReportText').value);
+  messages.selectStudent(state.selectedStudent);state.tab='messages';await render();return;
  }
  if(action==="copyDailyReport"){
   const p=state.roster.find(x=>x.user_id===state.selectedStudent);

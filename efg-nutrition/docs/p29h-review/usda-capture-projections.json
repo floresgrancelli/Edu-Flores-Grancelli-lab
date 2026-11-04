@@ -1,0 +1,2179 @@
+{
+  "note": "Projected official API records; omitted other nutrient/sample fields. Zero human approvals.",
+  "records": [
+    {
+      "foodId": "apple",
+      "fdcId": 171688,
+      "description": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1631310,
+          "amount": 52.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1631368,
+          "amount": 0.26,
+          "dataPoints": 29,
+          "max": 0.57,
+          "min": 0.17
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1631338,
+          "amount": 0.17,
+          "dataPoints": 35,
+          "max": 0.31,
+          "min": 0.05
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1631309,
+          "amount": 13.81,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1631357,
+          "amount": 2.4,
+          "dataPoints": 29,
+          "max": 3.5,
+          "min": 1.4
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "banana",
+      "fdcId": 173944,
+      "description": "Bananas, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1817900,
+          "amount": 89.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1817943,
+          "amount": 1.09,
+          "dataPoints": 12,
+          "max": 1.31,
+          "min": 0.75
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1817956,
+          "amount": 0.33,
+          "dataPoints": 19,
+          "max": 0.7,
+          "min": 0.07
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1817899,
+          "amount": 22.84,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1817936,
+          "amount": 2.6,
+          "dataPoints": 13,
+          "max": 3.7,
+          "min": 1.7
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "brownrice",
+      "fdcId": 169704,
+      "description": "Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "2961c975b21142088f217bc026e445eeaaa27625d86ef4883254adfb29d73918",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1462903,
+          "amount": 123.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1462868,
+          "amount": 2.74,
+          "dataPoints": 6,
+          "max": 2.95,
+          "min": 2.58
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1462901,
+          "amount": 0.97,
+          "dataPoints": 6,
+          "max": 1.1,
+          "min": 0.9
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1462902,
+          "amount": 25.58,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1462853,
+          "amount": 1.6,
+          "dataPoints": 3,
+          "max": 1.7,
+          "min": 1.3
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "coffee_black",
+      "fdcId": 171890,
+      "description": "Beverages, coffee, brewed, prepared with tap water",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1649242,
+          "amount": 1.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1649249,
+          "amount": 0.12,
+          "dataPoints": 10,
+          "max": 0.21,
+          "min": 0.0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1649284,
+          "amount": 0.02,
+          "dataPoints": 6,
+          "max": 0.05,
+          "min": 0.0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 51,
+            "code": "NR",
+            "description": "Nutrient that is based on other nutrient/s; value used directly, ex. Nut.#204 from Nut.#298",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1649285,
+          "amount": 0.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 68,
+            "code": "Z",
+            "description": "Assumed zero (Insignificant amount or not naturally occurring in a food, such as fiber in meat)",
+            "foodNutrientSource": {
+              "id": 5,
+              "code": "7",
+              "description": "Assumed zero"
+            }
+          },
+          "id": 1649321,
+          "amount": 0.0,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": [
+        {
+          "id": 89520,
+          "gramWeight": 237.0,
+          "sequenceNumber": 3,
+          "amount": 1.0,
+          "modifier": "cup (8 fl oz)",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          }
+        },
+        {
+          "id": 89518,
+          "gramWeight": 29.6,
+          "sequenceNumber": 1,
+          "amount": 1.0,
+          "modifier": "fl oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          }
+        },
+        {
+          "id": 89519,
+          "gramWeight": 178.0,
+          "sequenceNumber": 2,
+          "amount": 6.0,
+          "modifier": "fl oz",
+          "measureUnit": {
+            "id": 9999,
+            "name": "undetermined",
+            "abbreviation": "undetermined"
+          }
+        }
+      ]
+    },
+    {
+      "foodId": "egg",
+      "fdcId": 748967,
+      "description": "Eggs, Grade A, Large, egg whole",
+      "dataType": "Foundation",
+      "publicationDate": "12/16/2019",
+      "originalResponseSha256": "880114001f68a9e7833c95c9dd0a3656452606b90d1e9cb005cd4ed7f2fed686",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 8530276,
+          "amount": 148.0,
+          "nutrientAnalysisDetails": []
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 8530288,
+          "amount": 12.4,
+          "max": 13.2,
+          "min": 11.6,
+          "median": 12.4,
+          "nutrientAnalysisDetails": []
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 8530310,
+          "amount": 9.96,
+          "dataPoints": 24,
+          "max": 11.7,
+          "min": 8.31,
+          "median": 9.87,
+          "minYearAcquired": 2019,
+          "nutrientAnalysisDetails": [
+            {
+              "subSampleId": 747725,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 747724,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY 34690",
+                  "storeState": "FL"
+                },
+                {
+                  "sampleUnitId": 747710,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY 34690",
+                  "storeState": "FL"
+                }
+              ],
+              "amount": 9.82,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 747904,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 747901,
+                  "purchaseDate": "6/21/2019",
+                  "storeCity": "249-26 NORTHERN BLVD LITTLE NECK",
+                  "storeState": "NY"
+                },
+                {
+                  "sampleUnitId": 747903,
+                  "purchaseDate": "6/21/2019",
+                  "storeCity": "249-26 NORTHERN BLVD LITTLE NECK",
+                  "storeState": "NY"
+                },
+                {
+                  "sampleUnitId": 747893,
+                  "purchaseDate": "6/21/2019",
+                  "storeCity": "249-26 NORTHERN BLVD LITTLE NECK",
+                  "storeState": "NY"
+                },
+                {
+                  "sampleUnitId": 747902,
+                  "purchaseDate": "6/21/2019",
+                  "storeCity": "249-26 NORTHERN BLVD LITTLE NECK",
+                  "storeState": "NY"
+                }
+              ],
+              "amount": 11.7,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 747953,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 747952,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "SHELBY FRAYSER BLVD,MEMPHIS",
+                  "storeState": "TN"
+                },
+                {
+                  "sampleUnitId": 747943,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "SHELBY FRAYSER BLVD,MEMPHIS",
+                  "storeState": "TN"
+                },
+                {
+                  "sampleUnitId": 747951,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "SHELBY FRAYSER BLVD,MEMPHIS",
+                  "storeState": "TN"
+                }
+              ],
+              "amount": 9.57,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748124,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748123,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "8150 WEDGEWOOD LN N MAPLE GROVE",
+                  "storeState": "MN"
+                },
+                {
+                  "sampleUnitId": 748112,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "8150 WEDGEWOOD LN N MAPLE GROVE",
+                  "storeState": "MN"
+                }
+              ],
+              "amount": 10.2,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748613,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748612,
+                  "purchaseDate": "5/21/2019",
+                  "storeCity": "3275 N SWAN RD TUCSON",
+                  "storeState": "AZ"
+                },
+                {
+                  "sampleUnitId": 748610,
+                  "purchaseDate": "5/21/2019",
+                  "storeCity": "3275 N SWAN RD TUCSON",
+                  "storeState": "AZ"
+                },
+                {
+                  "sampleUnitId": 748611,
+                  "purchaseDate": "5/21/2019",
+                  "storeCity": "3275 N SWAN RD TUCSON",
+                  "storeState": "AZ"
+                }
+              ],
+              "amount": 10.2,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748631,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748629,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "2890 N POWERS BLVD COLORADO SPRINGS",
+                  "storeState": "CO"
+                },
+                {
+                  "sampleUnitId": 748628,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "2890 N POWERS BLVD COLORADO SPRINGS",
+                  "storeState": "CO"
+                },
+                {
+                  "sampleUnitId": 748630,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "2890 N POWERS BLVD COLORADO SPRINGS",
+                  "storeState": "CO"
+                }
+              ],
+              "amount": 10.3,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748648,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748646,
+                  "purchaseDate": "6/24/2019",
+                  "storeCity": "37140 47TH ST E PALMDALE",
+                  "storeState": "CA"
+                },
+                {
+                  "sampleUnitId": 748647,
+                  "purchaseDate": "6/24/2019",
+                  "storeCity": "37140 47TH ST E PALMDALE",
+                  "storeState": "CA"
+                }
+              ],
+              "amount": 9.74,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748665,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748664,
+                  "purchaseDate": "7/7/2019",
+                  "storeCity": "9361 MISSION GORGE SANTEE",
+                  "storeState": "CA"
+                },
+                {
+                  "sampleUnitId": 748663,
+                  "purchaseDate": "7/7/2019",
+                  "storeCity": "9361 MISSION GORGE SANTEE",
+                  "storeState": "CA"
+                }
+              ],
+              "amount": 9.46,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748682,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748681,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "2800 DUBLIN BLVD DUBLIN",
+                  "storeState": "CA"
+                },
+                {
+                  "sampleUnitId": 748680,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "2800 DUBLIN BLVD DUBLIN",
+                  "storeState": "CA"
+                }
+              ],
+              "amount": 11.6,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748699,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748698,
+                  "purchaseDate": "5/28/2019",
+                  "storeCity": "8301 BELL OAKS DR NEWBURGH",
+                  "storeState": "IN"
+                },
+                {
+                  "sampleUnitId": 748697,
+                  "purchaseDate": "5/28/2019",
+                  "storeCity": "8301 BELL OAKS DR NEWBURGH",
+                  "storeState": "IN"
+                }
+              ],
+              "amount": 9.68,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748717,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748714,
+                  "purchaseDate": "5/14/2019",
+                  "storeCity": "60 S HALSTED CHICAGO",
+                  "storeState": "IL"
+                },
+                {
+                  "sampleUnitId": 748716,
+                  "purchaseDate": "5/14/2019",
+                  "storeCity": "60 S HALSTED CHICAGO",
+                  "storeState": "IL"
+                },
+                {
+                  "sampleUnitId": 748715,
+                  "purchaseDate": "5/14/2019",
+                  "storeCity": "60 S HALSTED CHICAGO",
+                  "storeState": "IL"
+                }
+              ],
+              "amount": 10.2,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748733,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748732,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "186 HAVERHILL ST METHUEN",
+                  "storeState": "MA"
+                },
+                {
+                  "sampleUnitId": 748731,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "186 HAVERHILL ST METHUEN",
+                  "storeState": "MA"
+                }
+              ],
+              "amount": 10.5,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748749,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748748,
+                  "purchaseDate": "5/18/2019",
+                  "storeCity": "4920 BILL GARDNER PK LOCUST GROVE",
+                  "storeState": "GA"
+                },
+                {
+                  "sampleUnitId": 748747,
+                  "purchaseDate": "5/18/2019",
+                  "storeCity": "4920 BILL GARDNER PK LOCUST GROVE",
+                  "storeState": "GA"
+                }
+              ],
+              "amount": 8.31,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748781,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748780,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "1108 CENTRAL AVE ESTHERVILLE ",
+                  "storeState": "IA"
+                },
+                {
+                  "sampleUnitId": 748779,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "1108 CENTRAL AVE ESTHERVILLE ",
+                  "storeState": "IA"
+                }
+              ],
+              "amount": 9.88,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748800,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748799,
+                  "purchaseDate": "7/1/2019",
+                  "storeCity": "1495 N MAIN STREET ROCHESTER",
+                  "storeState": "MI"
+                },
+                {
+                  "sampleUnitId": 748797,
+                  "purchaseDate": "7/1/2019",
+                  "storeCity": "1495 N MAIN STREET ROCHESTER",
+                  "storeState": "MI"
+                },
+                {
+                  "sampleUnitId": 748798,
+                  "purchaseDate": "7/1/2019",
+                  "storeCity": "1495 N MAIN STREET ROCHESTER",
+                  "storeState": "MI"
+                }
+              ],
+              "amount": 10.2,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748818,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748816,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "5411 2ND AVE KEARNEY",
+                  "storeState": "NE"
+                },
+                {
+                  "sampleUnitId": 748817,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "5411 2ND AVE KEARNEY",
+                  "storeState": "NE"
+                }
+              ],
+              "amount": 8.91,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748835,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748833,
+                  "purchaseDate": "6/24/2019",
+                  "storeCity": "400 RENAISSANCE BLVD N. BRUNSWICK",
+                  "storeState": "NJ"
+                },
+                {
+                  "sampleUnitId": 748834,
+                  "purchaseDate": "6/24/2019",
+                  "storeCity": "400 RENAISSANCE BLVD N. BRUNSWICK",
+                  "storeState": "NJ"
+                }
+              ],
+              "amount": 9.39,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748852,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748850,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "1300 YORK RD CHARLOTTE",
+                  "storeState": "NC"
+                },
+                {
+                  "sampleUnitId": 748851,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "1300 YORK RD CHARLOTTE",
+                  "storeState": "NC"
+                }
+              ],
+              "amount": 9.86,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748868,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748865,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "1130 PERRY HWY PITTSBURGH",
+                  "storeState": "PA"
+                },
+                {
+                  "sampleUnitId": 748866,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "1130 PERRY HWY PITTSBURGH",
+                  "storeState": "PA"
+                },
+                {
+                  "sampleUnitId": 748867,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "1130 PERRY HWY PITTSBURGH",
+                  "storeState": "PA"
+                }
+              ],
+              "amount": 10.1,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748884,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748881,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "802 HARBOUR W DR ROCKY MOUNT",
+                  "storeState": "NC"
+                },
+                {
+                  "sampleUnitId": 748882,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "802 HARBOUR W DR ROCKY MOUNT",
+                  "storeState": "NC"
+                },
+                {
+                  "sampleUnitId": 748883,
+                  "purchaseDate": "5/20/2019",
+                  "storeCity": "802 HARBOUR W DR ROCKY MOUNT",
+                  "storeState": "NC"
+                }
+              ],
+              "amount": 10.1,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748902,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748900,
+                  "purchaseDate": "5/19/2019",
+                  "storeCity": "1601 W STATE HWY 114 GRAPEVINE",
+                  "storeState": "TX"
+                },
+                {
+                  "sampleUnitId": 748901,
+                  "purchaseDate": "5/19/2019",
+                  "storeCity": "1601 W STATE HWY 114 GRAPEVINE",
+                  "storeState": "TX"
+                }
+              ],
+              "amount": 9.62,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748937,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748934,
+                  "purchaseDate": "5/19/2019",
+                  "storeCity": "23500 CIRCLE OAK PKW RICHMOND",
+                  "storeState": "TX"
+                },
+                {
+                  "sampleUnitId": 748935,
+                  "purchaseDate": "5/19/2019",
+                  "storeCity": "23500 CIRCLE OAK PKW RICHMOND",
+                  "storeState": "TX"
+                },
+                {
+                  "sampleUnitId": 748936,
+                  "purchaseDate": "5/19/2019",
+                  "storeCity": "23500 CIRCLE OAK PKW RICHMOND",
+                  "storeState": "TX"
+                }
+              ],
+              "amount": 9.85,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748954,
+              "nutrientId": 1004,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748953,
+                  "purchaseDate": "7/8/2019",
+                  "storeCity": "405 SE EVERETT MALL EVERITT",
+                  "storeState": "WA"
+                },
+                {
+                  "sampleUnitId": 748952,
+                  "purchaseDate": "7/8/2019",
+                  "storeCity": "405 SE EVERETT MALL EVERITT",
+                  "storeState": "WA"
+                }
+              ],
+              "amount": 9.79,
+              "labMethodTechnique": "Acid hydrolysis",
+              "labMethodDescription": "AOAC 954.02",
+              "labMethodOriginalDescription": "954.02 (4.5.02 or 7.063) Fat (Crude) or Ether Extract in Pet Food",
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            }
+          ]
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 8530321,
+          "amount": 0.96,
+          "nutrientAnalysisDetails": []
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 8530354,
+          "amount": 0.0,
+          "dataPoints": 3,
+          "max": 0.0,
+          "min": 0.0,
+          "median": 0.0,
+          "minYearAcquired": 2019,
+          "nutrientAnalysisDetails": [
+            {
+              "subSampleId": 747720,
+              "nutrientId": 1079,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 747702,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY 34690",
+                  "storeState": "FL"
+                },
+                {
+                  "sampleUnitId": 747710,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY 34690",
+                  "storeState": "FL"
+                },
+                {
+                  "sampleUnitId": 747711,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY 34690",
+                  "storeState": "FL"
+                },
+                {
+                  "sampleUnitId": 747712,
+                  "purchaseDate": "6/19/2019",
+                  "storeCity": "4701 SUNRAY DR HOLIDAY",
+                  "storeState": "FL"
+                }
+              ],
+              "amount": 0.0,
+              "labMethodTechnique": "Enzymatic-gravimetric",
+              "labMethodDescription": "AOAC 991.43",
+              "labMethodOriginalDescription": "991.43 (32.1.17) Total, Soluble, and Insoluble Dietary Fiber in Foods",
+              "loq": 0.75,
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748095,
+              "nutrientId": 1079,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748087,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "3735 PALOMAR CENTRE LEXINGTON",
+                  "storeState": "KY"
+                },
+                {
+                  "sampleUnitId": 748088,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "3735 PALOMAR CENTRE LEXINGTON",
+                  "storeState": "KY"
+                },
+                {
+                  "sampleUnitId": 748078,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "3735 PALOMAR CENTRE LEXINGTON",
+                  "storeState": "KY"
+                }
+              ],
+              "amount": 0.0,
+              "labMethodTechnique": "Enzymatic-gravimetric",
+              "labMethodDescription": "AOAC 991.43",
+              "labMethodOriginalDescription": "991.43 (32.1.17) Total, Soluble, and Insoluble Dietary Fiber in Foods",
+              "loq": 0.75,
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            },
+            {
+              "subSampleId": 748774,
+              "nutrientId": 1079,
+              "nutrientAcquisitionDetails": [
+                {
+                  "sampleUnitId": 748764,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "186 HAVERHILL ST METHUEN",
+                  "storeState": "MA"
+                },
+                {
+                  "sampleUnitId": 748766,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "186 HAVERHILL ST METHUEN",
+                  "storeState": "MA"
+                },
+                {
+                  "sampleUnitId": 748765,
+                  "purchaseDate": "6/18/2019",
+                  "storeCity": "186 HAVERHILL ST METHUEN",
+                  "storeState": "MA"
+                }
+              ],
+              "amount": 0.0,
+              "labMethodTechnique": "Enzymatic-gravimetric",
+              "labMethodDescription": "AOAC 991.43",
+              "labMethodOriginalDescription": "991.43 (32.1.17) Total, Soluble, and Insoluble Dietary Fiber in Foods",
+              "loq": 0.75,
+              "labMethodLink": "https://doi.org/10.1093/9780197610145.001.0001"
+            }
+          ],
+          "loq": 0.75
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "egg_white",
+      "fdcId": 172183,
+      "description": "Egg, white, raw, fresh",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "2961c975b21142088f217bc026e445eeaaa27625d86ef4883254adfb29d73918",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1674704,
+          "amount": 52.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1674685,
+          "amount": 10.9,
+          "dataPoints": 12,
+          "max": 11.76,
+          "min": 10.21
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1674691,
+          "amount": 0.17,
+          "dataPoints": 12,
+          "max": 0.29,
+          "min": 0.07
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1674706,
+          "amount": 0.73,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 68,
+            "code": "Z",
+            "description": "Assumed zero (Insignificant amount or not naturally occurring in a food, such as fiber in meat)",
+            "foodNutrientSource": {
+              "id": 5,
+              "code": "7",
+              "description": "Assumed zero"
+            }
+          },
+          "id": 1674632,
+          "amount": 0.0,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "mandarin",
+      "fdcId": 169105,
+      "description": "Tangerines, (mandarin oranges), raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1413652,
+          "amount": 53.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1413735,
+          "amount": 0.81,
+          "dataPoints": 9,
+          "max": 1.0,
+          "min": 0.5
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1413645,
+          "amount": 0.31,
+          "dataPoints": 7,
+          "max": 0.42,
+          "min": 0.17
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1413651,
+          "amount": 13.34,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1413743,
+          "amount": 1.8,
+          "dataPoints": 9,
+          "max": 2.3,
+          "min": 1.3
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "oil",
+      "fdcId": 171413,
+      "description": "Oil, olive, salad or cooking",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1607768,
+          "amount": 884.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 1,
+            "code": "A",
+            "description": "Analytical",
+            "foodNutrientSource": {
+              "id": 1,
+              "code": "1",
+              "description": "Analytical or derived from analytical"
+            }
+          },
+          "id": 1607794,
+          "amount": 0.0,
+          "dataPoints": 4,
+          "max": 0.0,
+          "min": 0.0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 52,
+            "code": "O",
+            "description": "Other procedure used from imputing",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1607766,
+          "amount": 100.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1607767,
+          "amount": 0.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "id": 1607828,
+          "amount": 0.0,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "potato",
+      "fdcId": 170440,
+      "description": "Potatoes, boiled, cooked without skin, flesh, without salt",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1524014,
+          "amount": 86.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "id": 1524037,
+          "amount": 1.71,
+          "dataPoints": 6
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "id": 1524020,
+          "amount": 0.1,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1523972,
+          "amount": 20.01,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "id": 1524039,
+          "amount": 1.8,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "pumpkin",
+      "fdcId": 169296,
+      "description": "Squash, winter, butternut, cooked, baked, without salt",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1431043,
+          "amount": 40.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "id": 1430991,
+          "amount": 0.9,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "id": 1431018,
+          "amount": 0.09,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1430988,
+          "amount": 10.49,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 16,
+            "code": "BFSN",
+            "description": "Based on another form of the food or similar food; Concentration adjustment; Solids; Retention factors not used",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1431047,
+          "amount": 3.2,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "rocket",
+      "fdcId": 169387,
+      "description": "Arugula, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1437928,
+          "amount": 25.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "id": 1437901,
+          "amount": 2.58,
+          "dataPoints": 2
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "id": 1437915,
+          "amount": 0.66,
+          "dataPoints": 2
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1437888,
+          "amount": 3.65,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "id": 1437899,
+          "amount": 1.6,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    },
+    {
+      "foodId": "tofu_firm",
+      "fdcId": 172475,
+      "description": "Tofu, raw, firm, prepared with calcium sulfate",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "originalResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "foodNutrients": [
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1698051,
+          "amount": 144.0,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "id": 1698062,
+          "amount": 17.27,
+          "dataPoints": 6
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "id": 1698091,
+          "amount": 8.72,
+          "dataPoints": 6
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 49,
+            "code": "NC",
+            "description": "Calculated",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1698050,
+          "amount": 2.78,
+          "dataPoints": 0
+        },
+        {
+          "type": "FoodNutrient",
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "foodNutrientDerivation": {
+            "id": 20,
+            "code": "BFZN",
+            "description": "Based on another form of the food or similar food; Concentration adjustment; No adjustment; Retention factors not used",
+            "foodNutrientSource": {
+              "id": 2,
+              "code": "4",
+              "description": "Calculated or imputed"
+            }
+          },
+          "id": 1698046,
+          "amount": 2.3,
+          "dataPoints": 0
+        }
+      ],
+      "foodPortions": []
+    }
+  ]
+}

@@ -11,7 +11,8 @@ assert.match(app,/coachRosterConsent\[p\.user_id\]===true/,"Intake never assumes
 assert.match(app,/await contextRead\(loadCoachIntakeGoals\(\)\)/,"Overview uses read-only validated goals");
 assert.match(app,/efg_goals"\)\.select\("student_id,id"\)\.in\("student_id",ids\)/,"Goal summary filters explicitly authorized student ids");
 assert.match(app,/Una meta guardada no habilita por sí sola la app/,"An existing goal never implies publication");
-assert.match(app,/próxima implementación|Próxima implementación/,"No false claims of a functional published-plan gate");
+assert.match(app,/Esto no demuestra que no existan planes publicados/,"An empty RLS result is not evidence that no publication exists");
+assert.doesNotMatch(app.slice(app.indexOf("function coachIntakeView()"),app.indexOf("function coachToolsView()")),/Próxima implementación|Las futuras fichas/,"Intake explains the implemented flow without obsolete promises");
 assert.match(style,/coach-intake-summary/,"Responsive intake summary is styled");
 assert.match(style,/@media\(max-width:500px\)/,"Mobile layout is defined");
 

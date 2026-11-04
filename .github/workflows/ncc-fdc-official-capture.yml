@@ -1,0 +1,41 @@
+name: NCC official FDC SR Legacy capture (QA only)
+
+on:
+  push:
+    branches: [work/ncc-pr37-41-qa-snapshot-20261101]
+    paths:
+      - '.github/workflows/ncc-fdc-official-capture.yml'
+      - 'efg-nutrition/tools/capture-usda-fdc-srlegacy.py'
+      - 'efg-nutrition/tools/verify-fdc-ten-archive.py'
+      - 'efg-nutrition/docs/NCC_FDC_10_OFFICIAL_SOURCE_REVIEW_20261102.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[fdc-official-capture]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download exact USDA archive and generate UNREVIEWED evidence
+        run: |
+          python -m py_compile efg-nutrition/tools/capture-usda-fdc-srlegacy.py
+          python efg-nutrition/tools/capture-usda-fdc-srlegacy.py --output "$RUNNER_TEMP/ncc-fdc-srlegacy-evidence.zip"
+      - name: Verify all ten canonical records against the locked UNREVIEWED review manifest
+        run: |
+          python -m py_compile efg-nutrition/tools/verify-fdc-ten-archive.py
+          python efg-nutrition/tools/verify-fdc-ten-archive.py "$RUNNER_TEMP/ncc-fdc-srlegacy-evidence.zip"
+      - name: Preserve official-source review package
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncc-fdc-official-unreviewed-${{ github.sha }}
+          path: ${{ runner.temp }}/ncc-fdc-srlegacy-evidence.zip
+          if-no-files-found: error
+          retention-days: 7

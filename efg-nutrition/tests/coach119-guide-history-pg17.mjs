@@ -1,0 +1,213 @@
+// COACH119: REAL PostgreSQL-17 behavioral regression on fully synthetic data.
+// Runs exclusively in disposable GitHub Actions database, never Supabase hosted.
+// Unlike static inspection, this executes the exact archive schema and trigger
+// extracted from the candidate SQL and verifies history, rollback, and privacy.
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+assert.equal(process.env.GITHUB_ACTIONS,'true');
+assert.equal(process.env.PGHOST,'127.0.0.1');
+assert.equal(process.env.PGPORT,'5432');
+assert.equal(process.env.PGDATABASE,'efg_coach119_history');
+for(const key of ['PGHOSTADDR','PGSERVICE','PGOPTIONS','SUPABASE_ACCESS_TOKEN','SUPABASE_DB_PASSWORD'])
+ assert.ok(!process.env[key],key+' forbidden in disposable QA');
+function exec(sql,expectedSuccess=true){
+ const r=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{
+  input:sql,encoding:'utf8',timeout:30000,maxBuffer:1024*1024
+ });
+ if(expectedSuccess)assert.equal(r.status,0,(r.stderr||'Postgres error').slice(-1500));
+ else assert.notEqual(r.status,0,'A required deny operation unexpectedly succeeded');
+ return (r.stdout||'').trim();
+}
+assert.equal(exec('select current_database()'),'efg_coach119_history');
+assert.ok(exec('show server_version_num').startsWith('17'), 'PostgreSQL 17 required');
+const source=readFileSync(new URL('../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql',import.meta.url),'utf8');
+const start=source.indexOf('create table efg_private.coach_guide_history');
+const end=source.indexOf('-- Preserve exactly the two existing legacy notifications',start);
+assert.ok(start>0&&end>start,'Exact COACH119 ledger/trigger section not found');
+const actualArchiveSQL=source.slice(start,end);
+assert.ok(actualArchiveSQL.includes('create trigger coach119_archive_previous_approved_guide'));
+const foodFunctionStart=source.indexOf('create function efg_private.coach119_reviewed_food_ids');
+const foodFunctionEnd=source.indexOf('create function public.efg_publish_coach_plan_draft_atomic',foodFunctionStart);
+assert.ok(foodFunctionStart>0&&foodFunctionEnd>foodFunctionStart,'Actual candidate selected-food validator missing');
+const exactFoodFunction=source.slice(foodFunctionStart,foodFunctionEnd);
+const student='11111111-1111-4111-8111-111111111111';
+const coach='22222222-2222-4222-8222-222222222222';
+const goal='33333333-3333-4333-8333-333333333333';
+exec(`do $roles$ begin
+ if not exists(select 1 from pg_roles where rolname='authenticated') then
+  create role authenticated nologin;
+ end if;
+ if not exists(select 1 from pg_roles where rolname='anon') then
+  create role anon nologin;
+ end if;
+end $roles$;
+create schema auth;
+create function auth.uid() returns uuid language sql stable as
+ $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+create schema efg_private;
+create table auth.users(id uuid primary key);
+create table public.efg_profiles(user_id uuid primary key);
+create table public.efg_goals(id uuid primary key);
+create table public.efg_food_plans(
+ student_id uuid primary key references public.efg_profiles(user_id) on delete cascade,
+ coach_id uuid not null references auth.users(id),
+ approved_food_ids text[] not null,
+ guided_plan jsonb,
+ guided_goal_id uuid references public.efg_goals(id),
+ guided_plan_approved_at timestamptz,
+ updated_at timestamptz not null default now()
+);
+insert into auth.users(id) values ('${coach}');
+insert into public.efg_profiles(user_id) values ('${student}');
+insert into public.efg_goals(id) values ('${goal}');
+`);
+exec(actualArchiveSQL);
+// The fixture uses claims, not signed JWT. Execute the exact private marker
+// helper to prove that a user-controlled GUC cannot suppress legacy notices.
+assert.equal(exec(`begin;
+ set local "request.jwt.claim.sub"='${coach}';
+ set local efg.coach_atomic_publish='on';
+ select efg_private.coach119_is_atomic_transaction();
+ rollback;`),'f','Spoofed GUC without a private marker must fail');
+assert.equal(exec(`begin;
+ set local "request.jwt.claim.sub"='${coach}';
+ set local efg.coach_atomic_publish='on';
+ insert into efg_private.coach119_atomic_transactions(txid,coach_id)
+ values(txid_current(),'${coach}');
+ select efg_private.coach119_is_atomic_transaction();
+ set local "request.jwt.claim.sub"='${student}';
+ select efg_private.coach119_is_atomic_transaction();
+ rollback;`),'t\nf','Only the marker owner in the same transaction qualifies');
+assert.equal(exec('select count(*) from efg_private.coach119_atomic_transactions'),'0');
+exec(`set role authenticated;
+ insert into efg_private.coach119_atomic_transactions(txid,coach_id)
+ values(txid_current(),'${coach}');`,false);
+assert.equal(exec("select has_function_privilege('authenticated','efg_private.coach119_is_atomic_transaction()','EXECUTE')"),'f');
+// Test exact SQL selected-catalog validator on new + existing synthetic students.
+exec(`create table efg_private.coach_reviewed_foods(
+ food_id text not null, evidence_status text not null,
+ reviewed_by uuid,reviewed_at timestamptz,expires_at timestamptz,source_url text
+);
+insert into efg_private.coach_reviewed_foods values
+ ('food-a','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/a'),
+ ('food-b','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/b'),
+ ('food-c','reviewed','${coach}',now()-interval '1 day',now()+interval '1 year','https://example.org/c'),
+ ('expired','reviewed','${coach}',now()-interval '2 days',now()-interval '1 day','https://example.org/expired');
+`);
+exec(exactFoodFunction);
+assert.equal(exec("select has_function_privilege('anon','efg_private.coach119_reviewed_food_ids(jsonb)','EXECUTE')"),'f');
+assert.equal(exec("select has_function_privilege('authenticated','efg_private.coach119_reviewed_food_ids(jsonb)','EXECUTE')"),'f');
+const guideSlots=['desayuno','media_manana','almuerzo','merienda','cena'];
+const fixtureGuide=(approvedFoodIds,guideFoodId='food-a')=>JSON.stringify({
+ kind:'five_meal_example',version:1,approvedFoodIds,
+ meals:guideSlots.map(slot=>({slot,items:[{id:guideFoodId}]}))
+});
+const checked=(ids,ingredient='food-a')=>
+ "select array_to_string(efg_private.coach119_reviewed_food_ids('"+
+ fixtureGuide(ids,ingredient)+"'::jsonb),',')";
+assert.equal(exec(checked(['food-a','food-b','food-c'])),'food-a,food-b,food-c');
+for(const bad of [
+ checked(['food-a','unreviewed']),
+ checked(['food-a','expired']),
+ checked(['food-a','food-a']),
+ checked(['food-b']),
+ checked([]),
+ checked(['food-a','food-b'],'food-not-selected'),
+ "select efg_private.coach119_reviewed_food_ids('"+
+ JSON.stringify({kind:'five_meal_example',version:1,meals:[]})+"'::jsonb)"
+])exec(bad,false);
+const newStudent='55555555-5555-4555-8555-555555555555';
+exec(`insert into public.efg_profiles(user_id) values ('${newStudent}');
+insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
+) values (
+ '${newStudent}','${coach}',
+ efg_private.coach119_reviewed_food_ids('${fixtureGuide(['food-a','food-b','food-c'])}'::jsonb),
+ '{"version":"new-student"}'::jsonb,'${goal}',now()
+)`);
+assert.equal(exec("select cardinality(approved_food_ids) from public.efg_food_plans where student_id='"+newStudent+"'"),'3',
+ 'A new student must receive all explicitly Coach-approved reviewed foods, not only one guide ingredient');
+assert.equal(exec("select count(*) from efg_private.coach_guide_history where student_id='"+newStudent+"'"),'0');
+exec(`delete from public.efg_profiles where user_id='${newStudent}'`);
+
+exec(`insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,guided_plan_approved_at
+) values (
+ '${student}','${coach}',array['food-a'],'{"version":"A"}'::jsonb,
+ '${goal}','2026-10-30T09:00:00Z'
+)`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0');
+exec(`update public.efg_food_plans set guided_plan='{"version":"B"}'::jsonb,
+ guided_plan_approved_at='2026-10-30T10:00:00Z' where student_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'1');
+assert.equal(exec("select guided_plan->>'version' from efg_private.coach_guide_history"),'A');
+exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
+ where student_id='${student}'`);
+assert.equal(exec("select string_agg(guided_plan->>'version',',' order by id) from efg_private.coach_guide_history"),'A,B');
+exec(`update public.efg_food_plans set approved_food_ids=array['food-b']
+ where student_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'2',
+ 'No-op update must not duplicate history');
+// Exercise the EXACT ON CONFLICT clause from the COACH119 hosted candidate.
+// A replacement must use the full explicitly reviewed Coach selection, not
+// silently retain old foods that may be expired or unsuitable. The previous
+// approved list remains in the private history ledger.
+const upsertMatch=source.match(/on conflict\(student_id\) do update set[\s\S]*?updated_at=excluded\.updated_at;/);
+assert.ok(upsertMatch,'Exact candidate upsert clause unavailable');
+exec(`insert into public.efg_food_plans(
+ student_id,coach_id,approved_food_ids,guided_plan,guided_goal_id,
+ guided_plan_approved_at,updated_at
+) values(
+ '${student}','${coach}',array['food-c'],'{"version":"C"}'::jsonb,
+ '${goal}','2026-10-30T11:00:00Z',now()
+)
+${upsertMatch[0]}`);
+assert.equal(exec("select array_to_string(approved_food_ids,',') from public.efg_food_plans"),
+ 'food-c','New full Coach selection must not inherit unreviewed legacy IDs');
+assert.equal(exec("select array_to_string(approved_food_ids,',') from efg_private.coach_guide_history order by id desc limit 1"),
+ 'food-b','Prior Coach-approved list must remain in the private archive');
+assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'C');
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'3',
+ 'Prior approved guide must archive when a new atomic guide publishes');
+const tx=exec(`begin;
+ update public.efg_food_plans set guided_plan='{"version":"D"}'::jsonb
+ where student_id='${student}';
+ select count(*) from efg_private.coach_guide_history;
+ rollback;`);
+assert.match(tx,/4/,'Update must archive inside the transaction');
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'3',
+ 'Rollback must also roll back the archive');
+assert.equal(exec("select guided_plan->>'version' from public.efg_food_plans"),'C');
+exec("set role authenticated; select * from efg_private.coach_guide_history;",false);
+assert.equal(exec("select has_table_privilege('authenticated','efg_private.coach_guide_history','SELECT')"),'f');
+assert.equal(exec("select has_table_privilege('anon','efg_private.coach_guide_history','SELECT')"),'f');
+exec(`delete from public.efg_profiles where user_id='${student}'`);
+assert.equal(exec('select count(*) from efg_private.coach_guide_history'),'0',
+ 'Approved deletion of student must remove private historic rows as well');
+// Legal gate: run the exact candidate SELECT against disposable PostgreSQL.
+// Two distinct Terms documents must never substitute for a Privacy acceptance.
+const legalMatch=source.match(/select pg_catalog\.count\(distinct d\.kind\) into v_legal_count\s+([\s\S]*?);\s*if v_legal_count<>2/);
+assert.ok(legalMatch,'Exact COACH119 two-kind legal query unavailable');
+const legalQuery='select pg_catalog.count(distinct d.kind) '+legalMatch[1]
+ .replaceAll('p_student',"'"+student+"'::uuid")
+ .replaceAll('v_coach',"'"+coach+"'::uuid")+';';
+exec(`create table public.efg_legal_documents(
+ id integer primary key,kind text not null,is_current boolean not null,
+ published_at timestamptz,sha256 text not null,body text not null);
+create table public.efg_legal_acceptances(document_id integer not null,user_id uuid not null);
+insert into public.efg_legal_documents(id,kind,is_current,published_at,sha256,body)
+values
+ (1,'terms',true,now(),encode(sha256(convert_to('terms A','UTF8')),'hex'),'terms A'),
+ (2,'terms',true,now(),encode(sha256(convert_to('terms B','UTF8')),'hex'),'terms B'),
+ (3,'privacy',true,now(),encode(sha256(convert_to('privacy','UTF8')),'hex'),'privacy');
+insert into public.efg_legal_acceptances(document_id,user_id)
+values (1,'${student}'),(1,'${coach}'),(2,'${student}'),(2,'${coach}');`);
+assert.equal(exec(legalQuery),'1','Two accepted Terms cannot pass without Privacy');
+exec(`insert into public.efg_legal_acceptances(document_id,user_id)
+ values (3,'${student}'),(3,'${coach}');`);
+assert.equal(exec(legalQuery),'2','Both distinct kinds accepted by student and coach pass');
+exec("update public.efg_legal_documents set sha256='invalid' where id=3");
+assert.equal(exec(legalQuery),'1','Tampered Privacy hash must invalidate legal gate');
+
+console.log('PASS COACH119 REAL PG17: new-student full catalog + reviewed/expired/missing/duplicate denials, approved guide archive, food changes, no duplicates, rollback, anon/auth deny, authorized student deletion; ONLY synthetic fixtures.');

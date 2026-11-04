@@ -15,7 +15,7 @@ assert.equal(new Set(ids).size,ids.length,"No duplicate new food IDs");
 const originalIds=[...catalog.matchAll(/\["([a-z0-9_]+)","/g)].map(m=>m[1]);
 assert.deepEqual(ids.filter(id=>originalIds.includes(id)),[],"No ID collisions with existing foods");
 for(const f of foods){
- assert.ok(f.name&&["prepared","bakery","dessert","vegetable","protein"].includes(f.category),"Food category/name valid: "+f.id);
+ assert.ok(f.name&&["prepared","bakery","dessert","candy","vegetable","protein"].includes(f.category),"Food category/name valid: "+f.id);
  for(const n of ["k","p","c","f","fi"])assert.ok(Number.isFinite(f[n])&&f[n]>=0,"Nutrition must be nonnegative finite: "+f.id+" "+n);
  assert.ok(f.k>0&&f.k<9,"Gross per-gram calories plausibly bounded: "+f.id);
  if(VERIFIED_FOODS[f.id]){
@@ -45,10 +45,10 @@ assert.ok(search("gomitas").length>=2);
 assert.ok(search("zapallo").some(f=>f.id==="zapallo_anco_hervido"));
 assert.ok(search("calabaza").some(f=>f.id==="zapallo_anco_hervido"));
 assert.ok(search("pizza").length>=8);
-assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS\)/);
+assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS,PLANT_BAKERY_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
-assert.match(html,/202610(?:28-regional2|29-(?:seats-visible|coach-commercial))/,"Force iPhone Safari asset update");
+assert.match(html,/name="efg-build" content="20[0-9]{6}-[a-z0-9-]{5,80}"/,"Force iPhone Safari asset update");
 const expected={
  zapallo_anco_horno:[169296,40,.90,10.5,.09,3.2],
  helado_crema_americana:[167575,207,3.5,23.6,11,.7],

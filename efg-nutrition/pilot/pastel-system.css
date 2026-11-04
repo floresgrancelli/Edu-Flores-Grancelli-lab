@@ -165,6 +165,12 @@ html,body{background:#fff9f6}
  .pilot-layout .efg-pastel-day *{animation:none!important;transition:none!important}
 }
 
+/* Android vertical scroll gesture: the summary and its decorative charts are
+   native pan surfaces, not horizontal carousels. Preserve pinch zoom and taps. */
+@media (max-width:720px){
+ .pilot-layout.efg-role-student .efg-pastel-day{touch-action:pan-y pinch-zoom}
+}
+
 /* Señales secundarias discretas para que el anillo siga siendo protagonista. */
 .pilot-layout .efg-pastel-motivation{padding:15px 18px;margin:12px 0 16px}
 .pilot-layout .efg-pastel-motivation .eyebrow{font-size:10px;color:#8c7095}

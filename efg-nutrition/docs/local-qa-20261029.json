@@ -1,0 +1,107 @@
+[
+  {
+    "test": "coach-intake-flow.mjs",
+    "exit": 0,
+    "output": "EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.\n"
+  },
+  {
+    "test": "coach-intake-nav.mjs",
+    "exit": 0,
+    "output": "Coach intake navigation, permission states and transparent activation status: OK (static fixtures only).\n"
+  },
+  {
+    "test": "diet-pattern-workbench.mjs",
+    "exit": 0,
+    "output": "PASS draft Coach/Personal patterns: keto clinical gating, verified Personal calculator, 12:12/14:10/16:8 conserve all daily kcal and grams.\n"
+  },
+  {
+    "test": "fit-recipes-payments.mjs",
+    "exit": 0,
+    "output": "PASS: 12 Fit recipes, 12 credited real photographs, budins, macros and payment UI.\n"
+  },
+  {
+    "test": "food-catalog-expansion.mjs",
+    "exit": 0,
+    "output": "PASS expanded catalogue: 136 new foods, 537 existing extension foods, units, source flags, synonyms and numeric macros\nPASS phase 3: 16 new regional/plant foods, transparent estimates, pan com\u00fan & gomitas synonyms and no duplicate IDs.\n"
+  },
+  {
+    "test": "food-compatibility.mjs",
+    "exit": 0,
+    "output": "PASS: neutral calories, evidence identity/expiry, precedence, no clinical green, independent plan badge, truthful recording\n"
+  },
+  {
+    "test": "food-library-expansion.mjs",
+    "exit": 0,
+    "output": "PASS: 4 recipe examples with traceable ingredient grams, non-measured final yield, source labels, portion conservation and no unrelated changes.\nPASS: 136 new items, no identifier collisions, numeric macros, 7 portion types, searchable aliases, catalog and Safari integration.\nAuditor\u00eda Fase 2: 20 cotejadas USDA SR Legacy, 116 estimaciones sin fingir validaci\u00f3n individual. lote 4 con helado de frutilla, galletitas rellenas, donut y lemon pie.\n"
+  },
+  {
+    "test": "guided-five-meals.mjs",
+    "exit": 0,
+    "output": "PASS: five-meal educational guide, bounded portions, optional whey, assessment, sample intake, no auto-prescribing.\nPASS: real-food swaps, bounded portions and different calorie targets.\n"
+  },
+  {
+    "test": "legal-onboarding-draft.mjs",
+    "exit": 0,
+    "output": "PASS: legal onboarding preview is opt-in, versioned, explicit, escaped and server-authoritative\n"
+  },
+  {
+    "test": "notifications-messages.mjs",
+    "exit": 0,
+    "output": "PASS: inbox + messages UI, no-refresh refresh, SQL RLS guards, Friday scheduling, dedicated tabs.\nLIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific send/read, Friday cron, two devices.\n"
+  },
+  {
+    "test": "pastel-phase3-preview.mjs",
+    "exit": 0,
+    "output": "PASS: pastel system macro math, no-goal, over-goal, six meal slots, skipped meals, semantic filled avocado+olive, global roles and existing privacy.\nNote: Playwright visual cross-role QA is a SEPARATE mandatory release gate; do not merge just because static tests pass.\n"
+  },
+  {
+    "test": "premium-progress-charts.mjs",
+    "exit": 0,
+    "output": "Premium 3.3 chart contracts passed: real logs, skipped meals, goals, missing data, 7/30/90 filters.\n"
+  },
+  {
+    "test": "premium-ui-smoke.mjs",
+    "exit": 0,
+    "output": "PASS: JS syntax, UX destinations, profile sections, CSS/mobile structure, macro markup.\nNOT TESTED: real auth, live iPhone/Android screenshots, mobile visual overflow, live Supabase persistence and permissions.\n"
+  },
+  {
+    "test": "recipe-models.mjs",
+    "exit": 0,
+    "output": "PASS: 4 recipe examples with traceable ingredient grams, non-measured final yield, source labels, portion conservation and no unrelated changes.\n"
+  },
+  {
+    "test": "regional-catalog-phase2.mjs",
+    "exit": 0,
+    "output": "PASS Fase 2: 4 pizzas + 5 sushi en recetas estimadas auditables; 6 etiquetas argentinas, porciones y gramajes correctos; 20 fuentes USDA y otros registros sin alterar.\n"
+  },
+  {
+    "test": "release-communications-draft.mjs",
+    "exit": 0,
+    "output": "PASS: release announcement + whats-new all roles, separate legal consent, safe no-action draft\n"
+  },
+  {
+    "test": "scientific-macros.mjs",
+    "exit": 0,
+    "output": "PASS draft Coach/Personal patterns: keto clinical gating, verified Personal calculator, 12:12/14:10/16:8 conserve all daily kcal and grams.\nPASS: sexo hombre/mujer, recomp 0/-5/-10%, top 1.50, P 2g/kg, G 0.9g/kg, carbos y validaciones.\n"
+  },
+  {
+    "test": "security-guardrails.mjs",
+    "exit": 0,
+    "output": "PASS: browser publishable key, auth validation, private receipt access, RPC and 15 revoked privileges documented; PR QA triggers present.\nLIMITATION: static checks do not replace live RLS/negative-authorization or backup restore tests.\n"
+  },
+  {
+    "test": "user-photo-labels-20261028.mjs",
+    "exit": 0,
+    "output": "PASS: Five user-requested foods, four photographic items and sweet popcorn from USDA proxy; precise provenance, editable grams, no published changes.\n"
+  },
+  {
+    "test": "ux-sprint1.mjs",
+    "exit": 0,
+    "output": "UX Sprint 1: chat pagination and account-scoped notification cache/race PASS with synthetic fixtures.\nPASS: saved habitual selection shows full quantities and macros, handles incomplete snapshots and escapes untrusted names.\nEFG inbox: Network unavailable\n"
+  },
+  {
+    "test": "weekly-consistency.mjs",
+    "exit": 0,
+    "output": "PASS: independent \u00b15/\u00b110 Mon\u2013Sat tracks, inclusive nesting, protein \u226590%, Sunday discretionary, provisional today, historical approved goals, no false awards.\n"
+  }
+]

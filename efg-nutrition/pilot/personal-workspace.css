@@ -1,0 +1,60 @@
+/* NUT-60: premium Personal read-only panel. Isolated from student/coach/admin CSS. */
+.efg-self-shell{min-height:100vh;background:linear-gradient(145deg,#f2ebf7 0%,#fdf6f5 46%,#f4f7f5 100%);color:#26313b;font-family:inherit}
+.efg-self-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px max(24px,calc((100vw - 1120px)/2));background:#fff9;border-bottom:1px solid #ddd6e1}
+.efg-self-brand{display:flex;align-items:center;gap:9px;color:#34283a;font-weight:800;letter-spacing:.035em}
+.efg-self-brand img{object-fit:contain}
+.efg-self-brand small{display:block;color:#746781;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+.efg-self-content{width:min(1120px,calc(100% - 40px));margin:0 auto;padding:32px 0 48px}
+.efg-self-hero{padding:34px 36px;border-radius:27px;background:linear-gradient(118deg,#34283c 0%,#59435f 56%,#766479 100%);box-shadow:0 15px 40px #55426124;color:#fff}
+.efg-self-hero .eyebrow{font-size:11px;letter-spacing:.16em;color:#ffdbc9;font-weight:800}
+.efg-self-hero h1{font-size:clamp(24px,3vw,38px);line-height:1.16;letter-spacing:-.03em;margin:13px 0 10px;color:#fff}
+.efg-self-hero p{color:#f5eaf3;max-width:670px;line-height:1.6;margin:0}
+.efg-self-overview,.efg-self-foods{margin-top:22px;border:1px solid #e6dee8;background:#fffdfa;border-radius:24px;padding:26px 28px;box-shadow:0 6px 25px #5b466b0d}
+.efg-self-overview h2,.efg-self-foods h2{font-size:23px;letter-spacing:-.025em;margin:0 0 18px;color:#34283c}
+.efg-self-overview h3{font-size:16px;margin:23px 0 7px}
+.efg-self-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.efg-self-metric{border-radius:15px;padding:15px 10px 13px;background:linear-gradient(160deg,#f6eefb,#fdf7f4);text-align:center}
+.efg-self-metric small{display:block;font-size:12px;color:#695d72}
+.efg-self-metric strong{display:block;font-size:clamp(18px,2.4vw,28px);font-variant-numeric:tabular-nums;color:#3c344c;padding-top:3px}
+.efg-self-metric span{font-size:12px;color:#726779}
+.efg-self-muted,.efg-self-totals{color:#726979;line-height:1.6;font-size:14px}
+.efg-self-totals{margin:0;background:#f5f4f0;border-radius:12px;padding:12px 15px;color:#47434d}
+.efg-self-foods>p{margin-top:-10px;margin-bottom:23px}
+.efg-self-meal{border:1px solid #ebdfe7;background:#fff;border-radius:18px;margin:12px 0;padding:19px 21px}
+.efg-self-meal>header{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.efg-self-emoji{width:36px;height:36px;display:grid;place-items:center;background:#f5eaf3;border-radius:12px;font-size:19px}
+.efg-self-meal h3{margin:0;font-size:19px;color:#403343}
+.efg-self-meal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.efg-self-meal-grid>div{background:#faf8fa;border-radius:13px;padding:14px 16px;min-width:0}
+.efg-self-meal h4{margin:0 0 8px;font-size:13px;color:#65576d}
+.efg-self-meal p{margin:0}
+.efg-self-meal ul{padding-left:19px;margin:5px 0;color:#3d3541;line-height:1.7;overflow-wrap:anywhere}
+.efg-self-presets{font-size:12px;color:#795b75;padding-top:12px;overflow-wrap:anywhere}
+.efg-self-footer{padding:18px 4px;color:#746980;font-size:12px;line-height:1.6}
+@media(max-width:680px){.efg-self-head{padding:14px 16px;gap:8px}.efg-self-brand{font-size:13px}.efg-self-brand img{width:37px}.efg-self-content{width:calc(100% - 24px);padding:15px 0 30px}.efg-self-hero{padding:28px 22px;border-radius:21px}.efg-self-overview,.efg-self-foods{padding:20px 16px;border-radius:20px}.efg-self-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.efg-self-meal{padding:16px 13px}.efg-self-meal-grid{grid-template-columns:1fr;gap:8px}}
+@media(max-width:375px){.efg-self-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.efg-self-head .btn{font-size:11px;padding:8px}}
+@media(prefers-reduced-motion:reduce){.efg-self-shell *{animation:none!important;transition:none!important}}
+
+/* NUT-62/63 · Educational previews share the same Personal visual language. */
+.efg-self-plan-preview,.efg-self-balance{margin:22px 0 0;border:1px solid #e9dfe8;border-radius:22px;background:#fffdfb;padding:23px 25px;box-shadow:0 6px 25px #5b466b0c;color:#403448}
+.efg-self-plan-preview .eyebrow,.efg-self-balance .eyebrow{color:#876a8e;font-size:11px;font-weight:750;letter-spacing:.13em}
+.efg-self-plan-preview h3,.efg-self-balance h3{color:#3b2d43;font-size:21px;line-height:1.3;margin:9px 0 12px}
+.efg-self-plan-preview p,.efg-self-balance p{line-height:1.55}
+.efg-self-plan-scroll{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border-radius:14px;border:1px solid #e9e0e9;-webkit-overflow-scrolling:touch}
+.efg-self-plan-scroll table{width:100%;min-width:560px;border-collapse:collapse;font-size:13px;line-height:1.5;color:#423b48}
+.efg-self-plan-scroll caption{caption-side:top;text-align:left;padding:11px 13px;background:#f5eff8;color:#655368;font-size:12px}
+.efg-self-plan-scroll th,.efg-self-plan-scroll td{padding:11px 10px;border-bottom:1px solid #e9e3eb;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.efg-self-plan-scroll th:first-child,.efg-self-plan-scroll td:first-child{text-align:left}
+.efg-self-plan-scroll thead{background:#f9f5fa;color:#3d3547}
+.efg-self-plan-scroll tbody tr:last-child>*{border-bottom:none}
+.efg-self-plan-disclaimers{padding-left:21px;color:#665d6a;font-size:13px;line-height:1.65}
+.efg-self-balance-suggestions{border-radius:14px;background:#f6f2f8;padding:12px 15px;margin-top:14px}
+.efg-self-balance-suggestions h4{margin:0 0 7px;font-size:14px}
+.efg-self-balance-suggestions p{margin:5px 0;font-size:13px}
+@media(max-width:680px){.efg-self-plan-preview,.efg-self-balance{padding:19px 15px;border-radius:18px}.efg-self-plan-preview h3,.efg-self-balance h3{font-size:19px}.efg-self-plan-scroll table{font-size:12px}.efg-self-plan-scroll th,.efg-self-plan-scroll td{padding:10px 8px}}
+
+.efg-self-brand{min-width:0;flex:1}.efg-self-brand span{min-width:0;overflow-wrap:anywhere;line-height:1.18}.efg-self-head .btn{flex-shrink:0}
+@media(max-width:375px){.efg-self-brand{gap:5px}.efg-self-brand img{width:29px;height:auto}.efg-self-brand small{font-size:10px}.efg-self-head{padding:12px 11px}}
+
+/* QA 320px: logout remains a fully reachable 44px touch target. */
+.efg-self-head .btn{min-height:44px;min-width:88px;display:inline-flex;align-items:center;justify-content:center}

@@ -14,10 +14,13 @@ assert.match(sql,/REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLE/);
 assert.match(sql,/FROM authenticated;/);
 const protectedTables=["efg_activities","efg_billing_settings","efg_consents","efg_daily_logs","efg_food_plans","efg_goals","efg_habitual_meals","efg_invitations","efg_organizations","efg_payments","efg_personal_recipes","efg_personal_targets","efg_profiles","efg_weekly_reports","efg_weights"];
 for(const table of protectedTables)assert.ok(sql.includes("public."+table),"Missing privilege restriction for "+table);
-const jobs=["efg-nutrition-premium-qa.yml","efg-nutrition-visual-qa.yml"];
+// Keep production checks mandatory; allow ONLY the separate PR42 snapshot target.
+// A missing production branch or an unrestricted wildcard is a security regression.
+const jobs=["efg-nutrition-security-qa.yml","efg-nutrition-premium-qa.yml","efg-nutrition-visual-qa.yml"];
 for(const job of jobs){
  const yaml=load(".github/workflows/"+job);
- assert.match(yaml,/pull_request:\s*\n\s*branches: \[efg-nutrition-app\]/,"PR checks must run against the EFG production branch");
+ assert.match(yaml,/pull_request:\s*\n\s*branches: \[efg-nutrition-app, efg-major-integration-20261029\]/,
+   "PR checks must cover production and the isolated candidate, with no wildcard: "+job);
 }
 console.log("PASS: browser publishable key, auth validation, private receipt access, RPC and 15 revoked privileges documented; PR QA triggers present.");
 console.log("LIMITATION: static checks do not replace live RLS/negative-authorization or backup restore tests.");

@@ -1,0 +1,15 @@
+{
+  "sha": "578b3887a39282a41d85a3309ee48cd8e2e3ed45",
+  "blobs": {
+    "pilot/nutrition-daily-tip.js": "1d59922d04a8d600526a49340cc4eae481aac874",
+    "pilot/nutrition-daily-tip.css": "b15178e5e3e58293d56fd89dcef38f47e147aae0",
+    "pilot/science-welcome.js": "23644c11b49de2fe00e1378c55607e1c0b8b1afb",
+    "pilot/science-welcome.css": "571cd56d22be428f45d83c62085f5f1f6edfc85d",
+    "pilot/nutrition-science.js": "83bac8790dff9c90db3e968fb7572a3092b60ebc",
+    "pilot/nutrition-science.css": "b4ab0b7c976349b148664149106050800f1a013f",
+    "pilot/science-wellbeing.js": "30dd92d9c35499006cdfa2801ddce7d05a0c1eab",
+    "pilot/science-wellbeing.css": "6f25453dfb424c7f551ab1cc1b076310eac1e131",
+    "pilot/assets/serotonina-acuarela.avif": "45112dacae85ef0041cfa2b77da3672a289604a5",
+    "pilot/pilot.js": "500817ed26517c4a43e580f7503bbce1f7fdb005"
+  }
+}

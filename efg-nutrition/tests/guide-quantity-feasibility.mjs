@@ -1,0 +1,37 @@
+// Reproduce P28V using actual catalog rates and entirely fictional targets.
+// No hosted data, writes, nutrition approvals or publication.
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import {sourceReviewCatalogForSyntheticCoach} from '../tools/prepare-ncc-source-review-batch.mjs';
+import {generateFlexibleGuidedDay,removeFlexibleFood} from '../pilot/guided-day-v2.js';
+import {rebalanceGuidedDay,guideQuantityRanges,guideTotals,guideDeviation} from '../pilot/guided-day.js';
+const goal={kcal:2500,protein_g:150,carb_g:322,fat_g:68,fiber_g:35};
+const lower={kcal:2100,protein_g:126,carb_g:271,fat_g:57,fiber_g:29};
+let plan=generateFlexibleGuidedDay(sourceReviewCatalogForSyntheticCoach(),goal,
+ {restrictions:['celiac'],restrictionStatus:'declared'});
+plan.meals[0].items[0].qty=65;plan.meals[0].items[0].locked=true;
+plan=rebalanceGuidedDay(rebalanceGuidedDay(plan,goal),lower);
+assert.ok(Math.abs(guideTotals(plan).totals.p-163.1815)<1e-8,'Exact Work reproduction');
+const original=structuredClone(plan),range=guideQuantityRanges(plan);
+assert.ok(Math.abs(range.p.min-152.658)<1e-8);
+assert.ok(range.p.min>lower.protein_g*1.05,'Quantity-only adjustment cannot meet this target');
+assert.deepEqual(plan,original,'Diagnostics cannot mutate the draft');
+const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+const feedback=app.slice(app.indexOf('function guidedTargetFeedback('),app.indexOf('function currentCoachRecipeScope('));
+const context={guideQuantityRanges,num:(v,d)=>Number(v).toFixed(d)};vm.createContext(context);
+vm.runInContext(feedback,context);
+assert.match(context.guidedTargetFeedback(guideDeviation(plan,lower),plan),/Recalcular cantidades no alcanza/);
+assert.match(context.guidedTargetFeedback(guideDeviation(plan,lower),plan),/152.7/);
+const revised=removeFlexibleFood(plan,'almuerzo',0,lower);
+assert.ok(['k','p','c','f'].every(k=>Math.abs(guideDeviation(revised,lower)[k].percent)<1.4));
+assert.equal(revised.meals[0].items[0].qty,65,'Manual grams survive removal and redistribution');
+assert.equal(revised.meals.length,6);
+assert.deepEqual(plan,original,'Original version remains intact');
+const invalid=structuredClone(plan);invalid.meals[0].items[0].qty=500;
+assert.throws(()=>rebalanceGuidedDay(invalid,lower),/cantidad fijada/);
+assert.equal(invalid.meals[0].items[0].qty,500,'Invalid lock is reported, never silently overwritten');
+const recipe=structuredClone(plan);
+Object.assign(recipe.meals[0].items[0],{qty:15,recipeComponent:true,locked:true});
+assert.equal(rebalanceGuidedDay(recipe,lower).meals[0].items[0].qty,15);
+console.log('PASS P28W: exact 163.1815g reproduction, infeasible 152.658g floor, actionable UI diagnostic, manual/recipe locks, removal redistribution <1.4%, original preserved. Isolated only.');

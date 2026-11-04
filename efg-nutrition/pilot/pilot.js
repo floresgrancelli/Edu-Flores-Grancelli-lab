@@ -36,7 +36,7 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=20261027-weekly-messag
 import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=20261030-pro60-1";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=20261027-auto2359-v1";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=20261026-coach-calories-3modes-v1";
-import {generateGuidedDay,guideTotals,guideDeviation,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=20261102-six-compat1";
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=20261102-restrictions1";
 import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=20261102-guard1";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=20261104-p28";
@@ -2537,7 +2537,16 @@ function goalRevisionSection(latest){
 
 /* Five-meal guide: draft only on coach until explicit approval; not a diary entry. */
 const guideNumbers=t=>num(t.k)+" kcal · P "+num(t.p,1)+" g · HC "+num(t.c,1)+" g · G "+num(t.f,1)+" g · Fibra "+num(t.fi,1)+" g";
-function guidedTargetFeedback(deviations){
+function guidedTargetFeedback(deviations,plan){
+ if(plan){
+  const ranges=guideQuantityRanges(plan),labels={k:"energía",p:"proteína",c:"hidratos",f:"grasas",fi:"fibra"};
+  const conflicts=Object.entries(ranges).filter(([k,r])=>deviations[k]?.target>0&&
+   (r.min>deviations[k].target*1.05||r.max<deviations[k].target*.95));
+  if(conflicts.length)return "Recalcular cantidades no alcanza con estos alimentos, límites y gramos fijados: "+
+   conflicts.map(([k,r])=>labels[k]+" entre "+num(r.min,1)+" y "+num(r.max,1)+(k==="k"?" kcal":" g")+
+    " (meta "+num(deviations[k].target,1)+")").join("; ")+". Revisá qué alimentos quitar o sustituir, o qué cantidades desbloquear. La meta no se cambió.";
+ }
+
  const keys=["k","p","c","f"];
  const close=keys.every(k=>Number.isFinite(deviations[k]?.percent)&&Math.abs(deviations[k].percent)<=5);
  return close
@@ -2605,7 +2614,7 @@ function guidedDayContents(plan,goal,editable=false){
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
  return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
- '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations))+'</p></div>'+
+ '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations,plan))+'</p></div>'+
  (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
@@ -2834,7 +2843,7 @@ function updateGuidedTotalsUI(){
  const all=document.querySelector("[data-guideoverall]");if(all)all.textContent="Menú modelo: "+guideNumbers(sums.totals);
  const deviations=document.querySelector("[data-guidedeviations]");
  if(deviations)deviations.textContent="Desvíos: "+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(dev[k].percent>0?"+":"")+num(dev[k].percent,1)+"%").join(" · ");
- const status=document.querySelector("[data-guidetargetstatus]");if(status)status.textContent=guidedTargetFeedback(dev);
+ const status=document.querySelector("[data-guidetargetstatus]");if(status)status.textContent=guidedTargetFeedback(dev,plan);
  for(const m of sums.perMeal){
   const k=document.querySelector('[data-guidemealmetric="'+m.slot+'"]');if(k)k.textContent=num(m.totals.k)+" kcal";
   const t=document.querySelector('[data-guidemealnumbers="'+m.slot+'"]');if(t)t.textContent=guideNumbers(m.totals);

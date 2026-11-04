@@ -102,6 +102,17 @@ const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
 export const guidedPortionBounds=id=>bounds(id).slice(0,2);
+// Necessary ranges for the current ingredients, not proof of a feasible menu.
+// Manual locks and recipe quantities must use the same limits as the editor.
+export function guideQuantityRanges(plan){
+ const ranges=Object.fromEntries(NUTRIENTS.map(k=>[k,{min:0,max:0}]));
+ for(const item of (plan?.meals||[]).flatMap(m=>m.items||[])){
+  const [min,max]=item.locked===true?[item.qty,item.qty]:
+   item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
+  for(const k of NUTRIENTS){ranges[k].min+=item[k]*min;ranges[k].max+=item[k]*max;}
+ }
+ return ranges;
+}
 function source(food,qty){
  // A missing nutrient is NOT measured zero. Refuse to generate an approvable
  // guide if the selected catalog entry lacks any required value.
@@ -164,6 +175,11 @@ export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
   // Recipe parts use exact per-serving quantities: the normal individual
   // food lower bound would silently inflate small ingredients and macros.
   const [min,max]=item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
+  if(item.locked===true){
+   if(!valid(item.qty)||item.qty<min||item.qty>max)
+    throw new Error("La cantidad fijada de "+String(item.name||item.id)+" está fuera de límites. Revisala antes de recalcular; no se modificó automáticamente.");
+   continue;
+  }
   item.qty=Math.min(max,Math.max(min,Number(item.qty)||min));
  }
  // Preserve the existing distribution as a warm start. If mandatory daily bounds

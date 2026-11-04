@@ -8,8 +8,7 @@ import {generateFlexibleGuidedDay,removeFlexibleFood} from '../pilot/guided-day-
 import {rebalanceGuidedDay,guideQuantityRanges,guideTotals,guideDeviation} from '../pilot/guided-day.js';
 const goal={kcal:2500,protein_g:150,carb_g:322,fat_g:68,fiber_g:35};
 const lower={kcal:2100,protein_g:126,carb_g:271,fat_g:57,fiber_g:29};
-let plan=generateFlexibleGuidedDay(sourceReviewCatalogForSyntheticCoach(),goal,
- {restrictions:['celiac'],restrictionStatus:'declared'});
+let plan=JSON.parse(readFileSync(new URL('./guide-p28v-synthetic-fixture.json',import.meta.url),'utf8'));
 plan.meals[0].items[0].qty=65;plan.meals[0].items[0].locked=true;
 plan=rebalanceGuidedDay(rebalanceGuidedDay(plan,goal),lower);
 assert.ok(Math.abs(guideTotals(plan).totals.p-163.1815)<1e-8,'Exact Work reproduction');
@@ -35,3 +34,9 @@ const recipe=structuredClone(plan);
 Object.assign(recipe.meals[0].items[0],{qty:15,recipeComponent:true,locked:true});
 assert.equal(rebalanceGuidedDay(recipe,lower).meals[0].items[0].qty,15);
 console.log('PASS P28W: exact 163.1815g reproduction, infeasible 152.658g floor, actionable UI diagnostic, manual/recipe locks, removal redistribution <1.4%, original preserved. Isolated only.');
+
+const fresh=generateFlexibleGuidedDay(sourceReviewCatalogForSyntheticCoach(),lower,{restrictions:['celiac'],restrictionStatus:'declared'});
+assert.equal(fresh.meals.length,6);
+assert.ok(Object.values(guideDeviation(fresh,lower)).every(d=>Math.abs(d.percent)<2));
+assert.ok(fresh.meals.every(m=>m.items.length>=2),'Composition repair preserves populated meals');
+console.log('PASS P28X: fresh celiac 2100 generation fits every target within 2%, six meals retained.');

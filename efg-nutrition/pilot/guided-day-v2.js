@@ -174,7 +174,35 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
    throw Error('La declaración de restricciones no tiene una revisión verificable.');
   plan.restrictionSource={studentId:s.studentId,organizationId:s.organizationId,revision:s.revision,status:s.status};
  }
- return rebalanceGuidedDay(plan,goal);
+ return fitGeneratedComposition(plan,goal,available,profile);
+}
+// Generation may choose another compatible food; editing an existing guide
+// continues to rebalance quantities only, preserving the coach's choices.
+function fitGeneratedComposition(plan,goal,available,profile){
+ const loss=p=>Object.values(guideDeviation(p,goal)).reduce((sum,d)=>sum+
+  (d.target>0?Math.max(0,Math.abs(d.percent)-5)**2:0),0);
+ let current=rebalanceGuidedDay(plan,goal),currentLoss=loss(current);
+ for(let pass=0;pass<3&&currentLoss>0;pass++){
+  let best=null,bestLoss=currentLoss;
+  for(let mi=0;mi<current.meals.length;mi++){
+   const meal=current.meals[mi],used=new Set(meal.items.map(x=>x.id));
+   for(let ii=0;ii<meal.items.length;ii++){
+    const prior=meal.items[ii];if(prior.locked||prior.recipeComponent)continue;
+    const choices=groupSets[roleOf(prior.id,meal.slot)]||[];
+    for(const id of choices){
+     const food=available.get(id);
+     if(!food||used.has(id)||guideFoodSignal(food,profile).status!=='possible')continue;
+     const next=structuredClone(current),[min,max]=guidedPortionBounds(id);
+     next.meals[mi].items[ii]=ensureSource(food,Math.max(min,Math.min(max,prior.qty)));
+     const candidate=rebalanceGuidedDay(next,goal),candidateLoss=loss(candidate);
+     if(candidateLoss<bestLoss-1e-8){best=candidate;bestLoss=candidateLoss;}
+    }
+   }
+  }
+  if(!best)break;
+  current=best;currentLoss=bestLoss;
+ }
+ return current;
 }
 function assertFlexible(plan){
  if(plan?.kind!==FLEXIBLE_GUIDE_KIND||plan?.version!==2||!Array.isArray(plan.meals)||

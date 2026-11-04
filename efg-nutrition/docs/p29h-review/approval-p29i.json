@@ -1,0 +1,29 @@
+{
+  "scope": "QA_ONLY",
+  "approvalQuote": "Aprobado",
+  "approvalDate": "2026-11-04",
+  "reviewerUserId": "48855587-fa46-4800-ad1f-7f7d58a2fb6b",
+  "reviewerRole": "owner_admin",
+  "professionalCredentialAsserted": false,
+  "proposalCommit": "0051dae2233887854c1199c92e8ee9e9d85c38af",
+  "proposalSha256": "875671fb37e60c21c7356c4179a5f229e93302129d227493ef947ccb31ee5a0a",
+  "sourceGuideSha256": "625e3aa089a4a42166b21d0bd3f020a124eda1cbb898f5a3b70be8f496e7a275",
+  "foodIds": [
+    "apple",
+    "banana",
+    "brownrice",
+    "coffee_black",
+    "egg",
+    "egg_white",
+    "fish_hake",
+    "mandarin",
+    "oil",
+    "potato",
+    "pumpkin",
+    "rocket",
+    "tofu_firm"
+  ],
+  "productionGo": false,
+  "expiresAtUtc": "2026-11-04T18:32:12.163398Z",
+  "recordedAtUtc": "2026-11-04T16:48:46.857102Z"
+}

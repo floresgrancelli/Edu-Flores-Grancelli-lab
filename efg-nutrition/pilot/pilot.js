@@ -1,3 +1,4 @@
+import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js';
@@ -2832,6 +2833,7 @@ function coachGuidedSection(){
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
+ (qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent)?'<button type="button" class="btn small light" data-act="applyQaReviewedSources">Aplicar referencias aprobadas QA y recalcular</button>':'')+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':
  draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':
  '<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
@@ -4548,6 +4550,11 @@ if(el.dataset.foodbulk){
    return;
  }
  if(action==="recalcGuidedDay"){readGuidedEditor();showGuidedEditor();notify("Resumen actualizado; el borrador sigue sin enviarse.");return;}
+ if(action==="applyQaReviewedSources"){
+  if(!qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent))throw Error("Ensayo QA no habilitado.");
+  state.coachGuidedDraft=rebalanceGuidedDay(applyQaReviewedSources(readGuidedEditor()),activeCoachGuideGoal(),{targetTolerance:.02});
+  showGuidedEditor();notify("Referencias aprobadas aplicadas al borrador en pantalla. Revisá los desvíos y guardá la nueva versión.");return;
+ }
  if(action==="balanceGuidedDay"){
   const draft=readGuidedEditor(),proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
   const goal=activeCoachGuideGoal();

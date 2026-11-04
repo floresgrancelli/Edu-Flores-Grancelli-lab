@@ -1,0 +1,387 @@
+{
+  "kind": "flexible_meal_guide",
+  "meals": [
+    {
+      "slot": "desayuno",
+      "items": [
+        {
+          "c": 0.0096,
+          "f": 0.0996,
+          "k": 1.48,
+          "p": 0.124,
+          "fi": 0,
+          "id": "egg",
+          "qty": 55,
+          "name": "Huevo entero sin cáscara (referencia crudo)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967"
+        },
+        {
+          "c": 0.2284,
+          "f": 0.0033,
+          "k": 0.89,
+          "p": 0.0109,
+          "fi": 0.026,
+          "id": "banana",
+          "qty": 200,
+          "name": "Banana cruda sin cáscara",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/173944"
+        },
+        {
+          "c": 0.0073,
+          "f": 0.0017,
+          "k": 0.52,
+          "p": 0.109,
+          "fi": 0,
+          "id": "egg_white",
+          "qty": 150,
+          "name": "Clara de huevo cruda, peso antes de cocinar",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172183"
+        },
+        {
+          "c": 0.0278,
+          "f": 0.0872,
+          "k": 1.44,
+          "p": 0.1727,
+          "fi": 0.023,
+          "id": "tofu_firm",
+          "qty": 80,
+          "name": "Tofu firme con sulfato de calcio",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172475"
+        },
+        {
+          "c": 0,
+          "f": 0.0002,
+          "k": 0.010009,
+          "p": 0.001201,
+          "fi": 0,
+          "id": "coffee_black",
+          "qty": 80,
+          "name": "Café filtrado con agua, sin azúcar",
+          "unit": "ml",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171890"
+        }
+      ],
+      "label": "Desayuno"
+    },
+    {
+      "slot": "media_manana",
+      "items": [
+        {
+          "c": 0.0096,
+          "f": 0.0996,
+          "k": 1.48,
+          "p": 0.124,
+          "fi": 0,
+          "id": "egg",
+          "qty": 55,
+          "name": "Huevo entero sin cáscara (referencia crudo)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967"
+        },
+        {
+          "c": 0.1381,
+          "f": 0.0017,
+          "k": 0.52,
+          "p": 0.0026,
+          "fi": 0.024,
+          "id": "apple",
+          "qty": 80,
+          "name": "Manzana con cáscara",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171688"
+        },
+        {
+          "c": 0.2284,
+          "f": 0.0033,
+          "k": 0.89,
+          "p": 0.0109,
+          "fi": 0.026,
+          "id": "banana",
+          "qty": 140,
+          "name": "Banana cruda sin cáscara",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/173944"
+        }
+      ],
+      "label": "Media mañana"
+    },
+    {
+      "slot": "almuerzo",
+      "items": [
+        {
+          "c": 0.0096,
+          "f": 0.0996,
+          "k": 1.48,
+          "p": 0.124,
+          "fi": 0,
+          "id": "egg",
+          "qty": 165,
+          "name": "Huevo entero sin cáscara (referencia crudo)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967"
+        },
+        {
+          "c": 0.2558,
+          "f": 0.0097,
+          "k": 1.23,
+          "p": 0.0274,
+          "fi": 0.016,
+          "id": "brownrice",
+          "qty": 335,
+          "name": "Arroz integral cocido",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169704"
+        },
+        {
+          "c": 0.1049,
+          "f": 0.0009,
+          "k": 0.4,
+          "p": 0.009,
+          "fi": 0.032,
+          "id": "pumpkin",
+          "qty": 140,
+          "name": "Zapallo anco horneado sin sal ni aceite",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169296"
+        },
+        {
+          "c": 0,
+          "f": 1,
+          "k": 8.84,
+          "p": 0,
+          "fi": 0,
+          "id": "oil",
+          "qty": 5,
+          "name": "Aceite de oliva (gramos)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171413"
+        }
+      ],
+      "label": "Almuerzo"
+    },
+    {
+      "slot": "media_tarde",
+      "items": [
+        {
+          "c": 0.0096,
+          "f": 0.0996,
+          "k": 1.48,
+          "p": 0.124,
+          "fi": 0,
+          "id": "egg",
+          "qty": 95,
+          "name": "Huevo entero sin cáscara (referencia crudo)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967"
+        },
+        {
+          "c": 0.2284,
+          "f": 0.0033,
+          "k": 0.89,
+          "p": 0.0109,
+          "fi": 0.026,
+          "id": "banana",
+          "qty": 85,
+          "name": "Banana cruda sin cáscara",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/173944"
+        },
+        {
+          "c": 0.0073,
+          "f": 0.0017,
+          "k": 0.52,
+          "p": 0.109,
+          "fi": 0,
+          "id": "egg_white",
+          "qty": 70,
+          "name": "Clara de huevo cruda, peso antes de cocinar",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172183"
+        }
+      ],
+      "label": "Media tarde"
+    },
+    {
+      "slot": "merienda",
+      "items": [
+        {
+          "c": 0.0096,
+          "f": 0.0996,
+          "k": 1.48,
+          "p": 0.124,
+          "fi": 0,
+          "id": "egg",
+          "qty": 55,
+          "name": "Huevo entero sin cáscara (referencia crudo)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967"
+        },
+        {
+          "c": 0.1334,
+          "f": 0.0031,
+          "k": 0.53,
+          "p": 0.0081,
+          "fi": 0.018,
+          "id": "mandarin",
+          "qty": 80,
+          "name": "Mandarina",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169105"
+        },
+        {
+          "c": 0.2284,
+          "f": 0.0033,
+          "k": 0.89,
+          "p": 0.0109,
+          "fi": 0.026,
+          "id": "banana",
+          "qty": 100,
+          "name": "Banana cruda sin cáscara",
+          "unit": "g",
+          "locked": true,
+          "sourceType": "validated_composition",
+          "recipeLabel": "De QA P28Z banana y manzana - FICTICIA",
+          "recipeComponent": true,
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/173944"
+        },
+        {
+          "c": 0.1381,
+          "f": 0.0017,
+          "k": 0.52,
+          "p": 0.0026,
+          "fi": 0.024,
+          "id": "apple",
+          "qty": 100,
+          "name": "Manzana con cáscara",
+          "unit": "g",
+          "locked": true,
+          "sourceType": "validated_composition",
+          "recipeLabel": "De QA P28Z banana y manzana - FICTICIA",
+          "recipeComponent": true,
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171688"
+        }
+      ],
+      "label": "Merienda"
+    },
+    {
+      "slot": "cena",
+      "items": [
+        {
+          "c": 0,
+          "f": 0.0242,
+          "k": 0.99,
+          "p": 0.193,
+          "fi": 0,
+          "id": "fish_hake",
+          "qty": 210,
+          "name": "Merluza cocida y escurrida, sin aceite ni sal",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://tbca.net.br/base-dados-en/int_statistical_composition.php?cod_produto=BRC0190E"
+        },
+        {
+          "c": 0.2001,
+          "f": 0.001,
+          "k": 0.86,
+          "p": 0.0171,
+          "fi": 0.018,
+          "id": "potato",
+          "qty": 240,
+          "name": "Papa hervida sin piel y sin sal",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/170440"
+        },
+        {
+          "c": 0.0365,
+          "f": 0.0066,
+          "k": 0.25,
+          "p": 0.0258,
+          "fi": 0.016,
+          "id": "rocket",
+          "qty": 40,
+          "name": "Rúcula",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169387"
+        },
+        {
+          "c": 0,
+          "f": 1,
+          "k": 8.84,
+          "p": 0,
+          "fi": 0,
+          "id": "oil",
+          "qty": 3,
+          "name": "Aceite de oliva (gramos)",
+          "unit": "g",
+          "sourceType": "validated_composition",
+          "validationStatus": "reviewed_qa",
+          "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171413"
+        }
+      ],
+      "label": "Cena"
+    }
+  ],
+  "version": 2,
+  "createdFrom": "coach_approved_goal",
+  "supplementNote": "",
+  "approvedFoodIds": [
+    "apple",
+    "banana",
+    "brownrice",
+    "coffee_black",
+    "egg",
+    "egg_white",
+    "fish_hake",
+    "mandarin",
+    "oil",
+    "potato",
+    "pumpkin",
+    "rocket",
+    "tofu_firm"
+  ]
+}

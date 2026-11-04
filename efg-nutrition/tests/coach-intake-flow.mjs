@@ -220,7 +220,7 @@ assert.match(app,/if\(e.target.dataset.guideswap\)[\s\S]*?rebalanceGuidedDay\(sw
  "Changing a food should automatically rebalance the other adjustable portions");
 assert.match(app,/if\(e.target.dataset.guideqty\)[\s\S]*?const targetGoal=activeCoachGuideGoal\(\);if\(!targetGoal\)return;[\s\S]*?rebalanceGuidedDay\(draft,targetGoal\)/,
  "Changing grams should automatically rebalance the other adjustable portions");
-assert.match(app,/function guidedTargetFeedback\(deviations\)/,
+assert.match(app,/function guidedTargetFeedback\(deviations,plan\)/,
  "Show how close the guide got to the approved target; never imply exact matching");
 assert.match(app,/data-guidetargetstatus role="status"/,
  "A visible and accessible guide-target progress status is required");

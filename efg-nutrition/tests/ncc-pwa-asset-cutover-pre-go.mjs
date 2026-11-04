@@ -19,14 +19,15 @@ const candidateFlags=[
  ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
  ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
  ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED'],
+ ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
+ ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
+ ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
  ['science-welcome.js','SCIENCE_WELCOME_ENABLED']
 ];
 const mustStayOff=[
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
  ['coach-adapted-workspace.js','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED'],
- ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
- ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
- ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
+ ['qa-reviewed-sources.js','QA_REVIEWED_SOURCES_ENABLED'],
  ['personal-workspace.js','PERSONAL_WORKSPACE_ENABLED'],
  ['pilot-participation-demo.js','PILOT_PARTICIPATION_ENABLED']
 ];
@@ -132,7 +133,7 @@ try{
   assert.ok(activationHtml.includes('pilot.css?v='+build));
   assert.equal(readFileSync(htmlPath,'utf8'),beforeHtml);
   assert.equal(readFileSync(entryPath,'utf8'),beforeJs);
-  console.log('PASS NCC P23 pilot UI activation draft: 7 reviewed ON proposals including one-time educational welcome, 7 conflicting/clinical/post-GO OFF, staged versioned modules outside repository, no GO or hosted write.');
+  console.log('PASS NCC P23 pilot UI activation draft: 10 reviewed ON proposals including private health and major-release communications, 5 conflicting/QA/post-GO OFF, staged versioned modules outside repository, no GO or hosted write.');
  }finally{rmSync(pilotDraftDir,{recursive:true,force:true});}
  console.log('PASS NCC PRE-GO asset cutover: all local module/CSS versions staged, nested imports refreshed, exact HEAD pinned, zero hosted calls and zero source edits.');
 }finally{rmSync(directory,{recursive:true,force:true});}

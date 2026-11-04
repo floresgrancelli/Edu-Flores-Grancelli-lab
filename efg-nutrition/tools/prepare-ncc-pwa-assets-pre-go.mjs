@@ -23,14 +23,15 @@ const pilotActivation=Object.freeze([
  ['coach-legal-bridge.js','COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED'],
  ['legal-onboarding.js','LEGAL_ONBOARDING_ENABLED'],
  ['coach-shared-recipes-read-client.js','COACH_SHARED_STUDENT_RECIPES_UI_ENABLED'],
+ ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
+ ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
+ ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
  ['science-welcome.js','SCIENCE_WELCOME_ENABLED']
 ]);
 const keepDisabled=Object.freeze([
  ['coach-relaunch-onboarding.js','COACH_RELAUNCH_ONBOARDING_ENABLED'],
  ['coach-adapted-workspace.js','COACH_ADAPTED_GUIDE_PREVIEW_ENABLED'],
- ['student-restriction-declaration.js','PRIVATE_HEALTH_DECLARATION_UI_ENABLED'],
- ['major-release-client.js','MAJOR_RELEASE_FLOW_ENABLED'],
- ['release-communications.js','RELEASE_COMMUNICATIONS_ENABLED'],
+ ['qa-reviewed-sources.js','QA_REVIEWED_SOURCES_ENABLED'],
  ['personal-workspace.js','PERSONAL_WORKSPACE_ENABLED'],
  ['pilot-participation-demo.js','PILOT_PARTICIPATION_ENABLED']
 ]);
@@ -119,8 +120,8 @@ function render(build,{pilotUiDraft=false}={}){
   assert.ok(node.staged.includes('export const '+flag+'='+(pilotUiDraft?'true':'false')+';'),
    'Staged switch did not match reviewed activation mode: '+flag);
  }
- // Explicitly never enable the redundant student entry route, medical/personal,
- // major-release campaign (requires signed manifest), or private test engine.
+ // Keep redundant intake, experimental workspace, Personal and QA source overrides OFF.
+ // Major-release UI is only staged; its signed server manifest is a separate prerequisite.
  for(const [file,flag]of keepDisabled){
   const node=nodes.get(join(pilotDir,file));
   assert.ok(node&&node.staged.includes('export const '+flag+'=false;'),
@@ -183,6 +184,7 @@ if(check){
  assert.match(expected,/^[a-f0-9]{40}$/,'Pin the entire reviewed Git HEAD');
  const actual=execFileSync('git',['rev-parse','HEAD'],{cwd:repoRoot,encoding:'utf8'}).trim();
  assert.equal(actual,expected,'HEAD changed: re-run review before preparing asset patch');
+ assert.equal(execFileSync('git',['status','--porcelain','--','efg-nutrition/pilot'],{cwd:repoRoot,encoding:'utf8'}).trim(),'','Refuse dirty pilot sources: use exact reviewed checkout');
  const build=option('build')||'';
  assert.equal(build,'ncc-pilot-'+expected.slice(0,12),
   'Proposed build must match the exact reviewed HEAD prefix');

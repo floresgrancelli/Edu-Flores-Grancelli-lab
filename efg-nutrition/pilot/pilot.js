@@ -2762,7 +2762,9 @@ function currentCoachGuideProfile(){
   shared.viewerId===state.session?.user?.id&&shared.consentVerified===true;
  return {patternId:pattern,windowId,restrictions:verified?shared.restrictions:[],
   restrictionStatus:verified?shared.restrictionStatus:"unknown",
-  restrictionReviewNotes:verified?shared.reviewNotes:[]};
+  restrictionReviewNotes:verified?shared.reviewNotes:[],
+  restrictionSource:PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&verified&&Number.isSafeInteger(shared.revision)?
+   {studentId:state.selectedStudent,organizationId:state.org?.id,revision:shared.revision,status:shared.restrictionStatus}:null};
 }
 function coachGuidedSection(){
  const proposed=state.pendingGoal||state.pendingGoalRevision?.proposal;
@@ -3489,7 +3491,7 @@ async function loadStudentDetail(studentId){
    const checked=readVerifiedCoachRestrictionScope(h,{studentId,coachId:viewer,organizationId:state.org?.id});
     if(checked.verified)state.coachGuideHealth={studentId,viewerId:viewer,shared:true,
      consentVerified:true,restrictions:checked.restrictions,restrictionStatus:checked.restrictionStatus,
-     reviewNotes:checked.reviewNotes};
+     reviewNotes:checked.reviewNotes,revision:h.revision};
    }catch(error){
    if(error?.code==="STALE_AUTH_CONTEXT")throw error;
    state.coachGuideHealth=null; // No health record is not a declaration of no restrictions.

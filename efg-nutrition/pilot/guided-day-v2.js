@@ -165,6 +165,15 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
   notices.push('El objetivo de hidratos es alto para el patrón keto declarado. El coach debe revisarlo.');
  const plan={version:2,kind:FLEXIBLE_GUIDE_KIND,meals,supplementNote:'',
   createdFrom:'coach_approved_goal',profileReviewNotes:[...new Set(notices)].slice(0,25)};
+ // Capture at generation, never overwrite from a newer declaration at save.
+ // Edits/rebalance clone this source; the server must revalidate it on publish.
+ if(options.restrictionSource){
+  const s=options.restrictionSource,uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if(!uuid.test(s.studentId||'')||!uuid.test(s.organizationId||'')||
+   !Number.isSafeInteger(s.revision)||s.revision<1||!['declared','none_declared'].includes(s.status))
+   throw Error('La declaración de restricciones no tiene una revisión verificable.');
+  plan.restrictionSource={studentId:s.studentId,organizationId:s.organizationId,revision:s.revision,status:s.status};
+ }
  return rebalanceGuidedDay(plan,goal);
 }
 function assertFlexible(plan){

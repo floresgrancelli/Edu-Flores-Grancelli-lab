@@ -5,7 +5,7 @@
 begin;
 do $safe$
 begin
- if pg_catalog.current_database() not in ('postgres','efg_nut57_restored','efg_nut57_before','efg_nutrition_ephemeral')
+ if pg_catalog.current_database() not in ('postgres','efg_nut57_restored','efg_nut57_before','efg_nutrition_ephemeral','efg_coach119_atomic')
   or pg_catalog.to_regclass('efg_private.nut57_isolated_staging_marker') is null then
   raise exception 'CLIN-GUT-03 STOP: only isolated fixture database' using errcode='55000';
  end if;

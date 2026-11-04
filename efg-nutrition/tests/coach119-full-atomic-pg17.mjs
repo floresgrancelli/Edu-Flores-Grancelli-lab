@@ -2,7 +2,7 @@
 // This verifies SQL transactions, not hosted schema parity or signed JWTs.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {spawnSync} from 'node:child_process';
+import {spawnSync,spawn} from 'node:child_process';
 import {GUIDE_MEALS} from '../pilot/guided-day.js';
 assert.equal(process.env.GITHUB_ACTIONS,'true');
 assert.equal(process.env.PGHOST,'127.0.0.1');
@@ -211,3 +211,71 @@ assert.equal(verifiedNcc(recipeExpanded),true,'Reactivated fictional local evide
 console.log('PASS NCC P1 PG17: 17/17 six-slot ingredients + expanded recipe item: missing review, g/ml, energy/fiber drift, pending/expired evidence all fail closed; fictional local reviewer ONLY.');
 
 console.log('PASS exact COACH119 PG17: draft save + cross-org RLS denial + legal/evidence gates + revocation + stale revision + publication + retry + unique notice + injected final-write rollback + replacement history. Synthetic claims only.');
+
+// P28: exact private backend + additive health guard in the SAME disposable DB.
+sql(`create table efg_private.nut57_isolated_staging_marker(local_only boolean);
+insert into efg_private.nut57_isolated_staging_marker values(true);
+create function public.efg_legal_current_status() returns table(kind text,accepted boolean)
+language sql stable security definer set search_path='' as $$
+ select d.kind,exists(select 1 from public.efg_legal_acceptances a where a.document_id=d.id and a.user_id=auth.uid())
+ from public.efg_legal_documents d where d.is_current and d.kind in ('terms','privacy') $$;`);
+sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
+sql(read('../docs/P28_HEALTH_BOUND_PUBLICATION_STAGING_ONLY.sql'));
+assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'f');
+sql("update efg_private.coach_release_switches set enabled=true where switch_key='pilot_health_bound_publication'");
+const healthDoc='77777777-7777-4777-8777-777777777777',healthHash='b'.repeat(64);
+sql(`insert into efg_private.efg_coach_health_documents(id,version,sha256,content_text,status,published_at)
+ values('${healthDoc}','p28_synthetic_only','${healthHash}',repeat('SYNTHETIC QA ONLY ',15),'published',now());`);
+const noneHealth=rev=>`select public.efg_declare_no_restrictions('${healthDoc}','${healthHash}',${rev},true,true)`;
+const conditionsHealth=(rev,share)=>`select public.efg_submit_coach_health_intake('{"celiac":"confirmed"}'::jsonb,'${healthDoc}','${healthHash}',${rev},true,${share})`;
+assert.equal(sql(asUser(student,noneHealth(0))),'1');
+let dr=2;
+const saveHealth=()=>{const n=Number(sql(asUser(coach,save(String(dr)))));assert.equal(n,dr+1);dr=n;};
+let healthKey='88888888-8888-4888-8888-888888888888';
+const snapshot=()=>sql(`select jsonb_build_object(
+ 'goals',(select count(*) from public.efg_goals),
+ 'notifications',(select count(*) from public.efg_notifications),
+ 'history',(select count(*) from efg_private.coach_guide_history),
+ 'receipts',(select count(*) from public.efg_coach_plan_publish_receipts),
+ 'access',(select published_goal_id from public.efg_student_plan_access where student_id='${student}'),
+ 'foodPlan',(select guided_goal_id from public.efg_food_plans where student_id='${student}'))`);
+const blocked=()=>{const before=snapshot();
+ const r=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{input:asUser(coach,publish(dr,healthKey)),encoding:'utf8',timeout:30000});
+ assert.notEqual(r.status,0);assert.match(r.stderr,/P28:/,'Refusal must come from the health guard, not an unrelated gate');
+ assert.equal(snapshot(),before,'Health refusal must rollback ALL publication writes');};
+saveHealth();blocked(); // No source binding, despite current explicit none.
+guide.restrictionSource={studentId:student,organizationId:org,revision:1,status:'none_declared'};
+saveHealth();assert.equal(sql(asUser(student,conditionsHealth(1,true))),'2');blocked(); // same general intake, changed health
+assert.equal(sql(asUser(coach,`select (public.efg_get_coach_health_intake('${student}')->>'revision')::integer`)),'2');
+guide.restrictionSource={studentId:student,organizationId:org,revision:2,status:'declared'};saveHealth();
+assert.equal(sql(asUser(student,conditionsHealth(2,false))),'3');blocked(); // withdrawn sharing
+assert.equal(sql(asUser(student,noneHealth(3))),'4');blocked(); // old declaration cannot become current silently
+for(const source of [
+ {studentId:studentB,organizationId:org,revision:4,status:'none_declared'},
+ {studentId:student,organizationId:orgB,revision:4,status:'none_declared'},
+ {studentId:student,organizationId:org,revision:4,status:'declared'}
+]){guide.restrictionSource=source;saveHealth();blocked();}
+guide.restrictionSource={studentId:student,organizationId:org,revision:4,status:'none_declared'};saveHealth();
+sql(`update efg_private.efg_coach_health_documents set status='retired' where id='${healthDoc}'`);blocked();
+sql(`update efg_private.efg_coach_health_documents set status='published' where id='${healthDoc}'`);
+const approvedHealthGoal=sql(asUser(coach,publish(dr,healthKey)));
+assert.match(approvedHealthGoal,/^[a-f0-9-]{36}$/);
+const afterHealth=snapshot();assert.equal(sql(asUser(coach,publish(dr,healthKey))),approvedHealthGoal);
+assert.equal(snapshot(),afterHealth,'Idempotent retry cannot duplicate goals/history/notices');
+assert.equal(sql("select count(*) from efg_private.coach_guide_history"),'2','Earlier two published versions retained');
+healthKey='99999999-9999-4999-8999-999999999999';
+saveHealth();
+assert.equal(sql(asUser(student,`select public.efg_revoke_coach_health_intake(4)`)),'t');
+blocked(); // Full erasure, not just sharing withdrawal.
+console.log('PASS P28 exact private backend + atomic publish: missing/stale/foreign source, withdrawn share, retired document and erasure all roll back goal/guide/access/history/receipt/notice; current explicit none publishes once; previous versions retained. PG17 isolated synthetic claims.');
+// Actual competing PG sessions: an in-flight health edit holds the SAME lock.
+assert.equal(sql(asUser(student,noneHealth(5))),'6');
+guide.restrictionSource={studentId:student,organizationId:org,revision:6,status:'none_declared'};saveHealth();
+const competing=spawn('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{stdio:['pipe','pipe','pipe']});
+const competingDone=new Promise((resolve,reject)=>{competing.on('error',reject);competing.on('exit',code=>code===0?resolve():reject(Error('Concurrent fixture failed')));});
+const ready=new Promise((resolve,reject)=>{let text='';competing.stdout.on('data',b=>{text+=b; if(text.includes('HEALTH_LOCK_HELD'))resolve();});competing.on('exit',()=>{if(!text.includes('HEALTH_LOCK_HELD'))reject(Error('Concurrent fixture never locked'));});});
+competing.stdin.end(`begin; set local role authenticated; set local "request.jwt.claim.sub"='${student}';
+${conditionsHealth(6,true)};select 'HEALTH_LOCK_HELD';select pg_sleep(0.4);commit;`);
+await ready;blocked();await competingDone;
+assert.equal(sql(asUser(student,`select public.efg_get_coach_health_intake('${student}')->>'revision'`)),'7');
+console.log('PASS P28 actual two-session PG race: publication waits for health edit and rejects old revision without partial writes.');

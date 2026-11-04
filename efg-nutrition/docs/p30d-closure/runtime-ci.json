@@ -1,0 +1,65 @@
+{
+  "sha": "f47cad0f7cb36fac1ca45552e5d181f3be06f88d",
+  "workflow_runs": [
+    {
+      "id": 41896799257,
+      "name": "EFG Nutrition Visual QA (isolated fixture)",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_number": 1819,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799257/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799257/logs",
+      "workflow_id": 398757514
+    },
+    {
+      "id": 41896799317,
+      "name": "EFG Nutrition Coach Atomic PostgreSQL QA (ephemeral, synthetic claims)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1426,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799317/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799317/logs",
+      "workflow_id": 401071520
+    },
+    {
+      "id": 41896799438,
+      "name": "EFG Nutrition Security Guardrails",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1716,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799438/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799438/logs",
+      "workflow_id": 399333166
+    },
+    {
+      "id": 41896799486,
+      "name": "EFG Nutrition Premium QA",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1744,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799486/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799486/logs",
+      "workflow_id": 398751625
+    },
+    {
+      "id": 41896799266,
+      "name": "NCC Educational Codex Harness (combined snapshot)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 225,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799266/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799266/logs",
+      "workflow_id": 403532126
+    },
+    {
+      "id": 41896799267,
+      "name": "EFG Nutrition Supabase Auth local JWT/RLS QA (NUT-53; disposable)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1515,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799267/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41896799267/logs",
+      "workflow_id": 401143429
+    }
+  ]
+}

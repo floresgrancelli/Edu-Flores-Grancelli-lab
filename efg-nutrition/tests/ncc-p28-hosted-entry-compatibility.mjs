@@ -54,3 +54,21 @@ assert.match(app,/if\(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.profile\?\.ro
  'Basic restriction reads follow their own consent UI gate, not the advanced clinical module');
 assert.doesNotMatch(app,/if\(CLINICAL_GUIDE_CONNECTION_ENABLED&&state.profile\?\.role==="coach"/);
 console.log('PASS P28: OFF startup has zero legacy requests; existing/no-row and explicit pending/published states; no legacy writes; permission and session-race failures; independent restriction gate. Synthetic transport only.');
+
+// P30F: waiting students retain their RLS-scoped messaging contact on initial login.
+{
+ const {runInNewContext}=await import('node:vm');
+ const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+ const fn=app.slice(app.indexOf('async function loadStudentMessagingOrganization(){'),app.indexOf('async function loadOrgAndPayments(){'));
+ assert.match(app,/if\(\["review","private"\]\.includes\(state\.coachPilotEntry\.route\)\)\{\s*await contextRead\(loadStudentMessagingOrganization\(\)\)/);
+ const s={session:{user:{id:'student-A'}},profile:{role:'student',organization_id:'org-A'},authContextEpoch:1,org:null};
+ let reply={data:{id:'org-A',coach_id:'coach-A'},error:null},defer=null,calls=0;
+ const db={from(table){calls++;assert.equal(table,'efg_organizations');return {select(fields){assert.equal(fields,'id,coach_id');return this},eq(field,value){assert.equal(field,'id');assert.equal(value,'org-A');return this},async maybeSingle(){return defer?await new Promise(r=>{defer=r}):reply}}}};
+ const load=runInNewContext(fn+';loadStudentMessagingOrganization',{state:s,sb:db,Error,Object});
+ await load();assert.equal(s.org.coach_id,'coach-A');assert.equal(calls,1);
+ reply={data:null,error:null};await load();assert.equal(s.org,null,'No contact invented when RLS hides organization');
+ reply={data:{id:'org-B',coach_id:'coach-B'},error:null};await assert.rejects(load(),/no coincide/);assert.equal(s.org,null);
+ defer=true;const pending=load();s.session.user.id='other-user';s.authContextEpoch++;
+ defer({data:{id:'org-A',coach_id:'coach-A'},error:null});await assert.rejects(pending,/STALE_AUTH_CONTEXT/);assert.equal(s.org,null);
+ console.log('PASS P30F: pending student loads only own organization contact; absent/cross-org/stale-session responses do not leak contacts. No payments, diary or publication reads/writes.');
+}

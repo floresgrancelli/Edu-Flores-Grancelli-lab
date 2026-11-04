@@ -3425,6 +3425,18 @@ async function loadPersonalData(){
  if(error)throw error;
  state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
 }
+async function loadStudentMessagingOrganization(){
+ const id=state.session?.user?.id,orgId=state.profile?.organization_id;
+ const epoch=state.authContextEpoch||0;
+ if(state.profile?.role!=="student"||!id||!orgId)return;
+ const result=await sb.from("efg_organizations").select("id,coach_id").eq("id",orgId).maybeSingle();
+ if(state.session?.user?.id!==id||state.profile?.role!=="student"||
+    state.profile?.organization_id!==orgId||(state.authContextEpoch||0)!==epoch)
+  throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});
+ if(result.error)throw result.error;
+ if(result.data&&result.data.id!==orgId)throw Error("La organización del contacto no coincide con tu cuenta.");
+ state.org=result.data||null;
+}
 async function loadOrgAndPayments(){
  const contextEpoch=state.authContextEpoch||0;
  const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
@@ -3703,6 +3715,7 @@ async function refresh(){
    if(["intake","private","review","ready"].includes(state.coachPilotEntry.route))
     state.coachPilotIntake=(await contextRead(loadCoachPilotGeneralIntake(sb,{profile:state.profile}))).intake;
    if(["review","private"].includes(state.coachPilotEntry.route)){
+    await contextRead(loadStudentMessagingOrganization());
     await contextRead(loadRoleData());
     // The signed private/review route does not authorize new diary writes,
     // but must not erase the student’s ability to READ their own history.

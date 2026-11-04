@@ -1,0 +1,47 @@
+{
+  "package": "P29Y",
+  "proposalCommit": "1c11cf4a81ed3f1a1b73006f1c6acc3f749eeb22",
+  "proposalSha256": "439dad9c2b04591b15b13a118f9037348fdc6f60f95286e082a575dc9c07f27b",
+  "decision": "approved",
+  "approvalQuote": "Si apruebo",
+  "reviewer": "Edu — propietario",
+  "reviewedAt": "2026-11-04T18:44:15.671883Z",
+  "timestampMeaning": "Hora de registro inmediatamente posterior a la aprobación, obtenida del servidor; no timestamp del mensaje",
+  "expiresAt": "2027-02-02T18:44:15.671883Z",
+  "scope": "pilot_real",
+  "validityDays": 90,
+  "productionGo": false,
+  "includes": [
+    "18 identidades y valores exactos del paquete P29X",
+    "Preparaciones y conversiones documentadas",
+    "Fibra cero operativa de queso y leche por cantidad no significativa, no cero analítico"
+  ],
+  "excludes": [
+    "Aprobación de todo el catálogo",
+    "Otras marcas o preparaciones",
+    "Nueve referencias faltantes de muestras vegana/keto",
+    "Merge, despliegue y activación global"
+  ],
+  "foodIds": [
+    "apple",
+    "banana",
+    "brownrice",
+    "coffee_black",
+    "egg",
+    "egg_white",
+    "fish_hake",
+    "mandarin",
+    "oil",
+    "potato",
+    "pumpkin",
+    "rocket",
+    "tofu_firm",
+    "bread",
+    "oats_raw",
+    "yogurt",
+    "cheese",
+    "milk_skim"
+  ],
+  "reviewerUserId": "48855587-fa46-4800-ad1f-7f7d58a2fb6b",
+  "hostedInstallation": "Applied and read back:18current approved,3switchesOFF,RLSon,authenticated direct SELECT false,11goals/2receipts/1QA scope unchanged"
+}

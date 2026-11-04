@@ -37,6 +37,7 @@ try{
    return route.abort();
   });
   const page=await context.newPage();
+  page.setDefaultTimeout(15000);
   page.on('pageerror',e=>issues.push(e.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/efg-nutrition/pilot/`);
   await page.waitForFunction(()=>window.__PILOT_QA__);
@@ -67,6 +68,56 @@ try{
   const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(bounds.scroll<=width+2,'Horizontal overflow '+JSON.stringify(bounds));
   await page.screenshot({path:join(out,`pilot-privacy-${engine}-${width}.png`),fullPage:true});
+  // P30N: submit the actual NEW form, preserving every field after repeated
+  // missing-permission, backend and session failures. Transport is synthetic.
+  await page.evaluate(async()=>{
+   const {state,sb,render}=window.__PILOT_QA__;
+   const profile=state.profile;
+   const trace=window.__intakeTest={writes:0,sharing:false,sessionChanged:false};
+   state.coachPilotIntake=null;
+   state.coachPilotEntry={route:'intake',canLogMeals:false};
+   sb.auth.getUser=async()=>({data:{user:{id:trace.sessionChanged?profile.organization_id:profile.user_id}},error:null});
+   sb.from=table=>{
+    const query={select:()=>query,eq:()=>query,maybeSingle:async()=>({error:null,data:
+     table==='efg_pilot_participation_receipts'?{student_id:profile.user_id,organization_id:profile.organization_id,
+      version:'coach_pilot_2026_demo1',participation_accepted:true,sharing_accepted:trace.sharing,
+      acceptance_method:'two_explicit_checkboxes',accepted_at:'2026-10-30T15:00:00Z',revoked_at:null}:
+     table==='efg_consents'?{student_id:profile.user_id,accepted:true}:null})};
+    return query;
+   };
+   sb.rpc=async()=>{trace.writes++;return {data:null,error:{message:'Synthetic backend failure'}}};
+   await render();
+  });
+  const newForm=page.locator('#efgCoachRelaunchForm');
+  await newForm.waitFor();
+  for(const [field,value] of Object.entries({objective:'recomp',activity_level:'moderate',dietary_pattern:'keto',eating_window:'14_10'}))
+   await page.locator('#coachRelaunch_'+field).selectOption(value);
+  for(const [field,value] of Object.entries({age_years:'40',height_cm:'174',weight_kg:'80',preferred_foods:'Arroz ficticio',disliked_foods:'Ninguno',meal_routine:'12 y 20',notes:'Ensayo sintético'}))
+   await page.locator('#coachRelaunch_'+field).fill(value);
+  await page.locator('#coachRelaunch_share').check();
+  const formSnapshot=()=>newForm.evaluate(form=>Array.from(form.querySelectorAll('input,select,textarea')).map(el=>({id:el.id,value:el.value,checked:el.checked})));
+  const originalFields=await formSnapshot();
+  for(let retry=0;retry<2;retry++){
+   await newForm.locator('button[type="submit"]').click();
+   await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent.includes('Falta el permiso de compartir'));
+   assert.deepEqual(await formSnapshot(),originalFields,'Missing permission preserves the entire form');
+  }
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0,'No intake RPC without separate sharing permission');
+  await page.screenshot({path:join(out,`pilot-intake-permission-${engine}-${width}.png`),fullPage:true});
+  // Choosing private saving reaches the server, whose failure still preserves edits.
+  await page.locator('#coachRelaunch_share').uncheck();
+  const privateFields=await formSnapshot();
+  for(let retry=0;retry<2;retry++){
+   await newForm.locator('button[type="submit"]').click();
+   await page.waitForFunction(n=>window.__intakeTest.writes===n,retry+1);
+   await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent==='No fue posible guardar la ficha nueva.');
+   assert.deepEqual(await formSnapshot(),privateFields,'Backend rejection preserves fields and private choice');
+  }
+  await page.evaluate(()=>{window.__intakeTest.sessionChanged=true});
+  await newForm.locator('button[type="submit"]').click();
+  await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent.includes('identidad'));
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),2,'Changed session cannot write');
+  assert.deepEqual(await formSnapshot(),privateFields);
   // Hydrate the real app with both release gates enabled. A failed read must
   // still present education; a failed acknowledgement must permit a retry.
   await page.evaluate(async()=>{

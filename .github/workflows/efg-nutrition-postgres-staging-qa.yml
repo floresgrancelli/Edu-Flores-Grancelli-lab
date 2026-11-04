@@ -19,6 +19,7 @@ on:
       - 'efg-nutrition/scripts/coach-release-bundle.mjs'
       - 'efg-nutrition/tests/coach-release-bundle-qa.mjs'
       - 'efg-nutrition/migrations/20261029_coach_intake_plan_access_DRAFT.sql'
+      - 'efg-nutrition/migrations/20261104_new_student_pending_access_NOT_APPLIED.sql'
       - 'efg-nutrition/docs/LEGAL_VERSIONED_ACCEPTANCE_STAGING_SQL_20261029.sql'
       - 'efg-nutrition/docs/NUT57_POSITIVE_STAGING_ROLLBACK_RESTORE_20261029.md'
       - '.github/workflows/efg-nutrition-postgres-staging-qa.yml'
@@ -423,6 +424,8 @@ jobs:
           echo "PASS COACH119 real PG17 archive test on synthetic data only. No hosted schema touched."
           PGDATABASE=postgres psql -v ON_ERROR_STOP=1 -c 'create database efg_coach119_atomic'
           PGDATABASE=efg_coach119_atomic node efg-nutrition/tests/coach119-full-atomic-pg17.mjs
+          PGDATABASE=postgres psql -v ON_ERROR_STOP=1 -c 'create database efg_p29_access'
+          PGDATABASE=efg_p29_access node efg-nutrition/tests/coach119-new-student-access-pg17.mjs
       - name: State the limits
         if: always()
         run: |

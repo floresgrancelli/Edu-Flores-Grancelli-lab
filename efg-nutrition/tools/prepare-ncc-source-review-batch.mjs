@@ -207,9 +207,11 @@ export function preparePilotSourceReview({guide=null}={}){
   const precise=id==='chicken_breast_roasted'?exactChicken:null;
   const source=captured(row)||extra?.per100g||precise?.per100g||null;
   const sourceUnit=row?.sourceUnit||extra?.unit||(precise?'g':null);
+  // A catalogue reference is useful to the reviewer, but is NOT a captured source.
+  const catalogFdcReference=/^usda_fdc(?:_converted)?$/.test(f.sourceType||'') && /^[0-9]{4,12}$/.test(String(f.sourceId||'')) ? String(f.sourceId) : null;
   const status=row?.evidenceState||
    (precise?'FNDDS_CAPTURE_PENDING_OPERATOR':extra?'ARCHIVE_CAPTURE_PENDING_OPERATOR':
-    'NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW');
+    catalogFdcReference?'CATALOG_FDC_REFERENCE_ONLY':'NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW');
   const app100=Object.fromEntries(nutrients.map(n=>[n,rounded(f[n]*100)]));
   const delta=source&&sourceUnit===f.unit
    ?Object.fromEntries(nutrients.map(n=>[n,rounded(app100[n]-source[n])])):null;
@@ -219,7 +221,7 @@ export function preparePilotSourceReview({guide=null}={}){
    chosenIn:meals.filter(m=>m.items.some(x=>x.id===id)).map(m=>m.slot),
    partOfInitial17:reviewById.has(id),appSourceId:f.sourceId||null,
    appPer100Unit:app100,
-   sourceFdcId:row?.sourceFdcId||String(extra?.fdcId||precise?.fdcId||'')||null,
+   sourceFdcId:row?.sourceFdcId||String(extra?.fdcId||precise?.fdcId||'')||catalogFdcReference||null,
    sourceUnit,sourcePer100g:source,
    pinnedRecordSha256:row?.canonicalRecordSha256||
     extra?.canonicalRecordSha256||precise?.primaryEvidence?.sha256||null,
@@ -229,6 +231,7 @@ export function preparePilotSourceReview({guide=null}={}){
    requiredHumanAction:row?.requiredHumanAction||
     (precise?'Comparar pechuga al horno/asada, piel no consumida, FNDDS 2705956 con los valores de la ficha PWA; proteína 30,20 vs 30,22 g/100 g es redondeo PENDIENTE de revisión humana. No usar pollo genérico.':
      extra?'Verificar identidad y preparación exacta ('+extra.description+'), tasa por 100 g, fuente primaria y redondeos antes de cualquier aprobación humana.':
+      catalogFdcReference?'Capturar y cotejar el registro oficial FDC '+catalogFdcReference+' para la preparación y unidad exactas. La referencia del catálogo no acredita captura ni aprobación humana.':
       'Selected outside the initial 17: match the exact food, preparation, unit and nutrient source, including expanded recipe ingredients.'),
    humanReview:'PENDING',approvedForServer:false,approvedBy:null,approvedAt:null
   };

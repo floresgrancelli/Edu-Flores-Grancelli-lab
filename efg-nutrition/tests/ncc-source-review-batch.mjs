@@ -223,3 +223,28 @@ for(const wrong of [[...validIds,'chicken'],validIds.slice(1),[...validIds.slice
 }
 
 console.log('PASS NCC P1 selected sources + reviewer worklist: default17, optional9/6 with pinned evidence, per-nutrient PWA/source deltas, guide-bound fingerprint, empty approvals and no server writes.');
+
+// P29C: a newly selected catalogue FDC reference must survive export without
+// fabricating a captured record, nutrient comparison or operator approval.
+{
+ const catalog=sourceReviewCatalogForSyntheticCoach();
+ const byId=new Map(catalog.map(f=>[f.id,f]));
+ const guide={kind:'flexible_meal_guide',version:2,meals:[
+  {slot:'desayuno',items:[{...byId.get('egg_white'),qty:120}]},
+  {slot:'cena',items:[{...byId.get('tofu_firm'),qty:110}]}
+ ]};
+ const packet=preparePilotSourceReview({guide});
+ const white=packet.foods.find(f=>f.id==='egg_white');
+ assert.equal(white.sourceFdcId,'747997');
+ assert.equal(white.evidenceState,'CATALOG_FDC_REFERENCE_ONLY');
+ assert.equal(white.sourcePer100g,null);
+ assert.equal(white.pinnedRecordSha256,null);
+ assert.equal(white.deltaPer100ComparableUnits,null);
+ assert.equal(white.approvedForServer,false);
+ const tofu=packet.foods.find(f=>f.id==='tofu_firm');
+ assert.equal(tofu.sourceFdcId,null);
+ assert.equal(tofu.evidenceState,'NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW');
+ assert.match(operatorReviewCsv(packet),/https:\/\/fdc.nal.usda.gov\/food-details\/747997\/nutrients/);
+ assert.equal(packet.approvalsGranted,0);
+ console.log('PASS P29C: selected FDC reference retained, no invented capture or approval, generic food remains unresolved.');
+}

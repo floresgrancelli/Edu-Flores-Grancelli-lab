@@ -1,0 +1,377 @@
+{
+  "guide": {
+    "kind": "flexible_meal_guide",
+    "meals": [
+      {
+        "slot": "desayuno",
+        "items": [
+          {
+            "c": 0.0096,
+            "f": 0.0996,
+            "k": 1.48,
+            "p": 0.124,
+            "fi": 0,
+            "id": "egg",
+            "qty": 55,
+            "name": "Huevo entero sin cáscara (referencia crudo)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.2284,
+            "f": 0.0033,
+            "k": 0.89,
+            "p": 0.0109,
+            "fi": 0.026,
+            "id": "banana",
+            "qty": 220,
+            "name": "Banana cruda sin cáscara",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.0236,
+            "f": 0,
+            "k": 0.55,
+            "p": 0.107,
+            "fi": 0,
+            "id": "egg_white",
+            "qty": 120,
+            "name": "Clara de huevo",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.02,
+            "f": 0.07,
+            "k": 1.19,
+            "p": 0.12,
+            "fi": 0.01,
+            "id": "tofu_firm",
+            "qty": 110,
+            "name": "Tofu firme",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0,
+            "f": 0,
+            "k": 0.004,
+            "p": 0.001,
+            "fi": 0,
+            "id": "coffee_black",
+            "qty": 30,
+            "name": "Café solo sin azúcar",
+            "unit": "ml",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          }
+        ],
+        "label": "Desayuno"
+      },
+      {
+        "slot": "media_manana",
+        "items": [
+          {
+            "c": 0.0096,
+            "f": 0.0996,
+            "k": 1.48,
+            "p": 0.124,
+            "fi": 0,
+            "id": "egg",
+            "qty": 55,
+            "name": "Huevo entero sin cáscara (referencia crudo)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.1381,
+            "f": 0.0017,
+            "k": 0.52,
+            "p": 0.0026,
+            "fi": 0.024,
+            "id": "apple",
+            "qty": 170,
+            "name": "Manzana con cáscara",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.2284,
+            "f": 0.0033,
+            "k": 0.89,
+            "p": 0.0109,
+            "fi": 0.026,
+            "id": "banana",
+            "qty": 110,
+            "name": "Banana cruda sin cáscara",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          }
+        ],
+        "label": "Media mañana"
+      },
+      {
+        "slot": "almuerzo",
+        "items": [
+          {
+            "c": 0.0096,
+            "f": 0.0996,
+            "k": 1.48,
+            "p": 0.124,
+            "fi": 0,
+            "id": "egg",
+            "qty": 165,
+            "name": "Huevo entero sin cáscara (referencia crudo)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.256,
+            "f": 0.01,
+            "k": 1.23,
+            "p": 0.027,
+            "fi": 0.018,
+            "id": "brownrice",
+            "qty": 285,
+            "name": "Arroz integral cocido",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0.08,
+            "f": 0.001,
+            "k": 0.34,
+            "p": 0.01,
+            "fi": 0.01,
+            "id": "pumpkin",
+            "qty": 140,
+            "name": "Calabaza cocida",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0,
+            "f": 1,
+            "k": 8.84,
+            "p": 0,
+            "fi": 0,
+            "id": "oil",
+            "qty": 7,
+            "name": "Aceite de oliva (gramos)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          }
+        ],
+        "label": "Almuerzo"
+      },
+      {
+        "slot": "media_tarde",
+        "items": [
+          {
+            "c": 0.0096,
+            "f": 0.0996,
+            "k": 1.48,
+            "p": 0.124,
+            "fi": 0,
+            "id": "egg",
+            "qty": 95,
+            "name": "Huevo entero sin cáscara (referencia crudo)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.2284,
+            "f": 0.0033,
+            "k": 0.89,
+            "p": 0.0109,
+            "fi": 0.026,
+            "id": "banana",
+            "qty": 85,
+            "name": "Banana cruda sin cáscara",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.0236,
+            "f": 0,
+            "k": 0.55,
+            "p": 0.107,
+            "fi": 0,
+            "id": "egg_white",
+            "qty": 70,
+            "name": "Clara de huevo",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          }
+        ],
+        "label": "Media tarde"
+      },
+      {
+        "slot": "merienda",
+        "items": [
+          {
+            "c": 0.0096,
+            "f": 0.0996,
+            "k": 1.48,
+            "p": 0.124,
+            "fi": 0,
+            "id": "egg",
+            "qty": 55,
+            "name": "Huevo entero sin cáscara (referencia crudo)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.133,
+            "f": 0.003,
+            "k": 0.53,
+            "p": 0.008,
+            "fi": 0.018,
+            "id": "mandarin",
+            "qty": 180,
+            "name": "Mandarina",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0.2284,
+            "f": 0.0033,
+            "k": 0.89,
+            "p": 0.0109,
+            "fi": 0.026,
+            "id": "banana",
+            "qty": 100,
+            "name": "Banana cruda sin cáscara",
+            "unit": "g",
+            "locked": true,
+            "sourceType": "usda_fdc",
+            "recipeLabel": "De QA P28Z banana y manzana - FICTICIA",
+            "recipeComponent": true,
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.1381,
+            "f": 0.0017,
+            "k": 0.52,
+            "p": 0.0026,
+            "fi": 0.024,
+            "id": "apple",
+            "qty": 100,
+            "name": "Manzana con cáscara",
+            "unit": "g",
+            "locked": true,
+            "sourceType": "usda_fdc",
+            "recipeLabel": "De QA P28Z banana y manzana - FICTICIA",
+            "recipeComponent": true,
+            "validationStatus": "tabla_referenciada"
+          }
+        ],
+        "label": "Merienda"
+      },
+      {
+        "slot": "cena",
+        "items": [
+          {
+            "c": 0,
+            "f": 0.013000000000000001,
+            "k": 1.077,
+            "p": 0.24,
+            "fi": 0,
+            "id": "fish_hake",
+            "qty": 180,
+            "name": "Merluza cocida",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0.2001,
+            "f": 0.001,
+            "k": 0.86,
+            "p": 0.0171,
+            "fi": 0.018,
+            "id": "potato",
+            "qty": 230,
+            "name": "Papa hervida sin piel y sin sal",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          },
+          {
+            "c": 0.037,
+            "f": 0.007,
+            "k": 0.25,
+            "p": 0.026,
+            "fi": 0.016,
+            "id": "rocket",
+            "qty": 40,
+            "name": "Rúcula",
+            "unit": "g",
+            "sourceType": "generic_estimate",
+            "validationStatus": "generico_pendiente"
+          },
+          {
+            "c": 0,
+            "f": 1,
+            "k": 8.84,
+            "p": 0,
+            "fi": 0,
+            "id": "oil",
+            "qty": 3,
+            "name": "Aceite de oliva (gramos)",
+            "unit": "g",
+            "sourceType": "usda_fdc",
+            "validationStatus": "tabla_referenciada"
+          }
+        ],
+        "label": "Cena"
+      }
+    ],
+    "version": 2,
+    "createdFrom": "coach_approved_goal",
+    "supplementNote": "",
+    "approvedFoodIds": [
+      "apple",
+      "banana",
+      "brownrice",
+      "coffee_black",
+      "egg",
+      "egg_white",
+      "fish_hake",
+      "mandarin",
+      "oil",
+      "potato",
+      "pumpkin",
+      "rocket",
+      "tofu_firm"
+    ]
+  },
+  "goal": {
+    "kcal": 2500,
+    "fat_g": 68,
+    "carb_g": 322,
+    "fiber_g": 35,
+    "goal_type": "recomp",
+    "protein_g": 150
+  },
+  "draftRevision": 1,
+  "sourceIntakeRevision": 2,
+  "synthetic": true
+}

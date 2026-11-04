@@ -1,0 +1,637 @@
+{
+  "schemaVersion": 1,
+  "kind": "NCC_GUIDE_SELECTED_SOURCE_REVIEW_ONLY",
+  "sourceCatalogFingerprintSha256": "7122ac484ca0b6c374425ac97947361f9852efc6c255c4e7589babac763bb9b4",
+  "pinnedEvidenceFingerprintSha256": "799c996c0aae61c8db19f78c4a6cd4e9e367fb910f8e29d1734400916831c873",
+  "selectedGuideFingerprintSha256": "625e3aa089a4a42166b21d0bd3f020a124eda1cbb898f5a3b70be8f496e7a275",
+  "actualCatalogSize": 560,
+  "sourceArchiveUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+  "sourceArchiveSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef",
+  "selectedMeals": [
+    {
+      "slot": "desayuno",
+      "items": [
+        {
+          "id": "egg",
+          "unit": "g",
+          "qty": 55
+        },
+        {
+          "id": "banana",
+          "unit": "g",
+          "qty": 220
+        },
+        {
+          "id": "egg_white",
+          "unit": "g",
+          "qty": 120
+        },
+        {
+          "id": "tofu_firm",
+          "unit": "g",
+          "qty": 110
+        },
+        {
+          "id": "coffee_black",
+          "unit": "ml",
+          "qty": 30
+        }
+      ]
+    },
+    {
+      "slot": "media_manana",
+      "items": [
+        {
+          "id": "egg",
+          "unit": "g",
+          "qty": 55
+        },
+        {
+          "id": "apple",
+          "unit": "g",
+          "qty": 170
+        },
+        {
+          "id": "banana",
+          "unit": "g",
+          "qty": 110
+        }
+      ]
+    },
+    {
+      "slot": "almuerzo",
+      "items": [
+        {
+          "id": "egg",
+          "unit": "g",
+          "qty": 165
+        },
+        {
+          "id": "brownrice",
+          "unit": "g",
+          "qty": 285
+        },
+        {
+          "id": "pumpkin",
+          "unit": "g",
+          "qty": 140
+        },
+        {
+          "id": "oil",
+          "unit": "g",
+          "qty": 7
+        }
+      ]
+    },
+    {
+      "slot": "media_tarde",
+      "items": [
+        {
+          "id": "egg",
+          "unit": "g",
+          "qty": 95
+        },
+        {
+          "id": "banana",
+          "unit": "g",
+          "qty": 85
+        },
+        {
+          "id": "egg_white",
+          "unit": "g",
+          "qty": 70
+        }
+      ]
+    },
+    {
+      "slot": "merienda",
+      "items": [
+        {
+          "id": "egg",
+          "unit": "g",
+          "qty": 55
+        },
+        {
+          "id": "mandarin",
+          "unit": "g",
+          "qty": 180
+        },
+        {
+          "id": "banana",
+          "unit": "g",
+          "qty": 100
+        },
+        {
+          "id": "apple",
+          "unit": "g",
+          "qty": 100
+        }
+      ]
+    },
+    {
+      "slot": "cena",
+      "items": [
+        {
+          "id": "fish_hake",
+          "unit": "g",
+          "qty": 180
+        },
+        {
+          "id": "potato",
+          "unit": "g",
+          "qty": 230
+        },
+        {
+          "id": "rocket",
+          "unit": "g",
+          "qty": 40
+        },
+        {
+          "id": "oil",
+          "unit": "g",
+          "qty": 3
+        }
+      ]
+    }
+  ],
+  "selectedUniqueFoodCount": 13,
+  "countsByEvidenceState": {
+    "ARCHIVE_CAPTURE_PENDING_OPERATOR": 4,
+    "RECONCILIATION_REQUIRED": 1,
+    "NO_EXACT_PRIMARY_SOURCE": 5,
+    "CATALOG_FDC_REFERENCE_ONLY": 2,
+    "NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW": 1
+  },
+  "foods": [
+    {
+      "id": "apple",
+      "foodName": "Manzana con cáscara",
+      "unit": "g",
+      "chosenIn": [
+        "media_manana",
+        "merienda"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": "171688",
+      "appPer100Unit": {
+        "k": 52,
+        "p": 0.26,
+        "c": 13.81,
+        "f": 0.17,
+        "fi": 2.4
+      },
+      "sourceFdcId": "171688",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 52,
+        "p": 0.26,
+        "c": 13.8,
+        "f": 0.17,
+        "fi": 2.4
+      },
+      "pinnedRecordSha256": "d5672eae44279ddb45cd63165cd020095edc788363af7cb747067743737d9043",
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": {
+        "k": 0,
+        "p": 0,
+        "c": 0.01,
+        "f": 0,
+        "fi": 0
+      },
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "El catálogo ACTUAL usa 52 kcal/100 g (override FDC 171688), igual que la captura USDA; hidratos 13,81 vs 13,8 g/100 g son una diferencia de redondeo. Confirmar identidad, preparación, captura y procedencia con revisión humana; no homologado.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "banana",
+      "foodName": "Banana cruda sin cáscara",
+      "unit": "g",
+      "chosenIn": [
+        "desayuno",
+        "media_manana",
+        "media_tarde",
+        "merienda"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 89,
+        "p": 1.09,
+        "c": 22.84,
+        "f": 0.33,
+        "fi": 2.6
+      },
+      "sourceFdcId": "173944",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 89,
+        "p": 1.09,
+        "c": 22.8,
+        "f": 0.33,
+        "fi": 2.6
+      },
+      "pinnedRecordSha256": "6248f091bbac576f8717296d612eb4ef554c3a653418d9b017840c9f8313ab13",
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": {
+        "k": 0,
+        "p": 0,
+        "c": 0.04,
+        "f": 0,
+        "fi": 0
+      },
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA HC 22,8 g/100 g y catálogo 22,84 g/100 g; revisar redondeo y porción sin cáscara.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "brownrice",
+      "foodName": "Arroz integral cocido",
+      "unit": "g",
+      "chosenIn": [
+        "almuerzo"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 123,
+        "p": 2.7,
+        "c": 25.6,
+        "f": 1,
+        "fi": 1.8
+      },
+      "sourceFdcId": "169704",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 123,
+        "p": 2.74,
+        "c": 25.6,
+        "f": 0.97,
+        "fi": 1.6
+      },
+      "pinnedRecordSha256": "f5dd56ad302324859ea7956dc8de4b54662e990151b6ce9a6683530400cde85b",
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": {
+        "k": 0,
+        "p": -0.04,
+        "c": 0,
+        "f": 0.03,
+        "fi": 0.2
+      },
+      "evidenceState": "RECONCILIATION_REQUIRED",
+      "requiredHumanAction": "Fibra fuente USDA 1,6 g/100 g frente a PWA 1,8 g/100 g; resolver según preparación y método analítico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "coffee_black",
+      "foodName": "Café solo sin azúcar",
+      "unit": "ml",
+      "chosenIn": [
+        "desayuno"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 0.4,
+        "p": 0.1,
+        "c": 0,
+        "f": 0,
+        "fi": 0
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Definir dilución/preparación y fuente por 100 ml; no mapear directamente datos por peso sin conversión validada.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "egg",
+      "foodName": "Huevo entero sin cáscara (referencia crudo)",
+      "unit": "g",
+      "chosenIn": [
+        "desayuno",
+        "media_manana",
+        "almuerzo",
+        "media_tarde",
+        "merienda"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 148,
+        "p": 12.4,
+        "c": 0.96,
+        "f": 9.96,
+        "fi": 0
+      },
+      "sourceFdcId": "748967",
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "CATALOG_FDC_REFERENCE_ONLY",
+      "requiredHumanAction": "Capturar ficha Foundation Foods oficial y cotejar con 148 kcal/100 g PWA; no confundir huevo cocido o aceite de cocción.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "egg_white",
+      "foodName": "Clara de huevo",
+      "unit": "g",
+      "chosenIn": [
+        "desayuno",
+        "media_tarde"
+      ],
+      "partOfInitial17": false,
+      "appSourceId": "747997",
+      "appPer100Unit": {
+        "k": 55,
+        "p": 10.7,
+        "c": 2.36,
+        "f": 0,
+        "fi": 0
+      },
+      "sourceFdcId": "747997",
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "CATALOG_FDC_REFERENCE_ONLY",
+      "requiredHumanAction": "Capturar y cotejar el registro oficial FDC 747997 para la preparación y unidad exactas. La referencia del catálogo no acredita captura ni aprobación humana.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "fish_hake",
+      "foodName": "Merluza cocida",
+      "unit": "g",
+      "chosenIn": [
+        "cena"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 107.7,
+        "p": 24,
+        "c": 0,
+        "f": 1.3,
+        "fi": 0
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Definir especie, preparación, pérdida de agua/rendimiento y fuente primaria exacta; no usar pescado genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "mandarin",
+      "foodName": "Mandarina",
+      "unit": "g",
+      "chosenIn": [
+        "merienda"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 53,
+        "p": 0.8,
+        "c": 13.3,
+        "f": 0.3,
+        "fi": 1.8
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Precisar variedad y fuente primaria por 100 g comestibles.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "oil",
+      "foodName": "Aceite de oliva (gramos)",
+      "unit": "g",
+      "chosenIn": [
+        "almuerzo",
+        "cena"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 884,
+        "p": 0,
+        "c": 0,
+        "f": 100,
+        "fi": 0
+      },
+      "sourceFdcId": "171413",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 884,
+        "p": 0,
+        "c": 0,
+        "f": 100,
+        "fi": 0
+      },
+      "pinnedRecordSha256": "09bbe72907b802a43591d804466ba46e65677501dacf867d26c2bdd83ec6f9d3",
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": {
+        "k": 0,
+        "p": 0,
+        "c": 0,
+        "f": 0,
+        "fi": 0
+      },
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA 884 kcal/100 g, 100 g de grasa; validar aceite de oliva pesado en gramos, nunca ml ni aceite genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "potato",
+      "foodName": "Papa hervida sin piel y sin sal",
+      "unit": "g",
+      "chosenIn": [
+        "cena"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 86,
+        "p": 1.71,
+        "c": 20.01,
+        "f": 0.1,
+        "fi": 1.8
+      },
+      "sourceFdcId": "170440",
+      "sourceUnit": "g",
+      "sourcePer100g": {
+        "k": 86,
+        "p": 1.71,
+        "c": 20,
+        "f": 0.1,
+        "fi": 1.8
+      },
+      "pinnedRecordSha256": "36735662d7e9ea9234fec5ce05bfa84fd6dfa7e3e4a7a4f2bd43e32e7d5226aa",
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": {
+        "k": 0,
+        "p": 0,
+        "c": 0.01,
+        "f": 0,
+        "fi": 0
+      },
+      "evidenceState": "ARCHIVE_CAPTURE_PENDING_OPERATOR",
+      "requiredHumanAction": "USDA 86 kcal/100 g; corroborar peso hervido, sin piel, sin sal; aceite aparte.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "pumpkin",
+      "foodName": "Calabaza cocida",
+      "unit": "g",
+      "chosenIn": [
+        "almuerzo"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 34,
+        "p": 1,
+        "c": 8,
+        "f": 0.1,
+        "fi": 1
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Determinar variedad, técnica y peso escurrido; no usar zapallo anco al horno como si fuera cocido genérico.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "rocket",
+      "foodName": "Rúcula",
+      "unit": "g",
+      "chosenIn": [
+        "cena"
+      ],
+      "partOfInitial17": true,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 25,
+        "p": 2.6,
+        "c": 3.7,
+        "f": 0.7,
+        "fi": 1.6
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NO_EXACT_PRIMARY_SOURCE",
+      "requiredHumanAction": "Identificar fuente USDA/etiqueta para rúcula cruda, peso comestible, macros y fibra.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    },
+    {
+      "id": "tofu_firm",
+      "foodName": "Tofu firme",
+      "unit": "g",
+      "chosenIn": [
+        "desayuno"
+      ],
+      "partOfInitial17": false,
+      "appSourceId": null,
+      "appPer100Unit": {
+        "k": 119,
+        "p": 12,
+        "c": 2,
+        "f": 7,
+        "fi": 1
+      },
+      "sourceFdcId": null,
+      "sourceUnit": null,
+      "sourcePer100g": null,
+      "pinnedRecordSha256": null,
+      "sourceRecordDescription": null,
+      "sourceEvidenceFile": null,
+      "deltaPer100ComparableUnits": null,
+      "evidenceState": "NEW_SELECTED_ID_REQUIRES_SOURCE_REVIEW",
+      "requiredHumanAction": "Selected outside the initial 17: match the exact food, preparation, unit and nutrient source, including expanded recipe ingredients.",
+      "humanReview": "PENDING",
+      "approvedForServer": false,
+      "approvedBy": null,
+      "approvedAt": null
+    }
+  ],
+  "recipeComponents": [],
+  "recipeComponentsFingerprintSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "componentReviewRequired": false,
+  "unverifiedRecipeProxyCount": 0,
+  "approvalsGranted": 0,
+  "sourceRecordsInserted": 0,
+  "publishable": false,
+  "operatorReviewRequired": true,
+  "notACatalogWhitelist": true,
+  "note": "A source capture or numeric match is not approval. Every ingredient chosen in the final guide, including expanded recipes, needs operator-reviewed evidence. No PII, network calls or database writes."
+}

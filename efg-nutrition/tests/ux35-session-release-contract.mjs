@@ -67,8 +67,9 @@ assert.match(html,/pilot\.js\?v=20[0-9]{6}-ux35-major2(?:-loginfix1)?/);
 assert.match(app,/auth:sb\.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits/);
 assert.match(app,/if\(!result\.signedOut\)return/);
 assert.match(app,/function resetPrivateSession\(\)/);
-assert.match(app,/invalidate:epoch=>\{resetPrivateSession\(\);state\.authContextEpoch=epoch;loginView\(\);\}/,
- 'Auth hydration invalidation must clear role memory before showing login');
+assert.match(app,/invalidate:invalidateAuthContext/);
+assert.match(app,/function invalidateAuthContext\(epoch,nextId\)\{\s*resetPrivateSession\(\);state\.authContextEpoch=epoch;/,
+ 'Auth hydration invalidation must clear role memory before rendering any next state');
 assert.match(app,/else if\(event==="SIGNED_OUT"\)\{\s*authHydration\.change\(null\);/,
  'External signout must invalidate the same auth hydration gate');
 assert.match(app,/state\.roster=\[\];state\.coachLogs=\[\]/);

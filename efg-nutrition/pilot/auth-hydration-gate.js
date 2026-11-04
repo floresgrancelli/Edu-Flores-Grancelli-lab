@@ -11,7 +11,7 @@ export function createAuthHydrationGate({readIdentity,invalidate,schedule,refres
    const next=id||null;
    if(next&&(target===next||(!target&&readIdentity()===next))){target=next;return false;}
    if(!next&&!target&&!readIdentity()&&!active)return false;
-   target=next;epoch++;pending=!!next;invalidate(epoch);queue();return true;
+   target=next;epoch++;pending=!!next;invalidate(epoch,next);queue();return true;
   },
   begin(){if(active)return null;pending=false;active={epoch};return active;},
   current(ticket){return !!ticket&&ticket.epoch===epoch;},

@@ -487,7 +487,7 @@ const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA 
 const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const authHydration=createAuthHydrationGate({
  readIdentity:()=>state.session?.user?.id||null,
- invalidate:epoch=>{resetPrivateSession();state.authContextEpoch=epoch;loginView();},
+ invalidate:invalidateAuthContext,
  schedule:queueMicrotask,refresh:()=>refresh()
 });
 
@@ -1311,6 +1311,16 @@ async function confirmOtp(token){
   const connection=!navigator.onLine||/fetch|network|timeout|connection/i.test(err.message||"");
   loginView(connection?"No pudimos verificar tu código por un problema de conexión. Volvé a intentarlo.":"El código es incorrecto o venció. Revisá el correo o solicitá otro.");
  }
+}
+function sessionRestoringView(){
+ root.innerHTML='<div class="pilot-loader" role="status" aria-live="polite"><h2>Restaurando tu sesión</h2>'+
+ '<p>Estamos verificando tu acceso. No necesitás solicitar otro código.</p></div>';
+}
+function invalidateAuthContext(epoch,nextId){
+ resetPrivateSession();state.authContextEpoch=epoch;
+ // A signed-in event is only a pending identity: keep private data cleared
+ // until getUser verifies it, without offering another OTP during recovery.
+ if(nextId)sessionRestoringView();else loginView();
 }
 function sessionConnectionRetry(){
  root.innerHTML='<div class="pilot-loader"><h2>No pudimos verificar tu sesión</h2>'+

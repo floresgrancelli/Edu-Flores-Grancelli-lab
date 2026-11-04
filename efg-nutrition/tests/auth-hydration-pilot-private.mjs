@@ -26,26 +26,35 @@ async function fixture(){
    return Promise.resolve({data:[{id:'recipe-'+owner,name:owner,ingredients:[{foodId:'banana',grams:100}],portions:1,totals:{}}],error:null});
   },insert(){throw Error('Unexpected recipe mutation');}};
  }};
- let api;const gate=createAuthHydrationGate({readIdentity:()=>state.session?.user?.id||null,invalidate:epoch=>{api.resetPrivateSession();state.authContextEpoch=epoch;},schedule:f=>tasks.push(f),refresh:()=>jobs.push(api.refresh())});
+ const root={innerHTML:''};
+ let api;const gate=createAuthHydrationGate({readIdentity:()=>state.session?.user?.id||null,invalidate:(epoch,nextId)=>api.invalidateAuthContext(epoch,nextId),schedule:f=>tasks.push(f),refresh:()=>jobs.push(api.refresh())});
  const noop=async()=>{};
- const env={state,sb,authHydration:gate,sameRecipeIngredients,
+ const env={state,sb,authHydration:gate,sameRecipeIngredients,pendingMealRegistrations:new Set(),pendingHabitualSlots:new Set(),
   setCoachSessionIdentity:(session,user)=>{state.session={user,session_id:'TEST_ONLY'};},
-  loginView:()=>{},unauthorized:()=>{throw Error('Unexpected unauthorized');},sessionConnectionRetry:()=>{},
+  loginView:()=>{root.innerHTML='LOGIN';},unauthorized:()=>{throw Error('Unexpected unauthorized');},sessionConnectionRetry:()=>{},
   MAJOR_RELEASE_FLOW_ENABLED:false,RELEASE_COMMUNICATIONS_ENABLED:false,SCIENCE_WELCOME_ENABLED:false,COACH_VERSIONED_INTAKE_ENABLED:false,COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED:false,COACH_STUDENT_JOURNEY_ENABLED:false,COACH_RELAUNCH_ONBOARDING_ENABLED:false,
   loadPersonalData:noop,loadOrgAndPayments:noop,loadCloudHabituales:noop,loadMyWeeklyReports:noop,loadRoleData:noop,coachIntakeFlow:{loadStudent:noop},refreshFoodCompatibilityEvidence:noop,loadSundayPermission:noop,inbox:{refresh:noop},sessionStorage:{removeItem(){}},loadWelcomeStatus:noop,
-  render:async()=>renders.push(state.session?.user?.id||null),fail:e=>{throw e;},root:{innerHTML:''},escapeHTML:x=>x,
+  render:async()=>renders.push(state.session?.user?.id||null),fail:e=>{throw e;},root,escapeHTML:x=>x,
   pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},localStorage:{getItem:()=>null},recipeStoreKey:()=> 'TEST_ONLY:'+state.session?.user?.id};
- const code='let cloudRecipes=[],cloudHabituales=[],myWeeklyReports=[],coachRosterConsent={},userHasUnconfirmedEdits=false,lastRenderedViewKey=null;'+['loadCloudRecipes','resetPrivateSession','handleAuthStateChange','refresh'].map(fn).join('\n')+';return {refresh,resetPrivateSession,handleAuthStateChange,recipes:()=>cloudRecipes};';
+ const code='let cloudRecipes=[],cloudHabituales=[],myWeeklyReports=[],coachRosterConsent={},userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false;'+['loadCloudRecipes','resetPrivateSession','sessionRestoringView','invalidateAuthContext','handleAuthStateChange','refresh'].map(fn).join('\n')+';return {refresh,resetPrivateSession,invalidateAuthContext,handleAuthStateChange,recipes:()=>cloudRecipes};';
  const modulePath=join(directory,'case-'+(++moduleIndex)+'.mjs');
  writeFileSync(modulePath,'export function create(env){const {'+Object.keys(env).join(',')+'}=env;'+code+'}');
  api=(await import(pathToFileURL(modulePath).href)).create(env);
- return {state,api,gate,renders,tasks,jobs,stats:()=>({reads,getUsers}),actor:id=>{actor=id;},started:()=>heldStarted,release:()=>held.resolve({data:[{id:'old-A',name:'A'}],error:null}),event:(id,event='SIGNED_IN')=>api.handleAuthStateChange(event,id?{user:{id}}:null),flush:async()=>{while(tasks.length)tasks.shift()();await Promise.all(jobs);}};
+ return {state,api,gate,root,renders,tasks,jobs,stats:()=>({reads,getUsers}),actor:id=>{actor=id;},started:()=>heldStarted,release:()=>held.resolve({data:[{id:'old-A',name:'A'}],error:null}),event:(id,event='SIGNED_IN')=>api.handleAuthStateChange(event,id?{user:{id}}:null),flush:async()=>{while(tasks.length)tasks.shift()();await Promise.all(jobs);}};
 }
-try{for(const scenario of ['A-B','A-logout','A-B-C','repeated-B','same-token']){
+try{
+ const cold=await fixture();cold.api.resetPrivateSession();cold.event('A');
+ assert.match(cold.root.innerHTML,/Restaurando tu sesión/);
+ assert.equal(cold.state.profile,null,'Unverified identity cannot expose a profile');
+ assert.equal(cold.state.session,null,'Pending restoration does not trust event metadata');
+ cold.release();await cold.flush();assert.deepEqual(cold.renders,['A']);
+ console.log('PASS actual pilot cold SIGNED_IN: pending view before verified workspace, no OTP form');
+ for(const scenario of ['A-B','A-logout','A-B-C','repeated-B','same-token']){
  const f=await fixture(),first=f.api.refresh();await until(f.started);
  if(scenario==='same-token'){const epoch=f.gate.epoch();f.event('A','TOKEN_REFRESHED');assert.equal(f.gate.epoch(),epoch);}
- else if(scenario==='A-logout'){f.actor(null);f.event(null,'SIGNED_OUT');assert.equal(f.state.session,null);}
+ else if(scenario==='A-logout'){f.actor(null);f.event(null,'SIGNED_OUT');assert.equal(f.state.session,null);assert.equal(f.root.innerHTML,'LOGIN');}
  else {f.actor('B');f.event('B');assert.equal(f.state.session,null);assert.deepEqual(f.api.recipes(),[]);
+  assert.match(f.root.innerHTML,/Restaurando tu sesión/);assert.doesNotMatch(f.root.innerHTML,/LOGIN|pilot-login-form/);
   if(scenario==='A-B-C'){f.actor('C');f.event('C');}
   if(scenario==='repeated-B')for(let i=0;i<10;i++)f.event('B');
  }

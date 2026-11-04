@@ -9,7 +9,7 @@ const start=source.indexOf('async function loadStudentDetail(studentId){'),end=s
 assert.ok(start>0&&end>start);
 const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,CLINICAL_GUIDE_CONNECTION_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build}=await import(pathToFileURL(path).href);
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){
   const state={session:{user:{id:'coach'}},roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{revision:1,shared_at:'date'}}};
@@ -47,7 +47,7 @@ try{
     assert.equal(name,'efg_get_coach_health_intake');healthReads++;return {data:{...scopedHealth,...overrides}};
    }};
   const run=build({state,sb,coachAdaptedWorkspace:{close(){}},coachIntakeFlow:{refreshCoachDetail:async()=>{}},
-   COACH_ATOMIC_PLAN_UI_ENABLED:false,CLINICAL_GUIDE_CONNECTION_ENABLED:flag,
+   COACH_ATOMIC_PLAN_UI_ENABLED:false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED:flag,
    readVerifiedCoachRestrictionScope,loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
   await run(clinicalStudent);
   assert.equal(healthReads,reads,'Only a specifically enabled Coach can initiate the health RPC');

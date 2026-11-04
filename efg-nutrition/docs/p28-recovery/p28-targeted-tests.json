@@ -1,0 +1,62 @@
+[
+  {
+    "test": "ncc-p28-hosted-entry-compatibility",
+    "exit": 0,
+    "stdout": "PASS P28: OFF startup has zero legacy requests; existing/no-row and explicit pending/published states; no legacy writes; permission and session-race failures; independent restriction gate. Synthetic transport only.\n",
+    "stderr": ""
+  },
+  {
+    "test": "coach-intake-flow",
+    "exit": 0,
+    "stdout": "EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.\n",
+    "stderr": ""
+  },
+  {
+    "test": "coach-versioned-journey-integration",
+    "exit": 0,
+    "stdout": "PASS new journey only: versioned Coach intake, revision guard, COACH119 endpoint, backend gate, pattern/window display; no legacy fallback. Isolated modules, no JWT claim.\n",
+    "stderr": ""
+  },
+  {
+    "test": "private-health-entry-off-contract",
+    "exit": 0,
+    "stdout": "PASS COACH01-05 OFF: actual student route guarded by signed entry/current intake; no sensitive RPCs before activation; sign-out clears private context.\n",
+    "stderr": ""
+  },
+  {
+    "test": "private-health-entry-route-runtime",
+    "exit": 0,
+    "stdout": "PASS COACH 01-05 real isolated UI: OFF, signed entry/tenant/intake/route, ON-only fixture, auth epoch late-error discard and text-only errors. No health RPC or hosted changes.\n",
+    "stderr": ""
+  },
+  {
+    "test": "coach-guide-restriction-scope",
+    "exit": 0,
+    "stdout": "PASS 01-05: signed scoped conditions, no implicit none, suspected status, revoke, swapped and added guide food review. SYNTHETIC only, clinical OFF.\n",
+    "stderr": ""
+  },
+  {
+    "test": "student-restriction-declaration-private",
+    "exit": 0,
+    "stdout": "PASS declaration component: eight optional conditions, separate processing/share, explicit none vs unknown, revoke, identity and auth-race; synthetic unit transport only.\n",
+    "stderr": ""
+  },
+  {
+    "test": "ncc-six-meal-guide-contract",
+    "exit": 0,
+    "stdout": "PASS NCC six-meal guide and periodic review: 2500\u21922100 goal + six meals, same-calorie new guide, prior goal untouched, verified-profile warning, publish remains Coach atomic-only.\n",
+    "stderr": ""
+  },
+  {
+    "test": "student-session-mutation-races",
+    "exit": 0,
+    "stdout": "PASS NCC session A -> B: no stale data, no blocked first food, leased favorites\nPASS NCC session A -> B -> A: old auth epoch and finally isolated\nPASS NCC midnight: stale A rollover cannot render or toast B\n",
+    "stderr": ""
+  },
+  {
+    "test": "habitual-persistence-real-code-regression",
+    "exit": 0,
+    "stdout": "PASS UX-04-03: v1+v2 coexistence, 20-slot quota and deferred recovery preserve saved habitual meals.\nPASS UX-04-03: malformed v1/v2 backups preserved without blocking valid-version recovery.\nPASS UX-HABITUAL-REAL-01: actual app save twice, cloud readback after reset/relogin, both names and foods in picker, no cross-slot leakage. Hosted iPhone/Android UAT pending.\nPASS UX-04-03: stale A/B favorite reads and imports isolated; corrupt v2 cannot hide v1.\nPASS UX-04-03 offline local deletion, cancellation, malformed key protection and failed-import retry.\nPASS UX-04-03: rejected SELECT and rejected INSERT retain offline favorite.\nPASS UX-OFFLINE-NEW-HABITUAL-01: two offline saves, import once, 403 denies local write, damaged backups preserved.\nPASS UX-HABITUAL-LOAD-RACE: insert and newest refresh survive stale reads.\n",
+    "stderr": "Habituales en la nube no disponibles; respaldos locales conservados. network unreachable\nHabitual local pendiente de sincronizar. offline write\n"
+  }
+]

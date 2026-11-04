@@ -1,0 +1,14 @@
+[
+  {
+    "switch_key": "pilot_student_diary_write_gate",
+    "enabled": false,
+    "updated_at": "2026-10-30 22:09:16.724787+00",
+    "notes": "OFF until atomic goal + 5-meal guide, legal/health consent and real JWT release go"
+  },
+  {
+    "switch_key": "pilot_coach_atomic_publication",
+    "enabled": false,
+    "updated_at": "2026-11-03 07:51:26.152087+00",
+    "notes": "OFF until audited legal+clinical, food corpus, signed A/B JWT, rollback and owner GO"
+  }
+]

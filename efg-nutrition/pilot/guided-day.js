@@ -74,7 +74,9 @@ export function describeGuidedMeal(meal){
  if(meal?.slot==="merienda"&&has("bread","cheese","mandarin"))
   return "Tostada integral con Port Salut light y mandarina.";
  if(meal?.slot==="cena"&&has("fish_hake","potato","rocket"))
-  return "Merluza al horno con papa hervida y ensalada de rúcula; aceite indicado para condimentar.";
+  return ["reviewed_qa","reviewed_pilot"].includes(meal.items.find(x=>x.id==="fish_hake")?.validationStatus)
+   ?"Merluza cocida y escurrida sin aceite ni sal, papa hervida y rúcula; el aceite se agrega por separado."
+   :"Merluza al horno con papa hervida y ensalada de rúcula; aceite indicado para condimentar.";
  return "Preparación sugerida con "+items.map(f=>String(f.name||f.id).split(" (")[0]).join(", ")+". Adaptar al gusto y la preparación.";
 }
 const NUTRIENTS=["k","p","c","f","fi"];
@@ -102,25 +104,45 @@ const bounds=id=>/^(oil|sunflower_oil)$/.test(id)?[2,10,1]:
  /^(potato|sweetpotato)$/.test(id)?[120,330,10]:
  id==="whey_powder"?[20,40,5]:[30,400,10];
 export const guidedPortionBounds=id=>bounds(id).slice(0,2);
-function source(food,qty){return {id:food.id,name:food.name,unit:food.unit||"g",qty,
- sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
- ...Object.fromEntries(NUTRIENTS.map(k=>[k,Number(food[k])||0]))};}
+// Necessary ranges for the current ingredients, not proof of a feasible menu.
+// Manual locks and recipe quantities must use the same limits as the editor.
+export function guideQuantityRanges(plan){
+ const ranges=Object.fromEntries(NUTRIENTS.map(k=>[k,{min:0,max:0}]));
+ for(const item of (plan?.meals||[]).flatMap(m=>m.items||[])){
+  const [min,max]=item.locked===true?[item.qty,item.qty]:
+   item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
+  for(const k of NUTRIENTS){ranges[k].min+=item[k]*min;ranges[k].max+=item[k]*max;}
+ }
+ return ranges;
+}
+function source(food,qty){
+ // A missing nutrient is NOT measured zero. Refuse to generate an approvable
+ // guide if the selected catalog entry lacks any required value.
+ if(!food||typeof food.id!=="string"||!NUTRIENTS.every(k=>valid(food[k])&&food[k]>=0))
+  throw new Error("El alimento "+String(food?.name||food?.id||"sin identificar")+" tiene datos nutricionales incompletos. Revisá su ficha antes de generar la guía.");
+ return {id:food.id,name:food.name,unit:food.unit||"g",qty,
+  sourceType:food.sourceType||"generic_estimate",validationStatus:food.validationStatus||"generico_pendiente",
+  ...Object.fromEntries(NUTRIENTS.map(k=>[k,food[k]]))};
+}
 export function guideTotals(plan){
  const perMeal=(plan?.meals||[]).map(m=>({slot:m.slot,label:m.label,totals:sum(m.items||[])}));
  const totals=sum((plan?.meals||[]).flatMap(m=>m.items||[]));
  return {perMeal,totals};
 }
 export function guideDeviation(plan,goal){
- const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal||goal?.k)||0,p:Number(goal?.protein_g||goal?.p)||0,c:Number(goal?.carb_g||goal?.c)||0,f:Number(goal?.fat_g||goal?.f)||0};
+ const t=guideTotals(plan).totals,targets={k:Number(goal?.kcal??goal?.k??0)||0,p:Number(goal?.protein_g??goal?.p??0)||0,c:Number(goal?.carb_g??goal?.c??0)||0,f:Number(goal?.fat_g??goal?.f??0)||0,fi:Number(goal?.fiber_g??goal?.fi??0)||0};
  return Object.fromEntries(Object.entries(targets).map(([k,target])=>[k,{target,actual:t[k],difference:t[k]-target,percent:target>0?100*(t[k]-target)/target:null}]));
 }
 function score(plan,goal){
- const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3};
+ // Fiber is part of the coach-approved target when specified; missing data never implies success.
+ const diff=guideDeviation(plan,goal),w={k:2,p:4,c:3,f:3,fi:1};
  const macro=Object.entries(w).reduce((total,[k,weight])=>total+(diff[k].target>0?weight*Math.pow(diff[k].difference/diff[k].target,2):0),0);
- // Encourage a plausible five-meal distribution rather than sending huge fruit portions to snacks.
- const ratios={desayuno:.22,media_manana:.13,almuerzo:.29,merienda:.14,cena:.22};
+ // Normalize meal shares across the *active* slots. If the coach removes a
+ // slot, the remaining meals inherit its daily energy target, never its diary.
+ const ratios={desayuno:.22,media_manana:.11,almuerzo:.28,media_tarde:.09,merienda:.13,cena:.17};
+ const totalShares=plan.meals.reduce((v,m)=>v+(ratios[m.slot]||.15),0);
  const split=guideTotals(plan).perMeal.reduce((n,m)=>{
-  const expected=(ratios[m.slot]||.2)*Number(goal.kcal);
+  const expected=((ratios[m.slot]||.15)/totalShares)*Number(goal.kcal);
   return n+Math.pow((m.totals.k-expected)/expected,2);
  },0);
  return macro+0.14*split;
@@ -143,19 +165,35 @@ export function generateGuidedDay(catalog,goal,{includeWhey=false}={}){
  const plan={version:1,kind:"five_meal_example",meals,supplementNote:"",createdFrom:"coach_approved_goal"};
  return rebalanceGuidedDay(plan,goal);
 }
-export function rebalanceGuidedDay(existing,goal){
+export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
  ensureGuideGoal(goal);
- if(!existing?.meals||existing.meals.length!==5)throw new Error("Guía incompleta.");
+ if(targetTolerance!==null&&(!valid(targetTolerance)||targetTolerance<0||targetTolerance>.05))throw new Error("Margen de ajuste inválido.");
+ if(!Array.isArray(existing?.meals)||existing.meals.length<2||existing.meals.length>6)
+  throw new Error("La guía necesita entre dos y seis horarios.");
  const plan=structuredClone(existing);
  // Optimizes QUANTITIES, not food identities. Same repertoire can serve different goals.
  // All suggested portions are bounded to keep meals practical.
  for(const m of plan.meals)for(const item of m.items){
-  const [min,max]=guidedPortionBounds(item.id);
+  // Recipe parts use exact per-serving quantities: the normal individual
+  // food lower bound would silently inflate small ingredients and macros.
+  const [min,max]=item.recipeComponent===true?[0.01,1000]:guidedPortionBounds(item.id);
+  if(item.locked===true){
+   if(!valid(item.qty)||item.qty<min||item.qty>max)
+    throw new Error("La cantidad fijada de "+String(item.name||item.id)+" está fuera de límites. Revisala antes de recalcular; no se modificó automáticamente.");
+   continue;
+  }
   item.qty=Math.min(max,Math.max(min,Number(item.qty)||min));
  }
- // Bounded coordinate descent: kcal + protein + carbs + fats; no artificial micro-portions.
+ // Preserve the existing distribution as a warm start. If mandatory daily bounds
+ // fail, repair them before optimizing distribution; never trade feasibility away.
+ const violation=()=>Object.values(guideDeviation(plan,goal)).reduce((total,d)=>
+  total+(d.target>0?Math.max(0,Math.abs(d.difference/d.target)-targetTolerance)**2:0),0);
+ for(const repair of targetTolerance===null?[false]:[false,true]){
+ if(repair&&violation()===0)break;
+ // Bounded coordinate descent; identities, locks, portion steps and bounds unchanged.
  for(let iteration=0;iteration<240;iteration++){
   const current=score(plan,goal);let best=null,bestScore=current;
+  let bestViolation=repair?violation():0;
   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
    const item=plan.meals[mi].items[ii], [min,max,step]=bounds(item.id),original=item.qty;
    if(item.locked===true)continue;
@@ -163,12 +201,17 @@ export function rebalanceGuidedDay(existing,goal){
     item.qty=original+delta;
     if(item.qty<min||item.qty>max){item.qty=original;continue;}
     const candidate=score(plan,goal);
-    if(candidate<bestScore-0.0000001){bestScore=candidate;best={mi,ii,qty:item.qty};}
+    const candidateViolation=repair?violation():0;
+    if(candidateViolation<bestViolation||
+      (candidateViolation===bestViolation&&candidate<bestScore-0.0000001)){
+     bestViolation=candidateViolation;bestScore=candidate;best={mi,ii,qty:item.qty};
+    }
     item.qty=original;
    }
   }
   if(!best)break;
   plan.meals[best.mi].items[best.ii].qty=best.qty;
+ }
  }
  return plan;
 }
@@ -188,19 +231,29 @@ export function swapGuidedFood(existing,slot,index,newFoodId,catalog){
 }
 export function validateGuidedDay(plan,goal){
  ensureGuideGoal(goal);
- if(plan?.version!==1||plan?.kind!=="five_meal_example"||!Array.isArray(plan.meals)||plan.meals.length!==5)throw new Error("El ejemplo debe tener exactamente cinco comidas.");
- const slots=new Set();
+ const legacy=plan?.kind==="five_meal_example"&&plan?.version===1;
+ const flexible=plan?.kind==="flexible_meal_guide"&&plan?.version===2;
+ if(!(legacy||flexible)||!Array.isArray(plan.meals)||
+   legacy&&plan.meals.length!==5||flexible&&(plan.meals.length<2||plan.meals.length>6))
+  throw new Error("La Dieta Guía necesita los horarios y la versión correctos.");
+ const slots=new Set(),permitted=new Set([...GUIDE_MEALS.map(x=>x.slot),"media_tarde"]);
  for(const meal of plan.meals){
-  if(!GUIDE_MEALS.some(x=>x.slot===meal.slot)||slots.has(meal.slot)||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw new Error("Revisá las comidas del ejemplo.");
+  if(!permitted.has(meal.slot)||slots.has(meal.slot)||!Array.isArray(meal.items)||meal.items.length<1||meal.items.length>15)throw new Error("Revisá los horarios y alimentos de la guía.");
   slots.add(meal.slot);
   for(const food of meal.items){
-   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<guidedPortionBounds(food.id)[0]||food.qty>guidedPortionBounds(food.id)[1]||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
+   const [min,max]=food.recipeComponent===true?[0.01,1000]:guidedPortionBounds(food.id);
+   if(typeof food.id!=="string"||food.id.length>100||!valid(food.qty)||food.qty<min||food.qty>max||NUTRIENTS.some(k=>!valid(food[k])||food[k]<0))throw new Error("Revisá los alimentos y las cantidades.");
   }
  }
  if(typeof plan.supplementNote!=="string"||plan.supplementNote.length>300)throw new Error("La nota de suplementos es demasiado larga.");
  const diff=guideDeviation(plan,goal);
- if(["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>30))throw new Error("El ejemplo se aleja más del 30% de la meta. Ajustá cantidades antes de enviarlo.");
- return {totals:guideTotals(plan).totals,deviations:diff};
+ // Legacy example validation is unchanged. The six-slot coach guide may have
+ // fewer meals; if its bounded portions cannot match the target, report the
+ // deviation for coach review instead of forcing absurd gram amounts.
+ const needsReview=["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>20);
+ if(legacy&&["k","p","c","f"].some(k=>Math.abs(diff[k].percent)>30))
+  throw new Error("El ejemplo se aleja más del 30% de la meta. Ajustá cantidades antes de enviarlo.");
+ return {totals:guideTotals(plan).totals,deviations:diff,needsReview};
 }
 export function summarizeBaseline(logs,{todayISO=null,limit=2}={}){
  if(!Number.isInteger(limit)||limit<1||limit>7)throw new Error("Cantidad de días fuera de rango.");

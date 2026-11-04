@@ -1,0 +1,434 @@
+{
+  "capturedAtUtc": "2026-11-04T16:17:58.956308+00:00",
+  "source": "USDA FoodData Central official API",
+  "apiGuide": "https://fdc.nal.usda.gov/api-guide/",
+  "records": [
+    {
+      "fdcId": 748967,
+      "description": "Eggs, Grade A, Large, egg whole",
+      "dataType": "Foundation",
+      "publicationDate": "12/16/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967",
+      "responseFile": "748967.json",
+      "responseSha256": "880114001f68a9e7833c95c9dd0a3656452606b90d1e9cb005cd4ed7f2fed686",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 148.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 12.4
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 9.96
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 0.96
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 0.0
+        }
+      ]
+    },
+    {
+      "fdcId": 747997,
+      "description": "Eggs, Grade A, Large, egg white",
+      "dataType": "Foundation",
+      "publicationDate": "12/16/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/747997",
+      "responseFile": "white.json",
+      "responseSha256": "fb5f5c4be26d496ac485ba90620185c4d20d9037b8159bc5a445f5239bcd1384",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 55.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 10.7
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 0.0
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 2.36
+        }
+      ]
+    },
+    {
+      "fdcId": 169387,
+      "description": "Arugula, raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169387",
+      "responseFile": "candidates.json",
+      "responseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 25.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 2.58
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 0.66
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 3.65
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 1.6
+        }
+      ]
+    },
+    {
+      "fdcId": 169105,
+      "description": "Tangerines, (mandarin oranges), raw",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169105",
+      "responseFile": "candidates.json",
+      "responseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 53.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 0.81
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 0.31
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 13.34
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 1.8
+        }
+      ]
+    },
+    {
+      "fdcId": 172475,
+      "description": "Tofu, raw, firm, prepared with calcium sulfate",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172475",
+      "responseFile": "candidates.json",
+      "responseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 144.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 17.27
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 8.72
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 2.78
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 2.3
+        }
+      ]
+    },
+    {
+      "fdcId": 168449,
+      "description": "Pumpkin, cooked, boiled, drained, without salt",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/168449",
+      "responseFile": "candidates.json",
+      "responseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 20.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 0.72
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 0.07
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 4.9
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 1.1
+        }
+      ]
+    },
+    {
+      "fdcId": 171890,
+      "description": "Beverages, coffee, brewed, prepared with tap water",
+      "dataType": "SR Legacy",
+      "publicationDate": "4/1/2019",
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171890",
+      "responseFile": "candidates.json",
+      "responseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "projectionNote": "Projection of official API response retaining identity and five target nutrient records. Full sample/analytical detail omitted; missing nutrients remain absent.",
+      "foodNutrients": [
+        {
+          "nutrient": {
+            "id": 1008,
+            "number": "208",
+            "name": "Energy",
+            "rank": 300,
+            "unitName": "kcal"
+          },
+          "amount": 1.0
+        },
+        {
+          "nutrient": {
+            "id": 1003,
+            "number": "203",
+            "name": "Protein",
+            "rank": 600,
+            "unitName": "g"
+          },
+          "amount": 0.12
+        },
+        {
+          "nutrient": {
+            "id": 1004,
+            "number": "204",
+            "name": "Total lipid (fat)",
+            "rank": 800,
+            "unitName": "g"
+          },
+          "amount": 0.02
+        },
+        {
+          "nutrient": {
+            "id": 1005,
+            "number": "205",
+            "name": "Carbohydrate, by difference",
+            "rank": 1110,
+            "unitName": "g"
+          },
+          "amount": 0.0
+        },
+        {
+          "nutrient": {
+            "id": 1079,
+            "number": "291",
+            "name": "Fiber, total dietary",
+            "rank": 1200,
+            "unitName": "g"
+          },
+          "amount": 0.0
+        }
+      ]
+    }
+  ],
+  "humanReview": "PENDING",
+  "approvedForServer": false,
+  "catalogChanged": false
+}

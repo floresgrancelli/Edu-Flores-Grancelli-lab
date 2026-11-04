@@ -1,0 +1,63 @@
+[
+  {
+    "id": "bread",
+    "name": "Pan integral",
+    "unit": "g",
+    "k": 2.47,
+    "p": 0.13,
+    "c": 0.41,
+    "f": 0.042,
+    "fi": 0.07
+  },
+  {
+    "id": "cheese",
+    "name": "Port Salut Light",
+    "unit": "g",
+    "k": 2.17,
+    "p": 0.27,
+    "c": 0.017,
+    "f": 0.12,
+    "fi": 0
+  },
+  {
+    "id": "yogurt",
+    "name": "Yogur natural descremado sin azúcar (referencia USDA)",
+    "unit": "g",
+    "k": 0.5,
+    "p": 0.042,
+    "c": 0.081,
+    "f": 0.00087,
+    "fi": 0
+  },
+  {
+    "id": "milk_skim",
+    "name": "Leche descremada común (referencia USDA)",
+    "category": "dairy",
+    "unit": "ml",
+    "k": 0.3605,
+    "p": 0.034711,
+    "c": 0.050058,
+    "f": 0.001854,
+    "fi": 0,
+    "sourceType": "usda_fdc_converted",
+    "validationStatus": "tabla_convertida_densidad",
+    "source": "Referencia USDA SR Legacy FDC 173432, leche descremada sin vitaminas añadidas: 35 kcal, 3,37 g proteínas, 4,86 g hidratos y 0,18 g grasas por 100 g. Estimación para 100 ml usando densidad de 1,03 g/ml: 36,05 kcal. Revisar la etiqueta del producto comercial porque las fórmulas difieren.",
+    "sourceId": "173432",
+    "densityGramsPerMl": 1.03
+  },
+  {
+    "id": "oats_raw",
+    "name": "Avena arrollada seca",
+    "category": "carb",
+    "unit": "g",
+    "k": 3.79,
+    "p": 0.132,
+    "c": 0.677,
+    "f": 0.065,
+    "fi": 0.101,
+    "sourceType": "usda_fdc",
+    "validationStatus": "tabla_referenciada",
+    "source": "USDA FoodData Central SR Legacy 04/2018, FDC 173904: avena arrollada regular/rápida sin fortificar, seca. Por 100 g secos: 379 kcal; proteínas 13,2 g; hidratos totales 67,7 g; grasas 6,5 g; fibra 10,1 g. No comparar con 100 g de avena cocida; el agua cambia la concentración.",
+    "sourceId": "173904"
+  }
+]

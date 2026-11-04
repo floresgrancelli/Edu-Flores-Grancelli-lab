@@ -1,0 +1,35 @@
+{
+  "scope": "isolated synthetic standard profile, actual catalog; no human approval",
+  "selected": [
+    "egg",
+    "bread",
+    "cheese",
+    "milk_skim",
+    "coffee_black",
+    "yogurt",
+    "apple",
+    "oats_raw",
+    "brownrice",
+    "pumpkin",
+    "oil",
+    "banana",
+    "mandarin",
+    "fish_hake",
+    "potato",
+    "rocket"
+  ],
+  "totals": {
+    "k": 2471.75027,
+    "p": 151.78753000000003,
+    "c": 321.81199999999995,
+    "f": 67.856,
+    "fi": 35.1
+  },
+  "deviations": {
+    "k": -0.011299892000000034,
+    "p": 0.011916866666666914,
+    "c": -0.0005838509316771212,
+    "f": -0.0021176470588235574,
+    "fi": 0.0028571428571428914
+  }
+}

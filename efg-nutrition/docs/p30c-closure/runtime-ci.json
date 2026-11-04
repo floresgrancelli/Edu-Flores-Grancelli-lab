@@ -1,0 +1,64 @@
+{
+  "workflow_runs": [
+    {
+      "id": 41895052778,
+      "name": "EFG Nutrition Supabase Auth local JWT/RLS QA (NUT-53; disposable)",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_number": 1513,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052778/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052778/logs",
+      "workflow_id": 401143429
+    },
+    {
+      "id": 41895052861,
+      "name": "EFG Nutrition Visual QA (isolated fixture)",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_number": 1817,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052861/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052861/logs",
+      "workflow_id": 398757514
+    },
+    {
+      "id": 41895053741,
+      "name": "EFG Nutrition Security Guardrails",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1714,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895053741/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895053741/logs",
+      "workflow_id": 399333166
+    },
+    {
+      "id": 41895052591,
+      "name": "EFG Nutrition Coach Atomic PostgreSQL QA (ephemeral, synthetic claims)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1424,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052591/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052591/logs",
+      "workflow_id": 401071520
+    },
+    {
+      "id": 41895052680,
+      "name": "EFG Nutrition Premium QA",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 1742,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052680/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895052680/logs",
+      "workflow_id": 398751625
+    },
+    {
+      "id": 41895053092,
+      "name": "NCC Educational Codex Harness (combined snapshot)",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 223,
+      "jobs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895053092/jobs",
+      "logs_url": "https://api.github.com/repos/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/41895053092/logs",
+      "workflow_id": 403532126
+    }
+  ]
+}

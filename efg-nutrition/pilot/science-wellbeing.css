@@ -1,0 +1,89 @@
+/* BRAND-78 · approved page 8/8: serotonin watercolor and holistic wellbeing.
+   This is a UI illustration of a brand symbol, not a clinical serotonin claim.
+   Reuses the original small AVIF logo as a transparent scalable image. */
+.ns-wellbeing{
+ --nsw-forest:#24453b;--nsw-sage:#5b806e;--nsw-coral:#c77b6b;
+ position:relative;isolation:isolate;overflow:hidden;
+ border:1px solid #f0e8de;border-radius:26px;
+ background:radial-gradient(ellipse at 48% 14%,#f8eddf 0%,transparent 39%),
+ radial-gradient(circle at 100% 100%,#e6efe2 0%,transparent 28%),
+ linear-gradient(145deg,#fffdfa,#fbf6f1);
+ padding:clamp(17px,3.9vw,36px);color:#2c3d38;
+ box-shadow:0 16px 37px #7455400b;
+}
+.ns-wellbeing::before,.ns-wellbeing::after{
+ content:"";position:absolute;z-index:-1;pointer-events:none;opacity:.36;border-radius:60% 40% 70% 30%;
+ width:225px;height:180px;filter:blur(9px);
+}
+.ns-wellbeing::before{left:-110px;top:130px;background:#dfead1;transform:rotate(28deg)}
+.ns-wellbeing::after{right:-110px;bottom:-60px;background:#f9d8c7;transform:rotate(-16deg)}
+.ns-wellbeing-art{position:relative;display:flex;justify-content:center;align-items:center;min-height:clamp(210px,33vw,340px);margin:0 auto 12px;max-width:580px}
+.ns-wellbeing-halo{position:absolute;inset:8% 19%;border-radius:50%;
+ background:radial-gradient(circle,#f4e3d6bb 0%,#f0ede095 40%,#deeddf55 65%,transparent 75%);
+ filter:blur(14px)}
+.ns-wellbeing-logo{position:relative;z-index:1;display:block;width:min(72%,390px);height:auto;max-height:300px;object-fit:contain;filter:drop-shadow(0 7px 12px #35615d29)}
+.ns-wellbeing-orbit{position:absolute;z-index:2;display:grid;place-items:center;width:clamp(38px,6.1vw,58px);height:clamp(38px,6.1vw,58px);font-size:clamp(20px,3.2vw,30px);border-radius:50%;border:1px solid #fff8;background:#fff8;box-shadow:0 5px 17px #667d6a14}
+.ns-wellbeing-orbit-a{top:6%;left:10%;background:#e6eff5a8}
+.ns-wellbeing-orbit-b{top:4%;right:11%;background:#fff3d3ac}
+.ns-wellbeing-orbit-c{top:36%;right:0%;background:#eaf3e5cc}
+.ns-wellbeing-orbit-d{bottom:10%;left:5%;background:#dfe9d4b0}
+.ns-wellbeing-orbit-e{bottom:14%;right:12%;background:#f9e5e1aa}
+.ns-wellbeing-orbit-f{top:39%;left:0%;background:#f7e7d9b3}
+.ns-wellbeing-kicker{display:block;text-align:center;letter-spacing:.17em;font-size:10px;font-weight:850;color:#73917b;margin-bottom:8px}
+.ns-wellbeing h2#ns-wellbeing-title{font-family:Georgia,"Times New Roman",serif;max-width:740px;font-weight:700;
+ font-size:clamp(28px,5.1vw,51px);line-height:1.1;text-align:center;letter-spacing:-.04em;color:#203b32;margin:0 auto 25px}
+.ns-wellbeing h2 em{font-family:Georgia,"Times New Roman",serif;display:inline-block;font-weight:500;color:var(--nsw-coral);font-style:italic}
+.ns-wellbeing-points{display:grid;gap:clamp(11px,2vw,17px);max-width:775px;margin:auto}
+.ns-wellbeing-points p{display:grid;grid-template-columns:39px minmax(0,1fr);gap:12px;align-items:start;
+ color:#37443f;font-size:clamp(13px,1.9vw,16px);line-height:1.64;margin:0;overflow-wrap:normal}
+.ns-wellbeing-points p>span:first-child{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;font-size:21px;font-weight:500;color:#b76e68;background:#eaf0e4}
+.ns-wellbeing-points p:nth-child(2)>span:first-child{background:#fbe9e5}
+.ns-wellbeing-points p:nth-child(3)>span:first-child{background:#e1eff0;color:#4b8278}
+.ns-wellbeing-points strong{font-weight:750;color:#365a4b}
+.ns-wellbeing-quote{margin:24px auto 3px!important;max-width:770px;text-align:center;display:flex;align-items:center;justify-content:center;gap:13px;
+ background:linear-gradient(120deg,#f8e2da,#fff0e5);border:1px solid #fae4db;border-radius:21px;
+ padding:18px clamp(15px,3vw,33px);font-family:Georgia,"Times New Roman",serif;font-weight:700;
+ font-size:clamp(18px,3.3vw,27px);color:#ad5b4d;line-height:1.28!important}
+.ns-wellbeing-quote>span{font-size:36px;line-height:1;flex-shrink:0}
+.ns-science-library .ns-library-summary{margin-bottom:25px}
+.ns-science-library .ns-wellbeing{margin-bottom:14px}
+.ns-welcome-slide[data-science-step="8"]{background:linear-gradient(140deg,#fffdfa,#fef6ee);padding:clamp(6px,1.3vw,17px)}
+.ns-welcome-slide[data-science-step="8"] .ns-wellbeing{border-color:transparent;box-shadow:none;min-height:100%}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]){background:linear-gradient(140deg,#f7efe7,#fdf9f2 65%,#edf3eb)}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-progress i{background:#dce7da}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-progress i.is-current{background:#5b806e}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-next{background:linear-gradient(100deg,#5a7b69,#3a6657)}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-back{background:#fffdf7;border:1px solid #67927b;color:#486d5d}
+/* The owner-approved eighth screen uses two equal CTAs and a gentle skip link below. */
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header{justify-content:center}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header img,
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header strong{display:none}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-header>span{font-size:14px;background:transparent;border:0;color:#3d6353}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"back next" "skip skip";
+ gap:9px;background:linear-gradient(130deg,#fffaf4,#fffdfb)}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-back{grid-area:back}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-next{grid-area:next}
+.ns-welcome-shell:has(.ns-welcome-slide[data-science-step="8"]) .ns-welcome-actions .ns-skip{
+ grid-area:skip;justify-self:center;width:auto;min-height:44px;padding:9px 18px;color:#587b69;font-weight:600}
+
+@media(min-width:850px){
+ .ns-wellbeing{padding:32px 46px 39px}
+ .ns-wellbeing-points{max-width:740px}
+ .ns-welcome-slide[data-science-step="8"] .ns-wellbeing-art{min-height:285px}
+}
+@media(max-width:520px){
+ .ns-wellbeing{padding:14px 12px 20px;border-radius:18px}
+ .ns-wellbeing-art{min-height:210px;margin-bottom:12px}
+ .ns-wellbeing-logo{width:68%}
+ .ns-wellbeing-kicker{font-size:9px;letter-spacing:.11em}
+ .ns-wellbeing h2#ns-wellbeing-title{font-size:clamp(29px,8.2vw,37px);margin-bottom:19px}
+ .ns-wellbeing h2 em{display:block}
+ .ns-wellbeing-points p{grid-template-columns:31px minmax(0,1fr);gap:10px;font-size:13.2px;line-height:1.62}
+ .ns-wellbeing-points p>span:first-child{width:30px;height:30px;font-size:19px}
+ .ns-wellbeing-quote{font-size:19px;padding:14px 13px;margin-top:19px!important}
+ .ns-wellbeing-quote>span{font-size:28px}
+ .ns-wellbeing-orbit{width:36px;height:36px;font-size:19px}
+ .ns-welcome-slide[data-science-step="8"]{padding:3px}
+}
+@media(prefers-reduced-motion:reduce){.ns-wellbeing *{animation:none!important;transition:none!important}}

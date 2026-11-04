@@ -1,0 +1,79 @@
+[
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_daily_logs",
+    "trigger_name": "efg_coach_diary_release_gate",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION efg_private.coach_diary_write_gate()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_daily_logs",
+    "trigger_name": "efg_coach_diary_release_gate",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_private.coach_diary_write_gate()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "coach119_archive_previous_approved_guide",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_private.coach119_archive_replaced_guide()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "coach119_guard_flexible_guide_write",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION efg_private.coach119_guard_flexible_guide_write()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "coach119_guard_flexible_guide_write",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_private.coach119_guard_flexible_guide_write()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "efg_food_plan_lock_owner",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_private.food_plan_immutable_owner()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "efg_verify_guide_goal",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION efg_private.verify_guide_goal()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "efg_verify_guide_goal",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_private.verify_guide_goal()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "trg_efg_notify_food_guide",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION efg_notify_food_guide()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_food_plans",
+    "trigger_name": "trg_efg_notify_food_guide",
+    "event_manipulation": "UPDATE",
+    "action_statement": "EXECUTE FUNCTION efg_notify_food_guide()"
+  },
+  {
+    "trigger_schema": "public",
+    "event_object_table": "efg_goals",
+    "trigger_name": "trg_efg_notify_goal",
+    "event_manipulation": "INSERT",
+    "action_statement": "EXECUTE FUNCTION efg_notify_goal()"
+  }
+]

@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {qaReviewedSourcesAllowed,applyQaReviewedSources,QA_REVIEWED_SOURCES_ENABLED} from '../pilot/qa-reviewed-sources.js';
+import {rebalanceGuidedDay,guideTotals,describeGuidedMeal} from '../pilot/guided-day.js';
+const x=JSON.parse(fs.readFileSync(new URL('./evidence/p29c-qa-guide-v1.json',import.meta.url)));
+const original=JSON.stringify(x.guide),copy=applyQaReviewedSources(x.guide),next=rebalanceGuidedDay(copy,x.goal,{targetTolerance:.02});
+assert.equal(JSON.stringify(x.guide),original);assert.equal(next.meals.length,6);
+assert.equal(QA_REVIEWED_SOURCES_ENABLED,false);
+assert.equal(qaReviewedSourcesAllowed('69f78429-face-4c55-a28c-357cca35d452','09f08bd9-9acf-4348-9200-21a5df396aa5',true),true);
+assert.equal(qaReviewedSourcesAllowed('other','09f08bd9-9acf-4348-9200-21a5df396aa5',true),false);
+assert.equal(qaReviewedSourcesAllowed('69f78429-face-4c55-a28c-357cca35d452','other',true),false);
+const parts=next.meals.flatMap(m=>m.items).filter(x=>x.recipeComponent);assert.equal(parts.length,2);assert(parts.every(x=>x.qty===100&&x.locked));
+assert.match(describeGuidedMeal(next.meals.find(m=>m.slot==='cena')),/cocida y escurrida/);
+const bad=structuredClone(x.guide);bad.meals[0].items[0].unit='ml';assert.throws(()=>applyQaReviewedSources(bad),/unidad/);
+const total=guideTotals(next).totals;for(const [k,g] of Object.entries({k:2500,p:150,c:322,f:68,fi:35}))assert(Math.abs(total[k]/g-1)<.04);
+console.log('PASS P29I: clone preserves v1, exact QA scope, compatible units, six meals, locked recipe, cooked fish identity; all deviations <4%, not claimed <2%.');

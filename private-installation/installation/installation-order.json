@@ -1,0 +1,11 @@
+{
+  "status": "PRIVATE_NOT_EXECUTED",
+  "files": [
+    "proposed/001_owner_organization_policies_NOT_APPLIED.sql",
+    "proposed/002_automatic_composition_NOT_APPLIED.sql",
+    "proposed/003_private_health_schema_NOT_APPLIED.sql",
+    "proposed/005_optional_sharing_and_entry_NOT_APPLIED.sql",
+    "proposed/004_private_guide_bindings_NOT_APPLIED.sql",
+    "proposed/006_normal_coach119_bound_publication_NOT_APPLIED.sql"
+  ]
+}

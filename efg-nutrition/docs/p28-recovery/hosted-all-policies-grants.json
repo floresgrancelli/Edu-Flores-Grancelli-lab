@@ -1,0 +1,1122 @@
+{
+  "grants": [
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_activities",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_activities",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_activities",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_activities",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_billing_settings",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_billing_settings",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_billing_settings",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_billing_settings",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_coach_plan_drafts",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_coach_relaunch_intakes",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_consents",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_consents",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_consents",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_consents",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_daily_logs",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_daily_logs",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_daily_logs",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_daily_logs",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_food_compatibility_evidence",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_food_plans",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_food_plans",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_food_plans",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_food_plans",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_goals",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_goals",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_goals",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_goals",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_habitual_meals",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_habitual_meals",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_habitual_meals",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_habitual_meals",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_invitations",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_invitations",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_invitations",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_invitations",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_legal_acceptances",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_legal_documents",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_messages",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_messages",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_notifications",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_organizations",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_organizations",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_organizations",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_organizations",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_payments",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_payments",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_payments",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_payments",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_recipes",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_recipes",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_recipes",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_recipes",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_targets",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_targets",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_targets",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_personal_targets",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_pilot_participation_receipts",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_profiles",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_profiles",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_profiles",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_profiles",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_science_intro_receipts",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_student_onboarding",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_student_onboarding",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_student_plan_access",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_sunday_rewards",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_sunday_rewards",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_sunday_rewards",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weekly_reports",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weekly_reports",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weekly_reports",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weekly_reports",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weights",
+      "table_schema": "public",
+      "privilege_type": "DELETE"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weights",
+      "table_schema": "public",
+      "privilege_type": "INSERT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weights",
+      "table_schema": "public",
+      "privilege_type": "SELECT"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "efg_weights",
+      "table_schema": "public",
+      "privilege_type": "UPDATE"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR efg_private.coach_has_student(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_activities",
+      "policyname": "activity_private_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_activities",
+      "policyname": "activity_self_delete",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_activities",
+      "policyname": "activity_self_insert",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_activities",
+      "policyname": "activity_self_update",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM efg_profiles\n  WHERE ((efg_profiles.user_id = ( SELECT auth.uid() AS uid)) AND efg_profiles.active)))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_billing_settings",
+      "policyname": "billing_signed_in_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id) AND efg_private.coach_pilot_share_active(student_id, organization_id) AND (EXISTS ( SELECT 1\n   FROM efg_coach_relaunch_intakes intake\n  WHERE ((intake.student_id = efg_coach_plan_drafts.student_id) AND (intake.organization_id = efg_coach_plan_drafts.organization_id) AND (intake.shared_at IS NOT NULL) AND (intake.completed_version = 'coach_major_2026_r1'::text)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_coach_plan_drafts",
+      "policyname": "coach_draft_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = ( SELECT auth.uid() AS uid)) AND (p.role = 'student'::text) AND (p.active IS TRUE) AND (p.organization_id = efg_coach_relaunch_intakes.organization_id)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_coach_relaunch_intakes",
+      "policyname": "efg_coach_relaunch_owner_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((shared_at IS NOT NULL) AND efg_private.coach_pilot_share_active(student_id, organization_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_coach_relaunch_intakes",
+      "policyname": "efg_coach_relaunch_shared_coach_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR efg_private.student_belongs_to_coach(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_consents",
+      "policyname": "consent_student_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_consents",
+      "policyname": "consent_student_update",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_daily_logs",
+      "policyname": "daily_self_delete",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_daily_logs",
+      "policyname": "daily_self_insert",
+      "schemaname": "public",
+      "with_check": "((student_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = auth.uid()) AND p.active AND (p.role = ANY (ARRAY['student'::text, 'admin'::text, 'coach'::text]))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR efg_private.coach_has_student(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_daily_logs",
+      "policyname": "daily_self_or_authorized_coach_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_daily_logs",
+      "policyname": "daily_self_update",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((status = 'reviewed'::text) AND (reviewed_at <= now()) AND (expires_at > now()) AND (( SELECT auth.uid() AS uid) IS NOT NULL))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_food_compatibility_evidence",
+      "policyname": "efg_food_compat_read_reviewed",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_food_plans",
+      "policyname": "efg_food_plan_coach_insert",
+      "schemaname": "public",
+      "with_check": "((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_food_plans",
+      "policyname": "efg_food_plan_coach_update",
+      "schemaname": "public",
+      "with_check": "((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR ((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id)))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_food_plans",
+      "policyname": "efg_food_plan_read_owned",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_goals",
+      "policyname": "goals_coach_insert",
+      "schemaname": "public",
+      "with_check": "((approved_by = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR efg_private.coach_has_student(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_goals",
+      "policyname": "goals_private_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_habitual_meals",
+      "policyname": "Alumno edita sus comidas habituales",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_habitual_meals",
+      "policyname": "Alumno elimina sus comidas habituales",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_habitual_meals",
+      "policyname": "Alumno guarda sus comidas habituales",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_habitual_meals",
+      "policyname": "Alumno lee sus comidas habituales",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(((role = 'coach'::text) AND efg_private.is_admin()) OR (EXISTS ( SELECT 1\n   FROM efg_organizations o\n  WHERE ((o.id = efg_invitations.organization_id) AND (o.coach_id = ( SELECT auth.uid() AS uid))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_invitations",
+      "policyname": "invites_admin_and_coach_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_legal_acceptances",
+      "policyname": "coach115_own_legal_receipts",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(is_current AND (published_at IS NOT NULL))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_legal_documents",
+      "policyname": "coach115_public_current_docs",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR ((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id)))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_messages",
+      "policyname": "efg messages party read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_messages",
+      "policyname": "efg messages party write",
+      "schemaname": "public",
+      "with_check": "((sender_id = ( SELECT auth.uid() AS uid)) AND (((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id)) OR ((student_id = ( SELECT auth.uid() AS uid)) AND efg_private.student_can_message_coach(student_id, coach_id))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((sender_id <> ( SELECT auth.uid() AS uid)) AND ((student_id = ( SELECT auth.uid() AS uid)) OR ((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_messages",
+      "policyname": "efg messages recipient read receipt",
+      "schemaname": "public",
+      "with_check": "((sender_id <> ( SELECT auth.uid() AS uid)) AND ((student_id = ( SELECT auth.uid() AS uid)) OR ((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(recipient_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_notifications",
+      "policyname": "mark own notifications read",
+      "schemaname": "public",
+      "with_check": "(recipient_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(recipient_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_notifications",
+      "policyname": "read own notifications",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT efg_private.is_admin() AS is_admin) OR (coach_id = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = ( SELECT auth.uid() AS uid)) AND (p.role = 'student'::text) AND (p.organization_id = efg_organizations.id) AND p.active))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_organizations",
+      "policyname": "org_admin_and_owner_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((payer_id = ( SELECT auth.uid() AS uid)) OR (recipient_id = ( SELECT auth.uid() AS uid)))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_payments",
+      "policyname": "payments_party_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_recipes",
+      "policyname": "Alumno crea sus recetas",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_recipes",
+      "policyname": "Alumno edita sus recetas",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_recipes",
+      "policyname": "Alumno elimina sus recetas",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_recipes",
+      "policyname": "Alumno lee sus recetas",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_targets",
+      "policyname": "coach_or_admin_personal_target_insert",
+      "schemaname": "public",
+      "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles\n  WHERE ((efg_profiles.user_id = auth.uid()) AND (efg_profiles.role = ANY (ARRAY['admin'::text, 'coach'::text])) AND efg_profiles.active))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles\n  WHERE ((efg_profiles.user_id = auth.uid()) AND (efg_profiles.role = ANY (ARRAY['admin'::text, 'coach'::text])) AND efg_profiles.active))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_targets",
+      "policyname": "coach_or_admin_personal_target_update",
+      "schemaname": "public",
+      "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles\n  WHERE ((efg_profiles.user_id = auth.uid()) AND (efg_profiles.role = ANY (ARRAY['admin'::text, 'coach'::text])) AND efg_profiles.active))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_personal_targets",
+      "policyname": "own_personal_target_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = ( SELECT auth.uid() AS uid)) AND (p.role = 'student'::text) AND (p.active IS TRUE) AND (p.organization_id = efg_pilot_participation_receipts.organization_id)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_pilot_participation_receipts",
+      "policyname": "efg_pilot_participation_owner_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((user_id = ( SELECT auth.uid() AS uid)) OR ((role = 'student'::text) AND efg_private.student_belongs_to_coach(user_id)) OR ((role = 'coach'::text) AND efg_private.is_admin()))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_profiles",
+      "policyname": "profiles_private_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_science_intro_receipts",
+      "policyname": "efg_science_intro_read_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_student_onboarding",
+      "policyname": "efg_onboarding_own_insert",
+      "schemaname": "public",
+      "with_check": "((user_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = ( SELECT auth.uid() AS uid)) AND (p.role = 'student'::text) AND p.active))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_student_onboarding",
+      "policyname": "efg_onboarding_own_select",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND efg_private.coach_has_student(student_id) AND (EXISTS ( SELECT 1\n   FROM efg_pilot_participation_receipts r\n  WHERE ((r.student_id = efg_student_plan_access.student_id) AND (r.organization_id = efg_student_plan_access.organization_id) AND (r.version = 'coach_pilot_2026_demo1'::text) AND r.participation_accepted AND r.sharing_accepted AND (r.revoked_at IS NULL)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_student_plan_access",
+      "policyname": "efg_access_coach_linked",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM efg_profiles p\n  WHERE ((p.user_id = efg_student_plan_access.student_id) AND (p.organization_id = efg_student_plan_access.organization_id) AND (p.role = 'student'::text)))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_student_plan_access",
+      "policyname": "efg_access_student_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_sunday_rewards",
+      "policyname": "sunday_reward_coach_insert",
+      "schemaname": "public",
+      "with_check": "((EXTRACT(isodow FROM (now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text)) = (7)::numeric) AND (week_monday = (((now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text))::date - 6)) AND (coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n     JOIN efg_consents c ON (((c.student_id = p.user_id) AND (c.organization_id = o.id))))\n  WHERE ((p.user_id = efg_sunday_rewards.student_id) AND (p.role = 'student'::text) AND (p.active = true) AND (o.coach_id = ( SELECT auth.uid() AS uid)) AND (c.accepted = true) AND (o.status = ANY (ARRAY['active'::text, 'trial'::text, 'grace'::text])) AND (EXISTS ( SELECT 1\n           FROM efg_profiles coach\n          WHERE ((coach.user_id = o.coach_id) AND (coach.active = true) AND (coach.role = ANY (ARRAY['coach'::text, 'admin'::text])))))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n     JOIN efg_consents c ON (((c.student_id = p.user_id) AND (c.organization_id = o.id))))\n  WHERE ((p.user_id = efg_sunday_rewards.student_id) AND (p.role = 'student'::text) AND (p.active = true) AND (o.coach_id = ( SELECT auth.uid() AS uid)) AND (c.accepted = true) AND (o.status = ANY (ARRAY['active'::text, 'trial'::text, 'grace'::text])) AND (EXISTS ( SELECT 1\n           FROM efg_profiles coach\n          WHERE ((coach.user_id = o.coach_id) AND (coach.active = true) AND (coach.role = ANY (ARRAY['coach'::text, 'admin'::text])))))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_sunday_rewards",
+      "policyname": "sunday_reward_coach_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((EXTRACT(isodow FROM (now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text)) = (7)::numeric) AND (week_monday = (((now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text))::date - 6)) AND (coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n     JOIN efg_consents c ON (((c.student_id = p.user_id) AND (c.organization_id = o.id))))\n  WHERE ((p.user_id = efg_sunday_rewards.student_id) AND (p.role = 'student'::text) AND (p.active = true) AND (o.coach_id = ( SELECT auth.uid() AS uid)) AND (c.accepted = true) AND (o.status = ANY (ARRAY['active'::text, 'trial'::text, 'grace'::text])) AND (EXISTS ( SELECT 1\n           FROM efg_profiles coach\n          WHERE ((coach.user_id = o.coach_id) AND (coach.active = true) AND (coach.role = ANY (ARRAY['coach'::text, 'admin'::text])))))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_sunday_rewards",
+      "policyname": "sunday_reward_coach_update",
+      "schemaname": "public",
+      "with_check": "((EXTRACT(isodow FROM (now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text)) = (7)::numeric) AND (week_monday = (((now() AT TIME ZONE 'America/Argentina/Buenos_Aires'::text))::date - 6)) AND (coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n     JOIN efg_consents c ON (((c.student_id = p.user_id) AND (c.organization_id = o.id))))\n  WHERE ((p.user_id = efg_sunday_rewards.student_id) AND (p.role = 'student'::text) AND (p.active = true) AND (o.coach_id = ( SELECT auth.uid() AS uid)) AND (c.accepted = true) AND (o.status = ANY (ARRAY['active'::text, 'trial'::text, 'grace'::text])) AND (EXISTS ( SELECT 1\n           FROM efg_profiles coach\n          WHERE ((coach.user_id = o.coach_id) AND (coach.active = true) AND (coach.role = ANY (ARRAY['coach'::text, 'admin'::text])))))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_sunday_rewards",
+      "policyname": "sunday_reward_student_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weekly_reports",
+      "policyname": "Alumno consulta sus informes publicados",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_consents c ON ((c.student_id = p.user_id)))\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n  WHERE ((p.user_id = efg_weekly_reports.student_id) AND p.active AND (p.role = 'student'::text) AND c.accepted AND (c.organization_id = p.organization_id) AND (o.coach_id = ( SELECT auth.uid() AS uid))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weekly_reports",
+      "policyname": "Coach consulta informes de alumnos autorizados",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "((coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_consents c ON ((c.student_id = p.user_id)))\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n  WHERE ((p.user_id = efg_weekly_reports.student_id) AND p.active AND c.accepted AND (c.organization_id = p.organization_id) AND (o.coach_id = ( SELECT auth.uid() AS uid))))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weekly_reports",
+      "policyname": "Coach edita sus informes de alumnos autorizados",
+      "schemaname": "public",
+      "with_check": "((coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_consents c ON ((c.student_id = p.user_id)))\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n  WHERE ((p.user_id = efg_weekly_reports.student_id) AND p.active AND c.accepted AND (c.organization_id = p.organization_id) AND (o.coach_id = ( SELECT auth.uid() AS uid))))))"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weekly_reports",
+      "policyname": "Coach publica informes de alumnos autorizados",
+      "schemaname": "public",
+      "with_check": "((coach_id = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM ((efg_profiles p\n     JOIN efg_consents c ON ((c.student_id = p.user_id)))\n     JOIN efg_organizations o ON ((o.id = p.organization_id)))\n  WHERE ((p.user_id = efg_weekly_reports.student_id) AND p.active AND (p.role = 'student'::text) AND c.accepted AND (c.organization_id = p.organization_id) AND (o.coach_id = ( SELECT auth.uid() AS uid))))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "((student_id = ( SELECT auth.uid() AS uid)) OR efg_private.coach_has_student(student_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weights",
+      "policyname": "weight_private_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weights",
+      "policyname": "weight_self_delete",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weights",
+      "policyname": "weight_self_insert",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(student_id = ( SELECT auth.uid() AS uid))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "efg_weights",
+      "policyname": "weight_self_update",
+      "schemaname": "public",
+      "with_check": "(student_id = ( SELECT auth.uid() AS uid))"
+    }
+  ]
+}

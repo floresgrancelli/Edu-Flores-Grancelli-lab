@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {weeklyLogsWithCurrent,calculateWeeklyConsistency} from '../pilot/weekly-consistency.js';
+const today='2026-11-04',row={log_day:today,meals:{desayuno:[{k:148}]}};
+const report=logs=>calculateWeeklyConsistency({today,logs,goals:[],totalOf:()=>({k:148,p:12.4}),goalForDate:()=>({kcal:2500,protein_g:150})}).days[2];
+assert.equal(report(weeklyLogsWithCurrent([structuredClone(row)],row)).status,'today');
+assert.equal(report(weeklyLogsWithCurrent([],row)).status,'today');
+assert.equal(report(weeklyLogsWithCurrent([row,structuredClone(row)],row)).status,'conflict');
+const history=[{...row,meals:{}}];assert.equal(weeklyLogsWithCurrent(history,row)[0],row);assert.deepEqual(history[0].meals,{});
+assert.equal(weeklyLogsWithCurrent([],null).length,0);
+console.log('PASS P29J: current diary merged once, true duplicate history still conflicts, input immutable.');

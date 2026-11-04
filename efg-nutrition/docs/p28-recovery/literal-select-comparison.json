@@ -1,0 +1,554 @@
+[
+  {
+    "file": "food-compatibility-adapter.js",
+    "line": 33,
+    "table": "efg_food_compatibility_evidence",
+    "columns": "food_id,rule,status,catalog_review_id,catalog_version,source_kind,source_url,ingredient_classes,complete_ingredients,reviewed_at,expires_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-goal-write-gate.js",
+    "line": 8,
+    "table": "efg_student_plan_access",
+    "columns": "student_id,status",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 416,
+    "table": "efg_weekly_reports",
+    "columns": "id,week_ending,report_text,created_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 469,
+    "table": "efg_weekly_reports",
+    "columns": "id,week_ending,report_text,created_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 593,
+    "table": "efg_daily_logs",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 667,
+    "table": "efg_habitual_meals",
+    "columns": "id,meal_slot,name,items,created_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 963,
+    "table": "efg_personal_recipes",
+    "columns": "id,name,ingredients,portions,totals,created_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 1216,
+    "table": "efg_student_onboarding",
+    "columns": "seen_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 1456,
+    "table": "efg_sunday_rewards",
+    "columns": "student_id,week_monday,coach_id,approved,approved_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 2825,
+    "table": "efg_goals",
+    "columns": "id",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3180,
+    "table": "efg_goals",
+    "columns": "id",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3291,
+    "table": "efg_daily_logs",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3292,
+    "table": "efg_daily_logs",
+    "columns": "log_day,meals,sports,skipped",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3293,
+    "table": "efg_weights",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3294,
+    "table": "efg_activities",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3295,
+    "table": "efg_goals",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3296,
+    "table": "efg_personal_targets",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3297,
+    "table": "efg_food_plans",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3311,
+    "table": "efg_organizations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3312,
+    "table": "efg_organizations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3313,
+    "table": "efg_organizations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3316,
+    "table": "efg_payments",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3316,
+    "table": "efg_billing_settings",
+    "columns": "alias,additional_aliases",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3329,
+    "table": "efg_goals",
+    "columns": "student_id,id",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3344,
+    "table": "efg_coach_plan_drafts",
+    "columns": "student_id,organization_id,coach_id,status,draft_revision,source_intake_revision",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3364,
+    "table": "efg_consents",
+    "columns": "student_id,accepted",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3381,
+    "table": "efg_organizations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3381,
+    "table": "efg_invitations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3385,
+    "table": "efg_profiles",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3385,
+    "table": "efg_invitations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3398,
+    "table": "efg_profiles",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3398,
+    "table": "efg_invitations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3409,
+    "table": "efg_consents",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3432,
+    "table": "efg_consents",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3473,
+    "table": "efg_daily_logs",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3474,
+    "table": "efg_daily_logs",
+    "columns": "log_day,meals,sports,skipped",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3475,
+    "table": "efg_weights",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3476,
+    "table": "efg_activities",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3477,
+    "table": "efg_goals",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3478,
+    "table": "efg_food_plans",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3479,
+    "table": "efg_weekly_reports",
+    "columns": "id,week_ending,report_text,created_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 3523,
+    "table": "efg_profiles",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot.js",
+    "line": 4471,
+    "table": "efg_consents",
+    "columns": "accepted",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-bound-guide-preparation.js",
+    "line": 19,
+    "table": "efg_coach_relaunch_intakes",
+    "columns": "student_id,organization_id,revision,shared_at,preferred_foods,disliked_foods",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-bound-guide-preparation.js",
+    "line": 26,
+    "table": "efg_coach_plan_drafts",
+    "columns": "draft_revision",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "science-welcome.js",
+    "line": 119,
+    "table": "efg_science_intro_receipts",
+    "columns": "user_id,version,seen_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "messages-ui.js",
+    "line": 139,
+    "table": "efg_messages",
+    "columns": "id,student_id,coach_id,sender_id,body,created_at,read_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "messages-ui.js",
+    "line": 176,
+    "table": "efg_messages",
+    "columns": "id,student_id,coach_id,sender_id,body,created_at,read_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "messages-ui.js",
+    "line": 202,
+    "table": "efg_messages",
+    "columns": "id,student_id,coach_id,sender_id,body,created_at,read_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "pilot-participation-client.js",
+    "line": 16,
+    "table": "efg_pilot_participation_receipts",
+    "columns": "student_id,organization_id,version,participation_accepted,sharing_accepted,acceptance_method,accepted_at,revoked_at,updated_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-legal-bridge.js",
+    "line": 54,
+    "table": "efg_legal_documents",
+    "columns": "id,kind,version,sha256,body,is_current,published_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-relaunch-entry-client.js",
+    "line": 38,
+    "table": "efg_coach_relaunch_intakes",
+    "columns": "student_id,organization_id,completed_version,revision,shared_at,completed_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,eating_window,preferred_foods,disliked_foods,meal_routine,notes",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-intake-flow.js",
+    "line": 52,
+    "table": "efg_student_plan_access",
+    "columns": "status,published_at,published_goal_id",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-intake-flow.js",
+    "line": 81,
+    "table": "efg_student_plan_access",
+    "columns": "student_id,status,published_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-intake-flow.js",
+    "line": 106,
+    "table": "efg_student_plan_access",
+    "columns": "student_id,status,published_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-private-history.js",
+    "line": 29,
+    "table": "efg_profiles",
+    "columns": "user_id,role,active,organization_id",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "personal-workspace.js",
+    "line": 38,
+    "table": "efg_personal_accounts",
+    "columns": "user_id",
+    "table_exists": false,
+    "missing_columns": []
+  },
+  {
+    "file": "personal-workspace.js",
+    "line": 44,
+    "table": "efg_personal_goals",
+    "columns": "user_id,revision,goal_type,kcal,protein_g,carb_g,fat_g,fiber_g",
+    "table_exists": false,
+    "missing_columns": []
+  },
+  {
+    "file": "personal-workspace.js",
+    "line": 45,
+    "table": "efg_personal_guides",
+    "columns": "user_id,revision,goal_revision,guide",
+    "table_exists": false,
+    "missing_columns": []
+  },
+  {
+    "file": "personal-workspace.js",
+    "line": 46,
+    "table": "efg_personal_daily_logs",
+    "columns": "user_id,log_day,meals,totals,skipped",
+    "table_exists": false,
+    "missing_columns": []
+  },
+  {
+    "file": "personal-workspace.js",
+    "line": 47,
+    "table": "efg_personal_habitual_meals",
+    "columns": "id,user_id,meal_slot,name,items",
+    "table_exists": false,
+    "missing_columns": []
+  },
+  {
+    "file": "notifications-ui.js",
+    "line": 36,
+    "table": "efg_notifications",
+    "columns": "id,kind,title,body,target_tab,target_student,created_at,is_read",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-pilot-intake-client.js",
+    "line": 68,
+    "table": "efg_coach_relaunch_intakes",
+    "columns": "student_id,organization_id,completed_version,revision,shared_at,updated_at,objective,age_years,height_cm,weight_kg,activity_level,dietary_pattern,eating_window,preferred_foods,disliked_foods,meal_routine,notes",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-pilot-intake-client.js",
+    "line": 103,
+    "table": "efg_consents",
+    "columns": "student_id,accepted",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-pilot-legal-client.js",
+    "line": 39,
+    "table": "efg_legal_documents",
+    "columns": "id,kind,version,body,sha256,is_current,published_at",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-roster-freshness.js",
+    "line": 17,
+    "table": "efg_profiles",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-roster-freshness.js",
+    "line": 18,
+    "table": "efg_invitations",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-roster-freshness.js",
+    "line": 24,
+    "table": "efg_consents",
+    "columns": "*",
+    "table_exists": true,
+    "missing_columns": []
+  },
+  {
+    "file": "coach-plan-draft-client.js",
+    "line": 78,
+    "table": "efg_consents",
+    "columns": "accepted",
+    "table_exists": true,
+    "missing_columns": []
+  }
+]

@@ -1,4 +1,4 @@
-import {isNutritionDayClosed} from "./day-lifecycle.js?v=20261027-auto2359-v1";
+import {isNutritionDayClosed} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be";
 // Resumen de seguimiento: nunca inventar ceros para días sin registro.
 // Las cifras se recalculan desde los alimentos realmente registrados.
 export function buildNutritionReport(logs, mealSlots, dailyTotals, currentDay, goal){
@@ -25,7 +25,7 @@ export function nutritionReportText(report,nickname,selectedDate){
  if(!day)return "Sin registros disponibles para elaborar un informe diario.";
  const round=x=>Math.round(Number(x)||0);
  const date=day.date.split("-").reverse().join("/");
- let out=["EFG NUTRITION | INFORME DIARIO",nickname||"Alumno",date,day.closed?"Estado: cierre automático a las 23:59 (Argentina)":"Estado: registro del día en curso (cierra 23:59)","Calorías registradas: "+round(day.k)+" kcal","Proteínas: "+round(day.p)+" g | Carbohidratos: "+round(day.c)+" g | Grasas: "+round(day.f)+" g | Fibra: "+round(day.fi)+" g"];
+ let out=["NUTRICIÓN CON-CIENCIA | INFORME DIARIO",nickname||"Alumno",date,day.closed?"Estado: cierre automático a las 23:59 (Argentina)":"Estado: registro del día en curso (cierra 23:59)","Calorías registradas: "+round(day.k)+" kcal","Proteínas: "+round(day.p)+" g | Carbohidratos: "+round(day.c)+" g | Grasas: "+round(day.f)+" g | Fibra: "+round(day.fi)+" g"];
  if(report.goal?.kcal){out.push("Meta: "+round(report.goal.kcal)+" kcal | Diferencia: "+(round(day.k-report.goal.kcal)>=0?"+":"")+round(day.k-report.goal.kcal)+" kcal");}
  if(day.comment)out.push("Comentario del alumno: "+day.comment);
  if(day.supplements?.length)out.push("Suplementos del día: "+day.supplements.map(x=>x.name+" ("+x.qty+" "+x.unit+")").join(", "));

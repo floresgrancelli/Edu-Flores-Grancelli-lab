@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {sourceReviewCatalogForSyntheticCoach} from '../tools/prepare-ncc-source-review-batch.mjs';
+import {generateFlexibleGuidedDay} from '../pilot/guided-day-v2.js';
+import {rebalanceGuidedDay,guideTotals} from '../pilot/guided-day.js';
+import {applyPilotReviewedSources} from '../pilot/coach-reviewed-sources.js';
+const proposal=JSON.parse(fs.readFileSync(new URL('../docs/p29x-review/proposal-18-PENDING.json',import.meta.url)));
+assert.equal(proposal.rows.length,18);assert.equal(proposal.decision,null);
+assert(proposal.rows.every(r=>r.decision===null&&r.reviewedAt===null));
+const goal={kcal:2500,protein_g:150,carb_g:322,fat_g:68,fiber_g:35};
+const original=generateFlexibleGuidedDay(sourceReviewCatalogForSyntheticCoach(),goal,{});
+// Synthetic metadata exclusively for isolated validation. Never an approval payload.
+const rows=proposal.rows.map(r=>({id:r.foodId,name:r.proposedIdentity,unit:r.unit,...Object.fromEntries(Object.entries(r.per100Unit).map(([k,v])=>[k,Math.round(v/100*1e6)/1e6])),sourceUrl:r.sourceUrl,sourceType:r.sourceType||'validated_composition',sourceApprovalId:'SYNTHETIC_ONLY_'+r.foodId,scope:'pilot_real',reviewedAt:'2026-11-04T17:00:00Z',expiresAt:'2026-11-05T17:00:00Z'}));
+const reviewed=applyPilotReviewedSources(original,rows,{now:Date.parse('2026-11-04T18:00:00Z')});
+const recalculated=rebalanceGuidedDay(reviewed,goal,{targetTolerance:.02});
+const totals=guideTotals(recalculated).totals;
+const deviations=Object.fromEntries(Object.entries({k:2500,p:150,c:322,f:68,fi:35}).map(([k,v])=>[k,totals[k]/v-1]));
+assert(recalculated.meals.flatMap(m=>m.items).every(i=>i.sourceApprovalId?.startsWith('SYNTHETIC_ONLY_')));
+console.log(JSON.stringify({scope:'isolated synthetic standard profile, actual catalog; no human approval',selected:[...new Set(original.meals.flatMap(m=>m.items.map(i=>i.id)))],totals,deviations},null,2));
+assert(Object.values(deviations).every(v=>Math.abs(v)<.04),'Macro deviation exceeds publication tolerance');

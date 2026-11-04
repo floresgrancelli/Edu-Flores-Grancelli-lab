@@ -105,7 +105,7 @@ export function progressDashboard(logs,goals,range,end,goalForDate,context="stud
  const window=filterDays(logs,days,end);
  const choices=[7,30,90].map(x=>'<button type="button" data-progress-range="'+x+'" class="'+(x===days?'selected':'')+'" aria-pressed="'+(x===days?'true':'false')+'">'+x+' días</button>').join("");
  return '<section class="efg-progress-dashboard" aria-label="Panel de análisis nutricional">'+
- '<div class="efg-progress-header"><div><span class="eyebrow">EFG NUTRITION · EVOLUCIÓN</span><h2>'+(context==="coach"?"Evolución nutricional del alumno":"Mi nutrición en números")+'</h2><p>Datos de los registros guardados · '+days+' días</p></div><div class="efg-progress-range" role="group" aria-label="Período del análisis">'+choices+'</div></div>'+
+ '<div class="efg-progress-header"><div><span class="eyebrow">NUTRICIÓN CON-CIENCIA · EVOLUCIÓN</span><h2>'+(context==="coach"?"Evolución nutricional del alumno":"Mi nutrición en números")+'</h2><p>Datos de los registros guardados · '+days+' días</p></div><div class="efg-progress-range" role="group" aria-label="Período del análisis">'+choices+'</div></div>'+
  '<div class="efg-progress-grid">'+
  '<article class="efg-progress-panel efg-progress-wide">'+title("Energía y macronutrientes","Promedio de energía por macronutriente en cada intervalo.")+barChart(window)+'</article>'+
  '<article class="efg-progress-panel">'+title("Objetivos nutricionales","Comparación del último día registrado con la meta vigente.")+goalBars(window,goalForDate)+'</article>'+

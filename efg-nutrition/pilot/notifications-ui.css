@@ -60,3 +60,8 @@
  .efg-notify-popup{top:54px;max-height:65vh}
 }
 @media(prefers-reduced-motion:reduce){.efg-notify-bell{transition:none}}
+
+/* UX Sprint 1: stale network responses never hide the gold bell or cached alerts. */
+.efg-inbox-warning{margin:8px 10px;padding:10px 12px;border:1px solid #ae9769;border-radius:12px;background:#f5edda;color:#4a3b26;font-size:12px;line-height:1.5}
+.efg-inbox-warning button{display:inline-block;min-height:40px;margin-left:6px;padding:4px 12px;border-radius:12px;border:1px solid #a18453;background:#e6d1ac;color:#2b3c4d;font-weight:700;cursor:pointer}
+.efg-inbox-warning button:focus-visible{outline:2px solid #a18453;outline-offset:2px}

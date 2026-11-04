@@ -1,0 +1,898 @@
+{
+  "base_sha": "f2efe5ad895a8672a8a60bbb0a156d7e86bf0178",
+  "flags": [
+    {
+      "module": "coach-shared-recipes-read-client.js",
+      "flag": "COACH_SHARED_STUDENT_RECIPES_UI_ENABLED",
+      "value": false
+    },
+    {
+      "module": "personal-planning-preview.js",
+      "flag": "PERSONAL_PLANNING_PREVIEW_ENABLED",
+      "value": false
+    },
+    {
+      "module": "pilot.js",
+      "flag": "COACH_PILOT_PROMOTION_ENABLED",
+      "value": false
+    },
+    {
+      "module": "gut-clinical-workbench.js",
+      "flag": "GUT_CLINICAL_INTAKE_ENABLED",
+      "value": false
+    },
+    {
+      "module": "legal-onboarding.js",
+      "flag": "LEGAL_ONBOARDING_ENABLED",
+      "value": false
+    },
+    {
+      "module": "science-welcome.js",
+      "flag": "SCIENCE_WELCOME_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-relaunch-onboarding.js",
+      "flag": "COACH_RELAUNCH_ONBOARDING_ENABLED",
+      "value": false
+    },
+    {
+      "module": "release-communications.js",
+      "flag": "RELEASE_COMMUNICATIONS_ENABLED",
+      "value": false
+    },
+    {
+      "module": "personal-meal-draft.js",
+      "flag": "PERSONAL_MEAL_EDIT_ENABLED",
+      "value": false
+    },
+    {
+      "module": "personal-day-balance.js",
+      "flag": "PERSONAL_DAY_BALANCE_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-legal-bridge.js",
+      "flag": "COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED",
+      "value": false
+    },
+    {
+      "module": "personal-intake-draft.js",
+      "flag": "PERSONAL_INTAKE_ENABLED",
+      "value": false
+    },
+    {
+      "module": "server-compatibility-client.js",
+      "flag": "SERVER_COMPATIBILITY_ENABLED",
+      "value": false
+    },
+    {
+      "module": "personal-workspace.js",
+      "flag": "PERSONAL_WORKSPACE_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-release-plan-gate.js",
+      "flag": "COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED",
+      "value": false
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "flag": "PRIVATE_HEALTH_DECLARATION_UI_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-adapted-workspace.js",
+      "flag": "COACH_ADAPTED_GUIDE_PREVIEW_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-student-journey.js",
+      "flag": "COACH_STUDENT_JOURNEY_ENABLED",
+      "value": false
+    },
+    {
+      "module": "major-release-client.js",
+      "flag": "MAJOR_RELEASE_FLOW_ENABLED",
+      "value": false
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "flag": "COACH_ATOMIC_PLAN_UI_ENABLED",
+      "value": false
+    },
+    {
+      "module": "clinical-guide-connection.js",
+      "flag": "CLINICAL_GUIDE_CONNECTION_ENABLED",
+      "value": false
+    },
+    {
+      "module": "food-compatibility.js",
+      "flag": "FOOD_COMPATIBILITY_ENABLED",
+      "value": true
+    },
+    {
+      "module": "pilot-participation-demo.js",
+      "flag": "PILOT_PARTICIPATION_ENABLED",
+      "value": false
+    }
+  ],
+  "literal_references": [
+    {
+      "module": "food-compatibility-adapter.js",
+      "resource": "efg_food_compatibility_evidence",
+      "line": 33
+    },
+    {
+      "module": "coach-goal-write-gate.js",
+      "resource": "efg_student_plan_access",
+      "line": 8
+    },
+    {
+      "module": "coach-shared-recipes-read-client.js",
+      "resource": "efg_coach_shared_student_recipes",
+      "line": 24
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weekly_reports",
+      "line": 416
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weekly_reports",
+      "line": 461
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weekly_reports",
+      "line": 469
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 593
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_habitual_meals",
+      "line": 667
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_habitual_meals",
+      "line": 703
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_habitual_meals",
+      "line": 825
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_habitual_meals",
+      "line": 874
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_recipes",
+      "line": 963
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_recipes",
+      "line": 988
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_recipes",
+      "line": 1080
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_student_onboarding",
+      "line": 1216
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_student_onboarding",
+      "line": 1225
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_sunday_rewards",
+      "line": 1456
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_sunday_rewards",
+      "line": 1499
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_food_plans",
+      "line": 2120
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 2825
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_food_plans",
+      "line": 2834
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 3180
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 3185
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 3259
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 3291
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 3292
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weights",
+      "line": 3293
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_activities",
+      "line": 3294
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 3295
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_targets",
+      "line": 3296
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_food_plans",
+      "line": 3297
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_organizations",
+      "line": 3311
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_organizations",
+      "line": 3312
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_organizations",
+      "line": 3313
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_payments",
+      "line": 3316
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_billing_settings",
+      "line": 3316
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 3329
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_coach_plan_drafts",
+      "line": 3344
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_consents",
+      "line": 3364
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_organizations",
+      "line": 3381
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_invitations",
+      "line": 3381
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_profiles",
+      "line": 3385
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_invitations",
+      "line": 3385
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_profiles",
+      "line": 3398
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_invitations",
+      "line": 3398
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_consents",
+      "line": 3409
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_consents",
+      "line": 3432
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_get_coach_health_intake",
+      "line": 3458
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 3473
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_daily_logs",
+      "line": 3474
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weights",
+      "line": 3475
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_activities",
+      "line": 3476
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 3477
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_food_plans",
+      "line": 3478
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weekly_reports",
+      "line": 3479
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_claim_invitation",
+      "line": 3521
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_profiles",
+      "line": 3523
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_weights",
+      "line": 3700
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_activities",
+      "line": 3706
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_targets",
+      "line": 3718
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_submit_coach_payment",
+      "line": 3732
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_submit_payment",
+      "line": 3732
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_confirm_payment",
+      "line": 3741
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_set_student_active",
+      "line": 3828
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_delete_pending_invitation",
+      "line": 3838
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_personal_recipes",
+      "line": 3948
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_update_subscription",
+      "line": 4035
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_revoke_test_invitation",
+      "line": 4036
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_revoke_invitation",
+      "line": 4036
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_set_seats",
+      "line": 4043
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_set_coach_plan",
+      "line": 4054
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_activate_paid_coach",
+      "line": 4061
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_consents",
+      "line": 4282
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_promote_existing_student_to_pilot_coach",
+      "line": 4298
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_offer_coach",
+      "line": 4311
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_invite_test_student",
+      "line": 4314
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_invite_student",
+      "line": 4314
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_set_coach_alias",
+      "line": 4315
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_set_platform_aliases",
+      "line": 4316
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_consents",
+      "line": 4471
+    },
+    {
+      "module": "pilot.js",
+      "resource": "efg_goals",
+      "line": 4480
+    },
+    {
+      "module": "persisted-guide-provider.js",
+      "resource": "efg_get_coach_health_intake",
+      "line": 8
+    },
+    {
+      "module": "persisted-guide-provider.js",
+      "resource": "efg_read_bound_guide",
+      "line": 25
+    },
+    {
+      "module": "persisted-guide-provider.js",
+      "resource": "efg_save_clinical_bound_recipe",
+      "line": 65
+    },
+    {
+      "module": "persisted-guide-provider.js",
+      "resource": "efg_save_bound_guide",
+      "line": 69
+    },
+    {
+      "module": "persisted-guide-provider.js",
+      "resource": "efg_preview_clinical_bound_recipe",
+      "line": 77
+    },
+    {
+      "module": "bound-guide-publication-client.js",
+      "resource": "efg_publish_coach_plan_draft_atomic",
+      "line": 12
+    },
+    {
+      "module": "coach-bound-guide-preparation.js",
+      "resource": "efg_coach_relaunch_intakes",
+      "line": 19
+    },
+    {
+      "module": "coach-bound-guide-preparation.js",
+      "resource": "efg_get_coach_health_intake",
+      "line": 21
+    },
+    {
+      "module": "coach-bound-guide-preparation.js",
+      "resource": "efg_coach_plan_drafts",
+      "line": 26
+    },
+    {
+      "module": "coach-bound-guide-preparation.js",
+      "resource": "efg_prepare_bound_guide",
+      "line": 28
+    },
+    {
+      "module": "coach-bound-guide-preparation.js",
+      "resource": "efg_read_bound_guide",
+      "line": 32
+    },
+    {
+      "module": "science-welcome.js",
+      "resource": "efg_science_intro_receipts",
+      "line": 119
+    },
+    {
+      "module": "science-welcome.js",
+      "resource": "efg_ack_science_intro",
+      "line": 133
+    },
+    {
+      "module": "messages-ui.js",
+      "resource": "efg_messages",
+      "line": 139
+    },
+    {
+      "module": "messages-ui.js",
+      "resource": "efg_messages",
+      "line": 158
+    },
+    {
+      "module": "messages-ui.js",
+      "resource": "efg_messages",
+      "line": 176
+    },
+    {
+      "module": "messages-ui.js",
+      "resource": "efg_messages",
+      "line": 202
+    },
+    {
+      "module": "messages-ui.js",
+      "resource": "efg_messages",
+      "line": 229
+    },
+    {
+      "module": "pilot-participation-client.js",
+      "resource": "efg_pilot_participation_receipts",
+      "line": 16
+    },
+    {
+      "module": "pilot-participation-client.js",
+      "resource": "efg_accept_pilot_participation",
+      "line": 49
+    },
+    {
+      "module": "pilot-participation-client.js",
+      "resource": "efg_revoke_pilot_participation",
+      "line": 63
+    },
+    {
+      "module": "coach-legal-bridge.js",
+      "resource": "efg_legal_current_status",
+      "line": 50
+    },
+    {
+      "module": "coach-legal-bridge.js",
+      "resource": "efg_legal_documents",
+      "line": 54
+    },
+    {
+      "module": "coach-legal-bridge.js",
+      "resource": "efg_accept_current_legal",
+      "line": 93
+    },
+    {
+      "module": "coach-relaunch-entry-client.js",
+      "resource": "efg_legal_current_status",
+      "line": 29
+    },
+    {
+      "module": "coach-relaunch-entry-client.js",
+      "resource": "efg_coach_relaunch_intakes",
+      "line": 38
+    },
+    {
+      "module": "coach-relaunch-entry-client.js",
+      "resource": "efg_submit_coach_relaunch_intake",
+      "line": 157
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_coach_relaunch_intakes",
+      "line": 24
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_intakes",
+      "line": 24
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_plan_access",
+      "line": 52
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_plan_access",
+      "line": 81
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_plan_access",
+      "line": 106
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_intakes",
+      "line": 192
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_student_intakes",
+      "line": 212
+    },
+    {
+      "module": "coach-intake-flow.js",
+      "resource": "efg_publish_coach_plan",
+      "line": 245
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_profiles",
+      "line": 29
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_daily_logs",
+      "line": 41
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_weights",
+      "line": 42
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_goals",
+      "line": 43
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_food_plans",
+      "line": 44
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_weekly_reports",
+      "line": 45
+    },
+    {
+      "module": "coach-private-history.js",
+      "resource": "efg_payments",
+      "line": 46
+    },
+    {
+      "module": "coach-pilot-entry-client.js",
+      "resource": "efg_coach_pilot_entry_status",
+      "line": 48
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_personal_accounts",
+      "line": 38
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_legal_current_status",
+      "line": 39
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_personal_goals",
+      "line": 44
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_personal_guides",
+      "line": 45
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_personal_daily_logs",
+      "line": 46
+    },
+    {
+      "module": "personal-workspace.js",
+      "resource": "efg_personal_habitual_meals",
+      "line": 47
+    },
+    {
+      "module": "notifications-ui.js",
+      "resource": "efg_notifications",
+      "line": 36
+    },
+    {
+      "module": "notifications-ui.js",
+      "resource": "efg_notifications",
+      "line": 69
+    },
+    {
+      "module": "coach-pilot-intake-client.js",
+      "resource": "efg_coach_relaunch_intakes",
+      "line": 68
+    },
+    {
+      "module": "coach-pilot-intake-client.js",
+      "resource": "efg_consents",
+      "line": 103
+    },
+    {
+      "module": "coach-pilot-intake-client.js",
+      "resource": "efg_submit_coach_relaunch_intake",
+      "line": 110
+    },
+    {
+      "module": "coach-pilot-legal-client.js",
+      "resource": "efg_legal_current_status",
+      "line": 34
+    },
+    {
+      "module": "coach-pilot-legal-client.js",
+      "resource": "efg_legal_documents",
+      "line": 39
+    },
+    {
+      "module": "coach-pilot-legal-client.js",
+      "resource": "efg_accept_current_legal",
+      "line": 113
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "resource": "efg_current_coach_health_document",
+      "line": 46
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "resource": "efg_get_coach_health_intake",
+      "line": 49
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "resource": "efg_declare_no_restrictions",
+      "line": 75
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "resource": "efg_submit_coach_health_intake",
+      "line": 90
+    },
+    {
+      "module": "student-restriction-declaration.js",
+      "resource": "efg_revoke_coach_health_intake",
+      "line": 106
+    },
+    {
+      "module": "coach-roster-freshness.js",
+      "resource": "efg_profiles",
+      "line": 17
+    },
+    {
+      "module": "coach-roster-freshness.js",
+      "resource": "efg_invitations",
+      "line": 18
+    },
+    {
+      "module": "coach-roster-freshness.js",
+      "resource": "efg_consents",
+      "line": 24
+    },
+    {
+      "module": "major-release-client.js",
+      "resource": "efg_major_release_status",
+      "line": 38
+    },
+    {
+      "module": "major-release-client.js",
+      "resource": "efg_major_release_ack",
+      "line": 58
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_consents",
+      "line": 78
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_coach_relaunch_intakes",
+      "line": 81
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_student_intakes",
+      "line": 81
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_coach_plan_drafts",
+      "line": 107
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_save_coach_plan_draft",
+      "line": 146
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_publish_coach_plan_draft_atomic",
+      "line": 168
+    },
+    {
+      "module": "coach-plan-draft-client.js",
+      "resource": "efg_publish_coach_plan_draft",
+      "line": 168
+    }
+  ],
+  "limitation": "Literal inventory; dynamic routing requires functional tests."
+}

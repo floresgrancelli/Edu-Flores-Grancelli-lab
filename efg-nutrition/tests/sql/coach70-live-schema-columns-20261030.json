@@ -1,0 +1,793 @@
+{
+  "source": "Supabase hosted production, information_schema columns ONLY, read-only capture on 2026-10-30; 15/15 public application table column fixtures modeled by COACH70 (no data)",
+  "project": "cyjvddhimbsfipjfctsl",
+  "schema": "public",
+  "fixture_tables": [
+    "efg_activities",
+    "efg_consents",
+    "efg_daily_logs",
+    "efg_food_plans",
+    "efg_goals",
+    "efg_habitual_meals",
+    "efg_invitations",
+    "efg_messages",
+    "efg_notifications",
+    "efg_organizations",
+    "efg_payments",
+    "efg_personal_recipes",
+    "efg_profiles",
+    "efg_weekly_reports",
+    "efg_weights"
+  ],
+  "not_in_fixture": [],
+  "tables": {
+    "efg_activities": [
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "activity_day",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "steps",
+        "type": "int4",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "exercise_minutes",
+        "type": "int4",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "kind",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "efg_consents": [
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "accepted",
+        "type": "bool",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "email_report_opt_in",
+        "type": "bool",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_daily_logs": [
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "log_day",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "meals",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "sports",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "skipped",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "totals",
+        "type": "jsonb",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_food_plans": [
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "coach_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "approved_food_ids",
+        "type": "_text",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "guided_plan",
+        "type": "jsonb",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "guided_goal_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "guided_plan_approved_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "efg_goals": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "approved_by",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "goal_type",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "kcal",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "protein_g",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "carb_g",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "fat_g",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "fiber_g",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "start_on",
+        "type": "date",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "approved_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "estimation_method",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "activity_factor",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "protein_per_kg",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "fat_per_kg",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "efg_habitual_meals": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "meal_slot",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "name",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "items",
+        "type": "jsonb",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_invitations": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "email",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "nickname",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "role",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "invited_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "claimed_by",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "revoked_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "efg_messages": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "coach_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "sender_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "body",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "read_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      }
+    ],
+    "efg_notifications": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "recipient_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "actor_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "kind",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "event_key",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "title",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "body",
+        "type": "text",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "target_tab",
+        "type": "text",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "target_student",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "is_read",
+        "type": "bool",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "read_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_organizations": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "coach_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "name",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "seat_limit",
+        "type": "int4",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "payment_alias",
+        "type": "text",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "is_test",
+        "type": "bool",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "license_fee_ars",
+        "type": "numeric",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "paid_through",
+        "type": "date",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "plan_updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_payments": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "payer_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "recipient_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "payment_kind",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "amount_ars",
+        "type": "numeric",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "period_label",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "alias_snapshot",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "receipt_path",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "status",
+        "type": "text",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "reviewed_at",
+        "type": "timestamptz",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_personal_recipes": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "name",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "ingredients",
+        "type": "jsonb",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "portions",
+        "type": "int4",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "totals",
+        "type": "jsonb",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_profiles": [
+      {
+        "column": "user_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "email",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "nickname",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "role",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "organization_id",
+        "type": "uuid",
+        "nullable": true,
+        "default": null
+      },
+      {
+        "column": "active",
+        "type": "bool",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_weekly_reports": [
+      {
+        "column": "id",
+        "type": "uuid",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "coach_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "week_ending",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "report_text",
+        "type": "text",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "updated_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      }
+    ],
+    "efg_weights": [
+      {
+        "column": "student_id",
+        "type": "uuid",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "measured_on",
+        "type": "date",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "kg",
+        "type": "numeric",
+        "nullable": false,
+        "default": null
+      },
+      {
+        "column": "created_at",
+        "type": "timestamptz",
+        "nullable": false,
+        "default": "present"
+      },
+      {
+        "column": "measured_time",
+        "type": "time",
+        "nullable": true,
+        "default": null
+      }
+    ]
+  }
+}

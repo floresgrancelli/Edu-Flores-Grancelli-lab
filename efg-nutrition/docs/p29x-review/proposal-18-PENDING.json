@@ -1,0 +1,536 @@
+{
+  "scope": "pilot_real",
+  "status": "PENDING_HUMAN_REVIEW",
+  "proposedValidityDays": 90,
+  "decision": null,
+  "reviewer": null,
+  "reviewedAt": null,
+  "expiresAt": null,
+  "productionGo": false,
+  "sourceProposalSha256": "875671fb37e60c21c7356c4179a5f229e93302129d227493ef947ccb31ee5a0a",
+  "rows": [
+    {
+      "foodId": "apple",
+      "proposedIdentity": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+      "unit": "g",
+      "per100Unit": {
+        "k": 52.0,
+        "p": 0.26,
+        "f": 0.17,
+        "c": 13.81,
+        "fi": 2.4
+      },
+      "currentPer100Unit": {
+        "k": 52.0,
+        "p": 0.26,
+        "c": 13.81,
+        "f": 0.17,
+        "fi": 2.4
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171688",
+      "fdcId": 171688,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "banana",
+      "proposedIdentity": "Bananas, raw",
+      "unit": "g",
+      "per100Unit": {
+        "k": 89.0,
+        "p": 1.09,
+        "f": 0.33,
+        "c": 22.84,
+        "fi": 2.6
+      },
+      "currentPer100Unit": {
+        "k": 89.0,
+        "p": 1.09,
+        "c": 22.84,
+        "f": 0.33,
+        "fi": 2.6
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/173944",
+      "fdcId": 173944,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "brownrice",
+      "proposedIdentity": "Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+      "unit": "g",
+      "per100Unit": {
+        "k": 123.0,
+        "p": 2.74,
+        "f": 0.97,
+        "c": 25.58,
+        "fi": 1.6
+      },
+      "currentPer100Unit": {
+        "k": 123.0,
+        "p": 2.7,
+        "c": 25.6,
+        "f": 1.0,
+        "fi": 1.8
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169704",
+      "fdcId": 169704,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "2961c975b21142088f217bc026e445eeaaa27625d86ef4883254adfb29d73918",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "coffee_black",
+      "proposedIdentity": "Beverages, coffee, brewed, prepared with tap water",
+      "unit": "ml",
+      "per100Unit": {
+        "k": 1.00089607,
+        "p": 0.12010753,
+        "f": 0.02001792,
+        "c": 0.0,
+        "fi": 0.0
+      },
+      "currentPer100Unit": {
+        "k": 0.4,
+        "p": 0.1,
+        "c": 0,
+        "f": 0,
+        "fi": 0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171890",
+      "fdcId": 171890,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "conversion": {
+        "method": "USDA household portion 29.6g per US fl oz divided by NIST 29.5735mL per US fl oz",
+        "gPerMl": 1.0008960724973373,
+        "unitSource": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nisthandbook130-1992.pdf",
+        "limitation": "Approximation from household-portion rounding, specific to brewed coffee with water; not espresso or soluble concentrate."
+      },
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "egg",
+      "proposedIdentity": "Eggs, Grade A, Large, egg whole",
+      "unit": "g",
+      "per100Unit": {
+        "k": 148.0,
+        "p": 12.4,
+        "f": 9.96,
+        "c": 0.96,
+        "fi": 0.0
+      },
+      "currentPer100Unit": {
+        "k": 148.0,
+        "p": 12.4,
+        "c": 0.96,
+        "f": 9.96,
+        "fi": 0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/748967",
+      "fdcId": 748967,
+      "dataType": "Foundation",
+      "rawResponseSha256": "880114001f68a9e7833c95c9dd0a3656452606b90d1e9cb005cd4ed7f2fed686",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "egg_white",
+      "proposedIdentity": "Egg, white, raw, fresh",
+      "unit": "g",
+      "per100Unit": {
+        "k": 52.0,
+        "p": 10.9,
+        "f": 0.17,
+        "c": 0.73,
+        "fi": 0.0
+      },
+      "currentPer100Unit": {
+        "k": 55.0,
+        "p": 10.7,
+        "c": 2.36,
+        "f": 0,
+        "fi": 0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172183",
+      "fdcId": 172183,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "2961c975b21142088f217bc026e445eeaaa27625d86ef4883254adfb29d73918",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "fish_hake",
+      "proposedIdentity": "Merluza (Merlucius hubbsi según TBCA), cocida y escurrida, sin aceite ni sal; peso comestible cocido",
+      "unit": "g",
+      "per100Unit": {
+        "k": 99,
+        "p": 19.3,
+        "c": 0,
+        "f": 2.42,
+        "fi": 0
+      },
+      "currentPer100Unit": {
+        "k": 107.7,
+        "p": 24.0,
+        "c": 0,
+        "f": 1.3,
+        "fi": 0
+      },
+      "sourceUrl": "https://tbca.net.br/base-dados-en/int_statistical_composition.php?cod_produto=BRC0190E",
+      "sourceId": "BRC0190E",
+      "dataType": "TBCA calculated; carbohydrate assumed by source",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null,
+      "preparationChange": "Change baked-hake preparation note to cooked/drained to match reference; no assertion of equivalence to baking."
+    },
+    {
+      "foodId": "mandarin",
+      "proposedIdentity": "Tangerines, (mandarin oranges), raw",
+      "unit": "g",
+      "per100Unit": {
+        "k": 53.0,
+        "p": 0.81,
+        "f": 0.31,
+        "c": 13.34,
+        "fi": 1.8
+      },
+      "currentPer100Unit": {
+        "k": 53.0,
+        "p": 0.8,
+        "c": 13.3,
+        "f": 0.3,
+        "fi": 1.8
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169105",
+      "fdcId": 169105,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "oil",
+      "proposedIdentity": "Oil, olive, salad or cooking",
+      "unit": "g",
+      "per100Unit": {
+        "k": 884.0,
+        "p": 0.0,
+        "f": 100.0,
+        "c": 0.0,
+        "fi": 0.0
+      },
+      "currentPer100Unit": {
+        "k": 884.0,
+        "p": 0,
+        "c": 0,
+        "f": 100,
+        "fi": 0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/171413",
+      "fdcId": 171413,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "potato",
+      "proposedIdentity": "Potatoes, boiled, cooked without skin, flesh, without salt",
+      "unit": "g",
+      "per100Unit": {
+        "k": 86.0,
+        "p": 1.71,
+        "f": 0.1,
+        "c": 20.01,
+        "fi": 1.8
+      },
+      "currentPer100Unit": {
+        "k": 86.0,
+        "p": 1.71,
+        "c": 20.01,
+        "f": 0.1,
+        "fi": 1.8
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/170440",
+      "fdcId": 170440,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "pumpkin",
+      "proposedIdentity": "Squash, winter, butternut, cooked, baked, without salt",
+      "unit": "g",
+      "per100Unit": {
+        "k": 40.0,
+        "p": 0.9,
+        "f": 0.09,
+        "c": 10.49,
+        "fi": 3.2
+      },
+      "currentPer100Unit": {
+        "k": 34.0,
+        "p": 1.0,
+        "c": 8.0,
+        "f": 0.1,
+        "fi": 1.0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169296",
+      "fdcId": 169296,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "27a23f4883e665369195e1c85481f893794180363f4935d6239b34d6475f2716",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "rocket",
+      "proposedIdentity": "Arugula, raw",
+      "unit": "g",
+      "per100Unit": {
+        "k": 25.0,
+        "p": 2.58,
+        "f": 0.66,
+        "c": 3.65,
+        "fi": 1.6
+      },
+      "currentPer100Unit": {
+        "k": 25.0,
+        "p": 2.6,
+        "c": 3.7,
+        "f": 0.7,
+        "fi": 1.6
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/169387",
+      "fdcId": 169387,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "tofu_firm",
+      "proposedIdentity": "Tofu, raw, firm, prepared with calcium sulfate",
+      "unit": "g",
+      "per100Unit": {
+        "k": 144.0,
+        "p": 17.27,
+        "f": 8.72,
+        "c": 2.78,
+        "fi": 2.3
+      },
+      "currentPer100Unit": {
+        "k": 119.0,
+        "p": 12.0,
+        "c": 2.0,
+        "f": 7.0,
+        "fi": 1.0
+      },
+      "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/172475",
+      "fdcId": 172475,
+      "dataType": "SR Legacy",
+      "rawResponseSha256": "020553970749f9de2e071b43b9444b73d253a81c247601642ccbc318ef134afd",
+      "conversion": null,
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "bread",
+      "proposedIdentity": "Pan integral comercial, referencia USDA FDC 172688",
+      "unit": "g",
+      "per100Unit": {
+        "k": 252,
+        "p": 12.45,
+        "c": 42.71,
+        "f": 3.5,
+        "fi": 6
+      },
+      "currentPer100Unit": {
+        "k": 247.0,
+        "p": 13.0,
+        "c": 41.0,
+        "f": 4.2,
+        "fi": 7.0
+      },
+      "deltaPer100Unit": {
+        "k": 5.0,
+        "p": -0.55,
+        "c": 1.71,
+        "f": -0.7,
+        "fi": -1.0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/172688/nutrients",
+      "capture": "usda-four-raw.json",
+      "captureSha256": "b4a863e386eaba1978a1af3813e8511eb8f0dee98657b576293b1b91d83e34d8",
+      "sourceType": "validated_composition",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "oats_raw",
+      "proposedIdentity": "Avena arrollada regular/rápida seca sin fortificar, USDA FDC 173904",
+      "unit": "g",
+      "per100Unit": {
+        "k": 379,
+        "p": 13.15,
+        "c": 67.7,
+        "f": 6.52,
+        "fi": 10.1
+      },
+      "currentPer100Unit": {
+        "k": 379.0,
+        "p": 13.2,
+        "c": 67.7,
+        "f": 6.5,
+        "fi": 10.1
+      },
+      "deltaPer100Unit": {
+        "k": 0.0,
+        "p": -0.05,
+        "c": 0.0,
+        "f": 0.02,
+        "fi": 0.0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/173904/nutrients",
+      "capture": "usda-four-raw.json",
+      "captureSha256": "b4a863e386eaba1978a1af3813e8511eb8f0dee98657b576293b1b91d83e34d8",
+      "sourceType": "validated_composition",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "yogurt",
+      "proposedIdentity": "Yogur natural descremado, referencia USDA SR Legacy FDC 170887",
+      "unit": "g",
+      "per100Unit": {
+        "k": 56,
+        "p": 5.73,
+        "c": 7.68,
+        "f": 0.18,
+        "fi": 0
+      },
+      "currentPer100Unit": {
+        "k": 50.0,
+        "p": 4.2,
+        "c": 8.1,
+        "f": 0.087,
+        "fi": 0
+      },
+      "deltaPer100Unit": {
+        "k": 6.0,
+        "p": 1.53,
+        "c": -0.42,
+        "f": 0.093,
+        "fi": 0
+      },
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/170887/nutrients",
+      "capture": "yogurt-170887-raw.json",
+      "captureSha256": "aad6a12cac567c2f3f829e4e60ba15cfe0938c72c9ed9e8eb670f216bcb9866b",
+      "sourceType": "validated_composition",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "foodId": "cheese",
+      "proposedIdentity": "Port Salut reducido en grasa La Serenísima, etiqueta verde, venta al peso",
+      "unit": "g",
+      "per100Unit": {
+        "k": 219,
+        "p": 27,
+        "c": 0.5,
+        "f": 12,
+        "fi": 0
+      },
+      "currentPer100Unit": {
+        "k": 217.0,
+        "p": 27.0,
+        "c": 1.7,
+        "f": 12.0,
+        "fi": 0
+      },
+      "deltaPer100Unit": {
+        "k": 2.0,
+        "p": 0.0,
+        "c": -1.2,
+        "f": 0.0,
+        "fi": 0
+      },
+      "sourceUrl": "https://www.laserenisima.com.ar/images/tablas/tablaportsaludverde.jpg",
+      "capture": "cheese-label-current.jpg",
+      "captureSha256": "f3c60936dbdcd8b1bec4b99a09f2ac0dc5cfcea8a962c66b5096b9956fd8f204",
+      "sourceType": "manufacturer_label",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null,
+      "fiberQualification": "0 operativo por declaración de cantidad no significativa en etiqueta; no cero analítico. Requiere aceptación expresa."
+    },
+    {
+      "foodId": "milk_skim",
+      "proposedIdentity": "Leche UAT 0% La Serenísima, referencia de etiqueta por 100 ml",
+      "unit": "ml",
+      "per100Unit": {
+        "k": 36,
+        "p": 3,
+        "c": 4.9,
+        "f": 0.5,
+        "fi": 0
+      },
+      "currentPer100Unit": {
+        "k": 36.05,
+        "p": 3.4711,
+        "c": 5.0058,
+        "f": 0.1854,
+        "fi": 0
+      },
+      "deltaPer100Unit": {
+        "k": -0.05,
+        "p": -0.4711,
+        "c": -0.1058,
+        "f": 0.3146,
+        "fi": 0
+      },
+      "sourceUrl": "https://www.laserenisima.com.ar/images/tablas/9523620tabla0.png",
+      "capture": "milk-label-current.png",
+      "captureSha256": "074485c7a3a67f913a2bb3fa1660251ec46ce3af3a910120b446fb1e5acab9b8",
+      "sourceType": "manufacturer_label",
+      "decision": null,
+      "reviewer": null,
+      "reviewedAt": null,
+      "fiberQualification": "0 operativo por declaración de cantidad no significativa en etiqueta; no cero analítico. Requiere aceptación expresa."
+    }
+  ],
+  "package": "P29X"
+}

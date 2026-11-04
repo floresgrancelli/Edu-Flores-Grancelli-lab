@@ -5,11 +5,11 @@ const totals=log=>log.meals.desayuno[0];
 const goal={start_on:"2026-10-01",kcal:2000,protein_g:150};
 const history=(items,at="2026-10-28",goals=[goal])=>calculateWeeklyConsistency({today:at,logs:items,goals,totalOf:totals,goalForDate:(gs,d)=>gs.filter(g=>g.start_on<=d).at(-1)||null});
 assert.equal(WEEKLY_RANGES.ideal,.05);
-assert.equal(WEEKLY_RANGES.acceptable,.10);
+assert.equal(WEEKLY_RANGES.acceptable,undefined,"Old ±10% band removed");
 assert.equal(classifyNutritionDay({k:1900,p:135},goal).status,"ideal","-5% is ideal, protein 90%");
 assert.equal(classifyNutritionDay({k:2100,p:135},goal).status,"ideal","+5% is ideal");
-assert.equal(classifyNutritionDay({k:1800,p:150},goal).status,"achieved","-10% accepted, not ideal");
-assert.equal(classifyNutritionDay({k:2200,p:150},goal).status,"achieved","+10% accepted, not ideal");
+assert.equal(classifyNutritionDay({k:1800,p:150},goal).status,"outside","-10% is not accepted");
+assert.equal(classifyNutritionDay({k:2200,p:150},goal).status,"outside","+10% is not accepted");
 assert.equal(classifyNutritionDay({k:2000,p:134.9},goal).status,"outside","protein below 90% blocks both");
 assert.equal(classifyNutritionDay({k:1700,p:150},goal).status,"outside","-15% outside");
 assert.equal(classifyNutritionDay({k:0,p:150},goal).status,"unavailable","missing intake not counted");
@@ -21,23 +21,23 @@ const score=history([
 assert.equal(score.days.length,6);
 assert.deepEqual(score.days.map(x=>x.label),["L","M","X","J","V","S"]);
 assert.equal(score.days[0].status,"ideal");
-assert.equal(score.days[1].status,"achieved");
+assert.equal(score.days[1].status,"outside");
 assert.equal(score.days[2].status,"today","never award during an unfinished day");
 assert.equal(score.days[3].status,"future");
 assert.equal(score.ideal,1);
-assert.equal(score.acceptable,2,"5% also counts in inclusive 10% track");
+assert.equal(score.acceptable,1,"Compatibility counter must exactly mirror ±5%");
 assert.equal(score.evaluated,2);
 const html=weeklyConsistencyPanel(score);
-assert.equal((html.match(/efg-streak-trackhead/g)||[]).length,2);
-assert.equal((html.match(/efg-streak-daylabel/g)||[]).length,12,"two bars × Monday-Saturday");
-assert.match(html,/ZONA IDEAL/);
-assert.match(html,/OBJETIVO CUMPLIDO/);
+assert.equal((html.match(/efg-streak-trackhead/g)||[]).length,1);
+assert.equal((html.match(/efg-streak-daylabel/g)||[]).length,6,"one bar × Monday-Saturday");
+assert.match(html,/OBJETIVO CUMPLIDO · ±5%/);
+assert.doesNotMatch(html,/±10%|OBJETIVO CUMPLIDO · ±10%/);
 assert.match(html,/1\/6/);
-assert.match(html,/2\/6/);
+assert.doesNotMatch(html,/2\/6/);
 assert.match(html,/Domingo: alimentación flexible según las indicaciones de tu coach/);
 assert.match(html,/Basado en evidencia científica/);
-assert.match(html,/bandas prácticas inspiradas en esos hallazgos/);
-assert.match(html,/no como límites clínicos universales/);
+assert.match(html,/un único rango de ±5%/);
+assert.match(html,/no un límite clínico universal/);
 assert.ok(!html.includes(">D</span>"),"Sunday must never be in six-day bar");
 const sunday=history([
  day("2026-10-26",1990,150),day("2026-10-27",1990,150),
@@ -59,7 +59,7 @@ assert.doesNotMatch(revealedNoPermission,/Tu coach autorizó expresamente/);
 const revealedByCoach=weeklyConsistencyPanel(sunday,{opened:true,verified:true,approved:true});
 assert.match(revealedByCoach,/Tu coach autorizó expresamente/,"Verified coach approval is required");
 assert.match(revealedByCoach,/aria-live="polite"/,"Reward is announced accessibly");
-assert.match(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/2\/6/);
+assert.match(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/1\/6/);
 assert.doesNotMatch(weeklyConsistencyPanel(score,{opened:true,verified:true,approved:true}),/ABRIR PREMIO/,"No early reward");
 assert.doesNotMatch(unopened,/penalizad[oa]|castigo/i,"A reward is not a penalty");
 
@@ -81,4 +81,24 @@ const selfGoalNotRetroactive=history([day("2026-10-26",2000,150),day("2026-10-27
  {start_on:"2026-10-27",kcal:2000,protein_g:150}
 ]);
 assert.equal(selfGoalNotRetroactive.evaluated,1,"Professional personal targets must not be retroactively applied before saved date");
-console.log("PASS: independent ±5/±10 Mon–Sat tracks, inclusive nesting, protein ≥90%, Sunday discretionary, provisional today, historical approved goals, no false awards.");
+assert.throws(()=>history([],"2026-02-30"),/Parámetros semanales inválidos/,"Nonexistent calendar dates cannot be valid weekly records");
+const twoVersions=history([
+ day("2026-10-26",2000,150),day("2026-10-26",1700,150),
+ day("2026-10-27",2000,150),day("2026-02-30",2000,150)
+],"2026-10-28");
+assert.equal(twoVersions.days[0].status,"conflict","Contradictory log rows cannot earn achievements by arrival order");
+assert.equal(twoVersions.evaluated,1);
+assert.equal(twoVersions.ideal,1);
+assert.match(weeklyConsistencyPanel(twoVersions),/Registros duplicados/,"Ambiguity is announced in accessible markup");
+const oppositeOrder=history([
+ day("2026-10-26",1700,150),day("2026-10-26",2000,150)
+],"2026-10-28");
+assert.equal(oppositeOrder.days[0].status,"conflict");
+const duplicateFullWeek=history([
+ ...["2026-10-26","2026-10-27","2026-10-28","2026-10-29","2026-10-30","2026-10-31"].map(d=>day(d,2000,150)),
+ day("2026-10-26",2000,150)
+],"2026-11-01");
+assert.equal(duplicateFullWeek.ideal,5);
+assert.doesNotMatch(weeklyConsistencyPanel(duplicateFullWeek),/ABRIR PREMIO/,"Duplicate rows cannot grant a false 6/6 reward");
+
+console.log("PASS: only ±5% Mon–Sat track and 6/6 reward, protein ≥90%, Sunday discretionary, provisional today, historical approved goals, no false awards.");

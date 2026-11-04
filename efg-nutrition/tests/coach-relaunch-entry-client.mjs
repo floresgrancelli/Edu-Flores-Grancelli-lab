@@ -92,6 +92,13 @@ assert.match(editView,/Retirar permiso de compartir/);
 assert.match(editView,/Borrar solo los datos/);
 assert.doesNotMatch(editView,/id="coachRelaunch_share"[^>]*checked/,
  "Private intake must not be shared automatically.");
+for(const [entry,editing] of [[gate,false],[done,true]]){
+ const separate=renderCoachRelaunchEntry(entry,{editing,privateHealthEnabled:true});
+ assert.match(separate,/«Mis restricciones»/);
+ assert.doesNotMatch(separate,/Próxima función en revisión|renderGutClinicalDraft|Ficha sanitaria opcional/);
+ assert.doesNotMatch(separate,/id="coachRelaunch_share"[^>]*checked/);
+ assert.match(separate,/coachRelaunch_dietary_pattern/,'General preferences remain available');
+}
 const updated=await submitCoachRelaunchEntry(sb,{profile,userId:uid,entry:done,
  payload:{...form.payload,notes:"Horario de comidas editado"},
  shareWithCoach:true,explicitSubmit:true});

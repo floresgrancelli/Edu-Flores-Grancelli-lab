@@ -19,7 +19,7 @@ const nonce='33333333-3333-4333-8333-333333333333';
 const version='coach_major_2026_r1';
 function runFixture({ui=true,journey=true,route='review',role='student',
  profileUser=student,profileOrg=org,intakeStudent=student,
- intakeOrg=org,intakeVersion=version,intakeRevision=2,open}={}){
+ intakeOrg=org,intakeVersion=version,intakeRevision=2,open,cryptoSource}={}){
  const calls={opens:0,frames:0,notices:0,errors:[],frameContents:[],nonces:0};
  const mount={isConnected:true,children:[],replaceChildren(...elements){
   this.children=elements;calls.notices++;
@@ -44,7 +44,7 @@ function runFixture({ui=true,journey=true,route='review',role='student',
   }};}
  };
  const env={state,root,document:doc,
-  window:{crypto:{randomUUID(){calls.nonces++;return nonce;}}},
+  window:{crypto:cryptoSource===undefined?{randomUUID(){calls.nonces++;return nonce;}}:cryptoSource},
   frame(html){calls.frames++;calls.frameContents.push(html);},
   PRIVATE_HEALTH_DECLARATION_UI_ENABLED:ui,
   COACH_STUDENT_JOURNEY_ENABLED:journey,COACH_RELEASE_INTAKE_VERSION:version};
@@ -73,6 +73,23 @@ for(const route of ['private','review','ready']){
  assert.equal(t.calls.nonces,1);
  assert.equal(t.state.privateHealthSessionNonce,nonce);
  assert.match(t.calls.frameContents[0],/privateHealthDeclarationMount/);
+}
+{
+ let calls=0;
+ const t=runFixture({cryptoSource:{getRandomValues(bytes){
+  calls++;assert.ok(bytes instanceof Uint8Array);assert.equal(bytes.length,16);
+  bytes.set(Array.from({length:16},(_,i)=>i));return bytes;
+ }}});
+ await t.run();
+ assert.equal(t.state.privateHealthSessionNonce,'00010203-0405-4607-8809-0a0b0c0d0e0f');
+ assert.equal(t.calls.opens,1,'HTTP preview still opens the signed health flow');
+ await t.run();assert.equal(calls,1,'Reuse nonce within the same verified session');
+}
+for(const cryptoSource of [null,{}, {getRandomValues(){throw Error('CSPRNG unavailable');}}]){
+ const t=runFixture({cryptoSource});
+ await assert.rejects(t.run(),/identificador de sesión local seguro|CSPRNG unavailable/);
+ assert.equal(t.calls.opens,0,'No private request without cryptographic randomness');
+ assert.equal(t.state.privateHealthSessionNonce,null);
 }
 {
  let reject;

@@ -61,7 +61,7 @@ const select=(id,label,value)=>'<div class="field"><label for="coachRelaunch_'+i
 const textarea=(id,label,value,max)=>
  '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
  '<textarea id="coachRelaunch_'+id+'" maxlength="'+max+'" rows="2">'+esc(value||"")+'</textarea></div>';
-export function renderCoachRelaunchEntry(entry,{editing=false}={}){
+export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabled=false}={}){
  if(!entry||!["intake","legal","retry","verify","inactive","ready"].includes(entry.route))
   throw Error("No se verificó el ingreso Coach.");
  if(entry.route==="ready"&&!editing)return "";
@@ -90,7 +90,9 @@ export function renderCoachRelaunchEntry(entry,{editing=false}={}){
  select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
  select("eating_window","Organización horaria / ayuno intermitente",data.eating_window||"regular")+
  '<p class="pilot-hint">El patrón y la ventana horaria son preferencias de planificación para conversar con tu coach. Keto y ayuno no se aplican automáticamente ni reducen por sí solos tus calorías.</p>'+
- renderGutClinicalDraft()+
+ (privateHealthEnabled?
+  '<p class="pilot-hint" role="note">Las restricciones alimentarias y alergias se informan por separado en «Mis restricciones», después de guardar esta ficha. Allí podés leer la autorización específica y decidir si compartirlas con tu coach. Una declaración vacía no significa que no tengas restricciones.</p>':
+  renderGutClinicalDraft())+
  textarea("preferred_foods","Alimentos que me gustan",data.preferred_foods,400)+
  textarea("disliked_foods","Alimentos que evito por gusto",data.disliked_foods,400)+
  textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+

@@ -3014,8 +3014,19 @@ async function renderPrivateHealthDeclaration(){
   return;
  }
  if(!state.privateHealthSessionNonce){
-  if(typeof window.crypto?.randomUUID!=="function")throw Error("No hay identificador de sesión local seguro para esta vista.");
-  state.privateHealthSessionNonce=window.crypto.randomUUID();
+  const cryptoSource=window.crypto;
+  if(typeof cryptoSource?.randomUUID==="function")
+   state.privateHealthSessionNonce=cryptoSource.randomUUID();
+  else{
+   // HTTP Work previews lack randomUUID; getRandomValues still provides a
+   // CSPRNG. This RAM-only UUID fences UI responses, never authorizes an RPC.
+   if(typeof cryptoSource?.getRandomValues!=="function")
+    throw Error("No hay identificador de sesión local seguro para esta vista.");
+   const bytes=cryptoSource.getRandomValues(new Uint8Array(16));
+   bytes[6]=(bytes[6]&0x0f)|0x40;bytes[8]=(bytes[8]&0x3f)|0x80;
+   const hex=Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+   state.privateHealthSessionNonce=[hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join("-");
+  }
  }
  frame('<section class="card" aria-labelledby="privateHealthTitle"><h2 id="privateHealthTitle">Mis restricciones alimentarias</h2><p>Esta declaración es independiente de los avisos del piloto y no modifica tus registros anteriores. Compartirla con tu coach es opcional y revocable.</p><div id="privateHealthDeclarationMount" role="region" aria-label="Declaración privada"></div></section>');
  const mount=document.getElementById("privateHealthDeclarationMount");
@@ -3108,13 +3119,13 @@ async function render(){
     const saved=state.coachPilotIntake;
     root.innerHTML=renderCoachRelaunchEntry(
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
-     {editing:!!saved});
+     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED});
    }else if(pilot?.route==="review"||pilot?.route==="private"){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
-    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}));
+    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
@@ -3155,7 +3166,7 @@ async function render(){
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
-   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
+   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
    renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();

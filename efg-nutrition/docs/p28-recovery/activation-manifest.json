@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "status": "PREPARED_NOT_ACTIVATED",
+  "candidate": "cde69db29efee1e3df3855597616d7482a8e5985",
+  "productionRollback": "ab7c241cdfa376cab9954fc9b8f12750d2f905d7",
+  "files": [
+    {
+      "path": "efg-nutrition/pilot/science-welcome.js",
+      "gitBlob": "a8bb4137fecefeaa0565ee2028a069c487c6a161",
+      "flag": "SCIENCE_WELCOME_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-student-journey.js",
+      "gitBlob": "fad3801b13744657931e4b17842d6c0821fb3259",
+      "flag": "COACH_STUDENT_JOURNEY_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/student-restriction-declaration.js",
+      "gitBlob": "4c68ac6523a448306e847fd4e77b1436af461d6e",
+      "flag": "PRIVATE_HEALTH_DECLARATION_UI_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-plan-draft-client.js",
+      "gitBlob": "e200c449ad09327240e3daf1faa1019f0c7b7112",
+      "flag": "COACH_ATOMIC_PLAN_UI_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-release-plan-gate.js",
+      "gitBlob": "8aa5c9a259af000b7c6821d6387eb6c490502bae",
+      "flag": "COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-shared-recipes-read-client.js",
+      "gitBlob": "10bcdbd9c028e7b1976975506be0ebcecb61b597",
+      "flag": "COACH_SHARED_STUDENT_RECIPES_UI_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "core"
+    },
+    {
+      "path": "efg-nutrition/pilot/major-release-client.js",
+      "gitBlob": "1015f15751dfb920e462a6f7b7fd43a3837872fc",
+      "flag": "MAJOR_RELEASE_FLOW_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "release_notice"
+    },
+    {
+      "path": "efg-nutrition/pilot/release-communications.js",
+      "gitBlob": "736a03e4f1a96aedbbbf3031eaa0121cce501895",
+      "flag": "RELEASE_COMMUNICATIONS_ENABLED",
+      "current": false,
+      "target": true,
+      "stage": "release_notice"
+    },
+    {
+      "path": "efg-nutrition/pilot/qa-reviewed-sources.js",
+      "gitBlob": "85b3aede567b11ba3693558c4202d0d28de766db",
+      "flag": "QA_REVIEWED_SOURCES_ENABLED",
+      "current": false,
+      "target": false,
+      "stage": "qa_only_keep_off"
+    }
+  ],
+  "server": {
+    "switches": [
+      "pilot_coach_atomic_publication",
+      "pilot_health_bound_publication",
+      "pilot_student_diary_write_gate"
+    ],
+    "observedEnabled": false,
+    "manifestRows": 0
+  },
+  "requiredBeforeActivation": [
+    "new_explicit_owner_GO",
+    "production_food_review_scope",
+    "final_build_and_asset_cache_identity",
+    "release_manifest_validated_in_isolation",
+    "Render_service_branch_build_and_autodeploy_readback",
+    "remaining_functional_matrix_decisions"
+  ],
+  "doNotReapply": [
+    "P28G backend bundle",
+    "new student pending access trigger",
+    "QA release scope",
+    "shared student recipe RPC",
+    "period reports table"
+  ]
+}

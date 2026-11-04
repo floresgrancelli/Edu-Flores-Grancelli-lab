@@ -2674,6 +2674,15 @@ async function saveCoachAtomicDraft(){
  await render();
  notify("Borrador privado confirmado en el servidor. El alumno conserva su plan vigente.");
 }
+function createCoachPublicationRequestId(cryptoSource=window.crypto){
+ if(typeof cryptoSource?.randomUUID==="function")return cryptoSource.randomUUID();
+ if(typeof cryptoSource?.getRandomValues!=="function")
+  throw Error("No se pudo crear un identificador seguro para publicar. El borrador sigue guardado.");
+ const bytes=cryptoSource.getRandomValues(new Uint8Array(16));
+ bytes[6]=(bytes[6]&0x0f)|0x40;bytes[8]=(bytes[8]&0x3f)|0x80;
+ const hex=Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
+ return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join("-");
+}
 async function publishCoachAtomicDraft(){
  const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
@@ -2688,7 +2697,7 @@ async function publishCoachAtomicDraft(){
  if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
   throw Error("Cambió la ficha o el alumno seleccionado; volvé a revisar antes de publicar.");
- state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||crypto.randomUUID();
+ state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||createCoachPublicationRequestId();
  await coachDraftClient.publish({studentId,expectedRevision:draft.draft_revision,
   requestId:state.coachPlanPublishRequestId,confirmed:true});
  // The server may have committed even if navigation occurred meanwhile.

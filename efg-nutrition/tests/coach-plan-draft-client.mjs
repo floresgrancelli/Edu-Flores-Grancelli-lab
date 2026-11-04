@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import vm from "node:vm";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
 // COACH119 / legacy and flexible versioned guide contracts.
@@ -226,7 +227,16 @@ assert.ok(pub.indexOf('await loadStudentDetail(studentId);await render();')>=0);
 assert.ok(pub.indexOf('state.coachPlanPublishRequestId=null;')>
  pub.indexOf('await loadStudentDetail(studentId);await render();'),
  "Do not drop an idempotency key before post-commit readback succeeds");
-assert.match(pub,/state\.coachPlanPublishRequestId=state\.coachPlanPublishRequestId\|\|crypto\.randomUUID\(\)/,
+assert.match(pub,/state\.coachPlanPublishRequestId=state\.coachPlanPublishRequestId\|\|createCoachPublicationRequestId\(\)/,
  "Retry must reuse the original request ID");
+const requestIdSource=app.slice(app.indexOf('function createCoachPublicationRequestId('),pubStart);
+const uuidContext=vm.createContext({});
+vm.runInContext(requestIdSource,uuidContext);
+const makeId=uuidContext.createCoachPublicationRequestId;
+assert.equal(makeId({randomUUID:()=>REQ}),REQ);
+assert.equal(makeId({getRandomValues(bytes){bytes.forEach((_,i)=>bytes[i]=i);return bytes;}}),
+ '00010203-0405-4607-8809-0a0b0c0d0e0f','HTTP preview still uses a cryptographic UUIDv4');
+for(const cryptoSource of [null,{}, {getRandomValues(){throw Error('CSPRNG unavailable');}}])
+ assert.throws(()=>makeId(cryptoSource),'No random or timestamp fallback may create publication keys');
 
 console.log("PASS: Coach staged draft adapter OFF; validated five meals, versioned save, confirmed atomic publish, denial on revoked/stale/invalid identity; legacy guide and publish blocked under access schema (SYNTHETIC).");

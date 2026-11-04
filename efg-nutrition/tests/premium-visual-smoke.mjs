@@ -240,7 +240,8 @@ try{
     s.roster.forEach(student=>{student.organization_id='demo-org';});
     s.selectedStudent='demo-student-a';
     s.consent={accepted:true,student_id:'demo-student-a',organization_id:'demo-org'};
-    s.coachGuidedDraft=v.createSixGuide({...s.coachGoals[0],goal_type:'recomp'});
+    s.pendingGoal={...s.coachGoals[0],student_id:s.selectedStudent,goal_type:'recomp'};
+    s.coachGuidedDraft=v.createSixGuide(s.pendingGoal);
     s.tab='coachStudents';await v.render();
    });
    await page.locator('#coachStudentGoals > summary').click();

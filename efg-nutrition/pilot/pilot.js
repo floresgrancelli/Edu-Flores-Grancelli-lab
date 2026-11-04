@@ -1,3 +1,4 @@
+import {loadPeriodReportGoals} from "./period-report-goals.js?v=p29p";
 import {buildLuxuryPeriodReport,renderLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=p29k";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
@@ -4337,11 +4338,12 @@ if(el.dataset.foodbulk){
   const ticket=Symbol();host.periodTicket=ticket;host.textContent='Consultando registros del período…';
   const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',studentId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
   if(error)throw error;
+  const periodGoals=await loadPeriodReportGoals(sb,studentId,from,to);
   if(state.session!==session||state.selectedStudent!==studentId||state.authContextEpoch!==epoch||!state.consent?.accepted||!host.isConnected||host.periodTicket!==ticket)return;
   if(document.getElementById('periodReportFrom').value!==from||document.getElementById('periodReportTo').value!==to)return;
   const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
   const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
-  const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:state.coachGoals});
+  const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals});
   host.periodModel=report;host.periodFrom=from;host.periodTo=to;
   host.innerHTML='<label>Conclusión automática · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label>Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><button class="btn small" data-act="previewPeriodLuxury">Actualizar vista previa Luxury Pro</button><button class="btn small light" data-act="printPeriodLuxury">Exportar vista previa a PDF</button><p>Vista previa privada. La publicación en el historial del alumno todavía no está habilitada para este informe por período.</p><div id="periodLuxuryPreview">'+renderLuxuryPeriodReport(report)+'</div>';return;
  }

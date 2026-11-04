@@ -165,10 +165,10 @@ returnedDraftCoach=OTHER_COACH;
 await assert.rejects(()=>versioned.load(STU),/no pertenece a la cuenta del coach/);
 returnedDraftCoach=COACH;
 returnedDraftSourceRevision=2;
-await assert.rejects(()=>versioned.load(STU),/ficha anterior/);
+await assert.rejects(()=>versioned.load(STU),e=>e.code==="STALE_DRAFT_INTAKE"&&e.staleDraft.status==="stale"&&Number.isSafeInteger(e.staleDraft.draft_revision)&&!e.staleDraft.goal_proposal&&!e.staleDraft.guide_proposal);
 returnedDraftSourceRevision=3;
 returnedDraftSourceStamp='2026-10-29T13:00:00.000Z';
-await assert.rejects(()=>versioned.load(STU),/ficha anterior/);
+await assert.rejects(()=>versioned.load(STU),e=>e.code==="STALE_DRAFT_INTAKE"&&e.staleDraft.status==="stale"&&Number.isSafeInteger(e.staleDraft.draft_revision)&&!e.staleDraft.goal_proposal&&!e.staleDraft.guide_proposal);
 returnedDraftSourceStamp=WHEN;
 assert.equal((await versioned.load(STU)).coach_id,COACH,'Current signed coach may recover current draft');
 

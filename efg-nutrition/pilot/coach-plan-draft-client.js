@@ -123,7 +123,7 @@ export function createCoachPlanDraftClient({sb,enabled=COACH_ATOMIC_PLAN_UI_ENAB
   if(r.data&&relaunchEnabled&&r.data.status==="draft"&&(
     r.data.source_intake_revision!==intake.revision||
     r.data.source_intake_updated_at!==intake.updated_at))
-   throw Error("El borrador corresponde a una ficha anterior. Recargá la ficha compartida.");
+   throw Object.assign(Error("El borrador corresponde a una ficha anterior. Prepará una propuesta nueva."),{code:"STALE_DRAFT_INTAKE",staleDraft:{draft_revision:r.data.draft_revision,status:"stale"}});
   return r.data||null;
  }
  async function save({studentId,sourceUpdatedAt,sourceRevision=null,goal,guide,expectedRevision=null}={}){

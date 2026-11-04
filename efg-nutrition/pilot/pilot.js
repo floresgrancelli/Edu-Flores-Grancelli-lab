@@ -2662,7 +2662,7 @@ function coachAtomicDraftPanel(){
  const active=saved?.status==="draft"&&coachDraftSourceCurrent(intake,saved);
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
- '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
+ '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?.status==="stale"?'La ficha cambió: prepará y guardá una nueva versión del borrador.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
  '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
  (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft" '+(publication.ready?'':'disabled')+'>Revisar y publicar juntos</button>':'')+'</div>'+
  '<p class="pilot-notice" role="alert" data-coach-publication-error hidden></p>'+
@@ -3603,7 +3603,15 @@ async function loadStudentDetail(studentId){
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;state.coachHistory=results[6].data||[];
  if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
-  const savedDraft=await contextRead(coachDraftClient.load(studentId));
+  let savedDraft;
+  try{savedDraft=await contextRead(coachDraftClient.load(studentId));}
+  catch(error){
+   assertCurrent();
+   if(error?.code!=="STALE_DRAFT_INTAKE"||!Number.isSafeInteger(error.staleDraft?.draft_revision)||error.staleDraft.draft_revision<1)throw error;
+   // Keep CAS revision only: never restore stale goal, guide or health data.
+   savedDraft={draft_revision:error.staleDraft.draft_revision,status:"stale"};
+   notify("La ficha cambió. El borrador anterior se conserva; prepará una propuesta nueva.");
+  }
   state.coachPlanDraftRecord=savedDraft;
   // Restore only a server-authorized draft based on the CURRENT shared intake.
   // Never treat this proposal as an approved goal or a student diary entry.

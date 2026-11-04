@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {spawnSync,spawn} from 'node:child_process';
+import {installSql,preflightSelect} from '../scripts/p28-health-install-bundle.mjs';
 import {GUIDE_MEALS} from '../pilot/guided-day.js';
 assert.equal(process.env.GITHUB_ACTIONS,'true');
 assert.equal(process.env.PGHOST,'127.0.0.1');
@@ -213,10 +214,40 @@ console.log('PASS NCC P1 PG17: 17/17 six-slot ingredients + expanded recipe item
 console.log('PASS exact COACH119 PG17: draft save + cross-org RLS denial + legal/evidence gates + revocation + stale revision + publication + retry + unique notice + injected final-write rollback + replacement history. Synthetic claims only.');
 
 // P28: exact private backend + additive health guard in the SAME disposable DB.
-sql(`create table efg_private.nut57_isolated_staging_marker(local_only boolean);
-insert into efg_private.nut57_isolated_staging_marker values(true);`);
-sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
-sql(read('../docs/P28_HEALTH_BOUND_PUBLICATION_STAGING_ONLY.sql'));
+// Test the exact promotion bundle, including guards and single-transaction install.
+assert.equal(read('../docs/P28_PRIVATE_HEALTH_INSTALL_NOT_APPLIED.sql'),installSql);
+const historicBefore=sql("select md5(string_agg(row_to_json(g)::text,',' order by g.id)) from public.efg_goals g");
+function deniedInstall(expected){
+ const r=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{input:installSql,encoding:'utf8',timeout:30000});
+ assert.notEqual(r.status,0);assert.match(r.stderr,expected);
+ assert.equal(sql("select to_regclass('efg_private.efg_coach_health_intakes') is null"),'t');
+ assert.equal(sql("select count(*) from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'0');
+}
+deniedInstall(/P28 INSTALL STOP:.*release switches OFF/);
+sql("update efg_private.coach_release_switches set enabled=false where switch_key='pilot_coach_atomic_publication'");
+sql('alter table public.efg_profiles rename column active to active_test_missing');
+deniedInstall(/P28 INSTALL STOP:.*public.efg_profiles.active/);
+sql('alter table public.efg_profiles rename column active_test_missing to active');
+assert.ok(sql(preflightSelect).split('\n').every(line=>line.endsWith('|t')));
+// A failure AFTER the DDL must roll back every added object.
+const aborted=installSql.replace("notify pgrst, 'reload schema';","do $fail$ begin raise exception 'P28 injected installation failure'; end $fail$;");
+sql(aborted,true);
+assert.equal(sql("select to_regclass('efg_private.efg_coach_health_intakes') is null"),'t');
+assert.equal(sql("select to_regprocedure('public.efg_get_coach_health_intake(uuid)') is null"),'t');
+assert.equal(sql("select count(*) from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'0');
+sql(installSql);
+assert.ok(sql(read('./sql/p28-health-install-readonly-postflight.sql')).split('\n').every(line=>line.endsWith('|t')),'All exact postinstallation checks must pass');
+assert.equal(sql("select md5(string_agg(row_to_json(g)::text,',' order by g.id)) from public.efg_goals g"),historicBefore);
+assert.equal(sql('select count(*) from efg_private.efg_coach_health_documents'),'0');
+assert.equal(sql('select count(*) from efg_private.efg_coach_health_intakes'),'0');
+assert.equal(sql("select bool_and(relrowsecurity) from pg_class where oid in ('efg_private.efg_coach_health_intakes'::regclass,'efg_private.efg_coach_health_documents'::regclass,'efg_private.efg_coach_health_revocations'::regclass)"),'t');
+assert.equal(sql("select has_function_privilege('anon','public.efg_get_coach_health_intake(uuid)','execute')"),'f');
+assert.equal(sql("select has_table_privilege('authenticated','efg_private.efg_coach_health_intakes','select')"),'f');
+const repeated=spawnSync('psql',['-X','-Atq','-v','ON_ERROR_STOP=1'],{input:installSql,encoding:'utf8'});
+assert.notEqual(repeated.status,0);assert.match(repeated.stderr,/P28 INSTALL STOP:.*absent/);
+assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'f');
+console.log('PASS P28F exact promotion bundle: rejects active switch/missing column/reinstall; injected final failure rolls back DDL; installs empty private RLS tables and RPC with guard OFF, historic goals unchanged.');
+sql("update efg_private.coach_release_switches set enabled=true where switch_key='pilot_coach_atomic_publication'");
 assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'f');
 sql("update efg_private.coach_release_switches set enabled=true where switch_key='pilot_health_bound_publication'");
 const healthDoc='77777777-7777-4777-8777-777777777777',healthHash='b'.repeat(64);

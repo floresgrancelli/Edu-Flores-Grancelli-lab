@@ -1,5 +1,6 @@
+import {createPeriodReportHistory} from "./period-report-history.js?v=p29q";
 import {loadPeriodReportGoals} from "./period-report-goals.js?v=p29p";
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=p29k";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js";
@@ -427,7 +428,7 @@ function weeklyStudentPanel(){
   return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
    (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
    '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
- return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>';
+ return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>'+periodHistoryPanel();
 }
 function weeklyReportEnd(){
  const d=new Date(today()+"T12:00:00Z");
@@ -2449,13 +2450,23 @@ function weeklyCoachDraft(){
  '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(previewModel)+'</div>'+
  '<p class="pilot-hint">El borrador se conserva solo mientras permanezcas en esta sesión del coach; no se guarda en el navegador ni se envía solo. No se indican permisos alimentarios como premios ni recomendaciones clínicas automáticas.</p></section>';
 }
+function periodReportContext(){
+ const role=state.profile?.role,userId=state.session?.user?.id;
+ const studentId=role==='student'?userId:state.selectedStudent;
+ return {userId,studentId,role,epoch:state.authContextEpoch,
+ allowed:role==='student'?!!userId:role==='coach'&&state.consent?.accepted===true&&state.roster.some(p=>p.user_id===studentId&&p.active)};
+}
+function periodHistoryPanel(){
+ return '<section class="card"><h2>Informes por período compartidos</h2><button class="btn small light" data-act="loadPeriodHistory">Consultar historial</button><div id="periodHistory" aria-live="polite"></div></section>';
+}
+function periodContextMatches(c){const n=periodReportContext();return n.allowed&&n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch;}
 function coachPeriodReportPanel(){
  const end=today(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-9);
  return '<section class="card" id="coachPeriodReport"><h2>Informe por período</h2><p>Elegí las fechas que querés revisar, hasta 90 días. El informe semanal se mantiene independiente.</p>'+
  '<label>Desde <input type="date" id="periodReportFrom" max="'+end+'" value="'+start.toISOString().slice(0,10)+'"></label>'+
  '<label>Hasta <input type="date" id="periodReportTo" max="'+end+'" value="'+end+'"></label>'+
  '<button class="btn small" data-act="generatePeriodReport">Generar informe del período</button>'+
- '<div id="periodReportResult" aria-live="polite"></div></section>';
+ '<div id="periodReportResult" aria-live="polite"></div></section>'+periodHistoryPanel();
 }
 function coachReportsView(){
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))return rootText("Informes","Disponible solo para coaches autorizados.");
@@ -4344,20 +4355,55 @@ if(el.dataset.foodbulk){
   const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
   const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
   const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals});
-  host.periodModel=report;host.periodFrom=from;host.periodTo=to;
-  host.innerHTML='<label>Conclusión automática · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label>Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><button class="btn small" data-act="previewPeriodLuxury">Actualizar vista previa Luxury Pro</button><button class="btn small light" data-act="printPeriodLuxury">Exportar vista previa a PDF</button><p>Vista previa privada. La publicación en el historial del alumno todavía no está habilitada para este informe por período.</p><div id="periodLuxuryPreview">'+renderLuxuryPeriodReport(report)+'</div>';return;
+  host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=periodReportContext();host.periodReviewed=null;host.periodRequestId=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
+  host.innerHTML='<label>Conclusión automática · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label>Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><button class="btn small" data-act="previewPeriodLuxury">Actualizar vista previa Luxury Pro</button><button class="btn small light" data-act="printPeriodLuxury">Exportar vista previa a PDF</button><button class="btn small" data-act="publishPeriodLuxury">Aprobar y compartir con alumno</button><p id="periodPublishStatus" role="status">Actualizá la vista previa para revisar el contenido antes de compartir.</p><div id="periodLuxuryPreview">'+renderLuxuryPeriodReport(report)+'</div>';return;
  }
  if(action==='previewPeriodLuxury'||action==='printPeriodLuxury'){
   const host=document.getElementById('periodReportResult');
-  if(!state.consent?.accepted||!host?.periodModel||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para las fechas elegidas.');
+  if(!host?.periodContext||!periodContextMatches(host.periodContext)||!state.consent?.accepted||!host?.periodModel||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para las fechas elegidas.');
   const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
   const html=renderLuxuryPeriodReport(model);if(!html)throw Error('Revisá el texto del informe.');
   document.getElementById('periodLuxuryPreview').innerHTML=html;
+  if(action==='previewPeriodLuxury'){host.periodReviewed=JSON.stringify(model);document.getElementById('periodPublishStatus').textContent='Vista previa revisada. Podés aprobar y compartir.';}
   if(action==='printPeriodLuxury'){
    const source=document.querySelector('#periodLuxuryPreview .lux-report');source.classList.add('efg-lux-print-target');
    const clear=()=>source.classList.remove('efg-lux-print-target');window.addEventListener('afterprint',clear,{once:true});window.print();
   }
   return;
+ }
+ if(action==='publishPeriodLuxury'){
+  const host=document.getElementById('periodReportResult');
+  if(!host?.periodContext||!periodContextMatches(host.periodContext)||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para el alumno y las fechas actuales.');
+  const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
+  const text=JSON.stringify(model);
+  if(text!==host.periodReviewed)throw Error('Actualizá y revisá la vista previa antes de compartir.');
+  if(host.periodAttempt&&host.periodAttempt!==text)throw Error('Hay un envío anterior pendiente de confirmar. Consultá el historial antes de generar otro informe.');
+  host.periodAttempt=text;host.periodRequestId=host.periodRequestId||createCoachPublicationRequestId();
+  const saved=await host.periodClient.publish({model,requestId:host.periodRequestId,confirmed:true});
+  if(saved&&host.isConnected&&periodContextMatches(host.periodContext))document.getElementById('periodPublishStatus').textContent='Informe compartido y confirmado en el historial del alumno.';
+  return;
+ }
+ if(action==='loadPeriodHistory'){
+  const host=document.getElementById('periodHistory'),c=periodReportContext();if(!host||!c.allowed)throw Error('Acceso no autorizado.');
+  const ticket=Symbol();host.ticket=ticket;host.textContent='Consultando historial…';
+  const rows=await createPeriodReportHistory({sb,context:periodReportContext}).list();
+  if(!rows||!host.isConnected||host.ticket!==ticket||!periodContextMatches(c))return;
+  host.rows=rows;host.reportContext=c;
+  host.innerHTML=rows.map((r,i)=>{const m=parseLuxuryPeriodReport(r.report_text);if(!m)return '<p>Informe no disponible: formato no válido.</p>';
+   return '<details class="pilot-record"><summary>'+escapeHTML(r.period_from)+' — '+escapeHTML(r.period_to)+'</summary>'+renderLuxuryPeriodReport(m)+'<button class="btn small light" data-act="printPeriodHistory" data-periodindex="'+i+'">Exportar PDF</button>'+(c.role==='student'?'<button class="btn small" data-act="replyPeriodHistory" data-periodindex="'+i+'">Responder informe al coach</button>':'')+'</details>';
+  }).join('')||'<p>Todavía no hay informes por período compartidos.</p>';return;
+ }
+ if(action==='printPeriodHistory'||action==='replyPeriodHistory'){
+  const host=document.getElementById('periodHistory'),row=host?.rows?.[Number(el.dataset.periodindex)];
+  if(!host?.reportContext||!periodContextMatches(host.reportContext)||!row||!parseLuxuryPeriodReport(row.report_text))throw Error('Volvé a consultar el historial.');
+  if(action==='printPeriodHistory'){
+   const source=el.closest('details')?.querySelector('.lux-report');if(!source)return;
+   source.classList.add('efg-lux-print-target');window.addEventListener('afterprint',()=>source.classList.remove('efg-lux-print-target'),{once:true});window.print();
+  }else{
+   if(state.profile.role!=='student'||row.student_id!==state.session.user.id)throw Error('Informe ajeno.');
+   const userId=state.session.user.id;state.tab='messages';await render();
+   if(periodContextMatches(host.reportContext))await messages.replyToPeriodReport(userId,row.period_from,row.period_to);
+  }return;
  }
  if(action==="copyDailyReport"){
   const p=state.roster.find(x=>x.user_id===state.selectedStudent);

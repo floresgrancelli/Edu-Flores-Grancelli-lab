@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
+const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');const a=app.indexOf(" if(action==='publishPeriodLuxury')"),b=app.indexOf(" if(action==='loadPeriodHistory')",a);
+let calls=0;const model={from:'2026-10-01',to:'2026-10-10',conclusion:'Approved',flexibleNote:'Flexible'};
+const host={periodContext:{},periodModel:model,periodFrom:model.from,periodTo:model.to,isConnected:true,periodClient:{async publish(r){calls++;assert.equal(r.requestId,'stable-id');return {id:r.requestId};}}};
+const inputs={periodReportResult:host,periodReportFrom:{value:model.from},periodReportTo:{value:model.to},periodReportConclusion:{value:model.conclusion},periodReportFlexible:{value:model.flexibleNote},periodPublishStatus:{textContent:''}};
+const ctx={action:'publishPeriodLuxury',document:{getElementById:id=>inputs[id]},periodContextMatches:()=>true,createCoachPublicationRequestId:()=> 'stable-id'};
+const run=()=>vm.runInNewContext('(async()=>{'+app.slice(a,b)+'})()',ctx);
+await assert.rejects(run(),/vista previa/);assert.equal(calls,0);
+host.periodReviewed=JSON.stringify(model);await run();await run();assert.equal(calls,2);assert.match(inputs.periodPublishStatus.textContent,/confirmado/);
+inputs.periodReportConclusion.value='Changed';await assert.rejects(run(),/vista previa/);assert.equal(calls,2);
+ctx.periodContextMatches=()=>false;await assert.rejects(run(),/alumno/);
+console.log('PASS actual publish UI handler: explicit preview, stable retry ID, edited text and changed context rejected. Synthetic client.');
+const messages=readFileSync(new URL('../pilot/messages-ui.js',import.meta.url),'utf8');const reply=messages.slice(messages.indexOf(' async function replyToPeriodReport'),messages.indexOf(' return {mount:'));
+const drafts=new Map();let opened=0;
+const replyCtx={resetIfChanged:()=>{},context:()=>({role:'student',userId:'student'}),contacts:()=>[{student:'student'}],drafts,selectedStudent:'student',formDraft:'',openStudent:async()=>{opened++;},document:{getElementById:()=>null}};
+vm.runInNewContext(reply,replyCtx);await vm.runInNewContext("replyToPeriodReport('student','2026-10-26','2026-11-04')",replyCtx);assert.match(drafts.get('student'),/26\/10\/2026 al 04\/11\/2026/);assert.equal(opened,1);
+drafts.set('student','Unsent draft');await vm.runInNewContext("replyToPeriodReport('student','2026-10-26','2026-11-04')",replyCtx);assert.equal(drafts.get('student'),'Unsent draft');await assert.rejects(vm.runInNewContext("replyToPeriodReport('other','2026-10-26','2026-11-04')",replyCtx),/coach/);
+console.log('PASS period reply: own account and authorized contact, dated draft, existing message preserved, no automatic send.');

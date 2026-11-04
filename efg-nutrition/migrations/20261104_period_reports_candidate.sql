@@ -1,3 +1,4 @@
+-- APPLIED 2026-11-04 via ncc_period_report_history. Do not reapply.
 -- Additive period report history. No weekly rows are changed.
 create table public.efg_period_reports (
  id uuid primary key default gen_random_uuid(),

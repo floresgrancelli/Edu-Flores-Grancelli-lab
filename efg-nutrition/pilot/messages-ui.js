@@ -286,8 +286,21 @@ export function createMessagesCenter({sb,context,afterSend}){
   const compose=document.getElementById("efgMessageText");
   if(compose){compose.focus({preventScroll:true});compose.setSelectionRange(compose.value.length,compose.value.length);}
  }
+ async function replyToPeriodReport(student,from,to){
+  resetIfChanged();
+  const c=context(),validWeek=[from,to].every(v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||"")))&&from<=to;
+  if(c.role!=="student"||student!==c.userId||!validWeek||!contacts().some(x=>x.student===student))
+   throw Error("No se pudo abrir el chat con tu coach para responder este informe.");
+  // A context-aware draft; never sends any message automatically.
+  const intro="Hola, quería comentarte el informe del "+from.split("-").reverse().join("/")+" al "+to.split("-").reverse().join("/") + ": ";
+  const saved=drafts.get(student)|| (selectedStudent===student?formDraft:"");
+  if(!String(saved||"").trim()){drafts.set(student,intro);formDraft=intro;}
+  await openStudent(student);
+  const compose=document.getElementById("efgMessageText");
+  if(compose){compose.focus({preventScroll:true});compose.setSelectionRange(compose.value.length,compose.value.length);}
+ }
  return {mount:()=>{resetIfChanged();paint({force:true});load().catch(console.warn);},
   selectStudent:student=>{openStudent(student).catch(console.warn);},
-  replyToWeeklyReport,prepareReportDraft,
+  replyToWeeklyReport,replyToPeriodReport,prepareReportDraft,
   refresh:load};
 }

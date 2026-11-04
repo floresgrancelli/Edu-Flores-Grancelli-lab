@@ -7,6 +7,13 @@ const payload=JSON.stringify({kind:'efg_luxury_period_v1',approvedByCoach:true,f
 await db.exec(`set role authenticated;set request.jwt.claim.sub='69f78429-face-4c55-a28c-357cca35d452';`);
 const insert=()=>db.query(`insert into public.efg_period_reports(student_id,coach_id,period_from,period_to,report_text) values('09f08bd9-9acf-4348-9200-21a5df396aa5','69f78429-face-4c55-a28c-357cca35d452','2026-10-01','2026-10-10',$1)`,[payload]);
 await insert();await assert.rejects(insert,/unique/);await assert.rejects(db.exec('delete from public.efg_period_reports'),/permission/);
+await assert.rejects(db.exec("update public.efg_period_reports set report_text='{}'"),/permission/);
+const invalid=(from,to,body)=>db.query(`insert into public.efg_period_reports(student_id,coach_id,period_from,period_to,report_text) values('09f08bd9-9acf-4348-9200-21a5df396aa5','69f78429-face-4c55-a28c-357cca35d452',$1,$2,$3)`,[from,to,JSON.stringify(body)]);
+const base={kind:'efg_luxury_period_v1',approvedByCoach:true,from:'2026-09-01',to:'2026-09-10'};
+for(const body of [{...base,kind:'other'},{...base,approvedByCoach:false},{...base,from:'2026-09-02'},{}])await assert.rejects(invalid('2026-09-01','2026-09-10',body),/check constraint/);
+await assert.rejects(invalid('2026-01-01','2026-05-01',{...base,from:'2026-01-01',to:'2026-05-01'}),/check constraint/);
+await assert.rejects(invalid('2099-01-01','2099-01-02',{...base,from:'2099-01-01',to:'2099-01-02'}),/row-level/);
+await db.exec('reset role; set role anon;');await assert.rejects(db.query('select * from public.efg_period_reports'),/permission/);await assert.rejects(insert,/permission/);await db.exec('reset role; set role authenticated;');
 await db.exec(`set request.jwt.claim.sub='09f08bd9-9acf-4348-9200-21a5df396aa5'`);assert.equal((await db.query('select * from public.efg_period_reports')).rows.length,1);await assert.rejects(insert,/row-level/);
 await db.exec(`set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111'`);assert.equal((await db.query('select * from public.efg_period_reports')).rows.length,0);
 await db.close();console.log('PASS isolated PG: additive history, allowed coach insert, owner read, outsider denied, duplicate and deletion rejected. Helper authorization is synthetic; not signed hosted QA.');

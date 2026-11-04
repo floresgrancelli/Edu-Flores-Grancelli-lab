@@ -22,7 +22,7 @@ async function run(stale){
  const state={selectedStudent:'A',session:{},authContextEpoch:1,profile:{role:'coach'},roster:[{user_id:'A',active:true,nickname:'QA'}],consent:{accepted:true}};
  const query={};for(const name of ['select','eq','gte','lte','order'])query[name]=()=>query;
  query.limit=async limit=>{assert.equal(limit,91);if(stale)state.selectedStudent='B';return {data:[day('2026-11-04')],error:null};};
- const context={loadPeriodReportGoals:async()=>[],state,document:{getElementById:id=>inputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,buildLuxuryPeriodReport,renderLuxuryPeriodReport,mealSlots:[],buildNutritionReport:logs=>({days:logs.map(x=>({date:x.log_day,hasData:true,closed:false,mealCount:1,...food}))}),escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
+ const context={periodReportContext:()=>({}),createPeriodReportHistory:()=>({}),loadPeriodReportGoals:async()=>[],state,document:{getElementById:id=>inputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,buildLuxuryPeriodReport,renderLuxuryPeriodReport,mealSlots:[],buildNutritionReport:logs=>({days:logs.map(x=>({date:x.log_day,hasData:true,closed:false,mealCount:1,...food}))}),escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
  await vm.runInNewContext('(async()=>{'+app.slice(start,end)+'})()',context);
  assert.equal(host.innerHTML.includes('periodReportConclusion'),!stale);
 }

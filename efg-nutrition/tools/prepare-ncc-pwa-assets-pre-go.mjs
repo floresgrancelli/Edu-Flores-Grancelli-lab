@@ -2,6 +2,7 @@
 // NO merge, deployment, hosted calls, source edits or approvals. An OPTIONAL
 // pilot UI activation proposal lives ONLY outside the repo until explicit GO.
 import assert from 'node:assert/strict';
+import {assertPwaBuildIdentity} from './pwa-build-identity.mjs';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {existsSync,readFileSync,mkdirSync,writeFileSync} from 'node:fs';
@@ -80,8 +81,8 @@ const currentBuild=[...originalHtml.matchAll(buildPattern)].map(x=>x[2]);
 const currentEntrypoint=[...originalHtml.matchAll(entryPattern)].map(x=>x[2]);
 assert.equal(currentBuild.length,1,'PWA must have exactly one release build meta');
 assert.equal(currentEntrypoint.length,1,'PWA must have exactly one local entry module');
-assert.equal(currentEntrypoint[0].split('?v=')[1],currentBuild[0],
- 'The current meta build and entry query must match before release preparation');
+const hotfixPath=join(projectDir,'docs/p30n-hotfix/asset-overrides.json');
+assertPwaBuildIdentity(originalHtml,existsSync(hotfixPath)?readFileSync(hotfixPath):undefined);
 const styles=[...originalHtml.matchAll(cssPattern)].map(x=>x[2]);
 assert.ok(styles.length>=20,'PWA stylesheet inventory unexpectedly shrank');
 for(const style of styles){

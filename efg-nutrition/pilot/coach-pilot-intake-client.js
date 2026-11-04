@@ -53,7 +53,7 @@ async function requireSameSession(sb,userId){
  if(current?.error||current?.data?.user?.id!==userId)
   throw Error('La sesión cambió mientras gestionabas la ficha. Volvé a verificar tu cuenta.');
 }
-async function check(sb,profile){
+async function check(sb,profile,{sharing=false}={}){
  if(typeof sb?.auth?.getUser!=='function')throw Error('Falta una sesión autenticada.');
  const u=await sb.auth.getUser();
  const userId=u?.data?.user?.id;
@@ -62,6 +62,8 @@ async function check(sb,profile){
  const pilot=await loadPilotParticipationReceipt(sb,{expectedOrganizationId:profile.organization_id});
  if(!pilot.accepted||pilot.userId!==userId)throw Error('Confirmá antes las dos opciones del piloto.');
  await requireSameSession(sb,userId);
+ if(sharing&&pilot.participation?.sharing_accepted!==true)
+  throw Error('Falta el permiso de compartir en el piloto. Desmarcá «Autorizo compartir» para guardar esta ficha privada. Después entrá en Privacidad → Revisar permiso del piloto y autorizá compartir; luego volvé a Mi ficha. Tus datos escritos siguen en este formulario.');
  return userId;
 }
 async function readCurrent(sb,userId,org){
@@ -92,7 +94,7 @@ export async function submitCoachPilotGeneralIntake(sb,{profile,payload,shareWit
  // First submission needs all core nutrition fields even when kept private;
  // later privacy unshare/clear remains possible without deleting history.
  if(expectedRevision===0||shareWithCoach===true)assertCompleteCoachPilotIntake(general);
- const userId=await check(sb,profile);
+ const userId=await check(sb,profile,{sharing:shareWithCoach});
  const before=await readCurrent(sb,userId,profile.organization_id);
  if((before?.revision??0)!==expectedRevision)
   throw Error('La ficha cambió en otro dispositivo: volvé a cargarla.');

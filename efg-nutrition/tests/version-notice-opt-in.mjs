@@ -3,14 +3,26 @@ import './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {createVersionNotice} from "../pilot/version-notice.js";
 import {readFileSync} from "node:fs";
+import {assertPwaBuildIdentity} from "../tools/pwa-build-identity.mjs";
 // A candidate changing Coach permissions and the first-use illustration MUST
-// carry a fresh HTML build and module URL. Otherwise installed PWAs may serve
-// a cached old client while the server expects new versioned authorization.
+// carry a coherent release and cache-busted module URL. Minor hotfixes keep
+// the server release identity and must match their exact pinned asset manifest.
 const liveHtml=readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8");
 const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
-assert.ok(build&&entry&&build===entry,"HTML build identity and PWA entry must match");
+const hotfixBytes=readFileSync(new URL("../docs/p30n-hotfix/asset-overrides.json",import.meta.url));
+assert.deepEqual(assertPwaBuildIdentity(liveHtml,hotfixBytes),{build,assetVersion:entry});
+for(const changed of [
+ liveHtml.replace(entry,entry+"-unknown"),
+ liveHtml.replace(`content="${build}"`,`content="${build}-other"`),
+ liveHtml.replace("</head>","<meta name=\"efg-build\" content=\"duplicate\"></head>"),
+ liveHtml.replace("</body>","<!-- unreviewed HTML --> </body>")
+])assert.throws(()=>assertPwaBuildIdentity(changed,hotfixBytes));
+assert.throws(()=>assertPwaBuildIdentity(liveHtml));
+assert.throws(()=>assertPwaBuildIdentity(liveHtml,Buffer.from("{}")));
+const regular=liveHtml.replace(entry,build);
+assert.deepEqual(assertPwaBuildIdentity(regular),{build,assetVersion:build});
 assert.match(build,/ncc-pilot-3a40474052be/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
 assert.match(appJs,/science-welcome\.js\?v=ncc-pilot-3a40474052be/,"Load approved closing slide as a fresh module");
 
@@ -29,6 +41,7 @@ function el(tag){
 }
 const root=el("body");
 const current="build-1";
+let availableAsset=null;
 let available="build-2",editing=false,loggedIn=true,visible=true,reloads=0;
 const original={
  document:globalThis.document,window:globalThis.window,DOMParser:globalThis.DOMParser,
@@ -56,7 +69,7 @@ globalThis.DOMParser=class{
   return {
    querySelector(selector){
     if(selector==='meta[name="efg-build"]')return {getAttribute:()=>available};
-    if(selector.includes('pilot.js'))return {getAttribute:()=>"/pilot/pilot.js?v="+available};
+    if(selector.includes('pilot.js'))return {getAttribute:()=>"/pilot/pilot.js?v="+(availableAsset||available)};
     return null
    },
    querySelectorAll(selector){
@@ -122,6 +135,11 @@ assert.equal(silent.getStatus().automaticNoticeEnabled,false);
 assert.equal(silentHost.hidden,true,"Minor deployments never interrupt a logged-in user");
 await silent.check({force:true,reopen:true});
 assert.equal(silentHost.hidden,true,"Manual checking must not create unwanted minor popup");
+available=current;availableAsset=current+"-intakefix1";
+await silent.check({force:true});
+assert.equal(silent.getStatus().hasUpdate,true,"Asset URL changes are detected even with the same server release");
+assert.equal(silentHost.hidden,true,"An asset-only hotfix remains silent");
+assert.equal(reloads,0,"Asset-only updates never reload edited forms");
 silent.dispose();
 // 09-02/09-03: an old async version response cannot reopen a discarded
 // component after navigating away/logging out or recreating the PWA shell.

@@ -1,0 +1,11 @@
+{
+  "baseline": "f00dc7ff6a35bd2aace22c15389caf7420457498",
+  "build": "ncc-pilot-3a40474052be",
+  "assetVersion": "ncc-pilot-3a40474052be-intakefix1",
+  "sha256": {
+    "efg-nutrition/pilot/index.html": "cc24264b2efc6a120a5138f988203889b4399fa84969aa6e7487ff17b4d27244",
+    "efg-nutrition/pilot/pilot.js": "27101c7afb4ba300d086266266cf897ce4d6adeaa0dad86f73fc57dab92f678c",
+    "efg-nutrition/pilot/coach-pilot-intake-client.js": "e74ac9f895b6339db2b012562c1cd4e7c5904ea87d007e61e710744c804dffa3",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "8f09d1e36eecf7a17a34661a0bdce79505e7e28da572d37397c005d63c16b028"
+  }
+}

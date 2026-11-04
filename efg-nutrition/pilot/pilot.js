@@ -68,12 +68,12 @@ import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-stud
 import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be";
 import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be";
 import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-intakefix1";
 import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be";
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-intakefix1";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be";
 
@@ -4913,7 +4913,11 @@ root.addEventListener("submit",e=>{
      shareWithCoach:data.shareWithCoach,expectedRevision:state.coachPilotIntake?.revision??0,explicitSubmit:true});
     await refresh();
     notify(data.shareWithCoach?"Ficha compartida con tu coach. Conservamos todos tus registros anteriores.":"Ficha privada guardada. Conservamos todos tus registros anteriores.");
-   })().catch(fail);
+   })().catch(error=>{
+    const notice=e.target.querySelector('#efgCoachIntakeSaveError');
+    if(notice){notice.textContent=error.message;notice.hidden=false;}
+    fail(error);
+   });
    return;
   }
   if(!COACH_RELAUNCH_ONBOARDING_ENABLED)return;

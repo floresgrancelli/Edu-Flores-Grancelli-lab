@@ -1,3 +1,4 @@
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport} from "./period-luxury-report.js?v=p29m";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=p29k";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=p29i";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js";
@@ -4338,15 +4339,23 @@ if(el.dataset.foodbulk){
   if(error)throw error;
   if(state.session!==session||state.selectedStudent!==studentId||state.authContextEpoch!==epoch||!state.consent?.accepted||!host.isConnected||host.periodTicket!==ticket)return;
   if(document.getElementById('periodReportFrom').value!==from||document.getElementById('periodReportTo').value!==to)return;
-  const report=buildPeriodReport({from,to,today:today(),logs:data,studentName:p.nickname,totalOf:dailyTotals});
-  host.innerHTML='<label>Informe generado · revisá y editá antes de enviarlo<textarea id="periodReportText" rows="16" maxlength="2000">'+escapeHTML(report.text)+'</textarea></label><p>Se preparará como mensaje para este alumno. No reemplaza el informe semanal.</p><button class="btn small" data-act="preparePeriodReportMessage" '+(report.daysRecorded?'':'disabled')+'>Revisar en Mensajes</button>';
-  host.periodFrom=from;host.periodTo=to;return;
+  const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
+  const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+  const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:state.coachGoals});
+  host.periodModel=report;host.periodFrom=from;host.periodTo=to;
+  host.innerHTML='<label>Conclusión automática · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label>Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><button class="btn small" data-act="previewPeriodLuxury">Actualizar vista previa Luxury Pro</button><button class="btn small light" data-act="printPeriodLuxury">Exportar vista previa a PDF</button><p>Vista previa privada. La publicación en el historial del alumno todavía no está habilitada para este informe por período.</p><div id="periodLuxuryPreview">'+renderLuxuryPeriodReport(report)+'</div>';return;
  }
- if(action==="preparePeriodReportMessage"){
+ if(action==='previewPeriodLuxury'||action==='printPeriodLuxury'){
   const host=document.getElementById('periodReportResult');
-  if(!state.consent?.accepted||!host||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Generá de nuevo el informe para las fechas elegidas.');
-  messages.prepareReportDraft(state.selectedStudent,document.getElementById('periodReportText').value);
-  messages.selectStudent(state.selectedStudent);state.tab='messages';await render();return;
+  if(!state.consent?.accepted||!host?.periodModel||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para las fechas elegidas.');
+  const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
+  const html=renderLuxuryPeriodReport(model);if(!html)throw Error('Revisá el texto del informe.');
+  document.getElementById('periodLuxuryPreview').innerHTML=html;
+  if(action==='printPeriodLuxury'){
+   const source=document.querySelector('#periodLuxuryPreview .lux-report');source.classList.add('efg-lux-print-target');
+   const clear=()=>source.classList.remove('efg-lux-print-target');window.addEventListener('afterprint',clear,{once:true});window.print();
+  }
+  return;
  }
  if(action==="copyDailyReport"){
   const p=state.roster.find(x=>x.user_id===state.selectedStudent);

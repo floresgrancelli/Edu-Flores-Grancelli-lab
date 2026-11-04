@@ -1,3 +1,4 @@
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport} from '../pilot/period-luxury-report.js';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -15,15 +16,15 @@ assert.equal(validateReportPeriod('2026-08-07','2026-11-04',args.today),90);
 assert.throws(()=>validateReportPeriod('2026-08-06','2026-11-04',args.today),/90/);
 // Execute actual app handler: stale session/alumno must not receive async response.
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-const start=app.indexOf(' if(action==="generatePeriodReport")'),end=app.indexOf(' if(action==="preparePeriodReportMessage")',start);
+const start=app.indexOf(' if(action==="generatePeriodReport")'),end=app.indexOf(" if(action==='previewPeriodLuxury'",start);
 async function run(stale){
  const host={isConnected:true,textContent:'',innerHTML:''},inputs={periodReportFrom:{value:args.from},periodReportTo:{value:args.to},periodReportResult:host};
  const state={selectedStudent:'A',session:{},authContextEpoch:1,profile:{role:'coach'},roster:[{user_id:'A',active:true,nickname:'QA'}],consent:{accepted:true}};
  const query={};for(const name of ['select','eq','gte','lte','order'])query[name]=()=>query;
  query.limit=async limit=>{assert.equal(limit,91);if(stale)state.selectedStudent='B';return {data:[day('2026-11-04')],error:null};};
- const context={state,document:{getElementById:id=>inputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
+ const context={state,document:{getElementById:id=>inputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,buildLuxuryPeriodReport,renderLuxuryPeriodReport,mealSlots:[],buildNutritionReport:logs=>({days:logs.map(x=>({date:x.log_day,hasData:true,closed:false,mealCount:1,...food}))}),escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
  await vm.runInNewContext('(async()=>{'+app.slice(start,end)+'})()',context);
- assert.equal(host.innerHTML.includes('periodReportText'),!stale);
+ assert.equal(host.innerHTML.includes('periodReportConclusion'),!stale);
 }
 await run(false);await run(true);
 console.log('PASS period report: inclusive ten/90 days, missing is unknown, no truncation to14, duplicate/future/invalid rejected, stale student response ignored.');

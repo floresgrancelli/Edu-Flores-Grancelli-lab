@@ -2842,6 +2842,8 @@ function updateGuidedTotalsUI(){
 }
 function showGuidedEditor(){
  const node=document.getElementById("coachGuidedSlot");if(!node)return;
+ // The editable guide supersedes the initial calculator preview.
+ document.getElementById("coachIntakeGeneratedGuide")?.remove();
  const y=window.scrollY;
  node.outerHTML=coachGuidedSection();
  // A newly regenerated Coach guide also changes the atomic draft readiness.

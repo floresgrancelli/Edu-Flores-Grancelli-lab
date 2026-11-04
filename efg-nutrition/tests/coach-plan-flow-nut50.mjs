@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // NUT-50 · real pure path: shared intake -> calculator -> 5 meals -> private save -> review -> atomic RPC.
 // Data and users in this file are SYNTHETIC. No Supabase connection, no medical approval.
 import assert from "node:assert/strict";
@@ -43,7 +44,7 @@ validateGuidedDay(guide,goal);
 const clean=validateCoachPlanProposal({...goal,student_id:student,estimation_method:"mifflin"},guide);
 assert.deepEqual(clean.goal,goal,"No client metadata leaks to atomic goal");
 assert.equal(clean.guide.kind,"five_meal_example");
-assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,false,"Real integration flag must not be activated");
+assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,expectedReleaseFlag("COACH_ATOMIC_PLAN_UI_ENABLED"),"Real integration flag must not be activated");
 
 let serverDraft=null,consent=true,source=stamp,shared=true;
 const calls=[];
@@ -73,42 +74,42 @@ const sb={
   throw Error("Legacy or unapproved RPC: "+name);
  }
 };
-const off=createCoachPlanDraftClient({sb});
+const off=createCoachPlanDraftClient({sb,enabled:false,relaunchEnabled:false});
 await assert.rejects(()=>off.save({studentId:student,sourceUpdatedAt:stamp,goal,guide}),/aún no habilitados/);
 assert.equal(calls.length,0,"The production flag OFF must make zero queries");
-const mock=createCoachPlanDraftClient({sb,enabled:true});
+const mock=createCoachPlanDraftClient({sb,enabled:true,relaunchEnabled:false});
 const result=await mock.save({studentId:student,sourceUpdatedAt:stamp,goal,guide});
 assert.equal(result.revision,1);
 assert.equal(calls.filter(x=>x.type==="rpc").length,1);
 assert.equal(calls.at(-1).name,"efg_save_coach_plan_draft");
 const loaded=await mock.load(student);
-let assessment=assessCoachDraftPublication({studentId:student,intake,savedDraft:loaded,goal,guide});
+let assessment=assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal,guide});
 assert.equal(assessment.ready,true,assessment.reason);
 assert.equal(assessment.revision,1);
-assert.equal(assessCoachDraftPublication({studentId:other,intake,savedDraft:loaded,goal,guide}).ready,false,"Cross-student draft not publishable");
-assert.equal(assessCoachDraftPublication({studentId:student,intake:{...intake,updated_at:"2026-10-29T18:01:00Z"},savedDraft:loaded,goal,guide}).ready,false,"Outdated intake");
-assert.equal(assessCoachDraftPublication({studentId:student,intake:{...intake,shared_at:null},savedDraft:loaded,goal,guide}).ready,false,"Revoked shared intake");
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:{...loaded,status:"published"},goal,guide}).ready,false,"Already published");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:other,intake,savedDraft:loaded,goal,guide}).ready,false,"Cross-student draft not publishable");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake:{...intake,updated_at:"2026-10-29T18:01:00Z"},savedDraft:loaded,goal,guide}).ready,false,"Outdated intake");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake:{...intake,shared_at:null},savedDraft:loaded,goal,guide}).ready,false,"Revoked shared intake");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:{...loaded,status:"published"},goal,guide}).ready,false,"Already published");
 
 const edited=structuredClone(guide);edited.meals[0].items[0].qty+=5;
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:loaded,goal,guide:edited}).ready,false,"Unsaved quantity change");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal,guide:edited}).ready,false,"Unsaved quantity change");
 const newGoal={...goal,kcal:goal.kcal+50};
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:loaded,goal:newGoal,guide}).ready,false,"Unsaved energy change");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal:newGoal,guide}).ready,false,"Unsaved energy change");
 const noteEdited={...guide,supplementNote:"Sin suplementos"};
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:loaded,goal,guide:noteEdited}).ready,false,"Unsaved supplement note");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal,guide:noteEdited}).ready,false,"Unsaved supplement note");
 const reordered=structuredClone(loaded);reordered.goal_proposal={fiber_g:goal.fiber_g,fat_g:goal.fat_g,carb_g:goal.carb_g,
  protein_g:goal.protein_g,kcal:goal.kcal,goal_type:goal.goal_type};
 reordered.guide_proposal={supplementNote:guide.supplementNote,meals:guide.meals,kind:guide.kind,version:guide.version,createdFrom:guide.createdFrom};
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:reordered,goal,guide}).ready,true,"JSONB key order must not create false mismatch");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:reordered,goal,guide}).ready,true,"JSONB key order must not create false mismatch");
 
 const newSaved=await mock.save({studentId:student,sourceUpdatedAt:stamp,goal,guide:edited,expectedRevision:1});
 assert.equal(newSaved.revision,2);
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:await mock.load(student),goal,guide:edited}).ready,true);
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:await mock.load(student),goal,guide:edited}).ready,true);
 await assert.rejects(()=>mock.publish({studentId:student,expectedRevision:2,requestId,confirmed:false}),/aprobación explícita/);
 const pub=await mock.publish({studentId:student,expectedRevision:2,requestId,confirmed:true});
 assert.equal(pub.goalId,goalId);
 assert.deepEqual(calls.filter(x=>x.type==="rpc").map(x=>x.name),["efg_save_coach_plan_draft","efg_save_coach_plan_draft","efg_publish_coach_plan_draft"]);
-assert.equal(assessCoachDraftPublication({studentId:student,intake,savedDraft:serverDraft,goal,guide:edited}).ready,false,"No re-publication after successful commit");
+assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:serverDraft,goal,guide:edited}).ready,false,"No re-publication after successful commit");
 
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 assert.match(app,/import \{assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent\} from "\.\/coach-draft-review/);
@@ -130,15 +131,15 @@ assert.match(legacyFlow,/if\(COACH_ATOMIC_PLAN_UI_ENABLED\)[\s\S]{0,45}throw Err
 
 const savedForReadback={student_id:student,source_intake_updated_at:stamp,status:"draft",
  draft_revision:3,goal_proposal:structuredClone(goal),guide_proposal:structuredClone(guide)};
-const confirmed=verifyCoachDraftReadback({studentId:student,intake,savedDraft:savedForReadback,
+const confirmed=verifyCoachDraftReadback({versioned:false,studentId:student,intake,savedDraft:savedForReadback,
  expectedRevision:3,goal,guide});
 assert.notEqual(confirmed,savedForReadback,"Server response must not be shared mutable state");
 const kcalBefore=confirmed.goal_proposal.kcal;
 savedForReadback.goal_proposal.kcal+=99;
 assert.equal(confirmed.goal_proposal.kcal,kcalBefore,"Persisted goal cannot mutate via response alias");
-assert.throws(()=>verifyCoachDraftReadback({studentId:student,intake,savedDraft:savedForReadback,
+assert.throws(()=>verifyCoachDraftReadback({versioned:false,studentId:student,intake,savedDraft:savedForReadback,
  expectedRevision:3,goal,guide}),/confirmar/,"Reject mismatched server payload");
-assert.throws(()=>verifyCoachDraftReadback({studentId:student,intake,savedDraft:confirmed,
+assert.throws(()=>verifyCoachDraftReadback({versioned:false,studentId:student,intake,savedDraft:confirmed,
  expectedRevision:4,goal,guide}),/confirmar/,"Reject another-device revision");
 const editorIntake={...intake},otherIntake={...intake};
 const currentWorkspace={session:{user:{id:"coach-A"}},selectedStudent:student,

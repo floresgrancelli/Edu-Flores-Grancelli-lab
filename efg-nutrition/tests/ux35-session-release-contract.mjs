@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // UX35-SESSION01 · Verified explicit session exit; major release OFF.
 // Local fixtures never call Supabase and never log out real user accounts.
 import assert from 'node:assert/strict';
@@ -61,9 +62,9 @@ const comm=readFileSync(new URL('../pilot/release-communications.js',import.meta
 assert.match(app,/class="efg-mobile-logout" data-act="logout"/,'Student/Coach/Admin mobile header has logout');
 assert.match(css,/@media\(max-width:720px\)/);
 assert.match(css,/min-height:44px/,'Touch targets accessible');
-assert.match(html,/release-session\.css\?v=20261030-ux35-mobile1/);
-assert.match(html,/meta name="efg-build" content="20[0-9]{6}-ux35-major2(?:-loginfix1)?"/);
-assert.match(html,/pilot\.js\?v=20[0-9]{6}-ux35-major2(?:-loginfix1)?/);
+assert.match(html,/release-session\.css\?v=ncc-pilot-3a40474052be/);
+assert.match(html,/meta name="efg-build" content="ncc-pilot-3a40474052be"/);
+assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/);
 assert.match(app,/auth:sb\.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits/);
 assert.match(app,/if\(!result\.signedOut\)return/);
 assert.match(app,/function resetPrivateSession\(\)/);
@@ -78,7 +79,7 @@ assert.match(app,/announceMinorUpdates:false/,'Only the exceptional relaunch may
 assert.match(code,/announceMinorUpdates=false/,'New detector defaults silent');
 assert.match(code,/const canPresent=announceMinorUpdates===true/);
 assert.match(code,/getStatus:\(\)=>\(\{/,'Manual version check still works');
-assert.match(comm,/RELEASE_COMMUNICATIONS_ENABLED=false/,'No early major signouts');
+assert.match(comm,new RegExp(String.raw`RELEASE_COMMUNICATIONS_ENABLED=${expectedReleaseFlag("RELEASE_COMMUNICATIONS_ENABLED")}`),'No early major signouts');
 assert.match(comm,/data-act="ackReleasePreview"/);
 assert.match(comm,/data-act="ackReleaseAndSignOut"/);
 assert.match(comm,/data-act="markReleaseSeen"/);

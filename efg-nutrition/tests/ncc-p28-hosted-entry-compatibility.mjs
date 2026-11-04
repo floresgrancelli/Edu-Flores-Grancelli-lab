@@ -2,7 +2,8 @@
 // table set. Synthetic transport, zero network and no personal records.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createCoachIntakeFlow} from '../pilot/coach-intake-flow.js';
+import {legacyIntakeFixture} from './legacy-intake-fixture.mjs';
+const {createCoachIntakeFlow}=await legacyIntakeFixture();
 const state={profile:{role:'student',organization_id:'org-A'},session:{user:{id:'student-A'}},
  coachIntakeForms:{},coachIntakeAccess:{}};
 let row=null,error=null,resolveRead=null;

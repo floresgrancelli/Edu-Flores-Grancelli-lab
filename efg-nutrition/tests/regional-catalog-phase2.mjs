@@ -1,3 +1,4 @@
+import './approved-release-flags.mjs';
 // Fase 2 - gate no destructivo de platos regionales, marca y trazabilidad.
 // No se consultan usuarios, cuentas ni datos de Supabase.
 import assert from "node:assert/strict";
@@ -75,5 +76,5 @@ const pilot=readFileSync("efg-nutrition/pilot/pilot.js","utf8");
 const html=readFileSync("efg-nutrition/pilot/index.html","utf8");
 assert.match(pilot,/applyRecipeModels\(foods\);\s*applyRegionalCompositeModels\(foods\)/);
 assert.match(pilot,/rotulo_web_fabricante:/);
-assert.match(html,/name="efg-build" content="20[0-9]{6}-[a-z0-9-]{5,80}"/,"Release must retain a cache-busting build identity");
+assert.match(html,/name="efg-build" content="ncc-pilot-3a40474052be"/,"Release must retain a cache-busting build identity");
 console.log("PASS Fase 2: 4 pizzas + 5 sushi en recetas estimadas auditables; 6 etiquetas argentinas, porciones y gramajes correctos; 20 fuentes USDA y otros registros sin alterar.");

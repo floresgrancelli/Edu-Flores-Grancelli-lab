@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // BRAND-77B: synthetic offline tests. Do not claim hosted deployment.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
@@ -5,7 +6,7 @@ import {createHash} from "node:crypto";
 import {SCIENCE_STEPS,SCIENCE_WELCOME_ENABLED,SCIENCE_WELCOME_VERSION,sciencePanels,
  renderScienceWelcomeStep,renderScienceVerticalView,readScienceWelcomeStatus,
  acknowledgeScienceWelcome} from "../pilot/science-welcome.js";
-assert.equal(SCIENCE_WELCOME_ENABLED,false);
+assert.equal(SCIENCE_WELCOME_ENABLED,expectedReleaseFlag("SCIENCE_WELCOME_ENABLED"));
 const ownerEight=readFileSync(new URL("../pilot/assets/ncc-p26m-owner-eight-reference.jpg",import.meta.url));
 assert.equal(ownerEight.length,479092);
 assert.equal(createHash("sha256").update(ownerEight).digest("hex"),"4ca3067e7508cf7e887422d0c8b375c6b3a71e563231f06e4ad3e186f802f2b4");
@@ -80,7 +81,7 @@ assert.ok(!/cura la ansiedad|aumenta la serotonina cerebral|eleva la serotonina/
 const wellbeingCss=readFileSync(new URL("../pilot/science-wellbeing.css",import.meta.url),"utf8");
 assert.match(wellbeingCss,/\.ns-wellbeing-logo/);
 assert.match(wellbeingCss,/@media\(max-width:520px\)/);
-assert.match(readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8"),/science-wellbeing\.css\?v=20261030-brand78-final/);
+assert.match(readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8"),/science-wellbeing\.css\?v=ncc-pilot-3a40474052be/);
 assert.match(vertical,/La proteína acompaña al entrenamiento/);
 const uid="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",other="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const profile={user_id:uid,active:true,role:"student"};

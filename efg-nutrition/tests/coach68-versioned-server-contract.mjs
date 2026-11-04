@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH-68 · Mandatory version-aware SQL and client contract for isolated staging.
 // This is static contract QA, NOT evidence that these SQL migrations executed.
 import assert from "node:assert/strict";
@@ -65,7 +66,7 @@ assert.match(js,/relaunchEnabled\?"efg_publish_coach_plan_draft_atomic":"efg_pub
 const relaunch=readFileSync(new URL("../pilot/coach-relaunch-onboarding.js",import.meta.url),"utf8");
 const release=readFileSync(new URL("../pilot/coach-release-plan-gate.js",import.meta.url),"utf8");
 assert.match(relaunch,/COACH_RELAUNCH_ONBOARDING_ENABLED=false/);
-assert.match(release,/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=false/);
+assert.match(release,new RegExp(String.raw`COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=${expectedReleaseFlag("COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED")}`));
 assert.match(release,/El plan del relanzamiento todavía no puede guardarse ni publicarse/);
 assert.equal(version,"coach_major_2026_r1");
 const {buildCoach68RollbackPreview}=await import("./coach68-stage-rollback.mjs");

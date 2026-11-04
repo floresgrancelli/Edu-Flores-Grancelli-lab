@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // BRAND-78: user-visible rebranding on critical app, report, release and PWA surfaces.
 // Not a declaration that every legacy file or native store listing has been renamed.
 import assert from "node:assert/strict";
@@ -75,6 +76,6 @@ assert.match(brandCSS,/\.efg-mobile-brand-text\{min-width:0;white-space:normal\}
  "The longer public name must wrap instead of overflowing narrow iPhones");
 const intro=read("../pilot/science-welcome.js");
 assert.match(intro,/serotonina-acuarela\.avif/);
-assert.match(intro,/SCIENCE_WELCOME_ENABLED=false/);
+assert.match(intro,new RegExp(String.raw`SCIENCE_WELCOME_ENABLED=${expectedReleaseFlag("SCIENCE_WELCOME_ENABLED")}`));
 assert.match(read("../pilot/index.html"),/science-welcome\.css\?v=/);
 console.log("PASS BRAND-78: all direct pilot UI assets and 14 critical files use Nutrición Con-Ciencia, with original serotonin logo in app and report. Static only, no host rebrand certification.");

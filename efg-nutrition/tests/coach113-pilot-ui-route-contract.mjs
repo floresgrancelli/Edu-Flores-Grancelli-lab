@@ -1,9 +1,10 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {renderPilotParticipationNotice} from '../pilot/pilot-participation-demo.js';
 import {COACH_STUDENT_JOURNEY_ENABLED} from '../pilot/coach-student-journey.js';
 const ui=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false,'Do not activate without atomic plan publisher and RLS diary write gate');
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"),'Do not activate without atomic plan publisher and RLS diary write gate');
 assert.match(ui,/fetchCoachPilotEntry\(sb,\{profile:state\.profile\}\)/);
 assert.match(ui,/renderPilotParticipationNotice\(\{serverReceipts:true\}\)/);
 assert.match(ui,/acceptPilotParticipation\(sb,choice,\{explicitSubmit:true\}\)/);

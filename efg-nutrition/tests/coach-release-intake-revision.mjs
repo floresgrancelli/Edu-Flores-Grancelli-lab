@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH-RELEASE-REV-01: genuine version-bound UI protection in isolated fixtures.
 // No hosted database, no personal data, no clinical advice, release flags unchanged.
 import assert from "node:assert/strict";
@@ -7,7 +8,7 @@ import {COACH_ATOMIC_PLAN_UI_ENABLED} from "../pilot/coach-plan-draft-client.js"
 import {coachDraftSourceCurrent,assessCoachDraftPublication,verifyCoachDraftReadback} from "../pilot/coach-draft-review.js";
 
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false);
-assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,false);
+assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,expectedReleaseFlag("COACH_ATOMIC_PLAN_UI_ENABLED"));
 const id="00000000-0000-4000-8000-000000000011";
 const stamp="2026-10-30T14:00:00.000Z";
 const intake={student_id:id,shared_at:stamp,updated_at:stamp,

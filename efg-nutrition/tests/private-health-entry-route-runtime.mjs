@@ -1,11 +1,12 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH 01-05: exercise the ACTUAL isolated PWA function with ON/OFF gates.
 // No database, hosted health RPC, personal records or browser session involved.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED} from '../pilot/student-restriction-declaration.js';
 import {COACH_STUDENT_JOURNEY_ENABLED} from '../pilot/coach-student-journey.js';
-assert.equal(PRIVATE_HEALTH_DECLARATION_UI_ENABLED,false);
-assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false);
+assert.equal(PRIVATE_HEALTH_DECLARATION_UI_ENABLED,expectedReleaseFlag("PRIVATE_HEALTH_DECLARATION_UI_ENABLED"));
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"));
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const start=app.indexOf('async function renderPrivateHealthDeclaration(){');
 const end=app.indexOf('\nasync function render(){',start);

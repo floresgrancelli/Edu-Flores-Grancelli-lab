@@ -1,3 +1,4 @@
+import {createPreGoFixture} from './pre-go-source-fixture.mjs';
 // P21: Boot the *actual staged* P20 pilot asset + feature-overlay in a real browser.
 // All traffic is local or a fake SDK module. No hosted Supabase/Render, no credentials,
 // no OTP, no acceptance and NO GO. This does not replace physical UAT.
@@ -13,7 +14,7 @@ import {chromium,webkit} from 'playwright';
 assert.equal(process.env.GITHUB_ACTIONS,'true','P21 local browser smoke is CI only');
 assert.equal(process.env.EFG_QA_P20_OVERLAY,'1','P21 requires an explicitly isolated overlay fixture');
 const engine=process.env.EFG_QA_ENGINE==='webkit'?'webkit':'chromium';
-const repoRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..','..');
+const repoRoot=createPreGoFixture();
 const tool=join(repoRoot,'efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs');
 const sha=execFileSync('git',['rev-parse','HEAD'],{cwd:repoRoot,encoding:'utf8'}).trim();
 assert.match(sha,/^[a-f0-9]{40}$/);

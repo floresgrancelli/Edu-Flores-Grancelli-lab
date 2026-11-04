@@ -1,7 +1,8 @@
 // EFG Nutrition Pro · synthetic Coach intake tests (no network, no real users).
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
-import {createCoachIntakeFlow} from "../pilot/coach-intake-flow.js";
+import {legacyIntakeFixture} from './legacy-intake-fixture.mjs';
+const {createCoachIntakeFlow}=await legacyIntakeFixture();
 const [app,sql,css]=await Promise.all([
  readFile(new URL("../pilot/pilot.js",import.meta.url),"utf8"),
  readFile(new URL("../migrations/20261029_coach_intake_plan_access_DRAFT.sql",import.meta.url),"utf8"),

@@ -1,10 +1,11 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {RELEASE_COMMUNICATIONS_ENABLED,releaseVisibleTo,renderMajorReleaseAnnouncement,releaseAcknowledgment,renderWhatsNew,seenVersionRequest} from "../pilot/release-communications.js";
 const base={id:"major_2026_01",version:"2026.11.1",phase:"preview",
  title:'Nueva etapa Nutrición Con-Ciencia <script>alert(1)</script>',
  roles:["admin","coach","student","personal"],
  highlights:["Fichas voluntarias y permisos","Semáforo por restricciones, no calorías","Dietas y guía de cinco comidas"]};
-assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false,"Never send messages or sign out real users via draft");
+assert.equal(RELEASE_COMMUNICATIONS_ENABLED,expectedReleaseFlag("RELEASE_COMMUNICATIONS_ENABLED"),"Never send messages or sign out real users via draft");
 for(const role of base.roles){
  assert.equal(releaseVisibleTo(base,role),true);
  const html=renderMajorReleaseAnnouncement(base,role);

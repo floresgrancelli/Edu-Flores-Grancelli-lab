@@ -1,3 +1,4 @@
+import './approved-release-flags.mjs';
 // EDUCATION-01. Reproducible offline science and navigation test; no student data.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
@@ -48,7 +49,7 @@ assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","nutritionSc
  "pending intake gate preserves MI DÍA lock but allows the educational library");
 assert.match(js,/state\.tab=studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(el\.dataset\.tab\)\?"intake":el\.dataset\.tab/,
  "pending intake click may open science but cannot reach the locked diary");
-assert.match(html,/nutrition-science\.css\?v=20261030-science-edu1/);
+assert.match(html,/nutrition-science\.css\?v=ncc-pilot-3a40474052be/);
 assert.match(css,/@media\(max-width:520px\)/);
 assert.match(css,/focus-visible/);
 let depth=0;for(const c of css){if(c==="{")++depth;if(c==="}"){--depth;assert.ok(depth>=0)}}assert.equal(depth,0);

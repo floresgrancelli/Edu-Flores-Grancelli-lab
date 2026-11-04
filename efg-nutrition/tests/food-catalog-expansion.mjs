@@ -1,3 +1,4 @@
+import './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {EXTRA_FOODS,FOOD_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText,EXPANDED_COUNT} from "../pilot/food-catalog.js";
@@ -65,8 +66,8 @@ for(const [id,grams] of [["sushi_maki_salmon",28],["sushi_nigiri_salmon",35],["p
  assert.ok(f.k*grams>=.01);
 }
 assert.ok(pilot.includes("foodSearchText(f)"),"Student/coach/planner must use shared synonyms");
-assert.match(index,/name="efg-build" content="20[0-9]{6}-[a-z0-9-]{5,80}"/,"Versioned iPhone build marker required");
-assert.match(index,/luxury-theme\.css\?v=20261029-(?:coach-commercial-r2|habitual-preview1)/,"Luxury CSS must be versioned and cache-busted for iPhone");
+assert.match(index,/name="efg-build" content="ncc-pilot-3a40474052be"/,"Versioned iPhone build marker required");
+assert.match(index,/luxury-theme\.css\?v=ncc-pilot-3a40474052be/,"Luxury CSS must be versioned and cache-busted for iPhone");
 assert.equal(VERIFIED_SOURCE_COUNT,20);
 assert.ok(EXPANDED_ALIASES.sushi_maki_salmon.includes("maki salmon"));
 console.log("PASS expanded catalogue: "+EXPANDED_COUNT+" new foods, "+EXTRA_FOODS.length+" existing extension foods, units, source flags, synonyms and numeric macros");

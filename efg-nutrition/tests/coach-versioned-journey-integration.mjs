@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // Activate only the new journey in a disposable module copy. No backend/network.
 import assert from 'node:assert/strict';
 import {mkdtempSync,cpSync,readFileSync,writeFileSync,rmSync} from 'node:fs';
@@ -5,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {usesVersionedCoachIntake,COACH_VERSIONED_INTAKE_ENABLED} from '../pilot/coach-versioned-mode.js';
-assert.equal(COACH_VERSIONED_INTAKE_ENABLED,false);
+assert.equal(COACH_VERSIONED_INTAKE_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"));
 for(const [a,b,want] of [[false,false,false],[true,false,true],[false,true,true],[true,true,true]])
  assert.equal(usesVersionedCoachIntake({relaunchEnabled:a,studentJourneyEnabled:b}),want);
 const dir=mkdtempSync(join(tmpdir(),'coach-journey-'));

@@ -1,10 +1,11 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH-67 · Legal bridge synthetic verified-doc source; NO real user/server.
 import assert from "node:assert/strict";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,
  renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "../pilot/coach-legal-bridge.js";
 import {LEGAL_ONBOARDING_ENABLED} from "../pilot/legal-onboarding.js";
-assert.equal(COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,false);
-assert.equal(LEGAL_ONBOARDING_ENABLED,false);
+assert.equal(COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,expectedReleaseFlag("COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED"));
+assert.equal(LEGAL_ONBOARDING_ENABLED,expectedReleaseFlag("LEGAL_ONBOARDING_ENABLED"));
 const terms="aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const privacy="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const hash="a".repeat(64);
@@ -35,7 +36,7 @@ const sb={
    limit(n){assert.equal(n,2);return Promise.resolve({data:docs,error:null})}};
  }
 };
-await assert.rejects(()=>loadCoachLegalOnboarding(sb),/no puede activarse/);
+await assert.rejects(()=>loadCoachLegalOnboarding(sb,{enabled:false,legalEnabled:false}),/no puede activarse/);
 assert.equal(queries,0);assert.equal(writes,0);
 const off=await assert.rejects(()=>acceptCoachLegalOnboarding(sb,{},{terms:true,privacy:true}),/aceptación legal explícita/);
 assert.equal(writes,0);

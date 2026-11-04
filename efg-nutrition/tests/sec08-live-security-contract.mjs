@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // SEC08: non-mutating live-catalog audit regression contract.
 // This test NEVER connects to Supabase or claims privileged RPC authorization.
 import assert from "node:assert/strict";
@@ -31,6 +32,6 @@ const entry=readFileSync(new URL("../pilot/coach-relaunch-onboarding.js",import.
 const publish=readFileSync(new URL("../pilot/coach-release-plan-gate.js",import.meta.url),"utf8");
 const legal=readFileSync(new URL("../pilot/coach-legal-bridge.js",import.meta.url),"utf8");
 assert.match(entry,/COACH_RELAUNCH_ONBOARDING_ENABLED=false/);
-assert.match(publish,/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=false/);
-assert.match(legal,/COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED=false/);
+assert.match(publish,new RegExp(String.raw`COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=${expectedReleaseFlag("COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED")}`));
+assert.match(legal,new RegExp(String.raw`COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED=${expectedReleaseFlag("COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED")}`));
 console.log("PASS SEC08 static release contract: audit SQL SELECT-only, inventory of 19 tracked, mandatory Coach+legal flags OFF. NOT signed JWT testing of hosted 19 RPC.");

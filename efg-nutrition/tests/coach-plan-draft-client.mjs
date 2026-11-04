@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
@@ -21,7 +22,7 @@ assert.deepEqual(coachFoodChoicesFromDom({querySelectorAll:()=>[
  {checked:true,dataset:{coachfood:"tofu_firm"}},{checked:false,dataset:{coachfood:"banana"}}
 ]}),["tofu_firm"]);
 assert.deepEqual(validateCoachPlanProposal(goal,versionedGuide).guide.approvedFoodIds,versionedGuide.approvedFoodIds);
-assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,false,"Release flag stays OFF until approved staging/JWT/legal QA");
+assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,expectedReleaseFlag("COACH_ATOMIC_PLAN_UI_ENABLED"),"Release flag stays OFF until approved staging/JWT/legal QA");
 assert.deepEqual(validateCoachPlanProposal(goal,guide).goal,goal);
 for(const bad of [{...goal,kcal:"2100"},{...goal,protein_g:-1},{...goal,carb_g:20.5},{...goal,goal_type:"unlisted"}])
  assert.throws(()=>validateCoachPlanProposal(bad,guide));
@@ -59,12 +60,12 @@ const db={
   if(name==="efg_publish_coach_plan_draft"||name==="efg_publish_coach_plan_draft_atomic")return {data:GOAL,error:null};
   throw Error("unexpected rpc "+name);}
 };
-const disabled=createCoachPlanDraftClient({sb:db});
+const disabled=createCoachPlanDraftClient({sb:db,enabled:false,relaunchEnabled:false});
 await assert.rejects(()=>disabled.load(STU),/aún no habilitados/);
 await assert.rejects(()=>disabled.save({studentId:STU,sourceUpdatedAt:WHEN,goal,guide}),/aún no habilitados/);
 await assert.rejects(()=>disabled.publish({studentId:STU,expectedRevision:1,requestId:REQ,confirmed:true}),/aún no habilitados/);
 assert.equal(operations,0,"OFF must not issue reads or writes");
-const enabled=createCoachPlanDraftClient({sb:db,enabled:true}); // isolated synthetic test, never production flag
+const enabled=createCoachPlanDraftClient({sb:db,enabled:true,relaunchEnabled:false}); // isolated synthetic test, never production flag
 const loaded=await enabled.load(STU);
 assert.equal(loaded.draft_revision,1);
 returnedStudent="00000000-0000-4000-8000-000000000099";

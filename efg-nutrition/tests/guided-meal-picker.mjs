@@ -1,3 +1,4 @@
+import './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {GUIDED_MEAL_GROUPS,GUIDED_MEAL_SLOTS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "../pilot/guided-meal-picker.js";
@@ -34,10 +35,10 @@ assert.match(src,/d\.skipped\._guidedComponents\[slot\]/);
 assert.match(src,/const guidedPanel=guided\?/);
 assert.match(src,/data-mealsuggestion/,"food results must be actionable");
 assert.match(src,/pickMealSearchSuggestion\(el\.dataset\.mealsuggestion\)/,"suggestions must reach real food selection");
-assert.match(html,/pilot\.js\?v=20[0-9]{6}-[a-z0-9-]+/,"force versioned meal picker script on release");
+assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/,"force versioned meal picker script on release");
 assert.match(src,/Grasas registradas en esta comida/);
-assert.match(html,/guided-meal-picker\.css\?v=20261029-uxguide1/);
-assert.match(src,/guided-meal-picker\.js\?v=20261029-uxmeals1/);
+assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/);
+assert.match(src,/guided-meal-picker\.js\?v=ncc-pilot-3a40474052be/);
 assert.match(weekly,/draw\("ideal","OBJETIVO CUMPLIDO · ±5%"/);
 assert.doesNotMatch(weekly,/ZONA IDEAL · ±5%|OBJETIVO CUMPLIDO · ±10%|WEEKLY_RANGES\.acceptable/);
 assert.match(weekly,/const acceptable=ideal;/);
@@ -69,8 +70,8 @@ for(const slot of ["media_manana","media_tarde","merienda"])
 assert.match(src,/educationalGuideSections\(meal,groupIdFor\)/);
 assert.match(src,/foodRow\(food,index\)/,"coach must edit original indexed food");
 assert.match(src,/data-guidefoodgroup/,"educational groups must reach the actual coach/student renderer");
-assert.match(html,/guided-meal-picker\.css\?v=20261029-uxguide1/);
-assert.match(src,/guide-meal-education\.js\?v=20261029-uxguide1/);
+assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/);
+assert.match(src,/guide-meal-education\.js\?v=ncc-pilot-3a40474052be/);
 // ANDROID-GBOARD-02: keyboard Enter used by an IME is NOT a user food selection.
 const keyboardStart=src.indexOf('document.addEventListener("keydown",event=>{');
 const keyboardEnd=src.indexOf('root.addEventListener("submit"',keyboardStart);

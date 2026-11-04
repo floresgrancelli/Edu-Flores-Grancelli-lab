@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH120/UX35: signed, once-only major release. Synthetic JWT transport;
 // NO user logout, legal signing or production activation in this test.
 import assert from 'node:assert/strict';
@@ -17,9 +18,9 @@ const sb={auth:{getUser:async()=>({data:{user:{id:uid}},error:null})},
  rpc:async(name,args)=>{calls.push([name,args]);return {
   data:name==='efg_major_release_status'?structuredClone(payload):true,error:null
  }}};
-assert.equal(MAJOR_RELEASE_FLOW_ENABLED,false);
-assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false);
-assert.equal((await readMajorRelease(sb,{profile})).phase,'none');
+assert.equal(MAJOR_RELEASE_FLOW_ENABLED,expectedReleaseFlag("MAJOR_RELEASE_FLOW_ENABLED"));
+assert.equal(RELEASE_COMMUNICATIONS_ENABLED,expectedReleaseFlag("RELEASE_COMMUNICATIONS_ENABLED"));
+assert.equal((await readMajorRelease(sb,{profile,explicitlyEnabled:false})).phase,'none');
 assert.equal(calls.length,0,'Flag OFF must make zero server calls');
 let state=await readMajorRelease(sb,{profile,explicitlyEnabled:true});
 assert.equal(state.phase,'preview');

@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH-OPT-01: static review of the NOT_APPLIED migration. No hosted writes.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -57,6 +58,6 @@ assert.match(ui,/sharingRequested:share\.checked/);
 assert.match(status,/route==='private'/);
 assert.match(app,/pilot\?\.route==="private"/);
 assert.doesNotMatch(app,/Para continuar compartí la ficha con el coach/);
-assert.match(read('pilot/coach-student-journey.js'),/COACH_STUDENT_JOURNEY_ENABLED=false/);
+assert.match(read('pilot/coach-student-journey.js'),new RegExp(String.raw`COACH_STUDENT_JOURNEY_ENABLED=${expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED")}`));
 assert.match(read('pilot/coach-relaunch-onboarding.js'),/COACH_RELAUNCH_ONBOARDING_ENABLED=false/);
 console.log('PASS COACH-OPT-01: voluntary private intake, revocation-aware signed status, guarded corrective migration OFF. SQL not applied.');

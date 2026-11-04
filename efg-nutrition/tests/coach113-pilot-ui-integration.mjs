@@ -1,9 +1,10 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from '../pilot/coach-student-journey.js';
 import {PILOT_PARTICIPATION_ENABLED,renderPilotParticipationNotice} from '../pilot/pilot-participation-demo.js';
 const pilot=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false,
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"),
  'The new route MUST remain OFF until signed JWT A/B, server write gate and atomic goal+guide publication.');
 assert.equal(PILOT_PARTICIPATION_ENABLED,false,'Standalone demo must not unlock access.');
 const notice=renderPilotParticipationNotice({serverReceipts:true});

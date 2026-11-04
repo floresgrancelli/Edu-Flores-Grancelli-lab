@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH118 · static release protection. Hosted live status must be independently
 // verified (OFF, no old diary rows lost). This is NOT a signed JWT e2e.
 import assert from 'node:assert/strict';
@@ -25,7 +26,7 @@ assert.doesNotMatch(sql,/\b(revoke|alter|drop)\s+.*(?:public\.efg_goals|public\.
 assert.doesNotMatch(sql,/values\('pilot_student_diary_write_gate',true/i,
  'Old clients must remain compatible until supervised launch');
 const app=readFileSync(new URL('../pilot/coach-student-journey.js',import.meta.url),'utf8');
-assert.match(app,/COACH_STUDENT_JOURNEY_ENABLED=false/,'Frontend student journey must stay OFF');
+assert.match(app,new RegExp(String.raw`COACH_STUDENT_JOURNEY_ENABLED=${expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED")}`),'Frontend student journey must stay OFF');
 const legal=readFileSync(new URL('../migrations/20261030_coach116_legal_first_student_status.sql',import.meta.url),'utf8');
 assert.match(legal,/v_current_legal_count<>2/,'Readiness must require two verified legal receipts');
 console.log('PASS COACH118: default-OFF private diary write gate, owner/auth/ready checks, no historic writes, no premature UI enablement.');

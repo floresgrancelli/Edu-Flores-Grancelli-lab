@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {FIT_RECIPES} from '../pilot/fit-recipes.js';
@@ -67,7 +68,7 @@ import {reviewCoachGuideFoodChange} from '../pilot/coach-guide-restriction-scope
 const linkedCoach='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',linkedStudent='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',linkedOrg='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const ownerProfile={user_id:linkedCoach,role:'coach',active:true};
 import {coachRecipeScopeMatches,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED} from '../pilot/coach-shared-recipes-read-client.js';
-assert.equal(COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,false);
+assert.equal(COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,expectedReleaseFlag("COACH_SHARED_STUDENT_RECIPES_UI_ENABLED"));
 const ticket={coachId:linkedCoach,studentId:linkedStudent,organizationId:linkedOrg,epoch:7};
 const currentScope={...ticket,role:'coach',consented:true,shared:true};
 assert.equal(coachRecipeScopeMatches(currentScope,ticket),true);

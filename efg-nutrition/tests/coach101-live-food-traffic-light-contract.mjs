@@ -1,3 +1,4 @@
+import './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {FOOD_COMPATIBILITY_ENABLED} from '../pilot/food-compatibility.js';
@@ -55,7 +56,7 @@ assert.match(app,/const mealSlots=\[\["desayuno"[^\n]*"media_tarde"[^\n]*"merien
 assert.match(app,/Semáforo por patrón alimentario/);
 assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);
 assert.match(app,/data-coachfood[\s\S]*foodTrafficLight\(f\)\.symbol/);
-assert.match(html,/food-compatibility\.css\?v=20261030-coach101/);
-assert.match(html,/pilot\.js\?v=20[0-9]{6}-ux35-major2(?:-loginfix1)?/, 'PWA loads latest shared module while retaining traffic lights');
+assert.match(html,/food-compatibility\.css\?v=ncc-pilot-3a40474052be/);
+assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/, 'PWA loads latest shared module while retaining traffic lights');
 for(const name of ['green','yellow','red'])assert.ok(readFileSync(new URL('../pilot/food-compatibility.css',import.meta.url),'utf8').includes('.efg-compat-'+name));
 console.log('PASS COACH101: reviewed-only green/red, missing or clinical yellow, no-restriction neutral, searchable food and coach plan badge.');

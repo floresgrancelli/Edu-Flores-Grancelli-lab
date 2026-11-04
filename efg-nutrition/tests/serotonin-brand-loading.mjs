@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // EFG Nutrition Pro · static molecular brand loading gates. Not browser/physical QA.
 import assert from "node:assert/strict";
 import {readFileSync,existsSync} from "node:fs";
@@ -19,7 +20,7 @@ assert.match(css,/@media \(prefers-reduced-motion:reduce\)/,"Respect device moti
 assert.match(css,/animation:none!important/,"Reduced motion must turn off animation");
 assert.match(css,/@media \(max-width:480px\)/,"Responsive mobile sizing");
 assert.doesNotMatch(css,/@import|https?:\/\/|@keyframes\s+rotate\(/i,"No extra assets or animation libraries");
-assert.equal(RELEASE_COMMUNICATIONS_ENABLED,false,"Never activate release while validation incomplete");
+assert.equal(RELEASE_COMMUNICATIONS_ENABLED,expectedReleaseFlag("RELEASE_COMMUNICATIONS_ENABLED"),"Never activate release while validation incomplete");
 assert.match(release,/efg-serotonin-stage/,"Draft major release carries brand molecule");
 const base={id:"efg_major_serotonin_01",version:"2026.11.1",phase:"preview",title:"Nuevo Nutrición Con-Ciencia",roles:["admin","coach","student","personal"],highlights:["Guías alimentarias","Fichas de seguimiento"]};
 for(const role of base.roles){

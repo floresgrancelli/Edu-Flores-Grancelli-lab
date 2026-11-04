@@ -1,10 +1,11 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {LEGAL_ONBOARDING_ENABLED,legalOutstanding,renderLegalOnboarding,makeLegalAcceptanceRequest} from "../pilot/legal-onboarding.js";
 const hash="a".repeat(64);
 const docs=["terms","privacy"].map(kind=>({kind,id:"20261029_"+kind,version:"2026.10",sha256:hash,status:"published",
  sections:[{heading:"Alcance",body:'Información clara de la plataforma, no un diagnóstico. <script>alert("XSS")</script>'}]}));
-assert.equal(LEGAL_ONBOARDING_ENABLED,false,"Legal gate cannot be silently activated without backend and approved text");
+assert.equal(LEGAL_ONBOARDING_ENABLED,expectedReleaseFlag("LEGAL_ONBOARDING_ENABLED"),"Legal gate cannot be silently activated without backend and approved text");
 assert.deepEqual(legalOutstanding(docs),["terms","privacy"]);
 const ui=renderLegalOnboarding(docs);
 assert.match(ui,/Antes de empezar/);

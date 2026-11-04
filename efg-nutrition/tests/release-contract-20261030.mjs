@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // Release-contract guard: the dated Plan Maestro is a machine-checkable release
 // boundary. This test does not assert an item is implemented or publish anything.
 import assert from "node:assert/strict";
@@ -34,8 +35,8 @@ assert.match(sql,/create function public\.efg_publish_coach_plan_draft_atomic/);
 assert.match(sql,/coach119_reviewed_food_ids/);
 assert.match(read("../pilot/coach-relaunch-onboarding.js"),/COACH_RELAUNCH_ONBOARDING_ENABLED=false/,
  "Do not enable relaunch while versioned legal and food review are missing");
-assert.match(read("../pilot/coach-release-plan-gate.js"),/COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=false/);
-assert.match(read("../pilot/science-welcome.js"),/SCIENCE_WELCOME_ENABLED=false/);
+assert.match(read("../pilot/coach-release-plan-gate.js"),new RegExp(String.raw`COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED=${expectedReleaseFlag("COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED")}`));
+assert.match(read("../pilot/science-welcome.js"),new RegExp(String.raw`SCIENCE_WELCOME_ENABLED=${expectedReleaseFlag("SCIENCE_WELCOME_ENABLED")}`));
 for(const extra of ["Mac","Personal","Carla","PRO64"]){
  assert.ok(plan.post_release_explicit.some(v=>v.includes(extra)),"Missing explicit post-GO scope "+extra);
 }

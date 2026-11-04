@@ -1,13 +1,15 @@
+import {createPreGoFixture} from './pre-go-source-fixture.mjs';
 // PWA release asset preparation: source code must remain unchanged.
 // This regression stages only a versioned proposal in an OS temp directory.
+import './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {execFileSync,spawnSync} from 'node:child_process';
-import {readFileSync,existsSync,mkdtempSync,rmSync} from 'node:fs';
+import {readFileSync,existsSync,mkdtempSync,rmSync,cpSync,writeFileSync,mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const repoRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..','..');
+const repoRoot=createPreGoFixture();
 const tool=join(repoRoot,'efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs');
 const htmlPath=join(repoRoot,'efg-nutrition/pilot/index.html');
 const entryPath=join(repoRoot,'efg-nutrition/pilot/pilot.js');

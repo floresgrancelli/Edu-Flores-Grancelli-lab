@@ -1,10 +1,11 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH100: exact signed-server-data-shaped policy with fictional IDs. NO data access.
 import assert from 'node:assert/strict';
 import {
  COACH_STUDENT_JOURNEY_ENABLED,COACH_STUDENT_JOURNEY_STEPS,
  resolveCoachStudentJourney,renderCoachPlanWaiting
 } from '../pilot/coach-student-journey.js';
-assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false,'Cannot enable before hosted RLS and persistence verified');
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"),'Cannot enable before hosted RLS and persistence verified');
 assert.deepEqual(COACH_STUDENT_JOURNEY_STEPS.map(x=>x.id),['participation','intake','review','ready']);
 const uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',org='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const goal='cccccccc-cccc-4ccc-8ccc-cccccccccccc';

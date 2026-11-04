@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // NUT-55 static regression gate for legacy Coach writes.
 // In production, old editing stays available while feature flag is OFF.
 // When feature is ON, ALL four legacy writes must reject BEFORE sending HTTP.
@@ -7,7 +8,7 @@ import {readFileSync} from "node:fs";
 
 const pilot=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const draftClient=readFileSync(new URL("../pilot/coach-plan-draft-client.js",import.meta.url),"utf8");
-assert.match(draftClient,/export const COACH_ATOMIC_PLAN_UI_ENABLED=false\s*;/,"Never enable experimental UI from this QA");
+assert.match(draftClient,new RegExp(String.raw`export const COACH_ATOMIC_PLAN_UI_ENABLED=${expectedReleaseFlag("COACH_ATOMIC_PLAN_UI_ENABLED")}\s*;`),"Never enable experimental UI from this QA");
 const blocks=[
  ["saveCoachFoods","async function saveCoachFoods(){","function sportView(){","efg_food_plans","upsert"],
  ["approveGuidedDay","async function approveGuidedDay(){","function","efg_food_plans","upsert"],

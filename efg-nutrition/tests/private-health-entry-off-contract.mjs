@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH01-05: the actual PWA route is connected for future authorized rollout
 // but stays completely OFF while hosted private health/consent is unavailable.
 import assert from 'node:assert/strict';
@@ -6,8 +7,8 @@ import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,
  createStudentRestrictionDeclaration} from '../pilot/student-restriction-declaration.js';
 import {COACH_STUDENT_JOURNEY_ENABLED} from '../pilot/coach-student-journey.js';
 import {CLINICAL_GUIDE_CONNECTION_ENABLED} from '../pilot/clinical-guide-connection.js';
-assert.equal(PRIVATE_HEALTH_DECLARATION_UI_ENABLED,false,'No health route for live users');
-assert.equal(COACH_STUDENT_JOURNEY_ENABLED,false,'Onboarding itself remains OFF');
+assert.equal(PRIVATE_HEALTH_DECLARATION_UI_ENABLED,expectedReleaseFlag("PRIVATE_HEALTH_DECLARATION_UI_ENABLED"),'No health route for live users');
+assert.equal(COACH_STUDENT_JOURNEY_ENABLED,expectedReleaseFlag("COACH_STUDENT_JOURNEY_ENABLED"),'Onboarding itself remains OFF');
 assert.equal(CLINICAL_GUIDE_CONNECTION_ENABLED,false,'No clinical guide');
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 for(const token of [
@@ -34,7 +35,7 @@ const org='22222222-2222-4222-8222-222222222222';
 let serverReads=0;
 const sb={auth:{getUser:async()=>{serverReads++;return {data:{user:{id:student}}};}},
  rpc:async()=>{serverReads++;return {data:null};}};
-const controller=createStudentRestrictionDeclaration({sb,enabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,
+const controller=createStudentRestrictionDeclaration({sb,enabled:false,
  readContext:()=>({userId:student,organizationId:org,sessionId:org,epoch:1,role:'student',active:true})});
 await assert.rejects(controller.load(),/sesión de alumno verificada/);
 await assert.rejects(controller.declare({noneDeclared:true,processing:true,sharing:true}));

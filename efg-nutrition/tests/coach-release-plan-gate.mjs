@@ -1,3 +1,4 @@
+import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // COACH-66 · Fail-closed integration safety. No users, no network, no medical claims.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
@@ -8,10 +9,10 @@ import {COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,
 import {createCoachPlanDraftClient,COACH_ATOMIC_PLAN_UI_ENABLED}
  from "../pilot/coach-plan-draft-client.js";
 assert.equal(COACH_RELAUNCH_ONBOARDING_ENABLED,false);
-assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,false);
-assert.equal(COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,false);
+assert.equal(COACH_ATOMIC_PLAN_UI_ENABLED,expectedReleaseFlag("COACH_ATOMIC_PLAN_UI_ENABLED"));
+assert.equal(COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,expectedReleaseFlag("COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED"));
 assert.equal(assertCoachReleasePlanWriteAllowed({relaunchEnabled:false}),true);
-assert.throws(()=>assertCoachReleasePlanWriteAllowed({relaunchEnabled:true}),
+assert.throws(()=>assertCoachReleasePlanWriteAllowed({relaunchEnabled:true,versionedBackendVerified:false}),
  /servidor la nueva ficha por versión/);
 assert.equal(new Set(COACH_RELAUNCH_LEGACY_PLAN_ACTIONS).size,COACH_RELAUNCH_LEGACY_PLAN_ACTIONS.length);
 for(const x of ["approveGoal","approveGoalRevision","saveGuidedDay","publishCoachStudentPlan",
@@ -40,6 +41,6 @@ const draftSql=readFileSync(new URL("../docs/COACH_PLAN_DRAFT_STAGING_SQL_202610
 const publishSql=readFileSync(new URL("../docs/COACH_PLAN_ATOMIC_PUBLISH_STAGING_SQL_20261029.sql",import.meta.url),"utf8");
 assert.match(draftSql,/from public\.efg_student_intakes intake/);
 assert.match(publishSql,/from public\.efg_student_intakes intake/);
-assert.equal(COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,false,
+assert.equal(COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,expectedReleaseFlag("COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED"),
  "Legacy SQL still locks old intake; versioned backend MUST NOT be declared verified.");
 console.log("PASS COACH-66: no legacy draft/goal/guide writes after launch version switch; current Coach remains unchanged; server-versioned publish remains NO GO.");

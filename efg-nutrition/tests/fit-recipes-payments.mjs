@@ -82,6 +82,21 @@ assert.match(licenseMigration,/v_org.is_test/,"Admin's lab is exempt from commer
 assert.ok(!app.includes('EJEMPLO.ALIAS')&&!app.includes('efg-default-placeholder.invalid'),"Never assign a fictitious payment alias");
 console.log("PASS: 12 Fit recipes, 12 credited real photographs, budins, macros and payment UI.");
 
+// Execute the real payment view: pilot exemption must not hide student receipts.
+const paymentViewSource=app.slice(app.indexOf('function paymentsView(){'),app.indexOf('// Retain open sections'));
+const renderPayments=new Function('state','rootText','num','escapeHTML','paymentCard','today',paymentViewSource+';return paymentsView();');
+const paymentState={profile:{role:'coach'},session:{user:{id:'coach-qa'}},org:{id:'org-qa',coach_id:'coach-qa',is_test:true,seat_limit:2},payments:[{id:'receipt-qa',recipient_id:'coach-qa',organization_id:'org-qa',payment_kind:'student_coach',status:'pending'}]};
+const renderPaymentFixture=()=>renderPayments(paymentState,(a,b)=>a+b,String,String,p=>p.id,()=> '2026-11-04');
+let paymentHTML=renderPaymentFixture();
+assert.match(paymentHTML,/receipt-qa/,'Pilot coach can inspect student receipts');
+assert.match(paymentHTML,/licencia piloto gratuita/);
+assert.doesNotMatch(paymentHTML,/PAGAR MI LICENCIA A EFG|Mi contrato|data-act="sendProof"/,'Pilot coach must not be billed');
+paymentState.org.is_test=false;
+paymentHTML=renderPaymentFixture();
+assert.match(paymentHTML,/PAGAR MI LICENCIA A EFG/,'Commercial flow remains available');
+assert.match(paymentHTML,/receipt-qa/);
+console.log('PASS: actual pilot/commercial payment views preserve separate receipt and license circuits.');
+
 // UX-08-08 / 04-02: full recipe slots must NOT erase local recipes that
 // could not migrate. Execute the real importer against a synthetic DB.
 const recipeBegin=app.indexOf('async function loadCloudRecipes(){');

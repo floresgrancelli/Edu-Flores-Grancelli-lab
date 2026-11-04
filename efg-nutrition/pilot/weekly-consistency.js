@@ -27,6 +27,15 @@ export function classifyNutritionDay(totals,goal){
  return {status:ideal?"ideal":"outside",
   ideal,acceptable,energyPct:pct(energyPct*100),proteinPct:pct(proteinPct*100)};
 }
+// Merge the current editor snapshot once; preserve genuinely ambiguous history.
+export function weeklyLogsWithCurrent(logs=[],current=null){
+ const rows=[...(logs||[])];
+ if(!current?.log_day)return rows;
+ const matches=rows.map((x,i)=>x?.log_day===current.log_day?i:-1).filter(i=>i>=0);
+ if(matches.length===0)rows.push(current);
+ else if(matches.length===1)rows[matches[0]]=current;
+ return rows;
+}
 export function calculateWeeklyConsistency({today,logs,goals,totalOf,goalForDate}){
  const date=iso(today);
  if(!date||typeof totalOf!=="function"||typeof goalForDate!=="function")throw Error("Parámetros semanales inválidos");

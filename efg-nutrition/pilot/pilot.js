@@ -11,7 +11,7 @@ import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from ".
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=20261031-integrated1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {pastelDaySummary} from "./pastel-day.js?v=20261028-phase3-pastel-preview1";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel} from "./weekly-consistency.js?v=20261029-5pct1";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=20261029-5pct1";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=20261027-partial-merienda-v5";
 import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=20261029-plant1";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=20261029-uxmeals1";
@@ -1551,7 +1551,7 @@ function homeView(){
  [{start_on:personalStart,approved_at:ownTarget.updated_at,kcal:ownTarget.kcal,protein_g:ownTarget.protein_g}]:state.goals||[];
  const weeklyPanel=(isPersonalProfessional?!!ownTarget:!!state.goals?.length)
   ?weeklyConsistencyPanel(calculateWeeklyConsistency({
-    today:today(),logs:[...(state.progressLogs||[]),...(state.diary?[state.diary]:[])],
+    today:today(),logs:weeklyLogsWithCurrent(state.progressLogs,state.diary),
     goals:history,totalOf:dailyTotals,goalForDate
    }),{opened:state.rewardOpened===true,personal:isPersonalProfessional,
     verified:!isPersonalProfessional&&state.rewardFeatureReady===true,

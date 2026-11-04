@@ -3869,7 +3869,7 @@ async function sendProof(){
  if(!file||!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5242880)throw new Error("Elegí una foto JPG, PNG o WebP menor a 5 MB.");
  if(!Number.isFinite(amount)||amount<=0||amount>10000000||!/^\d{4}-\d{2}$/.test(period))throw new Error("Revisá importe y período.");
  const ext={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"}[file.type];
- const name=state.session.user.id+"/"+crypto.randomUUID()+"."+ext;
+ const name=state.session.user.id+"/"+createCoachPublicationRequestId()+"."+ext;
  let upload=await sb.storage.from("efg-receipts").upload(name,file,{upsert:false,contentType:file.type});
  if(upload.error)throw upload.error;
  let payment=kind==="coach_efg"?await sb.rpc("efg_submit_coach_payment",{p_amount_ars:amount,p_period:period,p_receipt_path:name,p_alias:document.getElementById("platformPayAlias")?.value||state.platformAlias||""}):await sb.rpc("efg_submit_payment",{p_kind:kind,p_amount_ars:amount,p_period:period,p_receipt_path:name});

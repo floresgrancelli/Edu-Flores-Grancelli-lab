@@ -442,3 +442,22 @@ console.log('PASS UX-08-08 offline recipe read/import and A/B account cache isol
 
 // Reuse the established Premium QA job for the unified food/recipe picker.
 await import('./recipes-shared-picker-contract.mjs');
+
+// P30I: execute real receipt upload using the established secure UUID fallback.
+const receiptFn=app.slice(app.indexOf('async function sendProof(){'),app.indexOf('async function onePaymentAction('));
+const nonceFn=app.slice(app.indexOf('function createCoachPublicationRequestId('),app.indexOf('function coachPublicationFailureMessage('));
+const receiptCalls=[];
+const receiptState={profile:{role:'student'},session:{user:{id:'qa-student'}},org:{payment_alias:'QA - NO TRANSFERIR'}};
+const receiptDOM={getElementById:id=>({payFile:{files:[{type:'image/png',size:100}]},payAmount:{value:'1'},payPeriod:{value:'2026-11'}}[id])};
+const receiptSB={storage:{from:bucket=>({upload:async(path,file,opts)=>{receiptCalls.push({bucket,path,opts});return {error:null};}})},rpc:async(name,args)=>{receiptCalls.push({name,args});return {error:null};}};
+const receiptRun=new Function('state','document','sb','window','loadOrgAndPayments','render','notify',nonceFn+receiptFn+';return sendProof();');
+await receiptRun(receiptState,receiptDOM,receiptSB,{crypto:{getRandomValues:b=>{b.fill(11);return b;}}},async()=>{},async()=>{},()=>{});
+assert.match(receiptCalls[0].path,/^qa-student\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.png$/);
+assert.equal(receiptCalls[0].bucket,'efg-receipts');
+assert.equal(receiptCalls[0].opts.upsert,false);
+assert.equal(receiptCalls[1].name,'efg_submit_payment');
+assert.equal(receiptCalls[1].args.p_receipt_path,receiptCalls[0].path);
+receiptCalls.length=0;
+await assert.rejects(receiptRun(receiptState,receiptDOM,receiptSB,{crypto:{}},async()=>{},async()=>{},()=>{}),/identificador seguro/);
+assert.equal(receiptCalls.length,0,'Without secure randomness fail before any storage or RPC write');
+console.log('PASS P30I receipt secure UUID fallback and fail-closed before upload.');

@@ -214,11 +214,7 @@ console.log('PASS exact COACH119 PG17: draft save + cross-org RLS denial + legal
 
 // P28: exact private backend + additive health guard in the SAME disposable DB.
 sql(`create table efg_private.nut57_isolated_staging_marker(local_only boolean);
-insert into efg_private.nut57_isolated_staging_marker values(true);
-create function public.efg_legal_current_status() returns table(kind text,accepted boolean)
-language sql stable security definer set search_path='' as $$
- select d.kind,exists(select 1 from public.efg_legal_acceptances a where a.document_id=d.id and a.user_id=auth.uid())
- from public.efg_legal_documents d where d.is_current and d.kind in ('terms','privacy') $$;`);
+insert into efg_private.nut57_isolated_staging_marker values(true);`);
 sql(read('../docs/CLIN_GUT_03_PRIVATE_HEALTH_INTAKE_STAGING_ONLY.sql'));
 sql(read('../docs/P28_HEALTH_BOUND_PUBLICATION_STAGING_ONLY.sql'));
 assert.equal(sql("select enabled from efg_private.coach_release_switches where switch_key='pilot_health_bound_publication'"),'f');

@@ -37,7 +37,8 @@ assert.match(pilot,/if\(action==="logout"\)\{[\s\S]*?resetPrivateSession\(\);/,
  'Explicit logout must clear Coach pilot and old session cache');
 assert.match(pilot,/else if\(event==="SIGNED_OUT"\)\{\s*authHydration\.change\(null\);/,
  'Signed-out auth events must notify the central hydration gate');
-assert.match(pilot,/invalidate:epoch=>\{resetPrivateSession\(\);state\.authContextEpoch=epoch;loginView\(\);\}/,
+assert.match(pilot,/invalidate:invalidateAuthContext/);
+assert.match(pilot,/function invalidateAuthContext\(epoch,nextId\)\{\s*resetPrivateSession\(\);state\.authContextEpoch=epoch;/,
  'Central hydration gate must clear all private caches and role memory');
 assert.match(pilot,/if\(COACH_RELAUNCH_ONBOARDING_ENABLED\)throw Error\("Ingreso piloto duplicado/);
 assert.doesNotMatch(pilot,/if\(!data.shareWithCoach&&!state.coachPilotIntake\)throw Error\("Para continuar compartí la ficha/);

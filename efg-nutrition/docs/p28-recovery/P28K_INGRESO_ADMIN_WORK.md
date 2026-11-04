@@ -23,8 +23,9 @@ Inspección visual interna de escritorio en Cloud Browser: panel legible y naveg
 - `pilot/pilot.js`: `invalidateAuthContext` limpia primero los datos privados en RAM. Para una identidad pendiente muestra una espera accesible; para cierre de sesión muestra ingreso. La identidad continúa requiriendo `getUser`; el evento no concede acceso.
 - `tests/auth-hydration-pilot-private.mjs`: prueba las funciones reales con transporte sintético, incluyendo recuperación inicial sin perfil verificado, cambio A→B, A→B→C, cierre de sesión, eventos repetidos y renovación. Completa las dependencias de colas de escritura que faltaban en el adaptador de prueba.
 - `tests/ux35-session-release-contract.mjs`: actualiza el contrato de limpieza para el callback nombrado sin exigir que toda transición muestre login.
+- `tests/coach113-pilot-ui-integration.mjs`: mantiene el mismo contrato de limpieza del recorrido de alumno con el callback nombrado.
 
-Validaciones ejecutadas con Node 24.22.1: sintaxis de ambos archivos, `auth-hydration-gate-private.mjs`, `auth-hydration-pilot-private.mjs`, `ux35-session-release-contract.mjs` y `git diff --check`: PASS. La prueba inicial con el Node predeterminado no admitía el flag experimental; se utilizó el runtime administrado. Los fallos intermedios del adaptador y del contrato antiguo se corrigieron antes del resultado final.
+Validaciones ejecutadas con Node 24.22.1: sintaxis de ambos archivos, `auth-hydration-gate-private.mjs`, `auth-hydration-pilot-private.mjs`, `ux35-session-release-contract.mjs`, `coach113-pilot-ui-integration.mjs`, `persisted-guide-local-e2e.mjs --pilot-scope-regression` y `git diff --check`: PASS. La prueba inicial con el Node predeterminado no admitía el flag experimental; se utilizó el runtime administrado. Los fallos intermedios del adaptador y del contrato antiguo se corrigieron antes del resultado final.
 
 La vista previa se actualizó únicamente con los dos archivos funcionales modificados. No cambia permisos, tokens, configuración de autenticación, flags, SQL, imágenes ni datos nutricionales. Los seis CI de `123eec3` son evidencia anterior y no se presentan como aprobaciones de este nuevo commit.
 

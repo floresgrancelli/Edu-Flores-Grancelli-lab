@@ -154,7 +154,7 @@ jobs:
       - name: NCC release assets + pilot UI activation proposal - READ ONLY and temporary staging
         run: |
           node --check efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs
-          node efg-nutrition/tools/prepare-ncc-pwa-assets-pre-go.mjs --check
+          node efg-nutrition/tests/approved-release-flags.mjs
           node efg-nutrition/tests/ncc-pwa-asset-cutover-pre-go.mjs
       - name: NCC P26 signed hosted actor isolation harness (OFFLINE CONTRACT ONLY, NO OTP/NETWORK)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}

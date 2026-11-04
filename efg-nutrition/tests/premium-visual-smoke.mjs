@@ -186,6 +186,10 @@ try{
    state.profile={user_id:userId,nickname:role==="student"?"Alex":role==="coach"?"Coach Andrea":"Administrador",role,active:true,organization_id:"demo-org"};
    state.tab=role==="student"?"home":role==="coach"?"coach":"admin";
    state.renderedDay=day;state.welcomePending=false;
+   // Post-onboarding layout fixture only. The separate privacy/journey harness
+   // verifies pending and blocked states; no hosted eligibility is asserted here.
+   state.coachPilotEntry=role==='student'?{route:'ready',canLogMeals:true}:null;
+   state.planAccessSupported=true;state.planAccess={status:'published'};
    state.diary={student_id:userId,log_day:day,meals:{
      desayuno:[{id:"egg",name:"Huevo",qty:120,unit:"g",k:178,p:15,c:1,f:12,fi:0}],
      media_manana:[{id:"yogurt",name:"Yogur natural",qty:170,unit:"g",k:85,p:7,c:14,f:0,fi:0}],

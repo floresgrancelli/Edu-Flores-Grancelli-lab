@@ -1,6 +1,6 @@
 // Direct application lifecycle connection; no HTTP rewriting or state injection.
-import {createStudentRestrictionDeclaration} from './student-restriction-declaration.js';
-import {createBoundGuidePreparation} from './coach-bound-guide-preparation.js';
+import {createStudentRestrictionDeclaration} from './student-restriction-declaration.js?v=ncc-pilot-3a40474052be';
+import {createBoundGuidePreparation} from './coach-bound-guide-preparation.js?v=ncc-pilot-3a40474052be';
 export function createPilotGuideLifecycle({sb,enabled,readStudent,readScope,readGoal,foodIds,onSaved}){
  let epoch=0,fingerprint=null,mount=null;
  function context(){

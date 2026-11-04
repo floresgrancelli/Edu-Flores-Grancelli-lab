@@ -1,7 +1,7 @@
 // Private, synthetic-only bridge. No network, persistence, diagnosis or publication.
-import {adaptedScopeKey} from './coach-adapted-workspace.js';
-import {parseGutClinicalDraft} from './gut-clinical-workbench.js';
-import {proposeAdaptedGuide} from './adapted-guided-day.js';
+import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be';
+import {parseGutClinicalDraft} from './gut-clinical-workbench.js?v=ncc-pilot-3a40474052be';
+import {proposeAdaptedGuide} from './adapted-guided-day.js?v=ncc-pilot-3a40474052be';
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 const revision=x=>Number.isSafeInteger(x)&&x>0;
 const id=x=>typeof x==='string'&&x.trim().length>0;

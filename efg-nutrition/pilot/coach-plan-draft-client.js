@@ -1,11 +1,11 @@
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be";
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js";
-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js";
-import {approvedFoodGuide} from "./coach-food-selection.js";
-export const COACH_ATOMIC_PLAN_UI_ENABLED=false;
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be";
+import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be";
+export const COACH_ATOMIC_PLAN_UI_ENABLED=true;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SLOTS=new Set(["desayuno","media_manana","almuerzo","media_tarde","merienda","cena"]);

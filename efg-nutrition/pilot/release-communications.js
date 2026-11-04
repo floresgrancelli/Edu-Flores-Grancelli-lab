@@ -1,6 +1,6 @@
 // Nutrición Con-Ciencia · major-release communications prototype (OFF by default).
 // Pure rendering / contract helpers. No database writes, mail, sign-out or legal consent.
-export const RELEASE_COMMUNICATIONS_ENABLED=false;
+export const RELEASE_COMMUNICATIONS_ENABLED=true;
 const esc=(value)=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const roleCopy={admin:"Organizá tu plataforma y acompañá a tu comunidad.",coach:"Más claridad para acompañar a cada alumno.",student:"Tus hábitos, tu historia y tu acompañamiento en un mismo lugar.",personal:"Un espacio para organizar tus hábitos a tu ritmo."};
 const ROLES=new Set(["admin","coach","student","personal"]);

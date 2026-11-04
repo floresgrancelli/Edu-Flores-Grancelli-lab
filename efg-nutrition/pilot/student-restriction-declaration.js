@@ -1,7 +1,7 @@
 // Private consented health declaration. Wired for isolated testing but OFF
 // until the server-side signed health document, RLS, hosted OTP and Edu GO.
 // It is NEVER a general-intake field or a shortcut around the two pilot notices.
-export const PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false;
+export const PRIVATE_HEALTH_DECLARATION_UI_ENABLED=true;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // These are self-reported dietary considerations, never diagnoses made by the

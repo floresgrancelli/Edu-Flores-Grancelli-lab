@@ -1,8 +1,8 @@
 // P26M — eight owner-reference educational pages plus ninth watercolor serotonin closing page. OFF until authorized.
 // OFF until a user-scoped, audited server receipt and physical QA are ready.
-import {renderNutritionScienceView} from "./nutrition-science.js";
-import {renderScienceWellbeingPanel} from "./science-wellbeing.js";
-export const SCIENCE_WELCOME_ENABLED=false;
+import {renderNutritionScienceView} from "./nutrition-science.js?v=ncc-pilot-3a40474052be";
+import {renderScienceWellbeingPanel} from "./science-wellbeing.js?v=ncc-pilot-3a40474052be";
+export const SCIENCE_WELCOME_ENABLED=true;
 export const SCIENCE_WELCOME_VERSION="con_ciencia_2026_r1";
 // The owner montage, rather than the separate science-library HTML, defines
 // the exact order of the first eight introductory images.

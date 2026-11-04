@@ -18,7 +18,7 @@ function asDocs(documents){
  if(!seen.has("terms")||!seen.has("privacy"))throw Error("Faltan los documentos obligatorios.");
  return Object.fromEntries(documents.map(x=>[x.kind,x]));
 }
-export const LEGAL_ONBOARDING_ENABLED=false; // May change ONLY after approved text, staging and gated backend.
+export const LEGAL_ONBOARDING_ENABLED=true; // May change ONLY after approved text, staging and gated backend.
 export function legalOutstanding(documents,accepted=[]){
  const docs=asDocs(documents);
  return ["terms","privacy"].filter(kind=>!accepted.some(a=>a&&a.kind===kind&&a.document_id===docs[kind].id&&

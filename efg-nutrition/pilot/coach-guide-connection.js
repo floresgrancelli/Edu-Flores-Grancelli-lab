@@ -1,7 +1,7 @@
 // Composes existing scope-bound intake source with existing coach workspace.
 // Providers are injected by an authorized environment. No RPC, storage or publish.
-import {createGuideIntakeSource} from './coach-guide-intake-adapter.js';
-import {createCoachAdaptedWorkspace,adaptedScopeKey} from './coach-adapted-workspace.js';
+import {createGuideIntakeSource} from './coach-guide-intake-adapter.js?v=ncc-pilot-3a40474052be';
+import {createCoachAdaptedWorkspace,adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be';
 export function createCoachGuideConnection({enabled=false,readScope,providers=null}={}){
  if(!providers)return null;
  for(const method of ['readBinding','readBundle','subscribe'])

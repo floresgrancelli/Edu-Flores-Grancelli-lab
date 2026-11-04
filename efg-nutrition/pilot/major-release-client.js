@@ -1,7 +1,7 @@
 // COACH120 / UX35 major-relauch client. OFF until approved release and QA.
 // The server owns the phase, version and authenticated receipt. This code
 // NEVER issues automatic signout; minor PWA asset changes are silent.
-export const MAJOR_RELEASE_FLOW_ENABLED=false;
+export const MAJOR_RELEASE_FLOW_ENABLED=true;
 const ID=/^[a-z][a-z0-9_]{6,60}$/;
 const V=/^[0-9a-zA-Z._-]{2,35}$/;
 const PHASES=new Set(['none','preview','reauth_required','legal','live']);

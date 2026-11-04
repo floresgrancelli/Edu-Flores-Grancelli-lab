@@ -3446,7 +3446,7 @@ async function loadStudentDetail(studentId){
    organizationId:loaded.organizationId,epoch:contextEpoch};
   state.coachSharedRecipes=loaded.recipes;
  }
- if(CLINICAL_GUIDE_CONNECTION_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
+ if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
     state.profile.user_id===coachId&&state.org?.coach_id===coachId&&
     c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
   // General follow-up alone never starts a clinical read. Independent health

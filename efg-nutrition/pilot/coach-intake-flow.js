@@ -10,11 +10,15 @@ export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){
  return willShare?(wasShared?"Actualizar ficha compartida con mi coach":"Guardar y enviar mi ficha a mi coach"):
   (wasShared?"Guardar privada y dejar de compartir":"Guardar ficha privada");
 }
-export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh}){
+export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh,legacyIntakeAvailable=false}){
  const names={fat_loss:"Reducir grasa",recomp:"Recomposición",muscle_gain:"Aumentar masa muscular",maintenance:"Mantenimiento",general:"Organizar mis hábitos"};
  const activities={low:"Mayormente sentado",light:"Ligera",moderate:"Moderada",high:"Alta"};
  const diets={...Object.fromEntries(DIET_PATTERNS.map(p=>[p.id,p.label])),omnivore:"Omnívoro",vegetarian:"Vegetariano",vegan:"Vegano",pescatarian:"Pescetariano",other:"Otro / aún no definido"};
  const missing=e=>e&&["42P01","PGRST205"].includes(e.code);
+ // The hosted pilot never installed the optional 29/10 intake. UI flags are
+ // not schema detection: OFF must not route login to a nonexistent table.
+ // Only historical isolated fixtures opt into that old backend explicitly.
+ const canReadIntake=()=>COACH_VERSIONED_INTAKE_ENABLED||legacyIntakeAvailable===true;
  // Never let a current-release Coach see a formerly shared legacy intake.
  const currentIntakeTable=()=>COACH_VERSIONED_INTAKE_ENABLED?
    "efg_coach_relaunch_intakes":"efg_student_intakes";
@@ -47,19 +51,21 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const id=who.id;
   const a=await sb.from("efg_student_plan_access").select("status,published_at,published_goal_id").eq("student_id",id).maybeSingle();
   assertActor(who);
-  if(a.error){if(missing(a.error))return;throw a.error;}
-  const f=await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle();
+  if(a.error){if(!COACH_VERSIONED_INTAKE_ENABLED&&missing(a.error))return;throw a.error;}
+  const f=canReadIntake()?await filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields()).eq("student_id",id)).maybeSingle():{data:null,error:null};
   assertActor(who);
   // The old optional table is absent on some upgraded pilot databases. This
   // must NOT lock the student out after OTP, nor enable an unreviewed intake.
   // Fail closed for any other error and for the versioned mandatory intake.
-  const legacyMissing=!COACH_VERSIONED_INTAKE_ENABLED&&!!missing(f.error);
+  const legacyMissing=!COACH_VERSIONED_INTAKE_ENABLED&&(!canReadIntake()||!!missing(f.error));
   if(f.error&&!legacyMissing)throw f.error;
   if(!legacyMissing&&f.data?.student_id!=null&&f.data.student_id!==id)
    throw Error("La ficha recuperada no corresponde al alumno actual.");
   // Commit both reads together, not a partially hydrated pending/ready state.
-  state.planAccessSupported=true;
-  state.planAccess=a.data||{status:"pending"};
+  // An absent access row while the rollout is OFF is not a new pending plan.
+  // Keep explicit server pending/published rows; never manufacture published.
+  state.planAccessSupported=!!a.data||!legacyMissing;
+  state.planAccess=a.data||(!legacyMissing?{status:"pending"}:null);
   state.studentIntake=legacyMissing?null:f.data||null;
   state.legacyIntakeUnavailable=legacyMissing;
  }
@@ -71,12 +77,12 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const authorized=new Set(consentedIds);
   const ids=[...authorized];
   const [a,b]=await Promise.all([
-   filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields(true)).in("student_id",ids).not("shared_at","is",null)).limit(500),
+   canReadIntake()?filterRelease(sb.from(currentIntakeTable()).select(currentIntakeFields(true)).in("student_id",ids).not("shared_at","is",null)).limit(500):Promise.resolve({data:[],error:null}),
    sb.from("efg_student_plan_access").select("student_id,status,published_at").in("student_id",ids).limit(500)
   ]);
   assertActor(who);
-  if(a.error&&!missing(a.error))throw a.error;
-  if(b.error&&!missing(b.error))throw b.error;
+  if(a.error&&(COACH_VERSIONED_INTAKE_ENABLED||!missing(a.error)))throw a.error;
+  if(b.error&&(COACH_VERSIONED_INTAKE_ENABLED||!missing(b.error)))throw b.error;
   const forms={},access={};
   if(!a.error)for(const v of a.data||[])if(authorized.has(v.student_id)&&v.shared_at)forms[v.student_id]=v;
   if(!b.error)for(const v of b.data||[])if(authorized.has(v.student_id))access[v.student_id]=v;
@@ -94,16 +100,16 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   if(!consented)return;
   assertActor(who);
   const [a,b]=await Promise.all([
-   filterRelease(sb.from(currentIntakeTable())
+   canReadIntake()?filterRelease(sb.from(currentIntakeTable())
     .select(currentIntakeFields(true))
-    .eq("student_id",studentId).not("shared_at","is",null)).maybeSingle(),
+    .eq("student_id",studentId).not("shared_at","is",null)).maybeSingle():Promise.resolve({data:null,error:null}),
    sb.from("efg_student_plan_access")
     .select("student_id,status,published_at").eq("student_id",studentId).maybeSingle()
   ]);
   assertCurrent?.();
   assertActor(who);
-  if(a.error&&!missing(a.error))throw a.error;
-  if(b.error&&!missing(b.error))throw b.error;
+  if(a.error&&(COACH_VERSIONED_INTAKE_ENABLED||!missing(a.error)))throw a.error;
+  if(b.error&&(COACH_VERSIONED_INTAKE_ENABLED||!missing(b.error)))throw b.error;
   if(!a.error&&a.data?.student_id===studentId&&a.data.shared_at)state.coachIntakeForms[studentId]=a.data;
   if(!b.error&&b.data?.student_id===studentId)state.coachIntakeAccess[studentId]=b.data;
  }
@@ -154,6 +160,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
    '<section class="card"><h2>Tu coach te acompaña</h2><p>Podés enviarle tus objetivos o hacerle preguntas. El plan se activará únicamente cuando el coach lo publique.</p><div class="pilot-toolbar"><button class="btn light" data-tab="messages">Abrir mensajes</button><button class="btn light" data-tab="privacy">Privacidad</button><button class="btn" data-act="checkCoachPlan">Comprobar mi plan</button></div></section>');
  }
  async function save(){
+  if(!canReadIntake())throw Error("La ficha opcional anterior no está disponible. No se guardó nada.");
   if(state.legacyIntakeUnavailable)throw Error("La ficha opcional anterior no está disponible. No se guardó nada.");
   if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("Esta versión utiliza una ficha de relanzamiento que requiere revisión segura por versión.");
@@ -190,6 +197,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   notify(allow?"Ficha guardada y compartida.":"Ficha privada guardada.");
  }
  async function deleteOwn(){
+  if(!canReadIntake())throw Error("La ficha opcional anterior no está disponible. No se borró nada.");
   if(state.legacyIntakeUnavailable)throw Error("La ficha opcional anterior no está disponible. No se borró nada.");
   if(COACH_VERSIONED_INTAKE_ENABLED)
    throw Error("La ficha nueva exige el borrado/versionado seguro; el borrado antiguo está deshabilitado.");
@@ -219,6 +227,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
  }
  async function publish(){
   assertCoachReleasePlanWriteAllowed();
+  if(!canReadIntake())throw Error("La publicación anterior no está disponible. Usá el circuito de borrador y aprobación conjunta cuando esté habilitado.");
   if(COACH_ATOMIC_PLAN_UI_ENABLED)
    throw Error("La publicación anterior está deshabilitada: guardá y revisá el borrador para aprobar objetivo y guía juntos.");
   const student=state.selectedStudent,g=state.coachGoals[0],f=state.coachFoodPlan;

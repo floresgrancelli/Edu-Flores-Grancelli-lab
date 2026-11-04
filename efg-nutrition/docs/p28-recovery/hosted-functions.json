@@ -1,0 +1,645 @@
+[
+  {
+    "schema": "public",
+    "name": "efg_accept_current_legal",
+    "arguments": "p_terms_id uuid, p_privacy_id uuid, p_terms_checked boolean, p_privacy_checked boolean",
+    "arg_names": [
+      "p_terms_id",
+      "p_privacy_id",
+      "p_terms_checked",
+      "p_privacy_checked"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_accept_pilot_participation",
+    "arguments": "p_version text, p_participation boolean, p_sharing boolean",
+    "arg_names": [
+      "p_version",
+      "p_participation",
+      "p_sharing"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_ack_science_intro",
+    "arguments": "p_version text, p_action text",
+    "arg_names": [
+      "p_version",
+      "p_action"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_activate_paid_coach",
+    "arguments": "p_org uuid",
+    "arg_names": [
+      "p_org"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_claim_invitation",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_coach_pilot_entry_status",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_coach_shared_student_recipes",
+    "arguments": "p_student uuid",
+    "arg_names": [
+      "p_student"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_confirm_payment",
+    "arguments": "p_payment uuid, p_status text",
+    "arg_names": [
+      "p_payment",
+      "p_status"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_coach_reminders",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_mail_claim",
+    "arguments": "p_day date",
+    "arg_names": [
+      "p_day"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_mail_finish",
+    "arguments": "p_job uuid, p_provider_message_id text, p_error text",
+    "arg_names": [
+      "p_job",
+      "p_provider_message_id",
+      "p_error"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_mail_payload",
+    "arguments": "p_job uuid",
+    "arg_names": [
+      "p_job"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_mail_skip",
+    "arguments": "p_job uuid, p_reason text",
+    "arg_names": [
+      "p_job",
+      "p_reason"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_daily_report_cron_authorized",
+    "arguments": "p_day date, p_signature text",
+    "arg_names": [
+      "p_day",
+      "p_signature"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_delete_pending_invitation",
+    "arguments": "p_invitation uuid",
+    "arg_names": [
+      "p_invitation"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_friday_report_reminders",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_invite_coach",
+    "arguments": "p_email text, p_name text, p_seats integer",
+    "arg_names": [
+      "p_email",
+      "p_name",
+      "p_seats"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_invite_student",
+    "arguments": "p_email text, p_name text",
+    "arg_names": [
+      "p_email",
+      "p_name"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_invite_test_student",
+    "arguments": "p_email text, p_name text",
+    "arg_names": [
+      "p_email",
+      "p_name"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_legal_current_status",
+    "arguments": "",
+    "arg_names": [
+      "kind",
+      "document_id",
+      "version",
+      "sha256",
+      "accepted"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_major_release_ack",
+    "arguments": "p_release text, p_event_kind text, p_explicit_click boolean",
+    "arg_names": [
+      "p_release",
+      "p_event_kind",
+      "p_explicit_click"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_major_release_status",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_notify_food_guide",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_notify_goal",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_notify_message",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_notify_payment",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_notify_weekly_report",
+    "arguments": "",
+    "arg_names": null,
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_offer_coach",
+    "arguments": "p_email text, p_name text, p_seats integer, p_fee_ars numeric",
+    "arg_names": [
+      "p_email",
+      "p_name",
+      "p_seats",
+      "p_fee_ars"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_publish_coach_plan_draft_atomic",
+    "arguments": "p_student uuid, p_expected_revision bigint, p_request_id uuid",
+    "arg_names": [
+      "p_student",
+      "p_expected_revision",
+      "p_request_id"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_revoke_invitation",
+    "arguments": "p_invitation uuid",
+    "arg_names": [
+      "p_invitation"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_revoke_pilot_participation",
+    "arguments": "p_version text",
+    "arg_names": [
+      "p_version"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_revoke_test_invitation",
+    "arguments": "p_invitation uuid",
+    "arg_names": [
+      "p_invitation"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_save_coach_plan_draft",
+    "arguments": "p_student uuid, p_goal jsonb, p_guide jsonb, p_intake_updated_at timestamp with time zone, p_intake_revision integer, p_expected_revision bigint",
+    "arg_names": [
+      "p_student",
+      "p_goal",
+      "p_guide",
+      "p_intake_updated_at",
+      "p_intake_revision",
+      "p_expected_revision"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_coach_alias",
+    "arguments": "p_alias text",
+    "arg_names": [
+      "p_alias"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_coach_plan",
+    "arguments": "p_org uuid, p_seats integer, p_fee_ars numeric",
+    "arg_names": [
+      "p_org",
+      "p_seats",
+      "p_fee_ars"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_platform_alias",
+    "arguments": "p_alias text",
+    "arg_names": [
+      "p_alias"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_platform_aliases",
+    "arguments": "p_primary text, p_secondary text, p_tertiary text",
+    "arg_names": [
+      "p_primary",
+      "p_secondary",
+      "p_tertiary"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_seats",
+    "arguments": "p_org uuid, p_seats integer",
+    "arg_names": [
+      "p_org",
+      "p_seats"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_set_student_active",
+    "arguments": "p_student uuid, p_active boolean",
+    "arg_names": [
+      "p_student",
+      "p_active"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_submit_coach_payment",
+    "arguments": "p_amount_ars numeric, p_period text, p_receipt_path text, p_alias text",
+    "arg_names": [
+      "p_amount_ars",
+      "p_period",
+      "p_receipt_path",
+      "p_alias"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_submit_coach_relaunch_intake",
+    "arguments": "p_completed_version text, p_payload jsonb, p_expected_revision integer, p_share_with_coach boolean",
+    "arg_names": [
+      "p_completed_version",
+      "p_payload",
+      "p_expected_revision",
+      "p_share_with_coach"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_submit_payment",
+    "arguments": "p_kind text, p_amount_ars numeric, p_period text, p_receipt_path text",
+    "arg_names": [
+      "p_kind",
+      "p_amount_ars",
+      "p_period",
+      "p_receipt_path"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_update_subscription",
+    "arguments": "p_org uuid, p_status text",
+    "arg_names": [
+      "p_org",
+      "p_status"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": true,
+    "anon_execute": false
+  },
+  {
+    "schema": "public",
+    "name": "efg_verify_daily_mail_runner",
+    "arguments": "p_token text",
+    "arg_names": [
+      "p_token"
+    ],
+    "security_definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "authenticated_execute": false,
+    "anon_execute": false
+  }
+]

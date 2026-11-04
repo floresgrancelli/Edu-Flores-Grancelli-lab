@@ -1,0 +1,1370 @@
+[
+  {
+    "name": "efg_activities",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "activity_day",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "steps",
+        "type": "integer",
+        "notnull": false
+      },
+      {
+        "name": "exercise_minutes",
+        "type": "integer",
+        "notnull": false
+      },
+      {
+        "name": "kind",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "walking_pace",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "walking_height_cm",
+        "type": "numeric(5,1)",
+        "notnull": false
+      },
+      {
+        "name": "walking_weight_kg",
+        "type": "numeric(5,1)",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_billing_settings",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "alias",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "additional_aliases",
+        "type": "text[]",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_coach_plan_drafts",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "source_intake_updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "source_intake_revision",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "goal_proposal",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "guide_proposal",
+        "type": "jsonb",
+        "notnull": false
+      },
+      {
+        "name": "draft_revision",
+        "type": "bigint",
+        "notnull": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_coach_plan_publish_receipts",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "request_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "draft_revision",
+        "type": "bigint",
+        "notnull": true
+      },
+      {
+        "name": "goal_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "published_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_coach_relaunch_intakes",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "completed_version",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "revision",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "objective",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "age_years",
+        "type": "integer",
+        "notnull": false
+      },
+      {
+        "name": "height_cm",
+        "type": "numeric(5,1)",
+        "notnull": false
+      },
+      {
+        "name": "weight_kg",
+        "type": "numeric(5,1)",
+        "notnull": false
+      },
+      {
+        "name": "activity_level",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "dietary_pattern",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "eating_window",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "preferred_foods",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "disliked_foods",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "meal_routine",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "shared_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "completed_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_consents",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "accepted",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "email_report_opt_in",
+        "type": "boolean",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_daily_email_deliveries",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "report_day",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "attempted_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "sent_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "error_message",
+        "type": "text",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_daily_logs",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "log_day",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "meals",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "sports",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "skipped",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "totals",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_food_compatibility_evidence",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "food_id",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "rule",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "catalog_review_id",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "catalog_version",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "source_kind",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "source_url",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "ingredient_classes",
+        "type": "text[]",
+        "notnull": true
+      },
+      {
+        "name": "complete_ingredients",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "reviewed_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "expires_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_food_plans",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "approved_food_ids",
+        "type": "text[]",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "guided_plan",
+        "type": "jsonb",
+        "notnull": false
+      },
+      {
+        "name": "guided_goal_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "guided_plan_approved_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_goals",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "approved_by",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "goal_type",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "kcal",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "protein_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "carb_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "fat_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "fiber_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "start_on",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "approved_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "estimation_method",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "activity_factor",
+        "type": "numeric(4,2)",
+        "notnull": false
+      },
+      {
+        "name": "protein_per_kg",
+        "type": "numeric(4,2)",
+        "notnull": false
+      },
+      {
+        "name": "fat_per_kg",
+        "type": "numeric(4,2)",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_habitual_meals",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "meal_slot",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "items",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_invitations",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "email",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "nickname",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "role",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "invited_by",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "claimed_by",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "revoked_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_legal_acceptances",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "document_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "accepted_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "acceptance_method",
+        "type": "text",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_legal_documents",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "kind",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "version",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "body",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "sha256",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "is_current",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "published_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_messages",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "sender_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "body",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "read_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      }
+    ]
+  },
+  {
+    "name": "efg_notifications",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "recipient_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "actor_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "kind",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "event_key",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "body",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "target_tab",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "target_student",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "is_read",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "read_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_organizations",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "seat_limit",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "payment_alias",
+        "type": "text",
+        "notnull": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "is_test",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "license_fee_ars",
+        "type": "numeric(12,2)",
+        "notnull": false
+      },
+      {
+        "name": "paid_through",
+        "type": "date",
+        "notnull": false
+      },
+      {
+        "name": "plan_updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_payments",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "payer_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "recipient_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "payment_kind",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "amount_ars",
+        "type": "numeric(12,2)",
+        "notnull": true
+      },
+      {
+        "name": "period_label",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "alias_snapshot",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "receipt_path",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "reviewed_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_personal_recipes",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "ingredients",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "portions",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "totals",
+        "type": "jsonb",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_personal_targets",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "kcal",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "protein_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "carb_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "fat_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "fiber_g",
+        "type": "integer",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_pilot_participation_receipts",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "version",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "participation_accepted",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "sharing_accepted",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "acceptance_method",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "accepted_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "revoked_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_profiles",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "email",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "nickname",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "role",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "active",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_science_intro_receipts",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "version",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "seen_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "action",
+        "type": "text",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_student_onboarding",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "seen_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_student_plan_access",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "organization_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "published_goal_id",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "published_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "published_by",
+        "type": "uuid",
+        "notnull": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_sunday_rewards",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "week_monday",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "approved",
+        "type": "boolean",
+        "notnull": true
+      },
+      {
+        "name": "approved_at",
+        "type": "timestamp with time zone",
+        "notnull": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_weekly_reports",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "coach_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "week_ending",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "report_text",
+        "type": "text",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      }
+    ]
+  },
+  {
+    "name": "efg_weights",
+    "relkind": "r",
+    "rls": true,
+    "columns": [
+      {
+        "name": "student_id",
+        "type": "uuid",
+        "notnull": true
+      },
+      {
+        "name": "measured_on",
+        "type": "date",
+        "notnull": true
+      },
+      {
+        "name": "kg",
+        "type": "numeric(6,2)",
+        "notnull": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "notnull": true
+      },
+      {
+        "name": "measured_time",
+        "type": "time without time zone",
+        "notnull": false
+      }
+    ]
+  }
+]

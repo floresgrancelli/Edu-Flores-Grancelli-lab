@@ -61,5 +61,16 @@ try{
  assert.match(flow.details(student),/14:10/);
  await assert.rejects(()=>flow.save(),/ficha de relanzamiento/);
  await assert.rejects(()=>flow.deleteOwn(),/borrado antiguo está deshabilitado/);
+ // Mandatory schema errors must not silently turn the versioned route into
+ // legacy/no-gate access. Exercise student and coach loaders with the route ON.
+ const broken={from(){const q={select(){return q},eq(){return q},not(){return q},in(){return q},
+  maybeSingle:async()=>({data:null,error:{code:'PGRST205'}}),
+  limit:async()=>({data:null,error:{code:'PGRST205'}})};return q;}};
+ const blockedFlow=createCoachIntakeFlow({sb:broken,state,escapeHTML:String});
+ await assert.rejects(()=>blockedFlow.loadCoach([student]),e=>e.code==='PGRST205');
+ await assert.rejects(()=>blockedFlow.refreshCoachDetail(student,true),e=>e.code==='PGRST205');
+ state.profile.role='student';state.session.user.id=student;
+ await assert.rejects(()=>blockedFlow.loadStudent(),e=>e.code==='PGRST205');
+ assert.equal(state.planAccessSupported,false);
 }finally{rmSync(dir,{recursive:true,force:true})}
 console.log('PASS new journey only: versioned Coach intake, revision guard, COACH119 endpoint, backend gate, pattern/window display; no legacy fallback. Isolated modules, no JWT claim.');

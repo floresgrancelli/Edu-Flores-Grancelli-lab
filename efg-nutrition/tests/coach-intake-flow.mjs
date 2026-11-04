@@ -47,7 +47,7 @@ const db={
 };
 const notifications=[];
 let renders=0;
-const flow=createCoachIntakeFlow({sb:db,state,escapeHTML:esc,rootText:(a,b)=>a+" | "+b,
+const flow=createCoachIntakeFlow({sb:db,state,legacyIntakeAvailable:true,escapeHTML:esc,rootText:(a,b)=>a+" | "+b,
  notify:message=>notifications.push(message),render:()=>{renders++;},
  refresh:()=>{refreshCount++;}});
 await flow.loadStudent();

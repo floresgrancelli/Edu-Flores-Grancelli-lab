@@ -79,7 +79,7 @@
  .pilot-layout .pilot-main{width:100%;max-width:none}
 }
 @media(max-width:720px){
- html,body{max-width:100%;overflow-x:hidden}
+ html,body{max-width:100%;overflow-x:clip}
  .pilot-layout{display:block;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));overflow-x:clip}
  .pilot-layout .pilot-main{padding:23px 15px calc(110px + env(safe-area-inset-bottom,0px));overflow-x:clip}
  .pilot-layout .pilot-nav{display:flex;overflow:hidden;position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;z-index:80;flex-direction:row;justify-content:space-around;align-items:stretch;gap:5px;padding:8px 9px max(10px,env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);box-shadow:0 -6px 25px rgba(15,62,56,.07);border-radius:20px 20px 0 0}

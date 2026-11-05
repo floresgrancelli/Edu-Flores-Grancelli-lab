@@ -8,7 +8,7 @@ const base=process.cwd(),out=resolve('artifacts/guide-preview');mkdirSync(out,{r
 const server=createServer((req,res)=>{try{
  const path=new URL(req.url,'http://localhost').pathname,file=resolve(base,'.'+(path.endsWith('/')?path+'index.html':path));
  assert.ok(file.startsWith(base+'/'));let bytes=readFileSync(file);
- if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+`\nwindow.__GUIDE_QA__={state,root,foods,sb,coachDraftClient,guideTotals,readGuidedEditor,coachGuidedSection,coachAtomicDraftPanel,previewCoachGuide,sendCoachGuidePreview,generateFlexibleGuidedDay,render,installSuccess(){coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);return {studentId:payload.studentId,goalId:'44444444-4444-4444-8444-444444444444',requestId:payload.requestId};};}};`);
+ if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+`\nwindow.__GUIDE_QA__={state,root,foods,sb,coachDraftClient,guideTotals,readGuidedEditor,coachGuidedSection,coachAtomicDraftPanel,previewCoachGuide,sendCoachGuidePreview,generateFlexibleGuidedDay,render,frame,installSuccess(){coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);return {studentId:payload.studentId,goalId:'44444444-4444-4444-8444-444444444444',requestId:payload.requestId};};}};`);
  res.writeHead(200,{'content-type':({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(file)]||'application/octet-stream'});res.end(bytes);
 }catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -17,7 +17,7 @@ assert.ok(['chromium','webkit'].includes(engine),'Unsupported QA engine');
 const browser=await ({chromium,webkit}[engine]).launch({headless:true,...(engine==='chromium'&&process.env.EFG_CHROME_PATH?{executablePath:process.env.EFG_CHROME_PATH}:{})});
 const results=[];
 try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
- const ctx=await browser.newContext({viewport:{width,height:850},hasTouch:true});
+ const ctx=await browser.newContext({viewport:{width,height:850},hasTouch:true,isMobile:width<720});
  await ctx.route('**/*',route=>{
   if(route.request().url().startsWith('http://127.0.0.1:'))return route.continue();
   if(route.request().url().startsWith('https://esm.sh/'))return route.fulfill({contentType:'text/javascript',headers:{'Access-Control-Allow-Origin':'*'},body:`export function createClient(){const q={select(){return this},eq(){return this},in(){return this},order(){return this},limit(){return this},maybeSingle:async()=>({data:null,error:null}),then(r){r({data:[],error:null})}};return {auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>q,rpc:async()=>({data:null,error:null})}}`});
@@ -37,8 +37,30 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   v.coachDraftClient.save=async payload=>{window.trace.saves++;await new Promise(r=>setTimeout(r,50));if(window.trace.failSave)throw Error('Fallo sintético de guardado');window.saved={student_id:s.selectedStudent,status:'draft',draft_revision:window.trace.saves,source_intake_updated_at:'2026-11-04',source_intake_revision:1,goal_proposal:payload.goal,guide_proposal:payload.guide};return {revision:window.trace.saves};};
   v.coachDraftClient.load=async()=>structuredClone(window.saved);
   v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Guide foods are not independently reviewed and current');};
-  v.root.className='efg-role-'+role;v.root.innerHTML='<main class="pilot-main" style="max-width:900px;margin:auto;padding:8px">'+v.coachGuidedSection()+v.coachAtomicDraftPanel()+'</main>';
+  v.root.className='efg-role-'+role;v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
  },role);
+ const touchEvidence={};
+ const mobileTouch=engine==='chromium'&&width<720;
+ const cdp=mobileTouch?await ctx.newCDPSession(page):null;
+ const swipe=async()=>{
+  const x=Math.round(width*.8),fromY=600,toY=180;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:fromY}]});
+  for(let step=1;step<=12;step++){
+   await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:fromY+(toY-fromY)*step/12}]});
+   await page.waitForTimeout(18);
+  }
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await page.waitForTimeout(180);
+ };
+ const top=async()=>{await page.evaluate(()=>{window.scrollTo(0,0);document.body.scrollTop=0;document.documentElement.scrollTop=0;});await page.waitForTimeout(50);};
+ if(mobileTouch){
+  const oldCss=await page.addStyleTag({content:'@media(max-width:720px){html,body{overflow-x:hidden!important}}'});
+  await top();await swipe();touchEvidence.baselineEditor=await page.evaluate(()=>window.scrollY);
+  await oldCss.evaluate(el=>el.remove());await top();await swipe();
+  touchEvidence.editor=await page.evaluate(()=>window.scrollY);
+  assert.ok(touchEvidence.editor>50,JSON.stringify({role,width,...touchEvidence})+' actual touch scrolls the editor');
+  await top();
+ }
  const before=await page.evaluate(()=>{const v=window.__GUIDE_QA__;return JSON.stringify(v.state.coachGuidedDraft)});
  await page.evaluate(()=>window.__GUIDE_QA__.readGuidedEditor());
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),before,'Render/read preserves exact canonical quantities and note');
@@ -77,8 +99,16 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.match(await page.locator('#coachGuidePreview').innerText(),/2 × huevo mediano/);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/Nota ficticia de prueba/);
  await page.screenshot({path:resolve(out,`preview-${engine}-${role}-${width}.png`)});
+ if(mobileTouch){
+  await page.evaluate(()=>document.getElementById('coachGuidePreview').scrollTop=0);
+  await swipe();touchEvidence.dialog=await page.locator('#coachGuidePreview').evaluate(el=>el.scrollTop);
+  assert.ok(touchEvidence.dialog>50,JSON.stringify({role,width,...touchEvidence})+' actual touch scrolls the dialog');
+ }
+
  await page.getByRole('button',{name:'Volver a editar'}).click();assert.equal(await page.locator('#coachGuidePreview').count(),0);
  assert.deepEqual(await page.evaluate(()=>[trace.saves,trace.publishes]),[0,0]);
+ if(mobileTouch){await top();await swipe();touchEvidence.afterClose=await page.evaluate(()=>window.scrollY);assert.ok(touchEvidence.afterClose>50,JSON.stringify({role,width,...touchEvidence})+' editor remains touch-scrollable after closing preview');await top();}
+
  await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
  await page.evaluate(()=>trace.failSave=true);
  await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview().catch(()=>{}));
@@ -103,7 +133,7 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview());
  assert.equal(await page.locator('#coachGuidePreview').count(),0);assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.tab),'coachStudents');assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.selectedStudent),null);assert.equal(await page.locator('#coachRosterSection').count(),1);assert.match(await page.locator('#coachRosterSection').innerText(),/Alumno ficticio/);assert.equal(await page.evaluate(()=>document.activeElement.id),'coachRosterSection');
  assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.coachPlanPublishRequestId),null);
- results.push({engine,role,width,status:'PASS',checks:['actual renderer','44px/16px controls','no overflow','exact round trip','units to grams','6-meal preview','back without writes','save failure','cancel confirmation','double click','idempotent retry','stale student rejected','confirmed publish returns to roster using real render','approved references resolved before preview','rejection focused and draft preserved']});await ctx.close();
+ results.push({engine,role,width,touchEvidence,status:'PASS',checks:['actual renderer','44px/16px controls','no overflow','exact round trip','units to grams','6-meal preview','back without writes','save failure','cancel confirmation','double click','idempotent retry','stale student rejected','confirmed publish returns to roster using real render','approved references resolved before preview','rejection focused and draft preserved']});await ctx.close();
 }}finally{await browser.close();await new Promise(r=>server.close(r));}
 writeFileSync(resolve(out,`results-${engine}.json`),JSON.stringify(results,null,2));console.log(JSON.stringify(results));
 

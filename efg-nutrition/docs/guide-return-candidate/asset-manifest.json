@@ -104,7 +104,8 @@
     "efg-nutrition/pilot/weekly-luxury-editor.js": "3ea70015e0ecf138fee009d0331492db54db209c61746b1bf712e3f2077dfa69",
     "efg-nutrition/pilot/weekly-luxury-report.js": "3f73d85214852df9de3edb0bd19f83dcf9292f544daf454c89f3d639ec752504",
     "efg-nutrition/pilot/weekly-metrics.js": "182dad0fe39f1efbf3824e9438ac1474e7cda6c427275c664a805c203257e5e6",
-    "efg-nutrition/pilot/index.html": "d6c4e5c242f254c85c4a54f6c84f10fd119f222d8c107871673a6ca5f594f01c"
+    "efg-nutrition/pilot/index.html": "96fe0b768487c0e493b932a1828503e992a4ba19b584163fcd6b2ed753be3057",
+    "efg-nutrition/pilot/premium-system.css": "5412ed9e6bf169ad3ff9a61144cf8dd15fbfdf162b0f14ed7f43aebdb1f7e002"
   },
   "stylesheets": [
     {
@@ -169,8 +170,8 @@
     },
     {
       "path": "efg-nutrition/pilot/premium-system.css",
-      "sha256": "5f9cdfc4bfca93239bcafcf276cd05dc5f7af40af6dee77538563ce860d26406",
-      "url": "./premium-system.css?v=ncc-pilot-3a40474052be"
+      "sha256": "5412ed9e6bf169ad3ff9a61144cf8dd15fbfdf162b0f14ed7f43aebdb1f7e002",
+      "url": "./premium-system.css?v=ncc-android-scroll-20261105-r7"
     },
     {
       "path": "efg-nutrition/pilot/pastel-system.css",
@@ -232,5 +233,6 @@
       "sha256": "f558d389b574806f3a6b687839d748f640119dda57dad643893432df734a4507",
       "url": "./release-session.css?v=ncc-pilot-3a40474052be"
     }
-  ]
+  ],
+  "parentRelease": "fd736aa90e92d508c103d4468b70611ea1d41e83"
 }

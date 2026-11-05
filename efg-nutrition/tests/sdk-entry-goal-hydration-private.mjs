@@ -7,9 +7,9 @@ import {readVerifiedCoachRestrictionScope} from '../pilot/coach-guide-restrictio
 const source=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const start=source.indexOf('async function loadStudentDetail(studentId){'),end=source.indexOf('\nasync function refresh(){',start);
 assert.ok(start>0&&end>start);
-const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
+const healthOwnerStart=source.indexOf('function ownsCoachHealthWorkspace(){');\nconst healthOwnerEnd=source.indexOf('function foodCompatibilityRestrictions()',healthOwnerStart);\nassert.ok(healthOwnerStart>0&&healthOwnerEnd>healthOwnerStart);\nconst healthOwner=source.slice(healthOwnerStart,healthOwnerEnd);\nconst dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+healthOwner+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build}=await import(pathToFileURL(path).href);
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){
   const state={session:{user:{id:'coach'}},roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{revision:1,shared_at:'date'}}};
@@ -32,14 +32,14 @@ try{
  const otherOrg='66666666-6666-4666-8666-666666666666';
  const scopedHealth={student_id:clinicalStudent,organization_id:clinicalOrg,viewer_id:clinicalCoach,revision:1,
   shared_with_coach:true,processing_consent:true,followup_consent:true,conditions:{celiac:'confirmed'}};
- for(const [flag,role,overrides,reads,accepted] of [
+ for(const [flag,role,overrides,reads,accepted,isTest] of [
   [false,'coach',{},0,false],[true,'admin',{},0,false],[true,'coach',{},1,true],
   [true,'coach',{processing_consent:false},1,false],[true,'coach',{followup_consent:false},1,false],
   [true,'coach',{organization_id:otherOrg},1,false],[true,'coach',{viewer_id:otherCoach},1,false],
-  [true,'coach',{student_id:otherStudent},1,false],[true,'coach',{revoked:true},1,false]
+  [true,'coach',{student_id:otherStudent},1,false],[true,'coach',{revoked:true},1,false],\n  [true,'admin',{},1,true,true],[true,'admin',{processing_consent:false},1,false,true]
  ]){
   let healthReads=0;
-  const state={session:{user:{id:clinicalCoach}},org:{id:clinicalOrg,coach_id:clinicalCoach},profile:{user_id:clinicalCoach,active:true,role},
+  const state={session:{user:{id:clinicalCoach}},org:{id:clinicalOrg,coach_id:clinicalCoach,is_test:isTest===true},profile:{user_id:clinicalCoach,active:true,role},
    roster:[{user_id:clinicalStudent,active:true}],coachIntakeForms:{[clinicalStudent]:{shared_at:'date'}}};
   const sb={from:table=>({select(){return this;},eq(){return this;},gte(){return this;},order(){return this;},limit(){return this;},
     maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:null}),then(resolve){return Promise.resolve({data:[]}).then(resolve);}}),
@@ -50,7 +50,7 @@ try{
    COACH_ATOMIC_PLAN_UI_ENABLED:false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED:flag,
    readVerifiedCoachRestrictionScope,loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
   await run(clinicalStudent);
-  assert.equal(healthReads,reads,'Only a specifically enabled Coach can initiate the health RPC');
+  assert.equal(healthReads,reads,'Only the owning coach or owning test admin can initiate the enabled health RPC');
   assert.deepEqual(state.coachGuideHealth?.restrictions??null,accepted?['celiac']:null);
   assert.equal(state.consent.accepted,true,'General intake remains usable independently of clinical eligibility');
  }

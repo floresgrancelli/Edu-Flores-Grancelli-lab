@@ -2591,6 +2591,16 @@ function coachGuidePickerFoods(){
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }
+// Display portions use the same catalog equivalences as the diary. Stored amounts
+// remain in the canonical unit; rendering alone must never round or mutate them.
+function guidePortion(food){
+ const portion=FOOD_UNIT_PORTIONS[food?.id];
+ return food?.unit==='g'&&Number.isFinite(portion?.grams)&&portion.grams>0?portion:null;
+}
+function guideQuantityLabel(food){
+ const portion=guidePortion(food);
+ return portion?num(food.qty/portion.grams,2)+' × '+portion.label:num(food.qty,2)+' '+food.unit;
+}
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
@@ -2601,12 +2611,13 @@ function guidedDayContents(plan,goal,editable=false){
   const foodRow=(f,i)=>{
    const alt=editable?guidedFoodAlternatives(f.id,foods):[];
    const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
+   const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
    const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
-   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?select:'<span>'+escapeHTML(f.name)+'</span>')+
-     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+min+'" max="'+max+'" step="'+(f.recipeComponent?'0.01':'1')+'" value="'+f.qty+'"> '+escapeHTML(f.unit)+'</label>'+
+   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?'<strong class="efg-guide-full-name">'+escapeHTML(f.name)+'</strong>'+select:'<span>'+escapeHTML(f.name)+'</span>')+
+     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
+    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="any" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> '+escapeHTML(portion?.label||f.unit)+(portion?' (aprox.)':'')+'</label>'+
      (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
-     '<b>'+num(f.qty)+' '+escapeHTML(f.unit)+'</b>')+'</div>';
+     '<b>'+escapeHTML(guideQuantityLabel(f))+'</b>')+'</div>';
   };
   const sections=educationalGuideSections(meal,groupIdFor);
   const contents=sections?
@@ -2663,12 +2674,12 @@ function coachAtomicDraftPanel(){
  return '<section class="efg-coach-atomic-draft" aria-label="Preparación segura del plan"><h3>🔐 Borrador privado del coach</h3>'+
  '<p class="pilot-hint">Guardar no modifica metas ni notifica al alumno. Publicar juntos objetivo y guía requiere una revisión explícita y validación del servidor.</p>'+
  '<div role="status" class="pilot-notice">'+(active?'Versión del borrador: '+saved.draft_revision+' · Solo para el coach.':saved?.status==="stale"?'La ficha cambió: prepará y guardá una nueva versión del borrador.':saved?'Última propuesta publicada. Podés comenzar otra revisión.':'Sin borrador privado guardado.')+'</div>'+
- '<div class="pilot-toolbar"><button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar borrador privado</button>'+
- (active?'<button class="btn small" type="button" data-act="publishCoachAtomicDraft" '+(publication.ready?'':'disabled')+'>Revisar y publicar juntos</button>':'')+'</div>'+
+ '<div class="pilot-toolbar"><button class="btn" type="button" data-act="previewCoachGuide" '+(!goal||!guide?'disabled':'')+'>Ver dieta armada y enviar</button>'+
+ '<button class="btn small light" type="button" data-act="saveCoachAtomicDraft" '+(!goal||!guide?'disabled':'')+'>Guardar para continuar después</button></div>'+
  '<p class="pilot-notice" role="alert" data-coach-publication-error hidden></p>'+
  (!publication.ready?'<p class="pilot-hint" role="status">'+escapeHTML(publication.reason)+'</p>':'')+'</section>';
 }
-async function saveCoachAtomicDraft(){
+async function saveCoachAtomicDraft({quiet=false}={}){
  const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!intake?.shared_at||!state.consent?.accepted)
   throw Error("El circuito seguro de borradores todavía no está habilitado.");
@@ -2697,8 +2708,68 @@ async function saveCoachAtomicDraft(){
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
  state.coachPlanDraftRecord=verified;
  state.coachPlanPublishRequestId=null;
- await render();
- notify("Borrador privado confirmado en el servidor. El alumno conserva su plan vigente.");
+ if(!quiet){await render();
+ notify("Borrador privado confirmado en el servidor. El alumno conserva su plan vigente.");}
+ return verified;
+}
+let coachGuidePreview=null,coachGuideSendBusy=false;
+function closeCoachGuidePreview(){
+ if(coachGuideSendBusy)return;
+ document.getElementById('coachGuidePreview')?.remove();coachGuidePreview=null;
+ root.querySelector('[data-act="previewCoachGuide"]')?.focus();
+}
+function previewCoachGuide(){
+ if(coachGuideSendBusy)return;
+ const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
+ if(!COACH_ATOMIC_PLAN_UI_ENABLED||!state.consent?.accepted||!intake?.shared_at)throw Error('La ficha ya no está disponible para revisar.');
+ const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
+ const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ validateGuidedDay(guide,goal);
+ closeCoachGuidePreview();
+ coachGuidePreview={studentId,intake,userId:state.session?.user?.id,goal:JSON.stringify(goal),guide:JSON.stringify(guide)};
+ const dialog=document.createElement('dialog');dialog.id='coachGuidePreview';dialog.className='efg-guide-preview';
+ dialog.setAttribute('aria-labelledby','coachGuidePreviewTitle');
+ const recipient=state.roster.find(student=>student.user_id===studentId)?.nickname||'Alumno seleccionado';
+ dialog.innerHTML='<h2 id="coachGuidePreviewTitle">Tu dieta guía armada</h2><p><b>Para: '+escapeHTML(recipient)+'</b></p><p>Revisá las comidas, cantidades y objetivos. Al enviar se guardará esta versión y se publicará junto con el objetivo, tras tu confirmación.</p>'+guidedDayContents(guide,goal,false)+
+ '<p role="alert" data-coach-preview-error hidden></p><p role="status" data-coach-preview-status></p><div class="efg-guide-preview-actions"><button type="button" class="btn light" data-act="closeCoachGuidePreview">Volver a editar</button><button type="button" class="btn" data-act="sendCoachGuidePreview">Aprobar y enviar</button></div>';
+ dialog.addEventListener('cancel',event=>{event.preventDefault();closeCoachGuidePreview();});
+ root.append(dialog);dialog.showModal();
+}
+function coachGuidePreviewCurrent(preview){
+ const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
+ const guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
+ return preview&&state.selectedStudent===preview.studentId&&state.session?.user?.id===preview.userId&&
+  state.coachIntakeForms?.[preview.studentId]===preview.intake&&state.consent?.accepted===true&&
+  preview.intake?.shared_at&&JSON.stringify(goal)===preview.goal&&JSON.stringify(guide)===preview.guide;
+}
+async function sendCoachGuidePreview(){
+ if(coachGuideSendBusy)return;
+ const preview=coachGuidePreview,dialog=document.getElementById('coachGuidePreview');
+ if(!dialog||!coachGuidePreviewCurrent(preview))throw Error('Cambió el alumno o el borrador. Volvé a visualizar la dieta antes de enviarla.');
+ coachGuideSendBusy=true;
+ const buttons=[...dialog.querySelectorAll('button')];buttons.forEach(button=>button.disabled=true);
+ const errorPanel=dialog.querySelector('[data-coach-preview-error]'),status=dialog.querySelector('[data-coach-preview-status]');
+ errorPanel.hidden=true;
+ let publishing=false;
+ try{
+  const guide=state.coachGuidedDraft||state.coachIntakeGuidePreview;
+  const finalGuide=approvedFoodGuide(guide,guide.kind==='flexible_meal_guide'?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
+  const review=assessCoachDraftPublication({studentId:preview.studentId,intake:preview.intake,savedDraft:state.coachPlanDraftRecord,
+   goal:state.pendingGoal||state.pendingGoalRevision?.proposal,guide:finalGuide});
+  if(!review.ready){
+   status.textContent='Guardando y verificando esta versión…';
+   const saved=await saveCoachAtomicDraft({quiet:true});
+   if(!saved||!coachGuidePreviewCurrent(preview))throw Error('Cambió el contexto durante el guardado. Volvé a revisar la dieta.');
+  }
+  status.textContent='Esperando confirmación de envío…';publishing=true;
+  await publishCoachAtomicDraft();
+  if(dialog.isConnected)status.textContent='La vista sigue disponible para revisar o volver a editar.';
+ }catch(error){
+  if(dialog.isConnected&&coachGuidePreviewCurrent(preview)){
+   errorPanel.textContent=publishing?coachPublicationFailureMessage(error):'No se pudo confirmar el guardado. Tu edición se conserva; volvé a intentar o revisá la ficha.';errorPanel.hidden=false;status.textContent='';
+  }
+  throw error;
+ }finally{coachGuideSendBusy=false;buttons.forEach(button=>button.disabled=false);}
 }
 function createCoachPublicationRequestId(cryptoSource=window.crypto){
  if(typeof cryptoSource?.randomUUID==="function")return cryptoSource.randomUUID();
@@ -2859,7 +2930,7 @@ function coachGuidedSection(){
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<button type="button" class="btn small light" data-act="applyPilotReviewedSources">Verificar referencias del piloto y recalcular</button>':'')+
  (qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent)?'<button type="button" class="btn small light" data-act="applyQaReviewedSources">Aplicar referencias aprobadas QA y recalcular</button>':'')+
- (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado». No se envía nada al alumno.</p>':
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, elegí «Ver dieta armada y enviar». El guardado se integra al envío después de tu revisión.</p>':
  draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':
  '<button type="button" class="btn" data-act="saveGuidedDay">Aprobar y enviar al alumno</button>')+'</div>':
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">'+(pending?'Esta guía es solo una propuesta; guardala junto con la nueva meta.':'Para revisarla, generá un nuevo borrador privado.')+'</p>':
@@ -2887,13 +2958,16 @@ function baselinePreview(){
 function readGuidedEditor(){
  const draft=state.coachGuidedDraft;if(!draft)throw new Error("Primero generá un borrador.");
  for(const el of document.querySelectorAll("[data-guideqty]")){
-  const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)],qty=Number(el.value);
+  const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)];
+  const factor=guidePortion(food)?.grams||1;
+  const qty=el.value===el.dataset.guidedisplay?Number(el.dataset.guideoriginal):Number(el.value)*factor;
   const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id);
-  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá gramos o mililitros.");
+  if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá sus unidades o porciones.");
   // Respect the coach's manual choice even if a browser skips an intermediate input event.
   if(food.qty!==qty){food.qty=qty;food.locked=true;}
  }
- draft.supplementNote=String(document.getElementById("guideSupplementNote")?.value||"").trim();
+ const note=document.getElementById("guideSupplementNote");
+ if(note)draft.supplementNote=String(note.value||"").trim();
  return draft;
 }
 function updateGuidedTotalsUI(){
@@ -4688,6 +4762,9 @@ if(el.dataset.foodbulk){
   notify("Recalculé el menú conservando tus pesos e ingredientes. Revisá los desvíos antes de aprobar.");return;
  }
  if(action==="saveGuidedDay")return approveGuidedDay();
+ if(action==="previewCoachGuide")return previewCoachGuide();
+ if(action==="closeCoachGuidePreview")return closeCoachGuidePreview();
+ if(action==="sendCoachGuidePreview")return sendCoachGuidePreview();
  if(action==="saveCoachAtomicDraft")return saveCoachAtomicDraft();
  if(action==="publishCoachAtomicDraft")return publishCoachAtomicDraft();
  if(action==="calculateGoal")return calculateGoal();
@@ -4818,7 +4895,7 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  const draft=readGuidedEditor();
  state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
- notify("Peso cambiado: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
+ notify("Cantidad cambiada: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
 }if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
 // Prevent Gboard IME input before compositionend from rebuilding native selects.
 const composingFoodSearchTargets=new WeakSet();
@@ -4851,7 +4928,7 @@ root.addEventListener("input",e=>{
  invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
-  const qty=Number(e.target.value);
+  const qty=Number(e.target.value)*(guidePortion(food)?.grams||1);
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
  }
  if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){

@@ -11,7 +11,7 @@ const liveHtml=readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8
 const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
-const hotfixBytes=readFileSync(new URL("../docs/p30n-hotfix/asset-overrides.json",import.meta.url));
+const hotfixBytes=readFileSync(new URL("../docs/p30o-guide/asset-overrides.json",import.meta.url));
 assert.deepEqual(assertPwaBuildIdentity(liveHtml,hotfixBytes),{build,assetVersion:entry});
 for(const changed of [
  liveHtml.replace(entry,entry+"-unknown"),
@@ -21,7 +21,7 @@ for(const changed of [
 ])assert.throws(()=>assertPwaBuildIdentity(changed,hotfixBytes));
 assert.throws(()=>assertPwaBuildIdentity(liveHtml));
 assert.throws(()=>assertPwaBuildIdentity(liveHtml,Buffer.from("{}")));
-const regular=liveHtml.replace(entry,build);
+const regular=liveHtml.replaceAll(entry,build);
 assert.deepEqual(assertPwaBuildIdentity(regular),{build,assetVersion:build});
 assert.match(build,/ncc-pilot-3a40474052be/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
 assert.match(appJs,/science-welcome\.js\?v=ncc-pilot-3a40474052be/,"Load approved closing slide as a fresh module");

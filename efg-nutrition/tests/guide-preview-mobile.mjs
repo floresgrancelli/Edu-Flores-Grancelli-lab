@@ -1,0 +1,86 @@
+// Real renderer/handlers, synthetic transport only; no remote requests or patients.
+import {createServer} from 'node:http';
+import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
+import {resolve,extname} from 'node:path';
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const base=process.cwd(),out=resolve('artifacts/guide-preview');mkdirSync(out,{recursive:true});
+const server=createServer((req,res)=>{try{
+ const path=new URL(req.url,'http://localhost').pathname,file=resolve(base,'.'+(path.endsWith('/')?path+'index.html':path));
+ assert.ok(file.startsWith(base+'/'));let bytes=readFileSync(file);
+ if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+`\nwindow.__GUIDE_QA__={state,root,foods,coachDraftClient,guideTotals,readGuidedEditor,coachGuidedSection,coachAtomicDraftPanel,previewCoachGuide,sendCoachGuidePreview,generateFlexibleGuidedDay,installSuccess(){loadStudentDetail=async()=>{window.trace.loaded=true;};render=async()=>{document.getElementById("coachGuidePreview")?.remove();};coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);return {};};}};`);
+ res.writeHead(200,{'content-type':({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(file)]||'application/octet-stream'});res.end(bytes);
+}catch{res.writeHead(404);res.end();}});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const browser=await chromium.launch({headless:true,...(process.env.EFG_CHROME_PATH?{executablePath:process.env.EFG_CHROME_PATH}:{})});
+const results=[];
+try{for(const width of [360,390,1280]){
+ const ctx=await browser.newContext({viewport:{width,height:850}});
+ await ctx.route('**/*',route=>{
+  if(route.request().url().startsWith('http://127.0.0.1:'))return route.continue();
+  if(route.request().url().startsWith('https://esm.sh/'))return route.fulfill({contentType:'text/javascript',headers:{'Access-Control-Allow-Origin':'*'},body:`export function createClient(){const q={select(){return this},eq(){return this},in(){return this},order(){return this},limit(){return this},maybeSingle:async()=>({data:null,error:null}),then(r){r({data:[],error:null})}};return {auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>q,rpc:async()=>({data:null,error:null})}}`});
+  return route.abort();
+ });
+ const page=await ctx.newPage();await page.goto(`http://127.0.0.1:${server.address().port}/efg-nutrition/pilot/`);await page.waitForFunction(()=>window.__GUIDE_QA__);
+ await page.evaluate(()=>{
+  const v=window.__GUIDE_QA__,s=v.state;
+  s.selectedStudent='11111111-1111-4111-8111-111111111111';s.session={user:{id:'22222222-2222-4222-8222-222222222222'}};s.consent={accepted:true};s.profile={role:'coach',active:true};
+  s.coachIntakeForms={[s.selectedStudent]:{shared_at:'2026-11-04',updated_at:'2026-11-04',revision:1,completed_version:'coach_major_2026_r1'}};
+  s.pendingGoal={goal_type:'maintenance',kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
+  s.coachGuidedDraft=v.generateFlexibleGuidedDay(v.foods,s.pendingGoal,{profile:{patternId:'balanced',restrictionStatus:'none',restrictions:[]}});
+  s.coachGuidedDraft.supplementNote='Nota ficticia de prueba';
+  s.coachPlanDraftRecord=null;
+  window.trace={saves:0,publishes:0,keys:[],failSave:false};
+  v.coachDraftClient.save=async payload=>{window.trace.saves++;await new Promise(r=>setTimeout(r,50));if(window.trace.failSave)throw Error('Fallo sintético de guardado');window.saved={student_id:s.selectedStudent,status:'draft',draft_revision:window.trace.saves,source_intake_updated_at:'2026-11-04',source_intake_revision:1,goal_proposal:payload.goal,guide_proposal:payload.guide};return {revision:window.trace.saves};};
+  v.coachDraftClient.load=async()=>structuredClone(window.saved);
+  v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Synthetic network failure');};
+  v.root.className='efg-role-admin';v.root.innerHTML='<main class="pilot-main" style="max-width:900px;margin:auto;padding:8px">'+v.coachGuidedSection()+v.coachAtomicDraftPanel()+'</main>';
+ });
+ const before=await page.evaluate(()=>{const v=window.__GUIDE_QA__;return JSON.stringify(v.state.coachGuidedDraft)});
+ await page.evaluate(()=>window.__GUIDE_QA__.readGuidedEditor());
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),before,'Render/read preserves exact canonical quantities and note');
+ const geometry=await page.locator('#coachGuidedSlot [data-guideqty],#coachGuidedSlot [data-guideswap]').evaluateAll(nodes=>nodes.map(n=>({w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height,font:parseFloat(getComputedStyle(n).fontSize)})));
+ assert.ok(geometry.length>10);for(const g of geometry){assert.ok(g.w>=120&&g.h>=44&&g.font>=16,JSON.stringify(g));}
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'No horizontal scroll');
+ const eggKey=await page.evaluate(()=>{const s=window.__GUIDE_QA__.state;for(const m of s.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='egg');if(i>=0)return m.slot+':'+i;}});
+ assert.ok(eggKey);await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
+ assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},eggKey),100,'2 catalog eggs = 100g');
+ await page.locator(`[data-guideqty="${eggKey}"]`).blur();
+ const breadKey=await page.evaluate(()=>{for(const m of window.__GUIDE_QA__.state.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='bread');if(i>=0)return m.slot+':'+i;}});
+ assert.ok(breadKey);await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
+ assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},breadKey),30,'1 catalog slice = 30g');
+ await page.locator(`[data-guideqty="${breadKey}"]`).blur();
+ const equivalent=await page.evaluate(()=>{const v=window.__GUIDE_QA__,plan=v.state.coachGuidedDraft;return JSON.stringify(v.guideTotals(plan))===JSON.stringify(v.guideTotals(v.readGuidedEditor()));});assert.equal(equivalent,true,'Portion round trip preserves all nutrition totals');
+ await page.screenshot({path:resolve(out,`editor-${width}.png`),fullPage:true});
+ await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
+ assert.equal(await page.locator('#coachGuidePreview .efg-guide-meal').count(),6);
+ assert.equal(await page.locator('#coachGuidePreview [data-guideqty]').count(),0);
+ assert.match(await page.locator('#coachGuidePreview').innerText(),/2 × huevo mediano/);
+ assert.match(await page.locator('#coachGuidePreview').innerText(),/Nota ficticia de prueba/);
+ await page.screenshot({path:resolve(out,`preview-${width}.png`)});
+ await page.getByRole('button',{name:'Volver a editar'}).click();assert.equal(await page.locator('#coachGuidePreview').count(),0);
+ assert.deepEqual(await page.evaluate(()=>[trace.saves,trace.publishes]),[0,0]);
+ await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
+ await page.evaluate(()=>trace.failSave=true);
+ await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview().catch(()=>{}));
+ assert.match(await page.locator('[data-coach-preview-error]').innerText(),/No se pudo confirmar el guardado/);
+ assert.equal(await page.evaluate(()=>trace.publishes),0);
+ await page.evaluate(()=>trace.failSave=false);
+ page.once('dialog',d=>d.dismiss());await page.getByRole('button',{name:'Aprobar y enviar',exact:true}).click();
+ await page.waitForFunction(()=>!document.querySelector('[data-act="sendCoachGuidePreview"]').disabled);
+ assert.equal(await page.evaluate(()=>trace.publishes),0,'Cancel confirmation does not publish');
+ page.on('dialog',d=>d.accept());
+ await page.evaluate(()=>Promise.all([window.__GUIDE_QA__.sendCoachGuidePreview().catch(()=>{}),window.__GUIDE_QA__.sendCoachGuidePreview().catch(()=>{})]));
+ assert.equal(await page.evaluate(()=>trace.publishes),1,'Concurrent clicks produce one request');
+ await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview().catch(()=>{}));
+ assert.equal(await page.evaluate(()=>trace.keys[0]===trace.keys[1]),true,'Retry preserves idempotency key');
+ assert.equal(await page.evaluate(()=>trace.saves),2,'Already matching saved draft is not saved repeatedly');
+ await page.evaluate(()=>window.__GUIDE_QA__.state.selectedStudent='33333333-3333-4333-8333-333333333333');
+ const stale=await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview().then(()=>false,()=>true));assert.equal(stale,true);
+ await page.evaluate(()=>{const v=window.__GUIDE_QA__;v.state.selectedStudent='11111111-1111-4111-8111-111111111111';v.installSuccess();});
+ await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview());
+ assert.equal(await page.locator('#coachGuidePreview').count(),0);assert.equal(await page.evaluate(()=>trace.loaded),true);
+ assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.coachPlanPublishRequestId),null);
+ results.push({width,status:'PASS',checks:['actual renderer','44px/16px controls','no overflow','exact round trip','units to grams','6-meal preview','back without writes','save failure','cancel confirmation','double click','idempotent retry','stale student rejected','successful publish/readback closes preview']});await ctx.close();
+}}finally{await browser.close();await new Promise(r=>server.close(r));}
+writeFileSync(resolve(out,'results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results));

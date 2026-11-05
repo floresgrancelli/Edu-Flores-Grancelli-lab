@@ -58,8 +58,10 @@ export async function runCoachGuideContainer(page,width,outDir){
   const removed=await page.evaluate(()=>{
    const sheet=[...document.styleSheets].find(s=>s.href?.includes('/guided-meal-picker.css'));
    if(!sheet)throw Error('Missing actual guide stylesheet');
-   const matches=[...sheet.cssRules].map((r,index)=>({index,text:r.cssText,selector:r.selectorText})).filter(r=>r.selector?.startsWith('.efg-role-coach .efg-guide-'));
-   if(matches.length!==6)throw Error('Expected exact six isolated coach fix rules');
+   const rules=[...sheet.cssRules].map((r,index)=>({index,text:r.cssText,selector:r.selectorText}));
+   const start=rules.findIndex(r=>r.selector?.startsWith('.efg-role-coach .efg-guide-'));
+   const matches=rules.filter(r=>r.index>=start);
+   if(matches.length<6)throw Error('Expected coach layout improvements after baseline');
    for(const r of [...matches].reverse())sheet.deleteRule(r.index);
    return matches;
   });

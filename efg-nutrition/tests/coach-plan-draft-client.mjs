@@ -179,7 +179,7 @@ assert.match(app,/createCoachPlanDraftClient\(\{sb,enabled:COACH_ATOMIC_PLAN_UI_
  "Main app must pass backend-verification flag; no hardcoded false on GO");
 assert.match(app,/if\(!COACH_ATOMIC_PLAN_UI_ENABLED\)return ""/);
 assert.match(app,/data-act="saveCoachAtomicDraft"/);
-assert.match(app,/data-act="publishCoachAtomicDraft"/);
+assert.match(app,/data-act="sendCoachGuidePreview"/);
 assert.match(app,/coachDraftClient\.save\(/);
 assert.match(app,/coachDraftClient\.publish\(/);
 assert.match(app,/if\(action==="saveCoachAtomicDraft"\)return saveCoachAtomicDraft\(\)/);
@@ -209,7 +209,7 @@ assert.match(app,/state\.pendingGoal=\{\.\.\.savedDraft\.goal_proposal,student_i
  "Restore only the coach's versioned private draft");
 assert.match(app,/coachDraftSourceCurrent\(state\.coachIntakeForms\[studentId\],savedDraft\)/,
  "Never restore a draft against a changed source intake");
-assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, usá «Guardar borrador privado»/,
+assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED\?'<p class="pilot-hint">Cuando termines, elegí «Ver dieta armada y enviar»/,
  "Staged GUI may not expose old approve-guide button");
 
 assert.match(app,/approvedFoodGuide\(guide,guide.kind==="flexible_meal_guide"\?null:coachFoodChoicesFromDom\(root\)/,

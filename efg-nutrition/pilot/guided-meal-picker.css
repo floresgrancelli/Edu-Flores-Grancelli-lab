@@ -58,3 +58,33 @@
 .efg-role-coach .efg-guide-food-group .efg-guide-select-label{display:block;min-width:0;width:100%;white-space:normal;overflow-wrap:normal;word-break:normal}
 .efg-role-coach .efg-guide-food-group :is(select,input){display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box}
 .efg-role-coach .efg-guide-food-group h4{word-break:normal;overflow-wrap:normal}
+
+/* Readable guide editor and full-plan review, including narrow admin panels. */
+#coachGuidedSlot .efg-guide-food{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+#coachGuidedSlot .efg-guide-food-name,#coachGuidedSlot .efg-guide-select-label{width:100%;min-width:0}
+#coachGuidedSlot .efg-guide-full-name{display:block;font-size:1rem;line-height:1.45;white-space:normal;overflow-wrap:anywhere}
+#coachGuidedSlot .efg-guide-equivalence{display:block;white-space:normal;font-size:.85rem;line-height:1.4;margin-top:6px}
+#coachGuidedSlot :is(input:not([type=checkbox]),select,textarea){width:100%;max-width:100%;min-height:44px;font-size:16px;box-sizing:border-box}
+#coachGuidedSlot .efg-guide-food>label{white-space:normal;font-size:.9rem}
+#coachGuidedSlot .efg-guide-food>label input{max-width:160px;text-align:left;padding:10px}
+#coachGuidedSlot .btn,.efg-coach-atomic-draft .btn{min-height:44px;white-space:normal}
+.efg-guide-preview{box-sizing:border-box;width:min(960px,calc(100% - 16px));max-height:calc(100dvh - 24px);padding:20px;border:1px solid #cde2d2;border-radius:18px;color:#184a35;background:#fff;overflow:auto}
+.efg-guide-preview::backdrop{background:rgb(18 35 29 / 55%)}
+.efg-guide-preview .efg-guide-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.efg-guide-preview .efg-guide-food{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.efg-guide-preview .efg-guide-food b{white-space:normal;overflow-wrap:anywhere;font-size:1rem}
+.efg-guide-preview .efg-guide-equivalence{display:block;font-size:.85rem}
+.efg-guide-preview-actions{position:sticky;bottom:-20px;display:flex;flex-wrap:wrap;gap:10px;padding:12px 0;background:#fff;border-top:1px solid #cde2d2}
+.efg-guide-preview-actions .btn{flex:1;min-height:48px;white-space:normal}
+@media(max-width:600px){
+ #coachGuidedSlot .efg-guide-grid{grid-template-columns:minmax(0,1fr)}
+ #coachGuidedSlot .efg-guide-education,#coachGuidedSlot .efg-guide-food-group{padding:9px}
+ #coachGuidedSlot .efg-guide-food-group-hint{font-size:13px!important}
+ #coachGuidedSlot .efg-guide-meal-head{flex-wrap:wrap}
+ .efg-guide-preview{padding:14px}
+ .efg-guide-preview-actions{bottom:-14px}
+}
+#coachGuidedSlot .efg-guide-education{grid-template-columns:minmax(0,1fr)}
+#coachGuidedSlot .efg-guide-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))}
+
+.efg-guide-preview .efg-guide-education{grid-template-columns:minmax(0,1fr)}

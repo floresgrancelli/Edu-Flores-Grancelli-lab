@@ -16,6 +16,7 @@ for(const route of ['private','review','ready'])for(const pending of [false,true
  assert.equal(c.studentPendingTabAllowed('planner'),false);assert.equal(c.studentPendingTabAllowed('home'),false);
  for(const id of ['intake','messages','privacy','nutritionScience','studentMore'])assert.equal(c.studentPendingTabAllowed(id),true);
  assert.equal(c.studentPendingTabAllowed('privateHealth'),enabled);
+ assert.equal(c.studentPendingTabAllowed('history'),route!=='ready','Private/review history stays reachable');
 }
 assert.match(source,/if\(studentPlanPending\(\)&&!studentPendingTabAllowed\(state\.tab\)\)state\.tab="intake"/);
 assert.match(source,/state\.tab=studentPlanPending\(\)&&!studentPendingTabAllowed\(el\.dataset\.tab\)\?"intake":el\.dataset\.tab/);

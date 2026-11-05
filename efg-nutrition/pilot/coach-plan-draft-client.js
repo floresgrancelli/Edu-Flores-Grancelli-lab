@@ -1,10 +1,10 @@
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-android-r8";
-import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=true;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -34,7 +34,7 @@ export function validateCoachPlanProposal(goal,guide){
     throw Error("Revisá los horarios y alimentos de la guía.");
   seen.add(meal.slot);
   for(const item of meal.items){
-   if(typeof item?.id!=="string"||!/^[a-z0-9_-]{1,100}$/i.test(item.id)||
+   if(typeof item?.id!=="string"||!/^[\p{L}\p{N}_-]{1,100}$/u.test(item.id)||
       !["g","ml"].includes(item.unit)||!Number.isFinite(item.qty)||item.qty<=0||item.qty>1000||
       ["k","p","c","f","fi"].some(k=>!Number.isFinite(item[k])||item[k]<0||item[k]>100000))
     throw Error("Revisá cantidades, unidades y nutrientes de los alimentos.");

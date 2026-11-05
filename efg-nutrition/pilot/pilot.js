@@ -1,82 +1,82 @@
-import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-android-r8";
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-android-r8";
-import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-android-r8";
-import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-android-r8";
-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-android-r8";
-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-android-r8';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-android-r8';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-android-r8';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-android-r8';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-android-r8';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-android-r8";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-android-r8";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-android-r8";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-android-r8";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-android-r8";
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-android-r8";
-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-android-r8";
-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-android-r8";
-import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-android-r8";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-android-r8";
-import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-android-r8";
-import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-android-r8";
-import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-android-r8";
-import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-android-r8";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-android-r8";
-import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-android-r8";
-import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-android-r8";
-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-android-r8";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-android-r8";
-import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-android-r8";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-android-r8";
-import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-android-r8";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-android-r8";
-import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-android-r8";
-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-android-r8";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-android-r8";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-android-r8";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-android-r8";
-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-android-r8";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-android-r8";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-android-r8";
-import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-android-r8";
-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-android-r8";
-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-android-r8";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-android-r8";
-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-android-r8";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-android-r8";
-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-android-r8";
-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-android-r8";
+import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -1235,7 +1235,7 @@ function studentSecondaryNavigation(){
  return entries;
 }
 function studentPendingTabAllowed(tab){
- return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation());
+ return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation())||(tab==="history"&&COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
 }
 function frame(content){
  const role=state.profile.role;
@@ -2763,8 +2763,8 @@ async function previewCoachGuide(){
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  let guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
  validateGuidedDay(guide,goal);
- // Resolve only server-approved pilot references BEFORE the coach sees and
- // approves the final quantities. This is not a nutritional approval operation.
+ // Resolve the server catalog BEFORE the coach reviews final quantities.
+ // Referenced and estimated values keep their provenance; sharing health is optional.
  if(!qaReviewedSourcesAllowed(state.session?.user?.id,studentId)){
   const originTab=state.tab,actor=state.session?.user?.id,source=guide,snapshot=JSON.stringify(guide),goalSnapshot=JSON.stringify(goal);
   // Input events are not a reliable model boundary (notes, IME, fractional
@@ -2797,6 +2797,8 @@ async function previewCoachGuide(){
  dialog.setAttribute('aria-labelledby','coachGuidePreviewTitle');
  const recipient=state.roster.find(student=>student.user_id===studentId)?.nickname||'Alumno seleccionado';
  dialog.innerHTML='<h2 id="coachGuidePreviewTitle">Tu dieta guía armada</h2><p><b>Para: '+escapeHTML(recipient)+'</b></p><p>Revisá las comidas, cantidades y objetivos. Al enviar se guardará esta versión y se publicará junto con el objetivo, tras tu confirmación.</p>'+guidedDayContents(guide,goal,false)+
+ (guide.catalogHasEstimates?'<p class="pilot-hint" role="note">Esta guía incluye valores estimados del catálogo. Revisá las preparaciones y los rótulos antes de aprobarla.</p>':'')+
+ (currentCoachGuideProfile().restrictionStatus==='unknown'?'<p class="pilot-hint" role="note">Restricciones sin informar o no compartidas. Podés trabajar con la ficha general; esto no significa que no existan restricciones.</p>':'')+
  '<p role="alert" data-coach-preview-error hidden></p><p role="status" data-coach-preview-status></p><div class="efg-guide-preview-actions"><button type="button" class="btn light" data-act="closeCoachGuidePreview">Volver a editar</button><button type="button" class="btn" data-act="sendCoachGuidePreview">Aprobar y enviar</button></div>';
  dialog.addEventListener('cancel',event=>{event.preventDefault();closeCoachGuidePreview();});
  root.append(dialog);dialog.showModal();
@@ -2849,7 +2851,7 @@ function createCoachPublicationRequestId(cryptoSource=window.crypto){
 function coachPublicationFailureMessage(error){
  const message=String(error?.message||'');
  if(message==='P28: current shared health declaration required')
-  return 'No se publicó: falta una declaración de salud actual compartida con el coach. El alumno debe completarla y compartirla; el borrador sigue disponible.';
+  return 'No se confirmó la actualización del circuito opcional de restricciones. El borrador se conserva; volvé a abrir el alumno.';
  if(message==='Guide foods are not independently reviewed and current')
   return 'No se publicó: falta completar la revisión de las fuentes nutricionales de los alimentos de esta guía. El borrador sigue disponible.';
  if(message==='QA scope expired or revoked')
@@ -3007,7 +3009,7 @@ function coachGuidedSection(){
  '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
- (COACH_ATOMIC_PLAN_UI_ENABLED?'<button type="button" class="btn small light" data-act="applyPilotReviewedSources">Verificar referencias del piloto y recalcular</button>':'')+
+ (COACH_ATOMIC_PLAN_UI_ENABLED?'<button type="button" class="btn small light" data-act="applyPilotReviewedSources">Actualizar valores del catálogo y recalcular</button>':'')+
  (qaReviewedSourcesAllowed(state.session?.user?.id,state.selectedStudent)?'<button type="button" class="btn small light" data-act="applyQaReviewedSources">Aplicar referencias aprobadas QA y recalcular</button>':'')+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<p class="pilot-hint">Cuando termines, elegí «Ver dieta armada y enviar». El guardado se integra al envío después de tu revisión.</p>':
  draft?.kind==="flexible_meal_guide"?'<p class="pilot-hint" role="status">Dieta Guía lista para revisión. El envío espera habilitación verificada de la publicación atómica; no se modifica el plan del alumno.</p>':

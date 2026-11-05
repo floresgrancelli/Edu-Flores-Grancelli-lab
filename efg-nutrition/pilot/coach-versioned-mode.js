@@ -1,7 +1,7 @@
 // Both onboarding routes use the same versioned Coach backend.
 // This does not enable either route or certify deployment prerequisites.
-import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
-import {COACH_STUDENT_JOURNEY_ENABLED} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_STUDENT_JOURNEY_ENABLED} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 export function usesVersionedCoachIntake({relaunchEnabled=false,studentJourneyEnabled=false}={}){
  return relaunchEnabled===true||studentJourneyEnabled===true;
 }

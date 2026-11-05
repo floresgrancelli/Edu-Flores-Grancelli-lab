@@ -89,7 +89,7 @@ jobs:
       - name: Guide publication, whole quantities and native touch regressions
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |
-          node --test efg-nutrition/tests/admin-guide-health-scope.test.mjs efg-nutrition/tests/guide-publication-outcomes.test.mjs efg-nutrition/tests/guided-countable-portions.test.mjs efg-nutrition/tests/guide-celiac-whole-eggs.test.mjs efg-nutrition/tests/guide-scroll-gesture.test.mjs efg-nutrition/tests/guide-candidate-assets.test.mjs
+          node --test efg-nutrition/tests/coach-catalog-guide.test.mjs efg-nutrition/tests/admin-guide-health-scope.test.mjs efg-nutrition/tests/guide-publication-outcomes.test.mjs efg-nutrition/tests/guided-countable-portions.test.mjs efg-nutrition/tests/guide-celiac-whole-eggs.test.mjs efg-nutrition/tests/guide-scroll-gesture.test.mjs efg-nutrition/tests/guide-candidate-assets.test.mjs
       - name: UX-SUSHI-PIECES and first food selection (offline regression)
         if: ${{ !cancelled() && steps.node.outcome == 'success' }}
         run: |

@@ -33,7 +33,7 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   s.coachGuidedDraft.supplementNote='Nota ficticia de prueba';
   s.coachPlanDraftRecord=null;
   window.trace={saves:0,publishes:0,keys:[],failSave:false,sourceReads:0};
-  v.sb.rpc=async(name)=>{if(name!=='efg_coach_pilot_food_sources')throw Error('Unexpected RPC '+name);trace.sourceReads++;const rows=[...new Map(s.coachGuidedDraft.meals.flatMap(m=>m.items).map(f=>[f.id,f])).values()].map(f=>({...f,scope:'pilot_real',sourceApprovalId:'synthetic_'+f.id,sourceUrl:'https://example.invalid/'+f.id,reviewedAt:'2026-01-01',expiresAt:'2030-01-01'}));return {data:rows,error:null};};
+  v.sb.rpc=async(name)=>{if(name!=='efg_coach_guide_catalog')throw Error('Unexpected RPC '+name);trace.sourceReads++;const rows=[...new Map(s.coachGuidedDraft.meals.flatMap(m=>m.items).map(f=>[f.id,f])).values()].map(f=>({...f,sourceType:'synthetic_fixture',dataQuality:'estimated',sourceUrl:'https://example.invalid/'+f.id}));return {data:{version:'ncc-catalog-0123456789abcdef',foods:rows},error:null};};
   v.coachDraftClient.save=async payload=>{window.trace.saves++;await new Promise(r=>setTimeout(r,50));if(window.trace.failSave)throw Error('Fallo sintético de guardado');window.saved={student_id:s.selectedStudent,status:'draft',draft_revision:window.trace.saves,source_intake_updated_at:'2026-11-04',source_intake_revision:1,goal_proposal:payload.goal,guide_proposal:payload.guide};return {revision:window.trace.saves};};
   v.coachDraftClient.load=async()=>structuredClone(window.saved);
   v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Guide foods are not independently reviewed and current');};
@@ -49,11 +49,21 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:fromY+(toY-fromY)*step/12}]});
    await page.waitForTimeout(18);
   }
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  // Pause the finger before release so the next measurement cannot race a fling.
   await page.waitForTimeout(180);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:toY}]});
+  await page.waitForTimeout(100);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await page.waitForTimeout(700);
  };
  // fresh.css enables smooth scrolling; wait for an actual top position before measuring native gestures.
- const top=async()=>{await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));await page.waitForFunction(()=>window.scrollY===0);};
+ const top=async()=>{
+  await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+  await page.waitForTimeout(100);
+  // A compositor scroll update may arrive after the first main-thread reset.
+  if(await page.evaluate(()=>scrollY!==0))await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+  await page.waitForFunction(()=>window.scrollY===0);
+ };
  if(mobileTouch){
   const oldCss=await page.addStyleTag({content:'@media(max-width:720px){html,body{overflow-x:hidden!important}}'});
   await top();await swipe();touchEvidence.baselineEditor=await page.evaluate(()=>window.scrollY);
@@ -62,6 +72,7 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   assert.ok(touchEvidence.editor>50,JSON.stringify({role,width,...touchEvidence})+' actual touch scrolls the editor');
   await top();
  }
+ if(mobileTouch)console.log(JSON.stringify({role,width,touchEvidence}));
  const before=await page.evaluate(()=>{const v=window.__GUIDE_QA__;return JSON.stringify(v.state.coachGuidedDraft)});
  await page.evaluate(()=>window.__GUIDE_QA__.readGuidedEditor());
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),before,'Render/read preserves exact canonical quantities and note');

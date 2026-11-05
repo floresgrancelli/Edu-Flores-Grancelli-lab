@@ -1,7 +1,7 @@
 // Guía alimentaria educativa: presentación por grupos, sin alterar gramos,
 // composición, totales, permisos, planes guardados ni motor de cálculo.
 // Se utiliza tanto en la revisión del coach como en la vista del alumno.
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-android-r8";
+import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 
 export const GUIDE_EDUCATION_HINTS=Object.freeze({
  protein:"Identificá las fuentes de proteína. También pueden aportar grasas e hidratos.",

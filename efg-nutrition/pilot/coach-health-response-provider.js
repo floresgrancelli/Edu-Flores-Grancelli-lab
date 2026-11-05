@@ -1,5 +1,5 @@
 // Read-only response binding. No endpoint, JWT, storage or UI activation here.
-import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-android-r8';
+import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
 const token=s=>adaptedScopeKey(s)&&typeof s.sessionId==='string'&&s.sessionId&&
  Number.isSafeInteger(s.sourceEpoch)&&s.sourceEpoch>0?JSON.stringify([adaptedScopeKey(s),s.sessionId,s.sourceEpoch]):null;
 const unavailable=status=>({status});

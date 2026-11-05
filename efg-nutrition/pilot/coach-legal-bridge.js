@@ -2,7 +2,7 @@
 // Reads public published legal docs + server-authenticated status; never manufactures
 // acceptance or authorizes health-data sharing. Must be enabled ONLY after counsel GO.
 import {LEGAL_ONBOARDING_ENABLED,legalOutstanding,renderLegalOnboarding,
- makeLegalAcceptanceRequest} from "./legal-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
+ makeLegalAcceptanceRequest} from "./legal-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 export const COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED=true;
 const hash=/^[a-f0-9]{64}$/i;
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

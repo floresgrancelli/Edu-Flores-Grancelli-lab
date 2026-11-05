@@ -1,4 +1,4 @@
-import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-android-r8';
+import {adaptedScopeKey} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
 export function createBoundGuidePreparation({sb,readScope,readGoal,foodIds,onSaved}){
  let busy=false,generation=0;
  const goalKey=()=>{const g=readGoal();return JSON.stringify(g?['student_id','goal_type','kcal','protein_g','carb_g','fat_g','fiber_g'].map(k=>g[k]):null);};

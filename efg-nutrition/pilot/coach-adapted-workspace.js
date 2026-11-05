@@ -1,7 +1,7 @@
 // Preview integration only. No import of test fixtures, persistence or publishing.
-import {proposeAdaptedGuide} from './adapted-guided-day.js?v=ncc-pilot-3a40474052be-android-r8';
-import {createGuideEditor,updateGuideEditor} from './adapted-guide-editor.js?v=ncc-pilot-3a40474052be-android-r8';
-import {renderGuideEditor} from './adapted-guide-view.js?v=ncc-pilot-3a40474052be-android-r8';
+import {proposeAdaptedGuide} from './adapted-guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {createGuideEditor,updateGuideEditor} from './adapted-guide-editor.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {renderGuideEditor} from './adapted-guide-view.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
 export const COACH_ADAPTED_GUIDE_PREVIEW_ENABLED=false;
 export function adaptedScopeKey(s){
  if(!s||s.role!=='coach'||s.active!==true||!s.userId||s.userId!==s.profileId||

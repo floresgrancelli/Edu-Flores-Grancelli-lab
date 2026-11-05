@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // BRAND-78: user-visible rebranding on critical app, report, release and PWA surfaces.
 // Not a declaration that every legacy file or native store listing has been renamed.
@@ -32,10 +33,6 @@ for(const name of candidateAssets){
   "Old visible brand in pilot/"+name+"; DO NOT rename technical IDs, files or keys");
 }
 const pilot=read("../pilot/pilot.js");
-assert.equal((pilot.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,5,
- "Student ready/pending/private, Coach and Admin nav must show the permanent science library");
-assert.equal((pilot.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,
- "Student, Coach and Admin More menus must show the permanent science library");
 assert.match(pilot,/nutritionScience:renderScienceVerticalView/);
 assert.match(pilot,/renderScienceWelcomeStep\(state\.scienceWelcomeStep/);
 const html=read("../pilot/index.html");
@@ -79,3 +76,4 @@ assert.match(intro,/serotonina-acuarela\.avif/);
 assert.match(intro,new RegExp(String.raw`SCIENCE_WELCOME_ENABLED=${expectedReleaseFlag("SCIENCE_WELCOME_ENABLED")}`));
 assert.match(read("../pilot/index.html"),/science-welcome\.css\?v=/);
 console.log("PASS BRAND-78: all direct pilot UI assets and 14 critical files use Nutrición Con-Ciencia, with original serotonin logo in app and report. Static only, no host rebrand certification.");
+

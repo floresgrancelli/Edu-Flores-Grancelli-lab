@@ -52,7 +52,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   await page.waitForTimeout(180);
  };
- const top=async()=>{await page.evaluate(()=>{window.scrollTo(0,0);document.body.scrollTop=0;document.documentElement.scrollTop=0;});await page.waitForTimeout(50);};
+ // fresh.css enables smooth scrolling; wait for an actual top position before measuring native gestures.
+ const top=async()=>{await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));await page.waitForFunction(()=>window.scrollY===0);};
  if(mobileTouch){
   const oldCss=await page.addStyleTag({content:'@media(max-width:720px){html,body{overflow-x:hidden!important}}'});
   await top();await swipe();touchEvidence.baselineEditor=await page.evaluate(()=>window.scrollY);

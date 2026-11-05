@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {loadCoachPrivateHistory,renderCoachPrivateHistory} from '../pilot/coach-private-history.js';
@@ -89,6 +90,7 @@ const ui=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 assert.match(ui,/loadCoachPrivateHistory\(sb,\{profile:state\.profile,userId:id,entry:state\.coachPilotEntry\}\)/);
 assert.match(ui,/renderCoachPrivateHistory\(state\.coachPrivateHistory,\{userId:state\.session\.user\.id\}\)/);
 assert.match(ui,/\["private","review"\]\.includes\(state\.coachPilotEntry\?\.route\)/);
-assert.match(ui,/\["history","⌂","Mi historial"\]/);
+assert.match(ui,/\["history","","Historial"\]/);
 assert.match(ui,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
 console.log('PASS COACH-OPT-05: read-only private/review history, fresh Auth identity pre/post reads and server profile (inactive/transfer/role) checks, owner checks, escaped content and signed route integration');
+

@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 import {expectedReleaseFlag} from './approved-release-flags.mjs';
 // BRAND-77B: synthetic offline tests. Do not claim hosted deployment.
 import assert from "node:assert/strict";
@@ -162,9 +163,9 @@ assert.match(pilot,/scienceNext","sciencePrev","scienceFinish"/);
 assert.doesNotMatch(pilot,/scienceSkip/,"Do not allow jumping past original owner images");
 assert.match(pilot,/scienceWelcomePending=false;state\.scienceWelcomeStep=0/);
 assert.match(pilot,/nutritionScience:renderScienceVerticalView/);
-assert.match(pilot,/studentPlanPending\(\)\?\[\["intake"[\s\S]*?\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
 assert.match(pilot,/:role==="admin"\?\[\["admin"[\s\S]*?\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
 assert.match(pilot,/state\.scienceWelcomePending=intro\.pending/);
 assert.match(pilot,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(\)/);
 assert.match(pilot,/if\(state\.welcomePending\)return welcomeView\(\);/);
 console.log("PASS P26M: eight illustrated topics, Conclusions #8 and watercolor serotonin closing #9; nine shared panels, receipts and safe navigation. OFFLINE ONLY.");
+

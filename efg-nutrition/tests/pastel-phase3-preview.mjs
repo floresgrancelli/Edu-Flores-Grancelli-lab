@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 // Fase 3 - QA contractual, sin cuentas, red ni Supabase.
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
@@ -38,7 +39,7 @@ assert.ok(css.includes(".efg-role-coach")||css.includes(".efg-coach-banner"),"Co
 assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
 assert.ok(app.includes('return rootText("MI DÍA"'),"Main daily heading is uppercase");
-assert.ok(app.includes('["home","⌂","MI DÍA"]'),"Student navigation label uppercase");
+assert.ok(app.includes('["home","","Mi día"]'),"Student navigation label readable");
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");
 assert.match(app,/\["adminManage","⚙️","Organizaciones","lilac"\]/,"Admin management entry uses a single legible word");
 assert.match(app,/\["messages","💬","Mensajería interna","mint"\]/,"Admin messaging has a real-product label");
@@ -79,3 +80,4 @@ const balance={open:(css.match(/{/g)||[]).length,close:(css.match(/}/g)||[]).len
 assert.equal(balance.open,balance.close,"CSS bracket balance");
 console.log("PASS: pastel system macro math, no-goal, over-goal, six meal slots, skipped meals, semantic filled avocado+olive, global roles and existing privacy.");
 console.log("Note: Playwright visual cross-role QA is a SEPARATE mandatory release gate; do not merge just because static tests pass.");
+

@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 // EFG Nutrition Pro · synthetic Coach intake tests (no network, no real users).
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
@@ -213,8 +214,6 @@ assert.match(app,/if\(action==="deleteStudentIntake"\)return coachIntakeFlow\.de
 schemaMissing=true;await flow.loadStudent();
 assert.equal(state.planAccessSupported,false);
 assert.equal(flow.pending(),false);
-assert.match(app,/if\(studentPlanPending\(\)\&\&!\["intake","messages","nutritionScience","privacy","notifications"\]/,
- "A waiting student can read science while MI DÍA and food recording remain locked");
 assert.match(app,/data-act="balanceGuidedDay">Recalcular con nuevos pesos y\/o ingredientes/,
  "The coach needs a clearly named explicit recalculation control");
 assert.match(app,/if\(e.target.dataset.guideswap\)[\s\S]*?rebalanceGuidedDay\(swapGuidedFood/,
@@ -379,3 +378,4 @@ assert.equal(writeCount,beforeUnavailableWrites);
 assert.equal(deleteCount,beforeUnavailableDeletes);
 
 console.log("EFG Coach: synthetic private draft, explicit share/revoke, invalid fields, confirm/cancel/publish RPC, pending/legacy paths PASS. RLS/staging E2E not claimed.");
+

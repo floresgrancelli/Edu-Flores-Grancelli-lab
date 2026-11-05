@@ -3,7 +3,7 @@
 // Evidence must come from a reviewed server catalog, never user-supplied claims.
 // The frontend cannot authenticate provenance: backend must supply/catalog-authorize
 // catalogEvidence separately from editable food/diary payloads. Clinical restrictions remain unverified and yellow.
-import {DIET_PATTERNS} from './diet-pattern-workbench.js?v=ncc-guide-return-20261105-r6';
+import {DIET_PATTERNS} from './diet-pattern-workbench.js?v=ncc-pilot-3a40474052be-guide-return-r6';
 export const FOOD_COMPATIBILITY_ENABLED=true;
 const exclusions={vegan:['meat','fish','shellfish','dairy','egg','honey','animal_derivative'],vegetarian:['meat','fish','shellfish','animal_derivative'],pescatarian:['meat','animal_derivative']};
 const neutralPatterns=new Set(['balanced','mediterranean','flexitarian']);

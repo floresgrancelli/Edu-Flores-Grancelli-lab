@@ -1,9 +1,9 @@
-import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js?v=ncc-guide-return-20261105-r6";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-guide-return-20261105-r6";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-guide-return-20261105-r6";
-import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js?v=ncc-guide-return-20261105-r6";
-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-guide-return-20261105-r6";
-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-guide-return-20261105-r6";
+import {DIET_PATTERNS,EATING_WINDOWS} from "./diet-pattern-workbench.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_ATOMIC_PLAN_UI_ENABLED} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 // EFG Nutrition Pro — staged Coach Intake (isolated backend migration required).
 // Nothing here unlocks access: PostgreSQL RLS + publish RPC are authoritative.
 export function intakeSaveButtonLabel({wasShared=false,willShare=false}={}){

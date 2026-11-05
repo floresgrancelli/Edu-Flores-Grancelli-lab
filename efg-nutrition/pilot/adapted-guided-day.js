@@ -1,6 +1,6 @@
 // Private educational proposal. Reuses existing portion optimizer, never publishes.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideTotals,guidedPortionBounds} from './guided-day.js?v=ncc-guide-return-20261105-r6';
-import {evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-guide-return-20261105-r6';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideTotals,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-3a40474052be-guide-return-r6';
 export const GUIDE_TARGET_TOLERANCE=.05; // Maximum daily deviation; coach targets remain unchanged.
 const nutrients=['k','p','c','f','fi'];
 const fail=(code,message)=>({ok:false,code,message,plan:null,requiresCoachReview:true});

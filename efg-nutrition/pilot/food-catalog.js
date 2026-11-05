@@ -1,7 +1,7 @@
-import {ARGENTINE_LABEL_FOODS,ARGENTINE_LABEL_PORTIONS} from "./argentine-manufacturer-labels.js?v=ncc-guide-return-20261105-r6";
-import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "./user-photo-labels.js?v=ncc-guide-return-20261105-r6";
-import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=ncc-guide-return-20261105-r6";
-import {PLANT_BAKERY_FOODS,PLANT_BAKERY_PORTIONS,PLANT_BAKERY_ALIASES,PLANT_BAKERY_COUNT} from "./food-plant-bakery-phase3.js?v=ncc-guide-return-20261105-r6";
+import {ARGENTINE_LABEL_FOODS,ARGENTINE_LABEL_PORTIONS} from "./argentine-manufacturer-labels.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {USER_PHOTO_LABEL_FOODS,USER_PHOTO_LABEL_PORTIONS} from "./user-photo-labels.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {EXPANDED_FOODS,EXPANDED_PORTIONS,EXPANDED_ALIASES,EXPANDED_COUNT} from "./food-expansion.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {PLANT_BAKERY_FOODS,PLANT_BAKERY_PORTIONS,PLANT_BAKERY_ALIASES,PLANT_BAKERY_COUNT} from "./food-plant-bakery-phase3.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 // EFG Nutrition - biblioteca genérica inicial, no equivalente a un etiquetado de marca.
 // Macros aproximados por 100 g de alimento comestible (o 100 ml de líquidos).
 // No se deben utilizar como prescripción ni sustituir la evaluación profesional.

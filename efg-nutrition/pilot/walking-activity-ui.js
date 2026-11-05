@@ -1,6 +1,6 @@
 // SPORT-STEP-03 · premium walking steps UI, shared by Mi progreso and Deportes.
 // No account writes: caller saves the checked fields in efg_activities.
-import {WALKING_PACES,estimateWalkingSteps,estimateStoredWalkingActivity} from './walking-steps-estimator.js?v=ncc-guide-return-20261105-r6';
+import {WALKING_PACES,estimateWalkingSteps,estimateStoredWalkingActivity} from './walking-steps-estimator.js?v=ncc-pilot-3a40474052be-guide-return-r6';
 const n=(x,dp=0)=>Number(x).toLocaleString('es-AR',{minimumFractionDigits:dp,maximumFractionDigits:dp});
 const fmt=(x)=>typeof x==='number'&&Number.isFinite(x)?String(x):'';
 const html=(x)=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

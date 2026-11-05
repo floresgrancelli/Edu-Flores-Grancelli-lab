@@ -2,7 +2,7 @@ import './approved-release-flags.mjs';
 // NUT-58: local DOM-only simulation, no browser, network or production data.
 import assert from "node:assert/strict";
 import {createVersionNotice} from "../pilot/version-notice.js";
-import {readFileSync} from "node:fs";
+import {readFileSync,existsSync} from "node:fs";
 import {assertPwaBuildIdentity} from "../tools/pwa-build-identity.mjs";
 // A candidate changing Coach permissions and the first-use illustration MUST
 // carry a coherent release and cache-busted module URL. Minor hotfixes keep
@@ -11,7 +11,8 @@ const liveHtml=readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8
 const appJs=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const build=liveHtml.match(/<meta name="efg-build" content="([^"]+)"/)?.[1];
 const entry=liveHtml.match(/<script type="module" src="\.\/pilot\.js\?v=([^"]+)"/)?.[1];
-const hotfixBytes=readFileSync(new URL("../docs/p30o-guide/asset-overrides.json",import.meta.url));
+const candidateManifest=new URL("../docs/guide-return-candidate/asset-manifest.json",import.meta.url);
+const hotfixBytes=readFileSync(existsSync(candidateManifest)?candidateManifest:new URL("../docs/p30o-guide/asset-overrides.json",import.meta.url));
 assert.deepEqual(assertPwaBuildIdentity(liveHtml,hotfixBytes),{build,assetVersion:entry});
 for(const changed of [
  liveHtml.replace(entry,entry+"-unknown"),

@@ -1,6 +1,6 @@
 // COACH106 — real Supabase participation receipts adapter (OFF until E2E).
 // No legal-document acceptance, sensitive-health collection or localStorage.
-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-guide-return-20261105-r6';
+import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-3a40474052be-guide-return-r6';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 async function signedUser(sb){
  if(typeof sb?.auth?.getUser!=='function')throw Error('Falta verificar la sesión.');

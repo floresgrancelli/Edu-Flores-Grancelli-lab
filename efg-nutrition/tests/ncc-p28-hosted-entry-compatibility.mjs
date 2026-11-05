@@ -51,7 +51,7 @@ resolveRead({data:{status:'published'},error:null});
 await assert.rejects(pending,/sesión cambió/);
 assert.equal(state.studentIntake.notes,'B only');
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-assert.match(app,/if\(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.profile\?\.role==="coach"/,
+assert.match(app,/if\(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&ownsCoachHealthWorkspace\(\)/,
  'Basic restriction reads follow their own consent UI gate, not the advanced clinical module');
 assert.doesNotMatch(app,/if\(CLINICAL_GUIDE_CONNECTION_ENABLED&&state.profile\?\.role==="coach"/);
 console.log('PASS P28: OFF startup has zero legacy requests; existing/no-row and explicit pending/published states; no legacy writes; permission and session-race failures; independent restriction gate. Synthetic transport only.');

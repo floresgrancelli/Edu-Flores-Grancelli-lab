@@ -1,4 +1,4 @@
-import {VERIFIED_FOODS,VERIFIED_SOURCE_COUNT} from "./food-source-audit.js?v=ncc-pilot-3a40474052be";
+import {VERIFIED_FOODS,VERIFIED_SOURCE_COUNT} from "./food-source-audit.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 // EFG Nutrition Pro | 2026-10-28 | ampliación regional y alimentos de disfrute.
 // Macros POR 100 g de porción comestible. Son ESTIMACIONES GENÉRICAS
 // orientativas, NO valores analíticos individuales, etiquetas verificadas ni

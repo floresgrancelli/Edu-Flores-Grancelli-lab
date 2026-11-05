@@ -34,6 +34,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Install Safari-engine WebKit for mobile compatibility
+        run: npx playwright install --with-deps webkit
       - name: Private adapted guide functional and visual delta
         if: (github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]'))
         env:
@@ -125,6 +127,10 @@ jobs:
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           EFG_QA_COACH_GUIDE_LAYOUT=1 node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Guide mobile preview and direct send (Chromium, synthetic transport)
+        run: node efg-nutrition/tests/guide-preview-mobile.mjs
+      - name: Guide mobile preview and direct send (WebKit, synthetic transport)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
@@ -134,8 +140,6 @@ jobs:
           node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: NCC P21/P22 staged overlay boot and module journey in Chromium (LOCAL, NO GO)
         run: EFG_QA_P20_OVERLAY=1 EFG_QA_P22_FLOW=1 node efg-nutrition/tests/ncc-pilot-pre-go-browser-boot.mjs
-      - name: Guide mobile preview and direct send (Chromium, synthetic transport)
-        run: node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: New pilot privacy and versioned intake in actual app (isolated Chromium)
         run: node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
       - name: BRAND-78 public wordmark responsive Chromium (synthetic)
@@ -166,14 +170,10 @@ jobs:
         run: node efg-nutrition/tests/weekly-luxury-android-qa.mjs
       - name: CLIN-GUT-02 lactose + SIBO options in responsive intake (SYNTHETIC, collection OFF)
         run: node efg-nutrition/tests/gut-clinical-visual-qa.mjs
-      - name: Install Safari-engine WebKit for mobile compatibility
-        run: npx playwright install --with-deps webkit
       - name: Check Safari-engine responsive UI (isolated role fixtures)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: NCC P21/P22 staged overlay boot and module journey in Safari WebKit (LOCAL, NO GO)
         run: EFG_QA_P20_OVERLAY=1 EFG_QA_P22_FLOW=1 EFG_QA_ENGINE=webkit node efg-nutrition/tests/ncc-pilot-pre-go-browser-boot.mjs
-      - name: Guide mobile preview and direct send (WebKit, synthetic transport)
-        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: New pilot privacy and versioned intake in actual app (isolated WebKit)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
       - name: BRAND-78 public wordmark responsive WebKit Safari (synthetic)

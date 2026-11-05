@@ -71,7 +71,7 @@ assert.doesNotThrow(()=>generateGuidedDay(explicitlyZero,goal),
 
 const original=generateGuidedDay(catalog,goal);
 const exampleEgg=original.meals[0].items.find(x=>x.id==="egg");
-assert.equal(exampleEgg.qty,110,"Default breakfast must remain two eggs, not three");
+assert.equal(exampleEgg.qty,100,"Default breakfast must remain two eggs, not three");
 assert.ok(guidedFoodAlternatives("egg",catalog).includes("ham_cooked"),"Ham replacement must be offered");
 for(const alternative of ["egg_white","ham_cooked","turkey_breast_cooked","yogurt_greek_light","yogurt_high_protein","cottage_cheese","ricotta_light","tofu_firm","tempeh","whey_powder"]){
  const choice=swapGuidedFood(original,"desayuno",0,alternative,catalog);
@@ -80,7 +80,7 @@ for(const alternative of ["egg_white","ham_cooked","turkey_breast_cooked","yogur
  assert.equal(choice.meals[0].items[0].p,replacement.p,"Replacement must use the selected food's actual protein data");
  assert.equal(choice.meals[0].items[0].f,replacement.f,"Replacement must use the selected food's actual fat data");
  assert.equal(original.meals[0].items[0].id,"egg","Protein swaps must NOT mutate the original plan");
- assert.equal(original.meals[0].items[0].qty,110);
+ assert.equal(original.meals[0].items[0].qty,100);
  assert.notDeepEqual(guideTotals(choice).totals,guideTotals(original).totals,
   "PRO22 source-specific macro totals must be recalculated after switching protein");
  const result=rebalanceGuidedDay(choice,goal);
@@ -156,3 +156,4 @@ console.log("PASS: real-food swaps, bounded portions and different calorie targe
 
 // New flexible six-slot guide lives beside the historical five-meal model.
 await import('./ncc-six-meal-guide-contract.mjs');
+

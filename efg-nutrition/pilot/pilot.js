@@ -1,81 +1,82 @@
-import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-3a40474052be";
-import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be";
-import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be";
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be";
-import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be";
-import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be";
-import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be";
-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be";
-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be";
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be";
-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be";
-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be";
-import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be";
-import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be";
-import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be";
-import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be";
-import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be";
-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be";
-import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be";
-import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be";
-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be";
-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be";
-import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be";
-import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be";
-import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be";
-import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be";
-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be";
-import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be";
-import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be";
-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be";
-import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be";
-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be";
-import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be";
-import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be";
-import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be";
-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be";
-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be";
-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be";
-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be";
-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be";
-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be";
-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be";
-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-intakefix1";
-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be";
-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be";
-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-intakefix1";
-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be";
-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be";
+import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -559,15 +560,23 @@ function compatibilityPattern(){
   :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
  return profilePatternForCompatibility(pattern);
 }
+function ownsCoachHealthWorkspace(){
+ const profile=state.profile,actor=state.session?.user?.id,org=state.org;
+ // Match the backend's coach_has_student: administrators act as coaches only
+ // in their own test organization. This never grants access to foreign students.
+ return !!actor&&profile?.active===true&&profile.user_id===actor&&
+  !!org?.id&&org.coach_id===actor&&
+  (profile.role==='coach'||profile.role==='admin'&&org.is_test===true);
+}
 function foodCompatibilityRestrictions(){
  if(!PRIVATE_HEALTH_DECLARATION_UI_ENABLED)return [];
  if(state.profile?.role==="student")return state.foodRestrictionReader.current().restrictions;
  const h=state.coachGuideHealth;
- if(state.profile?.role==="coach"&&h?.studentId===state.selectedStudent&&
+ if(ownsCoachHealthWorkspace()&&h?.studentId===state.selectedStudent&&
   h.viewerId===state.session?.user?.id&&h.consentVerified===true&&h.shared===true&&
   state.consent?.accepted===true&&state.coachIntakeForms?.[state.selectedStudent]?.shared_at)
   return h.restrictions;
- return state.profile?.role==="coach"?['health_status_unknown']:[];
+ return ['coach','admin'].includes(state.profile?.role)?['health_status_unknown']:[];
 }
 function foodTrafficLight(food){
  if(!FOOD_COMPATIBILITY_ENABLED)return {symbol:"",color:"neutral",details:"",canRecord:true};
@@ -2611,11 +2620,12 @@ function guidedDayContents(plan,goal,editable=false){
   const foodRow=(f,i)=>{
    const alt=editable?guidedFoodAlternatives(f.id,foods):[];
    const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
+   const countable=f.recipeComponent?null:guidedCountablePortion(f.id);
    const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
    const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
    return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?'<strong class="efg-guide-full-name">'+escapeHTML(f.name)+'</strong>'+select:'<span>'+escapeHTML(f.name)+'</span>')+
      (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="any" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> '+escapeHTML(portion?.label||f.unit)+(portion?' (aprox.)':'')+'</label>'+
+    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> '+escapeHTML(portion?.label||f.unit)+(portion?' (aprox.)':'')+'</label>'+
      (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
      '<b>'+escapeHTML(guideQuantityLabel(f))+'</b>')+'</div>';
   };
@@ -2718,13 +2728,41 @@ function closeCoachGuidePreview(){
  document.getElementById('coachGuidePreview')?.remove();coachGuidePreview=null;
  root.querySelector('[data-act="previewCoachGuide"]')?.focus();
 }
-function previewCoachGuide(){
+async function previewCoachGuide(){
  if(coachGuideSendBusy)return;
  const studentId=state.selectedStudent,intake=state.coachIntakeForms?.[studentId];
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!state.consent?.accepted||!intake?.shared_at)throw Error('La ficha ya no está disponible para revisar.');
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
- const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ let guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
  validateGuidedDay(guide,goal);
+ // Resolve only server-approved pilot references BEFORE the coach sees and
+ // approves the final quantities. This is not a nutritional approval operation.
+ if(!qaReviewedSourcesAllowed(state.session?.user?.id,studentId)){
+  const originTab=state.tab,actor=state.session?.user?.id,source=guide,snapshot=JSON.stringify(guide),goalSnapshot=JSON.stringify(goal);
+  // Input events are not a reliable model boundary (notes, IME, fractional
+  // units). Compare the actual mounted controls without committing edits.
+  const editor=root.querySelector('#coachGuidedSlot');
+  const readControls=()=>JSON.stringify([...editor?.querySelectorAll('input,select,textarea')||[]]
+   .map(el=>({value:el.value,checked:el.checked})));
+  const controlsSnapshot=readControls();
+  const isCurrent=()=>root.querySelector('#coachGuidedSlot')===editor&&readControls()===controlsSnapshot&&
+   state.tab===originTab&&state.selectedStudent===studentId&&state.session?.user?.id===actor&&
+   state.coachIntakeForms?.[studentId]===intake&&state.consent?.accepted===true&&
+   (state.coachGuidedDraft||state.coachIntakeGuidePreview)===source&&JSON.stringify(source)===snapshot&&
+   JSON.stringify(state.pendingGoal||state.pendingGoalRevision?.proposal)===goalSnapshot;
+  coachGuideSendBusy=true;
+  try{
+   const reviewed=await loadPilotReviewedGuide(sb,{studentId,guide:structuredClone(guide),isCurrent});
+   guide=rebalanceGuidedDay(reviewed,goal,{targetTolerance:.02});
+   state.coachGuidedDraft=guide;showGuidedEditor();
+  }catch(error){
+   if(isCurrent()){
+    const panel=root.querySelector('[data-coach-publication-error]');
+    if(panel){panel.hidden=false;panel.textContent=error.message;panel.tabIndex=-1;panel.focus();}
+   }
+   throw error;
+  }finally{coachGuideSendBusy=false;}
+ }
  closeCoachGuidePreview();
  coachGuidePreview={studentId,intake,userId:state.session?.user?.id,goal:JSON.stringify(goal),guide:JSON.stringify(guide)};
  const dialog=document.createElement('dialog');dialog.id='coachGuidePreview';dialog.className='efg-guide-preview';
@@ -2762,11 +2800,11 @@ async function sendCoachGuidePreview(){
    if(!saved||!coachGuidePreviewCurrent(preview))throw Error('Cambió el contexto durante el guardado. Volvé a revisar la dieta.');
   }
   status.textContent='Esperando confirmación de envío…';publishing=true;
-  await publishCoachAtomicDraft();
-  if(dialog.isConnected)status.textContent='La vista sigue disponible para revisar o volver a editar.';
+  const result=await publishCoachAtomicDraft();
+  if(dialog.isConnected&&result?.status==='cancelled')status.textContent='Envío cancelado. El borrador sigue disponible; podés volver a editar.';
  }catch(error){
   if(dialog.isConnected&&coachGuidePreviewCurrent(preview)){
-   errorPanel.textContent=publishing?coachPublicationFailureMessage(error):'No se pudo confirmar el guardado. Tu edición se conserva; volvé a intentar o revisá la ficha.';errorPanel.hidden=false;status.textContent='';
+   errorPanel.textContent=publishing?coachPublicationFailureMessage(error):'No se pudo confirmar el guardado. Tu edición se conserva; volvé a intentar o revisá la ficha.';errorPanel.hidden=false;status.textContent='';errorPanel.tabIndex=-1;errorPanel.focus();
   }
   throw error;
  }finally{coachGuideSendBusy=false;buttons.forEach(button=>button.disabled=false);}
@@ -2782,6 +2820,8 @@ function createCoachPublicationRequestId(cryptoSource=window.crypto){
 }
 function coachPublicationFailureMessage(error){
  const message=String(error?.message||'');
+ if(message==='P28: current shared health declaration required')
+  return 'No se publicó: falta una declaración de salud actual compartida con el coach. El alumno debe completarla y compartirla; el borrador sigue disponible.';
  if(message==='Guide foods are not independently reviewed and current')
   return 'No se publicó: falta completar la revisión de las fuentes nutricionales de los alimentos de esta guía. El borrador sigue disponible.';
  if(message==='QA scope expired or revoked')
@@ -2794,6 +2834,7 @@ function coachPublicationFailureMessage(error){
 }
 async function publishCoachAtomicDraft(){
  const studentId=state.selectedStudent,draft=state.coachPlanDraftRecord;
+ const originTab=state.tab;
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!studentId||!state.consent?.accepted||!draft||
     draft.status!=="draft"||!Number.isSafeInteger(draft.draft_revision))
   throw Error("No hay un borrador seguro disponible para publicar.");
@@ -2803,7 +2844,7 @@ async function publishCoachAtomicDraft(){
  const finalGuide=approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
  const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide:finalGuide});
  if(!review.ready)throw Error(review.reason);
- if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return;
+ if(!window.confirm("¿Aprobar y publicar juntos el objetivo y la guía? El servidor verificará de nuevo los permisos, alimentos y aceptación legal."))return {status:"cancelled"};
  if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
   throw Error("Cambió la ficha o el alumno seleccionado; volvé a revisar antes de publicar.");
  state.coachPlanPublishRequestId=state.coachPlanPublishRequestId||createCoachPublicationRequestId();
@@ -2819,15 +2860,25 @@ async function publishCoachAtomicDraft(){
   }
   throw error;
  }
- // The server may have committed even if navigation occurred meanwhile.
- // Never overwrite the currently visible student's workspace or request UUID.
- if(!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))return;
- // Keep the SAME request UUID until the server state is reloaded and rendered.
- // A successful commit followed by a failed read must be safely retryable;
- // clearing the UUID early risks an accidental second publication.
- await loadStudentDetail(studentId);await render();
+ // The validated RPC receipt confirms the commit. A view-refresh failure is
+ // never a publication rejection and must not invite another send.
+ if(state.tab!==originTab||!coachDraftWorkspaceCurrent({state,studentId,intake,sessionUserId,previousDraft}))
+  return {status:"published",viewUpdated:false};
+ state.coachPlanDraftRecord={...draft,status:"published"};
  state.coachPlanPublishRequestId=null;
+ state.pendingGoal=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakeGuidePreview=null;
+ state.selectedStudent=null;state.consent=null;state.tab="coachStudents";
+ document.getElementById('coachGuidePreview')?.remove();coachGuidePreview=null;
+ try{
+  await render();
+  const roster=root.querySelector('#coachRosterSection');
+  if(roster){roster.tabIndex=-1;roster.focus();roster.scrollIntoView({block:'start'});}
+ }catch(error){
+  notify("Meta y guía publicadas. No pudimos actualizar la lista; volvé a abrir Mis alumnos. No hace falta reenviar.");
+  return {status:"published",viewUpdated:false};
+ }
  notify("Meta y guía publicadas conjuntamente por el servidor.");
+ return {status:"published",viewUpdated:true};
 }
 function activeCoachGuideGoal(){
  // While preparing an atomic Coach draft, NEVER silently fall back to the student's published goal.
@@ -2960,7 +3011,12 @@ function readGuidedEditor(){
  for(const el of document.querySelectorAll("[data-guideqty]")){
   const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)];
   const factor=guidePortion(food)?.grams||1;
-  const qty=el.value===el.dataset.guidedisplay?Number(el.dataset.guideoriginal):Number(el.value)*factor;
+  let qty=el.value===el.dataset.guidedisplay?Number(el.dataset.guideoriginal):Number(el.value)*factor;
+  const countable=food?.recipeComponent?null:guidedCountablePortion(food?.id);
+  if(countable&&el.value!==el.dataset.guidedisplay){
+   qty=Math.round(qty/countable.grams)*countable.grams;
+   el.value=String(qty/factor);
+  }
   const [min,max]=recipeIngredientLimits(food)||guidedPortionBounds(food?.id);
   if(!food||!el.value.trim()||!Number.isFinite(qty)||qty<min||qty>max)throw new Error("Cantidad fuera de límites orientativos para ese alimento; revisá sus unidades o porciones.");
   // Respect the coach's manual choice even if a browser skips an intermediate input event.
@@ -3654,8 +3710,7 @@ async function loadStudentDetail(studentId){
    organizationId:loaded.organizationId,epoch:contextEpoch};
   state.coachSharedRecipes=loaded.recipes;
  }
- if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
-    state.profile.user_id===coachId&&state.org?.coach_id===coachId&&
+ if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&ownsCoachHealthWorkspace()&&
     c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
   // General follow-up alone never starts a clinical read. Independent health
   // permissions and the identities in the server response must also match.
@@ -4929,6 +4984,8 @@ root.addEventListener("input",e=>{
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value)*(guidePortion(food)?.grams||1);
+  const countable=food?.recipeComponent?null:guidedCountablePortion(food?.id);
+  if(countable&&!Number.isInteger(qty/countable.grams))return; // Normalize on change, before locking.
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
  }
  if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){

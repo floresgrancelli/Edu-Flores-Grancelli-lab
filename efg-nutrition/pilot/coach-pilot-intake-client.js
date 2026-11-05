@@ -1,7 +1,7 @@
 // COACH112: real general-intake client for the optional Coach PILOT, distinct
 // from old draft T&C and from clinical/sensitive medical data. OFF in the PWA.
-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be';
-import {loadPilotParticipationReceipt} from './pilot-participation-client.js?v=ncc-pilot-3a40474052be';
+import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {loadPilotParticipationReceipt} from './pilot-participation-client.js?v=ncc-pilot-3a40474052be-guide-return-r6';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const FIELDS=new Set(['objective','age_years','height_cm','weight_kg','activity_level',
  'dietary_pattern','eating_window','preferred_foods','disliked_foods','meal_routine','notes']);

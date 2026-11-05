@@ -2,7 +2,9 @@
 // This module does not read or store health data. The caller must supply a CURRENT,
 // consented and server-authorized profile; this is not a medical decision engine.
 // The existing food catalog is reused in full, never filtered for a student's diary.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+
+import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-guide-return-r6";
 
 export const SIX_GUIDE_SLOTS=Object.freeze([
  ['desayuno','Desayuno'],['media_manana','Media mañana'],
@@ -202,7 +204,9 @@ function fitGeneratedComposition(plan,goal,available,profile){
   if(!best)break;
   current=best;currentLoss=bestLoss;
  }
- return current;
+ // Final quantity-only repair: prioritize all daily targets, including fiber,
+ // over meal-share preferences. Preserve the selected foods and whole counts.
+ return rebalanceGuidedDay(current,goal,{targetTolerance:.0199});
 }
 function assertFlexible(plan){
  if(plan?.kind!==FLEXIBLE_GUIDE_KIND||plan?.version!==2||!Array.isArray(plan.meals)||
@@ -233,7 +237,9 @@ export function addFlexibleFood(existing,slot,food,catalog,goal){
  if(!meal||!found||meal.items.length>=15||meal.items.some(x=>x.id===found.id))
   throw Error('Revisá el alimento elegido; ya existe o no está disponible.');
  const [min,max]=guidedPortionBounds(found.id);
- meal.items.push({...ensureSource(found,Math.max(min,Math.min(max,Number(food.qty)||min))),locked:true});
+ const item=ensureSource(found,Math.max(min,Math.min(max,Number(food.qty)||min)));
+ item.qty=normalizeGuidedCountableQuantity(item);
+ meal.items.push({...item,locked:true});
  return rebalanceGuidedDay(next,goal);
 }
 export function replaceFlexibleFood(existing,slot,index,newFood,catalog,goal){
@@ -242,6 +248,8 @@ export function replaceFlexibleFood(existing,slot,index,newFood,catalog,goal){
  if(!meal||!found||!Number.isInteger(index)||index<0||index>=meal.items.length||
   meal.items.some((x,j)=>j!==index&&x.id===found.id))throw Error('Alternativa no disponible o duplicada.');
  const [min,max]=guidedPortionBounds(found.id),prior=meal.items[index];
- meal.items[index]={...ensureSource(found,Math.max(min,Math.min(max,newFood.qty??prior.qty))),locked:true};
+ const item=ensureSource(found,Math.max(min,Math.min(max,newFood.qty??prior.qty)));
+ item.qty=normalizeGuidedCountableQuantity(item);
+ meal.items[index]={...item,locked:true};
  return rebalanceGuidedDay(next,goal);
 }

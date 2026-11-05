@@ -63,3 +63,51 @@
 .zico-group-photo{height:42px;width:42px;object-fit:cover;border-radius:12px;vertical-align:middle}
 .zico-game-photo{height:68px;width:68px;object-fit:cover;border-radius:16px;vertical-align:middle}
 @media(max-width:520px){.zico-photo img{max-height:275px}.zico-group-photo{height:35px;width:35px}.zico-game-photo{height:58px;width:58px}}
+
+/* Mantener el inicio arriba cuando cambia la barra del navegador móvil. */
+@media(max-width:850px){
+ body,#app{min-height:100vh;min-height:100svh}
+ .topbar{margin:0 auto;flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-bottom:12px;padding-left:max(20px,env(safe-area-inset-left,0px))}
+ #main{min-width:0;padding-top:10px;padding-right:max(20px,env(safe-area-inset-right,0px));padding-left:max(20px,env(safe-area-inset-left,0px))}
+ .footer{padding-right:max(20px,env(safe-area-inset-right,0px));padding-bottom:max(20px,env(safe-area-inset-bottom,0px));padding-left:max(20px,env(safe-area-inset-left,0px))}
+ .brand,.brand>span:last-child,.hero-copy,.play-layout,.question-card,.section-top>div{min-width:0}
+ .brand-symbol,.family-link{flex-shrink:0}
+ .answer-btn,.game-card,.category-chip{min-width:0;overflow-wrap:anywhere}
+ .answer-btn>span:last-child{min-width:0}
+ /* La ayuda no debe heredar el tamaño y los márgenes del párrafo principal. */
+ .hero-copy>.helper{font-size:16px;line-height:1.45;margin-bottom:0}
+}
+
+@media(max-width:520px){
+ .topbar{padding-top:max(10px,env(safe-area-inset-top,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:10px;padding-left:max(16px,env(safe-area-inset-left,0px));gap:10px;flex-wrap:wrap}
+ .brand{max-width:100%}
+ .family-link{min-height:48px}
+ #main{padding-top:8px;padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:24px;padding-left:max(16px,env(safe-area-inset-left,0px))}
+ .hero{gap:16px;align-items:start}
+ .hero h1{margin-bottom:16px}
+ .hero-copy>p{line-height:1.45;margin-bottom:20px}
+ .hero-copy>.helper{margin-top:16px;margin-bottom:0}
+ .hero-art{min-height:0;height:clamp(160px,48vw,210px);max-height:none;border-radius:30px}
+ .hero-art svg{width:auto;height:100%;max-width:90%;max-height:200px}
+ .hero-art .bubble{width:54px;height:54px;font-size:27px}
+ .section-top{gap:12px;margin-bottom:18px}
+ /* La etiqueta y la barra se apilan entre sí, no debajo de Terminar. */
+ .toolbar{gap:8px;margin-bottom:12px}
+ .toolbar>.subtle-button{min-height:52px;padding:10px 14px}
+ .progress{min-width:0;margin-left:auto;flex-direction:column;align-items:flex-end;gap:5px;font-size:14px}
+ .track{width:112px;max-width:100%;height:10px}
+ .question-card{padding:18px 14px 22px}
+ .big-illustration{width:88px;height:88px;margin-bottom:12px;border-radius:26px;font-size:52px}
+ .question-card .eyebrow{margin-bottom:8px;letter-spacing:.04em}
+ .question-card h2{margin-bottom:12px;overflow-wrap:break-word}
+ .question-card>p{margin-bottom:0}
+ .answer-list{gap:10px;margin-top:16px}
+ .answer-btn{min-height:70px;padding:12px;gap:10px;line-height:1.3}
+ .answer-letter{flex-basis:40px;height:40px;border-radius:13px}
+ .answer-picture{font-size:36px;min-width:44px}
+ .controls{margin-top:18px}
+ .response-card{margin-top:16px;padding:16px}
+ .zico-photo{margin:12px auto 16px}
+ .zico-photo img{max-height:220px}
+ .footer{padding-top:16px;padding-right:max(16px,env(safe-area-inset-right,0px));padding-left:max(16px,env(safe-area-inset-left,0px))}
+}

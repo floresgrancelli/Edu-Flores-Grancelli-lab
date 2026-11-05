@@ -525,7 +525,7 @@ html,body{max-width:100%;overflow-x:clip}
 @media(max-width:720px){
  .efg-role-student .pilot-nav{overflow-x:visible;gap:3px;padding-inline:8px}
  .efg-role-student .pilot-nav button.navitem{flex:1 1 0;min-width:0;max-width:none;min-height:56px;padding:7px 2px}
- body .pilot-layout.efg-role-student .pilot-nav button.navitem .nav-label{white-space:nowrap!important;overflow-wrap:normal;word-break:normal;hyphens:none;font-size:11px!important;line-height:1.2!important;letter-spacing:0;text-transform:none}
+ body .pilot-layout.efg-role-student .pilot-nav button.navitem .nav-label{white-space:nowrap!important;overflow-wrap:normal;word-break:normal;hyphens:none;font-size:11px!important;line-height:1.2!important;letter-spacing:0}
  .efg-role-student .pilot-nav button.navitem.active{background:#d9eee3;color:#124d3b;font-weight:800}
  .efg-role-student .pilot-nav button.navitem:focus-visible{outline:3px solid #246c58;outline-offset:-3px}
  .efg-role-student .pilot-main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}

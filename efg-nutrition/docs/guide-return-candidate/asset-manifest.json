@@ -81,7 +81,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "3d05968c3de31ecd14293086f1ac069cd4460cec7dc0f2b05619823f370544c3",
     "efg-nutrition/pilot/pilot-participation-client.js": "c224bbdeaf3065b582d41ee4455588ca6aa6eba5120944b7ee9cd9f1dd3e3be3",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "4d7eb46c39515a55609ec64cf97bf94d47b83cdded3ece39467e6d9f318efa32",
+    "efg-nutrition/pilot/pilot.js": "0cfdc4f34a546caa02484016a728732db5e9485d05c8a19ba6fdb32ba8a4b0ad",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/progress-charts.js": "18c6d14dcb87767169a3adc66320cb68966b53af0339531d43bb86f165a3b148",
     "efg-nutrition/pilot/pull-refresh.js": "e7342b7197852a74058b16e8c7ae6f80ce72ed59e5a0e0fc078e82b5fd74f29c",
@@ -105,7 +105,7 @@
     "efg-nutrition/pilot/weekly-luxury-report.js": "3f73d85214852df9de3edb0bd19f83dcf9292f544daf454c89f3d639ec752504",
     "efg-nutrition/pilot/weekly-metrics.js": "182dad0fe39f1efbf3824e9438ac1474e7cda6c427275c664a805c203257e5e6",
     "efg-nutrition/pilot/index.html": "2c364e14acdd30db022e6d124afb41fd2991656870e4af5250a2d8d3dd39a0c3",
-    "efg-nutrition/pilot/premium-system.css": "8188d8a37578d3e1e327de94c58b2a77339d8a59b430bbe1876d08ff19434d2f",
+    "efg-nutrition/pilot/premium-system.css": "b7f411e4e1899a3b3520e3f2643511a41e3b4d7248d3958972ef79f5e2682cc0",
     "efg-nutrition/pilot/coach-catalog-guide.js": "4a9741896bd21bb1588f78392ba8c2fff4c9a0dfc2cddc506233362b56a5aaa9"
   },
   "stylesheets": [
@@ -171,7 +171,7 @@
     },
     {
       "path": "efg-nutrition/pilot/premium-system.css",
-      "sha256": "8188d8a37578d3e1e327de94c58b2a77339d8a59b430bbe1876d08ff19434d2f",
+      "sha256": "b7f411e4e1899a3b3520e3f2643511a41e3b4d7248d3958972ef79f5e2682cc0",
       "url": "./premium-system.css?v=ncc-android-nav-20261105-r8"
     },
     {

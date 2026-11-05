@@ -560,15 +560,23 @@ function compatibilityPattern(){
   :state.coachIntakeForms?.[state.selectedStudent]?.dietary_pattern;
  return profilePatternForCompatibility(pattern);
 }
+function ownsCoachHealthWorkspace(){
+ const profile=state.profile,actor=state.session?.user?.id,org=state.org;
+ // Match the backend's coach_has_student: administrators act as coaches only
+ // in their own test organization. This never grants access to foreign students.
+ return !!actor&&profile?.active===true&&profile.user_id===actor&&
+  !!org?.id&&org.coach_id===actor&&
+  (profile.role==='coach'||profile.role==='admin'&&org.is_test===true);
+}
 function foodCompatibilityRestrictions(){
  if(!PRIVATE_HEALTH_DECLARATION_UI_ENABLED)return [];
  if(state.profile?.role==="student")return state.foodRestrictionReader.current().restrictions;
  const h=state.coachGuideHealth;
- if(state.profile?.role==="coach"&&h?.studentId===state.selectedStudent&&
+ if(ownsCoachHealthWorkspace()&&h?.studentId===state.selectedStudent&&
   h.viewerId===state.session?.user?.id&&h.consentVerified===true&&h.shared===true&&
   state.consent?.accepted===true&&state.coachIntakeForms?.[state.selectedStudent]?.shared_at)
   return h.restrictions;
- return state.profile?.role==="coach"?['health_status_unknown']:[];
+ return ['coach','admin'].includes(state.profile?.role)?['health_status_unknown']:[];
 }
 function foodTrafficLight(food){
  if(!FOOD_COMPATIBILITY_ENABLED)return {symbol:"",color:"neutral",details:"",canRecord:true};
@@ -3702,8 +3710,7 @@ async function loadStudentDetail(studentId){
    organizationId:loaded.organizationId,epoch:contextEpoch};
   state.coachSharedRecipes=loaded.recipes;
  }
- if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.profile?.role==="coach"&&state.profile.active===true&&
-    state.profile.user_id===coachId&&state.org?.coach_id===coachId&&
+ if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&ownsCoachHealthWorkspace()&&
     c.data?.accepted===true&&state.coachIntakeForms?.[studentId]?.shared_at){
   // General follow-up alone never starts a clinical read. Independent health
   // permissions and the identities in the server response must also match.

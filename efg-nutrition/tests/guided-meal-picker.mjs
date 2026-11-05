@@ -1,4 +1,4 @@
-import './approved-release-flags.mjs';
+import {expectedAssetVersion} from './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {GUIDED_MEAL_GROUPS,GUIDED_MEAL_SLOTS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "../pilot/guided-meal-picker.js";
@@ -35,10 +35,10 @@ assert.match(src,/d\.skipped\._guidedComponents\[slot\]/);
 assert.match(src,/const guidedPanel=guided\?/);
 assert.match(src,/data-mealsuggestion/,"food results must be actionable");
 assert.match(src,/pickMealSearchSuggestion\(el\.dataset\.mealsuggestion\)/,"suggestions must reach real food selection");
-assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/,"force versioned meal picker script on release");
+assert.ok(html.includes("pilot.js?v="+expectedAssetVersion),"force pinned candidate/release meal picker script");
 assert.match(src,/Grasas registradas en esta comida/);
-assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/);
-assert.match(src,/guided-meal-picker\.js\?v=ncc-pilot-3a40474052be/);
+assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/); // Unchanged CSS keeps its historical version; exact hash checked above.
+assert.ok(src.includes("guided-meal-picker.js?v="+expectedAssetVersion));
 assert.match(weekly,/draw\("ideal","OBJETIVO CUMPLIDO · ±5%"/);
 assert.doesNotMatch(weekly,/ZONA IDEAL · ±5%|OBJETIVO CUMPLIDO · ±10%|WEEKLY_RANGES\.acceptable/);
 assert.match(weekly,/const acceptable=ideal;/);
@@ -70,8 +70,8 @@ for(const slot of ["media_manana","media_tarde","merienda"])
 assert.match(src,/educationalGuideSections\(meal,groupIdFor\)/);
 assert.match(src,/foodRow\(food,index\)/,"coach must edit original indexed food");
 assert.match(src,/data-guidefoodgroup/,"educational groups must reach the actual coach/student renderer");
-assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/);
-assert.match(src,/guide-meal-education\.js\?v=ncc-pilot-3a40474052be/);
+assert.match(html,/guided-meal-picker\.css\?v=ncc-pilot-3a40474052be/); // Unchanged CSS keeps its historical version; exact hash checked above.
+assert.ok(src.includes("guide-meal-education.js?v="+expectedAssetVersion));
 // ANDROID-GBOARD-02: keyboard Enter used by an IME is NOT a user food selection.
 const keyboardStart=src.indexOf('document.addEventListener("keydown",event=>{');
 const keyboardEnd=src.indexOf('root.addEventListener("submit"',keyboardStart);
@@ -86,3 +86,4 @@ assert.match(keyboard,/if\(event\.key==="Escape"\)/,
 console.log("PASS ANDROID-GBOARD-02: IME Enter protected; physical Android Gboard QA still required.");
 console.log("PASS UX-GUIDE-01: coach/student shared guide main meals by group, originals intact; snacks classic; mixed food once; macro totals unchanged.");
 console.log("PASS: guided only breakfast/lunch/dinner; mixed plates counted once incl fats; optional skip, all other foods accessible; snacks remain classic; one 5% weekly bar.");
+

@@ -3,7 +3,7 @@
 // No diagnoses, no automatic diets, no medical guarantees, no server writes.
 // Clinical data require a distinct server-owned RLS table + explicit consent
 // before this draft can become an active Coach intake or food compatibility UI.
-import {assessDietarySignal} from './dietary-traffic-light.js?v=ncc-pilot-3a40474052be';
+import {assessDietarySignal} from './dietary-traffic-light.js?v=ncc-guide-return-20261105-r6';
 export const GUT_CLINICAL_INTAKE_ENABLED=false;
 export const GUT_CONDITIONS=Object.freeze([
  Object.freeze({id:'lactose_intolerance',label:'Intolerancia a la lactosa',

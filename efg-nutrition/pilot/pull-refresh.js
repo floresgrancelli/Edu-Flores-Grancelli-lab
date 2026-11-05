@@ -28,7 +28,7 @@ export function createPullToRefresh({canRefresh,refresh,threshold=82}){
  function isDashboardContent(el){
   // A touch beginning on MI DÍA's cards, graphs or food rows is always a scroll
   // gesture, including when the card happens to lie within the first 110px.
-  return !!el?.closest?.('.efg-pastel-day,.efg-progress-dashboard,.efg-meal-guidance,.meal-popup,.efg-guide-student,.efg-meal-card,.efg-food-row');
+  return !!el?.closest?.('.efg-pastel-day,.efg-progress-dashboard,.efg-meal-guidance,.meal-popup,.efg-guide-student,.efg-meal-card,.efg-food-row,#coachGuidedSlot,.efg-coach-atomic-draft,.efg-guide-preview');
  }
  function isEditable(el){
   return !!el?.closest?.('input,textarea,select,[contenteditable=""],[contenteditable="true"],[role="dialog"],dialog[open],.efg-notify-popup,.efg-message-history,.efg-inbox-full');

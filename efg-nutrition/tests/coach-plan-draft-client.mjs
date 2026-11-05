@@ -218,16 +218,17 @@ assert.match(app,/COACH_ATOMIC_PLAN_UI_ENABLED&&state\.coachPlanDraftRecord\?\.g
  "Reopened private draft must show the same approved catalog");
 assert.match(app,/guide:finalGuide/,
  "Publish must compare the food selection against the saved draft");
-// A server-side commit might succeed while the subsequent UI read fails.
-// The request UUID MUST remain the same until readback/render completes.
+// A validated publication receipt confirms the commit; refresh failure must not invite resend.
 const pubStart=app.indexOf('async function publishCoachAtomicDraft(){');
 const pubEnd=app.indexOf('function activeCoachGuideGoal(){',pubStart);
 assert.ok(pubStart>0&&pubEnd>pubStart);
 const pub=app.slice(pubStart,pubEnd);
-assert.ok(pub.indexOf('await loadStudentDetail(studentId);await render();')>=0);
-assert.ok(pub.indexOf('state.coachPlanPublishRequestId=null;')>
- pub.indexOf('await loadStudentDetail(studentId);await render();'),
- "Do not drop an idempotency key before post-commit readback succeeds");
+assert.ok(pub.includes('state.coachPlanDraftRecord={...draft,status:"published"}'));
+assert.ok(pub.includes('state.selectedStudent=null;state.consent=null;state.tab="coachStudents"'));
+assert.ok(pub.includes('return {status:"published",viewUpdated:false}'));
+assert.ok(pub.includes('state.tab!==originTab||!coachDraftWorkspaceCurrent('));
+assert.ok(pub.indexOf('state.coachPlanPublishRequestId=null;')>pub.indexOf('await coachDraftClient.publish('),
+ 'Clear the retry key only after a validated server receipt; RPC rejection retains it');
 assert.match(pub,/state\.coachPlanPublishRequestId=state\.coachPlanPublishRequestId\|\|createCoachPublicationRequestId\(\)/,
  "Retry must reuse the original request ID");
 const requestIdSource=app.slice(app.indexOf('function createCoachPublicationRequestId('),pubStart);
@@ -263,3 +264,4 @@ for(const moved of [false,true]){
  assert.match(ctx.coachPublicationFailureMessage({}),/No se confirmó/);
 }
 console.log('PASS P29G: persistent publication error, safe fallback, retry key retained and stale workspace response ignored.');
+

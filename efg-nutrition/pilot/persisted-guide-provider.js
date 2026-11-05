@@ -1,6 +1,6 @@
 // Authenticated transport only. Not wired into pilot.js; no synthetic:true bypass.
-import {recipeProjection,serverCompatibilityFrame} from './server-compatibility-client.js?v=ncc-pilot-3a40474052be';
-import {createCoachHealthResponseProvider} from './coach-health-response-provider.js?v=ncc-pilot-3a40474052be';
+import {recipeProjection,serverCompatibilityFrame} from './server-compatibility-client.js?v=ncc-guide-return-20261105-r6';
+import {createCoachHealthResponseProvider} from './coach-health-response-provider.js?v=ncc-guide-return-20261105-r6';
 export function createPersistedGuideProvider({client,readScope,template,clinical=false}){
  let generation=0,accepted=null;
  const key=s=>s&&JSON.stringify([s.userId,s.sessionId,s.studentId,s.organizationId,s.sourceEpoch]);

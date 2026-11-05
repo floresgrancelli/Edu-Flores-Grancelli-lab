@@ -24,7 +24,7 @@ permissions:
 jobs:
   browser-visual-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -134,7 +134,7 @@ jobs:
           node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: NCC P21/P22 staged overlay boot and module journey in Chromium (LOCAL, NO GO)
         run: EFG_QA_P20_OVERLAY=1 EFG_QA_P22_FLOW=1 node efg-nutrition/tests/ncc-pilot-pre-go-browser-boot.mjs
-      - name: Guide mobile preview and direct send (synthetic transport)
+      - name: Guide mobile preview and direct send (Chromium, synthetic transport)
         run: node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: New pilot privacy and versioned intake in actual app (isolated Chromium)
         run: node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
@@ -172,8 +172,8 @@ jobs:
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: NCC P21/P22 staged overlay boot and module journey in Safari WebKit (LOCAL, NO GO)
         run: EFG_QA_P20_OVERLAY=1 EFG_QA_P22_FLOW=1 EFG_QA_ENGINE=webkit node efg-nutrition/tests/ncc-pilot-pre-go-browser-boot.mjs
-      - name: Guide mobile preview and direct send (synthetic transport)
-        run: node efg-nutrition/tests/guide-preview-mobile.mjs
+      - name: Guide mobile preview and direct send (WebKit, synthetic transport)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: New pilot privacy and versioned intake in actual app (isolated WebKit)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs
       - name: BRAND-78 public wordmark responsive WebKit Safari (synthetic)
@@ -199,7 +199,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: efg-nutrition-premium-visual-qa
-          path: artifacts/premium-visual-qa/
+          path: |
+            artifacts/premium-visual-qa/
+            artifacts/guide-preview/
           if-no-files-found: warn
           retention-days: 14
       - name: Confirm release remains manual

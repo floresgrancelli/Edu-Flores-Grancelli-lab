@@ -2,7 +2,7 @@
 import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve,extname} from 'node:path';
-import {chromium} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import assert from 'node:assert/strict';
 const base=process.cwd(),out=resolve('artifacts/guide-preview');mkdirSync(out,{recursive:true});
 const server=createServer((req,res)=>{try{
@@ -12,7 +12,9 @@ const server=createServer((req,res)=>{try{
  res.writeHead(200,{'content-type':({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(file)]||'application/octet-stream'});res.end(bytes);
 }catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const browser=await chromium.launch({headless:true,...(process.env.EFG_CHROME_PATH?{executablePath:process.env.EFG_CHROME_PATH}:{})});
+const engine=process.env.EFG_QA_ENGINE||'chromium';
+assert.ok(['chromium','webkit'].includes(engine),'Unsupported QA engine');
+const browser=await ({chromium,webkit}[engine]).launch({headless:true,...(engine==='chromium'&&process.env.EFG_CHROME_PATH?{executablePath:process.env.EFG_CHROME_PATH}:{})});
 const results=[];
 try{for(const width of [360,390,1280]){
  const ctx=await browser.newContext({viewport:{width,height:850}});
@@ -51,13 +53,13 @@ try{for(const width of [360,390,1280]){
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},breadKey),30,'1 catalog slice = 30g');
  await page.locator(`[data-guideqty="${breadKey}"]`).blur();
  const equivalent=await page.evaluate(()=>{const v=window.__GUIDE_QA__,plan=v.state.coachGuidedDraft;return JSON.stringify(v.guideTotals(plan))===JSON.stringify(v.guideTotals(v.readGuidedEditor()));});assert.equal(equivalent,true,'Portion round trip preserves all nutrition totals');
- await page.screenshot({path:resolve(out,`editor-${width}.png`),fullPage:true});
+ await page.screenshot({path:resolve(out,`editor-${engine}-${width}.png`),fullPage:true});
  await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
  assert.equal(await page.locator('#coachGuidePreview .efg-guide-meal').count(),6);
  assert.equal(await page.locator('#coachGuidePreview [data-guideqty]').count(),0);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/2 × huevo mediano/);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/Nota ficticia de prueba/);
- await page.screenshot({path:resolve(out,`preview-${width}.png`)});
+ await page.screenshot({path:resolve(out,`preview-${engine}-${width}.png`)});
  await page.getByRole('button',{name:'Volver a editar'}).click();assert.equal(await page.locator('#coachGuidePreview').count(),0);
  assert.deepEqual(await page.evaluate(()=>[trace.saves,trace.publishes]),[0,0]);
  await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
@@ -81,6 +83,6 @@ try{for(const width of [360,390,1280]){
  await page.evaluate(()=>window.__GUIDE_QA__.sendCoachGuidePreview());
  assert.equal(await page.locator('#coachGuidePreview').count(),0);assert.equal(await page.evaluate(()=>trace.loaded),true);
  assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.coachPlanPublishRequestId),null);
- results.push({width,status:'PASS',checks:['actual renderer','44px/16px controls','no overflow','exact round trip','units to grams','6-meal preview','back without writes','save failure','cancel confirmation','double click','idempotent retry','stale student rejected','successful publish/readback closes preview']});await ctx.close();
+ results.push({engine,width,status:'PASS',checks:['actual renderer','44px/16px controls','no overflow','exact round trip','units to grams','6-meal preview','back without writes','save failure','cancel confirmation','double click','idempotent retry','stale student rejected','successful publish/readback closes preview']});await ctx.close();
 }}finally{await browser.close();await new Promise(r=>server.close(r));}
-writeFileSync(resolve(out,'results.json'),JSON.stringify(results,null,2));console.log(JSON.stringify(results));
+writeFileSync(resolve(out,`results-${engine}.json`),JSON.stringify(results,null,2));console.log(JSON.stringify(results));

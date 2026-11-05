@@ -21,3 +21,9 @@ No existe target de lint/types; se ejecuta sintaxis Node y git diff --check, má
 Límites: captura IMG_1957.jpeg (Library libfile_4957c6eecd9c819196a8ff2cce86ad2d) resuelta pero materialización oficial falló dos veces (download failed, destino local explícito). No disponible para inspección de píxeles; no se eludió. QA visual realizada sobre screenshots de la app sintética. No iPhone físico ni envío autenticado alojado; no afirmar esos PASS.
 
 Validación local: 13 regresiones existentes PASS (artifacts/guide-preview/regressions.json); sintaxis de archivos modificados y diff-check PASS. Target guide-meal-education.mjs inexistente: no ejecutado. QA visual Chromium 360/390/1280 PASS, incluidos 2 huevos=100g, 1 rebanada=30g, total nutricional idéntico y publicación simulada exitosa.
+
+## Corrección de cobertura CI tras PR55
+
+Run 41939566989: Security/Premium/Auth terminaron SUCCESS; Visual CANCELLED cerca del timeout de15min, no PASS global. Logs: instalación de dependencias WebKit descargó93.1MB en6min49s. Prueba específica de guía pasó dos veces, ambas Chromium: la segunda llamada no seleccionaba motor. El smoke general WebKit y privacidad sí pasaron; pruebas posteriores omitidas.
+
+Corrección exclusiva de QA: selección explícita chromium/webkit, error ante motor desconocido, workflow con EFG_QA_ENGINE=webkit para segunda ejecución y evidencia separada por motor. Incluye artefactos de guía. Timeout Visual25min permite la instalación lenta observada sin omitir pruebas; mismas dependencias y runner existentes. Sin cambios de app/runtime, producción o permisos. CI del nuevo SHA debe cerrar antes de atribuir PASS.

@@ -49,11 +49,16 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.evaluate(()=>{
   window.scrollTo(0,0);
   const el=document.querySelector('#coachGuidedSlot .efg-guide-meal');
-  const touch=new Touch({identifier:1,target:el,clientX:100,clientY:50});
-  el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[touch]}));
-  const moved=new Touch({identifier:1,target:el,clientX:100,clientY:180});
-  const event=new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[moved]});
-  el.dispatchEvent(event);el.dispatchEvent(new TouchEvent('touchcancel',{bubbles:true,touches:[]}));
+  // Portable synthetic controller events: WebKit does not expose a public
+  // Touch constructor. These exercise the mounted listener, not physical input.
+  const touchEvent=(name,y)=>{
+   const event=new Event(name,{bubbles:true,cancelable:name==='touchmove'});
+   Object.defineProperty(event,'touches',{value:y===null?[]:[{identifier:1,target:el,clientX:100,clientY:y}]});
+   return event;
+  };
+  el.dispatchEvent(touchEvent('touchstart',50));
+  const event=touchEvent('touchmove',180);
+  el.dispatchEvent(event);el.dispatchEvent(touchEvent('touchcancel',null));
   return event.defaultPrevented;
  }),false,'Guide never claims native downward touch for pull-to-refresh');
  const eggKey=await page.evaluate(()=>{const s=window.__GUIDE_QA__.state;for(const m of s.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='egg');if(i>=0)return m.slot+':'+i;}});

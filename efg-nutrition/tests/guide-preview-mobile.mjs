@@ -37,7 +37,7 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   v.coachDraftClient.save=async payload=>{window.trace.saves++;await new Promise(r=>setTimeout(r,50));if(window.trace.failSave)throw Error('Fallo sintético de guardado');window.saved={student_id:s.selectedStudent,status:'draft',draft_revision:window.trace.saves,source_intake_updated_at:'2026-11-04',source_intake_revision:1,goal_proposal:payload.goal,guide_proposal:payload.guide};return {revision:window.trace.saves};};
   v.coachDraftClient.load=async()=>structuredClone(window.saved);
   v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Guide foods are not independently reviewed and current');};
-  v.root.className='efg-role-'+role;v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
+  v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
  },role);
  const touchEvidence={};
  const mobileTouch=engine==='chromium'&&width<720;
@@ -148,11 +148,12 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.locator('#coachGuidePreview').count(),0);assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.tab),'coachStudents');assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.selectedStudent),null);assert.equal(await page.locator('#coachRosterSection').count(),1);assert.match(await page.locator('#coachRosterSection').innerText(),/Alumno ficticio/);assert.equal(await page.evaluate(()=>document.activeElement.id),'coachRosterSection');
  assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.coachPlanPublishRequestId),null);
  if(width<720){
+  await page.locator('#pilot-toast').waitFor({state:'hidden'});
   for(const route of ['private','review','ready']){
    await page.evaluate(route=>{const v=window.__GUIDE_QA__;v.state.profile={role:'student',active:true,nickname:'Alumno ficticio'};v.state.coachPilotEntry={route};v.state.tab='studentMore';v.frame(v.studentMoreView());},route);
    const nav=page.locator('.pilot-nav .navitem');assert.ok(await nav.count()<=5);
-   const geometry=await nav.evaluateAll(nodes=>nodes.map(n=>{const b=n.getBoundingClientRect(),l=n.querySelector('.nav-label');return {w:b.width,h:b.height,label:l.textContent,nowrap:getComputedStyle(l).whiteSpace,icon:n.querySelector('svg').innerHTML};}));
-   for(const g of geometry){assert.ok(g.w>=44&&g.h>=44,JSON.stringify(g));assert.equal(g.nowrap,'nowrap');}
+   const geometry=await nav.evaluateAll(nodes=>nodes.map(n=>{const b=n.getBoundingClientRect(),l=n.querySelector('.nav-label');return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom,labelWidth:l.clientWidth,labelScroll:l.scrollWidth,label:l.textContent,nowrap:getComputedStyle(l).whiteSpace,icon:n.querySelector('svg').innerHTML};}));
+   for(const g of geometry){assert.ok(g.w>=44&&g.h>=44,JSON.stringify(g));assert.equal(g.nowrap,'nowrap');assert.ok(g.x>=0&&g.right<=width+1&&g.y>=0&&g.bottom<=850+1,JSON.stringify(g));assert.ok(g.labelScroll<=g.labelWidth+1,JSON.stringify(g)+' complete label fits');}
    assert.equal(new Set(geometry.map(g=>g.icon)).size,geometry.length,'Distinct icons');
    assert.equal(await page.locator('.pilot-nav [aria-current="page"]').getAttribute('data-tab'),'studentMore');
    const paths=await page.evaluate(()=>window.__GUIDE_QA__.studentSecondaryNavigation().map(x=>x[0]));

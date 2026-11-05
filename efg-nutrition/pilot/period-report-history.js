@@ -1,4 +1,4 @@
-import {periodReportAsStoredText,parseLuxuryPeriodReport} from './period-luxury-report.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {periodReportAsStoredText,parseLuxuryPeriodReport} from './period-luxury-report.js?v=ncc-pilot-3a40474052be-android-r8';
 // Database RLS decides access. The client retains a request ID across retries.
 export function createPeriodReportHistory({sb,context}){
  let pending=false;

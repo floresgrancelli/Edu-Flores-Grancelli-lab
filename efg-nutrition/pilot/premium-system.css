@@ -518,3 +518,13 @@
 .coach-student-profile .efg-consistency-head{flex-wrap:wrap}
 .coach-student-profile .efg-consistency-head strong{white-space:nowrap;flex-shrink:0}
 .coach-student-profile .efg-progress-panel h3,.coach-student-profile .efg-meal-legend{overflow-wrap:normal;word-break:normal}
+
+/* Student navigation: readable labels and stable touch targets on narrow screens. */
+@media(max-width:720px){
+ .efg-role-student .pilot-nav{overflow-x:visible;gap:3px;padding-inline:8px}
+ .efg-role-student .pilot-nav button.navitem{flex:1 1 0;min-width:0;max-width:none;min-height:56px;padding:7px 2px}
+ .efg-role-student .pilot-nav .nav-label{white-space:nowrap;overflow-wrap:normal;word-break:normal;font-size:11px;line-height:1.2}
+ .efg-role-student .pilot-nav button.navitem.active{background:#d9eee3;color:#124d3b;font-weight:800}
+ .efg-role-student .pilot-nav button.navitem:focus-visible{outline:3px solid #246c58;outline-offset:-3px}
+ .efg-role-student .pilot-main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+}

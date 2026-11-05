@@ -1,10 +1,10 @@
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-android-r8";
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-android-r8";
+import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-android-r8";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=true;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

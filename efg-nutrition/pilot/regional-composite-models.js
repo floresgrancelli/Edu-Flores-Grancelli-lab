@@ -3,7 +3,7 @@
 // Las bases de pizza, alga, vinagre y azúcar son proxies ESTIMADOS; el arroz es ya cocido.
 // Cada ingrediente y el rendimiento final SUPUESTO se muestran al usuario.
 // No modifica la comida histórica persistida, solo los modelos de la sesión actual.
-import {calculateRecipeModel} from "./recipe-models.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {calculateRecipeModel} from "./recipe-models.js?v=ncc-pilot-3a40474052be-android-r8";
 
 const PROXIES=Object.freeze([
  {id:"pizza_base_efg",name:"Base de pizza horneada genérica (sin toppings, PROXY)",unit:"g",k:2.65,p:.085,c:.50,f:.03,fi:.022,sourceType:"generic_estimate"},

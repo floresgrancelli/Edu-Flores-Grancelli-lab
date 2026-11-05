@@ -3,8 +3,8 @@
 // All reads MUST be server-authenticated/RLS verified. Never infer consents
 // from OTP, existing goals, a legacy intake or the locally saved form.
 // Medical conditions are NOT stored or shared by this module.
-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8';
+import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-3a40474052be-android-r8';
 export const COACH_STUDENT_JOURNEY_ENABLED=true;
 export const COACH_STUDENT_JOURNEY_STEPS=Object.freeze([
  {id:'participation',label:'Participación y autorización de compartir ficha'},

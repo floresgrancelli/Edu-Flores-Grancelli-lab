@@ -1,82 +1,82 @@
-import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadPilotReviewedGuide} from "./coach-reviewed-sources.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-android-r8";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-android-r8";
+import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-android-r8";
+import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-android-r8";
+import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-android-r8";
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-android-r8';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-android-r8";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-guide-return-r6";
-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-android-r8";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-android-r8";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-android-r8";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-android-r8";
+import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-android-r8";
+import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-android-r8";
+import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-android-r8";
+import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-android-r8";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-android-r8";
+import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-android-r8";
+import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-android-r8";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-android-r8";
+import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-android-r8";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-android-r8";
+import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-android-r8";
+import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-android-r8";
+import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-android-r8";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-android-r8";
+import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-android-r8";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-android-r8";
+import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-android-r8";
+import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-android-r8";
+import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-android-r8";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-android-r8";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-android-r8";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-android-r8";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-android-r8";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-android-r8";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-android-r8";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-android-r8";
+import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-android-r8";
+import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-android-r8";
+import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-android-r8";
+import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-android-r8";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-android-r8";
+import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-android-r8";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-android-r8";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-android-r8";
+import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-android-r8";
+import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-android-r8";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -1190,6 +1190,12 @@ function option(items){return items.map(v=>'<option value="'+escapeHTML(v.id)+'"
 function roleLabel(){return {admin:"Administrador EFG",coach:"Entrenador",student:"Alumno"}[state.profile?.role]||"";}
 function efgNavIcon(tab){
  const p={
+ history:'<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v5l3 2"/>',
+ intake:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h6"/>',
+ messages:'<path d="M4 3h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6 4V4a1 1 0 0 1 1-1zM7 8h10M7 12h7"/>',
+ privacy:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/>',
+ privateHealth:'<path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7zM12 8v8M8 12h8"/>',
+
  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
  planner:'<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18m-12 5h6m-3-3v6"/>',
  weight:'<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>',
@@ -1210,20 +1216,39 @@ function efgAvatarLetters(name){
  const w=String(name||"").trim().split(/\s+/).filter(Boolean);
  return (w.length>1?w.slice(0,2).map(x=>x.slice(0,1)).join(""):(w[0]||"EF").slice(0,2)).toLocaleUpperCase("es-AR");
 }
+function studentRestrictedNavigation(){
+ return studentPlanPending()||(COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
+}
+function studentHealthNavigation(){
+ return COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&["private","review","ready"].includes(state.coachPilotEntry?.route);
+}
+function studentPrimaryNavigation(){
+ if(studentRestrictedNavigation())return (COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route)?[["history","","Historial"]]:[]).concat([["intake","","Ficha"],["messages","","Mensajes"],["studentMore","","Más"]]);
+ return [["home","","Mi día"],["planner","","Planificar"],["weight","","Progreso"],["nutritionScience","","Aprender"],["studentMore","","Más"]];
+}
+function studentSecondaryNavigation(){
+ const entries=studentRestrictedNavigation()?[
+ ["nutritionScience","","Nutrición Con-Ciencia","lilac"],["privacy","","Privacidad y permisos","cream"]]:[
+ ["notifications","","Notificaciones","peach"],["messages","","Mensajes con mi coach","blue"],["recipes","","Mis recetas","mint"],["supplements","","Suplementos","lilac"],["sport","","Actividad física","peach"],["summaries","","Informes semanales","blue"],["nutritionScience","","Nutrición Con-Ciencia","lilac"],["privacy","","Privacidad y permisos","cream"],["payments","","Mis pagos","mint"],
+ ["intake","","Mi ficha inicial","cream"]];
+ if(studentHealthNavigation())entries.push(["privateHealth","","Mis restricciones (opcional)","mint"]);
+ return entries;
+}
+function studentPendingTabAllowed(tab){
+ return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation());
+}
 function frame(content){
  const role=state.profile.role;
  const menu=role==="student"
-  ?(COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route)?[["history","⌂","Mi historial"],["intake","▣","Mi ficha"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:studentPlanPending()?[["intake","▣","Mi ingreso"],["messages","◉","Mensajes"],["nutritionScience","✦","Nutrición Con-Ciencia"],["privacy","♙","Privacidad"]]:[["home","⌂","MI DÍA"],["planner","✧","Planificar"],["weight","↗","Progreso"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","Más"]])
+  ?studentPrimaryNavigation()
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
- const visibleMenu=role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&
-  ["private","review","ready"].includes(state.coachPilotEntry?.route)
-  ?menu.concat([["privateHealth","◌","Mis restricciones"]]):menu;
- const moreTabs=["recipes","supplements","summaries","privacy","sport","payments"];
- const activeTab=(role==="student"&&moreTabs.includes(state.tab))?"studentMore":role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
+ const visibleMenu=menu;
+ const primaryTabs=menu.map(m=>m[0]);
+ const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
+ visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
  pilotGuideLifecycle.mountStudent(root);
@@ -1365,6 +1390,7 @@ function versionCheckCard(){
 /* Iconografía consistente: SVG vectorial con acabado metal cepillado via CSS.
    El tercer campo de las entradas se mantiene; no se alteran destinos o permisos. */
 function efgMenuIcon(kind){
+ if(["history","intake","privateHealth"].includes(kind))return efgNavIcon(kind);
  const paths={
   adminManage:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.7l-1.5 1.5a1.6 1.6 0 0 0-1.7-.3l-1.2.5a1.6 1.6 0 0 0-1 1.4V21h-4v-1.2a1.6 1.6 0 0 0-1-1.4l-1.2-.5a1.6 1.6 0 0 0-1.7.3l-1.5-1.5a1.6 1.6 0 0 0 .3-1.7l-.5-1.2a1.6 1.6 0 0 0-1.4-1H3v-4h1.2a1.6 1.6 0 0 0 1.4-1l.5-1.2a1.6 1.6 0 0 0-.3-1.7l1.5-1.5a1.6 1.6 0 0 0 1.7.3l1.2-.5a1.6 1.6 0 0 0 1-1.4V3h4v1.2a1.6 1.6 0 0 0 1 1.4l1.2.5a1.6 1.6 0 0 0 1.7-.3l1.5 1.5a1.6 1.6 0 0 0-.3 1.7l.5 1.2a1.6 1.6 0 0 0 1.4 1H21v4h-1.2a1.6 1.6 0 0 0-1.4 1z"/>',
   notifications:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
@@ -1401,9 +1427,9 @@ function coachPersonalMoreView(){
  ]);
 }
 function studentMoreView(){
- return premiumMenuView("Mi espacio","Elegí la herramienta que necesitás. Todo está disponible sin recorrer una página interminable.",[
- ["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes con mi coach","blue"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Suplementos","lilac"],["sport","🏃","Actividad física","peach"],["summaries","📋","Informes semanales","blue"],["nutritionScience","🧠","Nutrición Con-Ciencia","lilac"],["privacy","🔒","Privacidad y permisos","cream"],["payments","💳","Mis pagos","mint"]]);
+ return premiumMenuView("Mi espacio","Tus opciones y permisos, en un solo lugar.",studentSecondaryNavigation());
 }
+
 function fitRecipeCard(recipe){
  const data=recipeTotals(recipe,foods),p=data.perPortion;
  const photo=FIT_RECIPE_PHOTOS[recipe.id];
@@ -2725,8 +2751,10 @@ async function saveCoachAtomicDraft({quiet=false}={}){
 let coachGuidePreview=null,coachGuideSendBusy=false;
 function closeCoachGuidePreview(){
  if(coachGuideSendBusy)return;
- document.getElementById('coachGuidePreview')?.remove();coachGuidePreview=null;
- root.querySelector('[data-act="previewCoachGuide"]')?.focus();
+ const dialog=document.getElementById('coachGuidePreview');
+ if(dialog?.open)dialog.close();
+ dialog?.remove();coachGuidePreview=null;
+ root.querySelector('[data-act="previewCoachGuide"]')?.focus({preventScroll:true});
 }
 async function previewCoachGuide(){
  if(coachGuideSendBusy)return;
@@ -3326,6 +3354,7 @@ async function render(){
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
+    else if(state.tab==="studentMore")frame(studentMoreView());
     else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();
@@ -3360,7 +3389,7 @@ async function render(){
  }
  if(state.welcomePending)return welcomeView();
  if(state.profile.role==="student"&&COACH_STUDENT_JOURNEY_ENABLED&&PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")return renderPrivateHealthDeclaration();
- if(studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(state.tab))state.tab="intake";
+ if(studentPlanPending()&&!studentPendingTabAllowed(state.tab))state.tab="intake";
  const viewKey=activeViewKey(),snapshot=captureViewContinuity(viewKey);
  await ensureCurrentDay();
  if((state.authContextEpoch||0)!==renderEpoch)return;
@@ -4054,7 +4083,7 @@ async function mainClick(event){
   // El primer toque de navegación o de abrir una comida NO se descarta.
   // No continuar acciones que pudieran confirmar formularios antiguos.
   if(el.dataset.setmeal){if(studentPlanPending()){state.tab="intake";await render();return;}openMealDialog(el.dataset.setmeal);return;}
-  if(el.dataset.tab){state.tab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  if(el.dataset.tab){state.tab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
   return;
  }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
@@ -4073,7 +4102,7 @@ async function mainClick(event){
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:"smooth",block:"start"});}return;}
  if(el.dataset.tab){
-  const nextTab=studentPlanPending()&&!["intake","messages","nutritionScience","privacy","notifications"].includes(el.dataset.tab)?"intake":el.dataset.tab;
+  const nextTab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;
   if(["coachIntake","coachStudents"].includes(nextTab))await refreshCoachRosterForView();
   state.tab=nextTab;
   if(state.tab==="payments")await loadOrgAndPayments();

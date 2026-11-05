@@ -1,7 +1,7 @@
 // Explicit whole-food guide rules, not a guess from names or household labels.
 // The catalog remains the only source of grams per unit. Slices, scoops and
 // recipe portions may legitimately be fractional and are not opted in here.
-import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-pilot-3a40474052be-android-r8';
 const wholeFoods=Object.freeze({egg:Object.freeze({minUnits:1,maxUnits:3})});
 export function guidedCountablePortion(id){
  if(!Object.hasOwn(wholeFoods,id))return null;

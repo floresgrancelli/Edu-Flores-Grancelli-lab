@@ -1,7 +1,7 @@
 // Private connection proposal. No RPC, listener, timer or UI created unless explicitly enabled.
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createServerCompatibilityClient} from './server-compatibility-client.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createServerCompatibilityClient} from './server-compatibility-client.js?v=ncc-pilot-3a40474052be-android-r8';
+import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-android-r8';
 export const CLINICAL_GUIDE_CONNECTION_ENABLED=false;
 export function createClinicalGuideConnection({enabled=false,client,readScope,template,clock={}}={}){
  if(!enabled)return {available:()=>false,open:async()=>{throw Error('CLINICAL_CONNECTION_OFF');},dispose(){}};

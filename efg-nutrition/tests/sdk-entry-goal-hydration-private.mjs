@@ -7,7 +7,11 @@ import {readVerifiedCoachRestrictionScope} from '../pilot/coach-guide-restrictio
 const source=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
 const start=source.indexOf('async function loadStudentDetail(studentId){'),end=source.indexOf('\nasync function refresh(){',start);
 assert.ok(start>0&&end>start);
-const healthOwnerStart=source.indexOf('function ownsCoachHealthWorkspace(){');\nconst healthOwnerEnd=source.indexOf('function foodCompatibilityRestrictions()',healthOwnerStart);\nassert.ok(healthOwnerStart>0&&healthOwnerEnd>healthOwnerStart);\nconst healthOwner=source.slice(healthOwnerStart,healthOwnerEnd);\nconst dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
+const healthOwnerStart=source.indexOf('function ownsCoachHealthWorkspace(){');
+const healthOwnerEnd=source.indexOf('function foodCompatibilityRestrictions()',healthOwnerStart);
+assert.ok(healthOwnerStart>0&&healthOwnerEnd>healthOwnerStart);
+const healthOwner=source.slice(healthOwnerStart,healthOwnerEnd);
+const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
  const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+healthOwner+source.slice(start,end)+'\nreturn loadStudentDetail;}');
  const {build}=await import(pathToFileURL(path).href);
@@ -36,7 +40,8 @@ try{
   [false,'coach',{},0,false],[true,'admin',{},0,false],[true,'coach',{},1,true],
   [true,'coach',{processing_consent:false},1,false],[true,'coach',{followup_consent:false},1,false],
   [true,'coach',{organization_id:otherOrg},1,false],[true,'coach',{viewer_id:otherCoach},1,false],
-  [true,'coach',{student_id:otherStudent},1,false],[true,'coach',{revoked:true},1,false],\n  [true,'admin',{},1,true,true],[true,'admin',{processing_consent:false},1,false,true]
+  [true,'coach',{student_id:otherStudent},1,false],[true,'coach',{revoked:true},1,false],
+  [true,'admin',{},1,true,true],[true,'admin',{processing_consent:false},1,false,true]
  ]){
   let healthReads=0;
   const state={session:{user:{id:clinicalCoach}},org:{id:clinicalOrg,coach_id:clinicalCoach,is_test:isTest===true},profile:{user_id:clinicalCoach,active:true,role},

@@ -149,7 +149,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
     assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.studentPendingTabAllowed('planner')),false,'Pending access remains restricted');
    }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'Student menu fits viewport');
-   await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+   await page.evaluate(()=>scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));
+   await page.waitForFunction(()=>scrollY+innerHeight>=document.documentElement.scrollHeight-2);
    assert.ok(await page.evaluate(()=>document.querySelector('.pilot-bottom').getBoundingClientRect().bottom<=document.querySelector('.pilot-nav').getBoundingClientRect().top),'Bottom content clears navigation');
    await page.screenshot({path:resolve(out,`nav-${engine}-${route}-${width}.png`)});
   }

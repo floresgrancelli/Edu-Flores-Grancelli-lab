@@ -105,7 +105,7 @@
     "efg-nutrition/pilot/weekly-luxury-report.js": "3f73d85214852df9de3edb0bd19f83dcf9292f544daf454c89f3d639ec752504",
     "efg-nutrition/pilot/weekly-metrics.js": "182dad0fe39f1efbf3824e9438ac1474e7cda6c427275c664a805c203257e5e6",
     "efg-nutrition/pilot/index.html": "51ba7763191c5e1b3776339d564d7c0e094676064adbe7f9baf4dedcd3f7317e",
-    "efg-nutrition/pilot/premium-system.css": "ddf4f5c0032fa66564899051311aa32e1a21362e576341fec9f5f5f4dd823dba"
+    "efg-nutrition/pilot/premium-system.css": "0f70bf6f562385d66dbb3eb09568a4085888678030b7403b7bbe485e38214a28"
   },
   "stylesheets": [
     {
@@ -170,7 +170,7 @@
     },
     {
       "path": "efg-nutrition/pilot/premium-system.css",
-      "sha256": "ddf4f5c0032fa66564899051311aa32e1a21362e576341fec9f5f5f4dd823dba",
+      "sha256": "0f70bf6f562385d66dbb3eb09568a4085888678030b7403b7bbe485e38214a28",
       "url": "./premium-system.css?v=ncc-android-nav-20261105-r8"
     },
     {

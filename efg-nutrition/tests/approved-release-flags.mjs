@@ -14,7 +14,7 @@ const candidatePath=new URL('docs/guide-return-candidate/asset-manifest.json',ro
 let candidate=null;
 if(existsSync(candidatePath)){
  const candidateBytes=readFileSync(candidatePath);
- assert.equal(createHash('sha256').update(candidateBytes).digest('hex'),'94bb4e42cd63f2ce76cdd441dcd840dadd581a10b5fb1119b29775b201f5f449','Exact private candidate manifest');
+ assert.equal(createHash('sha256').update(candidateBytes).digest('hex'),'ec382dda06cc3f40d0f3a0be6a303d0eb7fc6b84618a0dc03d9b11647d7898a2','Exact private candidate manifest');
  candidate=JSON.parse(candidateBytes);
  assert.equal(candidate.status,'RELEASE_CANDIDATE');
  assert.equal(candidate.baseline,'b373fdf5c90a920c9e1971d5c2d8c98531e0a14a');

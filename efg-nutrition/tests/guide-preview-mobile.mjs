@@ -78,7 +78,9 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),before,'Render/read preserves exact canonical quantities and note');
  const geometry=await page.locator('#coachGuidedSlot [data-guideqty],#coachGuidedSlot [data-guideswap]').evaluateAll(nodes=>nodes.map(n=>({w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height,font:parseFloat(getComputedStyle(n).fontSize)})));
  assert.ok(geometry.length>10);for(const g of geometry){assert.ok(g.w>=120&&g.h>=44&&g.font>=16,JSON.stringify(g));}
- assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'No horizontal scroll');
+ const horizontal=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,offenders:[...document.querySelectorAll('.pilot-layout *')].map(el=>({tag:el.tagName,class:el.className,id:el.id,right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,scroll:el.scrollWidth,grid:getComputedStyle(el).gridTemplateColumns})).filter(e=>e.right>innerWidth+2).sort((a,b)=>b.right-a.right).slice(0,18)}));
+ if(horizontal.document>horizontal.viewport+2){await page.screenshot({path:resolve(out,`overflow-${engine}-${role}-${width}.png`),fullPage:true});console.log(JSON.stringify({role,width,horizontal}));}
+ assert.ok(horizontal.document<=horizontal.viewport+2,JSON.stringify({role,width,horizontal})+' No horizontal scroll');
  // At the top edge, a downward gesture on guide text belongs to native scroll.
  assert.equal(await page.evaluate(()=>{
   window.scrollTo(0,0);

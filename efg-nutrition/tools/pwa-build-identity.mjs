@@ -11,7 +11,7 @@ export function assertPwaBuildIdentity(html,hotfixBytes){
  const build=builds[0][1],entry=entries[0][1];
  if(entry==='./pilot.js?v='+build)return {build,assetVersion:build};
  assert.ok(hotfixBytes,'Unregistered PWA asset identity');
- assert.equal(digest(hotfixBytes),'06a4b660547829bed045f0f4f8c974e97d39f32e13a8cf4ed30a6733e88e807e','Hotfix manifest must match the reviewed pin');
+ assert.equal(digest(hotfixBytes),'da0f3b0bf5c141814f152c569b45e757f5a78857afabb3eb702a6bb3a7bd68cf','Hotfix manifest must match the reviewed pin');
  const hotfix=JSON.parse(hotfixBytes);
  assert.equal(build,hotfix.build,'Hotfix cannot change release identity');
  assert.equal(entry,'./pilot.js?v='+hotfix.assetVersion,'PWA entry must match the pinned hotfix asset identity');

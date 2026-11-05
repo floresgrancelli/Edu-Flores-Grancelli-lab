@@ -1,0 +1,12 @@
+{
+  "baseline": "f00dc7ff6a35bd2aace22c15389caf7420457498",
+  "build": "ncc-pilot-3a40474052be",
+  "assetVersion": "ncc-pilot-3a40474052be-guide1",
+  "sha256": {
+    "efg-nutrition/pilot/index.html": "c779b3beae7454f6719f103d1fb6e58ea24dc3f4ff43a5f993d939df903ef0df",
+    "efg-nutrition/pilot/pilot.js": "caba848b4d1684ca033c572d579572f6c84d7cff71a4c7ec058ac8bb0bd2a2a0",
+    "efg-nutrition/pilot/coach-pilot-intake-client.js": "e74ac9f895b6339db2b012562c1cd4e7c5904ea87d007e61e710744c804dffa3",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "8f09d1e36eecf7a17a34661a0bdce79505e7e28da572d37397c005d63c16b028",
+    "efg-nutrition/pilot/guided-meal-picker.css": "3865dd67eebffdcea310bbc935429d556d0ea0da29635bee7ee5def3ac96ac57"
+  }
+}

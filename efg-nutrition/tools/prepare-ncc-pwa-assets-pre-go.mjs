@@ -81,7 +81,7 @@ const currentBuild=[...originalHtml.matchAll(buildPattern)].map(x=>x[2]);
 const currentEntrypoint=[...originalHtml.matchAll(entryPattern)].map(x=>x[2]);
 assert.equal(currentBuild.length,1,'PWA must have exactly one release build meta');
 assert.equal(currentEntrypoint.length,1,'PWA must have exactly one local entry module');
-const hotfixPath=join(projectDir,'docs/p30n-hotfix/asset-overrides.json');
+const hotfixPath=join(projectDir,'docs/p30o-guide/asset-overrides.json');
 assertPwaBuildIdentity(originalHtml,existsSync(hotfixPath)?readFileSync(hotfixPath):undefined);
 const styles=[...originalHtml.matchAll(cssPattern)].map(x=>x[2]);
 assert.ok(styles.length>=20,'PWA stylesheet inventory unexpectedly shrank');

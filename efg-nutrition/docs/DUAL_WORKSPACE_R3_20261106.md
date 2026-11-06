@@ -28,9 +28,17 @@ El SQL está en `proposed/`, no en migraciones activas. Exige un marcador de bas
 
 La política RLS de ese paso es un modelo de prueba, no la política completa del servicio. La verificación JWT usa un puente local escrito para el ensayo, no GoTrue/PostgREST. PGlite no demuestra concurrencia multisesión.
 
-## CI propuesta y límites pendientes
+## Evidencia CI y límites pendientes
 
-La rama de pruebas separada prepara Node/PGlite, Chromium/WebKit y una instancia local desechable de Supabase para GoTrue/PostgREST/PostgreSQL multisesión. Hasta que exista evidencia del run exacto, estas etapas son PENDIENTES, no aprobadas. El navegador local está bloqueado por el entorno; no se lo eludió.
+[Run 42257502057](https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/42257502057), sobre `f27cdab4a2f2956250fb0b16b530f602c2f4905a`, terminó SUCCESS en el primer intento. Los cuatro jobs ejecutados pasaron:
+
+- Node/PGlite: 42/42 pruebas Node, propuesta PostgreSQL WASM y compilación de fixture Auth.
+- Chromium y WebKit: demo sintética a 390 y 1280 píxeles. Alta/cupo, rechazo del tercer alumno con cupo dos, cambio de espacios, preservación del vínculo original, retiro de consentimiento personal, rechazo de identidad ajena y reinicio de sesión. Cero solicitudes externas y sin desbordamiento horizontal. Capturas móvil/desktop inspeccionadas.
+- [Auth y PostgreSQL multisesión](https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/42257502057/job/128028628713): GoTrue y PostgREST locales emitieron y validaron JWT de usuarios ficticios. Pasaron aislamiento A/B, vínculo original, rechazo anónimo y token manipulado, revocación de consentimiento/capacidad e identidad inactiva. Dos backends distintos mostraron espera real de bloqueo: el último cupo fue atómico y dos solicitudes concurrentes iguales produjeron una invitación y un recibo. La limpieza del stack temporal pasó.
+
+El servidor de Auth no imprimió su versión PostgreSQL; no se infiere. PGlite sí verificó PostgreSQL17.5. El navegador local continúa bloqueado por el entorno y no se eludió; los navegadores se ejecutaron en el runner estándar de CI autorizado.
+
+Los JWT y la concurrencia de ese job son reales dentro de un stack local desechable, pero su esquema y políticas RLS son un modelo sintético de prueba, no la base hospedada. El browser prueba la demo independiente, no el panel integrado en toda la aplicación. OTP/correo y dispositivos físicos no se probaron.
 
 El workflow dedicado usa runners estándar Ubuntu del repositorio público, `contents: read`, checkout sin credenciales persistidas, dependencias oficiales fijadas y ningún secreto del repositorio. No contiene comandos de despliegue, vínculos a proyectos hospedados ni cambios a servicios reales. Los usuarios y los tokens que genere un stack de prueba solo pertenecen a esa instancia temporal y no se publican como artefactos.
 

@@ -299,6 +299,33 @@ function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves
     plan.meals[mi].items[ii].qty=best.meals[mi].items[ii].qty;
   }
  }
+ // If the requested tolerance remains infeasible, do not hide one large
+ // nutrient miss behind several smaller squared errors. Reduce the worst real
+ // relative deviation while keeping all identities, bounds and whole counts.
+ // This does not change the target or claim that its tolerance was achieved.
+ if(searchWholeMoves&&targetTolerance!==null&&violation()>0){
+  const worstDeviation=()=>Math.max(...Object.values(guideDeviation(plan,goal))
+   .filter(d=>d.target>0).map(d=>Math.abs(d.difference/d.target)));
+  for(let iteration=0;iteration<240;iteration++){
+   let best=null,bestWorst=worstDeviation();
+   for(const meal of plan.meals)for(const item of meal.items){
+    const rule=guidedCountablePortion(item.id);
+    if(item.locked===true||item.recipeComponent===true||rule?.preserveCount)continue;
+    const [min,max,coarseStep]=bounds(item.id),step=rule?coarseStep:coarseStep/10,original=item.qty;
+    for(const delta of [-step,step]){
+     item.qty=original+delta;
+     if(item.qty>=min&&item.qty<=max){
+      const worst=worstDeviation();
+      if(worst<bestWorst-1e-12){bestWorst=worst;best={item,qty:item.qty};}
+     }
+     item.qty=original;
+    }
+   }
+   if(!best)break;
+   best.item.qty=best.qty;
+   if(bestWorst<=targetTolerance)break;
+  }
+ }
  return plan;
 }
 export function swapGuidedFood(existing,slot,index,newFoodId,catalog){

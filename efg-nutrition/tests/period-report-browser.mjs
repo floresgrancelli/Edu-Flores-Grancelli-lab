@@ -159,8 +159,14 @@ try{
   await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')));assert.equal(await page.evaluate(()=>qa.trace.inserts),1);
   await screenshot('coach-confirmed');
   const coachUrl=await page.evaluate(()=>qa.view().url);await page.evaluate(()=>qa.student());await urlRevoked(coachUrl);
-  await page.getByRole('button',{name:'Consultar historial',exact:true}).click();await page.locator('#periodHistory details').waitFor();await page.locator('#periodHistory summary').click();
-  await screenshot('student-history-html');await page.getByRole('button',{name:'Abrir PDF',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready);
+  await page.getByRole('button',{name:'Consultar historial',exact:true}).click();
+  // Each report contains its own evidence <details>; select the history row,
+  // not every nested disclosure. Keep strict uniqueness and exact period checks.
+  const historyRow=page.locator('#periodHistory > details.pilot-record');
+  await historyRow.waitFor();assert.equal(await historyRow.count(),1);
+  const historySummary=page.locator('#periodHistory > details.pilot-record > summary');
+  assert.equal(await historySummary.innerText(),'2026-10-22 — 2026-10-31');await historySummary.click();
+  await screenshot('student-history-html');await historyRow.getByRole('button',{name:'Abrir PDF',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready);
   assert.equal(await page.locator('#periodPublishButton,#periodReportReviewed').count(),0,'Student PDF is read-only');
   assert.equal(await page.evaluate(()=>qa.view().serialized),finalSnapshot);const studentPdf=await download('student');assert.deepEqual(studentPdf.bytes,approved.bytes,'Student download is byte-identical to approved coach download');
   await screenshot('student-dialog');const studentUrl=await page.evaluate(()=>qa.view().url);await page.keyboard.press('Escape');await page.locator('.period-pdf-dialog').waitFor({state:'detached'});await urlRevoked(studentUrl);

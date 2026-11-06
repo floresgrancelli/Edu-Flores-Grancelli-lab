@@ -1,0 +1,92 @@
+name: NCC report preview candidate QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/**'
+      - '.github/workflows/efg-report-preview-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  report-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install local PDF pixel test canvas
+        run: npm install --no-save --ignore-scripts @napi-rs/canvas@0.1.100
+      - name: Exact reported actions and immutable delivery contracts
+        run: |
+          node efg-nutrition/tests/approved-release-flags.mjs
+          node --test efg-nutrition/tests/guide-candidate-assets.test.mjs
+          node efg-nutrition/tests/guided-meal-picker.mjs
+          node efg-nutrition/tests/weekly-preview-regression.mjs
+          node efg-nutrition/tests/weekly-preview-state.mjs
+          node efg-nutrition/tests/weekly-report-delivery.mjs
+          node efg-nutrition/tests/weekly-luxury-editor.mjs
+          node efg-nutrition/tests/weekly-luxury-integration-contract.mjs
+          node efg-nutrition/tests/weekly-luxury-report.mjs
+          node efg-nutrition/tests/weekly-report-state-private.mjs
+          node efg-nutrition/tests/weekly-fiber-private.mjs
+          node efg-nutrition/tests/weekly-report-pdf.mjs
+          node efg-nutrition/tests/report-trend-charts.mjs
+          node efg-nutrition/tests/report-food-frequency.mjs
+          node efg-nutrition/tests/pdf-review-controller.mjs
+          node efg-nutrition/tests/period-report-access.mjs
+          node efg-nutrition/tests/period-report-history.mjs
+          node efg-nutrition/tests/period-report-ui.mjs
+          node efg-nutrition/tests/period-report.mjs
+          node efg-nutrition/tests/period-report-pdf.mjs
+          node efg-nutrition/tests/weekly-preview-browser.mjs --check-fixture
+          node efg-nutrition/tests/period-report-browser.mjs --check-fixture
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weekly-preview-pdf-pixels
+          path: |
+            artifacts/weekly-preview/
+            artifacts/report-trends/
+          retention-days: 7
+  report-browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test runtime
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Actual weekly handlers, real PDF pages, touch review and read-only history
+        env:
+          EFG_QA_ENGINE: ${{ matrix.engine }}
+        run: node efg-nutrition/tests/weekly-preview-browser.mjs
+      - name: Full app DOM with real navbar and weekly plus admin-test period journey
+        env:
+          EFG_QA_ENGINE: ${{ matrix.engine }}
+          EFG_QA_WEEKLY_REPORT: '1'
+        run: node efg-nutrition/tests/premium-visual-smoke.mjs
+      - name: Existing period PDF review regression
+        env:
+          EFG_QA_ENGINE: ${{ matrix.engine }}
+        run: node efg-nutrition/tests/period-report-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report-preview-${{ matrix.engine }}
+          path: |
+            artifacts/weekly-preview/
+            artifacts/premium-visual-qa/weekly-flow-*
+            artifacts/premium-visual-qa/report-weekly-flow-*
+            artifacts/period-report-pdf/
+          retention-days: 7

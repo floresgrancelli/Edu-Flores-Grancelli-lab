@@ -1,11 +1,13 @@
+import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
+import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
+import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
+import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-weekly-preview-r11-20261106";
 async function buildPeriodReportPdf(model){
- const pdf=await import("./period-report-pdf.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106");
+ const pdf=await import("./period-report-pdf.js?v=ncc-weekly-preview-r11-20261106");
  return pdf.buildPeriodReportPdf(model);
 }
 import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -36,6 +38,9 @@ import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-weekly-preview-r11-20261106";
+import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-weekly-preview-r11-20261106";
+import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-weekly-preview-r11-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -434,7 +439,7 @@ function weeklyStudentPanel(){
  if(state.profile?.role!=="student")return "";
  const items=myWeeklyReports.map((r,i)=>{const luxury=parseLuxuryWeeklyReport(r.report_text);
   return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
-   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
+   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Abrir PDF</button></div>':
    '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>'+periodHistoryPanel();
 }
@@ -450,33 +455,35 @@ function weeklyReportWindow(){
  return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10),friday:weeklyReportEnd()};
 }
 let weeklyPublishPending=false;
+const weeklyReportDelivery=createWeeklyReportDelivery({sb});
+function weeklyPublicationKey(){return JSON.stringify([state.session?.user?.id,state.org?.id,state.selectedStudent,weeklyReportEnd(),state.authContextEpoch]);}
 async function publishWeeklyReport(){
  if(weeklyPublishPending)throw Error("Esperá a que termine la publicación anterior.");
  if(!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test&&state.org?.coach_id===state.session?.user?.id)))throw Error("Solo un entrenador puede publicar informes.");
  const student=(state.roster||[]).find(x=>x.user_id===state.selectedStudent&&x.active);
  if(!student||!state.consent?.accepted)throw Error("Alumno sin autorización de seguimiento vigente.");
  if((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))throw Error("Ya existe un informe publicado para esa semana. El historial compartido no se sobrescribe.");
- const model=buildCurrentLuxuryModel();
+ const key=weeklyPublicationKey(),attempt=weeklyReportDelivery.get(key);
+ const model=attempt?parseLuxuryWeeklyReport(attempt.record.report_text):buildCurrentLuxuryModel();
  const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
  const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
- // The coach must have viewed the EXACT data and final text that will be sent.
- const approved=luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),conclusion,flexible);
- const reportText=reportAsStoredText(approved,approved.conclusion,approved.flexibleNote);
- if(!model.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
- if(!confirm("¿Confirmás que revisaste la conclusión, las recomendaciones y la vista del alumno antes de compartir este informe?"))return;
- const session=state.session,organizationId=state.org?.id,weekEnding=model.friday;
- const currentScope=()=>state.session===session&&state.selectedStudent===student.user_id&&
+ // A pending delivery always retries its immutable reviewed snapshot, even after reopening.
+ const approved=attempt?model:luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),conclusion,flexible);
+ const reportText=attempt?attempt.record.report_text:reportAsStoredText({...approved,pdfRendererVersion:WEEKLY_PDF_RENDERER_VERSION},approved.conclusion,approved.flexibleNote);
+ const pdfView=weeklyPdfReview.requireReviewed(reportText);
+ if(!model?.daysRecorded)throw Error("No hay registros suficientes para generar un informe. No se publica.");
+ const session=state.session,organizationId=state.org?.id,weekEnding=model.friday,epoch=state.authContextEpoch,role=state.profile?.role;
+ const currentScope=()=>state.session===session&&state.authContextEpoch===epoch&&state.profile?.role===role&&state.selectedStudent===student.user_id&&
   state.org?.id===organizationId&&state.consent?.accepted&&
   (state.roster||[]).some(x=>x.user_id===student.user_id&&x.active);
- const record={student_id:student.user_id,coach_id:session.user.id,week_ending:weekEnding,
+ const record=attempt?.record||{student_id:student.user_id,coach_id:session.user.id,week_ending:weekEnding,
   report_text:reportText,updated_at:new Date().toISOString()};
- weeklyPublishPending=true;
+ weeklyPublishPending=true;weeklyPdfReview.setSubmitting(pdfView,true);
  try{
-  const {error}=await sb.from("efg_weekly_reports").insert(record);
-  if(error)throw error;
+  const delivered=await weeklyReportDelivery.send({key,record,isCurrent:currentScope});
   if(!currentScope())return;
   // INSERT is confirmed. A failed refresh must not invite a duplicate send.
-  state.coachHistory=[record,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
+  state.coachHistory=[delivered,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
   luxuryWeeklyEditor.reset();
   let refreshFailed=false;
   try{
@@ -492,12 +499,24 @@ async function publishWeeklyReport(){
   await render();
   notify(refreshFailed?"Informe compartido. No se pudo actualizar el historial; reabrilo para consultarlo. No hace falta reenviar.":
    "Informe Luxury Pro compartido con el alumno y conservado en su historial.");
- }finally{weeklyPublishPending=false;}
+ }catch(error){
+  if(!currentScope())return;
+  if(error.weeklyWriteOutcome==='conflict'&&error.weeklyExistingRecord){
+   state.coachHistory=[error.weeklyExistingRecord,...state.coachHistory.filter(r=>r.week_ending!==weekEnding)];
+   weeklyReportDelivery.forget(key);luxuryWeeklyEditor.reset();await render();notify(error.message);return;
+  }
+  const uncertain=!!weeklyReportDelivery.get(key);
+  for(const id of ['weeklyCoachConclusion','weeklyCoachFlexibleNote']){const field=document.getElementById(id);if(field)field.disabled=uncertain;}
+  pdfView.send.textContent=uncertain?'Reintentar confirmación':'Aprobar y compartir con alumno';
+  throw error;
+ }finally{weeklyPublishPending=false;weeklyPdfReview.setSubmitting(pdfView,false);}
 }
 const luxuryWeeklyEditor=createLuxuryWeeklyEditor();
+const weeklyPdfReview=createWeeklyPdfReview({root});
+const periodPdfReview=createWeeklyPdfReview({root,mode:'period',buildPdf:buildPeriodReportPdf});
 const mealDefault={desayuno:[],media_manana:[],almuerzo:[],media_tarde:[],merienda:[],cena:[]};
 const COACH_PILOT_PROMOTION_ENABLED=false; // Needs staging parity, role/RLS QA and explicit release approval.
-const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
+const state={foodCompatEvidence:[],session:null,profile:null,org:null,tab:"home",habitualSelection:{},fitFilter:"all",diary:null,pendingDiaryDraft:null,diaryWritePending:false,progressLogs:[],progressRange:7,coachProgressLogs:[],weights:[],activities:[],goals:[],personalTargets:null,roster:[],invitations:[],orgs:[],payments:[],platformAlias:null,platformAliases:[],selectedStudent:null,coachLogs:[],coachWeights:[],coachActivities:[],coachGoals:[],coachReportGoals:null,coachIntakeGoals:{},coachIntakeVerified:false,coachIntakeDraftStatuses:{},coachIntakeDraftVerified:false,coachIntakeForms:{},coachIntakeAccess:{},studentIntake:null,planAccess:null,planAccessSupported:false,consent:null,loggingIn:false,loading:false,foodPlan:null,coachFoodPlan:null,plannerMode:"dinner",plannerSelections:{},plannerDraftGrams:{},plannerDraftDay:null,activeMeal:null,testInvitations:[],macroInputs:null,macroPreview:null,pendingGoal:null,calculatedGoalBase:null,pendingGoalRevision:null,otpEmail:null,reportDate:null,renderedDay:null,daySwitching:null,welcomePending:false,welcomeSubmitting:false,scienceWelcomePending:false,scienceWelcomeStep:0,scienceWelcomeBusy:false,scienceWelcomeError:"",coachGuidedDraft:null,coachIntakePrefill:null,coachIntakeGuidePreview:null,coachGuideHealth:null,coachPlanDraftRecord:null,coachPlanPublishRequestId:null,coachHistory:[],rewardApproval:null,rewardFeatureReady:false,rewardOpened:false};
 const authHydration=createAuthHydrationGate({
  readIdentity:()=>state.session?.user?.id||null,
  invalidate:invalidateAuthContext,
@@ -2442,11 +2461,14 @@ function buildCurrentLuxuryModel(){
  const window=weeklyReportWindow();
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),null);
  const student=(state.roster||[]).find(p=>p.user_id===state.selectedStudent);
- return buildLuxuryWeeklyReport({
+ const proof=state.coachReportGoals;
+ const verified=proof&&proof.studentId===state.selectedStudent&&proof.userId===state.session?.user?.id&&proof.orgId===state.org?.id&&proof.epoch===(state.authContextEpoch||0)&&proof.from===window.from&&proof.to===window.to;
+ const goals=verified?proof.goals:null;
+ return withReportTrendGoals(withReportFoodFrequency(buildLuxuryWeeklyReport({
   ...window,studentName:student?.nickname||"Alumno",
   coachName:state.profile?.nickname||state.profile?.full_name||"Entrenador EFG",
-  days:report.days,logs:state.coachLogs,goals:state.coachGoals
- });
+  days:report.days,logs:state.coachLogs,goals:goals||[]
+ }),state.coachLogs),goals);
 }
 function luxuryEditorContext(model){
  return {coachId:state.session?.user?.id,studentId:state.selectedStudent,weekEnding:model.friday,model};
@@ -2456,7 +2478,7 @@ function coachLuxuryHistoryPanel(){
  const items=list.map((r,i)=>{
   const luxury=parseLuxuryWeeklyReport(r.report_text);
   return '<details><summary>'+escapeHTML(r.week_ending)+' · '+(luxury?'Luxury Pro':'Informe anterior')+'</summary>'+
-   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn light small" data-act="printLuxuryReport" data-reportindex="'+i+'">Exportar PDF</button></div>':
+   (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn light small" data-act="printLuxuryReport" data-reportindex="'+i+'">Abrir PDF</button></div>':
    '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text||'')+'</p>')+'</details>';
  }).join('');
  return '<section class="card"><h2>📚 Historial de informes por alumno y fecha</h2><p class="pilot-hint">Solo informes que ya fueron aprobados y compartidos. Los anteriores se conservan en su formato original.</p>'+
@@ -2464,55 +2486,104 @@ function coachLuxuryHistoryPanel(){
 }
 function weeklyCoachDraft(){
  const window=weeklyReportWindow();
- const generated=buildCurrentLuxuryModel();
+ const attempt=weeklyReportDelivery.get(weeklyPublicationKey());
+ const generated=attempt?parseLuxuryWeeklyReport(attempt.record.report_text):buildCurrentLuxuryModel();
  const sharedRecord=(state.coachHistory||[]).find(r=>r.week_ending===window.friday);
  const published=!!sharedRecord;
  const shared=sharedRecord?parseLuxuryWeeklyReport(sharedRecord.report_text):null;
- const draftState=published?null:luxuryWeeklyEditor.scope(luxuryEditorContext(generated));
+ const draftState=published||attempt?null:luxuryWeeklyEditor.scope(luxuryEditorContext(generated));
  const model=shared||generated;
  const conclusion=published?(shared?.conclusion||"Informe anterior ya compartido."):(draftState?.conclusion||generated.conclusion);
  const flexibleNote=published?(shared?.flexibleNote||""):(draftState?.flexibleNote??generated.flexibleNote);
  const previewModel=published?model:{...generated,conclusion,flexibleNote};
- const ready=!!draftState?.ready;
  return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
  '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Conclusiones automáticas, siempre revisadas antes del envío.</p>'+
  '<div class="field"><label for="weeklyCoachConclusion">Conclusión automática · editable por el coach</label>'+
- '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
+ '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published||attempt?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
  '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
- '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published?'disabled':'')+'>'+escapeHTML(flexibleNote)+'</textarea></div>'+
+ '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published||attempt?'disabled':'')+'>'+escapeHTML(flexibleNote)+'</textarea></div>'+
  '<div class="lux-report-toolbar">'+(published?'<span class="pilot-pill">Informe de esta semana ya compartido · historial protegido</span>':
- '<button type="button" class="btn small light" data-act="previewLuxuryReport">Actualizar vista previa del alumno</button>'+
- '<button type="button" class="btn small" id="weeklyLuxuryPublishButton" data-act="publishWeeklyReport" '+(ready?'':'disabled')+'>Aprobar y compartir con alumno</button>')+
- '<button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="-1">Exportar vista previa a PDF</button></div>'+
- '<h3 class="lux-report-preview-heading">Así lo verá el alumno</h3>'+
- '<p class="pilot-hint" id="weeklyLuxuryPreviewStatus" role="status">'+(published?'Informe compartido: esta vista muestra la versión enviada.':
- ready?'Vista previa revisada: podés aprobar el envío.':
+ '<button type="button" class="btn small" data-act="previewLuxuryReport">'+(attempt?'Revisar PDF del envío pendiente':'Abrir PDF para revisar y compartir')+'</button>')+
+ (published?'<button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="-1">Abrir PDF del informe compartido</button>':'')+'</div>'+
+ '<h3 class="lux-report-preview-heading">Resumen del contenido</h3>'+
+ '<p class="pilot-hint" id="weeklyLuxuryPreviewStatus" role="status">'+(attempt?'Hay un envío pendiente de confirmar. Se conserva el PDF exacto y el texto no se modifica hasta resolverlo.':published?'Informe compartido: esta vista muestra la versión enviada.':
  draftState?.sourceChanged?'Los datos del registro cambiaron. Volvé a revisar y actualizar la vista previa.':
- 'Revisá el texto y tocá «Actualizar vista previa» antes de compartir.')+'</p>'+
- '<div id="weeklyLuxuryPreview">'+renderLuxuryWeeklyReport(previewModel)+'</div>'+
+ 'Abrí el PDF, revisá sus páginas y compartilo desde esa vista.')+'</p>'+
+ '<div id="weeklyLuxuryPreview">'+(published&&!shared?'<p style="white-space:pre-wrap">'+escapeHTML(sharedRecord.report_text||'')+'</p>':renderLuxuryWeeklyReport(previewModel))+'</div>'+
  '<p class="pilot-hint">El borrador se conserva solo mientras permanezcas en esta sesión del coach; no se guarda en el navegador ni se envía solo. No se indican permisos alimentarios como premios ni recomendaciones clínicas automáticas.</p></section>';
 }
+// Weekly PDF route: saved history is never reconstructed from current student data.
+function openWeeklyPdfView(index,opener){
+ if(weeklyPublishPending)throw Error("Esperá a que termine la publicación anterior.");
+ if(!Number.isInteger(index)||index< -1)throw Error("No existe el informe solicitado.");
+ const role=state.profile?.role,session=state.session,epoch=state.authContextEpoch,orgId=state.org?.id;
+ const userId=session?.user?.id,studentId=role==='student'?userId:state.selectedStudent;
+ const allowed=()=>!!userId&&state.session===session&&state.authContextEpoch===epoch&&state.profile?.role===role&&state.org?.id===orgId&&
+  (role==='student'?index>=0:state.selectedStudent===studentId&&state.consent?.accepted===true&&
+   (state.roster||[]).some(p=>p.user_id===studentId&&p.active)&&
+   (role==='coach'||role==='admin'&&state.org?.is_test&&state.org?.coach_id===userId));
+ if(!allowed())throw Error("No hay autorización vigente para consultar este informe.");
+ const reports=role==='student'?myWeeklyReports:state.coachHistory;
+ const record=index===-1?(state.coachHistory||[]).find(r=>r.week_ending===weeklyReportEnd()):(reports||[])[index];
+ if(index!==-1&&!record)throw Error("No existe el informe solicitado.");
+ if(record){
+  const stored=record.report_text,week=record.week_ending;
+  let snapshot=parseLuxuryWeeklyReport(stored);
+  if(snapshot&&snapshot.friday!==week)throw Error("La fecha del informe guardado no coincide con su semana. El historial se conserva sin cambios.");
+  if(!snapshot){
+   // Corrupt structured reports fail closed instead of becoming unrelated live data.
+   if(typeof stored!=='string'||!stored.trim()||stored.trimStart().startsWith('{'))throw Error("El informe guardado no tiene un formato válido para abrir el PDF. El historial se conserva.");
+   snapshot={kind:'efg_legacy_weekly_text_v1',reportText:stored,friday:week,from:week,to:week,studentName:'Informe histórico'};
+  }
+  const isCurrent=()=>allowed()&&(role==='student'?myWeeklyReports:state.coachHistory||[]).some(r=>r.week_ending===week&&r.report_text===stored);
+  return weeklyPdfReview.open({snapshot,isCurrent,opener});
+ }
+ const pendingKey=weeklyPublicationKey(),attempt=weeklyReportDelivery.get(pendingKey);
+ if(attempt){
+  const snapshot=parseLuxuryWeeklyReport(attempt.record.report_text);
+  if(!snapshot)throw Error('No se pudo recuperar el PDF del envío pendiente.');
+  return weeklyPdfReview.open({snapshot,serialized:attempt.record.report_text,isCurrent:()=>allowed()&&weeklyPublicationKey()===pendingKey&&weeklyReportDelivery.get(pendingKey)===attempt,editable:true,opener,onSend:publishWeeklyReport});
+ }
+ const model=buildCurrentLuxuryModel(),host=document.getElementById('coachReportWeek');
+ const conclusion=document.getElementById('weeklyCoachConclusion')?.value,flexible=document.getElementById('weeklyCoachFlexibleNote')?.value;
+ const preview=luxuryWeeklyEditor.preview(luxuryEditorContext(model),conclusion,flexible);
+ const serialized=reportAsStoredText({...preview,pdfRendererVersion:WEEKLY_PDF_RENDERER_VERSION},preview.conclusion,preview.flexibleNote);
+ const snapshot=JSON.parse(serialized);
+ const isCurrent=()=>{
+  if(!allowed()||!host?.isConnected||(state.coachHistory||[]).some(r=>r.week_ending===snapshot.friday))return false;
+  try{
+   const model=buildCurrentLuxuryModel();
+   const approved=luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),document.getElementById('weeklyCoachConclusion')?.value,document.getElementById('weeklyCoachFlexibleNote')?.value);
+   return reportAsStoredText({...approved,pdfRendererVersion:WEEKLY_PDF_RENDERER_VERSION},approved.conclusion,approved.flexibleNote)===serialized;
+  }catch{return false;}
+ };
+ return weeklyPdfReview.open({snapshot,serialized,isCurrent,editable:true,opener,onSend:publishWeeklyReport});
+}
 function periodReportContext(){
- const role=state.profile?.role,userId=state.session?.user?.id;
+ const role=state.profile?.role,userId=state.session?.user?.id,org=state.org;
  const studentId=role==='student'?userId:state.selectedStudent;
- return {userId,studentId,role,epoch:state.authContextEpoch,
- allowed:role==='student'?!!userId:role==='coach'&&state.consent?.accepted===true&&state.roster.some(p=>p.user_id===studentId&&p.active)};
+ const student=(state.roster||[]).find(p=>p.user_id===studentId&&p.active);
+ // The existing backend helper already admits the active owner of a test org.
+ // This is a UI capability, never a replacement for server RLS authorization.
+ const testCoach=role==='admin'&&state.profile?.active===true&&state.profile?.user_id===userId&&!!org?.id&&org.is_test===true&&org.coach_id===userId&&
+  ['trial','active','grace'].includes(org.status)&&student?.role==='student'&&student.organization_id===org.id&&
+  state.consent?.student_id===studentId&&state.consent?.organization_id===org.id;
+ const author=role==='coach'&&state.profile?.active!==false||testCoach;
+ const canPublish=!!userId&&!!author&&!!student&&state.consent?.accepted===true;
+ const scopeKey=JSON.stringify([role,org?.id,org?.coach_id,org?.is_test,org?.status,state.profile?.active,student?.organization_id,state.consent?.student_id,state.consent?.organization_id]);
+ return {userId,studentId,role,organizationId:org?.id,scopeKey,canPublish,epoch:state.authContextEpoch,
+ allowed:role==='student'?!!userId:canPublish};
 }
 function periodHistoryPanel(){
  return '<section class="card"><h2>Informes por período compartidos</h2><button class="btn small light" data-act="loadPeriodHistory">Consultar historial</button><div id="periodHistory" aria-live="polite"></div></section>';
 }
-function periodContextMatches(c){const n=periodReportContext();return n.allowed&&n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch;}
+function periodContextMatches(c){const n=periodReportContext();return n.allowed&&n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch&&n.role===c.role&&n.organizationId===c.organizationId&&n.scopeKey===c.scopeKey&&n.canPublish===c.canPublish;}
 // A PDF is an immutable approved snapshot. HTML remains an accessible draft only.
 let activePeriodPdfView=null;
 function closePeriodPdfView(force=false){
  const view=activePeriodPdfView;if(!view)return;
  if(view.host?.periodPublishing&&!force)return;
- activePeriodPdfView=null;
- if(view.host){view.host.periodReviewed=null;view.host.periodPdfSnapshot=null;}
- view.ticket=null;
- if(view.url)URL.revokeObjectURL(view.url);
- view.dialog?.remove();
- if(!force)view.opener?.focus?.();
+ periodPdfReview.close(force);
 }
 function currentPeriodReportHost(){
  const host=document.getElementById('periodReportResult');
@@ -2537,7 +2608,7 @@ function syncPeriodReportPreview(){
  document.getElementById('periodLuxuryPreview').innerHTML=html||'<p>Completá una conclusión válida para ver el informe.</p>';
  const view=activePeriodPdfView;
  const ready=!!html&&model.daysRecorded>0&&reviewed?.checked===true&&!host.periodPublished&&
-  view?.host===host&&view.ready&&view.text===text&&view.dialog.open&&!!host.periodPdfSnapshot;
+  view?.host===host&&view.ready&&(!reviewed.disabled||view.frozen)&&view.reviewed&&view.text===text&&view.dialog.open&&!!host.periodPdfSnapshot;
  host.periodReviewed=ready?text:null;
  const publish=document.getElementById('periodPublishButton');
  if(publish)publish.disabled=!ready||host.periodPublishing===true;
@@ -2547,41 +2618,18 @@ async function openPeriodPdfView({model,host=null,context,current,opener}){
  closePeriodPdfView(true);
  const text=host?.periodPreviewText||null;
  const snapshot=host?JSON.parse(periodReportAsStoredText({...model,pdfRendererVersion:PERIOD_PDF_RENDERER_VERSION},model.conclusion,model.flexibleNote)):JSON.parse(JSON.stringify(model));
- const dialog=document.createElement('dialog');dialog.className='period-pdf-dialog';dialog.setAttribute('aria-label',host?'Revisar PDF antes de compartir':'PDF del informe compartido');
- dialog.innerHTML='<header><h2>Informe Luxury Pro · PDF</h2><button type="button" class="btn light" data-pdf-close>'+(host?'Volver y editar':'Cerrar')+'</button></header><p data-pdf-identity></p><p data-pdf-status role="status">Preparando el PDF…</p><div data-pdf-links hidden><a class="btn light" data-pdf-open target="_blank" rel="noopener">Abrir PDF en otra pestaña</a><a class="btn light" data-pdf-download>Descargar PDF</a></div><p>Si el visor no muestra el documento, abrilo o descargalo. Es un archivo PDF real, no la versión HTML.</p><iframe title="PDF del informe Luxury Pro" hidden></iframe>'+
-  (host?'<label class="period-report-review"><input type="checkbox" id="periodReportReviewed" disabled> Revisé este PDF y el alumno destinatario.</label><button type="button" class="btn" id="periodPublishButton" data-act="publishPeriodLuxury" disabled>Aprobar y compartir con alumno</button>':'');
- const view={dialog,host,text,snapshot,serialized:JSON.stringify(snapshot),ready:false,url:null,opener,ticket:Symbol()};activePeriodPdfView=view;
- root.appendChild(dialog);
- dialog.querySelector('[data-pdf-identity]').textContent=snapshot.studentName+' · '+snapshot.from+' al '+snapshot.to;
- const isCurrent=()=>activePeriodPdfView===view&&view.ticket&&dialog.isConnected&&periodContextMatches(context)&&current()&&(!host||host.periodPreviewText===text);
- const close=()=>closePeriodPdfView();
- dialog.querySelector('[data-pdf-close]').addEventListener('click',close);
- dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
- dialog.addEventListener('close',()=>{if(activePeriodPdfView===view)closePeriodPdfView(true);});
- if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
- try{
-  const bytes=await buildPeriodReportPdf(snapshot);
-  if(!isCurrent()){if(activePeriodPdfView===view)closePeriodPdfView(true);return;}
-  view.url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
-  const open=dialog.querySelector('[data-pdf-open]'),download=dialog.querySelector('[data-pdf-download]');
-  open.href=view.url;download.href=view.url;download.download='informe-'+snapshot.from+'-'+snapshot.to+'.pdf';
-  dialog.querySelector('[data-pdf-links]').hidden=false;
-  const frame=dialog.querySelector('iframe');frame.src=view.url;frame.hidden=false;
-  dialog.querySelector('[data-pdf-status]').textContent=host?'Revisá este PDF completo. Se compartirá exactamente este contenido cuando lo apruebes.':
-   snapshot.pdfRendererVersion?'PDF generado con la versión conservada en el informe.':'Informe anterior: conversión nueva a PDF de su contenido guardado; no es un PDF histórico conservado.';
-  view.ready=true;
-  if(host){
-   host.periodPdfSnapshot=snapshot;dialog.querySelector('#periodReportReviewed').disabled=!snapshot.daysRecorded;
-   if(!snapshot.daysRecorded)dialog.querySelector('[data-pdf-status]').textContent='No hay registros para compartir en este período. Podés consultar o descargar el PDF, o volver y elegir otras fechas.';
-   syncPeriodReportPreview();
-  }
- }catch(error){
-  if(isCurrent())dialog.querySelector('[data-pdf-status]').textContent='No se pudo generar el PDF. No se envió el informe. Volvé a editar o intentá nuevamente. '+error.message;
-  if(isCurrent())throw error;
- }
+ const view=periodPdfReview.open({snapshot,editable:!!host,opener,
+  isCurrent:()=>periodContextMatches(context)&&current()&&(!host||host.periodPreviewText===text),
+  onClose:closed=>{if(activePeriodPdfView===closed)activePeriodPdfView=null;if(host){host.periodReviewed=null;host.periodPdfSnapshot=null;}}
+ });
+ view.host=host;view.text=text;activePeriodPdfView=view;
+ if(host)host.periodPdfSnapshot=view.snapshot;
+ await view.prepared;
+ if(activePeriodPdfView===view&&view.error)throw view.error;
+ return view;
 }
 function coachPeriodReportPanel(){
- if(state.profile?.role!=='coach')return '<section class="card"><h2>Informe por período</h2><p>Disponible para el coach autorizado del alumno.</p></section>';
+ if(!periodReportContext().canPublish)return '<section class="card"><h2>Informe por período</h2><p>Seleccioná un alumno con seguimiento autorizado en tu espacio para elegir las fechas.</p></section>';
  const end=today(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-9);
  return '<section class="card" id="coachPeriodReport"><h2>Informe por período</h2><p>Elegí las fechas que querés revisar, hasta 90 días. El informe semanal se mantiene independiente.</p>'+
  '<label class="period-report-field">Desde <input type="date" id="periodReportFrom" max="'+end+'" value="'+start.toISOString().slice(0,10)+'"></label>'+
@@ -3374,6 +3422,7 @@ async function renderPrivateHealthDeclaration(){
  }
 }
 async function render(){
+ weeklyPdfReview.close(true);
  closePeriodPdfView(true);
  const renderEpoch=state.authContextEpoch||0;
  state.privateHealthDeclaration?.invalidate?.();
@@ -3823,7 +3872,7 @@ async function loadStudentDetail(studentId){
  const contextRead=async promise=>{try{return await promise;}finally{assertCurrent();}};
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
  state.selectedStudent=studentId;state.consent=null;state.coachGuideWindowSelection=null;
- state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];
+ state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachReportGoals=null;state.coachActivities=[];state.coachHistory=[];
  state.rewardApproval=null;state.rewardFeatureReady=false;state.coachFoodPlan=null;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  state.coachSharedRecipes=[];state.coachSharedRecipeScope=null;
@@ -3877,6 +3926,18 @@ async function loadStudentDetail(studentId){
  ]));
  const err=results.find(x=>x.error)?.error;if(err)throw err;
  state.coachLogs=results[0].data||[];state.coachProgressLogs=results[1].data||[];state.coachWeights=results[2].data||[];state.coachActivities=results[3].data||[];state.coachGoals=results[4].data||[];state.coachFoodPlan=results[5].data||null;state.coachHistory=results[6].data||[];
+ // A separate bounded history, not the latest-20 UI list, supplies EVERY section
+ // of the new weekly snapshot. Failure leaves no verified target comparison.
+ const reportWindow=weeklyReportWindow();
+ try{
+  const history=await contextRead(loadPeriodReportGoals(sb,studentId,reportWindow.from,reportWindow.to,assertCurrent));
+  assertCurrent();
+  state.coachReportGoals={studentId,userId:coachId,orgId:organizationId,epoch:contextEpoch,from:reportWindow.from,to:reportWindow.to,goals:normalizeReportTrendGoals(history)};
+ }catch(error){
+  assertCurrent();state.coachReportGoals=null;
+  if(error?.code==='STALE_AUTH_CONTEXT')throw error;
+  console.warn('No se pudo verificar el historial de metas para el informe semanal.');
+ }
  if(COACH_ATOMIC_PLAN_UI_ENABLED&&state.coachIntakeForms?.[studentId]?.shared_at){
   let savedDraft;
   try{savedDraft=await contextRead(coachDraftClient.load(studentId));}
@@ -4233,7 +4294,7 @@ if(el.dataset.studentstatus){
   :"¿Dar de baja a "+student.nickname+"? Liberará su cupo y se revocará el permiso del coach. Sus registros NO se borrarán."))return;
  const {error}=await sb.rpc("efg_set_student_active",{p_student:student.user_id,p_active:next});
  if(error)throw error;
- if(state.selectedStudent===student.user_id){state.selectedStudent=null;state.consent=null;state.coachLogs=[];state.coachGoals=[];state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;}
+ if(state.selectedStudent===student.user_id){state.selectedStudent=null;state.consent=null;state.coachLogs=[];state.coachGoals=[];state.coachReportGoals=null;state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;}
  await loadRoleData();await render();notify(next?"Alumno reactivado, pendiente de nuevo consentimiento.":"Alumno dado de baja y cupo recuperado; datos conservados.");return;
 }
 if(el.dataset.deleteinvite){
@@ -4283,38 +4344,10 @@ if(el.dataset.foodbulk){
   return;
  }
  if(el.dataset.act==="previewLuxuryReport"){
-  if(!state.consent?.accepted)throw Error("El alumno ya no autorizó el seguimiento.");
-  const model=buildCurrentLuxuryModel();
-  const conclusion=document.getElementById("weeklyCoachConclusion")?.value;
-  const flexible=document.getElementById("weeklyCoachFlexibleNote")?.value;
-  const reviewed=luxuryWeeklyEditor.preview(luxuryEditorContext(model),conclusion,flexible);
-  const target=document.getElementById("weeklyLuxuryPreview");
-  if(!target)throw Error("No se encontró la vista previa.");
-  target.innerHTML=renderLuxuryWeeklyReport(reviewed);
-  const status=document.getElementById("weeklyLuxuryPreviewStatus");
-  if(status)status.textContent="Vista previa actualizada: exactamente este informe se compartirá al aprobar.";
-  const publish=document.getElementById("weeklyLuxuryPublishButton");
-  if(publish)publish.disabled=false;
-  notify("Vista previa actualizada. Todavía no se envió nada.");return;
+  openWeeklyPdfView(-1,el);return;
  }
  if(el.dataset.act==="printLuxuryReport"){
-  const index=Number(el.dataset.reportindex);
-  const reports=state.profile?.role==="student"?myWeeklyReports:state.coachHistory;
-  if(index!==-1&&!(reports||[])[index])throw Error("No existe el informe solicitado.");
-  if(index===-1&&!(state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test)))throw Error("Vista previa exclusiva del coach.");
-  if(index===-1&&!((state.coachHistory||[]).some(r=>r.week_ending===weeklyReportEnd()))){
-   const model=buildCurrentLuxuryModel();
-   luxuryWeeklyEditor.requirePreview(luxuryEditorContext(model),
-    document.getElementById("weeklyCoachConclusion")?.value,
-    document.getElementById("weeklyCoachFlexibleNote")?.value);
-  }
-  const source=index===-1?document.querySelector("#weeklyLuxuryPreview .lux-report"):
-    el.closest("details")?.querySelector(".lux-report");
-  if(!source)throw Error("No se encontró el informe para exportar.");
-  source.classList.add("efg-lux-print-target");
-  const clear=()=>{source.classList.remove("efg-lux-print-target");window.removeEventListener("afterprint",clear);};
-  window.addEventListener("afterprint",clear,{once:true});
-  window.print();return;
+  openWeeklyPdfView(Number(el.dataset.reportindex),el);return;
  }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
  if(el.dataset.coachsection){const sec=document.getElementById(el.dataset.coachsection);if(!sec)return;if(sec.tagName==="DETAILS")sec.open=true;sec.scrollIntoView({behavior:"smooth",block:"start"});return;}
@@ -4627,7 +4660,7 @@ if(el.dataset.foodbulk){
  }
  if(action==="generatePeriodReport"){
   const c=periodReportContext(),studentId=c.studentId,session=state.session;
-  if(c.role!=='coach'||!c.allowed)throw Error('Acceso no autorizado.');
+  if(!c.canPublish||!c.allowed)throw Error('Acceso no autorizado.');
   const p=state.roster.find(x=>x.user_id===studentId&&x.active);
   const from=document.getElementById('periodReportFrom').value,to=document.getElementById('periodReportTo').value;
   validateReportPeriod(from,to,today());
@@ -4642,11 +4675,11 @@ if(el.dataset.foodbulk){
   try{
    const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',studentId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
    if(!current())return;if(error)throw error;
-   const periodGoals=await loadPeriodReportGoals(sb,studentId,from,to);
+   const periodGoals=normalizeReportTrendGoals(await loadPeriodReportGoals(sb,studentId,from,to,()=>{if(!current())throw Object.assign(Error('Cambió el contexto del informe.'),{code:'STALE_AUTH_CONTEXT'});}));
    if(!current())return;
    const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
-   const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals});
+   const report=withReportTrendGoals(withReportFoodFrequency(buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals}),data),periodGoals);
    host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=c;host.periodRequestId=null;host.periodPreviewText=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
    host.innerHTML='<label class="period-report-field">Conclusión propuesta · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
    syncPeriodReportPreview();
@@ -4667,10 +4700,11 @@ if(el.dataset.foodbulk){
   if(host.periodPublishing||host.periodPublished)return;
   const draft=syncPeriodReportPreview(),text=JSON.stringify(draft),model=host.periodPdfSnapshot;
   if(!draft||!model||text!==host.periodReviewed||activePeriodPdfView?.snapshot!==model||!activePeriodPdfView.ready||JSON.stringify(model)!==activePeriodPdfView.serialized)throw Error('Revisá el informe y marcá la confirmación antes de compartir.');
+  periodPdfReview.requireReviewed(JSON.stringify(model));
   if(host.periodAttempt&&host.periodAttempt!==text)throw Error('Hay un envío anterior pendiente de confirmar.');
   host.periodAttempt=text;host.periodRequestId=host.periodRequestId||createCoachPublicationRequestId();host.periodPublishing=true;
   const button=document.getElementById('periodPublishButton');button.disabled=true;button.textContent='Compartiendo…';
-  const pdfView=activePeriodPdfView;
+  const pdfView=activePeriodPdfView;pdfView.frozen=true;periodPdfReview.setSubmitting(pdfView,true);
   pdfView.dialog.querySelector('[data-pdf-close]').disabled=true;
   pdfView.dialog.querySelector('[data-pdf-status]').textContent='Confirmando el informe en el historial del alumno…';
   const fields=['periodReportConclusion','periodReportFlexible','periodReportReviewed','periodReportFrom','periodReportTo'].map(id=>document.getElementById(id));
@@ -4678,7 +4712,7 @@ if(el.dataset.foodbulk){
   try{
    const saved=await host.periodClient.publish({model,requestId:host.periodRequestId,confirmed:true});
    if(saved&&host.isConnected&&currentPeriodReportHost()===host){
-    host.periodPublished=true;button.textContent='Compartido';
+    host.periodPublished=true;pdfView.completed=true;button.textContent='Compartido';
     pdfView.dialog.querySelector('[data-pdf-status]').textContent='Informe compartido y confirmado. Este es el PDF del alumno.';
     fields.filter(field=>['periodReportFrom','periodReportTo'].includes(field.id)).forEach(field=>field.disabled=false);
     document.getElementById('periodPublishStatus').textContent='Informe compartido y confirmado en el historial del alumno.';
@@ -4686,9 +4720,9 @@ if(el.dataset.foodbulk){
   }catch(error){
    if(host.isConnected&&currentPeriodReportHost()===host){
     if(error?.periodWriteOutcome==='rejected'){
-     host.periodAttempt=null;host.periodRequestId=null;host.periodReviewed=null;
+     host.periodAttempt=null;host.periodRequestId=null;host.periodReviewed=null;pdfView.frozen=false;
      fields.forEach(field=>field.disabled=false);
-     document.getElementById('periodReportReviewed').checked=false;
+     document.getElementById('periodReportReviewed').checked=false;pdfView.reviewed=false;
      button.textContent='Aprobar y compartir con alumno';button.disabled=true;
      document.getElementById('periodPublishStatus').textContent='El servidor rechazó el envío y no guardó este informe. Podés editarlo o generar otro; revisalo nuevamente antes de compartir.';
     }else{
@@ -4698,7 +4732,7 @@ if(el.dataset.foodbulk){
     if(activePeriodPdfView)activePeriodPdfView.dialog.querySelector('[data-pdf-status]').textContent=document.getElementById('periodPublishStatus').textContent;
     throw error;
    }
-  }finally{host.periodPublishing=false;pdfView.dialog.querySelector('[data-pdf-close]').disabled=false;}
+  }finally{host.periodPublishing=false;periodPdfReview.setSubmitting(pdfView,false);if(host.periodPublished){pdfView.check.disabled=true;pdfView.send.disabled=true;}pdfView.dialog.querySelector('[data-pdf-close]').disabled=false;}
   return;
  }
  if(action==='loadPeriodHistory'){
@@ -5151,13 +5185,14 @@ root.addEventListener('change',e=>{
 root.addEventListener("input",e=>{
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
+  weeklyPdfReview.close(true);
   const model=buildCurrentLuxuryModel();
   luxuryWeeklyEditor.update(luxuryEditorContext(model),
    e.target.id==="weeklyCoachConclusion"?"conclusion":"flexibleNote",e.target.value);
   const publish=document.getElementById("weeklyLuxuryPublishButton");
   if(publish)publish.disabled=true;
   const status=document.getElementById("weeklyLuxuryPreviewStatus");
-  if(status)status.textContent="Editaste el informe: actualizá la vista previa para habilitar el envío.";
+  if(status)status.textContent="Editaste el informe: volvé a abrir el PDF para revisarlo antes de compartir.";
   return;
  }
  invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
@@ -5260,6 +5295,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ weeklyPdfReview.close(true);luxuryWeeklyEditor.reset();weeklyReportDelivery.clear();
  closePeriodPdfView(true);
  state.foodRestrictionReader?.invalidate?.();
  state.privateHealthDeclaration?.invalidate?.();
@@ -5279,7 +5315,7 @@ function resetPrivateSession(){
  state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
  state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;
  state.calculatedGoalBase=null;state.selectedStudent=null;state.consent=null;
- state.roster=[];state.coachLogs=[];state.coachProgressLogs=[];state.coachGoals=[];
+ state.roster=[];state.coachLogs=[];state.coachProgressLogs=[];state.coachGoals=[];state.coachReportGoals=null;
  state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;
  state.coachHistory=[];state.testInvitations=[];
  state.diary=null;state.progressLogs=[];state.weights=[];state.activities=[];

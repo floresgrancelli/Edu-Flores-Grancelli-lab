@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 // EFG Nutrition Pro — static UX smoke gate (no Supabase writes or credentials).
 // Run: node efg-nutrition/tests/premium-ui-smoke.mjs
 import {readFileSync} from "node:fs";
@@ -15,7 +16,7 @@ includesAll(js,[
  "function studentSupplementsView()","function studentPrivacyView()",
  "efg-consent-reminder",
  "data-coachsection","coach-profile-accordion",
- '["home","⌂","MI DÍA"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
+ '["home","","Mi día"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
 ]);
 includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","coach-profile-accordion"]);
 includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-scrollto=\"studentMeals\"",'aria-current="page"',"if(el.dataset.scrollto)"]);
@@ -38,3 +39,4 @@ assert.ok(!js.slice(js.indexOf("function macroCard("),js.indexOf("function premi
 let depth=0;for(const c of css){if(c==="{")depth++;if(c==="}"){depth--;assert.ok(depth>=0,"CSS braces close too early")}}assert.equal(depth,0,"CSS braces unbalanced");
 console.log("PASS: JS syntax, UX destinations, profile sections, CSS/mobile structure, macro markup.");
 console.log("NOT TESTED: real auth, live iPhone/Android screenshots, mobile visual overflow, live Supabase persistence and permissions.");
+

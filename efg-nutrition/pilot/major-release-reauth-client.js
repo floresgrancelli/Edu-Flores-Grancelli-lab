@@ -2,9 +2,9 @@
 // manifest/receipt RPCs and legal/privacy/health onboarding are approved.
 // Only the exceptional MAJOR relaunch may request the new-OTP reauthentication.
 // PREVIEW and minor updates must never sign users out.
-import {RELEASE_COMMUNICATIONS_ENABLED} from './release-communications.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {signOutCurrentDevice} from './logout-session.js?v=ncc-pilot-3a40474052be-guide-return-r6';
-import {readMajorRelease,acknowledgeMajorRelease} from './major-release-client.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {RELEASE_COMMUNICATIONS_ENABLED} from './release-communications.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {signOutCurrentDevice} from './logout-session.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {readMajorRelease,acknowledgeMajorRelease} from './major-release-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
 const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export async function confirmMajorRelaunchAndExit(sb,{
  profile,userId,releaseId,currentBuild,

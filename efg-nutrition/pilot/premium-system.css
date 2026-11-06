@@ -9,6 +9,8 @@
  --efg-line:#e6edef;--efg-radius:22px;
 }
 *{box-sizing:border-box}
+/* Clip visual paint overflow without creating a vertical scroll container. */
+html,body{max-width:100%;overflow-x:clip}
 .pilot-layout{background:var(--efg-bg);min-width:0;max-width:100%;color:var(--efg-ink);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .pilot-layout .pilot-main{min-width:0;width:100%;max-width:1100px}
 .pilot-layout .pilot-main>*,.pilot-layout .pilot-two>*,.pilot-layout .pilot-stack>*{min-width:0}
@@ -79,7 +81,7 @@
  .pilot-layout .pilot-main{width:100%;max-width:none}
 }
 @media(max-width:720px){
- html,body{max-width:100%;overflow-x:hidden}
+ html,body{max-width:100%;overflow-x:clip}
  .pilot-layout{display:block;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));overflow-x:clip}
  .pilot-layout .pilot-main{padding:23px 15px calc(110px + env(safe-area-inset-bottom,0px));overflow-x:clip}
  .pilot-layout .pilot-nav{display:flex;overflow:hidden;position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;z-index:80;flex-direction:row;justify-content:space-around;align-items:stretch;gap:5px;padding:8px 9px max(10px,env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);box-shadow:0 -6px 25px rgba(15,62,56,.07);border-radius:20px 20px 0 0}
@@ -518,3 +520,13 @@
 .coach-student-profile .efg-consistency-head{flex-wrap:wrap}
 .coach-student-profile .efg-consistency-head strong{white-space:nowrap;flex-shrink:0}
 .coach-student-profile .efg-progress-panel h3,.coach-student-profile .efg-meal-legend{overflow-wrap:normal;word-break:normal}
+
+/* Student navigation: readable labels and stable touch targets on narrow screens. */
+@media(max-width:720px){
+ .efg-role-student .pilot-nav{overflow-x:visible;gap:3px;padding-inline:8px}
+ .efg-role-student .pilot-nav button.navitem{flex:1 1 0;min-width:0;max-width:none;min-height:56px;padding:7px 2px}
+ body .pilot-layout.efg-role-student .pilot-nav button.navitem .nav-label{white-space:nowrap!important;overflow-wrap:normal;word-break:normal;hyphens:none;font-size:11px!important;line-height:1.2!important;letter-spacing:0}
+ .efg-role-student .pilot-nav button.navitem.active{background:#d9eee3;color:#124d3b;font-weight:800}
+ .efg-role-student .pilot-nav button.navitem:focus-visible{outline:3px solid #246c58;outline-offset:-3px}
+ .efg-role-student .pilot-main{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+}

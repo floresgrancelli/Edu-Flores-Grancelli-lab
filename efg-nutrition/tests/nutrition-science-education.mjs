@@ -1,3 +1,4 @@
+import './student-navigation-contract.mjs';
 import './approved-release-flags.mjs';
 // EDUCATION-01. Reproducible offline science and navigation test; no student data.
 import assert from "node:assert/strict";
@@ -43,14 +44,9 @@ for(const s of NUTRITION_SCIENCE_SOURCES){
 assert.match(js,/import \{SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep\} from "\.\/science-welcome\.js/);
 assert.match(js,/nutritionScience:renderScienceVerticalView/);
 assert.match(js,/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/);
-assert.equal((js.match(/\["nutritionScience","✦","Nutrición Con-Ciencia"\]/g)||[]).length,5,"permanent student ready/pending/private, coach and admin tabs");
-assert.equal((js.match(/\["nutritionScience","🧠","Nutrición Con-Ciencia"/g)||[]).length,3,"discoverable from student, coach and admin More menus");
-assert.match(js,/if\(studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(state\.tab\)\)state\.tab="intake"/,
- "pending intake gate preserves MI DÍA lock but allows the educational library");
-assert.match(js,/state\.tab=studentPlanPending\(\)&&!\["intake","messages","nutritionScience","privacy","notifications"\]\.includes\(el\.dataset\.tab\)\?"intake":el\.dataset\.tab/,
- "pending intake click may open science but cannot reach the locked diary");
 assert.match(html,/nutrition-science\.css\?v=ncc-pilot-3a40474052be/);
 assert.match(css,/@media\(max-width:520px\)/);
 assert.match(css,/focus-visible/);
 let depth=0;for(const c of css){if(c==="{")++depth;if(c==="}"){--depth;assert.ok(depth>=0)}}assert.equal(depth,0);
 console.log("PASS EDUCATION-01: student and coach nav + more, 4/4/9 math, peer-reviewed sources, inclusive myths, readable FAQ, mobile CSS, onboarding remains gated. LOCAL ONLY; no physical mobile verification.");
+

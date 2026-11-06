@@ -1,7 +1,7 @@
 // COACH101 — READ-ONLY reviewed food compatibility data from protected Supabase table.
 // No medical conclusions, no localStorage, no user-submitted food evidence.
 // Table is RLS SELECT reviewed-only and writable solely by private operator.
-import {classifyFood,renderFoodCompatibility} from './food-compatibility.js?v=ncc-pilot-3a40474052be-guide-return-r6';
+import {classifyFood,renderFoodCompatibility} from './food-compatibility.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
 const CODE=/^[A-Za-z0-9_-]{1,100}$/;
 const RULE=/^[A-Za-z0-9:_-]{3,100}$/;
 export const COACH101_TRAFFIC_LIGHT_REVISION='pilot_2026_evidence_v1';

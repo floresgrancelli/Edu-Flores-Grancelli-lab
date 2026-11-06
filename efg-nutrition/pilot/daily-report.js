@@ -1,4 +1,4 @@
-import {isNutritionDayClosed} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-guide-return-r6";
+import {isNutritionDayClosed} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
 // Resumen de seguimiento: nunca inventar ceros para días sin registro.
 // Las cifras se recalculan desde los alimentos realmente registrados.
 export function buildNutritionReport(logs, mealSlots, dailyTotals, currentDay, goal){

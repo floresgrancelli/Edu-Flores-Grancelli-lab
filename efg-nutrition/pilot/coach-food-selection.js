@@ -1,6 +1,6 @@
 // COACH119: guide ingredient references are NOT a whitelist for the shared food catalog.
 // Publishing verifies server-side composition and permissions, not medical safety.
-const ID=/^[A-Za-z0-9_-]{1,100}$/;
+const ID=/^[\p{L}\p{N}_-]{1,100}$/u;
 const SLOTS=new Set(['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']);
 // v2 references are the ingredients in the guide, NOT the student's food
 // catalog. The student's food picker always retains the complete source list.

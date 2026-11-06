@@ -67,6 +67,7 @@ const factory=new Function('env',`const {state,foods,PRIVATE_HEALTH_DECLARATION_
  assert.equal(off(food).color,'neutral','OFF does not enable private health flow');
 }
 assert.match(app,/await state\.foodRestrictionReader\.refresh\(\);\s*if\(\(state\.authContextEpoch\|\|0\)!==renderEpoch\)return;/);
-assert.match(app,/function resetPrivateSession\(\)\{\s*state\.foodRestrictionReader\?\.invalidate\?\.\(\);/);
+assert.match(app,/function resetPrivateSession\(\)\{\s*closePeriodPdfView\(true\);\s*state\.foodRestrictionReader\?\.invalidate\?\.\(\);/,
+ 'Logout force-closes the private PDF before invalidating the private restriction reader');
 assert.match(app,/function allowedFoods\(\)\{\s*return selectableFoods\(\)\.map/,'Never filter catalog by traffic light');
 console.log('PASS actual food/recipe signals + private read-only scope: OFF, missing vs none, consent, revoke, refresh failure, identity/tenant race; no catalog filtering. Synthetic transport, not hosted.');

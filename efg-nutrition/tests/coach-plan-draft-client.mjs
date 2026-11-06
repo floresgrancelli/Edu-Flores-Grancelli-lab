@@ -2,6 +2,7 @@ import {expectedReleaseFlag} from './approved-release-flags.mjs';
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
+import {assertGuideWindowApplied} from "../pilot/coach-guide-schedule.js";
 import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "../pilot/coach-plan-draft-client.js";
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "../pilot/coach-food-selection.js";
 // COACH119 / legacy and flexible versioned guide contracts.
@@ -248,16 +249,39 @@ for(const moved of [false,true]){
  const saved={status:'draft',draft_revision:1};
  const localState={selectedStudent:STU,consent:{accepted:true},coachPlanDraftRecord:saved,
   session:{user:{id:COACH}},coachIntakeForms:{[STU]:{}},pendingGoal:{},coachGuidedDraft:{kind:'flexible_meal_guide'}};
- let current=true;
+ let current=true,selectedWindow='regular';
+ const publishedRequests=[];
+ const rejection={message:'Guide foods are not independently reviewed and current'};
  const ctx=vm.createContext({state:localState,COACH_ATOMIC_PLAN_UI_ENABLED:true,
   root:{querySelector:()=>panel},foods:[],readGuidedEditor:()=>localState.coachGuidedDraft,
+  assertGuideWindowApplied,currentCoachGuideWindow:()=>selectedWindow,
   approvedFoodGuide:x=>x,assessCoachDraftPublication:()=>({ready:true}),window:{confirm:()=>true},
   coachDraftWorkspaceCurrent:()=>current,createCoachPublicationRequestId:()=>REQ,
-  coachDraftClient:{publish:async()=>{if(moved)current=false;throw {message:'Guide foods are not independently reviewed and current'};}},
+  coachDraftClient:{publish:async args=>{publishedRequests.push(args);if(moved)current=false;throw rejection;}},
   loadStudentDetail:async()=>{throw Error('Rejected publication must not load success');},render:async()=>{},notify:()=>{throw Error('No success toast');}});
  vm.runInContext(app.slice(app.indexOf('function coachPublicationFailureMessage('),pubStart)+pub,ctx);
- await assert.rejects(()=>ctx.publishCoachAtomicDraft());
+ const windowGuardStart=app.indexOf('function assertCurrentGuideWindow(plan){');
+ const windowGuardEnd=app.indexOf('function currentCoachGuideProfile()',windowGuardStart);
+ assert.ok(windowGuardStart>0&&windowGuardEnd>windowGuardStart);
+ vm.runInContext(app.slice(windowGuardStart,windowGuardEnd),ctx);
+ selectedWindow='16_8';
+ await assert.rejects(()=>ctx.publishCoachAtomicDraft(),/ventana horaria cambió/);
+ assert.equal(publishedRequests.length,0,'Unapplied window must not reach publication RPC');
+ assert.equal(localState.coachPlanPublishRequestId,undefined,'Preflight rejection must not create a retry key');
+ selectedWindow='regular';
+ await assert.rejects(()=>ctx.publishCoachAtomicDraft(),error=>error===rejection);
+ assert.equal(publishedRequests.length,1,'The intended RPC rejection must actually execute');
  assert.equal(localState.coachPlanPublishRequestId,REQ,'Failure keeps retry key');
+ if(!moved){
+  await assert.rejects(()=>ctx.publishCoachAtomicDraft(),error=>error===rejection);
+  assert.equal(publishedRequests.length,2,'Retry must execute a second publication attempt');
+ }
+ for(const attempt of publishedRequests){
+  assert.equal(attempt.requestId,REQ,'Every retry uses the original publication key');
+  assert.equal(attempt.studentId,STU);
+  assert.equal(attempt.expectedRevision,1);
+  assert.equal(attempt.confirmed,true);
+ }
  assert.equal(panel.hidden,moved,'Error only shown in unchanged workspace');
  if(!moved)assert.match(panel.textContent,/fuentes nutricionales/);
  assert.doesNotMatch(ctx.coachPublicationFailureMessage({message:'secret SQL details'}),/secret SQL/);

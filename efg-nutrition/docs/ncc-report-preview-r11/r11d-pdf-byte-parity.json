@@ -1,0 +1,20 @@
+[
+  {
+    "source": "PR61 HEAD8f1811f Chromium 390 coach+student period-v2",
+    "sha256": "324bfbb37bb8fcb0361f83db23ab4c7124fbd2913ab54fb6d1a1e2639fd88041",
+    "bytes": 127865,
+    "status": "IDENTICAL"
+  },
+  {
+    "source": "PR61 HEAD8f1811f Chromium 1280 coach+student period-v2",
+    "sha256": "324bfbb37bb8fcb0361f83db23ab4c7124fbd2913ab54fb6d1a1e2639fd88041",
+    "bytes": 127865,
+    "status": "IDENTICAL"
+  },
+  {
+    "source": "R11c frozen local weekly artifact",
+    "sha256": "64ae364deaed30d2a0a36d33cf2fe57c261bb804f661118a7c7bb60a6a54197f",
+    "bytes": 126762,
+    "status": "IDENTICAL"
+  }
+]

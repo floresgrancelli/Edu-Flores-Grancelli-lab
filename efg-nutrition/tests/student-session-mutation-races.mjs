@@ -1,3 +1,4 @@
+import {createWeeklyPdfReview} from '../pilot/weekly-pdf-review.js';
 // Regression on the REAL PWA source. Synthetic REST promises; no hosted writes.
 // Session A pending save -> logout -> session B save -> late A response.
 // Also cover A->B->A reauthentication, per-meal leases and midnight UI guards.
@@ -51,41 +52,46 @@ const saveDiary=new Function('state','activeDiary','today','isNutritionDayClosed
 
 // Execute the real PDF teardown alongside the real session reset. Even a pending
 // publication must not leave the previous student's reviewed snapshot or Blob URL.
-const revokedPdfUrls=[];
-const pdfView=new Function('URL',
+const revokedPdfUrls=[];let nextPdfUrl=0,removedPdfDialogs=0,pdfOpenerFocus=0,editorResets=0,deliveryClears=0;
+URL.createObjectURL=()=> 'blob:synthetic-'+(++nextPdfUrl);URL.revokeObjectURL=url=>revokedPdfUrls.push(url);
+const fakeNode=()=>({style:{},dataset:{},clientWidth:390,setAttribute(){},addEventListener(){},replaceChildren(){},getContext:()=>({}),disabled:false});
+globalThis.document={createElement(tag){if(tag==='canvas')return fakeNode();const fields=new Map();return {...fakeNode(),isConnected:true,open:false,classList:{add(){}},showModal(){this.open=true;},remove(){removedPdfDialogs++;this.isConnected=false;this.open=false;},querySelector(selector){if(!fields.has(selector))fields.set(selector,fakeNode());return fields.get(selector);}};}};
+const options={root:{appendChild(){}},buildPdf:async()=>new Uint8Array([37,80,68,70]),loadDocument:async()=>({destroy:async()=>{},promise:Promise.resolve({numPages:1,getPage:async()=>({getViewport:()=>({width:600,height:800}),render:()=>({promise:Promise.resolve(),cancel(){}}),streamTextContent:()=>new ReadableStream({start(c){c.enqueue({items:[],styles:{},lang:null});c.close();}})})})})};
+const weeklyPdfReview=createWeeklyPdfReview(options),periodPdfReview=createWeeklyPdfReview({...options,mode:'period'});
+const pdfView=new Function('periodPdfReview',
  section('let activePeriodPdfView=null;','function currentPeriodReportHost(){')+
- ';return {close:closePeriodPdfView,set:view=>activePeriodPdfView=view,get:()=>activePeriodPdfView};')({
- revokeObjectURL:url=>revokedPdfUrls.push(url)
-});
-let removedPdfDialogs=0,pdfOpenerFocus=0;
-function privatePdfFixture(userId){
+ ';return {close:closePeriodPdfView,set:view=>activePeriodPdfView=view,get:()=>activePeriodPdfView};')(periodPdfReview);
+async function privatePdfFixture(userId){
  const host={periodPublishing:true,periodReviewed:{userId},periodPdfSnapshot:{userId}};
- const view={host,ticket:{userId},url:'blob:synthetic-'+userId,
-  dialog:{remove(){removedPdfDialogs++;}},opener:{focus(){pdfOpenerFocus++;}}};
- pdfView.set(view);return view;
+ const snapshot={studentName:'FICTICIO '+userId,from:day,to:day,friday:day,daysRecorded:1};
+ const view=periodPdfReview.open({snapshot,isCurrent:()=>true,editable:true,opener:{isConnected:true,focus(){pdfOpenerFocus++;}},onClose:()=>{host.periodReviewed=null;host.periodPdfSnapshot=null;pdfView.set(null);}});
+ view.host=host;pdfView.set(view);await view.prepared;periodPdfReview.setSubmitting(view,true);
+ view.weekly=weeklyPdfReview.open({snapshot,isCurrent:()=>true,editable:true,opener:{isConnected:true,focus(){pdfOpenerFocus++;}}});await view.weekly.prepared;weeklyPdfReview.setSubmitting(view.weekly,true);
+ return view;
 }
+
 const resetPrivateSession=new Function(
  'state','pendingMealRegistrations','pendingHabitualSlots',
- 'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView',
+ 'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView','weeklyPdfReview','luxuryWeeklyEditor','weeklyReportDelivery',
  'let myWeeklyReports=[],cloudRecipes=[],cloudHabituales=[],coachRosterConsent={};'+
  'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false;'+
  section('function resetPrivateSession(){','function handleAuthStateChange(')+
  ';return resetPrivateSession;')(
- state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}},pdfView.close);
+ state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});
 
 const leaseA=mealLocks.add('desayuno');
 const favoriteLeaseA=favoriteLocks.add('cena');
 const pendingA=saveDiary();
 assert.equal(state.diaryWritePending,true);
 assert.equal(deferred.length,1,'First diary write should be in flight');
-const pdfA=privatePdfFixture(idA);
+const pdfA=await privatePdfFixture(idA);
 resetPrivateSession();
 assert.equal(pdfView.get(),null,'Logout closes an in-flight private PDF view');
 assert.equal(pdfA.host.periodReviewed,null,'Logout revokes the old review');
 assert.equal(pdfA.host.periodPdfSnapshot,null,'Logout clears the old PDF snapshot');
 assert.equal(pdfA.ticket,null,'Late PDF generation cannot attach after logout');
-assert.deepEqual(revokedPdfUrls,['blob:synthetic-'+idA]);
-assert.equal(removedPdfDialogs,1);
+assert.deepEqual(revokedPdfUrls.sort(),[pdfA.url,pdfA.weekly.url].sort());assert.equal(pdfA.weekly.ticket,null);assert.equal(pdfA.weekly.dialog.isConnected,false);
+assert.equal(removedPdfDialogs,2);assert.equal(editorResets,1);assert.equal(deliveryClears,1);
 assert.equal(pdfOpenerFocus,0,'Forced logout does not refocus the previous account UI');
 assert.equal(state.diaryWritePending,false,'Old account cannot block new user');
 assert.equal(mealLocks.has('desayuno'),false);
@@ -125,12 +131,12 @@ state.session={user:{id:idA}};state.profile={role:'student'};
 state.diary=makeDay(idA,'A-SESSION3');
 const oldSameAccount=saveDiary();
 assert.equal(deferred.length,3);
-const sameAccountPdf=privatePdfFixture(idA);
+const sameAccountPdf=await privatePdfFixture(idA);
 resetPrivateSession();
 assert.equal(sameAccountPdf.host.periodPdfSnapshot,null);
 assert.equal(pdfView.get(),null,'Fresh authentication of the same account cannot retain the old PDF');
-assert.equal(removedPdfDialogs,2);
-assert.equal(revokedPdfUrls.length,2);
+assert.equal(removedPdfDialogs,4);
+assert.equal(revokedPdfUrls.length,4);assert.equal(sameAccountPdf.weekly.ticket,null);assert.equal(editorResets,2);assert.equal(deliveryClears,2);
 state.authContextEpoch=4;
 state.session={user:{id:idA}};state.profile={role:'student'};
 state.diary=makeDay(idA,'A-SESSION4');state.progressLogs=[];

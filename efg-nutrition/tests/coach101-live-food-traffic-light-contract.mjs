@@ -1,4 +1,4 @@
-import './approved-release-flags.mjs';
+import {expectedAssetVersion} from './approved-release-flags.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {FOOD_COMPATIBILITY_ENABLED} from '../pilot/food-compatibility.js';
@@ -57,6 +57,12 @@ assert.match(app,/Semáforo por patrón alimentario/);
 assert.match(app,/Los colores no indican calorías y no impiden registrar alimentos/);
 assert.match(app,/data-coachfood[\s\S]*foodTrafficLight\(f\)\.symbol/);
 assert.match(html,/food-compatibility\.css\?v=ncc-pilot-3a40474052be/);
-assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/, 'PWA loads latest shared module while retaining traffic lights');
+function assertEntryIdentity(document){
+ const scripts=[...document.matchAll(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(scripts,['./pilot.js?v='+expectedAssetVersion], 'PWA loads exactly the entry from the hash-pinned release/candidate manifest');
+}
+assertEntryIdentity(html);
+assert.throws(()=>assertEntryIdentity(html.replace('./pilot.js?v='+expectedAssetVersion,'./pilot.js?v=stale')), 'A stale entry identity must fail');
+assert.throws(()=>assertEntryIdentity(html.replace('./pilot.js?v='+expectedAssetVersion,'./pilot.js?v='+expectedAssetVersion+'-unreviewed')), 'A matching prefix must not authorize another asset version');
 for(const name of ['green','yellow','red'])assert.ok(readFileSync(new URL('../pilot/food-compatibility.css',import.meta.url),'utf8').includes('.efg-compat-'+name));
 console.log('PASS COACH101: reviewed-only green/red, missing or clinical yellow, no-restriction neutral, searchable food and coach plan badge.');

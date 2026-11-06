@@ -1,3 +1,5 @@
+import {loadReportTrendGoals as loadPeriodReportGoals} from '../pilot/report-trend-goals.js';
+import {normalizeReportTrendGoals} from '../pilot/report-trend-snapshot.js';
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -11,19 +13,23 @@ const healthOwnerStart=source.indexOf('function ownsCoachHealthWorkspace(){');
 const healthOwnerEnd=source.indexOf('function foodCompatibilityRestrictions()',healthOwnerStart);
 assert.ok(healthOwnerStart>0&&healthOwnerEnd>healthOwnerStart);
 const healthOwner=source.slice(healthOwnerStart,healthOwnerEnd);
+const weekStart=source.indexOf('function weeklyReportEnd(){'),weekEnd=source.indexOf('let weeklyPublishPending=false;',weekStart);assert.ok(weekStart>0&&weekEnd>weekStart);
+const weeklyWindow=source.slice(weekStart,weekEnd);
 const dir=mkdtempSync(join(tmpdir(),'ncc-source-hydration-'));
 try{
- const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope}=env;\n'+healthOwner+source.slice(start,end)+'\nreturn loadStudentDetail;}');
- const {build}=await import(pathToFileURL(path).href);
+ const path=join(dir,'actual.mjs');writeFileSync(path,'export function build(env){const {state,sb,coachAdaptedWorkspace,coachIntakeFlow,COACH_ATOMIC_PLAN_UI_ENABLED,COACH_SHARED_STUDENT_RECIPES_UI_ENABLED=false,PRIVATE_HEALTH_DECLARATION_UI_ENABLED=false,coachDraftClient,coachDraftSourceCurrent,loadSundayPermission,today,readVerifiedCoachRestrictionScope,loadPeriodReportGoals,normalizeReportTrendGoals}=env;\n'+healthOwner+weeklyWindow+source.slice(start,end)+'\nreturn loadStudentDetail;}');
+ const {build:actualBuild}=await import(pathToFileURL(path).href);
+ const build=env=>actualBuild({loadPeriodReportGoals,normalizeReportTrendGoals,...env});
  for(const [status,current,guide,expected]of [['draft',true,null,true],['draft',true,{kind:'five_meal_example'},true],['draft',false,null,false],['published',true,null,false]]){
   const state={session:{user:{id:'coach'}},roster:[{user_id:'student',active:true}],coachIntakeForms:{student:{revision:1,shared_at:'date'}}};
-  const chain=name=>({select(){return this;},eq(){return this;},gte(){return this;},order(){return this;},limit(){return this;},
+  const chain=name=>({select(){return this;},eq(){return this;},gte(){return this;},lte(){return this;},gt(){return this;},range(){return this;},order(){return this;},limit(){return this;},
    maybeSingle:async()=>({data:name==='efg_consents'?{accepted:true}:null}),then(resolve){return Promise.resolve({data:[]}).then(resolve);}});
   const goal={kcal:2100,protein_g:190,carb_g:220,fat_g:51,fiber_g:30};
   const run=build({state,sb:{from:chain,auth:{getUser:async()=>({data:{user:{id:'coach'}}})},rpc:async()=>({data:null})},coachAdaptedWorkspace:{close(){}},coachIntakeFlow:{refreshCoachDetail:async()=>{}},
    COACH_ATOMIC_PLAN_UI_ENABLED:true,coachDraftClient:{load:async()=>({status,goal_proposal:goal,guide_proposal:guide})},
    coachDraftSourceCurrent:()=>current,loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
   await run('student');assert.equal(!!state.pendingGoal,expected);
+  assert.equal(state.coachReportGoals.userId,'coach');assert.equal(state.coachReportGoals.studentId,'student');assert.deepEqual(state.coachReportGoals.goals,[]);assert.equal(state.coachReportGoals.from,'2026-10-23');assert.equal(state.coachReportGoals.to,'2026-10-29');
   if(expected)assert.deepEqual(state.pendingGoal,{...goal,student_id:'student'});
   assert.deepEqual(state.coachGuidedDraft,expected?guide:null);
  }
@@ -46,7 +52,7 @@ try{
   let healthReads=0;
   const state={session:{user:{id:clinicalCoach}},org:{id:clinicalOrg,coach_id:clinicalCoach,is_test:isTest===true},profile:{user_id:clinicalCoach,active:true,role},
    roster:[{user_id:clinicalStudent,active:true}],coachIntakeForms:{[clinicalStudent]:{shared_at:'date'}}};
-  const sb={from:table=>({select(){return this;},eq(){return this;},gte(){return this;},order(){return this;},limit(){return this;},
+  const sb={from:table=>({select(){return this;},eq(){return this;},gte(){return this;},lte(){return this;},gt(){return this;},range(){return this;},order(){return this;},limit(){return this;},
     maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:null}),then(resolve){return Promise.resolve({data:[]}).then(resolve);}}),
    auth:{getUser:async()=>({data:{user:{id:clinicalCoach}}})},rpc:async name=>{
     assert.equal(name,'efg_get_coach_health_intake');healthReads++;return {data:{...scopedHealth,...overrides}};
@@ -80,6 +86,22 @@ try{
   await assert.rejects(first,{code:'STALE_AUTH_CONTEXT'});
   assert.equal(state.consent.student_id,lastStudent);
   assert.equal(state.consent.revision,lastStudent==='studentA'?3:2);
+ }
+ // New report-history read is part of the actual hydration flow, with no old
+ // cache fallback on failure and no following pages after a changed auth scope.
+ for(const change of ['read-error','user','org','epoch','student']){
+  const state={session:{user:{id:'coach'}},org:{id:'org'},authContextEpoch:1,roster:[{user_id:'student',active:true}],coachIntakeForms:{},coachReportGoals:{stale:true}};
+  let baselineReads=0,pageReads=0;
+  const sb={from(table){let baseline=false,paged=false;const q={select(){return q;},eq(){return q;},gte(){return q;},lte(){baseline=true;return q;},gt(){return q;},range(){paged=true;return q;},order(){return q;},limit(){return q;},maybeSingle:async()=>({data:table==='efg_consents'?{accepted:true}:null}),then(resolve){
+   if(table==='efg_goals'&&baseline){baselineReads++;if(change==='read-error')return Promise.resolve({data:null,error:Error('synthetic history unavailable')}).then(resolve);
+    if(change==='user')state.session={user:{id:'another'}};if(change==='org')state.org={id:'another'};if(change==='epoch')state.authContextEpoch++;if(change==='student')state.selectedStudent='another';
+   }
+   if(paged)pageReads++;return Promise.resolve({data:[]}).then(resolve);
+  }};return q;}};
+  const run=build({state,sb,coachAdaptedWorkspace:{close(){}},coachIntakeFlow:{refreshCoachDetail:async()=>{}},COACH_ATOMIC_PLAN_UI_ENABLED:false,loadSundayPermission:async()=>{},today:()=> '2026-11-01'});
+  if(change==='read-error'){await run('student');assert.equal(state.consent.accepted,true,'Unverified report targets do not block general consented follow-up');}
+  else await assert.rejects(run('student'),{code:'STALE_AUTH_CONTEXT'});
+  assert.equal(state.coachReportGoals,null,'No prior student/session goal proof survives');assert.equal(baselineReads,1);assert.equal(pageReads,0);
  }
  console.log('PASS actual goal hydration source: current empty-guide draft retains goals; stale/published do not. Unit transport only.');
 }finally{rmSync(dir,{recursive:true,force:true});}

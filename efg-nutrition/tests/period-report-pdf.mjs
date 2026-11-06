@@ -12,7 +12,7 @@ function model(count){
 }
 const m=model(10),a=await buildPeriodReportPdf(m),b=await buildPeriodReportPdf(JSON.parse(JSON.stringify(m)));
 assert.ok(a instanceof Uint8Array);assert.equal(new TextDecoder().decode(a.slice(0,5)),'%PDF-');assert.deepEqual(a,b,'Same approved snapshot must generate byte-identical PDFs');
-const old={...m};delete old.pdfRendererVersion;assert.deepEqual(await buildPeriodReportPdf(old),a,'Legacy can be converted explicitly using current renderer');
+const old={...m};delete old.pdfRendererVersion;assert.deepEqual(await buildPeriodReportPdf(old),await buildPeriodReportPdf({...old,pdfRendererVersion:'ncc-luxury-period-pdf-v1'}),'Missing version selects preserved historical v1, not current v2');assert.notDeepEqual(await buildPeriodReportPdf(old),a);
 await assert.rejects(buildPeriodReportPdf({...m,pdfRendererVersion:'future-v999'}),/Versión/);
 await assert.rejects(buildPeriodReportPdf({...m,approvedByCoach:false}),/válido/);
 await assert.rejects(buildPeriodReportPdf({...m,conclusion:m.conclusion+' 🧬'}),/carácter/,'Unsupported characters must never silently disappear');

@@ -13,10 +13,10 @@ export function createPeriodReportHistory({sb,context}){
  // Keep uncertainty attached to its request ID until exact readback succeeds.
  const uncertainRequests=new Set();
  const valid=()=>{const c=context();if(!c.userId||!c.studentId||!c.allowed)throw Error('Acceso al informe no autorizado.');return c;};
- const same=c=>{const n=context();return n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch&&n.allowed;};
+ const same=c=>{const n=context();return n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch&&n.role===c.role&&n.organizationId===c.organizationId&&n.scopeKey===c.scopeKey&&n.canPublish===c.canPublish&&n.allowed;};
  async function list(){const c=valid();const r=await sb.from('efg_period_reports').select('id,student_id,coach_id,period_from,period_to,report_text,created_at').eq('student_id',c.studentId).order('created_at',{ascending:false}).limit(100);if(r.error)throw r.error;if(!same(c))return null;return r.data||[];}
  async function publish({model,requestId,confirmed=false}){
-  const c=valid();if(c.role!=='coach'||!confirmed||!requestId)throw Error('Revisá y confirmá el informe antes de compartir.');
+  const c=valid();if(!c.canPublish||!['coach','admin'].includes(c.role)||!confirmed||!requestId)throw Error('Revisá y confirmá el informe antes de compartir.');
   if(pending)throw Error('Ya hay un envío en curso.');
   const text=periodReportAsStoredText(model,model.conclusion,model.flexibleNote);
   if(!model.daysRecorded)throw Error('No hay registros para publicar.');

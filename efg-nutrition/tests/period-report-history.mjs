@@ -3,7 +3,7 @@ import {createPeriodReportHistory} from '../pilot/period-report-history.js';
 import {buildLuxuryPeriodReport} from '../pilot/period-luxury-report.js';
 const model=buildLuxuryPeriodReport({from:'2026-10-01',to:'2026-10-01',friday:'2026-10-02',days:[{date:'2026-10-01',hasData:true,closed:true,mealCount:1,k:100,p:10,c:10,f:2,fi:1}]});
 function fixture(){
- let ctx={userId:'coach',studentId:'student',allowed:true,role:'coach',epoch:1};
+ let ctx={userId:'coach',studentId:'student',allowed:true,canPublish:true,role:'coach',epoch:1};
  const rows=new Map();let inserts=0,offline=false,hold=null;
  const sb={from(table){assert.equal(table,'efg_period_reports');return {
  async insert(row){inserts++;if(hold)await hold;if(offline)return {error:{code:'NETWORK'}};
@@ -23,4 +23,4 @@ await assert.rejects(f.client.publish({...args,requestId:'request-2'}),/missing/
 const race=fixture();let release;race.setHold(new Promise(r=>release=r));const pending=race.client.publish(args);
 await assert.rejects(race.client.publish(args),/en curso/);race.setContext({studentId:'other',epoch:2});release();assert.equal(await pending,null);
 const read=fixture();let releaseRead;read.setHold(new Promise(r=>releaseRead=r));const reading=read.client.list();read.setContext({allowed:false,epoch:2});releaseRead();assert.equal(await reading,null);
-console.log('PASS period history client: explicit review, coach only, failed request retry, exact idempotency, immutable payload, duplicate period rejected, pending guard, stale publish/read discarded. Synthetic transport only.');
+console.log('PASS period history client: explicit review, validated author capability, failed request retry, exact idempotency, immutable payload, duplicate period rejected, pending guard, stale publish/read discarded. Synthetic transport only.');

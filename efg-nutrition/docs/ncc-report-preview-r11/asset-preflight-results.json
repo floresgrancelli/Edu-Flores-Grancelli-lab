@@ -1,0 +1,17 @@
+{
+  "candidate": "R11c",
+  "base": "3611949b2a1ac866bd342a05187251616d7f08ad",
+  "manifest_sha256": "c53a4e182f21d23201f046e85944400258ee509bd92eda92cdc36e4bfd3d8c94",
+  "module_files": 117,
+  "stylesheets": 26,
+  "checks": [
+    "approved-release PASS",
+    "PWA entry identity PASS",
+    "complete per-target module and resource graph PASS",
+    "5 asset guard subtests PASS",
+    "guided-meal-picker PASS",
+    "v1 PDF exact bytes after v2 PASS"
+  ],
+  "browser": "not run locally; OS socket EPERM",
+  "remote_writes": "none"
+}

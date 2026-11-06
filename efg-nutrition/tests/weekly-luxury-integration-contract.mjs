@@ -17,7 +17,9 @@ const replyPart=chat.slice(chat.indexOf('async function replyToWeeklyReport('),c
 assert.doesNotMatch(replyPart,/send\(|\.insert\(/,'reply navigation must not send any message automatically');
 assert.match(ui,/already.*compartido|Ya existe un informe publicado/);
 assert.doesNotMatch(ui,/weeklyCoachDraftText/,'legacy plaintext editor must not reappear');
-assert.match(ui,/efg_weekly_reports"\)\.insert/,'publishing should insert, not overwrite existing weekly history');
+const delivery=read('weekly-report-delivery.js');
+assert.match(delivery,/efg_weekly_reports'\)\.insert/,'publishing should insert, not overwrite existing weekly history');
+assert.doesNotMatch(delivery,/\.update\(|\.upsert\(/);
 assert.match(ui,/state\.coachHistory=latest\.data\|\|\[\]/);
 assert.match(css,/lux-report-evidence/);
 assert.match(css,/replyWeeklyReport/);

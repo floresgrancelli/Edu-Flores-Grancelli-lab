@@ -1,3 +1,4 @@
+import {normalizeReportTrendGoals,withReportTrendGoals} from '../pilot/report-trend-snapshot.js';
 // Focused integration of actual pilot handlers in a real browser, not a second UI.
 // Synthetic RAM transport only. Native headless PDF pixels are NOT asserted.
 import assert from 'node:assert/strict';
@@ -21,9 +22,12 @@ const fixture=`
 import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from '/efg-nutrition/pilot/period-luxury-report.js';
 import {buildPeriodReportPdf as renderPdf,PERIOD_PDF_RENDERER_VERSION} from '/efg-nutrition/pilot/period-report-pdf.js';
 import {createPeriodReportHistory} from '/efg-nutrition/pilot/period-report-history.js';
-import {loadPeriodReportGoals} from '/efg-nutrition/pilot/period-report-goals.js';
+import {loadReportTrendGoals as loadPeriodReportGoals} from '/efg-nutrition/pilot/report-trend-goals.js';
 import {validateReportPeriod} from '/efg-nutrition/pilot/period-report.js';
 import {buildNutritionReport} from '/efg-nutrition/pilot/daily-report.js';
+import {normalizeReportTrendGoals,withReportTrendGoals} from '/efg-nutrition/pilot/report-trend-snapshot.js';
+import {withReportFoodFrequency} from '/efg-nutrition/pilot/report-food-frequency.js';
+import {createWeeklyPdfReview} from '/efg-nutrition/pilot/weekly-pdf-review.js';
 const root=document.getElementById('app'),today=()=> '2026-11-06';
 const coach='22222222-2222-4222-8222-222222222222',student='11111111-1111-4111-8111-111111111111';
 const state={profile:{role:'coach',nickname:'Coach ficticio'},session:{user:{id:coach}},selectedStudent:student,consent:{accepted:true},roster:[{user_id:student,active:true,nickname:'María José Núñez · FICTICIO'}],authContextEpoch:1};
@@ -33,6 +37,7 @@ const createUrl=URL.createObjectURL.bind(URL),revokeUrl=URL.revokeObjectURL.bind
 URL.createObjectURL=blob=>{const url=createUrl(blob);trace.created.push({url,type:blob.type,size:blob.size});return url;};
 URL.revokeObjectURL=url=>{trace.revoked.push(url);revokeUrl(url);};
 async function buildPeriodReportPdf(model){trace.pdfRequests++;if(pdfGate)await pdfGate;return renderPdf(model);}
+const periodPdfReview=createWeeklyPdfReview({root,mode:'period',buildPdf:buildPeriodReportPdf});
 const logs=[0,1,3,5,8].map(i=>({student_id:student,log_day:'2026-10-'+String(22+i).padStart(2,'0'),meals:{desayuno:[{id:'avena',name:'Avena con yogur y arándanos',k:580,p:31,c:75,f:17,fi:10}],almuerzo:[{id:'pollo',name:'Pollo con verduras',k:650,p:42,c:60,f:24,fi:9}]},sports:[],skipped:{}}));
 const goal={id:'33333333-3333-4333-8333-333333333333',student_id:student,start_on:'2026-01-01',approved_at:'2026-01-01T12:00:00Z',kcal:2100,protein_g:120,carb_g:260,fat_g:65,fiber_g:28};
 const sb={from(table){
@@ -55,7 +60,7 @@ ${between(' if(action==="generatePeriodReport")',' if(action==="copyDailyReport"
 root.addEventListener('click',event=>{const el=event.target.closest('[data-act]');if(el)run(el.dataset.act,el).catch(error=>trace.errors.push(error.message));});
 ${between("root.addEventListener('input',e=>{",'root.addEventListener("input",e=>{')}
 window.qa={state,trace,run,version:PERIOD_PDF_RENDERER_VERSION,
- view:()=>activePeriodPdfView&&({url:activePeriodPdfView.url,ready:activePeriodPdfView.ready,snapshot:activePeriodPdfView.snapshot,serialized:activePeriodPdfView.serialized}),
+ view:()=>activePeriodPdfView&&({url:activePeriodPdfView.url,ready:activePeriodPdfView.ready,snapshot:activePeriodPdfView.snapshot,serialized:activePeriodPdfView.serialized,page:activePeriodPdfView.page,pages:activePeriodPdfView.pdf?.numPages,seen:activePeriodPdfView.seen.size,error:activePeriodPdfView.error&&({name:activePeriodPdfView.error.name,message:activePeriodPdfView.error.message,stack:activePeriodPdfView.error.stack})}),
  holdPdf(){pdfGate=new Promise(r=>releasePdf=r);},releasePdf(){releasePdf();pdfGate=null;},
  holdInsert(){insertGate=new Promise(r=>releaseInsert=r);},releaseInsert(){releaseInsert();insertGate=null;},
  coach(){closePeriodPdfView(true);state.profile.role='coach';state.session={user:{id:coach}};state.selectedStudent=student;state.consent.accepted=true;root.innerHTML=coachPeriodReportPanel();document.getElementById('periodReportFrom').value='2026-10-22';document.getElementById('periodReportTo').value='2026-10-31';},
@@ -72,13 +77,13 @@ if(process.argv.includes('--check-fixture')){
  process.exit(0);
 }
 const html=`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PDF sintético · QA aislado</title>
-<link rel="stylesheet" href="/efg-nutrition/styles.css"><link rel="stylesheet" href="/efg-nutrition/fresh.css"><link rel="stylesheet" href="/efg-nutrition/pilot/pilot.css"><link rel="stylesheet" href="/efg-nutrition/pilot/weekly-luxury-report.css"></head><body><main id="app"></main><script type="module" src="/fixture.js"></script></body></html>`;
+<link rel="stylesheet" href="/efg-nutrition/styles.css"><link rel="stylesheet" href="/efg-nutrition/fresh.css"><link rel="stylesheet" href="/efg-nutrition/pilot/pilot.css"><link rel="stylesheet" href="/efg-nutrition/pilot/weekly-luxury-report.css"><link rel="stylesheet" href="/efg-nutrition/pilot/weekly-pdf-review.css"></head><body><main id="app"></main><script type="module" src="/fixture.js"></script></body></html>`;
 const server=createServer((req,res)=>{try{
  const path=new URL(req.url,'http://localhost').pathname;
  if(path==='/fixture.js'){res.writeHead(200,{'content-type':'text/javascript'});return res.end(fixture);}
  if(path==='/'){res.writeHead(200,{'content-type':'text/html'});return res.end(html);}
  const file=resolve(base,'.'+path);assert.ok(file.startsWith(base+'/efg-nutrition/'));
- res.writeHead(200,{'content-type':({'.js':'text/javascript','.css':'text/css','.html':'text/html','.ttf':'font/ttf','.woff2':'font/woff2'})[extname(file)]||'application/octet-stream'});res.end(readFileSync(file));
+ res.writeHead(200,{'content-type':({'.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.html':'text/html','.ttf':'font/ttf','.woff2':'font/woff2'})[extname(file)]||'application/octet-stream'});res.end(readFileSync(file));
 }catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+server.address().port;
@@ -89,13 +94,12 @@ function inspectPdf(bytes){
  const text=bytes.toString('latin1');assert.ok(bytes.length>10000,'Embedded-font PDF has substantial bytes');
  assert.match(text,/^%PDF-1\.[3-7]/);assert.match(text,/%%EOF\s*$/);
  const offset=Number(text.match(/startxref\s+(\d+)\s+%%EOF\s*$/)?.[1]);assert.ok(Number.isInteger(offset)&&offset>0);assert.equal(text.slice(offset,offset+4),'xref');
- assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v1/);
+ assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v2/);
  const pages=(text.match(/\/Type \/Page\b/g)||[]).length;assert.ok(pages>=2,'Real multipage report, not HTML print or a magic-byte stub');
  return {bytes:bytes.length,sha256:sha(bytes),pages,header:text.slice(0,8),xrefOffset:offset};
 }
 try{
- // install chromium already supplies full Chromium and headless-shell. The
- // full channel includes the native PDF viewer; do not infer shell limitations.
+ // Full browser engine with real same-origin PDF.js canvas rendering.
  const {chromium,webkit}=await import('playwright');browser=await ({chromium,webkit}[engine]).launch({headless:true,...(engine==='chromium'?{channel:'chromium'}:{})});
  for(const width of [390,1280]){
   const ctx=await browser.newContext({viewport:{width,height:900},acceptDownloads:true});
@@ -113,7 +117,7 @@ try{
   await page.goto(origin);await page.waitForFunction(()=>window.qa);
   const screenshot=label=>page.screenshot({path:resolve(out,`${engine}-${width}-${label}.png`),fullPage:true});
   const generate=async()=>{await page.getByRole('button',{name:'Generar informe del período',exact:true}).click();await page.locator('[data-act="printPeriodLuxury"]').waitFor();};
-  const open=async()=>{await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready);};
+  const open=async()=>{await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready||qa.view()?.error);assert.equal(await page.evaluate(()=>qa.view()?.error||null),null,'Real PDF decode/render must succeed; the saved error stack identifies compatibility failures');};
   const close=async()=>{await page.locator('[data-pdf-close]').click();await page.locator('.period-pdf-dialog').waitFor({state:'detached'});};
   const download=async label=>{
    const pending=page.waitForEvent('download');await page.locator('[data-pdf-download]').click();const d=await pending;
@@ -130,50 +134,22 @@ try{
   await open();assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);
   assert.match(await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')).then(()=>'',e=>e.message)),/confirmación/,'Handler also refuses unreviewed send');
   const pdf=await page.evaluate(async()=>{const v=qa.view(),r=await fetch(v.url);return {url:v.url,type:r.headers.get('content-type'),size:(await r.arrayBuffer()).byteLength,snapshot:v.snapshot,serialized:v.serialized};});
-  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v1');assert.equal(pdf.snapshot.approvedByCoach,true);
-  assert.equal(await page.locator('.period-pdf-dialog iframe').getAttribute('src'),pdf.url);assert.equal(await page.locator('.period-pdf-dialog iframe').isVisible(),true);
-  assert.equal(await page.locator('[data-pdf-open]').getAttribute('href'),pdf.url);assert.equal(await page.locator('[data-pdf-open]').getAttribute('target'),'_blank');assert.equal(await page.locator('[data-pdf-open]').getAttribute('rel'),'noopener');
+  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v2');assert.equal(pdf.snapshot.approvedByCoach,true);
+  assert.equal(await page.locator('.period-pdf-dialog canvas').isVisible(),true);
   assert.equal(await page.locator('[data-pdf-download]').getAttribute('href'),pdf.url);
   const dialogBox=await page.locator('.period-pdf-dialog').boundingBox();assert.ok(dialogBox.x>=0&&dialogBox.x+dialogBox.width<=width+1);
   const controls=await page.locator('.period-pdf-dialog .btn').evaluateAll(nodes=>nodes.filter(n=>!n.hidden).map(n=>n.getBoundingClientRect().height));assert.ok(controls.every(h=>h>=44));
-  const nativePdfEvidence={channel:engine==='chromium'?'chromium (full headless)':'webkit',status:'not-validated',loadObserved:false,coverPixels:0};
-  if(engine==='chromium'){
-   const iframe=page.locator('.period-pdf-dialog iframe');
-   try{
-    const frame=await (await iframe.elementHandle()).contentFrame();
-    await frame.waitForURL(pdf.url,{waitUntil:'load'});nativePdfEvidence.loadObserved=true;
-    // Poll actual compositor screenshots, not a blind fixed sleep. A blank or
-    // gray viewer cannot satisfy the report's navy-cover color signal. This
-    // diagnostic is not a substitute for inspecting all PDF pages/legibility.
-    const deadline=Date.now()+10000;let captured;
-    do{
-     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-     captured=await iframe.screenshot();
-     nativePdfEvidence.coverPixels=await page.evaluate(async data=>{
-      const image=new Image();image.src='data:image/png;base64,'+data;await image.decode();
-      const canvas=document.createElement('canvas');canvas.width=256;canvas.height=Math.max(1,Math.round(image.height*256/image.width));
-      const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0,canvas.width,canvas.height);const p=ctx.getImageData(0,0,canvas.width,canvas.height).data;let navy=0;
-      for(let i=0;i<p.length;i+=4)if(p[i]>5&&p[i]<65&&p[i+1]>p[i]+10&&p[i+1]<100&&p[i+2]>p[i+1]+3&&p[i+2]<120)navy++;
-      return navy;
-     },captured.toString('base64'));
-    }while(nativePdfEvidence.coverPixels<200&&Date.now()<deadline);
-    nativePdfEvidence.status=nativePdfEvidence.coverPixels>=200?'report-cover-pixels-observed; visual review required':'native-display-unconfirmed';
-    writeFileSync(resolve(out,`${engine}-${width}-native-iframe.png`),captured);
-   }catch(error){nativePdfEvidence.status='native-display-unconfirmed';nativePdfEvidence.error=error.message;}
-   writeFileSync(resolve(out,`${engine}-${width}-native-viewer.json`),JSON.stringify(nativePdfEvidence,null,2));
-  }
   await screenshot('coach-dialog-unreviewed');
   const preview=await download('coach-reviewed');assert.equal(preview.bytes.length,pdf.size);
-  // WebKit may download instead of creating a PDF-viewer page. Exercise the
-  // actual anchor and require either real browser outcome, never native pixels.
-  const openOutcome=Promise.race([
-   ctx.waitForEvent('page').then(popup=>({kind:'new-target',popup})),
-   page.waitForEvent('download').then(file=>({kind:'download-fallback',file}))
-  ]);
-  await page.locator('[data-pdf-open]').click();const opened=await openOutcome;
-  const popupEvidence={outcome:opened.kind,nativePdfRendering:'not asserted in headless'};
-  if(opened.popup){popupEvidence.initialUrl=opened.popup.url();await opened.popup.close().catch(()=>{});}
-  else{assert.equal(await opened.file.failure(),null);const path=resolve(out,`${engine}-${width}-open-fallback.pdf`);await opened.file.saveAs(path);assert.deepEqual(readFileSync(path),preview.bytes);}
+  const reviewAll=async()=>{
+   assert.equal(await page.locator('#periodReportReviewed').isDisabled(),true);
+   while(await page.evaluate(()=>qa.view().page<qa.view().pages)){
+    const n=await page.evaluate(()=>qa.view().page);await page.locator('[data-weekly-next]').click();await page.waitForFunction(n=>qa.view().ready&&qa.view().page===n+1,n);
+   }
+   assert.equal(await page.locator('#periodReportReviewed').isDisabled(),false);
+   await screenshot('graphs-final-page');assert.match(await page.locator('[data-weekly-text]').textContent(),/Carbohidratos|Grasas/);
+  };
+  await reviewAll();
   assert.equal(await page.evaluate(()=>qa.trace.inserts),0,'Opening/downloading cannot publish');
   await page.locator('#periodReportReviewed').check();assert.equal(await page.locator('#periodPublishButton').isDisabled(),false);
   await close();await urlRevoked(pdf.url);assert.equal(await page.evaluate(()=>qa.approved()),false);assert.equal(await page.evaluate(()=>qa.snapshot()),null);
@@ -182,10 +158,10 @@ try{
   await open();assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);
   const edited=await download('coach-edited');assert.notEqual(edited.details.sha256,preview.details.sha256);
   // Editing while a dialog exists can occur through app updates; it must revoke the snapshot too.
-  await page.locator('#periodReportReviewed').check();const editedUrl=await page.evaluate(()=>qa.view().url);
+  await reviewAll();await page.locator('#periodReportReviewed').check();const editedUrl=await page.evaluate(()=>qa.view().url);
   await page.evaluate(()=>{const field=document.getElementById('periodReportConclusion');field.value+='\nSegunda edición ficticia.';field.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('.period-pdf-dialog').waitFor({state:'detached'});await urlRevoked(editedUrl);assert.equal(await page.evaluate(()=>qa.approved()),false);
-  await open();await page.locator('#periodReportReviewed').check();const finalSnapshot=await page.evaluate(()=>qa.view().serialized);const approved=await download('coach-final');
+  await open();await reviewAll();await page.locator('#periodReportReviewed').check();const finalSnapshot=await page.evaluate(()=>qa.view().serialized);const approved=await download('coach-final');
   await screenshot('coach-dialog-approved');await page.evaluate(()=>qa.holdInsert());
   await page.locator('#periodPublishButton').click();await page.waitForFunction(()=>qa.trace.inserts===1);
   assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('[data-pdf-close]').isDisabled(),true);
@@ -220,11 +196,12 @@ try{
   assert.deepEqual(await page.evaluate(()=>qa.trace.errors),[]);assert.deepEqual(pageErrors,[]);assert.deepEqual(external,[],'No CDN, backend or other external network requests');
   writeFileSync(resolve(out,`${engine}-${width}-snapshot.json`),finalSnapshot+'\n');
   writeFileSync(resolve(out,`${engine}-${width}-network.json`),JSON.stringify(networkEvidence,null,2));
-  results.push({engine,width,status:'PASS',scope:'Actual extracted pilot handlers, DOM events and CSS; real local PDF renderer and history client; RAM transport only',nativePdfRendering:nativePdfEvidence,pdfVisualScope:'Functional PASS does not certify native rendering. Chromium cover-pixel diagnostic and PNG require visual review; WebKit Linux is not Safari/iOS. Downloaded bytes remain independently checked.',popupEvidence,coach:approved.details,student:studentPdf.details,checks:['actual generation and accessible HTML','application/pdf Blob and iframe binding','open in new tab and native download','explicit review gate','close/Escape restore and revoke','edit revokes approval and changes PDF','exact snapshot persisted once','student identical snapshot/version/bytes','stale student response ignored','double open leaves one live URL','close during pending PDF','no external requests']});
+  results.push({engine,width,status:'PASS',scope:'Actual extracted pilot handlers, DOM events and CSS; real local PDF renderer and history client; RAM transport only',pdfVisualScope:'Actual PDF.js canvas pages; screenshots require visual review. Chromium/WebKit emulation, not a physical device.',coach:approved.details,student:studentPdf.details,checks:['actual generation and accessible HTML','application/pdf Blob and PDF.js canvas pages','native download','all-pages review gate and graph text','close/Escape restore and revoke','edit revokes approval and changes PDF','exact snapshot persisted once','student identical snapshot/version/bytes','stale student response ignored','double open leaves one live URL','close during pending PDF','no external requests']});
   writeFileSync(resolve(out,`results-${engine}.json`),JSON.stringify(results,null,2));await ctx.close();page=null;
  }
  console.log(JSON.stringify(results,null,2));
 }catch(error){
  if(page&&!page.isClosed())await page.screenshot({path:resolve(out,`${engine}-failure.png`),fullPage:true}).catch(()=>{});
- writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,networkEvidence,completed:results},null,2));throw error;
+ const diagnostic=page&&!page.isClosed()?await page.evaluate(()=>({pdf:window.qa?.view(),trace:window.qa?.trace,capabilities:{userAgent:navigator.userAgent,readableStreamAsyncIterator:typeof ReadableStream.prototype[Symbol.asyncIterator],promiseTry:typeof Promise.try,promiseResolvers:typeof Promise.withResolvers,mapGetOrInsert:typeof Map.prototype.getOrInsertComputed,uint8FromBase64:typeof Uint8Array.fromBase64,iterator:typeof globalThis.Iterator,setUnion:typeof Set.prototype.union,DOMMatrix:typeof DOMMatrix,Path2D:typeof Path2D,OffscreenCanvas:typeof OffscreenCanvas}})).catch(e=>({captureError:e.message})):null;
+ writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,diagnostic,networkEvidence,completed:results},null,2));throw error;
 }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}

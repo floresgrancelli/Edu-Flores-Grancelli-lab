@@ -14,8 +14,8 @@ test('catalog is the source of the explicit whole-egg unit; 3.3 becomes 3 real u
  assert.equal(normalizeGuidedCountableQuantity(food('egg',165)),150);
  assert.equal(GUIDE_MEALS[0].items[0][1],100);
  for(const qty of [50,75,100,110,149,150,165,999])assert.equal(normalizeGuidedCountableQuantity(food('egg',qty))%50,0);
- assert.equal(guidedCountablePortion('bread'),null);
- assert.equal(normalizeGuidedCountableQuantity(food('bread',33.3)),33.3);
+ assert.equal(guidedCountablePortion('bread').grams,FOOD_UNIT_PORTIONS.bread.grams);
+ assert.equal(normalizeGuidedCountableQuantity(food('bread',33.3)),30);
  assert.equal(normalizeGuidedCountableQuantity(food('scrambled_eggs',165)),165);
 });
 test('rebalances the real deficit using only existing foods, preserving source and restrictions',()=>{

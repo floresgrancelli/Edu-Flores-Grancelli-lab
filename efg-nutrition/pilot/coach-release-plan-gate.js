@@ -1,4 +1,4 @@
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 // COACH-66 · Release-only publication gate. OFF until server-side draft and
 // atomic publish RPC BOTH verify the new versioned intake and consent.
 // This is client defense-in-depth; PostgreSQL authorization remains mandatory.

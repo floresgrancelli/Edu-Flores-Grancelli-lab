@@ -14,10 +14,10 @@ const candidatePath=new URL('docs/guide-return-candidate/asset-manifest.json',ro
 let candidate=null;
 if(existsSync(candidatePath)){
  const candidateBytes=readFileSync(candidatePath);
- assert.equal(createHash('sha256').update(candidateBytes).digest('hex'),'fb4d7ff3cb5221c0c847471f6dc713fedd94890ba62314be69f06491b076d12c','Exact private candidate manifest');
+ assert.equal(createHash('sha256').update(candidateBytes).digest('hex'),'57cfe22ba1d0e02dfc5dc00403f92f6cef53544b2e94182155e99ea238b36f9a','Exact private candidate manifest');
  candidate=JSON.parse(candidateBytes);
  assert.equal(candidate.status,'RELEASE_CANDIDATE');
- assert.equal(candidate.baseline,'b373fdf5c90a920c9e1971d5c2d8c98531e0a14a');
+ assert.equal(candidate.baseline,'ed92b17ef0e62187dfa980fb81726d064c9485a4');
  assert.equal(candidate.build,manifest.proposedBuild);
  for(const [path,expected] of Object.entries(candidate.sha256)){
   assert.equal(createHash('sha256').update(readFileSync(new URL(path.replace(/^efg-nutrition\//,''),root))).digest('hex'),expected,'Private candidate asset: '+path);

@@ -1,10 +1,11 @@
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.
 // Never insert new goals or guides directly. No edits to student diary, login or sessions.
-import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {approvedFoodGuide} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 export const COACH_ATOMIC_PLAN_UI_ENABLED=true;
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -38,6 +39,8 @@ export function validateCoachPlanProposal(goal,guide){
       !["g","ml"].includes(item.unit)||!Number.isFinite(item.qty)||item.qty<=0||item.qty>1000||
       ["k","p","c","f","fi"].some(k=>!Number.isFinite(item[k])||item[k]<0||item[k]>100000))
     throw Error("Revisá cantidades, unidades y nutrientes de los alimentos.");
+   // Persist exactly what was reviewed; never silently round stored guides.
+   normalizeGuidedCountableQuantity({...item,locked:true});
   }
  }
  if(flexible||guide.approvedFoodIds!==undefined)

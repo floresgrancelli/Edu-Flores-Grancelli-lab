@@ -131,6 +131,10 @@ jobs:
         run: node efg-nutrition/tests/guide-preview-mobile.mjs
       - name: Guide mobile preview and direct send (WebKit, synthetic transport)
         run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/guide-preview-mobile.mjs
+      - name: Period report real PDF review and student download (Chromium, synthetic RAM)
+        run: node efg-nutrition/tests/period-report-browser.mjs
+      - name: Period report real PDF review and student download (WebKit, synthetic RAM)
+        run: EFG_QA_ENGINE=webkit node efg-nutrition/tests/period-report-browser.mjs
       - name: Test actual UI with mock profiles only (no production connectivity)
         run: |
           node efg-nutrition/tests/scientific-macros.mjs
@@ -202,6 +206,7 @@ jobs:
           path: |
             artifacts/premium-visual-qa/
             artifacts/guide-preview/
+            artifacts/period-report-pdf/
           if-no-files-found: warn
           retention-days: 14
       - name: Confirm release remains manual

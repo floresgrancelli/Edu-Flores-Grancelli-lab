@@ -91,7 +91,22 @@ assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,inta
 assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake:{...intake,shared_at:null},savedDraft:loaded,goal,guide}).ready,false,"Revoked shared intake");
 assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:{...loaded,status:"published"},goal,guide}).ready,false,"Already published");
 
-const edited=structuredClone(guide);edited.meals[0].items[0].qty+=5;
+// Countable foods must retain whole units even when an editor submits a raw weight.
+const fractional=structuredClone(guide);
+const fractionalEgg=fractional.meals.flatMap(meal=>meal.items).find(item=>item.id==="egg");
+assert.ok(fractionalEgg,"Synthetic guide must contain an egg for the negative regression");
+fractionalEgg.qty+=5;
+const beforeFractionalRpc=calls.filter(x=>x.type==="rpc").length;
+await assert.rejects(()=>mock.save({studentId:student,sourceUpdatedAt:stamp,goal,guide:fractional,expectedRevision:1}),/unidades enteras/);
+assert.equal(calls.filter(x=>x.type==="rpc").length,beforeFractionalRpc,"Fractional egg must be rejected before any write RPC");
+assert.equal(serverDraft.draft_revision,1,"Invalid edit must not advance the saved revision");
+assert.deepEqual(serverDraft.guide_proposal,guide,"Invalid edit must leave the saved guide unchanged");
+// A divisible food remains a valid editable quantity and exercises revision/readback.
+const edited=structuredClone(guide);
+const editedOats=edited.meals.flatMap(meal=>meal.items).find(item=>item.id==="oats_raw");
+assert.ok(editedOats,"Synthetic guide must contain divisible oats for the valid edit");
+editedOats.qty+=5;
+assert.doesNotThrow(()=>validateCoachPlanProposal(goal,edited));
 assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal,guide:edited}).ready,false,"Unsaved quantity change");
 const newGoal={...goal,kcal:goal.kcal+50};
 assert.equal(assessCoachDraftPublication({versioned:false,studentId:student,intake,savedDraft:loaded,goal:newGoal,guide}).ready,false,"Unsaved energy change");

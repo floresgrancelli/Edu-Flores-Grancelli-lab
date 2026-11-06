@@ -49,21 +49,44 @@ const saveDiary=new Function('state','activeDiary','today','isNutritionDayClosed
  state,()=>state.diary,()=>day,()=>false,totals,sb,
  async()=>{renderCount++;},msg=>notices.push(msg));
 
+// Execute the real PDF teardown alongside the real session reset. Even a pending
+// publication must not leave the previous student's reviewed snapshot or Blob URL.
+const revokedPdfUrls=[];
+const pdfView=new Function('URL',
+ section('let activePeriodPdfView=null;','function currentPeriodReportHost(){')+
+ ';return {close:closePeriodPdfView,set:view=>activePeriodPdfView=view,get:()=>activePeriodPdfView};')({
+ revokeObjectURL:url=>revokedPdfUrls.push(url)
+});
+let removedPdfDialogs=0,pdfOpenerFocus=0;
+function privatePdfFixture(userId){
+ const host={periodPublishing:true,periodReviewed:{userId},periodPdfSnapshot:{userId}};
+ const view={host,ticket:{userId},url:'blob:synthetic-'+userId,
+  dialog:{remove(){removedPdfDialogs++;}},opener:{focus(){pdfOpenerFocus++;}}};
+ pdfView.set(view);return view;
+}
 const resetPrivateSession=new Function(
  'state','pendingMealRegistrations','pendingHabitualSlots',
- 'pilotGuideLifecycle','coachAdaptedWorkspace',
+ 'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView',
  'let myWeeklyReports=[],cloudRecipes=[],cloudHabituales=[],coachRosterConsent={};'+
  'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false;'+
  section('function resetPrivateSession(){','function handleAuthStateChange(')+
  ';return resetPrivateSession;')(
- state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}});
+ state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}},pdfView.close);
 
 const leaseA=mealLocks.add('desayuno');
 const favoriteLeaseA=favoriteLocks.add('cena');
 const pendingA=saveDiary();
 assert.equal(state.diaryWritePending,true);
 assert.equal(deferred.length,1,'First diary write should be in flight');
+const pdfA=privatePdfFixture(idA);
 resetPrivateSession();
+assert.equal(pdfView.get(),null,'Logout closes an in-flight private PDF view');
+assert.equal(pdfA.host.periodReviewed,null,'Logout revokes the old review');
+assert.equal(pdfA.host.periodPdfSnapshot,null,'Logout clears the old PDF snapshot');
+assert.equal(pdfA.ticket,null,'Late PDF generation cannot attach after logout');
+assert.deepEqual(revokedPdfUrls,['blob:synthetic-'+idA]);
+assert.equal(removedPdfDialogs,1);
+assert.equal(pdfOpenerFocus,0,'Forced logout does not refocus the previous account UI');
 assert.equal(state.diaryWritePending,false,'Old account cannot block new user');
 assert.equal(mealLocks.has('desayuno'),false);
 assert.equal(favoriteLocks.has('cena'),false);
@@ -102,7 +125,12 @@ state.session={user:{id:idA}};state.profile={role:'student'};
 state.diary=makeDay(idA,'A-SESSION3');
 const oldSameAccount=saveDiary();
 assert.equal(deferred.length,3);
+const sameAccountPdf=privatePdfFixture(idA);
 resetPrivateSession();
+assert.equal(sameAccountPdf.host.periodPdfSnapshot,null);
+assert.equal(pdfView.get(),null,'Fresh authentication of the same account cannot retain the old PDF');
+assert.equal(removedPdfDialogs,2);
+assert.equal(revokedPdfUrls.length,2);
 state.authContextEpoch=4;
 state.session={user:{id:idA}};state.profile={role:'student'};
 state.diary=makeDay(idA,'A-SESSION4');state.progressLogs=[];

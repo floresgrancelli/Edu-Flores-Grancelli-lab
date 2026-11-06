@@ -1,8 +1,8 @@
 // COACH-RELAUNCH: private owner-only intake entry client, NOT ENABLED.
 // No local/session storage; signed JWT + server RLS/RPC is authoritative.
 import {COACH_RELEASE_INTAKE_VERSION,COACH_RELAUNCH_ONBOARDING_ENABLED,
- resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+ resolveCoachRelaunchEntry,initialCoachRelaunchIntake,isCurrentCoachLegalAccepted} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {renderGutClinicalDraft} from "./gut-clinical-workbench.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const validUid=x=>typeof x==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 const accepted=isCurrentCoachLegalAccepted;

@@ -1,7 +1,7 @@
 // COACH111: new Coach pilot entry adapter. OFF until atomic publishing and
 // server-side diary write gate are validated, then enabled as one release.
-import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {COACH_RELEASE_INTAKE_VERSION} from './coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {PILOT_PARTICIPATION_VERSION} from './pilot-participation-demo.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 export const COACH_PILOT_ENTRY_BACKEND_VERSION='coach116';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ROUTES=new Set(['legal','participation','intake','private','review','ready','verify']);

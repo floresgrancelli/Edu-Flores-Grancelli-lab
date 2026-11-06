@@ -1,7 +1,8 @@
 // Private in-memory coach draft editor; no approval, storage, auth or RPC.
-import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {GUIDE_MEALS,guidedPortionBounds,guideTotals} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {compositionVerified,evaluateGuideFood,patternConflict} from './guide-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {GUIDE_TARGET_TOLERANCE} from './adapted-guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 const keys=['k','p','c','f','fi'];
 const clone=x=>structuredClone(x);
 export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=GUIDE_TARGET_TOLERANCE}={}){
@@ -34,6 +35,8 @@ export function reviewEditedGuide(plan,{catalog,goal,context,tolerance=GUIDE_TAR
     !['g','ml'].includes(item.unit)){
     canTotal=false;issue('quantity_unit','Elegí un alimento, cantidad positiva y su unidad correcta.');continue;
    }
+   try{normalizeGuidedCountableQuantity({...item,locked:true});}
+   catch(error){issue('countable',error.message);}
    const [min,max]=guidedPortionBounds(food.id);
    if(qty<min||qty>max)issue('bounds','La porción queda fuera del rango de la guía.');
    if(!compositionVerified(food,context?.now)){
@@ -74,7 +77,13 @@ export function updateGuideEditor(previous,action,environment){
    if(!meal||!Number.isInteger(action.index)||action.index<0||action.index>=meal.items.length)
     throw Error('Ingrediente no encontrado.');
    // Replace by stable slot/index: repeated edits cannot append duplicate rows.
-   meal.items[action.index]={id:action.id,qty:action.qty,unit:action.unit};break;
+   const next={id:action.id,qty:action.qty,unit:action.unit};
+   // Normalize an explicit positive edit before storing it. Invalid input still
+   // reaches review unchanged and cannot be saved. Never alter old locks on load.
+   if(typeof next.qty==='number'&&Number.isFinite(next.qty)&&next.qty>0&&
+      environment?.catalog?.find(f=>f.id===next.id)?.unit===next.unit)
+    next.qty=normalizeGuidedCountableQuantity(next);
+   meal.items[action.index]=next;break;
   }
   case 'cancel':state.working=clone(state.committed);state.mode='view';break;
   case 'restore':
@@ -95,4 +104,3 @@ export function updateGuideEditor(previous,action,environment){
  state.review=reviewEditedGuide(state.working,environment);
  state.publishable=false;return state;
 }
-

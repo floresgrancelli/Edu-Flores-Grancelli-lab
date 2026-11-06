@@ -36,6 +36,7 @@ jobs:
           node efg-nutrition/tests/report-trend-charts.mjs
           node efg-nutrition/tests/report-food-frequency.mjs
           node efg-nutrition/tests/pdf-review-controller.mjs
+          node efg-nutrition/tests/pdf-page-text.mjs
           node efg-nutrition/tests/period-report-access.mjs
           node efg-nutrition/tests/period-report-history.mjs
           node efg-nutrition/tests/period-report-ui.mjs

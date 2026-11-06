@@ -1,0 +1,108 @@
+{
+  "base_head": "8f1811f145e6bd4c6d398447b1611b2f19417d78",
+  "base_tree": "7eedcf670db5808ea00571a9bd2c2a6637bc9b68",
+  "runtime_changes": [
+    "Shared viewer reads PDF text through streamTextContent().getReader(); cancels reader on close; no global polyfill."
+  ],
+  "unchanged": [
+    "PDF.js vendored files and license",
+    "all PDF generators/snapshot formats",
+    "role/consent/epoch and publication guards",
+    "release flags/CSP/permissions"
+  ],
+  "results": [
+    {
+      "command": "node efg-nutrition/tests/coach101-live-food-traffic-light-contract.mjs",
+      "status": "PASS",
+      "stdout": "PASS COACH101: reviewed-only green/red, missing or clinical yellow, no-restriction neutral, searchable food and coach plan badge.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/student-food-restrictions-runtime.mjs",
+      "status": "PASS",
+      "stdout": "PASS actual food/recipe signals + private read-only scope: OFF, missing vs none, consent, revoke, refresh failure, identity/tenant race; no catalog filtering. Synthetic transport, not hosted.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/student-session-mutation-races.mjs",
+      "status": "PASS",
+      "stdout": "PASS NCC session A -> B: no stale data, no blocked first food, leased favorites\nPASS NCC session A -> B -> A: old auth epoch and finally isolated\nPASS NCC midnight: stale A rollover cannot render or toast B\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/ux35-session-release-contract.mjs",
+      "status": "PASS",
+      "stdout": "PASS UX35: mobile sign-out safe and local, dirty drafts confirmed, signed-out RAM reset, minor versions silent and major notice separately gated.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/sdk-entry-goal-hydration-private.mjs",
+      "status": "PASS",
+      "stdout": "PASS actual goal hydration source: current empty-guide draft retains goals; stale/published do not. Unit transport only.\n",
+      "stderr": "No se pudo verificar el historial de metas para el informe semanal.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/pdf-page-text.mjs",
+      "status": "PASS",
+      "stdout": "PASS real PDF with ReadableStream asyncIterator absent: vendor convenience API reproduces failure, render+reader succeeds with identical items/styles/lang, no global patch; stale/error cleanup blocks partial review. API emulation, not physical Safari certification.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/pdf-review-controller.mjs",
+      "status": "PASS",
+      "stdout": "PASS actual shared weekly/period controller: synchronous dialog, all-pages+checkbox gate, tamper refusal, pending close lock, resource cleanup, build retry resets review, late generation discarded, stale page closes, history has no send listener. DOM/decode doubles only.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-ui.mjs",
+      "status": "PASS",
+      "stdout": "PASS synthetic actual-handler flows: generation/preview, explicit review, edited text, PDF cleanup, double publish, uncertain retry stable ID, dates, student/consent, in-flight stale response, coalesced generation, unauthorized admin denied before reads.\nPASS period reply: own account and authorized contact, dated draft, existing message preserved, no automatic send.\nPASS scoped mobile editor layout contract (not a browser rendering test).\nPASS actual client + UI recovery: confirmed INSERT rejection unlocks/revokes review; unknown, transport, READ and duplicate/read failure preserve ID and locks.\nPASS historical uncertainty: INSERT/read failure or transport failure + later rejection keeps same ID/locks until exact readback.\nPASS PDF lifecycle: exact snapshot binding, close revokes approval/URL, stale and repeated async opens, tamper rejection, uncertain close/reopen stable retry, read-only history uses same snapshot.\nPASS real PDF/client/UI byte contract: reviewed bytes equal student history bytes from exact persisted versioned JSON.\nPASS empty-period PDF remains viewable but cannot be reviewed for sharing.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-preview-state.mjs",
+      "status": "PASS",
+      "stdout": "PASS actual weekly route/publisher: versioned exact snapshot; unreviewed/edit/epoch/consent gates; readonly JSON + plaintext history; no live-data fallback; failed/double/late INSERT; failed refresh; admin scope; lifecycle cleanup. Synthetic DOM/transport only.\nPASS actual weekly close/reopen after lost response: immutable PDF retained; edits blocked; readback confirms without resend.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/approved-release-flags.mjs",
+      "status": "PASS",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/guided-meal-picker.mjs",
+      "status": "PASS",
+      "stdout": "PASS ANDROID-GBOARD-02: IME Enter protected; physical Android Gboard QA still required.\nPASS UX-GUIDE-01: coach/student shared guide main meals by group, originals intact; snacks classic; mixed food once; macro totals unchanged.\nPASS: guided only breakfast/lunch/dinner; mixed plates counted once incl fats; optional skip, all other foods accessible; snacks remain classic; one 5% weekly bar.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node --test efg-nutrition/tests/guide-candidate-assets.test.mjs",
+      "status": "PASS",
+      "stdout": "✔ private manifest pins HTML, complete module graph, and existing CSS (15.983876ms)\n✔ HTML release identity preserved and candidate asset identity strictly pinned (1.766918ms)\n✔ all module URLs use the exact pinned target version; immutable old assets retain their identity (23.405066ms)\n✔ same-origin PDF worker and new CSS are pinned; period PDF assets remain immutable (4.429715ms)\n✔ asset rewrite does not change feature flag values (0.682404ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 153.98755\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-browser.mjs --check-fixture",
+      "status": "PASS",
+      "stdout": "PASS fixture syntax and exact-source extraction only; browsers not run.\n",
+      "stderr": ""
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-preview-browser.mjs --check-fixture",
+      "status": "PASS",
+      "stdout": "PASS exact-source weekly browser fixture syntax only; browser not launched.\n",
+      "stderr": ""
+    }
+  ],
+  "legacy_focal_fix": "Open accessible-text details; preserve visibility, textContent and original innerText assertions.",
+  "compatibility_evidence": "Missing ReadableStream asyncIterator reproduced with actual vendored PDF.js and weekly/plain legacy/period v1/v2 PDFs. Page rendering succeeds; old getTextContent fails; new reader returns identical items/styles/lang. Empty/multi-chunk/stale/error/close cleanup tested.",
+  "limitations": "Local API emulation only, not physical Safari. Exact-head Chromium/WebKit CI and full-app journey must be rerun.",
+  "upstream": [
+    "https://github.com/mozilla/pdf.js/issues/20973",
+    "https://github.com/mozilla/pdf.js/issues/21924"
+  ],
+  "asset_manifest_sha256": "cdb3606ca216837299996460ea9a0393265273d0ba32206b87c758d43c0ec85c",
+  "production_writes": false
+}

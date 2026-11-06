@@ -1,3 +1,4 @@
+import {readPdfPageText} from './pdf-page-text.js?v=ncc-weekly-preview-r11-20261106';
 // One in-memory viewer. PDF.js draws the actual downloadable bytes, not an HTML facsimile.
 // No upload, persistent storage, print(), popup, credentials or remote dependency.
 import {buildWeeklyReportPdf} from './weekly-report-pdf.js?v=ncc-weekly-preview-r11-20261106';
@@ -12,6 +13,7 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
   const view=active;if(!view||view.submitting&&!force)return;
   active=null;view.reviewed=false;view.ticket=null;
   view.renderTask?.cancel();
+  Promise.resolve(view.textReader?.cancel()).catch(()=>{});view.textReader=null;
   Promise.resolve(view.loadingTask?.destroy()).catch(()=>{});
   if(view.url)URL.revokeObjectURL(view.url);
   view.dialog.remove();view.onClose?.(view);
@@ -56,8 +58,9 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
    canvas.setAttribute('aria-label','Página '+pageNumber+' de '+view.pdf.numPages+' del PDF');canvas.setAttribute('role','img');
    view.renderTask=page.render({canvasContext:canvas.getContext('2d'),viewport});
    await view.renderTask.promise;
-   const text=await page.getTextContent();
+   const text=await readPdfPageText(page,{isCurrent:()=>current(view),onReader:reader=>{view.textReader=reader;return ()=>{if(view.textReader===reader)view.textReader=null;};}});
    if(!current(view)){if(active===view)close(true);return;}
+   if(!text)return;
    view.stage.replaceChildren(canvas);view.stage.scrollTop=0;view.stage.scrollLeft=0;
    view.transcript.textContent=text.items.map(item=>item.str+(item.hasEOL?'\n':' ')).join('');
    view.page=pageNumber;view.seen.add(pageNumber);view.ready=true;

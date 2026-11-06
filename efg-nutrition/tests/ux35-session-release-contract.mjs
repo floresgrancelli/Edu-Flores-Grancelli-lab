@@ -1,4 +1,4 @@
-import {expectedReleaseFlag} from './approved-release-flags.mjs';
+import {expectedReleaseFlag,expectedAssetVersion} from './approved-release-flags.mjs';
 // UX35-SESSION01 · Verified explicit session exit; major release OFF.
 // Local fixtures never call Supabase and never log out real user accounts.
 import assert from 'node:assert/strict';
@@ -64,7 +64,9 @@ assert.match(css,/@media\(max-width:720px\)/);
 assert.match(css,/min-height:44px/,'Touch targets accessible');
 assert.match(html,/release-session\.css\?v=ncc-pilot-3a40474052be/);
 assert.match(html,/meta name="efg-build" content="ncc-pilot-3a40474052be"/);
-assert.match(html,/pilot\.js\?v=ncc-pilot-3a40474052be/);
+const entryUrls=document=>[...document.matchAll(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]+)"/g)].map(m=>m[1]);
+assert.deepEqual(entryUrls(html),['./pilot.js?v='+expectedAssetVersion],'Session UI uses exactly the hash-pinned release/candidate entry');
+assert.notDeepEqual(entryUrls(html.replace('./pilot.js?v='+expectedAssetVersion,'./pilot.js?v=stale')),['./pilot.js?v='+expectedAssetVersion]);
 assert.match(app,/auth:sb\.auth,explicitClick:true,hasUnsavedChanges:hasPendingUnsavedEdits/);
 assert.match(app,/if\(!result\.signedOut\)return/);
 assert.match(app,/function resetPrivateSession\(\)/);

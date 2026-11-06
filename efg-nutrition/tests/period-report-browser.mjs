@@ -60,7 +60,7 @@ ${between(' if(action==="generatePeriodReport")',' if(action==="copyDailyReport"
 root.addEventListener('click',event=>{const el=event.target.closest('[data-act]');if(el)run(el.dataset.act,el).catch(error=>trace.errors.push(error.message));});
 ${between("root.addEventListener('input',e=>{",'root.addEventListener("input",e=>{')}
 window.qa={state,trace,run,version:PERIOD_PDF_RENDERER_VERSION,
- view:()=>activePeriodPdfView&&({url:activePeriodPdfView.url,ready:activePeriodPdfView.ready,snapshot:activePeriodPdfView.snapshot,serialized:activePeriodPdfView.serialized,page:activePeriodPdfView.page,pages:activePeriodPdfView.pdf?.numPages,seen:activePeriodPdfView.seen.size}),
+ view:()=>activePeriodPdfView&&({url:activePeriodPdfView.url,ready:activePeriodPdfView.ready,snapshot:activePeriodPdfView.snapshot,serialized:activePeriodPdfView.serialized,page:activePeriodPdfView.page,pages:activePeriodPdfView.pdf?.numPages,seen:activePeriodPdfView.seen.size,error:activePeriodPdfView.error&&({name:activePeriodPdfView.error.name,message:activePeriodPdfView.error.message,stack:activePeriodPdfView.error.stack})}),
  holdPdf(){pdfGate=new Promise(r=>releasePdf=r);},releasePdf(){releasePdf();pdfGate=null;},
  holdInsert(){insertGate=new Promise(r=>releaseInsert=r);},releaseInsert(){releaseInsert();insertGate=null;},
  coach(){closePeriodPdfView(true);state.profile.role='coach';state.session={user:{id:coach}};state.selectedStudent=student;state.consent.accepted=true;root.innerHTML=coachPeriodReportPanel();document.getElementById('periodReportFrom').value='2026-10-22';document.getElementById('periodReportTo').value='2026-10-31';},
@@ -117,7 +117,7 @@ try{
   await page.goto(origin);await page.waitForFunction(()=>window.qa);
   const screenshot=label=>page.screenshot({path:resolve(out,`${engine}-${width}-${label}.png`),fullPage:true});
   const generate=async()=>{await page.getByRole('button',{name:'Generar informe del período',exact:true}).click();await page.locator('[data-act="printPeriodLuxury"]').waitFor();};
-  const open=async()=>{await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready);};
+  const open=async()=>{await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready||qa.view()?.error);assert.equal(await page.evaluate(()=>qa.view()?.error||null),null,'Real PDF decode/render must succeed; the saved error stack identifies compatibility failures');};
   const close=async()=>{await page.locator('[data-pdf-close]').click();await page.locator('.period-pdf-dialog').waitFor({state:'detached'});};
   const download=async label=>{
    const pending=page.waitForEvent('download');await page.locator('[data-pdf-download]').click();const d=await pending;
@@ -202,5 +202,6 @@ try{
  console.log(JSON.stringify(results,null,2));
 }catch(error){
  if(page&&!page.isClosed())await page.screenshot({path:resolve(out,`${engine}-failure.png`),fullPage:true}).catch(()=>{});
- writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,networkEvidence,completed:results},null,2));throw error;
+ const diagnostic=page&&!page.isClosed()?await page.evaluate(()=>({pdf:window.qa?.view(),trace:window.qa?.trace,capabilities:{userAgent:navigator.userAgent,readableStreamAsyncIterator:typeof ReadableStream.prototype[Symbol.asyncIterator],promiseTry:typeof Promise.try,promiseResolvers:typeof Promise.withResolvers,mapGetOrInsert:typeof Map.prototype.getOrInsertComputed,uint8FromBase64:typeof Uint8Array.fromBase64,iterator:typeof globalThis.Iterator,setUnion:typeof Set.prototype.union,DOMMatrix:typeof DOMMatrix,Path2D:typeof Path2D,OffscreenCanvas:typeof OffscreenCanvas}})).catch(e=>({captureError:e.message})):null;
+ writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,diagnostic,networkEvidence,completed:results},null,2));throw error;
 }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}

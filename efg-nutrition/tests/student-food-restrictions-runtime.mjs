@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {createStudentFoodRestrictionReader,readStudentFoodRestrictions} from '../pilot/student-food-restrictions.js';
 import {describeTrafficLight} from '../pilot/food-compatibility-adapter.js';
@@ -67,7 +68,36 @@ const factory=new Function('env',`const {state,foods,PRIVATE_HEALTH_DECLARATION_
  assert.equal(off(food).color,'neutral','OFF does not enable private health flow');
 }
 assert.match(app,/await state\.foodRestrictionReader\.refresh\(\);\s*if\(\(state\.authContextEpoch\|\|0\)!==renderEpoch\)return;/);
-assert.match(app,/function resetPrivateSession\(\)\{\s*closePeriodPdfView\(true\);\s*state\.foodRestrictionReader\?\.invalidate\?\.\(\);/,
- 'Logout force-closes the private PDF before invalidating the private restriction reader');
+// Execute the exact centralized reset, rather than requiring one particular
+// whitespace/adjacency layout. Additional private cleanup must not mask a missing
+// health invalidation, and both PDF viewers must close before identity is cleared.
+const resetStart=app.indexOf('function resetPrivateSession(){'),resetEnd=app.indexOf('function handleAuthStateChange(',resetStart);
+assert.ok(resetStart>=0&&resetEnd>resetStart,'Exact reset extraction boundaries');
+const resetSource=app.slice(resetStart,resetEnd);
+function assertPrivateCleanup(source){
+ const calls=[],state={session:{user:{id:user}},profile:{role:'student'},org:{id:org},
+  foodRestrictionReader:{invalidate:()=>calls.push('restrictions')},privateHealthDeclaration:{invalidate:()=>calls.push('health')},
+  foodCompatEvidence:[{private:true}],coachReportGoals:{private:true},coachHistory:[{private:true}]};
+ const context={state,
+  weeklyPdfReview:{close:force=>calls.push(['weekly-close',force])},
+  luxuryWeeklyEditor:{reset:()=>calls.push('weekly-editor')},weeklyReportDelivery:{clear:()=>calls.push('weekly-delivery')},
+  closePeriodPdfView:force=>calls.push(['period-close',force]),
+  pilotGuideLifecycle:{invalidate:()=>calls.push('guide')},coachAdaptedWorkspace:{close:()=>calls.push('workspace')},
+  pendingMealRegistrations:new Set(['pending']),pendingHabitualSlots:new Set(['pending'])};
+ vm.runInNewContext(source+';resetPrivateSession();',context);
+ for(const call of [['weekly-close',true],['period-close',true]])assert.equal(calls.filter(x=>JSON.stringify(x)===JSON.stringify(call)).length,1,JSON.stringify(call));
+ for(const call of ['restrictions','health','weekly-editor','weekly-delivery','guide','workspace'])assert.equal(calls.filter(x=>x===call).length,1,call);
+ const restrictionIndex=calls.indexOf('restrictions');
+ assert.ok(calls.findIndex(x=>Array.isArray(x)&&x[0]==='weekly-close')<restrictionIndex,'Weekly private viewer is force-closed before restriction invalidation');
+ assert.ok(calls.findIndex(x=>Array.isArray(x)&&x[0]==='period-close')<restrictionIndex,'Period private viewer is force-closed before restriction invalidation');
+ assert.equal(state.session,null);assert.equal(state.profile,null);assert.equal(state.org,null);assert.equal(state.coachReportGoals,null);
+ assert.equal(state.foodCompatEvidence.length,0);assert.equal(state.coachHistory.length,0);
+ assert.equal(context.pendingMealRegistrations.size,0);assert.equal(context.pendingHabitualSlots.size,0);
+}
+assertPrivateCleanup(resetSource);
+for(const required of ['weeklyPdfReview.close(true);','closePeriodPdfView(true);','state.foodRestrictionReader?.invalidate?.();','state.privateHealthDeclaration?.invalidate?.();','luxuryWeeklyEditor.reset();','weeklyReportDelivery.clear();']){
+ assert.ok(resetSource.includes(required));assert.throws(()=>assertPrivateCleanup(resetSource.replace(required,'')),'Missing cleanup must fail: '+required);
+}
+assert.throws(()=>assertPrivateCleanup(resetSource.replace('weeklyPdfReview.close(true)','weeklyPdfReview.close(false)')),'A pending private PDF must be force-closed on logout');
 assert.match(app,/function allowedFoods\(\)\{\s*return selectableFoods\(\)\.map/,'Never filter catalog by traffic light');
 console.log('PASS actual food/recipe signals + private read-only scope: OFF, missing vs none, consent, revoke, refresh failure, identity/tenant race; no catalog filtering. Synthetic transport, not hosted.');

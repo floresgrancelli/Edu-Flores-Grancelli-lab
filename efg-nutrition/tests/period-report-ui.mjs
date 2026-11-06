@@ -34,7 +34,7 @@ const ctx={normalizeReportTrendGoals,withReportTrendGoals,withReportFoodFrequenc
  async buildPeriodReportPdf(snapshot){pdfCalls++;assert.equal(snapshot.approvedByCoach,true);generatedSnapshots.push(JSON.stringify(snapshot));if(pdfDeferred)await pdfDeferred;if(failPdf)throw Error('pdf failed');return new TextEncoder().encode('%PDF-1.4 synthetic fixture only');},
  createCoachPublicationRequestId:()=> 'stable-id',el:{focus(){}}};
 Object.assign(globalThis,{document:ctx.document});Object.assign(URL,ctx.URL);
-ctx.periodPdfReview=createWeeklyPdfReview({root:ctx.root,mode:'period',buildPdf:snapshot=>ctx.buildPeriodReportPdf(snapshot),loadDocument:async()=>({destroy:async()=>{},promise:Promise.resolve({numPages:1,getPage:async()=>({getViewport:()=>({width:600,height:800}),render:()=>({promise:Promise.resolve(),cancel(){}}),getTextContent:async()=>({items:[]})})})})});
+ctx.periodPdfReview=createWeeklyPdfReview({root:ctx.root,mode:'period',buildPdf:snapshot=>ctx.buildPeriodReportPdf(snapshot),loadDocument:async()=>({destroy:async()=>{},promise:Promise.resolve({numPages:1,getPage:async()=>({getViewport:()=>({width:600,height:800}),render:()=>({promise:Promise.resolve(),cancel(){}}),streamTextContent:()=>new ReadableStream({start(c){c.enqueue({items:[],styles:{},lang:null});c.close();}})})})})});
 vm.createContext(ctx);
 vm.runInContext(app.slice(app.indexOf('function periodContextMatches'),app.indexOf('function coachPeriodReportPanel')),ctx);
 const a=app.indexOf(" if(action==='printPeriodLuxury')"),b=app.indexOf(" if(action==='loadPeriodHistory')",a);

@@ -1,0 +1,153 @@
+name: NCC dual workspace isolated QA (OFF, synthetic only)
+
+on:
+  push:
+    branches: ['work/ncc-dual-workspace-*']
+    paths:
+      - 'efg-nutrition/pilot/dual-workspace-*'
+      - 'efg-nutrition/tests/dual-workspace-*'
+      - 'efg-nutrition/tests/synthetic-signed-claims*'
+      - 'efg-nutrition/proposed/20261106_dual_workspace_STAGING_ONLY_NOT_APPLIED.sql'
+      - 'efg-nutrition/docs/DUAL_WORKSPACE*'
+      - 'integration/pilot-entrypoint.patch'
+      - '.github/workflows/ncc-dual-workspace-isolated-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ncc-dual-workspace-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NCC_QA_BASE_SHA: 9aaddfe21d77302224f93ea82be3b215c86769d6
+  NCC_DISPOSABLE_FIXTURE: synthetic-v1
+
+jobs:
+  node-and-pglite:
+    if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact checkout and unchanged live entrypoint
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$NCC_QA_BASE_SHA" HEAD
+          test "$(git hash-object efg-nutrition/pilot/pilot.js)" = '6cfb981876043274eb7c1756f1b9c6e5eb37c620'
+          git diff --exit-code "$NCC_QA_BASE_SHA" HEAD -- efg-nutrition/pilot/pilot.js efg-nutrition/pilot/index.html
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Node isolated contracts and syntactic checks
+        run: |
+          set -euo pipefail
+          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/synthetic-signed-claims.test.mjs
+          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs; do node --check "$source"; done
+      - name: Install approved pinned PGlite in runner temp only
+        run: npm install --prefix "$RUNNER_TEMP/ncc-dual-deps" --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.3.14
+      - name: PostgreSQL WASM proposal and synthetic JWT RLS rehearsal
+        run: |
+          export NCC_PGLITE_MODULE="$RUNNER_TEMP/ncc-dual-deps/node_modules/@electric-sql/pglite/dist/index.js"
+          node efg-nutrition/tests/dual-workspace-pglite-rehearsal.mjs
+          node efg-nutrition/tests/dual-workspace-ci-fixture-check.mjs
+
+  browser:
+    needs: node-and-pglite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing official pinned Playwright
+        run: |
+          npm install --prefix "$RUNNER_TEMP/ncc-dual-browser" --no-save --no-package-lock --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/ncc-dual-browser/node_modules/.bin/playwright" install --with-deps "${{ matrix.engine }}"
+      - name: Standalone synthetic demo at narrow and desktop widths
+        env:
+          NCC_QA_ENGINE: ${{ matrix.engine }}
+        run: |
+          export NCC_PLAYWRIGHT_MODULE="$RUNNER_TEMP/ncc-dual-browser/node_modules/playwright/index.mjs"
+          node efg-nutrition/tests/dual-workspace-ci-browser.mjs
+      - name: Preserve synthetic screenshots and scoped report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncc-dual-workspace-${{ matrix.engine }}
+          path: artifacts/ncc-dual-workspace/${{ matrix.engine }}/
+          if-no-files-found: warn
+          retention-days: 1
+          compression-level: 9
+
+  local-auth-multisession:
+    needs: node-and-pglite
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use existing pinned official CLI, never a hosted project
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Start fresh disposable local Auth and PostgreSQL
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          umask 077
+          mkdir -p "$RUNNER_TEMP/ncc-dual-local"
+          cd "$RUNNER_TEMP/ncc-dual-local"
+          supabase init --yes
+          if ! supabase start > "$RUNNER_TEMP/ncc-dual-start-private.log" 2>&1; then
+            echo 'Disposable local startup failed; private startup log is not uploaded.' >&2
+            exit 1
+          fi
+          supabase status -o env > "$RUNNER_TEMP/ncc-dual-local-status.env"
+      - name: Use PostgreSQL client from official Ubuntu registry if absent
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+      - name: Real local GoTrue JWT and distinct PostgreSQL session tests
+        timeout-minutes: 5
+        run: |
+          export NCC_LOCAL_STATUS_ENV="$RUNNER_TEMP/ncc-dual-local-status.env"
+          node efg-nutrition/tests/dual-workspace-ci-local-auth.mjs
+      - name: Destroy disposable local stack and transient credentials
+        if: always()
+        run: |
+          status=0
+          if test -f "$RUNNER_TEMP/ncc-dual-local/supabase/config.toml"; then
+            cd "$RUNNER_TEMP/ncc-dual-local"
+            supabase stop --no-backup > "$RUNNER_TEMP/ncc-dual-stop-private.log" 2>&1 || status=$?
+          fi
+          rm -f "$RUNNER_TEMP/ncc-dual-local-status.env" "$RUNNER_TEMP/ncc-dual-start-private.log" "$RUNNER_TEMP/ncc-dual-stop-private.log"
+          exit "$status"

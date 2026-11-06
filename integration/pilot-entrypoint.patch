@@ -1,0 +1,32 @@
+diff --git a/efg-nutrition/pilot/pilot.js b/efg-nutrition/pilot/pilot.js
+--- a/efg-nutrition/pilot/pilot.js
++++ b/efg-nutrition/pilot/pilot.js
+@@ -1272,6 +1272,8 @@
+ function studentPendingTabAllowed(tab){
+  return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation())||(tab==="history"&&COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
+ }
++const NCC_DUAL_WORKSPACE_CANDIDATE_ENABLED=false; // Isolated integration proposal only.
++let nccDualCandidatePanel=null;
+ function frame(content){
+  const role=state.profile.role;
+  const menu=role==="student"
+@@ -1287,6 +1289,19 @@
+  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
+  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+  pilotGuideLifecycle.mountStudent(root);
++ if(NCC_DUAL_WORKSPACE_CANDIDATE_ENABLED){
++  nccDualCandidatePanel?.dispose();
++  const host=document.createElement('section'),epoch=state.authContextEpoch||0;
++  root.querySelector('.pilot-main')?.prepend(host);
++  import('./dual-workspace-panel.mjs').then(({mountDualWorkspacePanel})=>{
++   if(!host.isConnected||(state.authContextEpoch||0)!==epoch)return;
++   nccDualCandidatePanel=mountDualWorkspacePanel({root:host,enabled:true,
++    rpc:(name,args)=>sb.rpc(name,args),
++    readSession:()=>({userId:state.session?.user?.id,sessionId:String(state.authContextEpoch||0)}),
++    readLegacyPersonal:()=>({profile:{user_id:state.profile?.user_id,role:state.profile?.role,organization_id:state.profile?.organization_id},organization:state.org?{id:state.org.id}:null}),
++    hasUnsavedDraft:()=>!!state.pendingDiaryDraft||Object.keys(state.plannerDraftGrams||{}).length>0});
++  }).catch(()=>{if(host.isConnected)host.textContent='Panel candidato no disponible. Tu espacio actual no se modificó.';});
++ }
+ }
+ // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
+ function welcomeView(){

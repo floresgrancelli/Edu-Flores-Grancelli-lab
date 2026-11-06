@@ -35,7 +35,36 @@ state.coachHistory=[{week_ending:model.friday,report_text:'{"kind":"broken"}'}];
 state.coachHistory=[];state.profile.role='admin';state.org.coach_id='other';assert.throws(()=>ctx.open(-1,{}),/autorización/);state.org.coach_id='coach-ficticio';ctx.open(-1,{});assert.equal(spec.editable,true);
 reviewed=true;failRead=false;gate=new Promise(r=>release=r);const late=ctx.publish();await Promise.resolve();state.selectedStudent='other';state.coachHistory=[{sentinel:'untouched'}];release();await late;assert.deepEqual(state.coachHistory,[{sentinel:'untouched'}]);
 assert.match(source,/async function render\(\)\{\s*weeklyPdfReview\.close\(true\)/);
-assert.match(source,/function resetPrivateSession\(\)\{\s*weeklyPdfReview\.close\(true\);luxuryWeeklyEditor\.reset\(\)/);
+// Additional session cleanup may precede the PDF/editor reset. Execute the exact
+// reset instead of requiring weeklyPdfReview to be the first statement. Keep the
+// original forced-PDF-close/editor order and prove that dual teardown is required.
+const resetSource=between('function resetPrivateSession(){','function handleAuthStateChange(');
+function assertSessionResetLifecycle(reset){
+ const calls=[],sessionState={dualCandidateCoach:true,session:{user:{id:'SYNTHETIC_OLD'}},profile:{role:'coach'}};
+ const context={state:sessionState,
+  dualWorkspaceBootstrap:{invalidate:()=>calls.push('dual-bootstrap')},
+  dualWorkspaceFrame:{invalidate:()=>calls.push('dual-frame')},
+  weeklyPdfReview:{close:force=>calls.push(force===true?'weekly-close-forced':'weekly-close-unforced')},
+  luxuryWeeklyEditor:{reset:()=>calls.push('weekly-editor')},weeklyReportDelivery:{clear(){}},
+  closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
+  pendingMealRegistrations:new Set(),pendingHabitualSlots:new Set()};
+ assert.match(reset,/weeklyPdfReview\.close\(true\);luxuryWeeklyEditor\.reset\(\)/,
+  'Forced weekly PDF close must still immediately precede editor reset');
+ vm.runInNewContext(reset+';resetPrivateSession();',context);
+ assert.deepEqual(calls,['dual-bootstrap','dual-frame','weekly-close-forced','weekly-editor'],
+  'Each dual invalidation must execute once before the existing PDF/editor cleanup');
+ assert.equal(sessionState.dualCandidateCoach,false,'Candidate shell marker must clear');
+ assert.equal(sessionState.session,null);assert.equal(sessionState.profile,null);
+}
+assertSessionResetLifecycle(resetSource);
+for(const required of ['dualWorkspaceBootstrap.invalidate();','state.dualCandidateCoach=false;',
+ 'dualWorkspaceFrame.invalidate();','weeklyPdfReview.close(true);','luxuryWeeklyEditor.reset();']){
+ assert.equal(resetSource.split(required).length,2,'Required cleanup occurs exactly once: '+required);
+ assert.throws(()=>assertSessionResetLifecycle(resetSource.replace(required,'')),
+  'Removing required cleanup must fail: '+required);
+}
+assert.throws(()=>assertSessionResetLifecycle(resetSource.replace('weeklyPdfReview.close(true)','weeklyPdfReview.close(false)')),
+ 'An unforced weekly PDF close must still fail the original lifecycle contract');
 console.log('PASS actual weekly route/publisher: versioned exact snapshot; unreviewed/edit/epoch/consent gates; readonly JSON + plaintext history; no live-data fallback; failed/double/late INSERT; failed refresh; admin scope; lifecycle cleanup. Synthetic DOM/transport only.');
 
 // A lost response keeps the original PDF across close/edit attempts/reopen, then reconciles.

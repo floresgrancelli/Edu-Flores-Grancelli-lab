@@ -9,7 +9,7 @@ const server=createServer((req,res)=>{try{
  const path=new URL(req.url,'http://localhost').pathname,file=resolve(base,'.'+(path.endsWith('/')?path+'index.html':path));
  assert.ok(file.startsWith(base+'/'));let bytes=readFileSync(file);
  if(path.endsWith('/pilot.js'))bytes=Buffer.from(bytes.toString()+`\nwindow.__GUIDE_QA__={state,root,foods,sb,coachDraftClient,guideTotals,readGuidedEditor,coachGuidedSection,coachAtomicDraftPanel,previewCoachGuide,sendCoachGuidePreview,generateFlexibleGuidedDay,render,frame,studentPrimaryNavigation,studentSecondaryNavigation,studentPendingTabAllowed,studentMoreView,efgNavIcon,installSuccess(){coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);return {studentId:payload.studentId,goalId:'44444444-4444-4444-8444-444444444444',requestId:payload.requestId};};}};`);
- res.writeHead(200,{'content-type':({'.js':'text/javascript','.css':'text/css','.html':'text/html'})[extname(file)]||'application/octet-stream'});res.end(bytes);
+ res.writeHead(200,{'content-type':({'.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.html':'text/html'})[extname(file)]||'application/octet-stream'});res.end(bytes);
 }catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const engine=process.env.EFG_QA_ENGINE||'chromium';

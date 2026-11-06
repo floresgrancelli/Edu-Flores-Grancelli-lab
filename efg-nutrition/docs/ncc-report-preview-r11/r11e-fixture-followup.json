@@ -1,0 +1,41 @@
+{
+  "base_commit": "282ce9f8aa204a93be092f0f2d704b36ed667fc5",
+  "source": "repo-r11e",
+  "scope": "Test-only correction and diagnostics; no runtime change",
+  "checks": [
+    {
+      "command": "node efg-nutrition/tests/weekly-report-fixture-context.mjs",
+      "status": "PASS",
+      "coverage": "Real render-gate prefix and report loader with exact browser callbacks; null/unknown/omitted ready negatives; owner-scoped saved row"
+    },
+    {
+      "command": "node --check efg-nutrition/tests/weekly-report-flow-private.mjs",
+      "status": "PASS"
+    },
+    {
+      "command": "Python yaml.safe_load and workflow scenario assertions",
+      "status": "PASS",
+      "coverage": "All three scenarios require successful browser-runtime installation and not-cancelled; no continue-on-error"
+    },
+    {
+      "command": "Byte comparison of complete local production runtime and asset manifests against frozen repo-r11d",
+      "status": "PASS",
+      "coverage": "No runtime/index/CSS/vendor/generator or strict asset pin changes"
+    }
+  ],
+  "prior_head_ci": {
+    "weekly_focal_chromium_390_1280": "PASS",
+    "weekly_focal_webkit_390_1280": "PASS",
+    "premium": "PASS",
+    "auth": "PASS",
+    "security": "PASS",
+    "report_contracts": "PASS",
+    "full_app_chromium": "FAIL_SYNTHETIC_STUDENT_ENTRY_NULL",
+    "full_app_webkit": "FAIL_SYNTHETIC_STUDENT_ENTRY_NULL",
+    "subsequent_period_step": "SKIPPED_AFTER_FULL_APP_FAILURE",
+    "legacy_visual_at_freeze": "STILL_INSTALLING_WEBKIT_PERIOD_NOT_RUN"
+  },
+  "new_head_browser_ci": "REQUIRED_NOT_RUN",
+  "physical_devices": "NOT_TESTED",
+  "hosted_auth_rls": "NOT_TESTED"
+}

@@ -75,7 +75,22 @@ export async function runWeeklyReportFlow(page,width,outDir){
    const v=window.__EFG_VISUAL_QA__,s=v.state;
    s.session={user:{id:'demo-student-a',email:'student@example.invalid'}};
    s.profile={role:'student',user_id:'demo-student-a',nickname:'Alumno ficticio',active:true,organization_id:'demo-org'};
+   s.coachPilotEntry=null;
    s.tab='summaries';await v.loadMyWeeklyReports();await v.render();
+  });
+  // Switching fixture identity alone is NOT proof of completed onboarding.
+  // Keep the real application guard active and prove that it hides reports.
+  await page.getByRole('heading',{name:'Tu ingreso necesita verificación',exact:true}).waitFor();
+  assert.equal(await page.locator('details.pilot-record .lux-report').count(),0);
+  assert.equal(await page.locator('.weekly-pdf-dialog').count(),0);
+  assert.equal(await page.evaluate(()=>window.__WEEKLY_RAM__.controls.writes.length),2);
+  // Explicit post-onboarding fixture, matching premium-visual-smoke's student
+  // setup. This is RAM test input, not a hosted authentication/eligibility claim.
+  await page.evaluate(async()=>{
+   const v=window.__EFG_VISUAL_QA__,s=v.state;
+   s.coachPilotEntry={route:'ready',canLogMeals:true};
+   s.planAccessSupported=true;s.planAccess={status:'published'};
+   await v.render();
   });
   const published=page.locator('details.pilot-record').filter({has:page.locator('.lux-report')});
   await published.locator(':scope > summary').click();
@@ -168,6 +183,15 @@ export async function runWeeklyReportFlow(page,width,outDir){
   assert.equal(await page.evaluate(()=>window.__WEEKLY_RAM__.db.efg_period_reports[0].coach_id),'demo-admin');
   await capture('admin-test-period-shared');
   return {role:'weekly-flow',width,pages:screenshots,pdfs,printMeasurements,errors:[],syntheticTransport:true,hostedRLS:false,physicalDevice:false,actualAppDom:true,periodAdminTestOwner:true};
- }catch(error){await capture('failure').catch(()=>{});throw error;}
+ }catch(error){
+  await capture('failure').catch(()=>{});
+  const context=await page.evaluate(()=>{
+   const s=window.__EFG_VISUAL_QA__?.state;
+   return {userId:s?.session?.user?.id,role:s?.profile?.role,tab:s?.tab,entry:s?.coachPilotEntry,
+    planAccess:s?.planAccess,epoch:s?.authContextEpoch,body:document.body?.innerText?.slice(0,2000)};
+  }).catch(()=>null);
+  writeFileSync(join(outDir,'weekly-flow-'+width+'-failure.json'),JSON.stringify({message:error.message,context},null,2));
+  throw error;
+ }
 }
 

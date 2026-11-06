@@ -31,6 +31,7 @@ jobs:
           node efg-nutrition/tests/weekly-luxury-integration-contract.mjs
           node efg-nutrition/tests/weekly-luxury-report.mjs
           node efg-nutrition/tests/weekly-report-state-private.mjs
+          node efg-nutrition/tests/weekly-report-fixture-context.mjs
           node efg-nutrition/tests/weekly-fiber-private.mjs
           node efg-nutrition/tests/weekly-report-pdf.mjs
           node efg-nutrition/tests/report-trend-charts.mjs
@@ -65,19 +66,23 @@ jobs:
         with:
           node-version: '22'
       - name: Install pinned browser test runtime
+        id: browser-runtime
         run: |
           npm install --no-save playwright@1.62.1
           npx playwright install --with-deps ${{ matrix.engine }}
       - name: Actual weekly handlers, real PDF pages, touch review and read-only history
+        if: ${{ !cancelled() && steps.browser-runtime.outcome == 'success' }}
         env:
           EFG_QA_ENGINE: ${{ matrix.engine }}
         run: node efg-nutrition/tests/weekly-preview-browser.mjs
       - name: Full app DOM with real navbar and weekly plus admin-test period journey
+        if: ${{ !cancelled() && steps.browser-runtime.outcome == 'success' }}
         env:
           EFG_QA_ENGINE: ${{ matrix.engine }}
           EFG_QA_WEEKLY_REPORT: '1'
         run: node efg-nutrition/tests/premium-visual-smoke.mjs
       - name: Existing period PDF review regression
+        if: ${{ !cancelled() && steps.browser-runtime.outcome == 'success' }}
         env:
           EFG_QA_ENGINE: ${{ matrix.engine }}
         run: node efg-nutrition/tests/period-report-browser.mjs

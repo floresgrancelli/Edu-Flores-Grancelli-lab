@@ -84,6 +84,7 @@ jobs:
             'efg-nutrition/tests/dual-workspace-legacy-mime.test.mjs',
             'efg-nutrition/tests/weekly-preview-state.mjs',
             'efg-nutrition/tests/guide-preview-mobile.mjs',
+            'efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs',
             'efg-nutrition/tests/student-session-mutation-races.mjs',
             'efg-nutrition/tests/student-food-restrictions-runtime.mjs'
           ]);

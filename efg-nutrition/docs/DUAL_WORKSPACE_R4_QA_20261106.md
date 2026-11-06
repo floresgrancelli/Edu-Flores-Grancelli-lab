@@ -18,7 +18,7 @@ Se corrigió un defecto del formulario real: `FormData` se construía después d
 
 Los controles heredados detectaron inicialmente que el manifiesto R12 ya no correspondía a los archivos modificados. Se regeneró el manifiesto de assets de R4 con hashes reales y versiones de módulos nuevas, conservando la identidad de release, los flags y todos los assets históricos. Una revisión independiente verificó todos sus hashes y que los validadores conservan sus comprobaciones. Los negativos rechazan alteraciones de assets, manifiesto, flags y build; actualizar el manifiesto de una candidata no autoriza una publicación. El generador local está incluido para reproducir esa preparación sin red ni servicios.
 
-La suite del cliente pasó 67 pruebas Node después de esta integración. Las regresiones locales de sesión y restricciones privadas también pasaron. El agregado local disponible pasó 43 scripts; 83 entradas del workflow no estaban en la copia local y otra necesitaba una dependencia no disponible. Eso no equivale a un pase global del repositorio. La CI con checkout completo y las pruebas de navegador se verifican por separado.
+La suite del cliente pasó 70 pruebas Node después de esta integración. Las regresiones locales de sesión y restricciones privadas también pasaron. El agregado local disponible pasó 43 scripts; 83 entradas del workflow no estaban en la copia local y otra necesitaba una dependencia no disponible. Eso no equivale a un pase global del repositorio. La CI con checkout completo y las pruebas de navegador se verifican por separado.
 
 ## Ensayos de servidor separados
 
@@ -48,3 +48,5 @@ La candidata mantiene la función apagada. Un resultado satisfactorio de UI no e
 ## Ajustes de fixtures heredados
 
 El primer ensayo dedicado de R4 pasó en Chromium y WebKit. La CI heredada detectó dos incompatibilidades de sus propios fixtures: un contrato exigía que la limpieza de PDF fuese la primera instrucción de reset y otro servidor no asignaba MIME JavaScript a archivos `.mjs`. Se actualizó el primero para ejecutar el reset real y exigir tanto la invalidación dual como la limpieza anterior, con negativos. El segundo conserva su aislamiento y agrega únicamente `.mjs: text/javascript`; tres pruebas detectan la regresión si se retira. Estos ajustes no modifican código funcional, assets ni permisos. El SHA final debe volver a completar CI.
+
+La auditoría posterior cubrió los 20 scripts activos del workflow Visual y 14 dependencias locales con fuentes remotas verificadas. Detectó un segundo mapa MIME sin `.mjs` en el fixture de privacidad; se añadió solo esa entrada y el test de callback real también lo cubre con una regresión negativa. Los demás servidores activos ya admitían módulos. Las pruebas de aplicación no se modificaron para ocultar el fallo.

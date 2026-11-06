@@ -1,8 +1,8 @@
 {
-  "baseline": "ba0b9281bad1a83a765bc5c37b384ace24a11dd5",
+  "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-report-share-return-r12-20261106",
+  "assetVersion": "ncc-dual-workspace-r4-20261106",
   "noFlagChanges": true,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -47,6 +47,11 @@
     "efg-nutrition/pilot/day-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/diet-pattern-workbench.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/dietary-traffic-light.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
+    "efg-nutrition/pilot/dual-workspace-bootstrap.mjs": "ncc-dual-workspace-r4-20261106",
+    "efg-nutrition/pilot/dual-workspace-candidate.mjs": "ncc-dual-workspace-r4-20261106",
+    "efg-nutrition/pilot/dual-workspace-frame.mjs": "ncc-dual-workspace-r4-20261106",
+    "efg-nutrition/pilot/dual-workspace-integration.mjs": "ncc-dual-workspace-r4-20261106",
+    "efg-nutrition/pilot/dual-workspace-panel.mjs": "ncc-dual-workspace-r4-20261106",
     "efg-nutrition/pilot/fit-recipe-photos.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/fit-recipes.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/food-catalog.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
@@ -91,7 +96,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-report-share-return-r12-20261106",
+    "efg-nutrition/pilot/pilot.js": "ncc-dual-workspace-r4-20261106",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/progress-charts.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pull-refresh.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
@@ -172,6 +177,11 @@
     "efg-nutrition/pilot/day-lifecycle.js": "89507a5339d8fbff8621b11ace5662713fc176660c7d3e5f8a3318067c567bd4",
     "efg-nutrition/pilot/diet-pattern-workbench.js": "695efe36359fd566805d8eccf0c581090e179eb9ecd0cf0a76c1d6dc44d74d32",
     "efg-nutrition/pilot/dietary-traffic-light.js": "9f42df8411955e33ae5be0b94dd1782d58b1f03e859e8f6d3cbfe2cdf5e59303",
+    "efg-nutrition/pilot/dual-workspace-bootstrap.mjs": "a049ac68bdbb67b497a8474249a1d4d710e8d3c28886d2eee1a15d8f73708eca",
+    "efg-nutrition/pilot/dual-workspace-candidate.mjs": "73aee97713e63edae2625f132e176ded9a5a3a830ce703681d537f611f9b15a6",
+    "efg-nutrition/pilot/dual-workspace-frame.mjs": "45c3451c77180047b840417449f7c88698d2ad70e1b108ad620b2ca4580e7b85",
+    "efg-nutrition/pilot/dual-workspace-integration.mjs": "a505c20d3bf79ff69463bbeb334b9824e8ade80e99a1124f8d3a538c27efa395",
+    "efg-nutrition/pilot/dual-workspace-panel.mjs": "135bda14bf2717269873380c2ce329e1f6ec5fa3eefde2ac4d1f9bb5186449f8",
     "efg-nutrition/pilot/fit-recipe-photos.js": "38a16781a56e881950d4d63b1f7af1d34b0661cae61043308f4d11b5c2476035",
     "efg-nutrition/pilot/fit-recipes.js": "1e2ea954ba0e01955ebe136e9e94957c65e2adcc5e193fb56d419d379eba05c2",
     "efg-nutrition/pilot/food-catalog.js": "6045215b9be510343741da5340bb3547dd2427e477dcc8298f80418742cf38f4",
@@ -189,7 +199,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "982dde2235702a0b8e054d2a2eb1fe6cd754538cc3655bc693d1f0d77322ce25",
+    "efg-nutrition/pilot/index.html": "c17d7802f94eda84ef83c5e74eb1c939b92a8bcc2dc62b9924441b82784df0b9",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -217,7 +227,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "7d6479d7ef3e5d99b8e39279e126c98e1c7747918e261abe80d18bcb41081c17",
+    "efg-nutrition/pilot/pilot.js": "b7f34f72f83049dbad24c14d4db659fe746d7345f0c79552e5a6071054a46d78",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/progress-charts.js": "18c6d14dcb87767169a3adc66320cb68966b53af0339531d43bb86f165a3b148",
     "efg-nutrition/pilot/pull-refresh.js": "e7342b7197852a74058b16e8c7ae6f80ce72ed59e5a0e0fc078e82b5fd74f29c",
@@ -386,6 +396,11 @@
       "path": "efg-nutrition/pilot/weekly-pdf-review.css",
       "sha256": "e9b1bf5ea5634c69c6825f9bc630da2a32811fe5e2d41795f3611a63e98cef3d",
       "url": "./weekly-pdf-review.css?v=ncc-weekly-preview-r11-20261106"
+    },
+    {
+      "path": "efg-nutrition/pilot/dual-workspace.css",
+      "sha256": "26a04b3d4071b57b1813117af753e8bc36de8b2acf41baccca144ce9bce49b93",
+      "url": "./dual-workspace.css?v=ncc-dual-workspace-r4-20261106"
     }
   ],
   "moduleResources": [

@@ -71,13 +71,13 @@ async function privatePdfFixture(userId){
 }
 
 const resetPrivateSession=new Function(
- 'state','pendingMealRegistrations','pendingHabitualSlots',
+ 'state','pendingMealRegistrations','pendingHabitualSlots','dualWorkspaceFrame','dualWorkspaceBootstrap',
  'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView','weeklyPdfReview','luxuryWeeklyEditor','weeklyReportDelivery',
  'let myWeeklyReports=[],cloudRecipes=[],cloudHabituales=[],coachRosterConsent={};'+
  'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false;'+
  section('function resetPrivateSession(){','function handleAuthStateChange(')+
  ';return resetPrivateSession;')(
- state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});
+ state,mealLocks,favoriteLocks,{invalidate(){}},{invalidate(){}},{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});
 
 const leaseA=mealLocks.add('desayuno');
 const favoriteLeaseA=favoriteLocks.add('cena');

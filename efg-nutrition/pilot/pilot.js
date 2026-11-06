@@ -1,3 +1,5 @@
+import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-dual-workspace-r4-20261106';
+import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-dual-workspace-r4-20261106';
 import {reportCoachName} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1273,8 +1275,9 @@ function studentPendingTabAllowed(tab){
  return ["intake","messages","nutritionScience","privacy","notifications","studentMore"].includes(tab)||(tab==="privateHealth"&&studentHealthNavigation())||(tab==="history"&&COACH_STUDENT_JOURNEY_ENABLED&&["private","review"].includes(state.coachPilotEntry?.route));
 }
 function frame(content){
+ dualWorkspaceFrame.prepareFrame();
  const role=state.profile.role;
- const menu=role==="student"
+ const menu=state.dualCandidateCoach?[]:role==="student"
   ?studentPrimaryNavigation()
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
@@ -1285,7 +1288,8 @@ function frame(content){
  root.innerHTML='<div class="pilot-layout efg-role-'+role+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
  visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+efgNavIcon(m[0])+'</span><span class="nav-label">'+m[2]+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
- '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+content+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+dualWorkspaceFrame.wrap(content)+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
+ dualWorkspaceFrame.mountFrame(root);
  pilotGuideLifecycle.mountStudent(root);
 }
 // Bienvenida institucional, exclusivamente en el primer acceso del alumno nuevo.
@@ -3086,6 +3090,7 @@ function setCoachSessionIdentity(session,user){
   coachAdaptedWorkspace.close();
  }
  state.session=user?{user,session_id:id}:null;
+ dualWorkspaceFrame.revalidate();
 }
 function adaptedCoachScope(){
  const student=state.roster.find(p=>p.user_id===state.selectedStudent);
@@ -3442,6 +3447,12 @@ async function render(){
  pilotGuideLifecycle.invalidate();
  coachAdaptedWorkspace.close(); // Never retain this ephemeral fixture across navigation/session changes.
  if(!state.profile)return loginView();
+ // A newly claimed candidate coach must never enter legacy clinical handlers.
+ // This marker only restricts presentation; it never authorizes a data request.
+ if(state.dualCandidateCoach){
+  frame('<section class="card" role="status"><h2>Cuenta de coach candidata</h2><p>Elegí tu espacio en el selector. El área personal de esta cuenta nueva todavía no está integrada. Las fichas, guías, mensajes y pagos profesionales permanecen cerrados.</p></section>');
+  return;
+ }
  if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&COACH_STUDENT_JOURNEY_ENABLED){
   await state.foodRestrictionReader.refresh();
   if((state.authContextEpoch||0)!==renderEpoch)return;
@@ -3997,11 +4008,17 @@ async function refresh(){
   // Epoch was revalidated after getSession; same-user token rotation is harmless.
   if(!currentSession.error&&currentSession.data?.session?.user?.id!==id)throw Error("AUTH_IDENTITY_MISMATCH");
   setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
-  let claim=await contextRead(sb.rpc("efg_claim_invitation"));
-  if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
-  let p=await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
+  const bootstrap=await contextRead(dualWorkspaceBootstrap.resolve(result.data.user));
+  if(!bootstrap.skipLegacyClaim){
+   let claim=await contextRead(sb.rpc("efg_claim_invitation"));
+   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
+  }
+  let p=bootstrap.profile?{data:bootstrap.profile,error:null}:
+   await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
   if(p.error)throw p.error;
   state.profile=p.data;
+  state.dualCandidateCoach=bootstrap.mode==="candidate_coach";
+  if(state.dualCandidateCoach){state.tab="home";return contextRead(render());}
   state.coachRelaunchEntry=null;state.coachLegalSnapshot=null;state.coachLegalPending=false;
   state.coachPilotEntry=null;state.coachPilotIntake=null;state.coachPilotLegal=null;state.coachPrivateHistory=null;
   if(!state.profile.active){state.profile=null;return unauthorized("Tu cuenta está inactiva. Contactá al administrador correspondiente.");}
@@ -4087,6 +4104,7 @@ async function refresh(){
 // Explicit pull-to-refresh: re-fetch role-authorized data but never navigate or reload the page.
 let refreshingWorkspace=false;
 async function refreshVisibleWorkspace(){
+ if(state.dualCandidateCoach)return refresh();
  if(refreshingWorkspace||state.loading)throw Error("Ya hay una actualización en curso.");
  if(!state.profile||!state.session?.user?.id||state.welcomePending)throw Error("Ingresá a tu cuenta para actualizar.");
   // Unknown/Personal accounts must NEVER refresh legacy Coach/Student tables.
@@ -4229,6 +4247,7 @@ async function showProof(path){
  window.open(r.data.signedUrl,"_blank","noopener,noreferrer");
 }
 async function mainClick(event){
+ if(state.dualCandidateCoach&&!event.target?.closest?.('[data-act="logout"],[data-act="retry"]')&&!isDualWorkspaceField(event.target))return;
  let el=event.target.closest("button");if(!el)return;
  if(el.dataset.act&&["scienceNext","sciencePrev","scienceFinish"].includes(el.dataset.act)){
   if(!SCIENCE_WELCOME_ENABLED||!state.scienceWelcomePending||state.scienceWelcomeBusy||
@@ -5083,6 +5102,7 @@ if(el.dataset.foodbulk){
  if(action==="setSelfGoals"){return savePersonalTargets();}
 }
 async function updateAtDayChange(){
+ if(state.dualCandidateCoach)return;
  if(!state.profile||!state.session||!state.renderedDay)return;
  const ownerId=state.session.user.id,contextEpoch=state.authContextEpoch||0,day=today();
  const sameContext=()=>state.session?.user?.id===ownerId&&
@@ -5311,6 +5331,8 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;
+ dualWorkspaceFrame.invalidate();
  weeklyPdfReview.close(true);luxuryWeeklyEditor.reset();weeklyReportDelivery.clear();
  closePeriodPdfView(true);
  state.foodRestrictionReader?.invalidate?.();
@@ -5370,6 +5392,7 @@ function handleAuthStateChange(event,session){
 // Never auto-reload after a release. Only warn the user, especially when editing.
 let userHasUnconfirmedEdits=false;
 const meaningfulField=el=>{
+ if(isDualWorkspaceField(el)||dualWorkspaceFrame.isProfessional())return false;
  if(!el?.matches?.("input,textarea,select,[contenteditable]"))return false;
  if(el.matches('input[type="search"],input[type="password"],input[type="email"]'))return false;
  if(el.id&&/search|filter|login|otp/i.test(el.id))return false;
@@ -5383,6 +5406,21 @@ const hasPendingUnsavedEdits=()=>userHasUnconfirmedEdits||
   Object.keys(state.plannerDraftGrams||{}).length>0||
   !!document.getElementById("efgMessageText")?.value?.trim()||
   !!document.querySelector('input[type="file"]')?.files?.length;
+const dualWorkspaceBootstrap=createDualWorkspaceBootstrap({
+ syntheticEnvironment:()=>["localhost","127.0.0.1","[::1]"].includes(location.hostname),
+ readSession:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,epoch:state.authContextEpoch||0}),
+ readProfile:userId=>sb.from("efg_profiles").select("*").eq("user_id",userId).maybeSingle(),
+ rpc:(name,args)=>sb.rpc(name,args)
+});
+const dualWorkspaceFrame=createDualWorkspaceFrame({
+ rpc:(name,args)=>sb.rpc(name,args),
+ readSession:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,epoch:state.authContextEpoch||0}),
+ readLegacyPersonal:()=>({profile:state.profile,organization:state.org}),
+ hasUnsavedDraft:hasPendingUnsavedEdits
+});
+// Capture before legacy bubbling handlers; the panel also stops its own events.
+for(const type of ['click','input','change','submit'])
+ root.addEventListener(type,event=>dualWorkspaceFrame.guardEvent(event),{capture:true});
 const versionNotice=createVersionNotice({
  currentVersion:"20261030-grand-candidate-nut58",
  canShow:()=>!!state.profile&&!!state.session?.user?.id&&!state.welcomePending,

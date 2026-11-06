@@ -1,7 +1,7 @@
 import {readPdfPageText} from './pdf-page-text.js?v=ncc-weekly-preview-r11-20261106';
 // One in-memory viewer. PDF.js draws the actual downloadable bytes, not an HTML facsimile.
 // No upload, persistent storage, print(), popup, credentials or remote dependency.
-import {buildWeeklyReportPdf} from './weekly-report-pdf.js?v=ncc-weekly-preview-r11-20261106';
+import {buildWeeklyReportPdf} from './weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106';
 async function loadPdf(bytes){
  const pdfjs=await import('./vendor/pdfjs-5.6.205/pdf.min.mjs?v=ncc-weekly-preview-r11-20261106');
  pdfjs.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs-5.6.205/pdf.worker.min.mjs?v=ncc-weekly-preview-r11-20261106',import.meta.url).href;
@@ -20,6 +20,20 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
   if(!force&&view.opener?.isConnected)view.opener.focus();
  }
  function current(view){return active===view&&!!view.ticket&&view.dialog.isConnected&&view.isCurrent();}
+ // Delivery may invalidate the draft/snapshot predicate. Return only to the still-owned
+ // origin, never to a newer view, and never infer success from a settled promise.
+ function canReturn(view){
+  return active===view&&!!view.ticket&&view.dialog.isConnected&&view.dialog.open&&
+   view.editable&&view.ready&&view.reviewed&&view.isOriginCurrent();
+ }
+ function complete(view,refreshOrigin=()=>view.opener){
+  if(!canReturn(view))return false;
+  const focus=refreshOrigin();
+  close(true);
+  if(focus?.isConnected)focus.focus({preventScroll:true});
+  globalThis.scrollTo?.({left:view.originX,top:view.originY,behavior:'instant'});
+  return true;
+ }
  function requireReviewed(serialized){
   const view=active;
   if(!view||!current(view)||!view.dialog.open||!view.ready||!view.reviewed||view.serialized!==serialized||JSON.stringify(view.snapshot)!==serialized)
@@ -92,12 +106,12 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
    }
   }
  }
- function open({snapshot,serialized=JSON.stringify(snapshot),isCurrent,editable=false,opener,onSend,onClose}){
+ function open({snapshot,serialized=JSON.stringify(snapshot),isCurrent,editable=false,opener,onSend,onClose,isOriginCurrent=isCurrent}){
   if(active?.submitting)throw Error('Esperá a que termine el envío.');
   close(true);
   // Show synchronously in the original tap, before any import, generation or PDF decode.
   const dialog=document.createElement('dialog');dialog.className='weekly-pdf-dialog';dialog.setAttribute('aria-labelledby','weeklyPdfTitle');
-  dialog.innerHTML='<header><div><p>LUXURY PRO · INFORME SEMANAL</p><h2 id="weeklyPdfTitle">'+(editable?'Revisar antes de compartir':'Informe compartido')+'</h2></div><button type="button" class="btn light" data-weekly-close>'+(editable?'Volver y editar':'Cerrar')+'</button></header><p data-weekly-identity></p><p data-weekly-status role="status"></p><nav aria-label="Páginas del PDF"><button type="button" class="btn light" data-weekly-prev>Anterior</button><span data-weekly-counter>Página…</span><button type="button" class="btn light" data-weekly-next>Siguiente</button><button type="button" class="btn light" data-weekly-zoom>Ampliar</button><a class="btn light" data-weekly-download hidden>Descargar PDF</a></nav><div class="weekly-pdf-stage" data-weekly-stage tabindex="0" aria-label="Página del PDF, desplazamiento horizontal al ampliar"></div><details class="weekly-pdf-text"><summary>Texto accesible de esta página</summary><p data-weekly-text></p></details><button type="button" class="btn light" data-weekly-retry hidden>Reintentar PDF</button>'+(editable?'<footer><label><input type="checkbox" id="weeklyPdfReviewed" disabled> Revisé todas las páginas y el alumno destinatario.</label><button type="button" class="btn" id="weeklyLuxuryPublishButton" disabled>Aprobar y compartir con alumno</button></footer>':'');
+  dialog.innerHTML='<header><div><p>LUXURY PRO · INFORME SEMANAL</p><h2 id="weeklyPdfTitle">'+(editable?'Revisar antes de compartir':'Informe compartido')+'</h2></div><button type="button" class="btn light" data-weekly-close>'+(editable?'Volver y editar':'Cerrar')+'</button></header><p data-weekly-identity></p><p data-weekly-review-note role="note" hidden></p><p data-weekly-status role="status"></p><nav aria-label="Páginas del PDF"><button type="button" class="btn light" data-weekly-prev>Anterior</button><span data-weekly-counter>Página…</span><button type="button" class="btn light" data-weekly-next>Siguiente</button><button type="button" class="btn light" data-weekly-zoom>Ampliar</button><a class="btn light" data-weekly-download hidden>Descargar PDF</a></nav><div class="weekly-pdf-stage" data-weekly-stage tabindex="0" aria-label="Página del PDF, desplazamiento horizontal al ampliar"></div><details class="weekly-pdf-text"><summary>Texto accesible de esta página</summary><p data-weekly-text></p></details><button type="button" class="btn light" data-weekly-retry hidden>Reintentar PDF</button>'+(editable?'<footer><label><input type="checkbox" id="weeklyPdfReviewed" disabled> Revisé todas las páginas y el alumno destinatario.</label><button type="button" class="btn" id="weeklyLuxuryPublishButton" disabled>Aprobar y compartir con alumno</button></footer>':'');
   if(mode==='period'){
    dialog.classList.add('period-pdf-dialog');
    dialog.innerHTML=dialog.innerHTML.replaceAll('INFORME SEMANAL','INFORME POR PERÍODO').replaceAll('weeklyPdfTitle','periodPdfTitle').replaceAll('weeklyPdfReviewed','periodReportReviewed').replaceAll('weeklyLuxuryPublishButton','periodPublishButton');
@@ -108,10 +122,17 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
    if(editable)dialog.querySelector('#periodPublishButton').dataset.act='publishPeriodLuxury';
   }
   const q=s=>dialog.querySelector(mode==='period'?s.replace('#weeklyPdfReviewed','#periodReportReviewed').replace('#weeklyLuxuryPublishButton','#periodPublishButton'):s);
-  const view={dialog,snapshot:JSON.parse(serialized),serialized,isCurrent,editable,opener,onClose,ticket:Symbol(),seen:new Set(),page:0,zoomFactor:1,ready:false,reviewed:false,rendering:false,submitting:false,
+  const view={dialog,snapshot:JSON.parse(serialized),serialized,isCurrent,isOriginCurrent,editable,opener,onClose,originX:globalThis.scrollX||0,originY:globalThis.scrollY||0,ticket:Symbol(),seen:new Set(),page:0,zoomFactor:1,ready:false,reviewed:false,rendering:false,submitting:false,
    close:q('[data-weekly-close]'),status:q('[data-weekly-status]'),prev:q('[data-weekly-prev]'),next:q('[data-weekly-next]'),zoom:q('[data-weekly-zoom]'),counter:q('[data-weekly-counter]'),stage:q('[data-weekly-stage]'),download:q('[data-weekly-download]'),transcript:q('[data-weekly-text]'),retry:q('[data-weekly-retry]'),check:q('#weeklyPdfReviewed'),send:q('#weeklyLuxuryPublishButton')};
   active=view;root.appendChild(dialog);
-  q('[data-weekly-identity]').textContent=view.snapshot.studentName+' · '+view.snapshot.from+' al '+view.snapshot.to;
+  q('[data-weekly-identity]').textContent=view.snapshot.studentName+' · '+view.snapshot.from+' al '+view.snapshot.to+(view.snapshot.coachVoiceVersion?' · '+view.snapshot.coachName+(view.snapshot.coachName==='Tu coach'?'':' · Tu coach'):'');
+  if(editable&&view.snapshot.coachVoiceVersion){
+   const m=view.snapshot,notes=[];
+   if(m.coachName==='Tu coach')notes.push('No hay un nombre verificado para la firma. El informe mostrará «Tu coach».');
+   if([m.studentName,m.coachName,m.conclusion,m.flexibleNote,...(m.focus||[]),...(m.topFoods||[]).map(f=>f.name),m.evidence?.rule].some(text=>/\bEFG\b/i.test(text||'')))
+    notes.push('El contenido incluye «EFG». Revisá si corresponde a un nombre o texto que querés conservar; no lo cambiamos automáticamente.');
+   const note=q('[data-weekly-review-note]');note.textContent=notes.join(' ');note.hidden=!notes.length;
+  }
   view.close.addEventListener('click',()=>close());
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('close',()=>{if(active===view)close(true);});
@@ -130,5 +151,5 @@ export function createWeeklyPdfReview({root,buildPdf=buildWeeklyReportPdf,loadDo
   sync(view);view.prepared=prepare(view);
   return view;
  }
- return {open,close,requireReviewed,setSubmitting};
+ return {open,close,requireReviewed,setSubmitting,canReturn,complete};
 }

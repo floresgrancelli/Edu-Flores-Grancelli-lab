@@ -19,7 +19,8 @@ function between(start,end){
 }
 function sourceLine(start){const lines=app.split('\n').filter(line=>line.startsWith(start));assert.equal(lines.length,1,start);return lines[0];}
 const fixture=`
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from '/efg-nutrition/pilot/period-luxury-report.js';
+import {reportCoachName} from '/efg-nutrition/pilot/coach-report-models.js';
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from '/efg-nutrition/pilot/coach-report-models.js';
 import {buildPeriodReportPdf as renderPdf,PERIOD_PDF_RENDERER_VERSION} from '/efg-nutrition/pilot/period-report-pdf.js';
 import {createPeriodReportHistory} from '/efg-nutrition/pilot/period-report-history.js';
 import {loadReportTrendGoals as loadPeriodReportGoals} from '/efg-nutrition/pilot/report-trend-goals.js';
@@ -94,7 +95,7 @@ function inspectPdf(bytes){
  const text=bytes.toString('latin1');assert.ok(bytes.length>10000,'Embedded-font PDF has substantial bytes');
  assert.match(text,/^%PDF-1\.[3-7]/);assert.match(text,/%%EOF\s*$/);
  const offset=Number(text.match(/startxref\s+(\d+)\s+%%EOF\s*$/)?.[1]);assert.ok(Number.isInteger(offset)&&offset>0);assert.equal(text.slice(offset,offset+4),'xref');
- assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v2/);
+ assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v3/);
  const pages=(text.match(/\/Type \/Page\b/g)||[]).length;assert.ok(pages>=2,'Real multipage report, not HTML print or a magic-byte stub');
  return {bytes:bytes.length,sha256:sha(bytes),pages,header:text.slice(0,8),xrefOffset:offset};
 }
@@ -128,13 +129,14 @@ try{
    assert.ok(await page.evaluate(url=>qa.trace.revoked.includes(url),url),'Actual revokeObjectURL was called');
    assert.equal(await page.evaluate(async url=>{try{await fetch(url);return false;}catch{return true;}},url),true,'Revoked URL cannot be read');
   };
+  await page.evaluate(()=>document.addEventListener('click',e=>{if(e.target.closest('[data-act="printPeriodLuxury"]'))window.__returnOriginY=scrollY;},true));
   await generate();
   await page.getByText('Versión HTML accesible del borrador (no es el PDF)',{exact:true}).click();
   assert.match(await page.locator('#periodLuxuryPreview').innerText(),/María José Núñez/);await screenshot('accessible-html');
   await open();assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);
   assert.match(await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')).then(()=>'',e=>e.message)),/confirmación/,'Handler also refuses unreviewed send');
   const pdf=await page.evaluate(async()=>{const v=qa.view(),r=await fetch(v.url);return {url:v.url,type:r.headers.get('content-type'),size:(await r.arrayBuffer()).byteLength,snapshot:v.snapshot,serialized:v.serialized};});
-  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v2');assert.equal(pdf.snapshot.approvedByCoach,true);
+  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v3');assert.equal(pdf.snapshot.approvedByCoach,true);
   assert.equal(await page.locator('.period-pdf-dialog canvas').isVisible(),true);
   assert.equal(await page.locator('[data-pdf-download]').getAttribute('href'),pdf.url);
   const dialogBox=await page.locator('.period-pdf-dialog').boundingBox();assert.ok(dialogBox.x>=0&&dialogBox.x+dialogBox.width<=width+1);
@@ -161,7 +163,7 @@ try{
   await reviewAll();await page.locator('#periodReportReviewed').check();const editedUrl=await page.evaluate(()=>qa.view().url);
   await page.evaluate(()=>{const field=document.getElementById('periodReportConclusion');field.value+='\nSegunda edición ficticia.';field.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('.period-pdf-dialog').waitFor({state:'detached'});await urlRevoked(editedUrl);assert.equal(await page.evaluate(()=>qa.approved()),false);
-  await open();await reviewAll();await page.locator('#periodReportReviewed').check();const finalSnapshot=await page.evaluate(()=>qa.view().serialized);const approved=await download('coach-final');
+  await open();await reviewAll();await page.locator('#periodReportReviewed').check();const finalSnapshot=await page.evaluate(()=>qa.view().serialized);const coachUrl=await page.evaluate(()=>qa.view().url);const approved=await download('coach-final');
   await screenshot('coach-dialog-approved');await page.evaluate(()=>qa.holdInsert());
   await page.locator('#periodPublishButton').click();await page.waitForFunction(()=>qa.trace.inserts===1);
   assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('[data-pdf-close]').isDisabled(),true);
@@ -169,8 +171,13 @@ try{
   await page.evaluate(()=>qa.releaseInsert());await page.waitForFunction(()=>document.getElementById('periodReportResult').periodPublished);
   assert.equal(await page.evaluate(()=>qa.trace.rows[0].report_text),finalSnapshot,'Persist precisely the snapshot used to create reviewed PDF');
   await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')));assert.equal(await page.evaluate(()=>qa.trace.inserts),1);
-  await screenshot('coach-confirmed');
-  const coachUrl=await page.evaluate(()=>qa.view().url);await page.evaluate(()=>qa.student());await urlRevoked(coachUrl);
+  assert.equal(await page.locator('.period-pdf-dialog').count(),0,'Confirmed publication returns automatically');
+  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.act),'printPeriodLuxury');
+  assert.ok(await page.evaluate(()=>Math.abs(scrollY-Math.min(window.__returnOriginY,document.documentElement.scrollHeight-innerHeight))<=2),'Restore source scroll');
+  await urlRevoked(coachUrl);await screenshot('coach-confirmed-return');
+  await page.getByRole('button',{name:'Abrir PDF del informe compartido',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready);
+  assert.equal(await page.locator('#periodPublishButton,#periodReportReviewed').count(),0,'Reopening after success is read-only');assert.equal(await page.evaluate(()=>qa.view().serialized),finalSnapshot);await close();
+  await page.evaluate(()=>qa.student());
   await page.getByRole('button',{name:'Consultar historial',exact:true}).click();
   // Each report contains its own evidence <details>; select the history row,
   // not every nested disclosure. Keep strict uniqueness and exact period checks.

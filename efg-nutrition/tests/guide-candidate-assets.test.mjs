@@ -60,7 +60,7 @@ test('same-origin PDF worker and new CSS are pinned; period PDF assets remain im
   assert.equal(new URL(resource.url,'https://example.invalid/').searchParams.get('v'),m.moduleVersions[resource.path]);
   assert.equal(hash(readFileSync(resolve(root,resource.path))),m.sha256[resource.path]);
  }
- assert.ok(m.stylesheets.some(x=>x.path==='efg-nutrition/pilot/weekly-pdf-review.css'&&x.url.endsWith('?v='+m.assetVersion)));
+ assert.ok(m.stylesheets.some(x=>x.path==='efg-nutrition/pilot/weekly-pdf-review.css'&&x.url.endsWith('?v=ncc-weekly-preview-r11-20261106')));
  assert.equal(Object.keys(m.immutablePeriodPdfAssets).length,5);
  for(const [p,digest]of Object.entries(m.immutablePeriodPdfAssets))assert.equal(hash(readFileSync(resolve(root,p))),digest,'Immutable period PDF asset: '+p);
 });
@@ -70,4 +70,10 @@ test('asset rewrite does not change feature flag values',()=>{
   const flags=s=>[...s.matchAll(/(?:export )?const [A-Z][A-Z0-9_]*(?:ENABLED|VERIFIED)\s*=\s*(?:true|false)/g)].map(x=>x[0]);
   assert.deepEqual(flags(read(p)),flags(readFileSync(baseline,'utf8')),p);
  }
+});
+
+test('R12 preserves all published report models, renderers and graph dependencies',()=>{
+ assert.equal(Object.keys(m.immutableReportAssets).length,10);
+ for(const [p,digest]of Object.entries(m.immutableReportAssets))assert.equal(hash(readFileSync(resolve(root,p))),digest,p);
+ for(const css of m.stylesheets)assert.ok(read('efg-nutrition/pilot/index.html').includes('href=\"'+css.url+'\"'),css.url);
 });

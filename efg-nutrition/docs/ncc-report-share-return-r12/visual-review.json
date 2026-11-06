@@ -1,0 +1,14 @@
+{
+  "scope": "All 36 generated PDF pages inspected as pixels by independent read-only reviewer; synthetic data only. Not a browser screenshot or device certification.",
+  "pagesInspected": 36,
+  "outcome": "No blocking clipping, overlap or broken glyphs. Long text ends present, 90-day tables and all six chart pages present.",
+  "fixtureNameNote": "Long name is stored at the existing 70-character model limit; its final partial word is in the snapshot, not PDF clipping.",
+  "newPdfLabels": [
+    "weekly",
+    "weekly-long",
+    "period-one",
+    "period-ten",
+    "period-ninety"
+  ],
+  "historicalDependenciesUnchanged": 10
+}

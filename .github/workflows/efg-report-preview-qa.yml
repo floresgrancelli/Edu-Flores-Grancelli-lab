@@ -37,6 +37,7 @@ jobs:
           node efg-nutrition/tests/report-trend-charts.mjs
           node efg-nutrition/tests/report-food-frequency.mjs
           node efg-nutrition/tests/pdf-review-controller.mjs
+          node efg-nutrition/tests/report-coach-voice.mjs
           node efg-nutrition/tests/pdf-page-text.mjs
           node efg-nutrition/tests/period-report-access.mjs
           node efg-nutrition/tests/period-report-history.mjs
@@ -52,6 +53,7 @@ jobs:
           path: |
             artifacts/weekly-preview/
             artifacts/report-trends/
+            artifacts/report-share-return-r12/
           retention-days: 7
   report-browsers:
     runs-on: ubuntu-latest

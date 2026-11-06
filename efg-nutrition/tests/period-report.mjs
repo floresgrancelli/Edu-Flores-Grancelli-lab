@@ -1,6 +1,6 @@
 import {normalizeReportTrendGoals,withReportTrendGoals} from '../pilot/report-trend-snapshot.js';
 import {withReportFoodFrequency} from '../pilot/report-food-frequency.js';
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport} from '../pilot/period-luxury-report.js';
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,reportCoachName} from '../pilot/coach-report-models.js';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -28,7 +28,7 @@ async function run(stale){
  const query={};for(const name of ['select','eq','gte','lte','order'])query[name]=()=>query;
  query.limit=async limit=>{assert.equal(limit,91);if(stale)state.selectedStudent='B';return {data:[day('2026-11-04')],error:null};};
  const previewInputs={periodReportConclusion:{get value(){return host.periodModel?.conclusion||'';}},periodReportFlexible:{get value(){return host.periodModel?.flexibleNote||'';}},periodReportReviewed:{checked:false},periodLuxuryPreview:{innerHTML:''},periodPublishButton:{disabled:true}};
- const context={normalizeReportTrendGoals,withReportTrendGoals,withReportFoodFrequency,createPeriodReportHistory:()=>({}),loadPeriodReportGoals:async()=>[],state,document:{getElementById:id=>inputs[id]||previewInputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,buildLuxuryPeriodReport,renderLuxuryPeriodReport,mealSlots:[],buildNutritionReport:logs=>({days:logs.map(x=>({date:x.log_day,hasData:true,closed:false,mealCount:1,...food}))}),escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
+ const context={reportCoachName,normalizeReportTrendGoals,withReportTrendGoals,withReportFoodFrequency,createPeriodReportHistory:()=>({}),loadPeriodReportGoals:async()=>[],state,document:{getElementById:id=>inputs[id]||previewInputs[id]},sb:{from:()=>query},today:()=>args.today,validateReportPeriod,buildPeriodReport,dailyTotals:totalOf,buildLuxuryPeriodReport,renderLuxuryPeriodReport,mealSlots:[],buildNutritionReport:logs=>({days:logs.map(x=>({date:x.log_day,hasData:true,closed:false,mealCount:1,...food}))}),escapeHTML:x=>x,Symbol,action:'generatePeriodReport'};
  await vm.runInNewContext('(async()=>{'+app.slice(helperStart,helperEnd)+app.slice(start,end)+'})()',context);
  assert.equal(host.innerHTML.includes('periodReportConclusion'),!stale);
 }

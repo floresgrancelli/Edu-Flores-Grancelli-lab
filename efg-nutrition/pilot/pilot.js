@@ -1,3 +1,4 @@
+import {reportCoachName} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -5,12 +6,12 @@ import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-g
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
 import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
-import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-weekly-preview-r11-20261106";
+import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-share-return-r12-20261106";
 async function buildPeriodReportPdf(model){
- const pdf=await import("./period-report-pdf.js?v=ncc-weekly-preview-r11-20261106");
+ const pdf=await import("./period-report-pdf.js?v=ncc-report-share-return-r12-20261106");
  return pdf.buildPeriodReportPdf(model);
 }
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -37,10 +38,10 @@ import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-rep
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
 import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-weekly-preview-r11-20261106";
-import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-weekly-preview-r11-20261106";
-import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-weekly-preview-r11-20261106";
+import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
+import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -481,7 +482,7 @@ async function publishWeeklyReport(){
  weeklyPublishPending=true;weeklyPdfReview.setSubmitting(pdfView,true);
  try{
   const delivered=await weeklyReportDelivery.send({key,record,isCurrent:currentScope});
-  if(!currentScope())return;
+  if(!currentScope()||!weeklyPdfReview.canReturn(pdfView))return;
   // INSERT is confirmed. A failed refresh must not invite a duplicate send.
   state.coachHistory=[delivered,...(state.coachHistory||[]).filter(r=>r.week_ending!==weekEnding)];
   luxuryWeeklyEditor.reset();
@@ -492,18 +493,27 @@ async function publishWeeklyReport(){
     .order("week_ending",{ascending:false}).limit(52);
    if(latest.error)throw latest.error;
    if(!latest.data?.some(r=>r.week_ending===weekEnding&&r.report_text===reportText))throw Error("Historial confirmado todavía no disponible");
-   if(!currentScope())return;
+   if(!currentScope()||!weeklyPdfReview.canReturn(pdfView))return;
    state.coachHistory=latest.data||[];
   }catch{refreshFailed=true;}
-  if(!currentScope())return;
-  await render();
+  if(!currentScope()||!weeklyPdfReview.canReturn(pdfView))return;
+  // Replace only the confirmed weekly panels. Preserve the origin tab, scroll,
+  // other open sections and any independent period draft; never navigate history.
+  weeklyPdfReview.complete(pdfView,()=>{
+   document.getElementById('coachReportWeek').outerHTML=weeklyCoachDraft();
+   const history=document.querySelector('.lux-report-history')?.closest('section');
+   if(history)history.outerHTML=coachLuxuryHistoryPanel();
+   return document.querySelector('#coachReportWeek [data-act="printLuxuryReport"]');
+  });
   notify(refreshFailed?"Informe compartido. No se pudo actualizar el historial; reabrilo para consultarlo. No hace falta reenviar.":
    "Informe Luxury Pro compartido con el alumno y conservado en su historial.");
  }catch(error){
-  if(!currentScope())return;
+  if(!currentScope()||!weeklyPdfReview.canReturn(pdfView))return;
   if(error.weeklyWriteOutcome==='conflict'&&error.weeklyExistingRecord){
    state.coachHistory=[error.weeklyExistingRecord,...state.coachHistory.filter(r=>r.week_ending!==weekEnding)];
-   weeklyReportDelivery.forget(key);luxuryWeeklyEditor.reset();await render();notify(error.message);return;
+   weeklyReportDelivery.forget(key);luxuryWeeklyEditor.reset();
+   pdfView.completed=true;pdfView.send.textContent='No compartido';pdfView.status.textContent=error.message;
+   throw error;
   }
   const uncertain=!!weeklyReportDelivery.get(key);
   for(const id of ['weeklyCoachConclusion','weeklyCoachFlexibleNote']){const field=document.getElementById(id);if(field)field.disabled=uncertain;}
@@ -2466,7 +2476,7 @@ function buildCurrentLuxuryModel(){
  const goals=verified?proof.goals:null;
  return withReportTrendGoals(withReportFoodFrequency(buildLuxuryWeeklyReport({
   ...window,studentName:student?.nickname||"Alumno",
-  coachName:state.profile?.nickname||state.profile?.full_name||"Entrenador EFG",
+  coachName:reportCoachName(state),
   days:report.days,logs:state.coachLogs,goals:goals||[]
  }),state.coachLogs),goals);
 }
@@ -2497,8 +2507,8 @@ function weeklyCoachDraft(){
  const flexibleNote=published?(shared?.flexibleNote||""):(draftState?.flexibleNote??generated.flexibleNote);
  const previewModel=published?model:{...generated,conclusion,flexibleNote};
  return '<section class="card" id="coachReportWeek"><div class="eyebrow">LUXURY PRO · INFORME SEMANAL</div><h2>Informe del viernes '+escapeHTML(window.friday)+'</h2>'+
- '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Conclusiones automáticas, siempre revisadas antes del envío.</p>'+
- '<div class="field"><label for="weeklyCoachConclusion">Conclusión automática · editable por el coach</label>'+
+ '<p class="pilot-hint">Período '+escapeHTML(window.from)+' a '+escapeHTML(window.to)+'. Medias solamente sobre los días registrados. Texto sugerido a partir de los registros. Revisalo y adaptalo antes de compartir.</p>'+
+ '<div class="field"><label for="weeklyCoachConclusion">Mi devolución · revisá y editá antes de enviar</label>'+
  '<textarea id="weeklyCoachConclusion" rows="6" maxlength="2200" '+(published||attempt?'disabled':'')+'>'+escapeHTML(conclusion)+'</textarea></div>'+
  '<div class="field"><label for="weeklyCoachFlexibleNote">Mensaje de flexibilidad · opcional y editable</label>'+
  '<textarea id="weeklyCoachFlexibleNote" rows="3" maxlength="750" '+(published||attempt?'disabled':'')+'>'+escapeHTML(flexibleNote)+'</textarea></div>'+
@@ -2538,13 +2548,15 @@ function openWeeklyPdfView(index,opener){
   const isCurrent=()=>allowed()&&(role==='student'?myWeeklyReports:state.coachHistory||[]).some(r=>r.week_ending===week&&r.report_text===stored);
   return weeklyPdfReview.open({snapshot,isCurrent,opener});
  }
+ const originTab=state.tab,host=document.getElementById('coachReportWeek');
+ const isOriginCurrent=()=>allowed()&&state.tab===originTab&&host?.isConnected&&document.getElementById('coachReportWeek')===host;
  const pendingKey=weeklyPublicationKey(),attempt=weeklyReportDelivery.get(pendingKey);
  if(attempt){
   const snapshot=parseLuxuryWeeklyReport(attempt.record.report_text);
   if(!snapshot)throw Error('No se pudo recuperar el PDF del envío pendiente.');
-  return weeklyPdfReview.open({snapshot,serialized:attempt.record.report_text,isCurrent:()=>allowed()&&weeklyPublicationKey()===pendingKey&&weeklyReportDelivery.get(pendingKey)===attempt,editable:true,opener,onSend:publishWeeklyReport});
+  return weeklyPdfReview.open({snapshot,serialized:attempt.record.report_text,isCurrent:()=>allowed()&&weeklyPublicationKey()===pendingKey&&weeklyReportDelivery.get(pendingKey)===attempt,editable:true,opener,isOriginCurrent,onSend:publishWeeklyReport});
  }
- const model=buildCurrentLuxuryModel(),host=document.getElementById('coachReportWeek');
+ const model=buildCurrentLuxuryModel();
  const conclusion=document.getElementById('weeklyCoachConclusion')?.value,flexible=document.getElementById('weeklyCoachFlexibleNote')?.value;
  const preview=luxuryWeeklyEditor.preview(luxuryEditorContext(model),conclusion,flexible);
  const serialized=reportAsStoredText({...preview,pdfRendererVersion:WEEKLY_PDF_RENDERER_VERSION},preview.conclusion,preview.flexibleNote);
@@ -2557,7 +2569,7 @@ function openWeeklyPdfView(index,opener){
    return reportAsStoredText({...approved,pdfRendererVersion:WEEKLY_PDF_RENDERER_VERSION},approved.conclusion,approved.flexibleNote)===serialized;
   }catch{return false;}
  };
- return weeklyPdfReview.open({snapshot,serialized,isCurrent,editable:true,opener,onSend:publishWeeklyReport});
+ return weeklyPdfReview.open({snapshot,serialized,isCurrent,editable:true,opener,isOriginCurrent,onSend:publishWeeklyReport});
 }
 function periodReportContext(){
  const role=state.profile?.role,userId=state.session?.user?.id,org=state.org;
@@ -2616,10 +2628,11 @@ function syncPeriodReportPreview(){
 }
 async function openPeriodPdfView({model,host=null,context,current,opener}){
  closePeriodPdfView(true);
- const text=host?.periodPreviewText||null;
+ const text=host?.periodPreviewText||null,originTab=state.tab;
  const snapshot=host?JSON.parse(periodReportAsStoredText({...model,pdfRendererVersion:PERIOD_PDF_RENDERER_VERSION},model.conclusion,model.flexibleNote)):JSON.parse(JSON.stringify(model));
  const view=periodPdfReview.open({snapshot,editable:!!host,opener,
   isCurrent:()=>periodContextMatches(context)&&current()&&(!host||host.periodPreviewText===text),
+  isOriginCurrent:()=>state.tab===originTab&&periodContextMatches(context)&&current()&&host?.isConnected,
   onClose:closed=>{if(activePeriodPdfView===closed)activePeriodPdfView=null;if(host){host.periodReviewed=null;host.periodPdfSnapshot=null;}}
  });
  view.host=host;view.text=text;activePeriodPdfView=view;
@@ -4668,7 +4681,7 @@ if(el.dataset.foodbulk){
   if(host.periodLoading||host.periodPublishing)return;
   if(host.periodAttempt&&!host.periodPublished)throw Error('Confirmá el envío pendiente con Reintentar antes de generar otro informe.');
   const ticket=Symbol();host.periodTicket=ticket;host.periodLoading=true;
-  host.periodModel=null;host.periodContext=null;host.periodReviewed=null;host.periodAttempt=null;host.periodPublished=false;
+  host.periodModel=null;host.periodContext=null;host.periodReviewed=null;host.periodAttempt=null;host.periodPublished=false;host.periodSharedSnapshot=null;
   host.textContent='Consultando registros del período…';
   const current=()=>state.session===session&&periodContextMatches(c)&&host.isConnected&&host.periodTicket===ticket&&
    document.getElementById('periodReportFrom')?.value===from&&document.getElementById('periodReportTo')?.value===to;
@@ -4679,9 +4692,9 @@ if(el.dataset.foodbulk){
    if(!current())return;
    const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
-   const report=withReportTrendGoals(withReportFoodFrequency(buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals}),data),periodGoals);
+   const report=withReportTrendGoals(withReportFoodFrequency(buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:reportCoachName(state),days,logs:data,goals:periodGoals}),data),periodGoals);
    host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=c;host.periodRequestId=null;host.periodPreviewText=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
-   host.innerHTML='<label class="period-report-field">Conclusión propuesta · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
+   host.innerHTML='<label class="period-report-field">Mi devolución · revisá y editá antes de enviar<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
    syncPeriodReportPreview();
   }catch(error){if(current()){host.textContent='No se pudo generar el informe. Volvé a intentarlo.';throw error;}}
   finally{host.periodLoading=false;}
@@ -4691,6 +4704,7 @@ if(el.dataset.foodbulk){
   const host=currentPeriodReportHost();
   if(!host)throw Error('Generá el informe para el alumno y las fechas actuales.');
   if(host.periodPublishing)return;
+  if(host.periodPublished)return openPeriodPdfView({model:host.periodSharedSnapshot,context:host.periodContext,current:()=>currentPeriodReportHost()===host,opener:el});
   const model=syncPeriodReportPreview();if(!model)throw Error('Revisá el texto del informe.');
   return openPeriodPdfView({model,host,context:host.periodContext,current:()=>currentPeriodReportHost()===host,opener:el});
  }
@@ -4711,14 +4725,16 @@ if(el.dataset.foodbulk){
   fields.forEach(field=>field.disabled=true);
   try{
    const saved=await host.periodClient.publish({model,requestId:host.periodRequestId,confirmed:true});
-   if(saved&&host.isConnected&&currentPeriodReportHost()===host){
-    host.periodPublished=true;pdfView.completed=true;button.textContent='Compartido';
+   if(saved&&host.isConnected&&currentPeriodReportHost()===host&&periodPdfReview.canReturn(pdfView)){
+    host.periodPublished=true;host.periodSharedSnapshot=JSON.parse(pdfView.serialized);pdfView.completed=true;button.textContent='Compartido';
+    if(pdfView.opener?.isConnected)pdfView.opener.textContent='Abrir PDF del informe compartido';
     pdfView.dialog.querySelector('[data-pdf-status]').textContent='Informe compartido y confirmado. Este es el PDF del alumno.';
     fields.filter(field=>['periodReportFrom','periodReportTo'].includes(field.id)).forEach(field=>field.disabled=false);
     document.getElementById('periodPublishStatus').textContent='Informe compartido y confirmado en el historial del alumno.';
+    periodPdfReview.complete(pdfView);
    }
   }catch(error){
-   if(host.isConnected&&currentPeriodReportHost()===host){
+   if(host.isConnected&&currentPeriodReportHost()===host&&periodPdfReview.canReturn(pdfView)){
     if(error?.periodWriteOutcome==='rejected'){
      host.periodAttempt=null;host.periodRequestId=null;host.periodReviewed=null;pdfView.frozen=false;
      fields.forEach(field=>field.disabled=false);

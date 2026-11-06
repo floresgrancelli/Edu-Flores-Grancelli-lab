@@ -30,11 +30,12 @@ export async function runWeeklyReportFlow(page,width,outDir){
    await v.render();
   });
   const section=page.locator('#coachReportWeek');
-  await section.getByText('Conclusión propuesta · pendiente de revisión',{exact:true}).waitFor();
+  await section.getByText('Mi devolución para vos',{exact:true}).waitFor();
   assert.equal(await page.locator('#weeklyLuxuryPublishButton').count(),0);
   await page.locator('#weeklyCoachConclusion').fill('Conclusión editada por coach ficticio: revisamos cinco días, sin inventar los ausentes.');
   await page.locator('#weeklyCoachFlexibleNote').fill('Un espacio para disfrutar, acordado con tu coach ficticio.');
   assert.equal(await page.evaluate(()=>window.__WEEKLY_RAM__.controls.writes.length),0);
+  await page.evaluate(()=>{document.getElementById('periodReportResult').dataset.returnSentinel='preserve-independent-period-draft';document.addEventListener('click',e=>{if(e.target.closest('[data-act="previewLuxuryReport"],[data-act="printPeriodLuxury"]'))window.__returnOriginY=scrollY;},true);});
   await section.locator('[data-act="previewLuxuryReport"]').tap();
   await reviewPdf();coachPdf=await pdfBytes();
   assert.equal(await page.locator('#weeklyLuxuryPublishButton').isEnabled(),true);
@@ -63,13 +64,18 @@ export async function runWeeklyReportFlow(page,width,outDir){
   assert.match(duplicate,/publicación anterior/);
   await page.evaluate(async()=>{window.__WEEKLY_RAM__.controls.release();await window.__weeklyPending;});
   await section.getByText('Informe de esta semana ya compartido · historial protegido',{exact:true}).waitFor();
-  await section.getByText('Conclusión revisada por tu coach',{exact:true}).waitFor();
+  await section.getByText('Mi devolución para vos',{exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>window.__WEEKLY_RAM__.controls.writes.length),2); // failed + confirmed
   const resend=await page.evaluate(async()=>{try{await window.__EFG_VISUAL_QA__.publishWeeklyReport();return null;}catch(e){return e.message;}});
   assert.match(resend,/Ya existe/);
   assert.deepEqual(await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft),{syntheticSentinel:'preserve-unrelated-plan'});
   assert.equal(await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.coachHistory.length),2);
-  await capture('coach-published');
+  assert.equal(await page.locator('.weekly-pdf-dialog').count(),0);
+  assert.equal(await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.tab),'reports');
+  assert.equal(await page.locator('#periodReportResult').getAttribute('data-return-sentinel'),'preserve-independent-period-draft');
+  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.act),'printLuxuryReport');
+  assert.ok(await page.evaluate(()=>Math.abs(scrollY-Math.min(window.__returnOriginY,document.documentElement.scrollHeight-innerHeight))<=2));
+  await capture('coach-published-return');
   // Student reads the actual serialized INSERT via the application's real loader.
   await page.evaluate(async()=>{
    const v=window.__EFG_VISUAL_QA__,s=v.state;
@@ -181,7 +187,12 @@ export async function runWeeklyReportFlow(page,width,outDir){
   await page.locator('#periodReportReviewed').check();await page.locator('#periodPublishButton').tap();
   await page.waitForFunction(()=>window.__WEEKLY_RAM__.db.efg_period_reports.length===1);
   assert.equal(await page.evaluate(()=>window.__WEEKLY_RAM__.db.efg_period_reports[0].coach_id),'demo-admin');
-  await capture('admin-test-period-shared');
+  await page.locator('.period-pdf-dialog').waitFor({state:'detached'});
+  assert.equal(await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.tab),'reports');
+  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.act),'printPeriodLuxury');
+  assert.ok(await page.evaluate(()=>Math.abs(scrollY-Math.min(window.__returnOriginY,document.documentElement.scrollHeight-innerHeight))<=2));
+  await page.locator('#periodPublishStatus').getByText('Informe compartido y confirmado en el historial del alumno.',{exact:true}).waitFor();
+  await capture('admin-test-period-shared-return');
   return {role:'weekly-flow',width,pages:screenshots,pdfs,printMeasurements,errors:[],syntheticTransport:true,hostedRLS:false,physicalDevice:false,actualAppDom:true,periodAdminTestOwner:true};
  }catch(error){
   await capture('failure').catch(()=>{});

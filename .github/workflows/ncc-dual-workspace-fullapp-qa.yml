@@ -11,6 +11,7 @@ on:
       - 'efg-nutrition/tests/student-session-mutation-races.mjs'
       - 'efg-nutrition/tests/student-food-restrictions-runtime.mjs'
       - 'efg-nutrition/docs/DUAL_WORKSPACE_R4_QA_20261106.md'
+      - 'efg-nutrition/docs/DUAL_WORKSPACE_CONCURRENCY_MODEL.md'
       - 'efg-nutrition/docs/guide-return-candidate/asset-manifest.json'
       - 'efg-nutrition/tools/pwa-build-identity.mjs'
       - 'efg-nutrition/tools/prepare-dual-workspace-r4-assets.py'
@@ -82,6 +83,9 @@ jobs:
             'efg-nutrition/tests/dual-workspace-integration.test.mjs',
             'efg-nutrition/tests/dual-workspace-panel.test.mjs',
             'efg-nutrition/tests/dual-workspace-legacy-mime.test.mjs',
+            'efg-nutrition/tests/dual-workspace-concurrency-model.sql',
+            'efg-nutrition/tests/dual-workspace-concurrency.mjs',
+            'efg-nutrition/docs/DUAL_WORKSPACE_CONCURRENCY_MODEL.md',
             'efg-nutrition/tests/weekly-preview-state.mjs',
             'efg-nutrition/tests/guide-preview-mobile.mjs',
             'efg-nutrition/tests/coach-pilot-privacy-visual-qa.mjs',
@@ -178,3 +182,61 @@ jobs:
           if-no-files-found: warn
           retention-days: 1
           compression-level: 9
+
+  synthetic-postgres-concurrency:
+    needs: isolated-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require existing PostgreSQL binaries and unchanged runtime
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git diff --exit-code d48c7e10454d45e2bbc98e4882a44c9f3c638670 HEAD -- efg-nutrition/pilot efg-nutrition/docs/guide-return-candidate/asset-manifest.json efg-nutrition/tools/pwa-build-identity.mjs efg-nutrition/tests/approved-release-flags.mjs
+          bin="$(find /usr/lib/postgresql -mindepth 2 -maxdepth 2 -type d -name bin 2>/dev/null | sort -V | tail -1)"
+          if test -z "$bin" || ! test -x "$bin/initdb" || ! test -x "$bin/pg_ctl" || ! test -x "$bin/psql" || ! test -x "$bin/createdb"; then
+            echo 'Required preinstalled PostgreSQL binaries are unavailable; no installation fallback.' >&2
+            exit 1
+          fi
+          echo "$bin" >> "$GITHUB_PATH"
+          echo "NCC_PG_BIN=$bin" >> "$GITHUB_ENV"
+          node --check efg-nutrition/tests/dual-workspace-concurrency.mjs
+      - name: Initialize disposable Unix-socket-only PostgreSQL
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/ncc-pg-socket"
+          initdb -D "$RUNNER_TEMP/ncc-pg-data" --auth=trust --no-locale --encoding=UTF8 --username="$(id -un)" > "$RUNNER_TEMP/ncc-pg-init.log"
+          pg_ctl -D "$RUNNER_TEMP/ncc-pg-data" -l "$RUNNER_TEMP/ncc-pg-runtime.log" -o "-h '' -k '$RUNNER_TEMP/ncc-pg-socket' -c unix_socket_permissions=0700 -c max_connections=8" -w start
+          createdb -h "$RUNNER_TEMP/ncc-pg-socket" -U "$(id -un)" ncc_synthetic
+      - name: Twelve synthetic concurrency groups with observed database locks
+        timeout-minutes: 4
+        env:
+          NCC_CONCURRENCY_SYNTHETIC: 'yes'
+        run: |
+          set -euo pipefail
+          export NCC_SYNTHETIC_SOCKET="$RUNNER_TEMP/ncc-pg-socket"
+          node efg-nutrition/tests/dual-workspace-concurrency.mjs
+      - name: Preserve sanitized model results only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncc-synthetic-concurrency-model
+          path: artifacts/ncc-concurrency/result.json
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Stop ephemeral PostgreSQL
+        if: always()
+        run: |
+          set -euo pipefail
+          if test -n "${NCC_PG_BIN:-}" && test -f "$RUNNER_TEMP/ncc-pg-data/postmaster.pid"; then
+            "$NCC_PG_BIN/pg_ctl" -D "$RUNNER_TEMP/ncc-pg-data" -m immediate -w stop
+          fi

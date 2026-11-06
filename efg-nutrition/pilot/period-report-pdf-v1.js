@@ -2,6 +2,9 @@ import * as jsPdfModule from './vendor/jspdf-4.2.1.umd.min.js?v=ncc-pilot-3a4047
 import {regular,bold,supportedCodePoints} from './vendor/dejavu-sans-2.37.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {parseLuxuryPeriodReport} from './period-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 
+// Bind the bundled UMD constructor once; later globals must not alter v1 bytes.
+const JsPDF=jsPdfModule.jsPDF||jsPdfModule.default?.jsPDF||globalThis.jspdf?.jsPDF;
+
 // Immutable renderer contract. Keep v1 available when introducing future versions.
 export const PERIOD_PDF_RENDERER_VERSION='ncc-luxury-period-pdf-v1';
 const fontCoverage=new Set(supportedCodePoints);
@@ -25,7 +28,6 @@ export async function buildPeriodReportPdf(model){
  for(const row of [approved.averages,approved.targets,...approved.days])for(const key of ['k','p','c','f','fi','fiberTarget']){
   if(typeof row?.[key]==='number'&&row[key]>999999)throw Error('Un valor del informe excede el ancho seguro del PDF. Revisá los datos antes de compartir.');
  }
- const JsPDF=jsPdfModule.jsPDF||jsPdfModule.default?.jsPDF||globalThis.jspdf?.jsPDF;
  if(!JsPDF)throw Error('No se pudo cargar el generador PDF local.');
  const doc=new JsPDF({unit:'mm',format:'a4',compress:true,putOnlyUsedFonts:true,precision:4});
  doc.setCreationDate("D:20000101000000+00'00'");

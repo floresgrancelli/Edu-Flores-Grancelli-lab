@@ -52,3 +52,43 @@ prueba en un iPhone/Android físico.
 únicamente sintaxis y extracción de código real sin lanzar ni instalar
 navegadores. Un PASS de ese modo no acredita pruebas de navegador. El PASS de
 Chromium/WebKit se informa solo tras ejecutar el CI en el SHA candidato exacto.
+
+
+## Diagnóstico adicional del visor Chromium
+
+El log del run 42211427515 muestra ambos binarios ya instalados:
+`chromium-1194` y `chromium_headless_shell-1194`. El test selecciona ahora
+`channel: 'chromium'` solo para Chromium, sin nuevas instalaciones ni cambios de
+workflow, aplicación, seguridad o permisos. Playwright documenta que headless
+sin canal utiliza el shell y que el canal Chromium completo incluye el visor
+PDF: https://playwright.dev/docs/browsers#chromium-new-headless-mode y
+https://github.com/microsoft/playwright/issues/33566.
+
+Antes de la primera captura, el diagnóstico espera la carga del iframe y toma
+capturas del propio iframe hasta observar píxeles del color de portada o agotar
+un presupuesto acotado de 10 segundos. No es una espera ciega ni modifica el
+PDF/DOM del visor. Guarda `*-native-iframe.png` y `*-native-viewer.json`.
+Si carga o señal visual no se confirman, registra `native-display-unconfirmed`;
+no lo transforma en PASS nativo. La señal de color permite detectar que ya no
+está en blanco, pero no certifica textos, todas las páginas ni dispositivos
+físicos. La conclusión visual exige inspeccionar la captura y sigue separada
+del PASS funcional/bytes. WebKit Linux conserva la limitación explícita respecto
+de Safari/iOS y no ejecuta este diagnóstico Chromium.
+
+
+## Blob local y red en WebKit
+
+El run 42212720569 de `cc2f381` completó Chromium390/1280 y WebKit falló en
+`fetch(view.url)` con `TypeError: Load failed`. El fixture anterior rechazaba
+cualquier URL que no empezara con el HTTP local, por lo que también rechazaba
+un Blob local si el motor lo pasaba por interceptación. El log no incluía las
+URLs interceptadas: esa causa debe confirmarse con la siguiente ejecución.
+
+El guard conserva el bloqueo de toda red externa y permite únicamente el HTTP
+local y `blob:` del mismo origin (incluido su puerto efímero). Usa
+`route.continue()`, nunca una respuesta PDF fabricada, y no restaura blobs
+revocados. Se mantienen las comprobaciones reales de fetch, MIME, descarga,
+bytes exactos y fallo de fetch tras revocación. Los archivos `*-network.json` y
+el JSON de fallo conservan URLs locales interceptadas, solicitudes bloqueadas
+y fallos de red para distinguir el fixture de un problema real del navegador.
+Esta corrección no implica que WebKit haya pasado: requiere el nuevo CI.

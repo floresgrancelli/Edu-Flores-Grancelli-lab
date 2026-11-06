@@ -83,7 +83,7 @@ const server=createServer((req,res)=>{try{
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const origin='http://127.0.0.1:'+server.address().port;
 const engine=process.env.EFG_QA_ENGINE||'chromium';assert.ok(['chromium','webkit'].includes(engine));
-const results=[];let browser,page;
+const results=[];let browser,page,networkEvidence;
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 function inspectPdf(bytes){
  const text=bytes.toString('latin1');assert.ok(bytes.length>10000,'Embedded-font PDF has substantial bytes');
@@ -94,11 +94,21 @@ function inspectPdf(bytes){
  return {bytes:bytes.length,sha256:sha(bytes),pages,header:text.slice(0,8),xrefOffset:offset};
 }
 try{
- const {chromium,webkit}=await import('playwright');browser=await ({chromium,webkit}[engine]).launch({headless:true});
+ // install chromium already supplies full Chromium and headless-shell. The
+ // full channel includes the native PDF viewer; do not infer shell limitations.
+ const {chromium,webkit}=await import('playwright');browser=await ({chromium,webkit}[engine]).launch({headless:true,...(engine==='chromium'?{channel:'chromium'}:{})});
  for(const width of [390,1280]){
   const ctx=await browser.newContext({viewport:{width,height:900},acceptDownloads:true});
-  const external=[],pageErrors=[];
-  await ctx.route('**/*',route=>{const url=route.request().url();if(url.startsWith(origin+'/'))return route.continue();external.push(url);return route.abort();});
+  const external=[],pageErrors=[],localBlobRequests=[],requestFailures=[];
+  networkEvidence={engine,width,blocked:external,localBlobRequests,requestFailures};
+  ctx.on('requestfailed',request=>requestFailures.push({url:request.url(),error:request.failure()?.errorText}));
+  await ctx.route('**/*',route=>{
+   const url=route.request().url();if(url.startsWith(origin+'/'))return route.continue();
+   // A same-origin in-memory Blob is not external traffic. WebKit may route it
+   // through interception; continue natively, including after URL revocation.
+   if(url.startsWith('blob:'+origin+'/')){localBlobRequests.push(url);return route.continue();}
+   external.push(url);return route.abort();
+  });
   page=await ctx.newPage();page.on('pageerror',e=>pageErrors.push(e.message));
   await page.goto(origin);await page.waitForFunction(()=>window.qa);
   const screenshot=label=>page.screenshot({path:resolve(out,`${engine}-${width}-${label}.png`),fullPage:true});
@@ -126,6 +136,32 @@ try{
   assert.equal(await page.locator('[data-pdf-download]').getAttribute('href'),pdf.url);
   const dialogBox=await page.locator('.period-pdf-dialog').boundingBox();assert.ok(dialogBox.x>=0&&dialogBox.x+dialogBox.width<=width+1);
   const controls=await page.locator('.period-pdf-dialog .btn').evaluateAll(nodes=>nodes.filter(n=>!n.hidden).map(n=>n.getBoundingClientRect().height));assert.ok(controls.every(h=>h>=44));
+  const nativePdfEvidence={channel:engine==='chromium'?'chromium (full headless)':'webkit',status:'not-validated',loadObserved:false,coverPixels:0};
+  if(engine==='chromium'){
+   const iframe=page.locator('.period-pdf-dialog iframe');
+   try{
+    const frame=await (await iframe.elementHandle()).contentFrame();
+    await frame.waitForURL(pdf.url,{waitUntil:'load'});nativePdfEvidence.loadObserved=true;
+    // Poll actual compositor screenshots, not a blind fixed sleep. A blank or
+    // gray viewer cannot satisfy the report's navy-cover color signal. This
+    // diagnostic is not a substitute for inspecting all PDF pages/legibility.
+    const deadline=Date.now()+10000;let captured;
+    do{
+     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+     captured=await iframe.screenshot();
+     nativePdfEvidence.coverPixels=await page.evaluate(async data=>{
+      const image=new Image();image.src='data:image/png;base64,'+data;await image.decode();
+      const canvas=document.createElement('canvas');canvas.width=256;canvas.height=Math.max(1,Math.round(image.height*256/image.width));
+      const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0,canvas.width,canvas.height);const p=ctx.getImageData(0,0,canvas.width,canvas.height).data;let navy=0;
+      for(let i=0;i<p.length;i+=4)if(p[i]>5&&p[i]<65&&p[i+1]>p[i]+10&&p[i+1]<100&&p[i+2]>p[i+1]+3&&p[i+2]<120)navy++;
+      return navy;
+     },captured.toString('base64'));
+    }while(nativePdfEvidence.coverPixels<200&&Date.now()<deadline);
+    nativePdfEvidence.status=nativePdfEvidence.coverPixels>=200?'report-cover-pixels-observed; visual review required':'native-display-unconfirmed';
+    writeFileSync(resolve(out,`${engine}-${width}-native-iframe.png`),captured);
+   }catch(error){nativePdfEvidence.status='native-display-unconfirmed';nativePdfEvidence.error=error.message;}
+   writeFileSync(resolve(out,`${engine}-${width}-native-viewer.json`),JSON.stringify(nativePdfEvidence,null,2));
+  }
   await screenshot('coach-dialog-unreviewed');
   const preview=await download('coach-reviewed');assert.equal(preview.bytes.length,pdf.size);
   // WebKit may download instead of creating a PDF-viewer page. Exercise the
@@ -183,11 +219,12 @@ try{
   await close();await page.evaluate(()=>qa.releasePdf());await page.evaluate(()=>window.closedPending);assert.equal(await page.locator('.period-pdf-dialog').count(),0);assert.equal(await page.evaluate(()=>qa.snapshot()),null);
   assert.deepEqual(await page.evaluate(()=>qa.trace.errors),[]);assert.deepEqual(pageErrors,[]);assert.deepEqual(external,[],'No CDN, backend or other external network requests');
   writeFileSync(resolve(out,`${engine}-${width}-snapshot.json`),finalSnapshot+'\n');
-  results.push({engine,width,status:'PASS',scope:'Actual extracted pilot handlers, DOM events and CSS; real local PDF renderer and history client; RAM transport only',nativePdfRendering:'NOT VALIDATED: headless may not paint the embedded PDF. PNGs validate dialog/HTML controls only; downloaded PDF bytes are independently checked.',popupEvidence,coach:approved.details,student:studentPdf.details,checks:['actual generation and accessible HTML','application/pdf Blob and iframe binding','open in new tab and native download','explicit review gate','close/Escape restore and revoke','edit revokes approval and changes PDF','exact snapshot persisted once','student identical snapshot/version/bytes','stale student response ignored','double open leaves one live URL','close during pending PDF','no external requests']});
+  writeFileSync(resolve(out,`${engine}-${width}-network.json`),JSON.stringify(networkEvidence,null,2));
+  results.push({engine,width,status:'PASS',scope:'Actual extracted pilot handlers, DOM events and CSS; real local PDF renderer and history client; RAM transport only',nativePdfRendering:nativePdfEvidence,pdfVisualScope:'Functional PASS does not certify native rendering. Chromium cover-pixel diagnostic and PNG require visual review; WebKit Linux is not Safari/iOS. Downloaded bytes remain independently checked.',popupEvidence,coach:approved.details,student:studentPdf.details,checks:['actual generation and accessible HTML','application/pdf Blob and iframe binding','open in new tab and native download','explicit review gate','close/Escape restore and revoke','edit revokes approval and changes PDF','exact snapshot persisted once','student identical snapshot/version/bytes','stale student response ignored','double open leaves one live URL','close during pending PDF','no external requests']});
   writeFileSync(resolve(out,`results-${engine}.json`),JSON.stringify(results,null,2));await ctx.close();page=null;
  }
  console.log(JSON.stringify(results,null,2));
 }catch(error){
  if(page&&!page.isClosed())await page.screenshot({path:resolve(out,`${engine}-failure.png`),fullPage:true}).catch(()=>{});
- writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,completed:results},null,2));throw error;
+ writeFileSync(resolve(out,`failure-${engine}.json`),JSON.stringify({error:error.stack,networkEvidence,completed:results},null,2));throw error;
 }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}

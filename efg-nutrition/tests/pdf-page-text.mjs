@@ -3,7 +3,8 @@ import {createRequire} from 'node:module';
 import {buildLuxuryWeeklyReport,reportAsStoredText} from '../pilot/weekly-luxury-report.js';
 import {buildWeeklyReportPdf} from '../pilot/weekly-report-pdf.js';
 import {buildLuxuryPeriodReport,periodReportAsStoredText} from '../pilot/period-luxury-report.js';
-import {buildPeriodReportPdf,PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf.js';
+import {buildPeriodReportPdf} from '../pilot/period-report-pdf.js';
+import {PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf-v2.js'; // Frozen R11 regression.
 import {readPdfPageText} from '../pilot/pdf-page-text.js';
 const require=createRequire(import.meta.url),{createCanvas,DOMMatrix,ImageData,Path2D}=require('@napi-rs/canvas');Object.assign(globalThis,{DOMMatrix,ImageData,Path2D});
 const m=buildLuxuryPeriodReport({from:'2026-10-22',to:'2026-10-31',friday:'2026-11-01',studentName:'Persona FICTICIA',coachName:'Coach FICTICIO',days:[{date:'2026-10-22',hasData:true,closed:true,k:1800,p:110,c:210,f:55,mealCount:2}],goals:[],logs:[]});

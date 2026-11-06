@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport} from '../pilot/weekly-luxury-report.js';
-import {buildWeeklyReportPdf,WEEKLY_PDF_RENDERER_VERSION} from '../pilot/weekly-report-pdf.js';
+import {buildWeeklyReportPdf} from '../pilot/weekly-report-pdf.js';
+import {WEEKLY_PDF_RENDERER_VERSION} from '../pilot/weekly-report-pdf-v1.js'; // Frozen R11 regression.
 const require=createRequire(import.meta.url);
 const days=Array.from({length:5},(_,i)=>({date:'2026-10-'+(30+i<32?30+i:'01'),hasData:true,closed:true,mealCount:2,k:1900,p:110,c:240,f:55}));
 for(let i=0;i<days.length;i++){const d=new Date('2026-10-30T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);days[i].date=d.toISOString().slice(0,10);}

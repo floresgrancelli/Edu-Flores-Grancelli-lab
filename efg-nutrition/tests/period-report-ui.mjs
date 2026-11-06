@@ -1,3 +1,4 @@
+import {reportCoachName} from '../pilot/coach-report-models.js';
 import {withReportFoodFrequency} from '../pilot/report-food-frequency.js';
 import {createWeeklyPdfReview} from '../pilot/weekly-pdf-review.js';
 import {normalizeReportTrendGoals,withReportTrendGoals} from '../pilot/report-trend-snapshot.js';
@@ -6,14 +7,14 @@ import vm from 'node:vm';
 import fs from 'node:fs';
 const base=new URL('../pilot/',import.meta.url);
 const app=fs.readFileSync(new URL('pilot.js',base),'utf8');
-const {buildLuxuryPeriodReport,renderLuxuryPeriodReport,periodReportAsStoredText}=await import(new URL('period-luxury-report.js',base));
+const {buildLuxuryPeriodReport,renderLuxuryPeriodReport,periodReportAsStoredText}=await import(new URL('coach-report-models.js',base));
 const from='2026-10-28',to='2026-11-06';
 const report=buildLuxuryPeriodReport({from,to,friday:'2026-11-07',studentName:'Ficticio',coachName:'Coach ficticio',days:[{date:from,hasData:true,closed:true,mealCount:2,k:2000,p:100,c:250,f:60}]});
 const elements={};
 function el(id,value='') { return elements[id]={id,value,disabled:false,checked:false,textContent:'',innerHTML:'',addEventListener(name,fn){this[name]=fn;}}; }
 const host=el('periodReportResult');host.isConnected=true;
 for(const [id,value] of Object.entries({periodReportFrom:from,periodReportTo:to,periodReportConclusion:report.conclusion,periodReportFlexible:report.flexibleNote,periodReportReviewed:'',periodPublishButton:'',periodPublishStatus:'',periodLuxuryPreview:''}))el(id,value);
-const VERSION='ncc-luxury-period-pdf-v2';
+const VERSION='ncc-luxury-period-pdf-v3';
 let current={userId:'coach',studentId:'student',epoch:1,allowed:true,canPublish:true,role:'coach'},calls=0,pdfCalls=0,failPdf=false,failSend=false,deferred,pdfDeferred;
 const generatedSnapshots=[];const blobs=new Map(),revoked=[];let nextUrl=0;
 function fakeDialog(){
@@ -21,6 +22,7 @@ function fakeDialog(){
  const node=()=>({hidden:true,textContent:'',disabled:false,dataset:{},setAttribute(){},replaceChildren(){},clientWidth:380,addEventListener(name,fn){this[name]=fn;}});
  const dialog={classList:{add(){}},isConnected:false,open:false,innerHTML:'',setAttribute(){},addEventListener(name,fn){this[name]=fn;},showModal(){this.open=true;},remove(){this.open=false;this.isConnected=false;},querySelector(selector){
   selector=selector.replace('data-pdf-status','data-weekly-status').replace('data-pdf-close','data-weekly-close').replace('data-pdf-download','data-weekly-download');
+  if(selector.startsWith('#')&&!this.innerHTML.includes('id="'+selector.slice(1)+'"'))return null;
   if(selector==='#periodReportReviewed')return elements.periodReportReviewed;
   if(selector==='#periodPublishButton')return elements.periodPublishButton;
   return fields[selector]||(fields[selector]=node());
@@ -28,13 +30,15 @@ function fakeDialog(){
  elements.periodReportReviewed.checked=false;elements.periodPublishButton.dataset={};elements.periodReportReviewed.setAttribute=()=>{};
  return dialog;
 }
-const ctx={normalizeReportTrendGoals,withReportTrendGoals,withReportFoodFrequency,document:{getElementById:id=>elements[id],createElement:tag=>tag==='canvas'?{style:{},setAttribute(){},getContext:()=>({})}:fakeDialog()},root:{appendChild(d){d.isConnected=true;}},Blob,
+let returns=0;
+const ctx={reportCoachName,state:{tab:'reports'},normalizeReportTrendGoals,withReportTrendGoals,withReportFoodFrequency,document:{getElementById:id=>elements[id],createElement:tag=>tag==='canvas'?{style:{},setAttribute(){},getContext:()=>({})}:fakeDialog()},root:{appendChild(d){d.isConnected=true;}},Blob,
  URL:{createObjectURL(blob){assert.equal(blob.type,'application/pdf');const url='blob:synthetic-'+(++nextUrl);blobs.set(url,blob);return url;},revokeObjectURL(url){revoked.push(url);blobs.delete(url);}},
  periodReportContext:()=>current,renderLuxuryPeriodReport,periodReportAsStoredText,PERIOD_PDF_RENDERER_VERSION:VERSION,
  async buildPeriodReportPdf(snapshot){pdfCalls++;assert.equal(snapshot.approvedByCoach,true);generatedSnapshots.push(JSON.stringify(snapshot));if(pdfDeferred)await pdfDeferred;if(failPdf)throw Error('pdf failed');return new TextEncoder().encode('%PDF-1.4 synthetic fixture only');},
- createCoachPublicationRequestId:()=> 'stable-id',el:{focus(){}}};
+ createCoachPublicationRequestId:()=> 'stable-id',el:{isConnected:true,focus(){}}};
 Object.assign(globalThis,{document:ctx.document});Object.assign(URL,ctx.URL);
 ctx.periodPdfReview=createWeeklyPdfReview({root:ctx.root,mode:'period',buildPdf:snapshot=>ctx.buildPeriodReportPdf(snapshot),loadDocument:async()=>({destroy:async()=>{},promise:Promise.resolve({numPages:1,getPage:async()=>({getViewport:()=>({width:600,height:800}),render:()=>({promise:Promise.resolve(),cancel(){}}),streamTextContent:()=>new ReadableStream({start(c){c.enqueue({items:[],styles:{},lang:null});c.close();}})})})})});
+const complete=ctx.periodPdfReview.complete;ctx.periodPdfReview.complete=(...args)=>{const result=complete(...args);if(result)returns++;return result;};
 vm.createContext(ctx);
 vm.runInContext(app.slice(app.indexOf('function periodContextMatches'),app.indexOf('function coachPeriodReportPanel')),ctx);
 const a=app.indexOf(" if(action==='printPeriodLuxury')"),b=app.indexOf(" if(action==='loadPeriodHistory')",a);
@@ -45,8 +49,9 @@ await assert.rejects(run('publishPeriodLuxury'),/confirmación/);assert.equal(ca
 await run('printPeriodLuxury');assert.equal(pdfCalls,1);assert.equal(calls,0);assert.equal(blobs.size,1);assert.equal(host.periodPdfSnapshot.pdfRendererVersion,VERSION);
 elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();assert.equal(elements.periodPublishButton.disabled,false);
 elements.periodReportConclusion.value='Conclusión editada';ctx.syncPeriodReportPreview();assert.equal(elements.periodReportReviewed.checked,false);assert.match(elements.periodLuxuryPreview.innerHTML,/Conclusión editada/);assert.equal(elements.periodPublishButton.disabled,true);
-await run('printPeriodLuxury');elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();let release;deferred=new Promise(r=>release=r);const pending=run('publishPeriodLuxury');await run('publishPeriodLuxury');assert.equal(calls,1);release();await pending;deferred=null;await run('publishPeriodLuxury');assert.equal(calls,1);assert.equal(elements.periodReportFrom.disabled,false);
-ready();await run('printPeriodLuxury');elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();failSend=true;await assert.rejects(run('publishPeriodLuxury'),/uncertain/);assert.equal(elements.periodReportConclusion.disabled,true);failSend=false;await run('publishPeriodLuxury');assert.equal(host.periodPublished,true);assert.equal(calls,3);
+await run('printPeriodLuxury');elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();let release;deferred=new Promise(r=>release=r);const pending=run('publishPeriodLuxury');await run('publishPeriodLuxury');assert.equal(calls,1);release();await pending;deferred=null;await run('publishPeriodLuxury');assert.equal(calls,1);assert.equal(elements.periodReportFrom.disabled,false);assert.equal(vm.runInContext('activePeriodPdfView',ctx),null);assert.equal(blobs.size,0);assert.equal(returns,1);assert.equal(ctx.el.textContent,'Abrir PDF del informe compartido');
+const sharedText=JSON.stringify(host.periodSharedSnapshot);await run('printPeriodLuxury');assert.equal(vm.runInContext('activePeriodPdfView.editable',ctx),false);assert.equal(vm.runInContext('activePeriodPdfView.serialized',ctx),sharedText);ctx.closePeriodPdfView();
+ready();await run('printPeriodLuxury');elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();failSend=true;const beforeFailure=returns;await assert.rejects(run('publishPeriodLuxury'),/uncertain/);assert.equal(returns,beforeFailure);assert.equal(vm.runInContext('activePeriodPdfView.dialog.open',ctx),true);assert.equal(elements.periodReportConclusion.disabled,true);failSend=false;await run('publishPeriodLuxury');assert.equal(host.periodPublished,true);assert.equal(calls,3);
 ready();elements.periodReportTo.value='2026-11-05';ctx.invalidatePeriodReport();assert.equal(host.periodModel,null);await assert.rejects(run('printPeriodLuxury'),/fechas/);assert.equal(calls,3);
 ready();current={...current,studentId:'other'};await assert.rejects(run('publishPeriodLuxury'),/alumno/);await assert.rejects(run('printPeriodLuxury'),/alumno/);
 current={...current,studentId:'student'};ready();current={...current,allowed:false};await assert.rejects(run('publishPeriodLuxury'),/alumno/);current={...current,allowed:true};
@@ -79,7 +84,7 @@ console.log('PASS period reply: own account and authorized contact, dated draft,
 
 // Scoped layout contract: inherited inline labels must not shrink the mobile editor.
 const css=fs.readFileSync(new URL('../pilot/weekly-luxury-report.css',import.meta.url),'utf8');
-assert.match(app, /class="period-report-field">Conclusión propuesta/);
+assert.match(app, /class="period-report-field">Mi devolución/);
 assert.match(app,/periodPdfReview.requireReviewed/);assert.match(fs.readFileSync(new URL('../pilot/weekly-pdf-review.js',import.meta.url),'utf8'),/view.seen.size!==view.pdf\?\.numPages/);
 assert.match(css, /#coachPeriodReport \.period-report-field\{display:flex;flex-direction:column/);
 assert.match(css, /#coachPeriodReport \.period-report-field :is\(textarea,input\)\{[^}]*width:100%/);
@@ -182,6 +187,7 @@ ctx.closePeriodPdfView(true);assert.equal(blobs.size,0);
 console.log('PASS PDF lifecycle: exact snapshot binding, close revokes approval/URL, stale and repeated async opens, tamper rejection, uncertain close/reopen stable retry, read-only history uses same snapshot.');
 
 // End-to-end synthetic byte contract: real PDF renderer + real client + real UI helpers.
+if(!process.argv.includes('--skip-pdf-generation')){
 const {buildPeriodReportPdf}=await import('../pilot/period-report-pdf.js');
 ctx.buildPeriodReportPdf=buildPeriodReportPdf;
 ready();await run('printPeriodLuxury');
@@ -200,6 +206,7 @@ const historyUrl=vm.runInContext('activePeriodPdfView.url',ctx);
 assert.deepEqual(new Uint8Array(await blobs.get(historyUrl).arrayBuffer()),previewBytes);
 ctx.closePeriodPdfView(true);
 console.log('PASS real PDF/client/UI byte contract: reviewed bytes equal student history bytes from exact persisted versioned JSON.');
+}else console.log('NOT RUN unchanged real PDF generation/parity block (--skip-pdf-generation).');
 ready();
 const emptyReport=buildLuxuryPeriodReport({from,to,friday:'2026-11-07',studentName:'Ficticio',coachName:'Coach ficticio',days:[]});
 host.periodModel=emptyReport;elements.periodReportConclusion.value=emptyReport.conclusion;elements.periodReportFlexible.value=emptyReport.flexibleNote;ctx.syncPeriodReportPreview();
@@ -207,3 +214,21 @@ await run('printPeriodLuxury');assert.equal(elements.periodReportReviewed.disabl
 assert.match(vm.runInContext("activePeriodPdfView.dialog.querySelector('[data-pdf-status]').textContent",ctx),/No hay registros/);
 await assert.rejects(run('publishPeriodLuxury'),/confirmación/);ctx.closePeriodPdfView(true);
 console.log('PASS empty-period PDF remains viewable but cannot be reviewed for sharing.');
+
+// No return or error paint from a closed/replaced review or changed source.
+for(const change of ['close','replacement','tab','student','epoch']){
+ current={userId:'coach',studentId:'student',epoch:1,allowed:true,canPublish:true,role:'coach'};ctx.state.tab='reports';
+ ready();await run('printPeriodLuxury');elements.periodReportReviewed.checked=true;elements.periodReportReviewed.change?.();ctx.syncPeriodReportPreview();
+ const beforeReturn=returns;deferred=new Promise(r=>release=r);const pending=run('publishPeriodLuxury');
+ if(change==='close'||change==='replacement')ctx.closePeriodPdfView(true);
+ if(change==='replacement')await ctx.openPeriodPdfView({model:JSON.parse(stored.report_text),context:{...current},current:()=>true});
+ if(change==='tab')ctx.state.tab='messages';
+ if(change==='student')current={...current,studentId:'other'};
+ if(change==='epoch')current={...current,epoch:2};
+ elements.periodPublishStatus.textContent='New source owns this view';release();await pending;deferred=null;
+ assert.equal(returns,beforeReturn,change+' must not return late');assert.equal(host.periodPublished,false);
+ assert.equal(elements.periodPublishStatus.textContent,'New source owns this view');
+ if(change==='replacement')assert.equal(vm.runInContext('activePeriodPdfView.dialog.open',ctx),true);
+ ctx.closePeriodPdfView(true);
+}
+console.log('PASS R12 period return: exact confirmed success closes; failure and uncertainty remain; same-ID reconciliation closes; forced close, newer viewer, tab, student and epoch never return late.');

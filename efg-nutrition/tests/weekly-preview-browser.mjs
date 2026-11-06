@@ -12,7 +12,8 @@ const app=readFileSync(resolve(base,'efg-nutrition/pilot/pilot.js'),'utf8');
 function between(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);return app.slice(a,b);}
 function line(start){const lines=app.split('\n').filter(l=>l.startsWith(start));assert.equal(lines.length,1,start);return lines[0];}
 const fixture=`
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from '/efg-nutrition/pilot/weekly-luxury-report.js';
+import {reportCoachName} from '/efg-nutrition/pilot/coach-report-models.js';
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from '/efg-nutrition/pilot/coach-report-models.js';
 import {buildNutritionReport} from '/efg-nutrition/pilot/daily-report.js';
 import {createLuxuryWeeklyEditor} from '/efg-nutrition/pilot/weekly-luxury-editor.js';
 import {createWeeklyReportDelivery} from '/efg-nutrition/pilot/weekly-report-delivery.js';
@@ -71,6 +72,7 @@ try{
   const external=[];await context.route('**/*',route=>{if((route.request().url().startsWith(origin+'/')||route.request().url().startsWith('blob:'+origin+'/')))return route.continue();external.push(route.request().url());return route.abort();});
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
   await page.goto(origin);await page.locator('[data-act="previewLuxuryReport"]').waitFor();
+  await page.evaluate(()=>document.addEventListener('click',e=>{if(e.target.closest('[data-act="previewLuxuryReport"]'))window.__returnOriginY=scrollY;},true));
   const open=async()=>{await page.locator('[data-act="previewLuxuryReport"]').tap();await page.locator('.weekly-pdf-stage canvas').waitFor();await page.waitForFunction(()=>qa.view().ready);};
   const review=async()=>{while(await page.locator('[data-weekly-next]').isEnabled()){await page.locator('[data-weekly-next]').tap();await page.waitForFunction(()=>qa.view().ready&&!qa.view().rendering);}await page.locator('#weeklyPdfReviewed').check();assert.equal(await page.locator('#weeklyLuxuryPublishButton').isEnabled(),true);};
   const bytes=async()=>Buffer.from(await page.evaluate(async()=>Array.from(new Uint8Array(await (await fetch(document.querySelector('[data-weekly-download]').href)).arrayBuffer()))));
@@ -90,6 +92,10 @@ try{
   await page.evaluate(()=>{qa.holdInsert();qa.trace.failRead=true;});await page.locator('#weeklyLuxuryPublishButton').tap();assert.equal(await page.locator('#weeklyLuxuryPublishButton').isDisabled(),true);assert.equal(await page.locator('[data-weekly-close]').isDisabled(),true);
   const duplicate=await page.evaluate(async()=>{try{await qa.publish();return '';}catch(e){return e.message;}});assert.match(duplicate,/publicación anterior/);
   await page.evaluate(()=>qa.releaseInsert());await page.getByText('Informe de esta semana ya compartido · historial protegido',{exact:true}).waitFor();assert.equal(await page.evaluate(()=>qa.trace.rows.length),1);
+  assert.equal(await page.locator('.weekly-pdf-dialog').count(),0,'Confirmed publication returns automatically');
+  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.act),'printLuxuryReport');
+  assert.ok(await page.evaluate(()=>Math.abs(scrollY-Math.min(window.__returnOriginY,document.documentElement.scrollHeight-innerHeight))<=2),'Restore source scroll');
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-confirmed-return.png')});
   await page.locator('#coachReportWeek [data-act="printLuxuryReport"]').tap();await page.waitForFunction(()=>qa.view().ready);assert.equal(await page.locator('#weeklyLuxuryPublishButton').count(),0);assert.deepEqual(await bytes(),coachBytes);await page.locator('[data-weekly-close]').tap();
   await page.evaluate(()=>qa.student());await page.locator('details.pilot-record > summary').first().tap();await page.locator('[data-act="printLuxuryReport"]').tap();await page.waitForFunction(()=>qa.view().ready);assert.deepEqual(await bytes(),coachBytes,'Student PDF must match reviewed coach bytes');assert.equal(await page.locator('#weeklyLuxuryPublishButton').count(),0);await page.screenshot({path:resolve(out,engine+'-'+width+'-student.png')});await page.locator('[data-weekly-close]').tap();
   // Old JSON has no PDF version. Reopening is identified as a new conversion.

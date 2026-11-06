@@ -1,0 +1,182 @@
+{
+  "executedAt": "2026-11-06T15:35:39.063848+00:00",
+  "scope": "Local synthetic contracts, Node PDF pixels and browser-fixture syntax only. Browser launch/CI/live backend/physical devices NOT RUN.",
+  "passed": 29,
+  "failed": 0,
+  "results": [
+    {
+      "command": "node efg-nutrition/tests/approved-release-flags.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": ""
+    },
+    {
+      "command": "node --test efg-nutrition/tests/guide-candidate-assets.test.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "\u2714 private manifest pins HTML, complete module graph, and existing CSS (19.460609ms)\n\u2714 HTML release identity preserved and candidate asset identity strictly pinned (1.893823ms)\n\u2714 all module URLs use the exact pinned target version; immutable old assets retain their identity (20.493447ms)\n\u2714 same-origin PDF worker and new CSS are pinned; period PDF assets remain immutable (4.865474ms)\n\u2714 asset rewrite does not change feature flag values (0.834726ms)\n\u2714 R12 preserves all published report models, renderers and graph dependencies (3.99574ms)\n\u2139 tests 6\n\u2139 suites 0\n\u2139 pass 6\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 168.945501\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/guided-meal-picker.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS ANDROID-GBOARD-02: IME Enter protected; physical Android Gboard QA still required.\nPASS UX-GUIDE-01: coach/student shared guide main meals by group, originals intact; snacks classic; mixed food once; macro totals unchanged.\nPASS: guided only breakfast/lunch/dinner; mixed plates counted once incl fats; optional skip, all other foods accessible; snacks remain classic; one 5% weekly bar.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-preview-regression.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS screenshot action regression: opens weekly PDF view, no print dialog.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-preview-state.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS actual weekly route/publisher: versioned exact snapshot; unreviewed/edit/epoch/consent gates; readonly JSON + plaintext history; no live-data fallback; failed/double/late INSERT; failed refresh; admin scope; lifecycle cleanup. Synthetic DOM/transport only.\nPASS actual weekly close/reopen after lost response: immutable PDF retained; edits blocked; readback confirms without resend.\nPASS R12 weekly source ownership: confirmed share/reconciliation returns once, no global render, closed/tab/student/epoch/replaced origins never return late, conflict remains visible and history preserved.\nPASS pre-R12 uncertain snapshot retry remains byte-for-byte identical, including old voice/signature/version.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-report-delivery.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS weekly uncertain delivery: commit + lost response/read failure; exact snapshot retained; readback-before-retry with no second INSERT; rejection vs uncertainty; sticky unknown; conflict never overwrites; logout clears RAM. Synthetic UNIQUE/readback only.\nPASS thrown error code stays uncertain; context change during readback prevents late writes.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-luxury-editor.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS REPORT-LUX-76: edit survives redraw; changed data/text revokes approval; exactly previewed text publishable; student/coach isolation; no browser storage.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-luxury-integration-contract.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS REPORT-LUX wiring: opt-in reply navigation, no auto-send, no overwrite, scoped history, evidence and official brand asset.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-luxury-report.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS WEEKLY-METRICS: unique dates, conflicts, dated weights, historic goals, unknown macros, immutable inputs.\nPASS REPORT-LUX-76: edit survives redraw; changed data/text revokes approval; exactly previewed text publishable; student/coach isolation; no browser storage.\nPASS REPORT-LUX: numbers/goal-by-date, top-food-day, low-data, XSS, legacy, privacy-friendly guidance and serialization.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-report-state-private.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS weekly report delta: draft/preview/published labels, unavailable fiber, exact approved text and unchanged history. Synthetic data; no backend authorization claim.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-report-fixture-context.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS actual student render gate, exact fixture transition, real owner-scoped loader and omitted/unknown readiness negatives. Not browser/auth/RLS certification.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-fiber-private.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS prepared fiber absent/partial/zero, aligned historical goals, raw-item coverage and historical serialization\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-report-pdf.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS weekly PDF: exact coach/student bytes; 5 real rendered pages; bounded JSON; accents; multiline; long text; legacy conversion; unknown versions rejected. Node PDF.js pixels, not mobile certification.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/report-trend-charts.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS four trend series: full90, gaps/zero/partial/closed, historical stepped goals, normalized means, ambiguity/nulls, malformed extension,8000/8001, baseline ties/pages/stale, source proof scopes, exact shared PDF bytes, v1 after v2. Synthetic data only.\nPASS actual PDF.js pixels: weekly + 90-day + 1-day graphs, all four series, food-frequency label, final date. Not browser/device certification.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/report-food-frequency.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS new weekly/period frequency: distinct generic recipes, normalized saved-name fallback, persistent IDs separate, repeated meals count once/date, dates/omitted/sports excluded, top5, historical model not mutated. Homonymous generic recipes cannot be distinguished.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/pdf-review-controller.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS actual shared weekly/period controller: synchronous dialog, all-pages+checkbox gate, tamper refusal, pending close lock, resource cleanup, build retry resets review, late generation discarded, stale page closes, history has no send listener. DOM/decode doubles only.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/report-coach-voice.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS coach voice: exact numeric parity, all advice branches, verified attribution/fallback, manual copy untouched, old HTML/bytes unchanged, current weekly v2 and period v3 PDF text/pixels/parity. [{\"label\":\"weekly\",\"version\":\"ncc-luxury-weekly-pdf-v2\",\"pages\":5,\"bytes\":127758,\"sha256\":\"7a213d5c686046c37cc74ea64be67273c08571bcfb739d0441f39f9fedd9997b\",\"coachStudentParity\":true},{\"label\":\"weekly-long\",\"version\":\"ncc-luxury-weekly-pdf-v2\",\"pages\":7,\"bytes\":129587,\"sha256\":\"5e4d9543337b75f9ed80ff827af1fd579d3fbe89ab6e66bd28731f7d50e4c3b7\",\"coachStudentParity\":true},{\"label\":\"period-one\",\"version\":\"ncc-luxury-period-pdf-v3\",\"pages\":5,\"bytes\":124896,\"sha256\":\"5bed22fb627f249f0e84916e583af9e6141823b62cb712cd144e0a96f82cab4a\",\"coachStudentParity\":true},{\"label\":\"period-ten\",\"version\":\"ncc-luxury-period-pdf-v3\",\"pages\":5,\"bytes\":128681,\"sha256\":\"68d185840c1ec6e0ec6a9046d9c6234cc46841244ac7f45973ca6357577616a2\",\"coachStudentParity\":true},{\"label\":\"period-ninety\",\"version\":\"ncc-luxury-period-pdf-v3\",\"pages\":14,\"bytes\":167777,\"sha256\":\"7433f263c355f2e259c9c43cfac34c470705da122ba5abcd3c311deeb5ac27e3\",\"coachStudentParity\":true}]\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/pdf-page-text.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS real PDF with ReadableStream asyncIterator absent: vendor convenience API reproduces failure, render+reader succeeds with identical items/styles/lang, no global patch; stale/error cleanup blocks partial review. API emulation, not physical Safari certification.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-access.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS period admin-test owner date controls + author identity; normal admin/other org/owner/inactive/missing consent/student-publish blocked; role/org/epoch changes invalidated. Source-backed synthetic test, not live RLS.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-history.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS period history client: explicit review, validated author capability, failed request retry, exact idempotency, immutable payload, duplicate period rejected, pending guard, stale publish/read discarded. Synthetic transport only.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-ui.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS synthetic actual-handler flows: generation/preview, explicit review, edited text, PDF cleanup, double publish, uncertain retry stable ID, dates, student/consent, in-flight stale response, coalesced generation, unauthorized admin denied before reads.\nPASS period reply: own account and authorized contact, dated draft, existing message preserved, no automatic send.\nPASS scoped mobile editor layout contract (not a browser rendering test).\nPASS actual client + UI recovery: confirmed INSERT rejection unlocks/revokes review; unknown, transport, READ and duplicate/read failure preserve ID and locks.\nPASS historical uncertainty: INSERT/read failure or transport failure + later rejection keeps same ID/locks until exact readback.\nPASS PDF lifecycle: exact snapshot binding, close revokes approval/URL, stale and repeated async opens, tamper rejection, uncertain close/reopen stable retry, read-only history uses same snapshot.\nPASS real PDF/client/UI byte contract: reviewed bytes equal student history bytes from exact persisted versioned JSON.\nPASS empty-period PDF remains viewable but cannot be reviewed for sharing.\nPASS R12 period return: exact confirmed success closes; failure and uncertainty remain; same-ID reconciliation closes; forced close, newer viewer, tab, student and epoch never return late.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS period report: inclusive ten/90 days, missing is unknown, no truncation to14, duplicate/future/invalid rejected, stale student response ignored.\nPASS period report draft: consented contact only, no automatic send, existing draft retained.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-pdf.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS real PDF: deterministic approved snapshots, legacy explicit conversion, unknown version/approval/unsupported Unicode blocked, 10/90-day fixtures.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/weekly-preview-browser.mjs --check-fixture",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS exact-source weekly browser fixture syntax only; browser not launched.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/period-report-browser.mjs --check-fixture",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS fixture syntax and exact-source extraction only; browsers not run.\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/student-session-mutation-races.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS NCC session A -> B: no stale data, no blocked first food, leased favorites\nPASS NCC session A -> B -> A: old auth epoch and finally isolated\nPASS NCC midnight: stale A rollover cannot render or toast B\n"
+    },
+    {
+      "command": "node efg-nutrition/tests/sdk-entry-goal-hydration-private.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "No se pudo verificar el historial de metas para el informe semanal.\nPASS actual goal hydration source: current empty-guide draft retains goals; stale/published do not. Unit transport only.\n"
+    },
+    {
+      "command": "node --experimental-vm-modules efg-nutrition/tests/period-report-pdf-browser-module.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": "PASS real browser-style ESM/UMD: empty vendor namespace, exact v1 bytes after global replacement/removal, sentinel never called. {\"bytes\":125303,\"sha256\":\"ffe4b015d984ebd1049a27f0490d9c175b0e30bb2db73213d338a9b38c38300e\"}\n(node:306) ExperimentalWarning: VM Modules is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "command": "node --check efg-nutrition/tests/weekly-report-flow-private.mjs",
+      "status": "PASS",
+      "exitCode": 0,
+      "output": ""
+    }
+  ]
+}

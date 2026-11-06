@@ -1,0 +1,46 @@
+{
+  "scope": "Synthetic Node PDF pixels, not browser/device/live RLS",
+  "tone": "USER_APPROVED_COACH_TO_STUDENT_COPY_NOT_RELEASE_APPROVAL",
+  "results": [
+    {
+      "label": "weekly",
+      "version": "ncc-luxury-weekly-pdf-v2",
+      "pages": 5,
+      "bytes": 127758,
+      "sha256": "7a213d5c686046c37cc74ea64be67273c08571bcfb739d0441f39f9fedd9997b",
+      "coachStudentParity": true
+    },
+    {
+      "label": "weekly-long",
+      "version": "ncc-luxury-weekly-pdf-v2",
+      "pages": 7,
+      "bytes": 129587,
+      "sha256": "5e4d9543337b75f9ed80ff827af1fd579d3fbe89ab6e66bd28731f7d50e4c3b7",
+      "coachStudentParity": true
+    },
+    {
+      "label": "period-one",
+      "version": "ncc-luxury-period-pdf-v3",
+      "pages": 5,
+      "bytes": 124896,
+      "sha256": "5bed22fb627f249f0e84916e583af9e6141823b62cb712cd144e0a96f82cab4a",
+      "coachStudentParity": true
+    },
+    {
+      "label": "period-ten",
+      "version": "ncc-luxury-period-pdf-v3",
+      "pages": 5,
+      "bytes": 128681,
+      "sha256": "68d185840c1ec6e0ec6a9046d9c6234cc46841244ac7f45973ca6357577616a2",
+      "coachStudentParity": true
+    },
+    {
+      "label": "period-ninety",
+      "version": "ncc-luxury-period-pdf-v3",
+      "pages": 14,
+      "bytes": 167777,
+      "sha256": "7433f263c355f2e259c9c43cfac34c470705da122ba5abcd3c311deeb5ac27e3",
+      "coachStudentParity": true
+    }
+  ]
+}

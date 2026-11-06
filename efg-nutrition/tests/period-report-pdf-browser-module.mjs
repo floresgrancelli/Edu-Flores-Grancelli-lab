@@ -37,7 +37,7 @@ const draft=reports.namespace.buildLuxuryPeriodReport({
  studentName:'María José Núñez · FICTICIO',coachName:'Coach ficticio',
  days:[{date:'2026-10-22',hasData:true,closed:true,mealCount:2,k:2000,p:100,c:250,f:60}]
 });
-const snapshot=JSON.parse(reports.namespace.periodReportAsStoredText({...draft,pdfRendererVersion:pdf.namespace.PERIOD_PDF_RENDERER_VERSION},draft.conclusion,draft.flexibleNote));
+const snapshot=JSON.parse(reports.namespace.periodReportAsStoredText({...draft,pdfRendererVersion:'ncc-luxury-period-pdf-v2'},draft.conclusion,draft.flexibleNote));
 const baseline=Buffer.from(await pdf.namespace.buildPeriodReportPdf(snapshot));
 assert.equal(baseline.subarray(0,5).toString(),'%PDF-');assert.ok(baseline.length>10000);
 const vendors=[...modules.values()].filter(m=>new URL(m.identifier).pathname.endsWith('/vendor/jspdf-4.2.1.umd.min.js'));

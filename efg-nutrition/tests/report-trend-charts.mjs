@@ -1,3 +1,4 @@
+import {reportCoachName} from '../pilot/coach-report-models.js';
 import {withReportFoodFrequency} from '../pilot/report-food-frequency.js';
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
@@ -8,7 +9,8 @@ import {buildReportTrendCharts} from '../pilot/report-trend-charts.js';
 import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport} from '../pilot/weekly-luxury-report.js';
 import {buildLuxuryPeriodReport,periodReportAsStoredText} from '../pilot/period-luxury-report.js';
 import {buildWeeklyReportPdf} from '../pilot/weekly-report-pdf.js';
-import {buildPeriodReportPdf,PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf.js';
+import {buildPeriodReportPdf} from '../pilot/period-report-pdf.js';
+import {PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf-v2.js'; // Frozen R11 regression.
 import {buildPeriodReportPdf as immutableV1} from '../pilot/period-report-pdf-v1.js';
 const date=i=>{const d=new Date('2026-08-09T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);};
 const goal=(start_on,kcal=2200,approved_at='2026-07-01T12:00:00Z')=>({start_on,kcal,protein_g:125,carb_g:270,fat_g:65,fiber_g:30,approved_at});
@@ -46,7 +48,7 @@ reads=0;await assert.rejects(loadReportTrendGoals(sb,'ficticio',date(0),date(6),
 // Actual weekly builder checks proof scope and uses the same normalized list for all sections.
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8'),a=app.indexOf('function buildCurrentLuxuryModel(){'),b=app.indexOf('function luxuryEditorContext(',a);
 const state={selectedStudent:'s',session:{user:{id:'c'}},org:{id:'o'},authContextEpoch:1,coachGoals:[goal(date(0),9999)],coachLogs:[],profile:{nickname:'Ficticio'},roster:[{user_id:'s',nickname:'Ficticio'}],coachReportGoals:{studentId:'s',userId:'c',orgId:'o',epoch:1,from:date(0),to:date(6),goals:history}};
-const ctx={state,buildLuxuryWeeklyReport,withReportFoodFrequency,withReportTrendGoals,weeklyReportWindow:()=>({from:date(0),to:date(6),friday:date(7)}),buildNutritionReport:()=>({days:weekly.days}),mealSlots:[],dailyTotals(){},today:()=>date(7)};vm.createContext(ctx);vm.runInContext(app.slice(a,b)+';this.build=buildCurrentLuxuryModel;',ctx);assert.equal(ctx.build().targets.k,weekly.targets.k);
+const ctx={reportCoachName,state,buildLuxuryWeeklyReport,withReportFoodFrequency,withReportTrendGoals,weeklyReportWindow:()=>({from:date(0),to:date(6),friday:date(7)}),buildNutritionReport:()=>({days:weekly.days}),mealSlots:[],dailyTotals(){},today:()=>date(7)};vm.createContext(ctx);vm.runInContext(app.slice(a,b)+';this.build=buildCurrentLuxuryModel;',ctx);assert.equal(ctx.build().targets.k,weekly.targets.k);
 for(const key of ['studentId','userId','orgId','epoch','from','to']){const value=state.coachReportGoals[key];state.coachReportGoals[key]='wrong';assert.equal(ctx.build().targets.k,null,key);assert.equal(ctx.build().trendGoals.rows,null,key);state.coachReportGoals[key]=value;}
 assert.match(app,/loadPeriodReportGoals\(sb,studentId,reportWindow.from,reportWindow.to,assertCurrent\)/);assert.match(app,/assertCurrent\(\);state.coachReportGoals=null/);
 // Deterministic actual PDFs and immutable v1, even after v2 shares the jsPDF runtime.

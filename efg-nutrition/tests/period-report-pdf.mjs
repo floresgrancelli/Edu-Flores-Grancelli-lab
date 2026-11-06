@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {writeFileSync,mkdirSync} from 'node:fs';
 import {buildLuxuryPeriodReport,periodReportAsStoredText,parseLuxuryPeriodReport} from '../pilot/period-luxury-report.js';
-import {buildPeriodReportPdf,PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf.js';
+import {buildPeriodReportPdf} from '../pilot/period-report-pdf.js';
+import {PERIOD_PDF_RENDERER_VERSION} from '../pilot/period-report-pdf-v2.js'; // Frozen R11 regression.
 const day=i=>{const d=new Date('2026-08-09T12:00:00Z');d.setUTCDate(d.getUTCDate()+i);return d.toISOString().slice(0,10);};
 function model(count){
  const days=Array.from({length:count},(_,i)=>({date:day(i),hasData:i%7!==2,closed:i%5!==0,mealCount:3,k:1900+i*3,p:100+i/4,c:250,f:60,fi:28}));

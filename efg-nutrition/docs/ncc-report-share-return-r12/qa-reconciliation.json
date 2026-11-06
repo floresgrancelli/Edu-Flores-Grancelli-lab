@@ -1,0 +1,28 @@
+{
+  "initialAggregate": {
+    "passed": 27,
+    "failed": 2,
+    "failures": [
+      {
+        "command": "node efg-nutrition/tests/period-report-ui.mjs",
+        "error": "El PDF requiere un informe válido y aprobado para revisión.",
+        "cause": "The actual-handler fixture still dynamically imported the historical period model while using the new v3 renderer. The new renderer correctly refused a snapshot missing its voice version.",
+        "correction": "Changed only that fixture import to coach-report-models.js; full real PDF/client/UI path rerun successfully."
+      },
+      {
+        "command": "node efg-nutrition/tests/period-report.mjs",
+        "error": "ReferenceError: reportCoachName is not defined",
+        "cause": "Extracted actual generation source acquired the author-name dependency; this synthetic VM fixture did not supply it.",
+        "correction": "Imported the actual current dispatcher/helper and provided reportCoachName to the VM context; full test rerun successfully."
+      }
+    ]
+  },
+  "finalAggregate": {
+    "passed": 29,
+    "failed": 0,
+    "evidence": "local-test-results.json"
+  },
+  "assertionsRemoved": false,
+  "browserNotRun": true,
+  "runtimeGuardsRelaxed": false
+}

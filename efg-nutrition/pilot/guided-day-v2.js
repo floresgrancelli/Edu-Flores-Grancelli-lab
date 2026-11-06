@@ -2,9 +2,9 @@
 // This module does not read or store health data. The caller must supply a CURRENT,
 // consented and server-authorized profile; this is not a medical decision engine.
 // The existing food catalog is reused in full, never filtered for a student's diary.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 
-import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
 export const SIX_GUIDE_SLOTS=Object.freeze([
  ['desayuno','Desayuno'],['media_manana','Media mañana'],
@@ -165,7 +165,7 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
  }
  if(profile.pattern==='keto'&&goal.carb_g>Number(options.maxKetoCarbs??100))
   notices.push('El objetivo de hidratos es alto para el patrón keto declarado. El coach debe revisarlo.');
- const plan={version:2,kind:FLEXIBLE_GUIDE_KIND,meals,supplementNote:'',
+ const plan={version:2,kind:FLEXIBLE_GUIDE_KIND,windowId:profile.fasting,meals,supplementNote:'',
   createdFrom:'coach_approved_goal',profileReviewNotes:[...new Set(notices)].slice(0,25)};
  // Capture at generation, never overwrite from a newer declaration at save.
  // Edits/rebalance clone this source; the server must revalidate it on publish.
@@ -180,13 +180,17 @@ export function generateFlexibleGuidedDay(catalog,goal,options={}){
 }
 // Generation may choose another compatible food; editing an existing guide
 // continues to rebalance quantities only, preserving the coach's choices.
+// Use the same strict daily tolerance for composition selection and quantity
+// repair. A 5% selection gate can stop at a repertoire that cannot meet 2%.
 function fitGeneratedComposition(plan,goal,available,profile){
  const loss=p=>Object.values(guideDeviation(p,goal)).reduce((sum,d)=>sum+
-  (d.target>0?Math.max(0,Math.abs(d.percent)-5)**2:0),0);
- let current=rebalanceGuidedDay(plan,goal),currentLoss=loss(current);
- for(let pass=0;pass<3&&currentLoss>0;pass++){
+  (d.target>0?Math.max(0,Math.abs(d.percent)-1.99)**2:0),0);
+ let current=rebalanceGuidedDay(plan,goal,{targetTolerance:.0199,wholeUnitSearch:false}),currentLoss=loss(current);
+ // One bounded repair opportunity per possible meal, rather than stopping
+ // after three changes when whole-unit choices need additional compensation.
+ for(let pass=0;pass<6&&currentLoss>0;pass++){
   let best=null,bestLoss=currentLoss;
-  for(let mi=0;mi<current.meals.length;mi++){
+  candidateSearch: for(let mi=0;mi<current.meals.length;mi++){
    const meal=current.meals[mi],used=new Set(meal.items.map(x=>x.id));
    for(let ii=0;ii<meal.items.length;ii++){
     const prior=meal.items[ii];if(prior.locked||prior.recipeComponent)continue;
@@ -196,8 +200,12 @@ function fitGeneratedComposition(plan,goal,available,profile){
      if(!food||used.has(id)||guideFoodSignal(food,profile).status!=='possible')continue;
      const next=structuredClone(current),[min,max]=guidedPortionBounds(id);
      next.meals[mi].items[ii]=ensureSource(food,Math.max(min,Math.min(max,prior.qty)));
-     const candidate=rebalanceGuidedDay(next,goal),candidateLoss=loss(candidate);
-     if(candidateLoss<bestLoss-1e-8){best=candidate;bestLoss=candidateLoss;}
+     const candidate=rebalanceGuidedDay(next,goal,{targetTolerance:.0199,wholeUnitSearch:false}),candidateLoss=loss(candidate);
+     if(candidateLoss<bestLoss-1e-8){
+      best=candidate;bestLoss=candidateLoss;
+      // Zero violation is already optimal; later candidates cannot improve it.
+      if(bestLoss===0)break candidateSearch;
+     }
     }
    }
   }
@@ -228,7 +236,8 @@ export function removeFlexibleFood(existing,slot,index,goal){
  if(!meal||!Number.isInteger(index)||index<0||index>=meal.items.length||meal.items.length<=1)
   throw Error('La comida debe contener al menos un alimento.');
  meal.items.splice(index,1);
- return rebalanceGuidedDay(next,goal);
+ // Removal must repair daily targets, not optimize meal distribution alone.
+ return rebalanceGuidedDay(next,goal,{targetTolerance:.0149});
 }
 export function addFlexibleFood(existing,slot,food,catalog,goal){
  assertFlexible(existing);

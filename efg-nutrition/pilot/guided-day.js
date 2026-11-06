@@ -1,6 +1,6 @@
 // EFG Nutrition Pro — five-meal educational guide. No network, storage, or patient data.
 // Never equate this sample menu with the meals actually consumed.
-import {guidedCountablePortion,normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {guidedCountablePortion,normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 export const GUIDE_MEALS=Object.freeze([
  {slot:"desayuno",label:"Desayuno",items:[["egg",100],["bread",35],["cheese",35],["milk_skim",230],["coffee_black",50]]},
  {slot:"media_manana",label:"Media mañana",items:[["yogurt",200],["apple",130],["oats_raw",30]]},
@@ -111,7 +111,7 @@ export function guideQuantityRanges(plan){
  const ranges=Object.fromEntries(NUTRIENTS.map(k=>[k,{min:0,max:0}]));
  for(const item of (plan?.meals||[]).flatMap(m=>m.items||[])){
   const [min,max]=item.locked===true||item.recipeComponent===true?[item.qty,item.qty]:
-   guidedCountablePortion(item.id)?[normalizeGuidedCountableQuantity(item),normalizeGuidedCountableQuantity(item)]:guidedPortionBounds(item.id);
+   guidedCountablePortion(item.id)?.preserveCount?[normalizeGuidedCountableQuantity(item),normalizeGuidedCountableQuantity(item)]:guidedPortionBounds(item.id);
   for(const k of NUTRIENTS){ranges[k].min+=item[k]*min;ranges[k].max+=item[k]*max;}
  }
  return ranges;
@@ -191,7 +191,10 @@ function createGuideEvaluation(plan,goal,targetTolerance){
  };
 }
 
-export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
+export function rebalanceGuidedDay(existing,goal,{targetTolerance=null,wholeUnitSearch=true}={}){
+ return rebalanceGuideQuantities(existing,goal,targetTolerance,wholeUnitSearch!==false);
+}
+function rebalanceGuideQuantities(existing,goal,targetTolerance,searchWholeMoves){
  ensureGuideGoal(goal);
  if(targetTolerance!==null&&(!valid(targetTolerance)||targetTolerance<0||targetTolerance>.05))throw new Error("Margen de ajuste inválido.");
  if(!Array.isArray(existing?.meals)||existing.meals.length<2||existing.meals.length>6)
@@ -215,17 +218,21 @@ export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
  // fail, repair them before optimizing distribution; never trade feasibility away.
  const evaluate=createGuideEvaluation(plan,goal,targetTolerance);
  const violation=()=>evaluate().violation;
- for(const repair of targetTolerance===null?[false]:[false,true]){
+ for(const repair of targetTolerance===null?[false]:[false,"coarse","fine"]){
  if(repair&&violation()===0)break;
  // Bounded coordinate descent; identities, locks, portion steps and bounds unchanged.
  for(let iteration=0;iteration<240;iteration++){
   const evaluation=evaluate();let best=null,bestScore=evaluation.score;
   let bestViolation=repair?evaluation.violation:0;
   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
-   const item=plan.meals[mi].items[ii], [min,max,step]=bounds(item.id),original=item.qty;
-   // Keep the chosen whole-unit count; compensate through other foods, not
+   const item=plan.meals[mi].items[ii], [min,max,coarseStep]=bounds(item.id),original=item.qty;
+   // Fine repair applies only to divisible gram/ml portions. Counted units
+   // retain their full catalog step; locks and exact recipes remain untouched.
+   const step=repair==="fine"&&!guidedCountablePortion(item.id)?coarseStep/10:coarseStep;
+   // Keep the chosen egg count; other countable foods move only in whole units.
+   // Compensate through other foods, not
    // by undoing 3.3 -> 3 eggs in a later optimization pass. No new lock is set.
-   if(item.locked===true||item.recipeComponent===true||guidedCountablePortion(item.id))continue;
+   if(item.locked===true||item.recipeComponent===true||guidedCountablePortion(item.id)?.preserveCount)continue;
    for(const delta of [-step,step]){
     item.qty=original+delta;
     if(item.qty<min||item.qty>max){item.qty=original;continue;}
@@ -244,8 +251,9 @@ export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
   if(!best&&repair&&bestViolation>0){
    const moves=[];
    for(const meal of plan.meals)for(const item of meal.items){
-    if(item.locked===true||item.recipeComponent===true||guidedCountablePortion(item.id))continue;
-    const [min,max,step]=bounds(item.id);
+    if(item.locked===true||item.recipeComponent===true||guidedCountablePortion(item.id)?.preserveCount)continue;
+    const [min,max,coarseStep]=bounds(item.id);
+    const step=repair==="fine"&&!guidedCountablePortion(item.id)?coarseStep/10:coarseStep;
     for(const delta of [-step,step])if(item.qty+delta>=min&&item.qty+delta<=max)moves.push({item,delta});
    }
    // Evaluate nutrient deltas directly instead of cloning/re-summing the
@@ -267,6 +275,29 @@ export function rebalanceGuidedDay(existing,goal,{targetTolerance=null}={}){
   if(!best)break;
   plan.meals[best.mi].items[best.ii].qty=best.qty;
  }
+ }
+ // A whole-unit move can initially worsen the target even though compensating
+ // divisible amounts makes it feasible. Evaluate bounded whole-unit starts
+ // with that one count held internally, then repair all other quantities.
+ // Only copy quantities back: temporary search locks never enter the result.
+ if(searchWholeMoves&&targetTolerance!==null){
+  for(let pass=0;pass<3&&violation()>0;pass++){
+   let best=null,bestViolation=violation();
+   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++){
+    const item=plan.meals[mi].items[ii],rule=guidedCountablePortion(item.id);
+    if(!rule||rule.preserveCount||item.locked===true||item.recipeComponent===true)continue;
+    for(const delta of [-rule.grams,rule.grams]){
+     const qty=item.qty+delta;if(qty<rule.min||qty>rule.max)continue;
+     const seed=structuredClone(plan);Object.assign(seed.meals[mi].items[ii],{qty,locked:true});
+     const candidate=rebalanceGuideQuantities(seed,goal,targetTolerance,false);
+     const candidateViolation=createGuideEvaluation(candidate,goal,targetTolerance)().violation;
+     if(candidateViolation<bestViolation-1e-14){best=candidate;bestViolation=candidateViolation;}
+    }
+   }
+   if(!best)break;
+   for(let mi=0;mi<plan.meals.length;mi++)for(let ii=0;ii<plan.meals[mi].items.length;ii++)
+    plan.meals[mi].items[ii].qty=best.meals[mi].items[ii].qty;
+  }
  }
  return plan;
 }

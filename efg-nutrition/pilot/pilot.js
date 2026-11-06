@@ -1,82 +1,88 @@
-import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-catalog-android-r9';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadPeriodReportGoals} from "./period-report-goals.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+async function buildPeriodReportPdf(model){
+ const pdf=await import("./period-report-pdf.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106");
+ return pdf.buildPeriodReportPdf(model);
+}
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./period-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
-import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-catalog-android-r9";
+import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./weekly-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createMessagesCenter} from "./messages-ui.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {confirmMajorRelaunchAndExit} from "./major-release-reauth-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {PERSONAL_WORKSPACE_ENABLED,loadPersonalWorkspace,renderPersonalWorkspace} from "./personal-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_RELAUNCH_ONBOARDING_ENABLED,COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {currentCoachIntakeDraft} from "./coach-intake-queue.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_STUDENT_JOURNEY_ENABLED,renderCoachPlanWaiting} from "./coach-student-journey.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {fetchCoachPilotEntry} from "./coach-pilot-entry-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachPrivateHistory,renderCoachPrivateHistory} from "./coach-private-history.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachPilotLegal,renderCoachPilotLegal,readCoachPilotLegalSelections,submitCoachPilotLegal} from "./coach-pilot-legal-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachPilotGeneralIntake,submitCoachPilotGeneralIntake,manageCoachPilotGeneralIntake} from "./coach-pilot-intake-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilotParticipationContinueButton} from "./pilot-participation-demo.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
@@ -2496,11 +2502,90 @@ function periodHistoryPanel(){
  return '<section class="card"><h2>Informes por período compartidos</h2><button class="btn small light" data-act="loadPeriodHistory">Consultar historial</button><div id="periodHistory" aria-live="polite"></div></section>';
 }
 function periodContextMatches(c){const n=periodReportContext();return n.allowed&&n.userId===c.userId&&n.studentId===c.studentId&&n.epoch===c.epoch;}
+// A PDF is an immutable approved snapshot. HTML remains an accessible draft only.
+let activePeriodPdfView=null;
+function closePeriodPdfView(force=false){
+ const view=activePeriodPdfView;if(!view)return;
+ if(view.host?.periodPublishing&&!force)return;
+ activePeriodPdfView=null;
+ if(view.host){view.host.periodReviewed=null;view.host.periodPdfSnapshot=null;}
+ view.ticket=null;
+ if(view.url)URL.revokeObjectURL(view.url);
+ view.dialog?.remove();
+ if(!force)view.opener?.focus?.();
+}
+function currentPeriodReportHost(){
+ const host=document.getElementById('periodReportResult');
+ if(!host?.periodContext||!periodContextMatches(host.periodContext)||!host.periodModel||
+  host.periodFrom!==document.getElementById('periodReportFrom')?.value||
+  host.periodTo!==document.getElementById('periodReportTo')?.value)return null;
+ return host;
+}
+function invalidatePeriodReport(){
+ closePeriodPdfView(true);
+ const host=document.getElementById('periodReportResult');if(!host)return;
+ host.periodTicket=null;host.periodModel=null;host.periodContext=null;host.periodReviewed=null;
+ host.textContent='Las fechas cambiaron. Generá el informe para revisar este período.';
+}
+function syncPeriodReportPreview(){
+ const host=currentPeriodReportHost();if(!host)return null;
+ const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
+ const html=renderLuxuryPeriodReport(model),text=JSON.stringify(model);
+ const reviewed=document.getElementById('periodReportReviewed');
+ if(host.periodPreviewText!==text){host.periodReviewed=null;if(reviewed)reviewed.checked=false;closePeriodPdfView(true);}
+ host.periodPreviewText=text;
+ document.getElementById('periodLuxuryPreview').innerHTML=html||'<p>Completá una conclusión válida para ver el informe.</p>';
+ const view=activePeriodPdfView;
+ const ready=!!html&&model.daysRecorded>0&&reviewed?.checked===true&&!host.periodPublished&&
+  view?.host===host&&view.ready&&view.text===text&&view.dialog.open&&!!host.periodPdfSnapshot;
+ host.periodReviewed=ready?text:null;
+ const publish=document.getElementById('periodPublishButton');
+ if(publish)publish.disabled=!ready||host.periodPublishing===true;
+ return html?model:null;
+}
+async function openPeriodPdfView({model,host=null,context,current,opener}){
+ closePeriodPdfView(true);
+ const text=host?.periodPreviewText||null;
+ const snapshot=host?JSON.parse(periodReportAsStoredText({...model,pdfRendererVersion:PERIOD_PDF_RENDERER_VERSION},model.conclusion,model.flexibleNote)):JSON.parse(JSON.stringify(model));
+ const dialog=document.createElement('dialog');dialog.className='period-pdf-dialog';dialog.setAttribute('aria-label',host?'Revisar PDF antes de compartir':'PDF del informe compartido');
+ dialog.innerHTML='<header><h2>Informe Luxury Pro · PDF</h2><button type="button" class="btn light" data-pdf-close>'+(host?'Volver y editar':'Cerrar')+'</button></header><p data-pdf-identity></p><p data-pdf-status role="status">Preparando el PDF…</p><div data-pdf-links hidden><a class="btn light" data-pdf-open target="_blank" rel="noopener">Abrir PDF en otra pestaña</a><a class="btn light" data-pdf-download>Descargar PDF</a></div><p>Si el visor no muestra el documento, abrilo o descargalo. Es un archivo PDF real, no la versión HTML.</p><iframe title="PDF del informe Luxury Pro" hidden></iframe>'+
+  (host?'<label class="period-report-review"><input type="checkbox" id="periodReportReviewed" disabled> Revisé este PDF y el alumno destinatario.</label><button type="button" class="btn" id="periodPublishButton" data-act="publishPeriodLuxury" disabled>Aprobar y compartir con alumno</button>':'');
+ const view={dialog,host,text,snapshot,serialized:JSON.stringify(snapshot),ready:false,url:null,opener,ticket:Symbol()};activePeriodPdfView=view;
+ root.appendChild(dialog);
+ dialog.querySelector('[data-pdf-identity]').textContent=snapshot.studentName+' · '+snapshot.from+' al '+snapshot.to;
+ const isCurrent=()=>activePeriodPdfView===view&&view.ticket&&dialog.isConnected&&periodContextMatches(context)&&current()&&(!host||host.periodPreviewText===text);
+ const close=()=>closePeriodPdfView();
+ dialog.querySelector('[data-pdf-close]').addEventListener('click',close);
+ dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
+ dialog.addEventListener('close',()=>{if(activePeriodPdfView===view)closePeriodPdfView(true);});
+ if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
+ try{
+  const bytes=await buildPeriodReportPdf(snapshot);
+  if(!isCurrent()){if(activePeriodPdfView===view)closePeriodPdfView(true);return;}
+  view.url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+  const open=dialog.querySelector('[data-pdf-open]'),download=dialog.querySelector('[data-pdf-download]');
+  open.href=view.url;download.href=view.url;download.download='informe-'+snapshot.from+'-'+snapshot.to+'.pdf';
+  dialog.querySelector('[data-pdf-links]').hidden=false;
+  const frame=dialog.querySelector('iframe');frame.src=view.url;frame.hidden=false;
+  dialog.querySelector('[data-pdf-status]').textContent=host?'Revisá este PDF completo. Se compartirá exactamente este contenido cuando lo apruebes.':
+   snapshot.pdfRendererVersion?'PDF generado con la versión conservada en el informe.':'Informe anterior: conversión nueva a PDF de su contenido guardado; no es un PDF histórico conservado.';
+  view.ready=true;
+  if(host){
+   host.periodPdfSnapshot=snapshot;dialog.querySelector('#periodReportReviewed').disabled=!snapshot.daysRecorded;
+   if(!snapshot.daysRecorded)dialog.querySelector('[data-pdf-status]').textContent='No hay registros para compartir en este período. Podés consultar o descargar el PDF, o volver y elegir otras fechas.';
+   syncPeriodReportPreview();
+  }
+ }catch(error){
+  if(isCurrent())dialog.querySelector('[data-pdf-status]').textContent='No se pudo generar el PDF. No se envió el informe. Volvé a editar o intentá nuevamente. '+error.message;
+  if(isCurrent())throw error;
+ }
+}
 function coachPeriodReportPanel(){
+ if(state.profile?.role!=='coach')return '<section class="card"><h2>Informe por período</h2><p>Disponible para el coach autorizado del alumno.</p></section>';
  const end=today(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-9);
  return '<section class="card" id="coachPeriodReport"><h2>Informe por período</h2><p>Elegí las fechas que querés revisar, hasta 90 días. El informe semanal se mantiene independiente.</p>'+
- '<label>Desde <input type="date" id="periodReportFrom" max="'+end+'" value="'+start.toISOString().slice(0,10)+'"></label>'+
- '<label>Hasta <input type="date" id="periodReportTo" max="'+end+'" value="'+end+'"></label>'+
+ '<label class="period-report-field">Desde <input type="date" id="periodReportFrom" max="'+end+'" value="'+start.toISOString().slice(0,10)+'"></label>'+
+ '<label class="period-report-field">Hasta <input type="date" id="periodReportTo" max="'+end+'" value="'+end+'"></label>'+
  '<button class="btn small" data-act="generatePeriodReport">Generar informe del período</button>'+
  '<div id="periodReportResult" aria-live="polite"></div></section>'+periodHistoryPanel();
 }
@@ -2685,7 +2770,7 @@ function guidedDayContents(plan,goal,editable=false){
     '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div>':'')+
    '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
  }).join("");
- return '<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
+ return (validGuideWindow(plan.windowId)?'<p class="pilot-hint">Organización horaria: '+guideWindowLabel(plan.windowId)+' · '+plan.meals.length+' comidas en esta guía.</p>':'')+'<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
  '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations,plan))+'</p></div>'+
  (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
  '<div class="efg-guide-grid">'+mealCards+'</div>'+
@@ -2722,6 +2807,7 @@ async function saveCoachAtomicDraft({quiet=false}={}){
  const sessionUserId=state.session?.user?.id,previousDraft=state.coachPlanDraftRecord;
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ assertCurrentGuideWindow(guide);
  if(!goal||!guide)throw Error("Prepará primero el objetivo y la Dieta Guía.");
  validateGuidedDay(guide,goal);
  // Capture exactly what was submitted BEFORE network waits: later edits cannot
@@ -2762,6 +2848,7 @@ async function previewCoachGuide(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED||!state.consent?.accepted||!intake?.shared_at)throw Error('La ficha ya no está disponible para revisar.');
  const goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  let guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ assertCurrentGuideWindow(guide);
  validateGuidedDay(guide,goal);
  // Resolve the server catalog BEFORE the coach reviews final quantities.
  // Referenced and estimated values keep their provenance; sharing health is optional.
@@ -2871,6 +2958,7 @@ async function publishCoachAtomicDraft(){
  const sessionUserId=state.session?.user?.id,previousDraft=draft;
  const intake=state.coachIntakeForms?.[studentId],goal=state.pendingGoal||state.pendingGoalRevision?.proposal;
  const guide=state.coachGuidedDraft?readGuidedEditor():state.coachIntakeGuidePreview;
+ assertCurrentGuideWindow(guide);
  const finalGuide=approvedFoodGuide(guide,guide.kind==="flexible_meal_guide"?null:coachFoodChoicesFromDom(root),{knownIds:foods.map(f=>f.id)});
  const review=assessCoachDraftPublication({studentId,intake,savedDraft:draft,goal,guide:finalGuide});
  if(!review.ready)throw Error(review.reason);
@@ -2981,10 +3069,23 @@ const pilotGuideLifecycle=createPilotGuideLifecycle({sb,enabled:installedGuideEn
   await render();
  }
 });
+function coachGuideWindowScope(){
+ return JSON.stringify([state.session?.user?.id,state.session?.session_id,state.org?.id,state.selectedStudent]);
+}
+function currentCoachGuideWindow(){
+ const goal=activeCoachGuideGoal(),saved=state.coachFoodPlan;
+ const plan=state.coachGuidedDraft||state.coachIntakeGuidePreview||
+  (goal?.id&&saved?.guided_goal_id===goal.id?saved.guided_plan:null);
+ return resolveCoachGuideWindow({selection:state.coachGuideWindowSelection,scope:coachGuideWindowScope(),plan,
+  intakeWindow:state.coachIntakeForms?.[state.selectedStudent]?.eating_window});
+}
+function assertCurrentGuideWindow(plan){
+ assertGuideWindowApplied(plan,currentCoachGuideWindow(),state.coachIntakeForms?.[state.selectedStudent]?.eating_window);
+}
 function currentCoachGuideProfile(){
  const intake=state.coachIntakeForms?.[state.selectedStudent]||{};
  const pattern=profilePatternForCompatibility(intake.dietary_pattern||'balanced');
- const windowId=['12_12','14_10','16_8'].includes(intake.eating_window)?intake.eating_window:'regular';
+ const windowId=currentCoachGuideWindow();
  // Unknown medical status is never interpreted as a negative declaration.
  const shared=state.coachGuideHealth;
  const verified=shared?.studentId===state.selectedStudent&&shared.shared===true&&
@@ -3005,8 +3106,8 @@ function coachGuidedSection(){
  return '<section id="coachGuidedSlot" class="efg-guide-shell"><span class="eyebrow">NUTRICIÓN CON-CIENCIA · DE LOS MACROS A LA COMIDA REAL</span><h3>🥗 Dieta Guía automática e interactiva</h3>'+adaptedEntry+
  '<p class="pilot-hint">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'El borrador es privado. Solo la publicación atómica validada en el servidor mostrará objetivo y guía al alumno.':'El alumno verá un ejemplo claro, editable por vos antes de aprobarlo. Nunca reemplaza su registro diario real.')+'</p>'+
  (!goal?'<div class="pilot-notice">'+(COACH_ATOMIC_PLAN_UI_ENABLED?'Calculá primero una propuesta para preparar sus comidas de guía.':'Primero aprobá el objetivo nutricional de este alumno.')+'</div>':
- '<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
- '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' seis comidas</button></div>'+
+ coachGuideWindowControl(currentCoachGuideWindow())+'<div class="pilot-toolbar"><label><input id="guideWhey" type="checkbox" '+(draft?.meals?.some(m=>m.items.some(f=>f.id==="whey_powder"))?"checked":"")+'> Agregar whey opcional a media mañana</label>'+
+ '<button class="btn small light" type="button" data-act="makeGuidedDay">'+(plan?(draft?'Regenerar':'Editar guía existente'):'Generar')+' comidas según la ventana</button></div>'+
  (plan?guidedDayContents(plan,goal,!!draft)+
  (draft?'<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="recalcGuidedDay">Actualizar el resumen</button><button type="button" class="btn small light" data-act="balanceGuidedDay">Recalcular con nuevos pesos y/o ingredientes</button>'+
  (COACH_ATOMIC_PLAN_UI_ENABLED?'<button type="button" class="btn small light" data-act="applyPilotReviewedSources">Actualizar valores del catálogo y recalcular</button>':'')+
@@ -3038,6 +3139,7 @@ function baselinePreview(){
 }
 function readGuidedEditor(){
  const draft=state.coachGuidedDraft;if(!draft)throw new Error("Primero generá un borrador.");
+ assertCurrentGuideWindow(draft);
  for(const el of document.querySelectorAll("[data-guideqty]")){
   const [slot,index]=el.dataset.guideqty.split(":"),food=draft.meals.find(x=>x.slot===slot)?.items?.[Number(index)];
   const factor=guidePortion(food)?.grams||1;
@@ -3272,6 +3374,7 @@ async function renderPrivateHealthDeclaration(){
  }
 }
 async function render(){
+ closePeriodPdfView(true);
  const renderEpoch=state.authContextEpoch||0;
  state.privateHealthDeclaration?.invalidate?.();
  pilotGuideLifecycle.invalidate();
@@ -3719,7 +3822,7 @@ async function loadStudentDetail(studentId){
  };
  const contextRead=async promise=>{try{return await promise;}finally{assertCurrent();}};
  coachAdaptedWorkspace.close(); // Discard before any asynchronous detail request.
- state.selectedStudent=studentId;state.consent=null;
+ state.selectedStudent=studentId;state.consent=null;state.coachGuideWindowSelection=null;
  state.coachLogs=[];state.coachProgressLogs=[];state.coachWeights=[];state.coachGoals=[];state.coachActivities=[];state.coachHistory=[];
  state.rewardApproval=null;state.rewardFeatureReady=false;state.coachFoodPlan=null;
  state.pendingGoal=null;state.calculatedGoalBase=null;state.pendingGoalRevision=null;state.coachGuidedDraft=null;state.coachIntakePrefill=null;state.coachIntakeGuidePreview=null;state.coachGuideHealth=null;state.coachPlanDraftRecord=null;state.coachPlanPublishRequestId=null;
@@ -4523,47 +4626,79 @@ if(el.dataset.foodbulk){
   return;
  }
  if(action==="generatePeriodReport"){
-  const studentId=state.selectedStudent,session=state.session,epoch=state.authContextEpoch;
+  const c=periodReportContext(),studentId=c.studentId,session=state.session;
+  if(c.role!=='coach'||!c.allowed)throw Error('Acceso no autorizado.');
   const p=state.roster.find(x=>x.user_id===studentId&&x.active);
-  if(!p||!state.consent?.accepted||!['coach','admin'].includes(state.profile?.role))throw Error('Acceso no autorizado.');
   const from=document.getElementById('periodReportFrom').value,to=document.getElementById('periodReportTo').value;
   validateReportPeriod(from,to,today());
   const host=document.getElementById('periodReportResult');
-  const ticket=Symbol();host.periodTicket=ticket;host.textContent='Consultando registros del período…';
-  const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',studentId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
-  if(error)throw error;
-  const periodGoals=await loadPeriodReportGoals(sb,studentId,from,to);
-  if(state.session!==session||state.selectedStudent!==studentId||state.authContextEpoch!==epoch||!state.consent?.accepted||!host.isConnected||host.periodTicket!==ticket)return;
-  if(document.getElementById('periodReportFrom').value!==from||document.getElementById('periodReportTo').value!==to)return;
-  const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
-  const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
-  const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals});
-  host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=periodReportContext();host.periodReviewed=null;host.periodRequestId=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
-  host.innerHTML='<label>Conclusión automática · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label>Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><button class="btn small" data-act="previewPeriodLuxury">Actualizar vista previa Luxury Pro</button><button class="btn small light" data-act="printPeriodLuxury">Exportar vista previa a PDF</button><button class="btn small" data-act="publishPeriodLuxury">Aprobar y compartir con alumno</button><p id="periodPublishStatus" role="status">Actualizá la vista previa para revisar el contenido antes de compartir.</p><div id="periodLuxuryPreview">'+renderLuxuryPeriodReport(report)+'</div>';return;
- }
- if(action==='previewPeriodLuxury'||action==='printPeriodLuxury'){
-  const host=document.getElementById('periodReportResult');
-  if(!host?.periodContext||!periodContextMatches(host.periodContext)||!state.consent?.accepted||!host?.periodModel||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para las fechas elegidas.');
-  const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
-  const html=renderLuxuryPeriodReport(model);if(!html)throw Error('Revisá el texto del informe.');
-  document.getElementById('periodLuxuryPreview').innerHTML=html;
-  if(action==='previewPeriodLuxury'){host.periodReviewed=JSON.stringify(model);document.getElementById('periodPublishStatus').textContent='Vista previa revisada. Podés aprobar y compartir.';}
-  if(action==='printPeriodLuxury'){
-   const source=document.querySelector('#periodLuxuryPreview .lux-report');source.classList.add('efg-lux-print-target');
-   const clear=()=>source.classList.remove('efg-lux-print-target');window.addEventListener('afterprint',clear,{once:true});window.print();
-  }
+  if(host.periodLoading||host.periodPublishing)return;
+  if(host.periodAttempt&&!host.periodPublished)throw Error('Confirmá el envío pendiente con Reintentar antes de generar otro informe.');
+  const ticket=Symbol();host.periodTicket=ticket;host.periodLoading=true;
+  host.periodModel=null;host.periodContext=null;host.periodReviewed=null;host.periodAttempt=null;host.periodPublished=false;
+  host.textContent='Consultando registros del período…';
+  const current=()=>state.session===session&&periodContextMatches(c)&&host.isConnected&&host.periodTicket===ticket&&
+   document.getElementById('periodReportFrom')?.value===from&&document.getElementById('periodReportTo')?.value===to;
+  try{
+   const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',studentId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
+   if(!current())return;if(error)throw error;
+   const periodGoals=await loadPeriodReportGoals(sb,studentId,from,to);
+   if(!current())return;
+   const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
+   const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+   const report=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:state.profile.nickname,days,logs:data,goals:periodGoals});
+   host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=c;host.periodRequestId=null;host.periodPreviewText=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
+   host.innerHTML='<label class="period-report-field">Conclusión propuesta · editable<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
+   syncPeriodReportPreview();
+  }catch(error){if(current()){host.textContent='No se pudo generar el informe. Volvé a intentarlo.';throw error;}}
+  finally{host.periodLoading=false;}
   return;
  }
+ if(action==='printPeriodLuxury'){
+  const host=currentPeriodReportHost();
+  if(!host)throw Error('Generá el informe para el alumno y las fechas actuales.');
+  if(host.periodPublishing)return;
+  const model=syncPeriodReportPreview();if(!model)throw Error('Revisá el texto del informe.');
+  return openPeriodPdfView({model,host,context:host.periodContext,current:()=>currentPeriodReportHost()===host,opener:el});
+ }
  if(action==='publishPeriodLuxury'){
-  const host=document.getElementById('periodReportResult');
-  if(!host?.periodContext||!periodContextMatches(host.periodContext)||host.periodFrom!==document.getElementById('periodReportFrom').value||host.periodTo!==document.getElementById('periodReportTo').value)throw Error('Volvé a generar el informe para el alumno y las fechas actuales.');
-  const model={...host.periodModel,conclusion:document.getElementById('periodReportConclusion').value.trim(),flexibleNote:document.getElementById('periodReportFlexible').value.trim()};
-  const text=JSON.stringify(model);
-  if(text!==host.periodReviewed)throw Error('Actualizá y revisá la vista previa antes de compartir.');
-  if(host.periodAttempt&&host.periodAttempt!==text)throw Error('Hay un envío anterior pendiente de confirmar. Consultá el historial antes de generar otro informe.');
-  host.periodAttempt=text;host.periodRequestId=host.periodRequestId||createCoachPublicationRequestId();
-  const saved=await host.periodClient.publish({model,requestId:host.periodRequestId,confirmed:true});
-  if(saved&&host.isConnected&&periodContextMatches(host.periodContext))document.getElementById('periodPublishStatus').textContent='Informe compartido y confirmado en el historial del alumno.';
+  const host=currentPeriodReportHost();
+  if(!host)throw Error('Generá el informe para el alumno y las fechas actuales.');
+  if(host.periodPublishing||host.periodPublished)return;
+  const draft=syncPeriodReportPreview(),text=JSON.stringify(draft),model=host.periodPdfSnapshot;
+  if(!draft||!model||text!==host.periodReviewed||activePeriodPdfView?.snapshot!==model||!activePeriodPdfView.ready||JSON.stringify(model)!==activePeriodPdfView.serialized)throw Error('Revisá el informe y marcá la confirmación antes de compartir.');
+  if(host.periodAttempt&&host.periodAttempt!==text)throw Error('Hay un envío anterior pendiente de confirmar.');
+  host.periodAttempt=text;host.periodRequestId=host.periodRequestId||createCoachPublicationRequestId();host.periodPublishing=true;
+  const button=document.getElementById('periodPublishButton');button.disabled=true;button.textContent='Compartiendo…';
+  const pdfView=activePeriodPdfView;
+  pdfView.dialog.querySelector('[data-pdf-close]').disabled=true;
+  pdfView.dialog.querySelector('[data-pdf-status]').textContent='Confirmando el informe en el historial del alumno…';
+  const fields=['periodReportConclusion','periodReportFlexible','periodReportReviewed','periodReportFrom','periodReportTo'].map(id=>document.getElementById(id));
+  fields.forEach(field=>field.disabled=true);
+  try{
+   const saved=await host.periodClient.publish({model,requestId:host.periodRequestId,confirmed:true});
+   if(saved&&host.isConnected&&currentPeriodReportHost()===host){
+    host.periodPublished=true;button.textContent='Compartido';
+    pdfView.dialog.querySelector('[data-pdf-status]').textContent='Informe compartido y confirmado. Este es el PDF del alumno.';
+    fields.filter(field=>['periodReportFrom','periodReportTo'].includes(field.id)).forEach(field=>field.disabled=false);
+    document.getElementById('periodPublishStatus').textContent='Informe compartido y confirmado en el historial del alumno.';
+   }
+  }catch(error){
+   if(host.isConnected&&currentPeriodReportHost()===host){
+    if(error?.periodWriteOutcome==='rejected'){
+     host.periodAttempt=null;host.periodRequestId=null;host.periodReviewed=null;
+     fields.forEach(field=>field.disabled=false);
+     document.getElementById('periodReportReviewed').checked=false;
+     button.textContent='Aprobar y compartir con alumno';button.disabled=true;
+     document.getElementById('periodPublishStatus').textContent='El servidor rechazó el envío y no guardó este informe. Podés editarlo o generar otro; revisalo nuevamente antes de compartir.';
+    }else{
+     button.textContent='Reintentar confirmación';button.disabled=false;
+     document.getElementById('periodPublishStatus').textContent='No se confirmó el envío. Reintentá con el mismo contenido para evitar duplicados.';
+    }
+    if(activePeriodPdfView)activePeriodPdfView.dialog.querySelector('[data-pdf-status]').textContent=document.getElementById('periodPublishStatus').textContent;
+    throw error;
+   }
+  }finally{host.periodPublishing=false;pdfView.dialog.querySelector('[data-pdf-close]').disabled=false;}
   return;
  }
  if(action==='loadPeriodHistory'){
@@ -4573,15 +4708,14 @@ if(el.dataset.foodbulk){
   if(!rows||!host.isConnected||host.ticket!==ticket||!periodContextMatches(c))return;
   host.rows=rows;host.reportContext=c;
   host.innerHTML=rows.map((r,i)=>{const m=parseLuxuryPeriodReport(r.report_text);if(!m)return '<p>Informe no disponible: formato no válido.</p>';
-   return '<details class="pilot-record"><summary>'+escapeHTML(r.period_from)+' — '+escapeHTML(r.period_to)+'</summary>'+renderLuxuryPeriodReport(m)+'<button class="btn small light" data-act="printPeriodHistory" data-periodindex="'+i+'">Exportar PDF</button>'+(c.role==='student'?'<button class="btn small" data-act="replyPeriodHistory" data-periodindex="'+i+'">Responder informe al coach</button>':'')+'</details>';
+   return '<details class="pilot-record"><summary>'+escapeHTML(r.period_from)+' — '+escapeHTML(r.period_to)+'</summary>'+renderLuxuryPeriodReport(m)+'<button class="btn small light" data-act="printPeriodHistory" data-periodindex="'+i+'">Abrir PDF</button>'+(c.role==='student'?'<button class="btn small" data-act="replyPeriodHistory" data-periodindex="'+i+'">Responder informe al coach</button>':'')+'</details>';
   }).join('')||'<p>Todavía no hay informes por período compartidos.</p>';return;
  }
  if(action==='printPeriodHistory'||action==='replyPeriodHistory'){
   const host=document.getElementById('periodHistory'),row=host?.rows?.[Number(el.dataset.periodindex)];
   if(!host?.reportContext||!periodContextMatches(host.reportContext)||!row||!parseLuxuryPeriodReport(row.report_text))throw Error('Volvé a consultar el historial.');
   if(action==='printPeriodHistory'){
-   const source=el.closest('details')?.querySelector('.lux-report');if(!source)return;
-   source.classList.add('efg-lux-print-target');window.addEventListener('afterprint',()=>source.classList.remove('efg-lux-print-target'),{once:true});window.print();
+   return openPeriodPdfView({model:parseLuxuryPeriodReport(row.report_text),context:host.reportContext,current:()=>host.isConnected&&document.getElementById('periodHistory')===host,opener:el});
   }else{
    if(state.profile.role!=='student'||row.student_id!==state.session.user.id)throw Error('Informe ajeno.');
    const userId=state.session.user.id;state.tab='messages';await render();
@@ -4947,6 +5081,13 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 root.addEventListener("change",e=>{invalidateCoachDraft(e);
+ if(e.target.id==="coachGuideWindow"){
+  if(!validGuideWindow(e.target.value))return;
+  state.coachGuideWindowSelection={scope:coachGuideWindowScope(),windowId:e.target.value};
+  const status=document.getElementById("coachGuideWindowStatus");
+  if(status)status.textContent='Selección pendiente: usá Generar o Regenerar para aplicarla. La guía actual y sus ediciones se conservan hasta entonces.';
+  return;
+ }
   if(e.target.id==="efgIntakeShare"){
    const btn=document.getElementById("efgIntakeSubmitButton");
    if(btn)btn.textContent=intakeSaveButtonLabel({
@@ -4999,6 +5140,14 @@ root.addEventListener("compositionend",event=>{
 function foodSearchReadyForInput(event){
  return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
 }
+root.addEventListener('input',e=>{
+ if(['periodReportFrom','periodReportTo'].includes(e.target.id))invalidatePeriodReport();
+ if(['periodReportConclusion','periodReportFlexible'].includes(e.target.id))syncPeriodReportPreview();
+});
+root.addEventListener('change',e=>{
+ if(['periodReportFrom','periodReportTo'].includes(e.target.id))invalidatePeriodReport();
+ if(e.target.id==='periodReportReviewed')syncPeriodReportPreview();
+});
 root.addEventListener("input",e=>{
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
@@ -5016,7 +5165,7 @@ root.addEventListener("input",e=>{
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value)*(guidePortion(food)?.grams||1);
   const countable=food?.recipeComponent?null:guidedCountablePortion(food?.id);
-  if(countable&&!Number.isInteger(qty/countable.grams))return; // Normalize on change, before locking.
+  if(countable&&Math.abs(qty/countable.grams-Math.round(qty/countable.grams))>1e-8)return; // Normalize on change, before locking.
   if(food&&e.target.value.trim()&&Number.isFinite(qty)&&qty>0){food.qty=qty;food.locked=true;updateGuidedTotalsUI();}
  }
  if(e.target.dataset.guidefoodsearch&&foodSearchReadyForInput(e)){
@@ -5111,6 +5260,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ closePeriodPdfView(true);
  state.foodRestrictionReader?.invalidate?.();
  state.privateHealthDeclaration?.invalidate?.();
  state.privateHealthSessionNonce=null;

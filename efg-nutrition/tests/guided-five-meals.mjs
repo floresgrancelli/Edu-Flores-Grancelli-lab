@@ -26,7 +26,7 @@ for(const includeWhey of [false,true]){
  assert.equal(plan.meals.length,5);
  assert.match(describeGuidedMeal(plan.meals[0]),/revueltos|plancha/);
  assert.ok(plan.meals[0].items.some(x=>x.id==="coffee_black"),"Coffee with milk must list both ingredients");
- assert.ok(plan.meals[0].items.find(x=>x.id==="bread").qty<=50,"Do not propose excessive breakfast bread");
+ assert.ok(plan.meals[0].items.find(x=>x.id==="bread").qty<=60,"At most two whole breakfast slices");
  assert.ok(plan.meals[2].items.find(x=>x.id==="chicken").qty>=160,"No tiny lunch protein portions");
  assert.ok(plan.meals.flatMap(x=>x.items).filter(x=>["apple","mandarin"].includes(x.id)).every(x=>x.qty<=220),"Fruit portions stay reasonable");
  const all=plan.meals.flatMap(x=>x.items);

@@ -13,9 +13,19 @@ plan.meals[0].items[0].qty=65;plan.meals[0].items[0].locked=true;
 assert.throws(()=>rebalanceGuidedDay(plan,goal),/unidades enteras/,'Legacy fractional egg lock requires explicit Coach correction');
 plan.meals[0].items[0].qty=100;
 plan=rebalanceGuidedDay(rebalanceGuidedDay(plan,goal),lower);
-assert.ok(Math.abs(guideTotals(plan).totals.p-166.7885)<1e-8,'Exact Work reproduction');
+// The historical input is unchanged. Real whole fruit/white quantities change
+// its former 166.7885 g result; do not preserve that number by hiding fractions.
+const independentlySummedProtein=plan.meals.flatMap(m=>m.items).reduce((sum,item)=>sum+item.qty*item.p,0);
+assert.ok(Math.abs(independentlySummedProtein-167.301)<1e-8,'Whole-unit historical reproduction');
+assert.ok(Math.abs(guideTotals(plan).totals.p-independentlySummedProtein)<1e-8);
 const original=structuredClone(plan),range=guideQuantityRanges(plan);
-assert.ok(Math.abs(range.p.min-161.338)<1e-8);
+// Independent physical minimum using catalog rates and legal whole counts.
+// Eggs/whites preserve their chosen counts; bananas, apple and mandarin have
+// one whole unit as their minimum. Divisible foods retain existing gram floors.
+const physicalMinimumProtein=300*.124+136*.107+480*.0109+150*.0026+90*.008+
+ 80*.12+30*.001+160*.31+100*.027+140*.01+160*.24+120*.0171+40*.026;
+assert.ok(Math.abs(physicalMinimumProtein-162.916)<1e-8);
+assert.ok(Math.abs(range.p.min-physicalMinimumProtein)<1e-8);
 assert.ok(range.p.min>lower.protein_g*1.05,'Quantity-only adjustment cannot meet this target');
 assert.deepEqual(plan,original,'Diagnostics cannot mutate the draft');
 const app=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
@@ -23,7 +33,7 @@ const feedback=app.slice(app.indexOf('function guidedTargetFeedback('),app.index
 const context={guideQuantityRanges,num:(v,d)=>Number(v).toFixed(d)};vm.createContext(context);
 vm.runInContext(feedback,context);
 assert.match(context.guidedTargetFeedback(guideDeviation(plan,lower),plan),/Recalcular cantidades no alcanza/);
-assert.match(context.guidedTargetFeedback(guideDeviation(plan,lower),plan),/161.3/);
+assert.match(context.guidedTargetFeedback(guideDeviation(plan,lower),plan),/162.9/);
 const revised=removeFlexibleFood(plan,'almuerzo',0,lower);
 assert.ok(['k','p','c','f'].every(k=>Math.abs(guideDeviation(revised,lower)[k].percent)<1.5));
 assert.equal(revised.meals[0].items[0].qty,100,'Manual whole units survive removal and redistribution');
@@ -35,7 +45,7 @@ assert.equal(invalid.meals[0].items[0].qty,500,'Invalid lock is reported, never 
 const recipe=structuredClone(plan);
 Object.assign(recipe.meals[0].items[0],{qty:15,recipeComponent:true,locked:true});
 assert.equal(rebalanceGuidedDay(recipe,lower).meals[0].items[0].qty,15);
-console.log('PASS P28W: exact 166.7885g reproduction, infeasible 161.338g floor, actionable UI diagnostic, manual/recipe locks, removal redistribution <1.5%, original preserved. Isolated only.');
+console.log('PASS P28W: exact 167.301g reproduction, infeasible 162.916g floor, actionable UI diagnostic, manual/recipe locks, removal redistribution <1.5%, original preserved. Isolated only.');
 
 const fresh=generateFlexibleGuidedDay(sourceReviewCatalogForSyntheticCoach(),lower,{restrictions:['celiac'],restrictionStatus:'declared'});
 assert.equal(fresh.meals.length,6);

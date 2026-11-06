@@ -1,0 +1,686 @@
+{
+  "scope": "Local synthetic transport and pure-data tests; no hosted writes or visual browser validation",
+  "tests": [
+    {
+      "test": "guided-countable-portions.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 1.115,
+      "log": "final-guided-countable-portions.test.mjs.log"
+    },
+    {
+      "test": "guided-countable-all-foods.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.299,
+      "log": "final-guided-countable-all-foods.test.mjs.log"
+    },
+    {
+      "test": "guide-celiac-whole-eggs.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 1.323,
+      "log": "final-guide-celiac-whole-eggs.test.mjs.log"
+    },
+    {
+      "test": "coach-catalog-guide.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.169,
+      "log": "final-coach-catalog-guide.test.mjs.log"
+    },
+    {
+      "test": "admin-guide-health-scope.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.158,
+      "log": "final-admin-guide-health-scope.test.mjs.log"
+    },
+    {
+      "test": "guide-publication-outcomes.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.144,
+      "log": "final-guide-publication-outcomes.test.mjs.log"
+    },
+    {
+      "test": "guide-scroll-gesture.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.086,
+      "log": "final-guide-scroll-gesture.test.mjs.log"
+    },
+    {
+      "test": "coach-guide-schedule.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 6.622,
+      "log": "final-coach-guide-schedule.test.mjs.log"
+    },
+    {
+      "test": "guide-quantity-feasibility.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 1.145,
+      "log": "final-guide-quantity-feasibility.mjs.log"
+    },
+    {
+      "test": "guided-five-meals.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 17.529,
+      "log": "final-guided-five-meals.mjs.log"
+    },
+    {
+      "test": "ncc-six-meal-guide-contract.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 16.845,
+      "log": "final-ncc-six-meal-guide-contract.mjs.log"
+    },
+    {
+      "test": "coach105-patterns-fasting-e2e-contract.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.08,
+      "log": "final-coach105-patterns-fasting-e2e-contract.mjs.log"
+    },
+    {
+      "test": "diet-pattern-workbench.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.079,
+      "log": "final-diet-pattern-workbench.mjs.log"
+    },
+    {
+      "test": "period-report.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.097,
+      "log": "final-period-report.mjs.log"
+    },
+    {
+      "test": "period-report-ui.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.726,
+      "log": "final-period-report-ui.mjs.log"
+    },
+    {
+      "test": "period-report-goals.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.111,
+      "log": "final-period-report-goals.mjs.log"
+    },
+    {
+      "test": "period-report-history.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.072,
+      "log": "final-period-report-history.mjs.log"
+    },
+    {
+      "test": "period-luxury-report.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.087,
+      "log": "final-period-luxury-report.mjs.log"
+    },
+    {
+      "test": "weekly-luxury-report.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.103,
+      "log": "final-weekly-luxury-report.mjs.log"
+    },
+    {
+      "test": "weekly-luxury-editor.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.087,
+      "log": "final-weekly-luxury-editor.mjs.log"
+    },
+    {
+      "test": "weekly-metrics.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.072,
+      "log": "final-weekly-metrics.mjs.log"
+    },
+    {
+      "test": "weekly-consistency.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.066,
+      "log": "final-weekly-consistency.mjs.log"
+    },
+    {
+      "test": "coach-guide-restriction-scope.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.084,
+      "log": "final-coach-guide-restriction-scope.mjs.log"
+    },
+    {
+      "test": "period-report-pdf.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.722,
+      "log": "final-period-report-pdf.mjs.log"
+    },
+    {
+      "test": "guided-divisible-repair.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.084,
+      "log": "final-guided-divisible-repair.test.mjs.log"
+    },
+    {
+      "test": "guide-candidate-assets.test.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.1,
+      "log": "final-guide-candidate-assets.test.mjs.log"
+    },
+    {
+      "test": "guided-meal-picker.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.091,
+      "log": "final-guided-meal-picker.mjs.log"
+    },
+    {
+      "test": "adapted-guide-editor-private.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.102,
+      "log": "final-adapted-guide-editor-private.mjs.log"
+    },
+    {
+      "test": "coach-bound-guide-preparation-private.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.077,
+      "log": "final-coach-bound-guide-preparation-private.mjs.log"
+    },
+    {
+      "test": "coach-guide-connection-private.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.077,
+      "log": "final-coach-guide-connection-private.mjs.log"
+    },
+    {
+      "test": "weekly-report-state-private.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.084,
+      "log": "final-weekly-report-state-private.mjs.log"
+    },
+    {
+      "test": "weekly-report-transport-private.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.068,
+      "log": "final-weekly-report-transport-private.mjs.log"
+    },
+    {
+      "test": "weekly-report-reply-to-coach.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.073,
+      "log": "final-weekly-report-reply-to-coach.mjs.log"
+    },
+    {
+      "test": "weekly-luxury-integration-contract.mjs",
+      "exitCode": 0,
+      "elapsedSeconds": 0.066,
+      "log": "final-weekly-luxury-integration-contract.mjs.log"
+    }
+  ],
+  "syntax": [
+    {
+      "path": "efg-nutrition/pilot/adapted-guide-editor.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/adapted-guide-view.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/adapted-guided-day.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/argentine-manufacturer-labels.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/auth-hydration-gate.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/bound-guide-publication-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/clinical-guide-connection.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-adapted-workspace.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-bound-guide-preparation.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-catalog-guide.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-draft-review.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-food-selection.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-goal-write-gate.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-connection.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-intake-adapter.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-recipe-serving.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-restriction-scope.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-guide-schedule.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-health-response-provider.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-flow.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-prefill.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-intake-queue.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-legal-bridge.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-entry-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-intake-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-pilot-legal-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-plan-draft-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-private-history.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-relaunch-entry-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-relaunch-onboarding.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-release-plan-gate.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-reviewed-sources.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-roster-freshness.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-shared-recipes-read-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-student-journey.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/coach-versioned-mode.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/daily-motivation.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/daily-report.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/day-lifecycle.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/diet-pattern-workbench.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/dietary-traffic-light.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fdc-selected-export.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fit-recipe-illustrations.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fit-recipe-photos.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/fit-recipes.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-catalog.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-compatibility-adapter.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-compatibility.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-expansion.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-plant-bakery-phase3.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/food-source-audit.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/goal-adjustments.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guide-compatibility.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guide-meal-education.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-countable-portions.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-day-v2.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-day.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/guided-meal-picker.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/gut-clinical-workbench.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/habitual-preview.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/legal-onboarding.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/logout-session.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/macro-engine.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/major-release-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/major-release-reauth-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/messages-ui.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/notifications-ui.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/nutrition-daily-tip.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/nutrition-science.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/official-composition-candidate.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pastel-day.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-luxury-report.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-goals.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-history.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-pdf-v1.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-pdf-version.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report-pdf.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/period-report.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/persisted-guide-provider.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-day-balance.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-intake-draft.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-meal-draft.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-planning-preview.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/personal-workspace.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-guide-install-config.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-guide-lifecycle.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-participation-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot-participation-demo.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pilot.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/planner.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/progress-charts.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/pull-refresh.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/qa-reviewed-sources.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-catalog-bridge.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-ingredients-equal.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/recipe-models.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/regional-composite-models.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/release-communications.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/release-flow.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/science-welcome.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/science-wellbeing.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/server-compatibility-client.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/student-food-restrictions.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/student-restriction-declaration.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/user-photo-labels.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/vendor/dejavu-sans-2.37.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/vendor/jspdf-4.2.1.umd.min.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/version-notice.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/walking-activity-ui.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/walking-steps-estimator.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-consistency.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-luxury-editor.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-luxury-report.js",
+      "exitCode": 0
+    },
+    {
+      "path": "efg-nutrition/pilot/weekly-metrics.js",
+      "exitCode": 0
+    }
+  ],
+  "suitePasses": 34,
+  "suiteTotal": 34,
+  "syntaxPasses": 114,
+  "syntaxTotal": 114,
+  "pdfArtifactValidation": {
+    "command": "python efg-nutrition/tests/verify-period-pdf.py",
+    "exitCode": 0,
+    "samples": [
+      {
+        "days": 10,
+        "pages": 3
+      },
+      {
+        "days": 90,
+        "pages": 7
+      }
+    ],
+    "limitations": "Not browser, mobile viewer, or hosted backend validation"
+  }
+}

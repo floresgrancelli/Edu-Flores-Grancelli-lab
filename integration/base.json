@@ -1,0 +1,8 @@
+{
+  "ref": "9aaddfe21d77302224f93ea82be3b215c86769d6",
+  "git_blob_sha": "6cfb981876043274eb7c1756f1b9c6e5eb37c620",
+  "input_sha256": "7d6479d7ef3e5d99b8e39279e126c98e1c7747918e261abe80d18bcb41081c17",
+  "overlay_sha256": "701232c28b46a1261bc2dadda8db36dcd7867809a5fe63e6a077cc9ef117e94e",
+  "enabled": false,
+  "applied_to_repo": false
+}

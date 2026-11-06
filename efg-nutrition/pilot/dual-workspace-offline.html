@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-BcvGlGMwT12F1hlGCDCeFQWM4+ZcyA2M11rcLIcABfU='; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Coach piloto y doble espacio · DEMO ficticia</title>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#16332f;background:#f3f8f6}*{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:24px}h1{font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.2;margin:.4em 0}h2{font-size:1.2rem}.banner{border:2px solid #a87915;background:#fff8e6;padding:16px;border-radius:14px}.eyebrow{font-size:.75rem;letter-spacing:.12em;font-weight:800}.toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap}.card{background:white;border:1px solid #cadbd5;border-radius:16px;padding:20px;margin:18px 0;box-shadow:0 4px 16px #16332f08}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:20px}label{display:block;font-weight:650;margin:10px 0 5px}input,select,button{font:inherit;min-height:46px;border-radius:8px;border:1px solid #a1bcb3;padding:9px 12px;max-width:100%}input,select{width:100%;background:white;color:inherit}button{background:#216c58;color:white;border-color:#216c58;font-weight:700;cursor:pointer;margin:12px 4px 0 0}button.secondary{background:#edf5f1;color:#164a3c}button:disabled{opacity:.55;cursor:wait}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #a87915;outline-offset:3px}.hint{color:#48645b;font-size:.9rem}.badge{display:inline-block;background:#e4f5ee;border-radius:20px;padding:3px 10px;font-size:.85rem;font-weight:650}.status{padding:12px;border-radius:10px;background:#eaf4fc;min-height:48px;overflow-wrap:anywhere}.status.error{background:#fff0ed;color:#8f3324}.org{border-top:1px solid #dde7e2;padding:12px 0}.metric{font-size:1.8rem;font-weight:800}.hidden{display:none}small{display:block}.toolbar>div{flex:1;min-width:200px}
+</style>
+<main>
+ <div class="banner"><strong>DEMO LOCAL · SOLO DATOS FICTICIOS</strong><br>Sin conexión a servidores. No crea cuentas reales, no envía invitaciones y no cambia permisos. La reclamación de una cuenta nueva está probada con identidades ficticias; la pantalla de OTP no está integrada.</div>
+ <p class="eyebrow">NUTRICIÓN CON-CIENCIA · CANDIDATA AISLADA</p>
+ <h1>Una cuenta, dos espacios independientes</h1>
+ <p>La alumna conserva su seguimiento. Su espacio de coach tiene alumnos y cupos propios.</p>
+ <div class="toolbar"><div><label for="identity">Identidad ficticia</label><select id="identity"><option value="admin">Administrador DEMO</option><option value="learner">Alumna DEMO</option><option value="other">Otro coach DEMO</option></select></div><div><label for="workspace">Espacio actual</label><select id="workspace"></select></div></div>
+ <p id="status" class="status" role="status" aria-live="polite">Cargando la simulación…</p>
+ <section id="admin" class="card hidden"><h2>Agregar coach de prueba</h2><span class="badge">Licencia gratuita</span><p class="hint">Elegí el cupo. Si la cuenta ya es alumna, su vínculo y su historial se conservan.</p>
+  <form id="create-form"><div class="grid"><div><label for="coach-email">Correo de la cuenta</label><input id="coach-email" name="email" type="email" maxlength="254" required value="learner@example.invalid"></div><div><label for="coach-name">Nombre profesional</label><input id="coach-name" name="name" required minlength="2" maxlength="70" value="Coach DEMO"></div><div><label for="coach-seats">Cupo de alumnos</label><input id="coach-seats" name="seats" type="number" min="1" max="10000" step="1" required value="3"></div></div><button type="submit">Agregar coach ficticio</button></form>
+  <h2>Coaches de prueba</h2><div id="managed"></div>
+ </section>
+ <section id="student" class="card hidden"><span class="badge">Mi seguimiento</span><h2>Sigo siendo alumna de mi entrenador</h2><p id="relationship"></p><p class="hint">Mi historial y mi consentimiento no se modifican al habilitar o abrir Mis alumnos.</p><button id="revoke" class="secondary" type="button">Simular retiro de consentimiento</button></section>
+ <section id="coach" class="card hidden"><span class="badge">Mis alumnos</span><h2 id="coach-title"></h2><p id="quota" class="metric"></p><p class="hint">Los alumnos activos y las invitaciones pendientes ocupan cupo.</p><form id="terms-form"><p>La aceptación como alumna no reemplaza la aceptación profesional. Documentos ficticios sin efectos legales.</p><label><input id="accept-terms" type="checkbox" required> Acepto ambas versiones ficticias para este ensayo</label><button type="submit">Aceptar condiciones ficticias</button></form><form id="invite-form"><div class="grid"><div><label for="student-email">Correo ficticio del alumno</label><input id="student-email" type="email" maxlength="254" required value="pupil-1@example.invalid"></div><div><label for="student-name">Nombre</label><input id="student-name" required minlength="2" maxlength="70" value="Alumno DEMO"></div></div><button type="submit">Reservar cupo ficticio</button></form></section>
+ <section id="personal" class="card hidden"><h2>Mi día</h2><p>Esta identidad no tiene un espacio de coach candidato. Solo el administrador puede habilitarlo.</p></section>
+ <p class="hint">Para recorrerlo: agregá a learner@example.invalid desde Administrador DEMO; elegí Alumna DEMO y alterná entre Mi seguimiento y Mis alumnos. No se admite ningún correo real.</p>
+</main>
+<script>(async()=>{
+const Candidate=(()=>{
+// Candidate only. NOT imported by pilot.js; never enables existing permissions.
+const DUAL_WORKSPACE_RELEASE_ENABLED = false;
+const API = Object.freeze({
+  contexts: 'ncc_dual_workspace_contexts_v1',
+  create: 'ncc_pilot_workspace_create_v1',
+  seats: 'ncc_pilot_workspace_set_seats_v1',
+  invite: 'ncc_pilot_workspace_invite_student_v1',
+  claim: 'ncc_pilot_workspace_claim_v1',
+  acceptTerms: 'ncc_pilot_workspace_accept_terms_v1',
+  roster: 'ncc_pilot_workspace_roster_v1',
+  receipt: 'ncc_pilot_workspace_receipt_v1'
+});
+
+function fail(code, message) {
+  throw Object.assign(new Error(message), {code});
+}
+function seatLimit(value) {
+  if ((typeof value !== 'number' && typeof value !== 'string') ||
+      typeof value === 'string' && !/^\d+$/.test(value.trim()))
+    fail('INVALID_SEATS', 'Elegí una cantidad entera de cupos.');
+  const count = Number(value);
+  if (!Number.isSafeInteger(count) || count < 1 || count > 10000)
+    fail('INVALID_SEATS', 'Los cupos deben estar entre 1 y 10.000.');
+  return count;
+}
+function accountInput(email, name) {
+  if (typeof email !== 'string' || typeof name !== 'string')
+    fail('INVALID_ACCOUNT', 'Completá el nombre y el correo.');
+  email = email.trim().toLowerCase();
+  name = name.trim();
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      name.length < 2 || name.length > 70 || /[\u0000-\u001f\u007f]/.test(name))
+    fail('INVALID_ACCOUNT', 'Revisá el nombre y el correo.');
+  return {email, name};
+}
+function occupancy(profiles, invitations, organizationId) {
+  const active = profiles.filter(p => p.organization_id === organizationId &&
+    p.role === 'student' && p.active === true).length;
+  const pending = invitations.filter(i => i.organization_id === organizationId &&
+    i.role === 'student' && !i.claimed_by && !i.revoked_at).length;
+  return {active, pending, used: active + pending};
+}
+const clone = value => structuredClone(value);
+const canonical = value => JSON.stringify(Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+const sameContext = (a, b) => !!a && !!b && a.userId === b.userId &&
+  a.sessionId === b.sessionId && !!a.userId && !!a.sessionId;
+const id = value => typeof value === 'string' && value.length > 0 && value.length <= 128;
+function validateContexts(raw, actor) {
+  if (!raw || raw.user_id !== actor.userId || raw.active !== true ||
+      !['admin', 'coach', 'student'].includes(raw.profile_role) ||
+      !Array.isArray(raw.coach_contexts)) fail('INVALID_CONTEXT', 'No se pudo verificar tu espacio.');
+  if ((raw.profile_role === 'student') !== Boolean(raw.student_context))
+    fail('INVALID_CONTEXT', 'Falta verificar el vínculo original de alumno.');
+  if (raw.student_context && (raw.profile_role !== 'student' ||
+      !id(raw.student_context.organization_id) || !id(raw.student_context.coach_id)))
+    fail('INVALID_CONTEXT', 'El vínculo de alumno no coincide.');
+  const seen = new Set();
+  for (const org of raw.coach_contexts) {
+    if (!id(org.id) || org.coach_id !== actor.userId || org.is_test !== true ||
+        !['trial', 'active'].includes(org.status) || seen.has(org.id))
+      fail('INVALID_CONTEXT', 'El espacio de coach no coincide con tu cuenta.');
+    seatLimit(org.seat_limit);
+    if (![org.active_students, org.pending_invitations].every(n => Number.isSafeInteger(n) && n >= 0) ||
+        org.active_students + org.pending_invitations > org.seat_limit)
+      fail('INVALID_CONTEXT', 'No se pudieron verificar los cupos.');
+    seen.add(org.id);
+  }
+  return clone(raw);
+}
+
+// readSession is authoritative only for stale-response protection, never authorization.
+// Every server RPC must independently derive auth.uid() and check organization scope.
+function createDualWorkspaceClient({rpc, readSession, enabled = DUAL_WORKSPACE_RELEASE_ENABLED,
+  requestId = () => crypto.randomUUID()} = {}) {
+  let actor = null, epoch = 0, workspaceEpoch = 0, selected = null, contexts = null;
+  let refreshVersion = 0;
+  const operations = new Map();
+  function sync() {
+    const next = readSession?.();
+    if (!sameContext(actor, next)) {
+      actor = next ? {...next} : null;
+      epoch++; workspaceEpoch++; contexts = null; selected = null; operations.clear(); refreshVersion++;
+    }
+    if (!enabled) fail('FEATURE_DISABLED', 'La función todavía no está habilitada.');
+    if (!actor?.userId || !actor?.sessionId) fail('LOGIN_REQUIRED', 'Volvé a iniciar sesión.');
+    return {epoch, actor: {...actor}};
+  }
+  function current(ticket) {
+    sync();
+    if (ticket.epoch !== epoch || !sameContext(ticket.actor, actor))
+      fail('STALE_CONTEXT', 'La cuenta cambió. Volvé a abrir este espacio.');
+  }
+  async function call(name, args, ticket) {
+    current(ticket);
+    const result = await rpc(name, args);
+    current(ticket);
+    if (result?.error) throw Object.assign(new Error(result.error.message), result.error);
+    return result?.data;
+  }
+  async function refresh() {
+    const ticket = sync(), version = ++refreshVersion;
+    const result = validateContexts(await call(API.contexts, {}, ticket), ticket.actor);
+    if (version !== refreshVersion) fail('STALE_CONTEXT', 'Llegó una consulta anterior.');
+    contexts = result;
+    for (const [key, op] of operations) if (op.state === 'done') operations.delete(key);
+    if (!selected || !choices().some(c => c.key === selected)) {
+      workspaceEpoch++;
+      selected = result.student_context ? 'student' : result.coach_contexts[0] ?
+        'coach:' + result.coach_contexts[0].id : 'personal';
+    }
+    return snapshot();
+  }
+  function choices() {
+    if (!contexts) return [];
+    return [contexts.student_context ? {key: 'student', label: 'Mi seguimiento como alumna/o'} :
+      {key: 'personal', label: 'Mi día'}, ...contexts.coach_contexts.map(o =>
+      ({key: 'coach:' + o.id, label: 'Mis alumnos · ' + o.name, organizationId: o.id}))];
+  }
+  function snapshot() { sync(); return clone({contexts, selected, choices: choices()}); }
+  function select(key) {
+    sync();
+    if (!choices().some(c => c.key === key)) fail('WRONG_WORKSPACE', 'Ese espacio no está disponible.');
+    if(selected!==key)workspaceEpoch++;
+    selected = key;
+    return snapshot(); // Only changes local presentation, never account role/consent.
+  }
+  function requireAdmin() {
+    sync();
+    if (contexts?.profile_role !== 'admin') fail('ADMIN_REQUIRED', 'Solo el administrador administra coaches.');
+  }
+  async function mutate(kind, args) {
+    const ticket = sync();
+    const professionalEpoch=workspaceEpoch;
+    const fingerprint = canonical(args);
+    let op = operations.get(kind);
+    if (op && op.fingerprint !== fingerprint && op.state !== 'done')
+      fail('RESOLVE_PENDING', 'Primero verificá el resultado de la operación anterior.');
+    if (op?.fingerprint === fingerprint && op.inflight) return op.inflight;
+    if (op?.fingerprint === fingerprint && op.state === 'done') return clone(op.result);
+    if (!op || op.fingerprint !== fingerprint) {
+      op = {requestId: requestId(), fingerprint, state: 'new', args: clone(args)};
+      operations.set(kind, op);
+    }
+    const execute = async () => {
+      try {
+        if (op.state === 'uncertain') {
+          const receipt = await call(API.receipt, {p_request_id: op.requestId}, ticket);
+          if (receipt) {
+            if (receipt.operation !== kind || canonical(receipt.payload || {}) !== op.fingerprint)
+              fail('INVALID_RECEIPT', 'No se pudo verificar la operación anterior.');
+            if(['invite','acceptTerms'].includes(kind)&&professionalEpoch!==workspaceEpoch)
+              fail('STALE_WORKSPACE','El espacio cambió durante la verificación. Volvé a abrirlo.');
+            op.state = 'done'; op.result = clone(receipt.result);
+            return clone(op.result);
+          }
+        }
+        op.state = 'pending';
+        const result = await call(API[kind], {...op.args, p_request_id: op.requestId}, ticket);
+        if(['invite','acceptTerms'].includes(kind)&&professionalEpoch!==workspaceEpoch)
+          fail('STALE_WORKSPACE','El espacio cambió. Verificá el resultado al volver.');
+        if (!result || !id(result.organization_id)) fail('INVALID_RECEIPT', 'Respuesta incompleta del servidor.');
+        op.state = 'done'; op.result = clone(result);
+        return clone(result);
+      } catch (error) {
+        // A network failure is not proof of rollback. Keep the ID for receipt lookup.
+        if (error.outcome === 'not_applied') operations.delete(kind);
+        else op.state = 'uncertain';
+        throw error;
+      } finally { op.inflight = null; }
+    };
+    op.inflight = execute();
+    return op.inflight;
+  }
+  function createPilot({email, name, seats}) {
+    requireAdmin();
+    const account = accountInput(email, name);
+    return mutate('create', {p_email: account.email, p_name: account.name, p_seats: seatLimit(seats)});
+  }
+  function setSeats({organizationId, seats}) {
+    requireAdmin();
+    if (!id(organizationId)) fail('WRONG_WORKSPACE', 'Elegí un coach de prueba.');
+    return mutate('seats', {p_org: organizationId, p_seats: seatLimit(seats)});
+  }
+  function inviteStudent({email, name}) {
+    sync();
+    const org = contexts?.coach_contexts.find(o => 'coach:' + o.id === selected);
+    if (!org) fail('WRONG_WORKSPACE', 'Abrí Mis alumnos antes de invitar.');
+    if(org.legal_ready!==true)fail('PROFESSIONAL_TERMS_REQUIRED','Revisá los términos profesionales de este espacio.');
+    const account = accountInput(email, name);
+    return mutate('invite', {p_org: org.id, p_email: account.email, p_name: account.name});
+  }
+  const claimPilot = () => mutate('claim', {});
+  function acceptSyntheticTerms({termsVersion,privacyVersion,accepted}) {
+    sync();
+    const org=contexts?.coach_contexts.find(o=>'coach:'+o.id===selected);
+    if(!org)fail('WRONG_WORKSPACE','Abrí tu espacio profesional.');
+    if(accepted!==true||termsVersion!=='synthetic-terms-v1'||privacyVersion!=='synthetic-privacy-v1')
+      fail('EXPLICIT_ACCEPTANCE_REQUIRED','La simulación requiere aceptación expresa de ambas versiones ficticias.');
+    return mutate('acceptTerms',{p_org:org.id,p_terms_version:termsVersion,p_privacy_version:privacyVersion});
+  }
+  async function roster(){
+    const ticket=sync(),selection=workspaceEpoch;
+    const org=contexts?.coach_contexts.find(o=>'coach:'+o.id===selected);
+    if(!org)fail('WRONG_WORKSPACE','Abrí tu espacio profesional.');
+    if(org.legal_ready!==true)fail('PROFESSIONAL_TERMS_REQUIRED','Revisá los términos profesionales.');
+    const rows=await call(API.roster,{p_org:org.id},ticket);
+    if(selection!==workspaceEpoch)fail('STALE_WORKSPACE','El espacio cambió durante la consulta.');
+    if(!Array.isArray(rows)||rows.some(r=>r.organization_id!==org.id||!id(r.user_id)||typeof r.nickname!=='string'||
+      typeof r.active!=='boolean'||typeof r.consent_accepted!=='boolean'||Object.keys(r).some(k=>!['user_id','organization_id','nickname','active','consent_accepted'].includes(k))))
+      fail('INVALID_ROSTER','La lista no coincide con el espacio autorizado.');
+    return clone(rows);
+  }
+  return Object.freeze({refresh, snapshot, select, createPilot, setSeats, inviteStudent, claimPilot,acceptSyntheticTerms,roster});
+}
+
+return {API,fail,accountInput,canonical,occupancy,seatLimit,createDualWorkspaceClient};})();
+const Fixture=(()=>{const {API,accountInput,canonical,occupancy,seatLimit}=Candidate;
+// In-memory synthetic service. No database, email, network, keys or account changes.
+const clone = value => structuredClone(value);
+function reject(code, message) {
+  throw Object.assign(new Error(message), {code, outcome: 'not_applied'});
+}
+function syntheticEmail(value) {
+  if (!value.endsWith('@example.invalid')) reject('SYNTHETIC_ONLY', 'Solo correos ficticios .invalid.');
+}
+function seed() {
+  return {
+    profiles: [
+      {user_id:'admin', email:'admin@example.invalid', nickname:'Admin DEMO', role:'admin', organization_id:null, active:true, confirmed:true},
+      {user_id:'mentor', email:'mentor@example.invalid', nickname:'Mentor DEMO', role:'coach', organization_id:null, active:true, confirmed:true},
+      {user_id:'learner', email:'learner@example.invalid', nickname:'Alumna DEMO', role:'student', organization_id:'original', active:true, confirmed:true},
+      {user_id:'other', email:'other@example.invalid', nickname:'Otro coach DEMO', role:'coach', organization_id:null, active:true, confirmed:true},
+      {user_id:'other-student', email:'other-student@example.invalid', nickname:'Alumno ajeno DEMO', role:'student', organization_id:'other-org', active:true, confirmed:true}
+    ],
+    organizations: [
+      {id:'original', name:'Mentor DEMO', coach_id:'mentor', seat_limit:10, status:'trial', is_test:true},
+      {id:'other-org', name:'Otro DEMO', coach_id:'other', seat_limit:10, status:'trial', is_test:true}
+    ],
+    consents:[{student_id:'learner', organization_id:'original', accepted:true},
+      {student_id:'other-student', organization_id:'other-org', accepted:true}],
+    history:[{student_id:'learner', body:'HISTORIAL FICTICIO INALTERADO'}],
+    invitations:[], capabilities:[], pendingCoaches:[], receipts:[], audit:[]
+  };
+}
+function createSyntheticService(initial = seed()) {
+  let db = clone(initial), seq = 0, queue = Promise.resolve();
+  db.accounts ||= db.profiles.map(p=>({user_id:p.user_id,email:p.email,confirmed:p.confirmed}));
+  const count = {};
+  const nextId = prefix => prefix + '-' + (++seq);
+  function identity(userId) {
+    const a=db.accounts.find(a=>a.user_id===userId),p=db.profiles.find(p=>p.user_id===userId);
+    if(!a?.confirmed || p&&!p.active)reject('DENIED','Identidad verificada requerida.');
+    return a;
+  }
+  function actor(userId) {
+    identity(userId);
+    const p = db.profiles.find(p => p.user_id === userId);
+    if (!p?.active || !p.confirmed) reject('DENIED', 'Cuenta activa y verificada requerida.');
+    return p;
+  }
+  function admin(userId) {
+    const p = actor(userId);
+    if (p.role !== 'admin') reject('ADMIN_REQUIRED', 'Solo administrador.');
+    return p;
+  }
+  function own(userId, orgId, needsLegal=true) {
+    actor(userId);
+    const org = db.organizations.find(o => o.id === orgId);
+    if (!org || org.coach_id !== userId || !org.is_test ||
+        !['trial', 'active'].includes(org.status) ||
+        !db.capabilities.some(c => c.user_id === userId && c.organization_id === orgId && c.active))
+      reject('DENIED', 'No hay capacidad profesional vigente para este espacio.');
+    if(needsLegal&&!db.capabilities.some(c=>c.user_id===userId&&c.organization_id===orgId&&
+       c.terms_version==='synthetic-terms-v1'&&c.privacy_version==='synthetic-privacy-v1'))
+      reject('PROFESSIONAL_TERMS_REQUIRED','Faltan términos profesionales vigentes.');
+    return org;
+  }
+  function summary(org) {
+    const {active, pending} = occupancy(db.profiles, db.invitations, org.id);
+    const capability=db.capabilities.find(c=>c.organization_id===org.id);
+    return {...clone(org), active_students:active, pending_invitations:pending,
+      legal_ready:capability?.terms_version==='synthetic-terms-v1'&&capability?.privacy_version==='synthetic-privacy-v1'};
+  }
+  function contexts(userId) {
+    const p = actor(userId);
+    const studentOrg = p.role === 'student' ? db.organizations.find(o => o.id === p.organization_id) : null;
+    return {user_id:userId, profile_role:p.role, active:true,
+      student_context:studentOrg ? {organization_id:studentOrg.id, coach_id:studentOrg.coach_id,
+        consent_accepted:db.consents.some(c => c.student_id === userId &&
+          c.organization_id === studentOrg.id && c.accepted)} : null,
+      coach_contexts:db.organizations.filter(o => o.coach_id === userId && o.is_test &&
+        ['trial','active'].includes(o.status) && db.capabilities.some(c =>
+          c.user_id === userId && c.organization_id === o.id && c.active)).map(summary),
+      managed_coaches:p.role === 'admin' ? db.organizations.filter(o =>
+        db.capabilities.some(c => c.organization_id === o.id) ||
+        db.pendingCoaches.some(c => c.organization_id === o.id && !c.revoked_at)).map(summary) : []};
+  }
+  async function call(userId, name, args = {}) {
+    count[name] = (count[name] || 0) + 1;
+    if (name === API.contexts) return {data:contexts(userId)};
+    if(name===API.roster){
+      const org=own(userId,args.p_org);
+      return {data:db.profiles.filter(p=>p.role==='student'&&p.organization_id===org.id).map(p=>({
+        user_id:p.user_id,organization_id:p.organization_id,nickname:p.nickname,active:p.active,
+        consent_accepted:db.consents.some(c=>c.student_id===p.user_id&&c.organization_id===org.id&&c.accepted)}))};
+    }
+    if (name === API.receipt) {
+      identity(userId);
+      return {data:clone(db.receipts.find(r => r.actor_id === userId && r.request_id === args.p_request_id) || null)};
+    }
+    // One queue emulates the transaction boundary, NOT PostgreSQL concurrency.
+    const job = queue.then(() => transaction(userId, name, args));
+    queue = job.catch(() => {});
+    return job;
+  }
+  function transaction(userId, name, input) {
+    if(name===API.claim)identity(userId);else actor(userId);
+    const before = clone(db);
+    try {
+      const operation = Object.keys(API).find(key => API[key] === name);
+      if (!['create','seats','invite','claim','acceptTerms'].includes(operation)) reject('UNKNOWN_RPC', 'RPC desconocida.');
+      if (!input.p_request_id || typeof input.p_request_id !== 'string') reject('REQUEST_ID_REQUIRED', 'Falta ID de operación.');
+      const {p_request_id:requestId, ...args} = input;
+      const prior = db.receipts.find(r => r.actor_id === userId && r.request_id === requestId);
+      if (prior) {
+        if (prior.operation !== operation || canonical(prior.payload) !== canonical(args))
+          reject('IDEMPOTENCY_CONFLICT', 'El ID corresponde a otra operación.');
+        return {data:clone(prior.result)};
+      }
+      let result;
+      if(operation==='acceptTerms'){
+        const org=own(userId,args.p_org,false);
+        if(args.p_terms_version!=='synthetic-terms-v1'||args.p_privacy_version!=='synthetic-privacy-v1')
+          reject('INVALID_LEGAL_VERSION','Versión profesional inválida.');
+        const capability=db.capabilities.find(c=>c.user_id===userId&&c.organization_id===org.id);
+        capability.terms_version=args.p_terms_version;capability.privacy_version=args.p_privacy_version;
+        result={organization_id:org.id,legal_ready:true};
+      }else if(operation==='claim'){
+        const account=identity(userId);syntheticEmail(account.email);
+        const invite=db.pendingCoaches.find(i=>i.email===account.email&&!i.revoked_at&&(!i.claimed_by||i.claimed_by===userId));
+        if(!invite)reject('NO_INVITATION','No hay invitación para esta identidad.');
+        const org=db.organizations.find(o=>o.id===invite.organization_id);
+        let p=db.profiles.find(p=>p.user_id===userId);
+        if(!org?.is_test||!['trial','active'].includes(org.status)||org.coach_id&&org.coach_id!==userId||
+           p&&(p.role==='admin'||p.email!==account.email||!p.active)||
+           db.organizations.some(o=>o.coach_id===userId&&o.id!==org.id)||
+           db.capabilities.some(c=>c.user_id===userId&&(c.organization_id!==org.id||!c.active)))
+          reject('DENIED','La invitación no puede habilitar esta cuenta.');
+        if(!p){p={user_id:userId,email:account.email,nickname:invite.name,role:'coach',organization_id:null,active:true,confirmed:true};db.profiles.push(p);}
+        org.coach_id=userId;invite.claimed_by=userId;
+        if(!db.capabilities.some(c=>c.user_id===userId))db.capabilities.push({user_id:userId,organization_id:org.id,active:true});
+        result={organization_id:org.id,seat_limit:org.seat_limit,state:'enabled_verified_account',student_link_preserved:p.role==='student'};
+      } else if (operation === 'create') {
+        admin(userId);
+        const {email, name} = accountInput(args.p_email, args.p_name);
+        syntheticEmail(email);
+        const seats = seatLimit(args.p_seats);
+        const p = db.profiles.find(p => p.email.toLowerCase() === email);
+        if (p && (!p.active || !p.confirmed || p.role === 'admin')) reject('TARGET_INELIGIBLE', 'Cuenta no elegible.');
+        if (p && (db.organizations.some(o => o.coach_id === p.user_id) ||
+            db.capabilities.some(c => c.user_id === p.user_id)) ||
+            db.pendingCoaches.some(i => i.email === email && !i.revoked_at) ||
+            db.invitations.some(i => i.email === email && !i.revoked_at))
+          reject('ALREADY_ENROLLED', 'Cuenta ya habilitada o invitada.');
+        const org = {id:nextId('pilot'), name, coach_id:p?.user_id || null,
+          seat_limit:seats, status:'trial', is_test:true, license_fee_ars:null};
+        db.organizations.push(org);
+        if (p) db.capabilities.push({user_id:p.user_id, organization_id:org.id, active:true});
+        else db.pendingCoaches.push({id:nextId('coach-invite'), email, name,
+          organization_id:org.id, claimed_by:null, revoked_at:null});
+        result = {organization_id:org.id, seat_limit:seats, state:p ? 'enabled_existing' : 'pending_verified_account',
+          student_link_preserved:p?.role === 'student'};
+      } else if (operation === 'seats') {
+        admin(userId);
+        const org = db.organizations.find(o => o.id === args.p_org && o.is_test &&
+          (db.capabilities.some(c => c.organization_id === o.id) || db.pendingCoaches.some(c => c.organization_id === o.id)));
+        if (!org) reject('DENIED', 'Coach piloto candidato no encontrado.');
+        const seats = seatLimit(args.p_seats), {used} = occupancy(db.profiles, db.invitations, org.id);
+        if (seats < used) reject('SEATS_OCCUPIED', 'El cupo es menor que los alumnos e invitaciones vigentes.');
+        org.seat_limit = seats;
+        result = {organization_id:org.id, seat_limit:seats};
+      } else {
+        const org = own(userId, args.p_org);
+        const {email, name} = accountInput(args.p_email, args.p_name);
+        syntheticEmail(email);
+        if (db.profiles.some(p => p.email.toLowerCase() === email) ||
+            db.invitations.some(i => i.email === email && !i.revoked_at) ||
+            db.pendingCoaches.some(i => i.email === email && !i.revoked_at))
+          reject('ALREADY_ENROLLED', 'La cuenta ya existe o está invitada.');
+        if (occupancy(db.profiles, db.invitations, org.id).used >= org.seat_limit)
+          reject('SEAT_LIMIT_REACHED', 'Se completaron los cupos.');
+        const invitation = {id:nextId('student-invite'), email, nickname:name, role:'student',
+          organization_id:org.id, invited_by:userId, claimed_by:null, revoked_at:null};
+        db.invitations.push(invitation);
+        result = {organization_id:org.id, invitation_id:invitation.id};
+      }
+      db.receipts.push({actor_id:userId, request_id:requestId, operation, payload:clone(args), result:clone(result)});
+      db.audit.push({actor_id:userId, operation, organization_id:result.organization_id});
+      return {data:clone(result)};
+    } catch (error) {
+      db = before;
+      error.outcome = 'not_applied';
+      throw error;
+    }
+  }
+  function canReadStudent(userId, studentId) {
+    try { actor(userId); } catch { return false; }
+    if (userId === studentId) return true;
+    const student = db.profiles.find(p => p.user_id === studentId && p.active && p.role === 'student');
+    const org = db.organizations.find(o => o.id === student?.organization_id &&
+      o.coach_id === userId && ['active','trial'].includes(o.status));
+    if (!org) return false;
+    const p = db.profiles.find(p => p.user_id === userId);
+    const coach = p.role === 'coach' || db.capabilities.some(c =>
+      c.user_id === userId && c.organization_id === org.id && c.active&&
+      c.terms_version==='synthetic-terms-v1'&&c.privacy_version==='synthetic-privacy-v1');
+    return coach && db.consents.some(c => c.student_id === studentId && c.organization_id === org.id && c.accepted);
+  }
+  return {call, canReadStudent, inspect:() => clone(db), count,
+    // Test-only fixtures. No endpoint is offered for these mutations.
+    arrange:fn => {const draft=clone(db); fn(draft); db=draft;}};
+}
+
+return {createSyntheticService};})();
+const Integration=(()=>{const {fail}=Candidate;
+// Isolated integration boundary. Never rewrites legacy state.profile or state.org.
+function createWorkspaceGateway({client,readLegacyPersonal,hasUnsavedDraft=()=>false}={}){
+ let revision=0,rosterCache=null;
+ const reset=()=>{revision++;rosterCache=null;};
+ function verify(){
+  const {contexts}=client.snapshot(),legacy=readLegacyPersonal();
+  if(!contexts||!legacy?.profile||legacy.profile.user_id!==contexts.user_id||
+     legacy.profile.role!==contexts.profile_role)fail('LEGACY_CONTEXT_MISMATCH','La cuenta personal cambió. Revalidá la sesión.');
+  if(contexts.profile_role==='student'&&(legacy.profile.organization_id!==contexts.student_context.organization_id||
+     legacy.organization?.id!==contexts.student_context.organization_id))
+    fail('LEGACY_CONTEXT_MISMATCH','El vínculo personal no coincide. No se abre el espacio profesional.');
+  return {contexts,legacy};
+ }
+ async function refresh(){reset();await client.refresh();verify();return view();}
+ function view(){
+  const {contexts,legacy}=verify(),snapshot=client.snapshot();
+  const professional=contexts.coach_contexts.find(o=>'coach:'+o.id===snapshot.selected)||null;
+  return structuredClone({selected:snapshot.selected,choices:snapshot.choices,
+   originalProfile:legacy.profile,originalOrganization:legacy.organization,
+   professional,professionalState:professional?(professional.legal_ready===true?'candidate_roster':'professional_terms'):'personal',
+   roster:rosterCache});
+ }
+ function enter(key){
+  verify();
+  if(hasUnsavedDraft())fail('UNSAVED_PERSONAL_DRAFT','Guardá o cancelá tu edición actual antes de cambiar de espacio.');
+  reset();client.select(key);return view();
+ }
+ async function roster(){
+  verify();const ticket=revision;rosterCache=null;
+  const data=await client.roster();
+  if(ticket!==revision)fail('STALE_WORKSPACE','La vista cambió; la respuesta anterior se descartó.');
+  verify();rosterCache=structuredClone(data);return structuredClone(data);
+ }
+ function privateStudentData(){
+  // Do not route the new capability through legacy role='coach' handlers.
+  fail('PROFESSIONAL_DATA_NOT_INTEGRATED','Las fichas, guías, mensajes y pagos profesionales requieren integración de servidor revisada.');
+ }
+ return Object.freeze({refresh,view,enter,roster,privateStudentData,clear:reset});
+}
+
+return {createWorkspaceGateway};})();
+const {createDualWorkspaceClient}=Candidate;const {createSyntheticService}=Fixture;const {createWorkspaceGateway}=Integration;
+// Local demo uses only an in-memory fixture, never a Supabase/browser-auth client.
+const service=createSyntheticService();
+let identity='admin', sessionVersion=0, busy=false;
+const element=id=>document.getElementById(id);
+const client=createDualWorkspaceClient({enabled:true,
+  readSession:()=>({userId:identity,sessionId:String(sessionVersion)}),
+  rpc:(name,args)=>service.call(identity,name,args)});
+const gateway=createWorkspaceGateway({client,readLegacyPersonal:()=>{
+ const profile=service.inspect().profiles.find(p=>p.user_id===identity);
+ return {profile,organization:profile?.organization_id?{id:profile.organization_id}:null};
+}});
+const message=(text,error=false)=>{element('status').textContent=text;element('status').className='status'+(error?' error':'');};
+function node(tag,text,className){const n=document.createElement(tag);n.textContent=text;if(className)n.className=className;return n;}
+async function refresh(){await gateway.refresh();render();}
+function render(){
+ const {contexts,selected,choices}=client.snapshot();
+ if(!contexts)return;
+ const picker=element('workspace');picker.replaceChildren();
+ for(const choice of choices){const option=node('option',choice.label);option.value=choice.key;option.selected=choice.key===selected;picker.append(option);}
+ for(const panel of ['admin','student','coach','personal'])element(panel).classList.add('hidden');
+ if(contexts.profile_role==='admin'){
+  element('admin').classList.remove('hidden');const managed=element('managed');managed.replaceChildren();
+  if(!contexts.managed_coaches.length)managed.append(node('p','Todavía no agregaste coaches ficticios.','hint'));
+  for(const org of contexts.managed_coaches){
+   const row=node('div','','org');row.append(node('strong',org.name));
+   row.append(node('small',`${org.active_students+org.pending_invitations} ocupados de ${org.seat_limit} · ${org.coach_id?'Cuenta existente habilitada en la simulación':'Pendiente de cuenta verificada'}`));
+   const form=document.createElement('form'),label=node('label','Nuevo cupo para '+org.name),input=document.createElement('input');
+   input.id='seats-'+org.id;label.htmlFor=input.id;input.type='number';input.min='1';input.max='10000';input.step='1';input.required=true;input.value=String(org.seat_limit);
+   const button=node('button','Guardar cupo ficticio');button.type='submit';form.append(label,input,button);
+   form.addEventListener('submit',event=>{event.preventDefault();run(()=>client.setSeats({organizationId:org.id,seats:input.value}),'Cupo ficticio actualizado.');});
+   row.append(form);managed.append(row);
+  }
+ }
+ if(selected==='student'){
+  element('student').classList.remove('hidden');element('relationship').textContent=`Organización original: ${contexts.student_context.organization_id}. Seguimiento ${contexts.student_context.consent_accepted?'autorizado':'no autorizado'}.`;
+  element('revoke').disabled=!contexts.student_context.consent_accepted;
+ }else if(selected?.startsWith('coach:')){
+  const org=contexts.coach_contexts.find(o=>'coach:'+o.id===selected);element('coach').classList.remove('hidden');
+  element('coach-title').textContent=org.name;element('quota').textContent=`${org.seat_limit-org.active_students-org.pending_invitations} de ${org.seat_limit} cupos disponibles`;
+  element('terms-form').classList.toggle('hidden',org.legal_ready===true);
+  element('invite-form').classList.toggle('hidden',org.legal_ready!==true);
+ }else element('personal').classList.remove('hidden');
+}
+async function run(action,success){
+ if(busy)return;busy=true;
+ element('identity').disabled=true;element('workspace').disabled=true;
+ for(const button of document.querySelectorAll('button'))button.disabled=true;
+ try{await action();await refresh();message(success);}catch(error){message(error.message,true);}
+ finally{busy=false;for(const button of document.querySelectorAll('button'))button.disabled=false;
+  element('identity').disabled=false;element('workspace').disabled=false;render();}
+}
+element('create-form').addEventListener('submit',event=>{event.preventDefault();run(()=>client.createPilot({email:element('coach-email').value,name:element('coach-name').value,seats:element('coach-seats').value}),'Coach ficticio agregado. Cambiá a Alumna DEMO para revisar ambos espacios.');});
+element('invite-form').addEventListener('submit',event=>{event.preventDefault();run(()=>client.inviteStudent({email:element('student-email').value,name:element('student-name').value}),'Invitación ficticia registrada. No se envió ningún correo.');});
+element('terms-form').addEventListener('submit',event=>{event.preventDefault();run(()=>client.acceptSyntheticTerms({accepted:element('accept-terms').checked,termsVersion:'synthetic-terms-v1',privacyVersion:'synthetic-privacy-v1'}),'Aceptación profesional ficticia registrada. Sin efectos legales reales.');});
+element('identity').addEventListener('change',async event=>{identity=event.target.value;sessionVersion++;await run(async()=>{},'Identidad ficticia cambiada.');});
+element('workspace').addEventListener('change',event=>{try{gateway.enter(event.target.value);render();message('Espacio cambiado sin modificar roles ni consentimiento.');}catch(error){message(error.message,true);}});
+element('revoke').addEventListener('click',()=>run(async()=>{service.arrange(db=>{const consent=db.consents.find(c=>c.student_id===identity);if(consent)consent.accepted=false;});},'Consentimiento retirado solo en la simulación.'));
+await refresh();message('Simulación preparada. No hay conexión a servicios reales.');
+
+})();</script>
+</html>

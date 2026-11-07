@@ -1,4 +1,4 @@
-import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r1-20261107';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r2-20261107';
 export const PROFESSIONAL_RELEASE_ENABLED = false;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const valid=x=>typeof x==='string'&&UUID.test(x);
@@ -114,5 +114,97 @@ export function createProfessionalReleaseAdapter({sdk,config,enabled=PROFESSIONA
    return {data:clone(data)};
   }catch(error){throw Object.assign(new Error(error?.code||error?.message||'RELEASE_FAILED'),{code:error?.code||'RELEASE_FAILED',outcome:reserved||action==='reconcileMessage'?'uncertain':'not_applied'});}
  }
- return Object.freeze({bootstrap,selectOrganization,perform,invalidate,dispose(){disposed=true;invalidate();subscription?.data?.subscription?.unsubscribe?.();}});
+
+ // Reuse existing coach modules through a student/org-bound SDK view. The original
+ // profile is returned unchanged; capability authorization remains server-owned.
+ async function studentClient(id) {
+  gate();const s=clone(selected),e=epoch,n=navigation;if(!s)fail('WORKSPACE_REQUIRED');
+  const verify=async()=>{check(e,n);await authority(e,n,s,s.organizationId);await student(s,id,e,n);check(e,n);};
+  await verify();
+  const scope=Object.freeze({...s,studentId:id,backendOrigin:origin(backendOrigin)});
+  const rules={
+   efg_consents:{student_id:id,organization_id:s.organizationId},
+   efg_coach_relaunch_intakes:{student_id:id,organization_id:s.organizationId},
+   efg_student_plan_access:{student_id:id,organization_id:s.organizationId,coach_id:s.userId},
+   efg_coach_plan_drafts:{student_id:id,organization_id:s.organizationId,coach_id:s.userId},
+   efg_daily_logs:{student_id:id},efg_weights:{student_id:id},efg_activities:{student_id:id},efg_goals:{student_id:id},
+   efg_food_plans:{student_id:id,coach_id:s.userId},efg_weekly_reports:{student_id:id,coach_id:s.userId},
+   efg_period_reports:{student_id:id,coach_id:s.userId},
+   efg_payments:{payer_id:id,recipient_id:s.userId,payment_kind:'student_coach'}
+  };
+  const methods=new Set(['select','eq','in','not','is','gte','lte','order','limit','single','maybeSingle','gt','range']);
+  const sameFields=(row,filters)=>row&&Object.entries(filters).every(([key,value])=>row[key]===value);
+  function from(table){
+   check(e,n);if(!Object.hasOwn(rules,table))fail('COACH_TABLE_NOT_ALLOWED');
+   let query=sdk.from(table),written=false;
+   const filters=rules[table],q=new Proxy({}, {get(_target,key){
+    if(key==='then')return (resolve,reject)=>(async()=>{
+     await verify();const response=await query;check(e,n);await verify();
+     if(!response||response.error)return response;
+     const data=response.data,rows=data===null?[]:Array.isArray(data)?data:[data];
+     if(rows.some(row=>!sameFields(row,filters)))fail('STUDENT_DATA_MISMATCH');
+     await verify();return {data:clone(data),error:null};
+    })().then(resolve,reject);
+    if(key==='insert')return input=>{
+     check(e,n);
+     if(!['efg_weekly_reports','efg_period_reports'].includes(table)||written||!input||Array.isArray(input)||
+      !valid(input.id)||input.student_id!==id||input.coach_id!==s.userId||
+      (table==='efg_weekly_reports'?typeof input.week_ending!=='string'||!/^\d{4}-\d\d-\d\d$/.test(input.week_ending):!['period_from','period_to'].every(k=>typeof input[k]==='string'&&/^\d{4}-\d\d-\d\d$/.test(input[k])))||
+      typeof input.report_text!=='string'||input.report_text.length>300000||
+      Object.keys(input).some(k=>!['id','student_id','coach_id',...(table==='efg_period_reports'?['period_from','period_to']:['week_ending']),'report_text'].includes(k)))fail('COACH_WRITE_NOT_ALLOWED');
+     written=true;query=query.insert(clone(input));return q;
+    };
+    if(!methods.has(key))return undefined;
+    return (...args)=>{
+     check(e,n);
+     if(key==='select'){
+      if(typeof args[0]!=='string')fail('INVALID_SELECT');
+      const columns=args[0].split(',').map(x=>x.trim());
+      if(!columns.includes('*'))args[0]=[...new Set([...columns,...Object.keys(filters)])].join(',');
+      query=query.select(...args);for(const [column,value]of Object.entries(filters))query=query.eq(column,value);
+     }else query=query[key](...args);
+     return q;
+    };
+   }});
+   return q;
+  }
+  async function rpc(name,input){
+   const args=clone(input);check(e,n);
+   const signatures={
+    efg_get_coach_health_intake:['p_student'],efg_coach_guide_catalog:['p_student','p_food_ids'],
+    efg_save_coach_plan_draft:['p_student','p_goal','p_guide','p_intake_updated_at','p_expected_revision','p_intake_revision'],
+    efg_publish_coach_plan_draft_atomic:['p_student','p_expected_revision','p_request_id'],
+    ncc_professional_plan_receipt_v1:['p_org','p_student','p_request_id']
+   };
+   const keys=signatures[name];
+   if(!keys||args?.p_student!==id||Object.keys(args).length!==keys.length||keys.some(k=>!Object.hasOwn(args,k)))fail('COACH_RPC_NOT_ALLOWED');
+   if(name==='ncc_professional_plan_receipt_v1'&&(args.p_org!==s.organizationId||!valid(args.p_request_id)))fail('COACH_RPC_NOT_ALLOWED');
+   if(name==='efg_coach_guide_catalog'&&(!Array.isArray(args.p_food_ids)||args.p_food_ids.length>90||args.p_food_ids.some(x=>typeof x!=='string'||x.length>100)))fail('INVALID_FOOD_IDS');
+   if(name==='efg_publish_coach_plan_draft_atomic'&&(!valid(args.p_request_id)||!Number.isSafeInteger(args.p_expected_revision)||args.p_expected_revision<1))fail('INVALID_PUBLICATION');
+   await verify();const response=await sdk.rpc(name,args);check(e,n);await verify();
+   return clone(response);
+  }
+  async function payment(idPayment,status){
+   if(!valid(idPayment)||!['approved','rejected'].includes(status))fail('INVALID_PAYMENT');
+   const before=await result(from('efg_payments').select('*').eq('id',idPayment).single());
+   if(before?.id!==idPayment||before.status!=='pending')fail('PAYMENT_NOT_PENDING');
+   await verify();const changed=await result(sdk.rpc('efg_confirm_payment',{p_payment:idPayment,p_status:status}));check(e,n);
+   if(changed!==true)fail('INVALID_PAYMENT_RECEIPT');
+   const after=await result(from('efg_payments').select('*').eq('id',idPayment).single());
+   if(after?.id!==idPayment||after.status!==status||!stamp(after.reviewed_at))fail('INVALID_PAYMENT_RECEIPT');
+   await verify();return clone(after);
+  }
+  async function receiptUrl(idPayment){
+   if(!valid(idPayment))fail('INVALID_PAYMENT');
+   const payment=await result(from('efg_payments').select('*').eq('id',idPayment).single());
+   if(payment.id!==idPayment||typeof payment.receipt_path!=='string'||!payment.receipt_path||payment.receipt_path.includes('..'))fail('INVALID_PAYMENT');
+   await verify();const signed=await result(sdk.storage.from('efg-receipts').createSignedUrl(payment.receipt_path,60));check(e,n);
+   const url=new URL(signed?.signedUrl);
+   if(url.origin!==scope.backendOrigin||!url.pathname.startsWith('/storage/v1/object/sign/efg-receipts/'))fail('INVALID_RECEIPT_URL');
+   await verify();return url.href;
+  }
+  return Object.freeze({scope,isCurrent(){try{check(e,n);return true;}catch{return false;}},verify,
+   sdk:Object.freeze({from,rpc,auth:Object.freeze({async getUser(){await verify();return {data:{user:{id:s.userId}},error:null};}})}),payment,receiptUrl});
+ }
+ return Object.freeze({bootstrap,selectOrganization,perform,studentClient,invalidate,dispose(){disposed=true;invalidate();subscription?.data?.subscription?.unsubscribe?.();}});
 }

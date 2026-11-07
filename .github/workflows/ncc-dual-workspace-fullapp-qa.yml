@@ -94,6 +94,12 @@ jobs:
           const allowed = new Set([
             '.github/workflows/ncc-dual-workspace-fullapp-qa.yml',
             'efg-nutrition/docs/professional-browser-api-candidate.md',
+            'efg-nutrition/pilot/professional-coach-tools.mjs',
+            'efg-nutrition/pilot/professional-coach-tools-panel.mjs',
+            'efg-nutrition/tests/professional-coach-tools.test.mjs',
+            'efg-nutrition/tests/professional-coach-tools-fixture.mjs',
+            'efg-nutrition/tests/professional-coach-tools-browser.mjs',
+            'efg-nutrition/tests/professional-coach-tools-browser-entry.mjs',
             'efg-nutrition/pilot/professional-release-adapter.mjs',
             'efg-nutrition/pilot/professional-release-journal.mjs',
             'efg-nutrition/tests/professional-release-adapter.test.mjs',
@@ -300,6 +306,7 @@ jobs:
           node efg-nutrition/tests/professional-reconciliation-fullapp-browser.mjs
           if test "${{ matrix.engine }}" = 'chromium'; then
             node efg-nutrition/tests/professional-workspace-release-browser.mjs
+            node efg-nutrition/tests/professional-coach-tools-browser.mjs
           fi
       - name: Preserve synthetic UI evidence without baseline or database material
         if: always()

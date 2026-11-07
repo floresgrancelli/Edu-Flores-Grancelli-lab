@@ -14,6 +14,7 @@ on:
       - 'efg-nutrition/docs/professional-reconciliation-candidate.md'
       - 'efg-nutrition/docs/professional-browser-api-candidate.md'
       - 'efg-nutrition/docs/PROFESSIONAL_RELEASE_ADAPTER.md'
+      - 'efg-nutrition/docs/professional-terms-*.md'
       - 'efg-nutrition/tools/prepare-professional-reconciliation-assets.py'
       - 'efg-nutrition/tools/prepare-professional-screens-assets.py'
       - 'efg-nutrition/pilot/pilot.js'
@@ -47,6 +48,11 @@ env:
 jobs:
   isolated-contracts:
     if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
+    outputs:
+      fullapp_needed: ${{ steps.scope.outputs.fullapp_needed }}
+      postgres_needed: ${{ steps.scope.outputs.postgres_needed }}
+      http_needed: ${{ steps.scope.outputs.http_needed }}
+      real_api_needed: ${{ steps.scope.outputs.real_api_needed }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -55,6 +61,25 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Select changed runtime checks, preserving approved unchanged bridge evidence
+        id: scope
+        env:
+          NCC_EXPLICIT_FULL_RUN: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {appendFileSync} from 'node:fs';
+          const paths=execFileSync('git',['diff','--name-only','166a03a51c10e82ed0a0d9bea9557b726ec5da25','HEAD'],{encoding:'utf8'}).trim().split('\n');
+          const full=process.env.NCC_EXPLICIT_FULL_RUN==='true';
+          const tests={
+            fullapp_needed: full||paths.some(p=>p.includes('/pilot/')||/fullapp|release-browser/.test(p)),
+            postgres_needed: full||paths.some(p=>/dual-workspace-concurrency/.test(p)),
+            http_needed: full||paths.some(p=>/professional-browser-api\/|professional-screens-|professional-mutation-journal/.test(p)),
+            real_api_needed: full||paths.some(p=>/professional-(?:browser-real-api|real-api|browser-api)\//.test(p))
+          };
+          for(const [key,value]of Object.entries(tests))appendFileSync(process.env.GITHUB_OUTPUT,`${key}=${value}\n`);
+          console.log(JSON.stringify(tests));
+          NODE
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -73,6 +98,35 @@ jobs:
             'efg-nutrition/pilot/professional-release-journal.mjs',
             'efg-nutrition/tests/professional-release-adapter.test.mjs',
             'efg-nutrition/docs/PROFESSIONAL_RELEASE_ADAPTER.md',
+            'efg-nutrition/docs/professional-terms-completion-20261107.md',
+            'efg-nutrition/pilot/professional-terms-release-flow.mjs',
+            'efg-nutrition/pilot/professional-terms-release-panel.mjs',
+            'efg-nutrition/pilot/professional-terms-validation.mjs',
+            'efg-nutrition/pilot/professional-workspace-release-client.mjs',
+            'efg-nutrition/pilot/professional-workspace-release-config.mjs',
+            'efg-nutrition/pilot/professional-workspace-release-frame.mjs',
+            'efg-nutrition/pilot/professional-workspace-release-panel.mjs',
+            'efg-nutrition/tests/professional-terms-release-flow.test.mjs',
+            'efg-nutrition/tests/professional-workspace-release-browser-fixture.mjs',
+            'efg-nutrition/tests/professional-workspace-release-browser.mjs',
+            'efg-nutrition/tests/professional-workspace-release-client.test.mjs',
+            'efg-nutrition/docs/professional-terms-candidate.md',
+            'efg-nutrition/docs/professional-terms-sdk-transport.md',
+            'efg-nutrition/docs/professional-terms-v2-contract.md',
+            'efg-nutrition/pilot/professional-terms-candidate.mjs',
+            'efg-nutrition/pilot/professional-terms-fixture-flow.mjs',
+            'efg-nutrition/pilot/professional-terms-fixture-panel.mjs',
+            'efg-nutrition/pilot/professional-terms-journal.mjs',
+            'efg-nutrition/pilot/professional-terms-panel.mjs',
+            'efg-nutrition/pilot/professional-terms-sdk-transport.mjs',
+            'efg-nutrition/tests/professional-terms-fixture-flow.test.mjs',
+            'efg-nutrition/tests/professional-terms-fixture-panel.test.mjs',
+            'efg-nutrition/tests/professional-terms-journal.test.mjs',
+            'efg-nutrition/tests/professional-terms-panel.test.mjs',
+            'efg-nutrition/tests/professional-terms-sdk-transport.test.mjs',
+            'efg-nutrition/tests/professional-terms-test-support.mjs',
+            'efg-nutrition/tests/professional-terms-v2-fixture-vector.json',
+            'efg-nutrition/tests/professional-terms-v2-fixture.mjs',
             'efg-nutrition/tests/professional-browser-real-api/run.mjs',
             'efg-nutrition/tests/professional-browser-real-api/assets-server.mjs',
             'efg-nutrition/tests/professional-browser-real-api/browser.mjs',
@@ -210,6 +264,7 @@ jobs:
 
   fullapp-browser:
     needs: isolated-contracts
+    if: needs.isolated-contracts.outputs.fullapp_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -243,6 +298,9 @@ jobs:
           node efg-nutrition/tests/dual-workspace-fullapp-browser.mjs
           node efg-nutrition/tests/professional-screens-fullapp-browser.mjs
           node efg-nutrition/tests/professional-reconciliation-fullapp-browser.mjs
+          if test "${{ matrix.engine }}" = 'chromium'; then
+            node efg-nutrition/tests/professional-workspace-release-browser.mjs
+          fi
       - name: Preserve synthetic UI evidence without baseline or database material
         if: always()
         uses: actions/upload-artifact@v4
@@ -255,6 +313,7 @@ jobs:
 
   synthetic-postgres-concurrency:
     needs: isolated-contracts
+    if: needs.isolated-contracts.outputs.postgres_needed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -314,7 +373,7 @@ jobs:
 
   real-sdk-browser-http-fixture:
     needs: isolated-contracts
-    if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
+    if: needs.isolated-contracts.outputs.http_needed == 'true' && github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -355,7 +414,7 @@ jobs:
 
   real-sdk-browser-auth-api-demo:
     needs: isolated-contracts
-    if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
+    if: needs.isolated-contracts.outputs.real_api_needed == 'true' && github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:

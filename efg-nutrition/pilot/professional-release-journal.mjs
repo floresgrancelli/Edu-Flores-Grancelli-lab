@@ -1,7 +1,7 @@
 // Stable per-user/workspace lanes + permanent message UUID ledger. No payloads/tokens/sessions.
 const keys=['claimId','key','namespace','operation','id','studentId','senderId','digest'];
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
-function valid(r,state=false){return r&&Object.keys(r).every(k=>[...keys,...(state?['state']:[])].includes(k))&&keys.every(k=>typeof r[k]==='string')&&uuid(r.claimId)&&uuid(r.studentId)&&uuid(r.senderId)&&(r.operation==='sendMessage'?uuid(r.id):r.id==='')&&r.key.length>0&&r.namespace.length>0&&['sendMessage','markRead'].includes(r.operation)&&/^[0-9a-f]{64}$/.test(r.digest)&&(!state||['uncertain','confirmed'].includes(r.state));}
+function valid(r,state=false){return r&&Object.keys(r).every(k=>[...keys,...(state?['state']:[])].includes(k))&&keys.every(k=>typeof r[k]==='string')&&uuid(r.claimId)&&uuid(r.studentId)&&uuid(r.senderId)&&(r.operation==='markRead'?r.id==='':uuid(r.id))&&r.key.length>0&&r.namespace.length>0&&['sendMessage','markRead','create','seats','invite'].includes(r.operation)&&/^[0-9a-f]{64}$/.test(r.digest)&&(!state||['uncertain','confirmed'].includes(r.state));}
 const ledger=r=>JSON.stringify(['uuid',r.namespace,r.id]);
 export function createReleaseJournal(indexedDB = globalThis.indexedDB) {
  let opening;
@@ -31,8 +31,8 @@ export function createReleaseJournal(indexedDB = globalThis.indexedDB) {
    const r=s.get(record.key);r.onsuccess=()=>{
     if(r.result&&(!valid(r.result,true)||r.result.key!==record.key||r.result.namespace!==record.namespace||r.result.operation!==record.operation||r.result.studentId!==record.studentId||r.result.senderId!==record.senderId))return abort();
     if(r.result&&r.result.state!=='confirmed')return done(false);
-    const put=()=>{s.put({...record,state:'uncertain'});if(record.operation==='sendMessage')s.put({...record,key:ledger(record),state:'uncertain'});done(true);};
-    if(record.operation!=='sendMessage')return put();
+    const put=()=>{s.put({...record,state:'uncertain'});if(record.operation!=='markRead')s.put({...record,key:ledger(record),state:'uncertain'});done(true);};
+    if(record.operation==='markRead')return put();
     const l=s.get(ledger(record));l.onsuccess=()=>{if(l.result)return done(false);put();};
    };
   });},
@@ -41,7 +41,7 @@ export function createReleaseJournal(indexedDB = globalThis.indexedDB) {
    if(!r.result||!valid(r.result,true)||r.result.key!==key)return abort();
    if(!keys.every(k=>r.result[k]===expected[k]))return done(false);
    const put=()=>{s.put({...r.result,state:'confirmed'});done(true);};
-   if(r.result.operation!=='sendMessage')return put();
+   if(r.result.operation==='markRead')return put();
    const l=s.get(ledger(r.result));l.onsuccess=()=>{if(!l.result||!valid(l.result,true)||!keys.filter(k=>k!=='key').every(k=>l.result[k]===r.result[k]))return abort();s.put({...l.result,state:'confirmed'});put();};
   };});}
  });

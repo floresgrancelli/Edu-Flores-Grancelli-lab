@@ -1,4 +1,4 @@
-import {createReleaseJournal} from './professional-release-journal.mjs';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r1-20261107';
 export const PROFESSIONAL_RELEASE_ENABLED = false;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const valid=x=>typeof x==='string'&&UUID.test(x);
@@ -35,7 +35,7 @@ export function createProfessionalReleaseAdapter({sdk,config,enabled=PROFESSIONA
  async function authority(e,n,expected,organizationId) {
   const who=await identity(e,n);if(expected&&!same(who,expected))fail('STALE_AUTH');
   const profile=await result(sdk.from('efg_profiles').select('*').eq('user_id',who.userId).single());check(e,n);
-  if(profile?.user_id!==who.userId||profile.active!==true||!['student','coach'].includes(profile.role))fail('PROFILE_REQUIRED');
+  if(profile?.user_id!==who.userId||profile.active!==true||!['student','coach','admin'].includes(profile.role))fail('PROFILE_REQUIRED');
   const contexts=await result(sdk.rpc('ncc_dual_workspace_contexts_v1',{}));check(e,n);
   if(contexts?.user_id!==who.userId||contexts.active!==true||contexts.profile_role!==profile.role||!Array.isArray(contexts.coach_contexts))fail('INVALID_CONTEXTS');
   if(profile.role==='student'){

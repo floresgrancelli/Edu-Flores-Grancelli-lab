@@ -33,7 +33,7 @@ try {
   await page.goto(origin+'/efg-nutrition/tests/professional-screens-preview.html');
   const initial=await page.evaluate(async()=>{const {fixture}=await import('./professional-screens-preview.mjs');return fixture.personalSnapshot();});
   const off=await page.evaluate(async()=>{
-   const {mountProfessionalScreens}=await import('../pilot/professional-screens-panel.mjs?v=ncc-professional-screens-r1-20261107');
+   const {mountProfessionalScreens}=await import('../pilot/professional-screens-panel.mjs?v=ncc-professional-reconciliation-r1-20261107');
    const root=document.createElement('div');let calls=0;
    const panel=mountProfessionalScreens({root,transport:{perform(){calls++;}}});
    return {result:await panel.ready,children:root.children.length,calls};

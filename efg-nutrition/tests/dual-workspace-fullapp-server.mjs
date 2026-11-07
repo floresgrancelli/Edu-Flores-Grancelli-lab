@@ -9,8 +9,13 @@ const pilotPath='/efg-nutrition/pilot/pilot.js';
 const fixtureBase='/efg-nutrition/tests/';
 const transparent=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Y9ycAAAAASUVORK5CYII=','base64');
 function once(source,before,after){assert.equal(source.split(before).length,2,'Expected exact fixture marker: '+before);return source.replace(before,after);}
-export function syntheticResponse(pathname,source,{enabled=true,professionalScreens=false,professionalFixture=professionalScreens}={}){
+export function syntheticResponse(pathname,source,{enabled=true,professionalScreens=false,professionalFixture=professionalScreens,professionalReconciliation=false}={}){
+ if(professionalReconciliation)assert.ok(enabled&&professionalScreens&&professionalFixture,'Reconciliation requires the complete synthetic fixture');
  let value=source;
+ if(professionalReconciliation&&pathname==='/efg-nutrition/pilot/professional-mutation-journal.mjs')
+  value=once(value,'export const PROFESSIONAL_RECONCILIATION_ENABLED = false;','export const PROFESSIONAL_RECONCILIATION_ENABLED = true;');
+ if(professionalReconciliation&&pathname===fixtureBase+'professional-screens-fullapp-sdk.mjs')
+  value=once(value,'const PERSIST_FICTIONAL_BACKEND = false;','const PERSIST_FICTIONAL_BACKEND = true;');
  if(pathname===pilotPath){
   value=once(value,'"https://esm.sh/@supabase/supabase-js@2.118.0"','"../tests/dual-workspace-fullapp-sdk.mjs"');
   value=value.replace(/^const SUPABASE_URL=.*;$/m,'const SUPABASE_URL=new URL("/__ncc_fixture__/supabase",location.origin).href;');
@@ -35,8 +40,9 @@ export function syntheticResponse(pathname,source,{enabled=true,professionalScre
  value=value.replace(/(?<=[("'])\/\/[^\s"'<>`)\\]+/g,'/__ncc_fixture__/placeholder.png');
  return value;
 }
-export async function startSyntheticServer({enabled=true,professionalScreens=false,professionalFixture=professionalScreens}={}){
+export async function startSyntheticServer({enabled=true,professionalScreens=false,professionalFixture=professionalScreens,professionalReconciliation=false}={}){
  assert.equal(process.env.NCC_R4_SYNTHETIC_FULL_APP,'1','Opt in to the local synthetic fixture explicitly');
+ if(professionalReconciliation)assert.ok(enabled&&professionalScreens&&professionalFixture,'Reconciliation requires the complete synthetic fixture');
  const served=[],missing=[],external=[];
  const server=createServer((request,response)=>{
   try{
@@ -52,7 +58,7 @@ export async function startSyntheticServer({enabled=true,professionalScreens=fal
     body=transparent;contentType='image/png';
    }else{
     body=readFileSync(file);contentType=({'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.avif':'image/avif'}[type]||'application/octet-stream');
-    if(['.html','.js','.mjs','.css'].includes(type))body=syntheticResponse(pathname,body.toString(),{enabled,professionalScreens,professionalFixture});
+    if(['.html','.js','.mjs','.css'].includes(type))body=syntheticResponse(pathname,body.toString(),{enabled,professionalScreens,professionalFixture,professionalReconciliation});
    }
    response.writeHead(200,{'Content-Type':contentType,'Cache-Control':'no-store',
     'Content-Security-Policy':"default-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; object-src 'none'; form-action 'self'"});response.end(body);

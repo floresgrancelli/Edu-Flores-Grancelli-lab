@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createDualWorkspaceFrame} from '../pilot/dual-workspace-frame.mjs?v=ncc-professional-screens-r1-20261107';
+import {createDualWorkspaceFrame} from '../pilot/dual-workspace-frame.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {API} from '../pilot/dual-workspace-candidate.mjs';
 import {createProfessionalFixture,IDS} from './professional-screens-fixture.mjs';
 class Element {

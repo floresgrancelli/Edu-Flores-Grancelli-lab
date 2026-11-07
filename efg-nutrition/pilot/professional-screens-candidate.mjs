@@ -1,4 +1,5 @@
-// Detached candidate. No production imports, network transport, storage or role rewriting.
+import {PROFESSIONAL_RECONCILIATION_ENABLED,isProfessionalMutationJournal,digestProfessionalPayload} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
+// OFF candidate. The optional journal stores operation metadata, never personal content or role rewrites.
 // Presentation checks never replace the server's capability, RLS and legal checks.
 export const PROFESSIONAL_SCREENS_RELEASE_ENABLED = false;
 export const CONTEXTUAL_SCREEN_TRANSPORT = 'NCC_PROFESSIONAL_SCREENS_CONTEXTUAL_V1';
@@ -11,12 +12,12 @@ const key = scope => JSON.stringify(scope);
 const deny = (code, message) => { throw Object.assign(new Error(message), {code}); };
 const mutationGuards=new WeakMap();
 // One guard belongs to the host lifetime, not to a screen mount or workspace.
-// It is RAM-only and provides no idempotency guarantee across a full page reload.
-export function createProfessionalMutationGuard() {
-  const guard=Object.freeze({});mutationGuards.set(guard,{pending:new Map(),uncertain:new Set()});return guard;
+// A configured durable journal supplements RAM. Without it, reload protection remains unavailable.
+export function createProfessionalMutationGuard({journal}={}) {
+  const guard=Object.freeze({});mutationGuards.set(guard,{pending:new Map(),uncertain:new Set(),uncertainRecords:new Map(),journal});return guard;
 }
 const empty = () => ({status:'closed', organization:null, students:[], studentId:null,
-  recipes:[], messages:[], aliasDraft:'', messageDraft:'', notice:null});
+  recipes:[], messages:[], aliasDraft:'', messageDraft:'', notice:null, recovery:[], recoveryProblem:null});
 
 // The host supplies the unmodified gateway view and a monotonic navigationEpoch.
 // Increment it for EVERY workspace change, even personal -> professional -> personal.
@@ -96,10 +97,14 @@ function validateMessages(rows, scope, studentId) {
 }
 
 export function createProfessionalScreens({enabled=PROFESSIONAL_SCREENS_RELEASE_ENABLED,
-  syntheticEnvironment=()=>false, transport, readSession, readWorkspace, mutationGuard}={}) {
+  syntheticEnvironment=()=>false, transport, readSession, readWorkspace, mutationGuard,
+  reconciliationEnabled=PROFESSIONAL_RECONCILIATION_ENABLED}={}) {
   let state=empty(), currentKey=null, generation=0, studentEpoch=0, disposed=false;
   const lanes = new Map(), owner=Symbol('screen-instance');
-  const ledger=mutationGuards.get(mutationGuard),mutations=ledger?.pending,uncertain=ledger?.uncertain;
+  const ledger=mutationGuards.get(mutationGuard),mutations=ledger?.pending,uncertain=ledger?.uncertain,uncertainRecords=ledger?.uncertainRecords,journal=ledger?.journal;
+  const durableScope=scope=>({userId:scope.userId,organizationId:scope.organizationId});
+  const digestPayload=(action,args)=>digestProfessionalPayload(action==='sendMessage'?
+    ['ncc-message-v1',args.student_id,args.coach_id,args.sender_id,args.body]:['ncc-mutation-v1',action,args.ids||[]]);
   function clear() { generation++; studentEpoch++; state=empty(); lanes.clear(); }
   function sync() {
     if (disposed) deny('DISPOSED', 'La vista ya se cerró.');
@@ -154,6 +159,19 @@ export function createProfessionalScreens({enabled=PROFESSIONAL_SCREENS_RELEASE_
   }
   const writeKey=(action,value) => JSON.stringify([value.scope.userId,value.scope.organizationId,action,
     ['sendMessage','markRead'].includes(action) ? value.studentId : null]);
+  const heldFor=scope=>[...uncertainRecords.values()].filter(row=>row.scope.userId===scope.userId&&row.scope.organizationId===scope.organizationId);
+  const recordKey=row=>JSON.stringify([row.scope.userId,row.scope.organizationId,row.action,row.studentId]);
+  function hold(record,id){uncertain.add(id);if(record)uncertainRecords.set(record.operationId,clone(record));}
+  function releaseHeld(record,id){uncertainRecords.delete(record.operationId);if(![...uncertainRecords.values()].some(row=>recordKey(row)===id))uncertain.delete(id);}
+  async function refreshRecovery(value) {
+    if(!reconciliationEnabled)return;
+    try {
+      if(!isProfessionalMutationJournal(journal))deny('JOURNAL_UNAVAILABLE','No se pudo verificar el registro de operaciones.');
+      const rows=await journal.list(durableScope(value.scope));check(value);
+      const known=new Map([...rows,...heldFor(value.scope)].map(row=>[row.operationId,row]));
+      state.recovery=[...known.values()].map(({operationId,action,studentId})=>({operationId,action,studentId}));state.recoveryProblem=null;
+    }catch(error){try{check(value);state.recovery=[];state.recoveryProblem='No se pudo verificar el registro de operaciones. Las escrituras siguen bloqueadas.';}catch{}}
+  }
   function mutate(action,args,value,apply) {
     const id=writeKey(action,value), fingerprint=JSON.stringify(args), pending=mutations.get(id);
     if (uncertain.has(id)) deny('OUTCOME_UNCERTAIN','El resultado anterior es incierto. Verificalo antes de volver a enviar.');
@@ -163,13 +181,30 @@ export function createProfessionalScreens({enabled=PROFESSIONAL_SCREENS_RELEASE_
     }
     const entry={owner,fingerprint,promise:null};
     entry.promise=(async()=>{
+      let reservation=null,invoked=false;
       try {
+        if(reconciliationEnabled){
+          if(!isProfessionalMutationJournal(journal))deny('JOURNAL_UNAVAILABLE','No se pudo verificar el registro de operaciones.');
+          const payloadDigest=await digestPayload(action,args);check(value);
+          reservation=await journal.reserve({scope:durableScope(value.scope),action,
+            studentId:['sendMessage','markRead'].includes(action)?value.studentId:null,payloadDigest,
+            ...(action==='markRead'?{readIds:args.ids}:{})});
+          check(value); // The durable reservation commits before any transport invocation.
+          if(action==='sendMessage')args={...args,id:reservation.operationId};
+        }
+        invoked=true;
         const data=await perform(action,args,value);
-        const result=apply(data); return clone(result);
+        if(action==='sendMessage'&&reservation&&data?.id!==reservation.operationId)deny('INVALID_RECEIPT','El identificador confirmado no coincide con el envío.');
+        const result=apply(data);
+        if(reservation)await journal.finish(reservation);
+        if(reconciliationEnabled){if(reservation)releaseHeld(reservation,id);await refreshRecovery(value);}
+        return clone(result);
       } catch(error) {
-        // No automatic resend, fake receipt or inference of rollback after a timeout.
-        if (error.outcome!=='not_applied') uncertain.add(id);
-        currentFailure(error,value); throw error;
+        if(reservation&&(!invoked||error.outcome==='not_applied')){
+          try{await journal.finish(reservation);releaseHeld(reservation,id);reservation=null;}catch{hold(reservation,id);}
+        }else if(error.outcome!=='not_applied'&&(!reconciliationEnabled||reservation))hold(reservation,id);
+        if(reconciliationEnabled)await refreshRecovery(value);
+        currentFailure(error,value);throw error;
       } finally { if(mutations.get(id)===entry)mutations.delete(id); }
     })();
     mutations.set(id,entry); return entry.promise;
@@ -177,15 +212,16 @@ export function createProfessionalScreens({enabled=PROFESSIONAL_SCREENS_RELEASE_
   async function open({discard=false}={}) {
     const value=ticket(); if(!discard)assertCanLeave(); clear(); value.generation=generation;
     state.status='loading';
-    return read('workspace',{},value,data=>{
+    await read('workspace',{},value,data=>{
       const valid=validateWorkspace(data,value.scope);
       state={...empty(),...valid,status:'ready'}; return snapshot();
     });
+    await refreshRecovery(value);check(value);return snapshot();
   }
   function snapshot() {
     const scope=sync();
-    return clone({...state,scope, pending:[...mutations.keys()].some(id=>{const [actor,org]=JSON.parse(id);return actor===scope.userId&&org===scope.organizationId;}),
-      uncertain:uncertain.has(writeKey('setAlias',{scope})) ||
+    return clone({...state,scope,reconciliationEnabled:reconciliationEnabled===true, pending:[...mutations.keys()].some(id=>{const [actor,org]=JSON.parse(id);return actor===scope.userId&&org===scope.organizationId;}),
+      uncertain:state.recovery.some(row=>row.action==='setAlias'||row.studentId===state.studentId)||uncertain.has(writeKey('setAlias',{scope})) ||
         !!state.studentId && ['sendMessage','markRead'].some(action=>uncertain.has(writeKey(action,{scope,studentId:state.studentId})))});
   }
   function requireReady() { sync(); if(state.status!=='ready')deny('WORKSPACE_REQUIRED','Volvé a consultar el espacio profesional.'); }
@@ -260,8 +296,37 @@ export function createProfessionalScreens({enabled=PROFESSIONAL_SCREENS_RELEASE_
       return data; // Empty response means zero persisted acknowledgements, not success.
     });
   }
+  async function reconcileMessage() {
+    requireReady();const value=ticket({student:true}),id=writeKey('sendMessage',value);
+    if(reconciliationEnabled!==true||!isProfessionalMutationJournal(journal))deny('JOURNAL_UNAVAILABLE','La verificación tras recarga no está disponible.');
+    if(mutations.has(id))deny('OPERATION_PENDING','Esperá el resultado de la operación en curso.');
+    try{
+      const rows=await journal.list(durableScope(value.scope));check(value);
+      const reservation=heldFor(value.scope).find(row=>row.action==='sendMessage'&&row.studentId===value.studentId)||rows.find(row=>row.action==='sendMessage'&&row.studentId===value.studentId);
+      if(!reservation)return {status:'unresolved',reason:'NO_VERIFIABLE_RESERVATION'};
+      const data=await perform('messageReceipt',{id:reservation.operationId,student_id:value.studentId,coach_id:value.scope.userId},value);
+      if(data===null){await refreshRecovery(value);return {status:'unresolved',reason:'NOT_VISIBLE'};}
+      const [row]=validateMessages([data],value.scope,value.studentId);
+      if(row.id!==reservation.operationId||row.sender_id!==value.scope.userId||
+        await digestPayload('sendMessage',row)!==reservation.payloadDigest)deny('INVALID_RECEIPT','El recibo no coincide con la operación pendiente.');
+      check(value);
+      if(rows.some(row=>row.operationId===reservation.operationId)){
+        try{await journal.finish(reservation);}catch(error){
+          if(error.code!=='JOURNAL_RECORD_MISMATCH')throw error;
+          const latest=await journal.list(durableScope(value.scope));check(value);
+          if(latest.some(row=>row.operationId===reservation.operationId))throw error;
+          // Another tab may have resolved this exact operation and reserved a new one.
+          // The authenticated receipt above resolves only this RAM record; never delete the newer lane.
+        }
+      }
+      check(value);releaseHeld(reservation,id);lanes.set('messages',(lanes.get('messages')||0)+1);
+      state.messages=[...state.messages.filter(item=>item.id!==row.id),row];
+      if(state.messageDraft.trim()===row.body)state.messageDraft='';
+      await refreshRecovery(value);check(value);return {status:'confirmed',message:clone(row)};
+    }catch(error){currentFailure(error,value);await refreshRecovery(value);throw error;}
+  }
   function close({discard=false}={}) { if(!discard)assertCanLeave();clear();currentKey=null; }
   function dispose() { clear();currentKey=null;disposed=true; }
   return Object.freeze({open,snapshot,selectStudent,setDraft,cancelDrafts,assertCanLeave,
-    setAlias,loadRecipes,loadMessages,sendMessage,markRead,close,dispose});
+    setAlias,loadRecipes,loadMessages,sendMessage,markRead,reconcileMessage,close,dispose});
 }

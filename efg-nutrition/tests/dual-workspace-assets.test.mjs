@@ -17,11 +17,12 @@ function verify(overrides={}){
   const source=read('efg-nutrition/pilot/professional-screens-'+name+'.mjs').toString();
   for(const flag of flags)assert.ok(source.includes('export const '+flag+' = false;'));
  }
+ assert.match(read('efg-nutrition/pilot/professional-mutation-journal.mjs').toString(),/export const PROFESSIONAL_RECONCILIATION_ENABLED = false;/);
  return assertPwaBuildIdentity(read('efg-nutrition/pilot/index.html').toString(),bytes);
 }
 test('R4 asset graph is pinned without changing server release identity',()=>{
  assert.equal(manifest.baseline,'9aaddfe21d77302224f93ea82be3b215c86769d6');
- assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-professional-screens-r1-20261107');
+ assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-professional-reconciliation-r1-20261107');
  assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/dual-workspace-')).length,5);
  assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/professional-screens-')).length,3);
  assert.equal(Object.keys(manifest.immutablePeriodPdfAssets).length,5);assert.equal(Object.keys(manifest.immutableReportAssets).length,10);

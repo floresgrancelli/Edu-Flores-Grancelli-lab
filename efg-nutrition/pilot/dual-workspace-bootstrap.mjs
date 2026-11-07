@@ -1,5 +1,5 @@
 import {DUAL_WORKSPACE_RELEASE_ENABLED,createDualWorkspaceClient,fail} from './dual-workspace-candidate.mjs?v=ncc-dual-workspace-r4-20261106';
-import {workspaceIdentity} from './dual-workspace-frame.mjs?v=ncc-professional-screens-r1-20261107';
+import {workspaceIdentity} from './dual-workspace-frame.mjs?v=ncc-professional-reconciliation-r1-20261107';
 
 // The SQL claim derives verified auth.uid()/email itself. This adapter never
 // creates Auth accounts, submits OTPs, edits profiles or grants permissions.

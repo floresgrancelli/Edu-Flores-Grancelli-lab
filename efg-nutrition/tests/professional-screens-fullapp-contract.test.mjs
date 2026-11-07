@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {syntheticResponse} from './dual-workspace-fullapp-server.mjs';
-import {createProfessionalContextualTransport} from '../pilot/professional-screens-transport.mjs?v=ncc-professional-screens-r1-20261107';
+import {createProfessionalContextualTransport} from '../pilot/professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {IDS} from './professional-screens-fixture.mjs';
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 test('full app uses dedicated SDK only in an explicit local professional fixture',()=>{
@@ -48,4 +48,9 @@ test('integrated SDK fixture covers exact contextual query shapes, writes and re
   assert.ok(reads.every(c=>c.selected==='id,coach_id,payment_alias'&&c.filters.some(([k,v])=>k==='id'&&v===IDS.professional)));
   fixture.revoke();await assert.rejects(transport.perform('workspace',{},scope),error=>error.code==='DENIED');assert.equal(fixture.preserved(),true);
  }finally{for(const [key,value] of Object.entries(previous)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
+
+test('shared synthetic helper is initialized before bootstrap and frame even with flags OFF',()=>{
+ const source=read('../pilot/pilot.js'),declaration=source.indexOf('const professionalSyntheticEnvironment='),bootstrap=source.indexOf('const dualWorkspaceBootstrap='),frame=source.indexOf('const dualWorkspaceFrame=');
+ assert.ok(declaration>=0&&declaration<bootstrap&&bootstrap<frame,'No temporal dead zone in OFF app bootstrap');
 });

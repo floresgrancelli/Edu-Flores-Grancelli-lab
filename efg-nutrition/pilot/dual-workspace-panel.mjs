@@ -1,8 +1,8 @@
 import {createDualWorkspaceClient} from './dual-workspace-candidate.mjs?v=ncc-dual-workspace-r4-20261106';
 import {createWorkspaceGateway} from './dual-workspace-integration.mjs?v=ncc-professional-screens-r1-20261107';
 
-import {mountProfessionalScreens} from './professional-screens-panel.mjs?v=ncc-professional-screens-r1-20261107';
-import {professionalScreenScope} from './professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
+import {mountProfessionalScreens} from './professional-screens-panel.mjs?v=ncc-professional-reconciliation-r1-20261107';
+import {professionalScreenScope} from './professional-screens-candidate.mjs?v=ncc-professional-reconciliation-r1-20261107';
 
 // Candidate integration in the real app frame. OFF unless explicitly supplied.
 export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal,hasUnsavedDraft,enabled=false,onView=()=>{},onUnavailable=()=>{},professionalScreens={}}={}){
@@ -95,7 +95,7 @@ export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal
     const readWorkspace=()=>{const view=gateway.view();return {view,navigationEpoch:view.navigationEpoch};};
     const readContext=()=>professionalScreenScope(professionalScreens.readSession?.(),readWorkspace());
     screens=mountProfessionalScreens({root:screensMount,enabled:true,
-     syntheticEnvironment:professionalScreens.syntheticEnvironment,mutationGuard:professionalScreens.mutationGuard,
+     syntheticEnvironment:professionalScreens.syntheticEnvironment,mutationGuard:professionalScreens.mutationGuard,reconciliationEnabled:professionalScreens.reconciliationEnabled,
      readSession:professionalScreens.readSession,readWorkspace,
      transport:professionalScreens.createTransport?.({readContext})});
    }else{root.append(screensMount);screens.revalidate();}

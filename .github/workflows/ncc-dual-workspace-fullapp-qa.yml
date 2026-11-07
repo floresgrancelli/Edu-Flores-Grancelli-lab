@@ -5,9 +5,11 @@ on:
     branches: ['work/ncc-dual-workspace-r4-*']
     paths:
       - 'efg-nutrition/pilot/dual-workspace*'
-      - 'efg-nutrition/pilot/professional-screens-*'
-      - 'efg-nutrition/tests/professional-screens-*'
+      - 'efg-nutrition/pilot/professional-*'
+      - 'efg-nutrition/tests/professional-*'
       - 'efg-nutrition/docs/professional-screens-candidate.md'
+      - 'efg-nutrition/docs/professional-reconciliation-candidate.md'
+      - 'efg-nutrition/tools/prepare-professional-reconciliation-assets.py'
       - 'efg-nutrition/tools/prepare-professional-screens-assets.py'
       - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/pilot/index.html'
@@ -61,6 +63,13 @@ jobs:
           import {execFileSync} from 'node:child_process';
           const allowed = new Set([
             '.github/workflows/ncc-dual-workspace-fullapp-qa.yml',
+            'efg-nutrition/pilot/professional-mutation-journal.mjs',
+            'efg-nutrition/tests/professional-mutation-journal.test.mjs',
+            'efg-nutrition/tests/professional-screens-reconciliation.test.mjs',
+            'efg-nutrition/tests/professional-reconciliation-fullapp-browser.mjs',
+            'efg-nutrition/tests/professional-reconciliation-fullapp-contract.test.mjs',
+            'efg-nutrition/tools/prepare-professional-reconciliation-assets.py',
+            'efg-nutrition/docs/professional-reconciliation-candidate.md',
             'efg-nutrition/docs/professional-screens-candidate.md',
             'efg-nutrition/pilot/professional-screens-candidate.mjs',
             'efg-nutrition/pilot/professional-screens-panel.mjs',
@@ -144,13 +153,13 @@ jobs:
           set -euo pipefail
           export NCC_R4_BASELINE_ROOT="$RUNNER_TEMP/ncc-r4-reference/baseline"
           export NCC_R4_BASE_TREE_JSON="$RUNNER_TEMP/ncc-r4-reference/base-tree.json"
-          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-screens-*.test.mjs
+          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-*.test.mjs
           node efg-nutrition/tests/student-session-mutation-races.mjs
           node efg-nutrition/tests/student-food-restrictions-runtime.mjs
           node efg-nutrition/tests/weekly-preview-state.mjs
           node efg-nutrition/tests/approved-release-flags.mjs
           node --test efg-nutrition/tests/guide-candidate-assets.test.mjs
-          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-screens-*.mjs efg-nutrition/tests/professional-screens-*.mjs; do node --check "$source"; done
+          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-*.mjs efg-nutrition/tests/professional-*.mjs; do node --check "$source"; done
           node --check efg-nutrition/pilot/pilot.js
           python - <<'PYTHON'
           import ast
@@ -158,6 +167,8 @@ jobs:
           source=Path('efg-nutrition/tools/prepare-dual-workspace-r4-assets.py')
           ast.parse(source.read_text(),filename=str(source))
           source=Path('efg-nutrition/tools/prepare-professional-screens-assets.py')
+          ast.parse(source.read_text(),filename=str(source))
+          source=Path('efg-nutrition/tools/prepare-professional-reconciliation-assets.py')
           ast.parse(source.read_text(),filename=str(source))
           print('PASS asset generator syntax; generators not executed and checkout not rewritten')
           PYTHON
@@ -196,6 +207,7 @@ jobs:
           export NCC_PLAYWRIGHT_MODULE="$RUNNER_TEMP/ncc-r4-playwright/node_modules/playwright/index.mjs"
           node efg-nutrition/tests/dual-workspace-fullapp-browser.mjs
           node efg-nutrition/tests/professional-screens-fullapp-browser.mjs
+          node efg-nutrition/tests/professional-reconciliation-fullapp-browser.mjs
       - name: Preserve synthetic UI evidence without baseline or database material
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,7 +1,8 @@
+import {PROFESSIONAL_RECONCILIATION_ENABLED} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {DUAL_WORKSPACE_RELEASE_ENABLED} from './dual-workspace-candidate.mjs?v=ncc-dual-workspace-r4-20261106';
-import {mountDualWorkspacePanel} from './dual-workspace-panel.mjs?v=ncc-professional-screens-r1-20261107';
+import {mountDualWorkspacePanel} from './dual-workspace-panel.mjs?v=ncc-professional-reconciliation-r1-20261107';
 
-import {PROFESSIONAL_SCREENS_RELEASE_ENABLED,createProfessionalMutationGuard} from './professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
+import {PROFESSIONAL_SCREENS_RELEASE_ENABLED,createProfessionalMutationGuard} from './professional-screens-candidate.mjs?v=ncc-professional-reconciliation-r1-20261107';
 
 // Presentation boundary only. RPCs remain responsible for authorization.
 // Selection and pending operations live in RAM and are never copied between identities.
@@ -12,10 +13,10 @@ export function workspaceIdentity(session) {
 export const isDualWorkspaceField = element => !!element?.closest?.('[data-ncc-dual-panel]');
 export function createDualWorkspaceFrame({enabled=DUAL_WORKSPACE_RELEASE_ENABLED,
  rpc,readSession,readLegacyPersonal,hasUnsavedDraft,mountPanel=mountDualWorkspacePanel,
- professionalScreensEnabled=PROFESSIONAL_SCREENS_RELEASE_ENABLED,createScreenTransport,syntheticEnvironment=()=>false,navigationTarget=null}={}) {
+ professionalScreensEnabled=PROFESSIONAL_SCREENS_RELEASE_ENABLED,professionalReconciliationEnabled=PROFESSIONAL_RECONCILIATION_ENABLED,mutationJournal,createScreenTransport,syntheticEnvironment=()=>false,navigationTarget=null}={}) {
  let identity=null, panel=null, mount=null, frameRoot=null, professional=false;
  let generation=0;
- const screenMutationGuard=createProfessionalMutationGuard(); // Survives panel unmount/session invalidation in this host.
+ const screenMutationGuard=createProfessionalMutationGuard({journal:mutationJournal}); // Survives panel unmount/session invalidation in this host.
  const session=()=>{const value=readSession?.();return workspaceIdentity(value)?
   {userId:value.userId,sessionId:JSON.stringify([value.sessionId,value.epoch])}:null;};
  function apply(){
@@ -51,7 +52,7 @@ export function createDualWorkspaceFrame({enabled=DUAL_WORKSPACE_RELEASE_ENABLED
    for(const event of ['click','input','change','submit'])mount.addEventListener(event,e=>e.stopPropagation());
    const ticket=generation;
    panel=mountPanel({root:mount,rpc,readSession:session,readLegacyPersonal,hasUnsavedDraft,enabled:true,
-    professionalScreens:{enabled:professionalScreensEnabled,readSession,syntheticEnvironment,
+    professionalScreens:{enabled:professionalScreensEnabled,reconciliationEnabled:professionalReconciliationEnabled,readSession,syntheticEnvironment,
      mutationGuard:screenMutationGuard,createTransport:createScreenTransport},
     onView(view){if(ticket!==generation||!revalidate())return;professional=!!view.professional;apply();},
     onUnavailable(){if(ticket!==generation)return;professional=false;apply();}});

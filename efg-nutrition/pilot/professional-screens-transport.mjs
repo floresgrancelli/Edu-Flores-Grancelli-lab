@@ -49,9 +49,9 @@ export function createProfessionalContextualTransport({sdk,readContext,enabled=P
  async function perform(action,input,scope){
   let dispatched=false;const s=structuredClone(scope),args=structuredClone(input);
   try{
-   current(s);if(!['workspace','recipes','messages',...writes].includes(action))fail('UNKNOWN_ACTION');
+   current(s);if(!['workspace','recipes','messages','messageReceipt',...writes].includes(action))fail('UNKNOWN_ACTION');
    await authorize(s);let data;const id=action==='recipes'?args?.p_student:args?.student_id;
-   if(['recipes','messages','sendMessage','markRead'].includes(action)){
+   if(['recipes','messages','messageReceipt','sendMessage','markRead'].includes(action)){
     if(action!=='recipes'&&args?.coach_id!==s.userId)fail('INVALID_CONTEXT');await studentAccess(s,id);
    }
    if(action==='workspace'){
@@ -68,10 +68,15 @@ export function createProfessionalContextualTransport({sdk,readContext,enabled=P
     // Preserve exact RPC array. Presentation validates ingredient/totals details; do not synthesize recipe rows.
    }else if(action==='messages'){
     data=messages(await checked(()=>pair(sdk.from('efg_messages').select(columns),s,id).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(200),s),s,id);
+   }else if(action==='messageReceipt'){
+    if(!validId(args.id))fail('INVALID_MESSAGE');
+    data=await checked(()=>pair(sdk.from('efg_messages').select(columns),s,id).eq('id',args.id).maybeSingle(),s);
+    if(data!==null){messages([data],s,id);if(data.id!==args.id||data.sender_id!==s.userId)fail('INVALID_RECEIPT');}
    }else if(action==='sendMessage'){
+    if(args.id!==undefined&&!validId(args.id))fail('INVALID_MESSAGE');
     if(args.sender_id!==s.userId||typeof args.body!=='string'||!args.body.trim()||args.body!==args.body.trim()||Array.from(args.body).length>2000)fail('INVALID_MESSAGE');
-    data=await checked(()=>{dispatched=true;return sdk.from('efg_messages').insert({student_id:id,coach_id:s.userId,sender_id:s.userId,body:args.body}).select(columns).single();},s);
-    messages([data],s,id);if(data.sender_id!==s.userId||data.body!==args.body)fail('INVALID_RECEIPT');
+    data=await checked(()=>{dispatched=true;return sdk.from('efg_messages').insert({...(args.id?{id:args.id}:{}),student_id:id,coach_id:s.userId,sender_id:s.userId,body:args.body}).select(columns).single();},s);
+    messages([data],s,id);if(args.id!==undefined&&data.id!==args.id||data.sender_id!==s.userId||data.body!==args.body)fail('INVALID_RECEIPT');
    }else{
     if(!Array.isArray(args.ids)||!args.ids.length||args.ids.length>200||!args.ids.every(validId)||new Set(args.ids).size!==args.ids.length)fail('INVALID_MESSAGE');
     const date=now();if(!timestamp(date))fail('INVALID_TIMESTAMP');
@@ -79,7 +84,7 @@ export function createProfessionalContextualTransport({sdk,readContext,enabled=P
     messages(data,s,id);if(data.some(r=>!args.ids.includes(r.id)||r.sender_id!==id||!timestamp(r.read_at)))fail('INVALID_RECEIPT');
    }
    await authorize(s);
-   if(['recipes','messages','sendMessage','markRead'].includes(action))await studentAccess(s,id);
+   if(['recipes','messages','messageReceipt','sendMessage','markRead'].includes(action))await studentAccess(s,id);
    current(s);return {data:structuredClone(data)};
   }catch(error){throw Object.assign(new Error(error?.message||'Transport failed'),{code:error?.code||'TRANSPORT_ERROR',outcome:dispatched?'uncertain':'not_applied'});}
  }

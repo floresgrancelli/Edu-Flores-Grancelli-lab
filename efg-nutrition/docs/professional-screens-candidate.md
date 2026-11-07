@@ -6,7 +6,7 @@ Alias, recetas compartidas y mensajes tienen un panel separado integrado al fram
 
 Base exacta de esta extensión: PR64, rama `work/ncc-dual-workspace-r4-20261106`, commit `96c5e3caef7797455d904595c895fab13a24efe0`. Es desarrollo candidato, no aprobación, merge, despliegue ni habilitación alojada. El build de release sigue siendo `ncc-pilot-3a40474052be`.
 
-Permanecen **false en disco** `DUAL_WORKSPACE_RELEASE_ENABLED`, `PROFESSIONAL_SCREENS_RELEASE_ENABLED`, `PROFESSIONAL_TRANSPORT_ENABLED` y `PROFESSIONAL_BACKEND_EXECUTION_ENABLED`. Sólo el servidor de pruebas sustituye explícitamente esas constantes en respuestas HTTP de loopback. No reescribe archivos. El transporte rechaza destinos hosted aun si la página corre en localhost y exige cuentas ficticias `.invalid`.
+Permanecen **false en disco** `DUAL_WORKSPACE_RELEASE_ENABLED`, `PROFESSIONAL_SCREENS_RELEASE_ENABLED`, `PROFESSIONAL_TRANSPORT_ENABLED` y `PROFESSIONAL_BACKEND_EXECUTION_ENABLED`. La extensión de recarga agrega `PROFESSIONAL_RECONCILIATION_ENABLED=false`. Sólo el servidor de pruebas sustituye explícitamente esas constantes en respuestas HTTP de loopback. No reescribe archivos. El transporte rechaza destinos hosted aun si la página corre en localhost y exige cuentas ficticias `.invalid`.
 
 ## Contrato y aislamiento
 
@@ -27,7 +27,7 @@ Estado, caché, alumno, alias y borradores son profesionales y separados. Las re
 
 Los borradores bloquean el cambio de espacio; cancelarlos nunca envía. Los re-renders normales preservan la instancia del panel. Logout, cambio de sesión, `popstate` y `pagehide` invalidan; `pageshow.persisted` solicita un selector personal fresco, sin restaurar caché profesional. El evento `pageshow` ordinario no duplica carga.
 
-Doble clic sólo comparte una operación pendiente de la misma instancia. Otro montaje no duplica escritura. Timeout, recibo inválido o pérdida de contexto después del envío dejan resultado incierto y bloquean reintento; no se infiere rollback ni se fabrica confirmación. **Pendiente:** la guardia vive en RAM, no aporta idempotencia después de recargar/reiniciar toda la app. Falta reconciliación autorizada de escrituras inciertas y su prueba de reinicios antes de cualquier habilitación real.
+Doble clic sólo comparte una operación pendiente de la misma instancia. Otro montaje no duplica escritura. Timeout, recibo inválido o pérdida de contexto después del envío dejan resultado incierto y bloquean reintento; no se infiere rollback ni se fabrica confirmación. **Extensión OFF:** la guardia original vive en RAM. La [candidata de reconciliación](professional-reconciliation-candidate.md) agrega journal durable y readback exacto de mensajes en fixtures, conservando bloqueos de alias/lecturas. No aporta idempotencia de servidor ni cubre borrado total del almacenamiento u otros dispositivos. La prueba conjunta con SDK/API reales y cualquier habilitación real siguen pendientes.
 
 ## Archivos principales
 

@@ -5,6 +5,21 @@ import {API} from '../pilot/dual-workspace-candidate.mjs';
 const data=createProfessionalFixture(),initialPersonal=data.personalSnapshot(),calls=[];
 let app=null,actor=null,subscription=null;
 const clone=x=>structuredClone(x);
+// Enabled only by the explicit loopback server response transform. This stores
+// fictional service rows/counters, NEVER auth/session/token or journal contents.
+const PERSIST_FICTIONAL_BACKEND = false;
+const BACKEND_KEY='ncc-professional-fixture-backend-v1';
+let loseNext=null;
+function restoreBackend(){
+ if(!PERSIST_FICTIONAL_BACKEND)return;
+ const saved=localStorage.getItem(BACKEND_KEY);if(!saved)return;
+ const value=JSON.parse(saved);
+ if(value.version!==1||!value.db||!value.count)throw Error('Invalid fictional backend');
+ Object.assign(data.db,value.db);Object.assign(data.count,value.count);
+}
+function persistBackend(){if(PERSIST_FICTIONAL_BACKEND)localStorage.setItem(BACKEND_KEY,JSON.stringify({version:1,db:data.db,count:data.count}));}
+const lost=()=>{throw Object.assign(new Error('Respuesta ficticia perdida; resultado incierto.'),{code:'SYNTHETIC_RESPONSE_LOST',outcome:'uncertain'});};
+restoreBackend();
 const error=message=>({data:null,error:{code:'SYNTHETIC_TRANSPORT_ONLY',message}});
 const scope=()=>({userId:actor,sessionId:data.session.sessionId,sessionEpoch:data.session.epoch,organizationId:IDS.professional,navigationEpoch:1});
 const signedUser=()=>actor?{id:actor,email:'dual@example.invalid'}:null;
@@ -21,6 +36,7 @@ function query(table){
   upsert(){return Promise.resolve(error('Legacy writes blocked by fixture'));},delete(){return Promise.resolve(error('Legacy writes blocked by fixture'));},
   single(){single=true;return q;},maybeSingle(){single=true;return q;},then(resolve,reject){promise||=execute();return promise.then(resolve,reject);}};
  async function execute(){
+  restoreBackend();
   calls.push({table,action,filters:clone(filters),selected,payload:clone(payload)});let rows=[];
   if(!actor)return {data:single?null:[],error:null};
   if(table==='efg_profiles')rows=[clone(data.db.profile)];
@@ -31,7 +47,13 @@ function query(table){
    const coach=filters.find(([k])=>k==='coach_id')?.[1]||payload?.coach_id;
    if(student===IDS.dual&&coach===IDS.mentor&&action==='read')return {data:[],error:null};
    if(![IDS.pupil,IDS.second].includes(student)||coach!==actor)return error('Explicit professional pair required');
-   if(action==='insert')rows=[(await data.transport.perform('sendMessage',payload,scope())).data];
+   if(action==='insert'){
+    const loss=loseNext;loseNext=null;
+    data.count.insertAttempts=(data.count.insertAttempts||0)+1;
+    if(loss==='without-row'){persistBackend();lost();}
+    rows=[(await data.transport.perform('sendMessage',payload,scope())).data];
+    persistBackend();if(loss==='after-persist')lost();
+   }
    else if(action==='update'){
     if(Object.keys(payload||{}).join(',')!=='read_at')return error('Only read_at update allowed');
     const ids=filters.find(([k,,op])=>k==='id'&&op==='in')?.[1];
@@ -39,6 +61,7 @@ function query(table){
     rows=clone(data.db.messages.filter(m=>receipts.some(r=>r.id===m.id)));
    }else rows=(await data.transport.perform('messages',{student_id:student,coach_id:coach},scope())).data;
   }
+  persistBackend();
   if(action==='read')rows=rows.filter(row=>filters.every(([k,v,op])=>op==='in'?v.includes(row[k]):row[k]===v));
   for(const [k,ascending] of [...orders].reverse())rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(ascending?1:-1));
   if(limit!==null)rows=rows.slice(0,limit);
@@ -55,10 +78,11 @@ export function createClient(url){
   onAuthStateChange(callback){subscription=callback;return {data:{subscription:{unsubscribe(){subscription=null;}}}};},
   async signOut(){actor=null;subscription?.('SIGNED_OUT',null);return {error:null};}
  },from:query,rpc:async(name,args)=>{
+  restoreBackend();
   calls.push({name,args:clone(args)});if(!actor)return error('Fictional login required');
   if(name===API.contexts)return {data:contexts()};
   if(name===API.roster){if(args.p_org!==IDS.professional)return error('Wrong workspace');return {data:(await data.transport.perform('workspace',{},scope())).data.students};}
-  if(name==='efg_set_coach_alias')return data.transport.perform('setAlias',args,scope());
+  if(name==='efg_set_coach_alias'){const result=await data.transport.perform('setAlias',args,scope());persistBackend();return result;}
   if(name==='efg_coach_shared_student_recipes')return data.transport.perform('recipes',args,scope());
   if(Object.values(API).includes(name))return error('This fixture does not implement workspace mutations');
   return {data:null,error:null};
@@ -66,6 +90,7 @@ export function createClient(url){
 }
 export const fixture={
  async loginAs(){
+  restoreBackend();
   if(!app)throw Error('Full app has not booted');app.resetPrivateSession();actor=IDS.dual;data.session.epoch=(app.state.authContextEpoch||0)+1;
   const s=app.state,day=app.today();s.authContextEpoch=data.session.epoch;s.session={user:signedUser(),session_id:data.session.sessionId};
   s.profile=clone(data.db.profile);s.org=clone(data.db.personalOrganization);s.orgs=[clone(data.db.personalOrganization),clone(data.db.organization)];
@@ -77,7 +102,9 @@ export const fixture={
  },
  inspect:()=>clone(data.db),calls:()=>clone(calls),
  preserved:()=>JSON.stringify(data.personalSnapshot())===JSON.stringify(initialPersonal)&&app?.state?.profile?.role==='student'&&app?.state?.profile?.organization_id===IDS.personal&&app?.state?.org?.id===IDS.personal,
- revoke(){data.db.capability=false;},
+ revoke(){restoreBackend();data.db.capability=false;persistBackend();},
+ loseResponse(mode='after-persist'){if(!PERSIST_FICTIONAL_BACKEND)throw Error('Reconciliation fixture is OFF');loseNext=mode;},
+ counters(){restoreBackend();return {attempts:data.count.insertAttempts||0,inserts:data.db.audit.filter(x=>x.action==='sendMessage').length,rows:data.db.messages.filter(x=>x.sender_id===IDS.dual).length};},
  async logout(){app.resetPrivateSession();actor=null;app.state.profile=null;app.state.session=null;await app.render();}
 };
 export function bindApp(hooks){
@@ -89,5 +116,10 @@ export function bindApp(hooks){
  add('Comprobar vínculo personal',()=>{notice.textContent=fixture.preserved()?'Rol student, organización, consentimiento e historial personales intactos.':'ERROR: cambió el contexto personal.';});
  add('Revocar capacidad ficticia',()=>{fixture.revoke();notice.textContent='Capacidad revocada en fixture. La próxima operación debe negar acceso.';});
  add('Cerrar sesión ficticia',async()=>{await fixture.logout();notice.textContent='Sesión ficticia cerrada.';});
+ if(PERSIST_FICTIONAL_BACKEND){
+  add('Perder próxima respuesta de envío',()=>{fixture.loseResponse();notice.textContent='Próximo envío: persistir fila ficticia y perder respuesta.';});
+  add('Perder próximo envío sin fila',()=>{fixture.loseResponse('without-row');notice.textContent='Próximo envío: respuesta incierta sin fila ficticia.';});
+  add('Comprobar envíos ficticios',()=>{const c=fixture.counters();notice.textContent=`Envíos ficticios: ${c.attempts} intentos, ${c.inserts} inserts, ${c.rows} filas.`;});
+ }
  notice.setAttribute('role','status');bar.append(notice);document.body.prepend(bar);
 }

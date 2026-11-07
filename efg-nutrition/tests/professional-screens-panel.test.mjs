@@ -1,6 +1,8 @@
 import test from 'node:test';
+import {createProfessionalMutationGuard} from '../pilot/professional-screens-candidate.mjs?v=ncc-professional-reconciliation-r1-20261107';
+import {createProfessionalMutationJournal,createMemoryJournalDriver} from '../pilot/professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import assert from 'node:assert/strict';
-import {mountProfessionalScreens} from '../pilot/professional-screens-panel.mjs?v=ncc-professional-screens-r1-20261107';
+import {mountProfessionalScreens} from '../pilot/professional-screens-panel.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalFixture,IDS} from './professional-screens-fixture.mjs';
 class Element {
  constructor(tag,document){this.tag=tag;this.ownerDocument=document;this.children=[];this.listeners={};this.attributes={};this.textContent='';}
@@ -56,4 +58,18 @@ function fill(root,label,value){const input=field(root,label);input.value=value;
   const next=mountProfessionalScreens(options);await next.ready;select=field(root,'Alumno del espacio profesional');select.value=IDS.pupil;await select.listeners.change();
   fill(root,'Mensaje ficticio','MENSAJE FICTICIO');await button(root,'Enviar mensaje ficticio').listeners.click();
   assert.match(text(root),/resultado anterior es incierto/);assert.equal(attempts,1);assert.equal(fixture.db.messages.length,2);next.dispose();
+ });
+
+ test('zero-row read response is never reported as a generic success',async()=>{
+  const {root,fixture,options}=setup();const base=fixture.transport.perform;options.transport={kind:fixture.transport.kind,perform:(a,args,s)=>a==='markRead'?{data:[]}:base(a,args,s)};
+  const panel=mountProfessionalScreens(options);await panel.ready;const select=field(root,'Alumno del espacio profesional');select.value=IDS.pupil;await select.listeners.change();
+  await button(root,'Consultar mensajes ficticios').listeners.click();await button(root,'Confirmar lecturas ficticias').listeners.click();assert.match(text(root),/No se recibieron confirmaciones de lectura/);assert.doesNotMatch(text(root),/Consulta FICTICIA · Leído/);
+ });
+ test('reload panel disables pending send and offers only exact readback, never automatic resend',async()=>{
+  const {root,fixture,options}=setup(),storage={value:{version:1,records:[]}},base=fixture.transport.perform;
+  const journal=()=>createProfessionalMutationJournal({enabled:true,syntheticEnvironment:()=>true,backendNamespace:'fixture:panel-reload',driver:createMemoryJournalDriver({state:storage})});
+  options.reconciliationEnabled=true;options.mutationGuard=createProfessionalMutationGuard({journal:journal()});options.transport={kind:fixture.transport.kind,perform:async(a,args,s)=>{const result=await base(a,args,s);if(a==='sendMessage')throw Error('Lost');return result;}};
+  const first=mountProfessionalScreens(options);await first.ready;let select=field(root,'Alumno del espacio profesional');select.value=IDS.pupil;await select.listeners.change();fill(root,'Mensaje ficticio','PENDIENTE FICTICIO');await button(root,'Enviar mensaje ficticio').listeners.click();first.dispose();
+  options.mutationGuard=createProfessionalMutationGuard({journal:journal()});options.transport=fixture.transport;const next=mountProfessionalScreens(options);await next.ready;select=field(root,'Alumno del espacio profesional');select.value=IDS.pupil;await select.listeners.change();
+  assert.equal(button(root,'Enviar mensaje ficticio').disabled,true);await button(root,'Verificar envío pendiente').listeners.click();assert.match(text(root),/Mensaje anterior confirmado sin reenviar/);assert.equal(button(root,'Enviar mensaje ficticio').disabled,false);assert.equal(fixture.count.sendMessage,1);assert.equal(storage.value.records.length,0);
  });

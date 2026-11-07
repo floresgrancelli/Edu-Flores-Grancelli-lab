@@ -1,5 +1,5 @@
 // All rows and assertions are fictional. This fixture is not a SQL/RLS emulator.
-import {SYNTHETIC_SCREEN_TRANSPORT,createProfessionalMutationGuard} from '../pilot/professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
+import {SYNTHETIC_SCREEN_TRANSPORT,createProfessionalMutationGuard} from '../pilot/professional-screens-candidate.mjs?v=ncc-professional-reconciliation-r1-20261107';
 export const IDS=Object.freeze({
   dual:'11111111-1111-4111-8111-111111111111', mentor:'22222222-2222-4222-8222-222222222222',
   pupil:'33333333-3333-4333-8333-333333333333', second:'44444444-4444-4444-8444-444444444444',
@@ -57,10 +57,12 @@ export function createProfessionalFixture() {
       copy(db.recipes.filter(row=>row.student_id===studentId&&row.organization_id===scope.organizationId)):[]};
     if(args.coach_id!==scope.userId)denied('Pareja ficticia incorrecta.');
     if(action==='messages')return {data:copy(db.messages.filter(row=>row.student_id===studentId&&row.coach_id===scope.userId))};
+    if(action==='messageReceipt')return {data:copy(db.messages.find(row=>row.id===args.id&&row.student_id===studentId&&row.coach_id===scope.userId)||null)};
     if(action==='sendMessage') {
       if(args.sender_id!==scope.userId||typeof args.body!=='string'||!args.body.trim()||Array.from(args.body).length>2000)
         denied('Remitente o mensaje ficticio inválido.');
-      const row={...copy(args),id:'ffffffff-ffff-4fff-8fff-'+String(++sequence).padStart(12,'0'),
+      if(args.id&&db.messages.some(row=>row.id===args.id))throw Object.assign(new Error('Duplicate synthetic message ID'),{code:'23505',outcome:'not_applied'});
+      const row={...copy(args),id:args.id||'ffffffff-ffff-4fff-8fff-'+String(++sequence).padStart(12,'0'),
         created_at:'2026-11-06T12:01:00.000Z',read_at:null};
       db.messages.push(row);db.audit.push({action,studentId,organizationId:scope.organizationId});return {data:copy(row)};
     }

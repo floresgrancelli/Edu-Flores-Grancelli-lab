@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createProfessionalScreens,professionalScreenScope,PROFESSIONAL_SCREENS_RELEASE_ENABLED,SYNTHETIC_SCREEN_TRANSPORT} from '../pilot/professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
+import {createProfessionalScreens,professionalScreenScope,PROFESSIONAL_SCREENS_RELEASE_ENABLED,SYNTHETIC_SCREEN_TRANSPORT} from '../pilot/professional-screens-candidate.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalFixture,IDS} from './professional-screens-fixture.mjs';
 const code=expected=>error=>error.code===expected;
 function harness(overrides={}){

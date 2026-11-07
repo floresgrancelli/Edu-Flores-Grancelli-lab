@@ -1,5 +1,5 @@
 import {createProfessionalFixture} from './professional-screens-fixture.mjs';
-import {mountProfessionalScreens} from '../pilot/professional-screens-panel.mjs?v=ncc-professional-screens-r1-20261107';
+import {mountProfessionalScreens} from '../pilot/professional-screens-panel.mjs?v=ncc-professional-reconciliation-r1-20261107';
 const fixture=createProfessionalFixture(),root=document.querySelector('#screens'),notice=document.querySelector('#notice');
 let panel=null;
 function close(){panel?.dispose();panel=null;root.replaceChildren();}

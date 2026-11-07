@@ -99,8 +99,18 @@ async function inspectLaunchPreflight(executablePath) {
     system:summarizeLaunchSystemFacts(facts),selectedExecutable:await inspectExecutableFile(executablePath),
     selectedSandboxHelpers:{underscore:await inspectExecutableFile(join(dirname(executablePath),'chrome_sandbox'),{hash:false}),hyphen:await inspectExecutableFile(join(dirname(executablePath),'chrome-sandbox'),{hash:false})}};
 }
+// Passive HTTP validation only. This function never pauses, fulfills, continues,
+// aborts or creates requests. CSP + the SDK fetch policy enforce destinations.
+export function observeHttpRequest({url,method,preflightMethod,redirected=false,isNavigation=false},config,assetPaths) {
+  requireThat(!redirected,'REDIRECT_REJECTED');
+  const preflight=method==='OPTIONS';
+  const checked=assertBrowserRequest(url,preflight?preflightMethod:method,config,assetPaths);
+  if(preflight)requireThat(checked.kind==='api','PREFLIGHT_TARGET_REJECTED');
+  if(isNavigation)requireThat(checked.kind==='asset'&&new URL(url).pathname==='/'&&!new URL(url).search,'NAVIGATION_REJECTED');
+  return {kind:checked.kind,preflight,action:checked.kind==='api'&&!preflight?mutationAction(method,new URL(url).pathname):null};
+}
 const modes=['persisted','absent','revoked','alias','read_at'];
-const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED','BROWSER_LAUNCH_FAILED','SYSTEM_CHROME_REQUIRED','OFFICIAL_CHROME_TARGET_MISMATCH','OFFICIAL_CHROME_PACKAGE_MISMATCH','OFFICIAL_CHROME_BINARY_MISMATCH','OFFICIAL_CHROME_PROFILE_UNVERIFIED','BROWSER_VERSION_MISMATCH'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
+const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED','BROWSER_LAUNCH_FAILED','SYSTEM_CHROME_REQUIRED','OFFICIAL_CHROME_TARGET_MISMATCH','OFFICIAL_CHROME_PACKAGE_MISMATCH','OFFICIAL_CHROME_BINARY_MISMATCH','OFFICIAL_CHROME_PROFILE_UNVERIFIED','BROWSER_VERSION_MISMATCH','CORS_NOT_EXERCISED','NETWORK_OBSERVATION_REJECTED','UNEXPECTED_COOKIE_STORAGE'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
 const browserCodes=new Set(['LOGIN_REQUIRED','DENIED','OUTCOME_UNCERTAIN','WORKSPACE_REQUIRED','STUDENT_REQUIRED','INVALID_RECEIPT','JOURNAL_UNAVAILABLE','SDK_VERSION_MISMATCH','LOSS_ALREADY_ARMED','RESPONSE_LOST_AFTER_CONSUMPTION','STALE_CONTEXT','OPERATION_PENDING','42501','OPERATION_REJECTED']);
 const browserMethods=new Set(['initialize','authenticate','enterProfessional','armLoss','send','setAlias','markRead','reconcile','cancel','logout','inspect','auditStorage']);
 const unwrap=r=>{
@@ -130,7 +140,7 @@ export async function runSyntheticBrowserBridge() {
   const report={status:'NOT_RUN',scope:'REAL_NPM_SDK_BROWSER_INDEXEDDB_HTTP_WITH_SYNTHETIC_API',
     notCovered:['GoTrue','PostgREST','SQL','RLS','R5.3','hosted or CDN parity','full pilot app','browser restart/crash/eviction','simultaneous cross-tab race'],
     candidateModulesSourceHead:HEAD,runCommit:process.env.GITHUB_SHA||null,cases:[],codes:[]};
-  let apiServer,assetsServer,browser,context,runtimeAttempted=false,phase='preflight';
+  let apiServer,assetsServer,browser,context,runtimeAttempted=false,phase='preflight',networkViolations=[];
   try {
     requireThat(process.env.GITHUB_ACTIONS==='true'&&process.platform==='linux','CI_ONLY');
     requireThat(process.env.NCC_SYNTHETIC_BROWSER_API==='1','SYNTHETIC_OPT_IN_REQUIRED');
@@ -158,27 +168,26 @@ export async function runSyntheticBrowserBridge() {
       const baseline=apiServer.snapshot({operationId:null,readIds:[]});
       requireThat(SHA256.test(baseline.originalProfileHash),'FIXTURE_OBSERVER_REQUIRED');
       assert.equal(baseline.cors.preflightRequests,0);assert.equal(baseline.cors.optionsAccepted,0);
-      const violations=[],observed={sendMessage:0,setAlias:0,markRead:0};
+      const violations=networkViolations=[],observed={sendMessage:0,setAlias:0,markRead:0},assetPaths=new Set(prepared.assets.keys());
       context=await browser.newContext({serviceWorkers:'block',ignoreHTTPSErrors:false,acceptDownloads:false});
       requireThat(typeof context.routeWebSocket==='function','WEBSOCKET_GUARD_REQUIRED');
       await context.routeWebSocket('**/*',ws=>{violations.push('WEBSOCKET_REJECTED');ws.close();});
       context.on('page',p=>{p.on('pageerror',()=>violations.push('BROWSER_PAGE_ERROR'));p.on('download',d=>{violations.push('DOWNLOAD_REJECTED');void d.cancel();});});
-      await context.route('**/*',async route=>{
+      // Do not install HTTP routing/interception: it can change native CORS behavior.
+      // This observer validates traffic but is not a firewall. CSP and the SDK
+      // fetch wrapper restrict destinations; both HTTP servers reject unknown paths.
+      context.on('request',request=>{
         try {
-          const request=route.request();
-          requireThat(!request.redirectedFrom(),'REDIRECT_REJECTED');
-          // Preflight is authorized only for the exact allowlisted requested verb.
-          const method=request.method()==='OPTIONS'?await request.headerValue('access-control-request-method'):request.method();
-          assertBrowserRequest(request.url(),method,config,new Set(prepared.assets.keys()));
-          if(request.method()!=='OPTIONS'&&new URL(request.url()).origin===config.backendOrigin) {
-            const action=mutationAction(method,new URL(request.url()).pathname);if(action)observed[action]++;
-          }
-          // Both assets and API use real HTTP. No route.fetch or route.fulfill.
-          await route.continue();
-        } catch {violations.push('NETWORK_POLICY_REJECTED');await route.abort('blockedbyclient');}
+          const method=request.method();
+          const observation=observeHttpRequest({url:request.url(),method,
+            preflightMethod:method==='OPTIONS'?request.headers()['access-control-request-method']:undefined,
+            redirected:!!request.redirectedFrom(),isNavigation:request.isNavigationRequest()},config,assetPaths);
+          if(observation.action)observed[observation.action]++;
+        } catch {violations.push('NETWORK_OBSERVATION_REJECTED');}
       });
       context.on('response',response=>{if(response.status()>=300&&response.status()<400)violations.push('REDIRECT_REJECTED');});
       const page=await context.newPage(),url=config.frontendOrigin+'/';
+      phase=mode+':initial_document';
       await page.goto(url);await page.waitForFunction(()=>!!globalThis.nccBridge);
       phase=mode+':initial_login';
       await explicitLogin(page,config,fixture,apiServer);
@@ -227,48 +236,58 @@ export async function runSyntheticBrowserBridge() {
       await page.reload();await page.waitForFunction(()=>!!globalThis.nccBridge);
       assert.equal((await inspect(page)).signedIn,false);
       phase=mode+':reload_login';
-      await explicitLogin(page,config,fixture,apiServer);await audit(page,operationId,1);
-      phase=mode+':reconcile';
+      await explicitLogin(page,config,fixture,apiServer);phase=mode+':reload_journal';await audit(page,operationId,1);
+      phase=mode+':reopen_context';
       const entered=await call(page,'enterProfessional',fixture.organizationId,fixture.studentId);
       if(mode==='revoked') {assert.equal(entered.ok,false);assert.equal((await inspect(page)).workspaceReady,false);}
       else {
         unwrap(entered);assert.equal((await inspect(page)).uncertain,true);
+        phase=mode+':reconcile_receipt';
         const receipt=unwrap(await call(page,'reconcile'));
-        if(mode==='persisted'){assert.equal(receipt.status,'confirmed');assert.equal(receipt.operationId,operationId);await audit(page,operationId,0);}
+        phase=mode+':reconcile_receipt_result';
+        if(mode==='persisted'){assert.equal(receipt.status,'confirmed');assert.equal(receipt.operationId,operationId);phase=mode+':reconcile_journal';await audit(page,operationId,0);}
         else {
           assert.equal(receipt.status,'unresolved');assert.equal(receipt.reason,mode==='absent'?'NOT_VISIBLE':'NO_VERIFIABLE_RESERVATION');
-          await audit(page,operationId,1);assert.equal((await inspect(page)).uncertain,true);
+          phase=mode+':reconcile_journal';await audit(page,operationId,1);
+          phase=mode+':reconcile_uncertainty';assert.equal((await inspect(page)).uncertain,true);
           if(mode==='absent')assert.equal((await call(page,'send','NCC synthetic still blocked')).ok,false);
           if(mode==='alias')assert.equal((await call(page,'setAlias','ncc.synthetic.alias')).ok,false);
           // read_at values are not operation receipts; seeing them must not finish its journal.
           if(mode==='read_at'){unwrap(await call(page,'markRead'));await audit(page,operationId,1);}
         }
       }
+      phase=mode+':final_browser_dispatches';
       assert.equal((await inspect(page)).wire.dispatches,0);
+      phase=mode+':final_fixture_observation';
       const final=apiServer.snapshot({operationId,readIds:journal[0].readIds||[]});
       assert.equal(final.originalProfileHash,baseline.originalProfileHash);
       assert.equal(final.mutationDispatches[action]-baseline.mutationDispatches[action],1);
+      phase=mode+':final_network_observation';
       assert.deepEqual(observed,{sendMessage:action==='sendMessage'?1:0,setAlias:action==='setAlias'?1:0,markRead:action==='markRead'?1:0});
       for(const other of Object.keys(observed))assert.equal(final.mutationDispatches[other]-baseline.mutationDispatches[other],observed[other]);
-      assert.deepEqual(violations,[]);assert.equal((await context.cookies()).length,0);
+      requireThat(violations.length===0,'NETWORK_OBSERVATION_REJECTED');requireThat((await context.cookies()).length===0,'UNEXPECTED_COOKIE_STORAGE');
+      phase=mode+':final_message_observation';
       if(action==='sendMessage') {
         assert.equal(final.messageInsertCount-baseline.messageInsertCount,1);
         assert.equal(final.messageRowsForOperation,mode==='absent'?0:1);
         if(mode!=='absent')assert.equal(final.notificationRowsForOperation,1);
       }
-      if(mode==='revoked')await audit(page,operationId,1);
-      requireThat(final.cors.optionsAccepted>0&&final.cors.originRejected===0,'CORS_NOT_EXERCISED');
+      if(mode==='revoked'){phase=mode+':revoked_journal';await audit(page,operationId,1);}
+      phase=mode+':verify_native_cors';
+      requireThat(final.cors.preflightRequests>0&&final.cors.optionsAccepted>0&&final.cors.originRejected===0,'CORS_NOT_EXERCISED');
+      phase=mode+':verify_exact_receipt_read';
       if(['persisted','absent'].includes(mode))assert.ok(final.receiptReads.some(r=>r.id===operationId&&r.studentId===fixture.studentId&&r.coachId===fixture.userId));
       report.cases.push({mode,status:'PASS',allSdkFetchCallbacksBeforeReload:first.wire.callbacks,
         sdkMutationReplayCallbacksBlocked:first.wire.blockedReplays,secondTabSdkFetchCallbacks:secondObserved.wire.callbacks,
         sdkFetchCallbacksAfterReload:(await inspect(page)).wire.callbacks,mutationDispatches:1,messageRows:action==='sendMessage'?final.messageRowsForOperation:null,
-        syntheticNotificationRowsAfterDispatch:action==='sendMessage'?afterLoss.notificationRowsForOperation:null,syntheticNotificationRowsFinal:action==='sendMessage'?final.notificationRowsForOperation:null,corsOptionsAccepted:final.cors.optionsAccepted,profileHashUnchanged:true,
+        syntheticNotificationRowsAfterDispatch:action==='sendMessage'?afterLoss.notificationRowsForOperation:null,syntheticNotificationRowsFinal:action==='sendMessage'?final.notificationRowsForOperation:null,corsPreflightRequests:final.cors.preflightRequests,corsOptionsAccepted:final.cors.optionsAccepted,httpInterception:false,profileHashUnchanged:true,
         exactResponseDrained:true,explicitLoginAfterReload:true,secondTab:'observer only',journalRetained:mode!=='persisted'});
       await context.close();context=null;
       await apiServer.close();apiServer=null;await assetsServer.close();assetsServer=null;
     }
     report.status='PASS_REAL_BROWSER_SDK_IDB_SYNTHETIC_HTTP_API';phase='complete';
   }catch(e){report.status=runtimeAttempted?'FAILED':'NOT_RUN';report.codes=[fixedCode(e)];report.failurePhase=phase;
+    if(networkViolations.length)report.failureNetworkCodes=[...new Set(networkViolations)].filter(code=>['NETWORK_OBSERVATION_REJECTED','BROWSER_PAGE_ERROR','DOWNLOAD_REJECTED','WEBSOCKET_REJECTED','REDIRECT_REJECTED'].includes(code));
     if(browserMethods.has(e?.browserMethod))report.failureBrowserMethod=e.browserMethod;
     if(browserCodes.has(e?.browserCode))report.failureBrowserCode=e.browserCode;
     if(apiServer){

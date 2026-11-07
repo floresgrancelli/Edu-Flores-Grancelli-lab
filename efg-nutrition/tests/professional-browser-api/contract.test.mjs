@@ -112,7 +112,7 @@ test('harness does not restore auth or collect token-bearing artifacts',async()=
   const b=await readFile(new URL('./browser.mjs',import.meta.url),'utf8'),r=await readFile(new URL('./run.mjs',import.meta.url),'utf8');
   assert.match(b,/persistSession:false,autoRefreshToken:false,detectSessionInUrl:false/);assert.match(b,/db:\{retry:false\}/);
   assert.match(b,/createIndexedDBJournalDriver\(\{name:c.dbName\}\)/);assert.match(b,/getUser\(signed.session.access_token\)/);
-  assert.match(r,/page.reload\(\)/);assert.match(r,/route.continue\(\)/);assert.doesNotMatch(r,/route\.(fetch|fulfill)\(/);
+  assert.match(r,/page.reload\(\)/);assert.match(r,/context\.on\('request'/);assert.doesNotMatch(r,/\.route\(|route\.(fetch|fulfill|continue|abort)\(|Fetch\.enable|setRequestInterception/);
   assert.doesNotMatch(b+r,/storageState\s*\(|tracing\.start|recordHar:|recordVideo:|console\.error\s*\(/);
   assert.match(r,/console\.log\(JSON\.stringify\(report\)\)/);
   assert.match(r,/chromiumSandbox:true/);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);assert.match(r,/inspectLaunchPreflight\(OFFICIAL_CHROME_TARGET\.executablePath\)/);assert.match(r,/browserBinarySha256:report\.launchPreflight\.selectedExecutable\.sha256/);
@@ -225,4 +225,29 @@ test('official Chrome selection is one fixed verified target, not an arbitrary p
     const p=structuredClone(observed);change(p);assert.throws(()=>verifyOfficialChromeTarget(p));
   }
   const extra=structuredClone(observed);extra.executablePath='/arbitrary/unsafe';assert.equal(verifyOfficialChromeTarget(extra),'/opt/google/chrome/chrome');
+});
+
+test('passive HTTP observation validates native OPTIONS without producing or changing requests',async()=>{
+  const {observeHttpRequest}=await import('./run.mjs'),c=config(),assets=new Set(['/','/harness/browser.mjs']);
+  assert.deepEqual(observeHttpRequest({url:front+'/',method:'GET',isNavigation:true},c,assets),{kind:'asset',preflight:false,action:null});
+  assert.deepEqual(observeHttpRequest({url:backend+'/rest/v1/efg_messages?select=id',method:'OPTIONS',preflightMethod:'POST'},c,assets),{kind:'api',preflight:true,action:null});
+  assert.deepEqual(observeHttpRequest({url:backend+'/rest/v1/efg_messages?select=id',method:'POST'},c,assets),{kind:'api',preflight:false,action:'sendMessage'});
+  for(const request of [
+    {url:'https://external.invalid/a',method:'GET'},
+    {url:backend+'/auth/v1/user',method:'GET',redirected:true},
+    {url:backend+'/auth/v1/admin/users',method:'OPTIONS',preflightMethod:'GET'},
+    {url:backend+'/rest/v1/efg_messages',method:'OPTIONS'},
+    {url:front+'/',method:'OPTIONS',preflightMethod:'GET'},
+    {url:backend+'/auth/v1/user',method:'GET',isNavigation:true}
+  ])assert.throws(()=>observeHttpRequest(request,c,assets));
+});
+test('native CORS remains mandatory and HTTP interception is absent from the runner',async()=>{
+  const r=await readFile(new URL('./run.mjs',import.meta.url),'utf8'),assets=await readFile(new URL('./assets-server.mjs',import.meta.url),'utf8');
+  assert.doesNotMatch(r,/\.route\(|route\.(continue|fetch|fulfill|abort)\(|Fetch\.enable|setRequestInterception/);
+  assert.match(r,/routeWebSocket/);assert.match(r,/httpInterception:false/);
+  assert.match(r,/final\.cors\.preflightRequests>0&&final\.cors\.optionsAccepted>0&&final\.cors\.originRejected===0,'CORS_NOT_EXERCISED'/);
+  assert.match(r,/'CORS_NOT_EXERCISED'.*\]\.includes/);
+  for(const phase of ['reopen_context','reconcile_receipt','reconcile_receipt_result','reconcile_journal','final_network_observation','verify_native_cors','verify_exact_receipt_read'])assert.ok(r.includes("':"+phase+"'"));
+  assert.match(assets,/default-src 'none'; script-src 'self'; connect-src \$\{backendOrigin\}; base-uri 'none'; form-action 'none'/);
+  assert.match(assets,/sandbox allow-scripts allow-same-origin/);assert.doesNotMatch(assets,/allow-top-navigation|allow-popups|allow-forms/);
 });

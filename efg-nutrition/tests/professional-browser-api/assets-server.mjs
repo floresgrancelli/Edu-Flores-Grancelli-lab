@@ -18,7 +18,7 @@ export async function startAssets(prepared) {
     if(!origin||!backendOrigin||req.headers.host!==new URL(origin).host||req.method!=='GET'||!prepared.assets.has(req.url)) {res.writeHead(404,{'content-type':'text/plain'});res.end('ASSET_REJECTED');return;}
     const a=prepared.assets.get(req.url);
     res.writeHead(200,{'content-type':a.contentType,'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer',
-      'content-security-policy':`default-src 'none'; script-src 'self'; connect-src ${backendOrigin}; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`});res.end(a.bytes);
+      'content-security-policy':`default-src 'none'; script-src 'self'; connect-src ${backendOrigin}; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox allow-scripts allow-same-origin`});res.end(a.bytes);
   });
   await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
   origin='http://127.0.0.1:'+server.address().port;

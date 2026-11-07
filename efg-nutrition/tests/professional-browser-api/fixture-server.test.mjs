@@ -153,6 +153,22 @@ test('fictitious login returns parseable ephemeral session and authenticated get
   assert.equal(user.app_metadata.synthetic_fixture, true);
 });
 
+test('all three fictitious token segments are lexically base64url decodable without claiming a signature', () => {
+  const h = harness();
+  const segments = h.login().access_token.split('.');
+  assert.equal(segments.length, 3);
+  // Use the strict Web-platform decoder, not Buffer's permissive base64 parser.
+  const decoded = segments.map(segment => {
+    assert.match(segment, /^[A-Za-z0-9_-]+$/);
+    assert.notEqual(segment.length % 4, 1);
+    const base64 = segment.replace(/-/g, '+').replace(/_/g, '/');
+    return atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+  });
+  assert.equal(JSON.parse(decoded[0]).alg, 'none');
+  assert.equal(JSON.parse(decoded[1]).synthetic_fixture, true);
+  assert.equal(decoded[2], 'synthetic-not-a-signature');
+});
+
 test('fixture rejects unknown credentials, key, token, grants and token copying between models', () => {
   const h = harness();
   assert.equal(h.request('GET', '/auth/v1/user').status, 401);

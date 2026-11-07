@@ -163,10 +163,11 @@ export function createFixtureModel({ allowedOrigin } = {}) {
     const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
     // Parseable JWT-shaped test text, intentionally unsigned. Acceptance is exact
     // membership in this ephemeral fixture's RAM, never signature verification.
+    const placeholderBytes = Buffer.from('synthetic-not-a-signature', 'utf8').toString('base64url');
     const accessToken = `${encode({ alg: 'none', typ: 'JWT', synthetic_fixture: true })}.${encode({
       sub: fixture.userId, session_id: sessionId, aud: 'authenticated', role: 'authenticated',
       iat: issuedAt, exp: session.expiresAt, synthetic_fixture: true,
-    })}.synthetic-not-a-signature`;
+    })}.${placeholderBytes}`;
     sessions.set(accessToken, session);
     counters.logins++;
     return { access_token: accessToken, token_type: 'bearer', expires_in: 3600,

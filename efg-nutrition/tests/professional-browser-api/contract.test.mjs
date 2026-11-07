@@ -115,7 +115,7 @@ test('harness does not restore auth or collect token-bearing artifacts',async()=
   assert.match(r,/page.reload\(\)/);assert.match(r,/route.continue\(\)/);assert.doesNotMatch(r,/route\.(fetch|fulfill)\(/);
   assert.doesNotMatch(b+r,/storageState\s*\(|tracing\.start|recordHar:|recordVideo:|console\.error\s*\(/);
   assert.match(r,/console\.log\(JSON\.stringify\(report\)\)/);
-  assert.match(r,/chromiumSandbox:true/);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);assert.match(r,/readFile\(executablePath\)/);
+  assert.match(r,/chromiumSandbox:true/);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);assert.match(r,/inspectLaunchPreflight\(executablePath\)/);assert.match(r,/browserBinarySha256:report\.launchPreflight\.selectedExecutable\.sha256/);
 });
 
 
@@ -149,6 +149,63 @@ test('runtime entry refuses non-CI execution before any SDK/browser/listener wor
   try {
     const {runSyntheticBrowserBridge}=await import('./run.mjs');
     const result=await runSyntheticBrowserBridge();
-    assert.equal(result.status,'NOT_RUN');assert.deepEqual(result.cases,[]);assert.deepEqual(result.codes,['CI_ONLY']);assert.equal(result.failurePhase,'preflight');
+    assert.equal(result.status,'NOT_RUN');assert.deepEqual(result.cases,[]);assert.deepEqual(result.codes,['CI_ONLY']);assert.equal(result.failurePhase,'preflight');assert.equal(result.launchPreflight,undefined);assert.equal(result.runtime,undefined);
   }finally{if(before===undefined)delete process.env.GITHUB_ACTIONS;else process.env.GITHUB_ACTIONS=before;}
+});
+
+test('launcher maps observed failures to fixed categories and drops sensitive sentinel text',async()=>{
+  const {classifyLaunchError}=await import('./run.mjs');
+  const cases=[
+    ['Failed to move to new namespace: errno = Operation not permitted','SANDBOX_NAMESPACE_DENIED'],
+    ['No usable sandbox!','SANDBOX_UNAVAILABLE'],
+    ['The SUID sandbox helper binary was found, but is not configured correctly.','SUID_SANDBOX_CONFIGURATION'],
+    ['Running as root without --no-sandbox is not supported','ROOT_SANDBOX_CONFLICT'],
+    ['Missing X server or $DISPLAY','DISPLAY_UNAVAILABLE'],
+    ["Executable doesn't exist at /a/b",'BINARY_MISSING'],
+    ['spawn /a/b EACCES','BINARY_NOT_EXECUTABLE'],
+    ['error while loading shared libraries: libexample.so.1','SHARED_LIBRARY_MISSING'],
+    ['browserType.launch: Timeout 30000ms exceeded.','LAUNCH_TIMEOUT'],
+  ];
+  for(const [message,expected] of cases){
+    const result=classifyLaunchError(Object.assign(new Error(message+' SENSITIVE_SENTINEL_TOKEN_DO_NOT_EMIT'),{headers:{authorization:'SENSITIVE_SENTINEL_TOKEN_DO_NOT_EMIT'}}));
+    assert.ok(result.categories.includes(expected));assert.equal(result.appArmorCauseEstablished,false);assert.equal(result.rawErrorRetained,false);
+    assert.equal(JSON.stringify(result).includes('SENSITIVE_SENTINEL'),false);assert.equal(JSON.stringify(result).includes('/a/b'),false);
+  }
+});
+test('launcher unknown failures stay unknown; AppArmor context is not a diagnosed cause',async()=>{
+  const {classifyLaunchError}=await import('./run.mjs');
+  const result=classifyLaunchError({name:'SENSITIVE_SENTINEL',message:'Possible AppArmor? Browser closed for unknown reason SENSITIVE_SENTINEL',stack:'SENSITIVE_SENTINEL'});
+  assert.deepEqual(result.categories,['UNCLASSIFIED_LAUNCH_FAILURE']);assert.equal(result.errorType,'UNKNOWN');assert.equal(result.appArmorCauseEstablished,false);
+  assert.equal(JSON.stringify(result).includes('SENSITIVE_SENTINEL'),false);
+  assert.deepEqual(classifyLaunchError({name:'TimeoutError'}).categories,['LAUNCH_TIMEOUT']);
+});
+test('launcher retains only allowlisted process exit metadata',async()=>{
+  const {classifyLaunchError}=await import('./run.mjs');
+  const r=classifyLaunchError(new Error('<launched> pid=1234\n[pid=1234] process did exit: exitCode=1, signal=SIGABRT\nSENSITIVE_SENTINEL'));
+  assert.equal(r.processLaunched,true);assert.equal(r.observedExitCode,1);assert.equal(r.observedSignal,'SIGABRT');assert.equal(JSON.stringify(r).includes('1234'),false);
+  assert.equal(classifyLaunchError(new Error('signal=SIG_SECRET_SENTINEL')).observedSignal,null);
+});
+test('launch preflight parser returns public facts without enabling an alternative browser',async()=>{
+  const {summarizeLaunchSystemFacts}=await import('./run.mjs');
+  const facts={osRelease:'ID=ubuntu\nVERSION_ID="24.04"\nSECRET=SENSITIVE_SENTINEL',appArmorEnabled:'Y\n',appArmorRestrictUserns:'1\n',unprivilegedUsernsClone:'1\n',maxUserNamespaces:'12345\n',
+    chromeProfile:'profile chrome /opt/google/chrome/chrome flags=(unconfined) {\n  userns,\n}\n# SENSITIVE_SENTINEL',loadedProfiles:'chrome (unconfined)\nother (enforce)',
+    dpkgStatus:'Package: unrelated\nStatus: install ok installed\n\nPackage: google-chrome-stable\nStatus: install ok installed\nVersion: 156.0.8078.79-1\nDescription: SENSITIVE_SENTINEL'};
+  const r=summarizeLaunchSystemFacts(facts);assert.equal(r.osId,'ubuntu');assert.equal(r.osVersion,'24.04');assert.equal(r.appArmorRestrictUnprivilegedUserns,1);
+  assert.equal(r.chromeProfileMentionsOfficialBinary,true);assert.equal(r.chromeProfileHasUsernsRule,true);assert.equal(r.chromeProfileListedAsLoaded,true);
+  assert.equal(r.googleChromePackageInstalled,true);assert.equal(r.googleChromePackageVersion,'156.0.8078.79-1');assert.equal(r.factsOnlyNotLaunchAuthorization,true);
+  assert.equal(JSON.stringify(r).includes('SENSITIVE_SENTINEL'),false);
+});
+test('unreadable launch metadata and commented rules cannot imply support or restrictions',async()=>{
+  const {summarizeLaunchSystemFacts}=await import('./run.mjs');
+  const r=summarizeLaunchSystemFacts({chromeProfile:'# userns,\n# /opt/google/chrome/chrome',maxUserNamespaces:'SENSITIVE_SENTINEL'});
+  assert.equal(r.appArmorEnabled,null);assert.equal(r.appArmorRestrictUnprivilegedUserns,null);assert.equal(r.maxUserNamespaces,null);
+  assert.equal(r.chromeProfileHasUsernsRule,false);assert.equal(r.chromeProfileMentionsOfficialBinary,false);assert.equal(r.chromeProfileListedAsLoaded,null);assert.equal(r.googleChromePackageInstalled,null);
+  const unknown=summarizeLaunchSystemFacts();assert.equal(unknown.chromeProfileMentionsOfficialBinary,null);assert.equal(unknown.chromeProfileHasUsernsRule,null);
+  assert.equal(summarizeLaunchSystemFacts({dpkgStatus:'Package: other\nStatus: install ok installed'}).googleChromePackageInstalled,false);
+});
+test('diagnostic patch keeps one sandboxed launch and has no shell, alternate launch or setting writes',async()=>{
+  const r=await readFile(new URL('./run.mjs',import.meta.url),'utf8');
+  assert.equal((r.match(/\.launch\(/g)||[]).length,1);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);
+  assert.doesNotMatch(r,/child_process|execSync|execFile|spawn\(|chmod\(|chown\(|writeFile\(/);
+  assert.match(r,/selection:'PLAYWRIGHT_PINNED_DOWNLOAD_ONLY',alternativeExecutableLaunched:false/);
 });

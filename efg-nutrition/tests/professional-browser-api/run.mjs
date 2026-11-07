@@ -1,16 +1,90 @@
 // CI-only: real npm SDK, browser, IndexedDB and HTTP; synthetic API/auth/data.
 // Importing this module never opens a socket or browser.
 import assert from 'node:assert/strict';
-import {readFile,appendFile} from 'node:fs/promises';
+import {readFile,appendFile,stat,open} from 'node:fs/promises';
+import {createReadStream} from 'node:fs';
 import {pathToFileURL} from 'node:url';
-import {join,resolve} from 'node:path';
-import {randomUUID} from 'node:crypto';
+import {join,resolve,dirname} from 'node:path';
+import {randomUUID,createHash} from 'node:crypto';
 import {assertBrowserRequest,validatePublicConfig,requireThat,metadataOnly,UUID,mutationAction,SHA256,HEAD} from './policy.mjs';
 import {sha256,versions} from './verify-inputs.mjs';
 import {prepareAssets,startAssets} from './assets-server.mjs';
 import {startFixtureApi,SYNTHETIC_PUBLIC_ANON_KEY} from './fixture-server.mjs';
+// Launch diagnostics reduce local evidence to fixed codes and public system facts.
+// Raw Playwright messages/stderr, command lines and environment values are never emitted.
+export function classifyLaunchError(error) {
+  const message=typeof error?.message==='string'?error.message.slice(0,131072):'';
+  const categories=[];
+  const observed=[
+    ['SANDBOX_NAMESPACE_DENIED',/Failed to move to new namespace|(?:namespace|clone|unshare)[\s\S]{0,200}(?:Operation not permitted|Permission denied)/i],
+    ['SANDBOX_UNAVAILABLE',/No usable sandbox|sandboxing is not supported/i],
+    ['SUID_SANDBOX_CONFIGURATION',/SUID sandbox helper[\s\S]{0,200}(?:not configured|not found|missing)|setuid sandbox[\s\S]{0,100}(?:failed|not supported)/i],
+    ['ROOT_SANDBOX_CONFLICT',/Running as root without --no-sandbox/i],
+    ['DISPLAY_UNAVAILABLE',/Missing X server|\$DISPLAY|cannot open display|Failed to initialize (?:the )?(?:X11|Wayland)/i],
+    ['BINARY_MISSING',/Executable doesn't exist|executable[\s\S]{0,100}(?:not found|ENOENT)|spawn [^\r\n]{0,300} ENOENT/i],
+    ['BINARY_NOT_EXECUTABLE',/spawn [^\r\n]{0,300} EACCES|executable[\s\S]{0,100}permission denied/i],
+    ['SHARED_LIBRARY_MISSING',/error while loading shared libraries|cannot open shared object file|host system is missing dependencies/i],
+    ['LAUNCH_TIMEOUT',/(?:browserType\.launch|launch)[\s\S]{0,100}(?:timed out|Timeout)|Timeout \d+ms exceeded/i],
+  ];
+  for(const [code,pattern] of observed)if(pattern.test(message))categories.push(code);
+  if(error?.name==='TimeoutError'&&!categories.includes('LAUNCH_TIMEOUT'))categories.push('LAUNCH_TIMEOUT');
+  if(!categories.length)categories.push('UNCLASSIFIED_LAUNCH_FAILURE');
+  const exit=message.match(/exitCode=(-?\d{1,3})/),signal=message.match(/signal=(SIG[A-Z0-9]+)/);
+  return {categories,processLaunched:/<launched>\s*pid=\d+/.test(message),
+    observedExitCode:exit?Number(exit[1]):null,
+    observedSignal:signal&&['SIGABRT','SIGSEGV','SIGKILL','SIGTERM','SIGTRAP','SIGBUS','SIGILL'].includes(signal[1])?signal[1]:null,
+    errorType:['Error','TimeoutError'].includes(error?.name)?error.name:'UNKNOWN',
+    appArmorCauseEstablished:false,rawErrorRetained:false};
+}
+export function summarizeLaunchSystemFacts(facts={}) {
+  const text=key=>typeof facts[key]==='string'?facts[key]:'';
+  const number=key=>/^\d{1,12}$/.test(text(key).trim())?Number(text(key).trim()):null;
+  const os=text('osRelease'),id=os.match(/^ID=(?:"([a-z0-9-]+)"|([a-z0-9-]+))$/m),version=os.match(/^VERSION_ID="?([0-9.]+)"?$/m);
+  const profile=text('chromeProfile').split('\n').filter(line=>!line.trimStart().startsWith('#')).join('\n');
+  const packageBlock=text('dpkgStatus').split(/\n\n+/).find(block=>/^Package: google-chrome-stable$/m.test(block))||'';
+  const packageVersion=packageBlock.match(/^Version: ([0-9][0-9A-Za-z.+:~-]{0,79})$/m);
+  return {
+    osId:id?(id[1]||id[2]):null,osVersion:version?version[1]:null,
+    appArmorEnabled:text('appArmorEnabled').trim()==='Y'?true:text('appArmorEnabled').trim()==='N'?false:null,
+    appArmorRestrictUnprivilegedUserns:number('appArmorRestrictUserns'),unprivilegedUsernsClone:number('unprivilegedUsernsClone'),maxUserNamespaces:number('maxUserNamespaces'),
+    chromeProfileFileReadable:typeof facts.chromeProfile==='string',
+    chromeProfileMentionsOfficialBinary:typeof facts.chromeProfile==='string'?profile.includes('/opt/google/chrome/chrome'):null,
+    chromeProfileHasUsernsRule:typeof facts.chromeProfile==='string'?/^\s*userns\s*,/m.test(profile):null,
+    chromeProfileListedAsLoaded:typeof facts.loadedProfiles==='string'?/^chrome \((?:enforce|complain|unconfined)\)$/m.test(facts.loadedProfiles):null,
+    googleChromePackageInstalled:typeof facts.dpkgStatus==='string'?/^Status: install ok installed$/m.test(packageBlock):null,
+    googleChromePackageVersion:packageVersion?packageVersion[1]:null,
+    factsOnlyNotLaunchAuthorization:true,
+  };
+}
+async function inspectExecutableFile(path,{hash=true}={}) {
+  try {
+    const info=await stat(path);
+    if(!info.isFile())return {status:'NOT_A_FILE'};
+    const handle=await open(path,'r');let magic;
+    try {const bytes=Buffer.alloc(4);await handle.read(bytes,0,4,0);magic=bytes.equals(Buffer.from([127,69,76,70]));}finally{await handle.close();}
+    const result={status:'PRESENT',elf:magic,executableBit:!!(info.mode&0o111),ownedByRoot:info.uid===0,
+      setuidRoot:info.uid===0&&!!(info.mode&0o4000),bytes:info.size};
+    if(hash&&magic&&info.size<=1024*1024*1024){const digest=createHash('sha256');for await(const chunk of createReadStream(path))digest.update(chunk);result.sha256=digest.digest('hex');}
+    return result;
+  }catch(error){return {status:error?.code==='ENOENT'?'MISSING':'UNREADABLE'};}
+}
+async function inspectLaunchPreflight(executablePath) {
+  const sources={osRelease:'/etc/os-release',appArmorEnabled:'/sys/module/apparmor/parameters/enabled',
+    appArmorRestrictUserns:'/proc/sys/kernel/apparmor_restrict_unprivileged_userns',unprivilegedUsernsClone:'/proc/sys/kernel/unprivileged_userns_clone',
+    maxUserNamespaces:'/proc/sys/user/max_user_namespaces',chromeProfile:'/etc/apparmor.d/chrome',
+    loadedProfiles:'/sys/kernel/security/apparmor/profiles',dpkgStatus:'/var/lib/dpkg/status'};
+  const facts={};
+  for(const [key,path] of Object.entries(sources)){try{const text=await readFile(path,'utf8');facts[key]=text.length<=16*1024*1024?text:null;}catch{facts[key]=null;}}
+  return {selection:'PLAYWRIGHT_PINNED_DOWNLOAD_ONLY',alternativeExecutableLaunched:false,
+    imageOS:/^ubuntu\d+$/.test(process.env.ImageOS||'')?process.env.ImageOS:null,
+    imageVersion:/^\d{8}\.\d+(?:\.\d+)?$/.test(process.env.ImageVersion||'')?process.env.ImageVersion:null,
+    runningAsRoot:typeof process.getuid==='function'?process.getuid()===0:null,displayConfigured:!!process.env.DISPLAY,
+    system:summarizeLaunchSystemFacts(facts),selectedExecutable:await inspectExecutableFile(executablePath),
+    selectedSandboxHelpers:{underscore:await inspectExecutableFile(join(dirname(executablePath),'chrome_sandbox'),{hash:false}),hyphen:await inspectExecutableFile(join(dirname(executablePath),'chrome-sandbox'),{hash:false})},
+    existingGoogleChrome:{candidateOnly:true,executable:await inspectExecutableFile('/opt/google/chrome/chrome'),sandboxHelper:await inspectExecutableFile('/opt/google/chrome/chrome-sandbox',{hash:false})}};
+}
 const modes=['persisted','absent','revoked','alias','read_at'];
-const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
+const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED','BROWSER_LAUNCH_FAILED'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
 const browserCodes=new Set(['LOGIN_REQUIRED','DENIED','OUTCOME_UNCERTAIN','WORKSPACE_REQUIRED','STUDENT_REQUIRED','INVALID_RECEIPT','JOURNAL_UNAVAILABLE','SDK_VERSION_MISMATCH','LOSS_ALREADY_ARMED','RESPONSE_LOST_AFTER_CONSUMPTION','STALE_CONTEXT','OPERATION_PENDING','42501','OPERATION_REJECTED']);
 const browserMethods=new Set(['initialize','authenticate','enterProfessional','armLoss','send','setAlias','markRead','reconcile','cancel','logout','inspect','auditStorage']);
 const unwrap=r=>{
@@ -49,11 +123,14 @@ export async function runSyntheticBrowserBridge() {
     requireThat(/^[0-9a-f]{40}$/.test(report.runCommit||''),'RUN_COMMIT_REQUIRED');
     const prepared=await prepareAssets();
     const playwright=await import(pathToFileURL(join(prepared.dependencies.modules,'playwright/index.mjs')).href);
-    runtimeAttempted=true;report.status='RUNNING';phase='launch_browser';
     const executablePath=playwright.chromium.executablePath();
-    browser=await playwright.chromium.launch({executablePath,headless:true,chromiumSandbox:true});
-    report.runtime={engine:'chromium',browserVersion:browser.version(),browserBinarySha256:sha256(await readFile(executablePath)),
+    phase='inspect_browser_launch';report.launchPreflight=await inspectLaunchPreflight(executablePath);
+    report.runtime={engine:'chromium',browserVersion:null,browserBinarySha256:report.launchPreflight.selectedExecutable.sha256||null,
       playwrightVersion:versions.playwright,sandboxRequested:true,sdk:prepared.bundleReport,candidateModuleHashes:prepared.candidateHashes};
+    runtimeAttempted=true;report.status='RUNNING';phase='launch_browser';
+    try {browser=await playwright.chromium.launch({executablePath,headless:true,chromiumSandbox:true});}
+    catch(error){report.launchFailure=classifyLaunchError(error);throw Object.assign(new Error('BROWSER_LAUNCH_FAILED'),{code:'BROWSER_LAUNCH_FAILED'});}
+    report.runtime.browserVersion=browser.version();
     for(const mode of modes) {
       phase=mode+':start_fixture';
       assetsServer=await startAssets(prepared);apiServer=await startFixtureApi({allowedOrigin:assetsServer.origin});

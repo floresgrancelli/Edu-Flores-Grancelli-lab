@@ -1,5 +1,7 @@
 import {DUAL_WORKSPACE_RELEASE_ENABLED} from './dual-workspace-candidate.mjs?v=ncc-dual-workspace-r4-20261106';
-import {mountDualWorkspacePanel} from './dual-workspace-panel.mjs?v=ncc-dual-workspace-r4-20261106';
+import {mountDualWorkspacePanel} from './dual-workspace-panel.mjs?v=ncc-professional-screens-r1-20261107';
+
+import {PROFESSIONAL_SCREENS_RELEASE_ENABLED,createProfessionalMutationGuard} from './professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
 
 // Presentation boundary only. RPCs remain responsible for authorization.
 // Selection and pending operations live in RAM and are never copied between identities.
@@ -9,9 +11,11 @@ export function workspaceIdentity(session) {
 }
 export const isDualWorkspaceField = element => !!element?.closest?.('[data-ncc-dual-panel]');
 export function createDualWorkspaceFrame({enabled=DUAL_WORKSPACE_RELEASE_ENABLED,
- rpc,readSession,readLegacyPersonal,hasUnsavedDraft,mountPanel=mountDualWorkspacePanel}={}) {
+ rpc,readSession,readLegacyPersonal,hasUnsavedDraft,mountPanel=mountDualWorkspacePanel,
+ professionalScreensEnabled=PROFESSIONAL_SCREENS_RELEASE_ENABLED,createScreenTransport,syntheticEnvironment=()=>false,navigationTarget=null}={}) {
  let identity=null, panel=null, mount=null, frameRoot=null, professional=false;
  let generation=0;
+ const screenMutationGuard=createProfessionalMutationGuard(); // Survives panel unmount/session invalidation in this host.
  const session=()=>{const value=readSession?.();return workspaceIdentity(value)?
   {userId:value.userId,sessionId:JSON.stringify([value.sessionId,value.epoch])}:null;};
  function apply(){
@@ -47,6 +51,8 @@ export function createDualWorkspaceFrame({enabled=DUAL_WORKSPACE_RELEASE_ENABLED
    for(const event of ['click','input','change','submit'])mount.addEventListener(event,e=>e.stopPropagation());
    const ticket=generation;
    panel=mountPanel({root:mount,rpc,readSession:session,readLegacyPersonal,hasUnsavedDraft,enabled:true,
+    professionalScreens:{enabled:professionalScreensEnabled,readSession,syntheticEnvironment,
+     mutationGuard:screenMutationGuard,createTransport:createScreenTransport},
     onView(view){if(ticket!==generation||!revalidate())return;professional=!!view.professional;apply();},
     onUnavailable(){if(ticket!==generation)return;professional=false;apply();}});
   }else slot.append(mount);
@@ -60,7 +66,12 @@ export function createDualWorkspaceFrame({enabled=DUAL_WORKSPACE_RELEASE_ENABLED
   if(event.type==='click'&&event.target?.closest?.('[data-act="logout"]'))return false;
   event.preventDefault();event.stopImmediatePropagation();return true;
  }
+ const onHistory=()=>{invalidate();if(frameRoot)mountFrame(frameRoot);};
+ const onHide=()=>invalidate();
+ // A bfcache restore need not emit popstate. Fetch a fresh personal chooser, never cached professional data.
+ const onShow=event=>{if(event?.persisted)onHistory();};
+ if(enabled){navigationTarget?.addEventListener?.('popstate',onHistory);navigationTarget?.addEventListener?.('pagehide',onHide);navigationTarget?.addEventListener?.('pageshow',onShow);}
  return Object.freeze({prepareFrame,wrap,mountFrame,guardEvent,revalidate,invalidate,
   isProfessional:()=>enabled&&revalidate()&&professional,
-  ready:()=>panel?.ready||Promise.resolve({disabled:!enabled})});
+  ready:()=>{const current=panel;return current?current.ready.then(async result=>{await current.screensReady?.();return result;}):Promise.resolve({disabled:!enabled});}});
 }

@@ -1,10 +1,14 @@
-name: NCC R4 full-app dual workspace QA (OFF, synthetic loopback)
+name: NCC dual workspace and professional screens QA (OFF, synthetic loopback)
 
 on:
   push:
     branches: ['work/ncc-dual-workspace-r4-*']
     paths:
       - 'efg-nutrition/pilot/dual-workspace*'
+      - 'efg-nutrition/pilot/professional-screens-*'
+      - 'efg-nutrition/tests/professional-screens-*'
+      - 'efg-nutrition/docs/professional-screens-candidate.md'
+      - 'efg-nutrition/tools/prepare-professional-screens-assets.py'
       - 'efg-nutrition/pilot/pilot.js'
       - 'efg-nutrition/pilot/index.html'
       - 'efg-nutrition/tests/dual-workspace-*'
@@ -57,6 +61,22 @@ jobs:
           import {execFileSync} from 'node:child_process';
           const allowed = new Set([
             '.github/workflows/ncc-dual-workspace-fullapp-qa.yml',
+            'efg-nutrition/docs/professional-screens-candidate.md',
+            'efg-nutrition/pilot/professional-screens-candidate.mjs',
+            'efg-nutrition/pilot/professional-screens-panel.mjs',
+            'efg-nutrition/pilot/professional-screens-transport.mjs',
+            'efg-nutrition/tests/professional-screens-browser.mjs',
+            'efg-nutrition/tests/professional-screens-candidate.test.mjs',
+            'efg-nutrition/tests/professional-screens-fixture.mjs',
+            'efg-nutrition/tests/professional-screens-fullapp-browser.mjs',
+            'efg-nutrition/tests/professional-screens-fullapp-contract.test.mjs',
+            'efg-nutrition/tests/professional-screens-fullapp-sdk.mjs',
+            'efg-nutrition/tests/professional-screens-integrated.test.mjs',
+            'efg-nutrition/tests/professional-screens-panel.test.mjs',
+            'efg-nutrition/tests/professional-screens-preview.html',
+            'efg-nutrition/tests/professional-screens-preview.mjs',
+            'efg-nutrition/tests/professional-screens-transport.test.mjs',
+            'efg-nutrition/tools/prepare-professional-screens-assets.py',
             'efg-nutrition/docs/DUAL_WORKSPACE_R4_QA_20261106.md',
             'efg-nutrition/docs/guide-return-candidate/asset-manifest.json',
             'efg-nutrition/tools/pwa-build-identity.mjs',
@@ -124,20 +144,22 @@ jobs:
           set -euo pipefail
           export NCC_R4_BASELINE_ROOT="$RUNNER_TEMP/ncc-r4-reference/baseline"
           export NCC_R4_BASE_TREE_JSON="$RUNNER_TEMP/ncc-r4-reference/base-tree.json"
-          node --test efg-nutrition/tests/dual-workspace-*.test.mjs
+          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-screens-*.test.mjs
           node efg-nutrition/tests/student-session-mutation-races.mjs
           node efg-nutrition/tests/student-food-restrictions-runtime.mjs
           node efg-nutrition/tests/weekly-preview-state.mjs
           node efg-nutrition/tests/approved-release-flags.mjs
           node --test efg-nutrition/tests/guide-candidate-assets.test.mjs
-          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs; do node --check "$source"; done
+          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-screens-*.mjs efg-nutrition/tests/professional-screens-*.mjs; do node --check "$source"; done
           node --check efg-nutrition/pilot/pilot.js
           python - <<'PYTHON'
           import ast
           from pathlib import Path
           source=Path('efg-nutrition/tools/prepare-dual-workspace-r4-assets.py')
           ast.parse(source.read_text(),filename=str(source))
-          print('PASS asset generator syntax; generator not executed and checkout not rewritten')
+          source=Path('efg-nutrition/tools/prepare-professional-screens-assets.py')
+          ast.parse(source.read_text(),filename=str(source))
+          print('PASS asset generator syntax; generators not executed and checkout not rewritten')
           PYTHON
 
   fullapp-browser:
@@ -173,6 +195,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           export NCC_PLAYWRIGHT_MODULE="$RUNNER_TEMP/ncc-r4-playwright/node_modules/playwright/index.mjs"
           node efg-nutrition/tests/dual-workspace-fullapp-browser.mjs
+          node efg-nutrition/tests/professional-screens-fullapp-browser.mjs
       - name: Preserve synthetic UI evidence without baseline or database material
         if: always()
         uses: actions/upload-artifact@v4
@@ -196,11 +219,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Require existing PostgreSQL binaries and unchanged runtime
+      - name: Require existing PostgreSQL binaries and unchanged synthetic model
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          git diff --exit-code d48c7e10454d45e2bbc98e4882a44c9f3c638670 HEAD -- efg-nutrition/pilot efg-nutrition/docs/guide-return-candidate/asset-manifest.json efg-nutrition/tools/pwa-build-identity.mjs efg-nutrition/tests/approved-release-flags.mjs
+          git diff --exit-code 96c5e3caef7797455d904595c895fab13a24efe0 HEAD -- efg-nutrition/tests/dual-workspace-concurrency-model.sql efg-nutrition/tests/dual-workspace-concurrency.mjs
           bin="$(find /usr/lib/postgresql -mindepth 2 -maxdepth 2 -type d -name bin 2>/dev/null | sort -V | tail -1)"
           if test -z "$bin" || ! test -x "$bin/initdb" || ! test -x "$bin/pg_ctl" || ! test -x "$bin/psql" || ! test -x "$bin/createdb"; then
             echo 'Required preinstalled PostgreSQL binaries are unavailable; no installation fallback.' >&2
@@ -240,3 +263,4 @@ jobs:
           if test -n "${NCC_PG_BIN:-}" && test -f "$RUNNER_TEMP/ncc-pg-data/postmaster.pid"; then
             "$NCC_PG_BIN/pg_ctl" -D "$RUNNER_TEMP/ncc-pg-data" -m immediate -w stop
           fi
+

@@ -1,16 +1,22 @@
 import {createDualWorkspaceClient} from './dual-workspace-candidate.mjs?v=ncc-dual-workspace-r4-20261106';
-import {createWorkspaceGateway} from './dual-workspace-integration.mjs?v=ncc-dual-workspace-r4-20261106';
+import {createWorkspaceGateway} from './dual-workspace-integration.mjs?v=ncc-professional-screens-r1-20261107';
+
+import {mountProfessionalScreens} from './professional-screens-panel.mjs?v=ncc-professional-screens-r1-20261107';
+import {professionalScreenScope} from './professional-screens-candidate.mjs?v=ncc-professional-screens-r1-20261107';
 
 // Candidate integration in the real app frame. OFF unless explicitly supplied.
-export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal,hasUnsavedDraft,enabled=false,onView=()=>{},onUnavailable=()=>{}}={}){
+export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal,hasUnsavedDraft,enabled=false,onView=()=>{},onUnavailable=()=>{},professionalScreens={}}={}){
  if(!enabled)return Object.freeze({dispose(){},ready:Promise.resolve({disabled:true})});
  const document=root.ownerDocument,client=createDualWorkspaceClient({rpc,readSession,enabled});
  const gateway=createWorkspaceGateway({client,readLegacyPersonal,hasUnsavedDraft});
+ let screens=null,screensMount=null,screensGeneration=null;
+ function disposeScreens(){screens?.dispose();screens=null;screensMount=null;screensGeneration=null;}
+ function assertScreenDrafts(){screens?.adapter?.assertCanLeave();}
  let disposed=false,busy=false,notice='Solo ensayo sintético. No cambia el rol personal ni abre fichas privadas.';
  const alive=()=>!disposed&&root.isConnected;
  function unavailable(error){
   if(!alive())return;
-  root.replaceChildren(node('p','Panel candidato no disponible: '+error.message));onUnavailable(error);
+  disposeScreens();root.replaceChildren(node('p','Panel candidato no disponible: '+error.message));onUnavailable(error);
  }
  function safeRender(){try{render();}catch(error){unavailable(error);}}
  const node=(tag,text)=>{const element=document.createElement(tag);if(text)element.textContent=text;return element;};
@@ -29,7 +35,9 @@ export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal
   });
  }
  async function run(action){
-  if(busy||!alive())return;busy=true;
+  if(busy||!alive())return;
+  try{assertScreenDrafts();}catch(error){notice=error.message;safeRender();return;}
+  busy=true;
   for(const control of root.querySelectorAll('button,input,select'))control.disabled=true;
   try{await action();if(!alive())return;await gateway.refresh();notice='Cambio verificado en la candidata sintética.';}
   catch(error){notice=error.message;}
@@ -57,12 +65,14 @@ export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal
   }
   const label=node('label','Elegí tu espacio'),select=node('select');select.setAttribute('aria-label','Espacio personal o profesional');
   for(const choice of state.choices){const option=node('option',choice.label);option.value=choice.key;option.selected=choice.key===state.selected;select.append(option);}
-  select.addEventListener('change',()=>{try{gateway.enter(select.value);notice='Espacio cambiado. El vínculo personal sigue intacto.';}catch(error){notice=error.message;}safeRender();});label.append(select);root.append(label);
+  select.addEventListener('change',()=>{try{assertScreenDrafts();gateway.enter(select.value);notice='Espacio cambiado. El vínculo personal sigue intacto.';}catch(error){notice=error.message;}safeRender();});label.append(select);root.append(label);
   if(!state.professional){
+   disposeScreens();
    root.append(node('p',state.originalProfile.role==='student'?`Seguimiento personal conservado en ${state.originalProfile.organization_id}.`:'Mi día personal permanece sin cambios.'));return;
   }
   root.append(node('h3',state.professional.name));
   if(state.professionalState==='professional_terms'){
+   disposeScreens();
    root.append(node('p','La aceptación como alumna/o no reemplaza la aceptación profesional. Esta prueba usa documentos ficticios sin efectos legales.'));
    const form=node('form'),label=node('label','Acepto ambas versiones ficticias para este ensayo'),checkbox=node('input');
    checkbox.type='checkbox';checkbox.name='accepted';checkbox.required=true;label.prepend(checkbox);form.append(label);
@@ -77,10 +87,26 @@ export function mountDualWorkspacePanel({root,rpc,readSession,readLegacyPersonal
    catch(error){notice=error.message;}finally{busy=false;if(alive())safeRender();}
   });root.append(list);
   for(const student of state.roster||[])root.append(node('p',`${student.nickname} · ${student.consent_accepted?'Seguimiento autorizado':'Sin consentimiento de seguimiento'}`));
-  root.append(node('p','Las fichas, guías, mensajes y pagos profesionales siguen cerrados hasta integrar y validar el servidor.'));
+  if(professionalScreens.enabled===true){
+   const generation=JSON.stringify([state.selected,state.navigationEpoch]);
+   if(screensGeneration!==generation)disposeScreens();
+   if(!screens){
+    screensMount=node('section');root.append(screensMount);screensGeneration=generation;
+    const readWorkspace=()=>{const view=gateway.view();return {view,navigationEpoch:view.navigationEpoch};};
+    const readContext=()=>professionalScreenScope(professionalScreens.readSession?.(),readWorkspace());
+    screens=mountProfessionalScreens({root:screensMount,enabled:true,
+     syntheticEnvironment:professionalScreens.syntheticEnvironment,mutationGuard:professionalScreens.mutationGuard,
+     readSession:professionalScreens.readSession,readWorkspace,
+     transport:professionalScreens.createTransport?.({readContext})});
+   }else{root.append(screensMount);screens.revalidate();}
+   root.append(node('p','Fichas clínicas, guías, informes y pagos siguen cerrados. Alias, recetas y mensajes usan el panel candidato separado.'));
+  }else{
+   disposeScreens();
+   root.append(node('p','Las fichas, guías, mensajes y pagos profesionales siguen cerrados hasta integrar y validar el servidor.'));
+  }
  }
  const ready=gateway.refresh().then(()=>{if(alive())safeRender();return {disabled:false};}).catch(error=>{
   unavailable(error);return {error:error.message};
  });
- return Object.freeze({ready,dispose(){disposed=true;gateway.clear();if(root.isConnected)root.replaceChildren();}});
+ return Object.freeze({ready,screensReady:()=>screens?.ready||Promise.resolve({disabled:true}),dispose(){disposed=true;disposeScreens();gateway.clear();if(root.isConnected)root.replaceChildren();}});
 }

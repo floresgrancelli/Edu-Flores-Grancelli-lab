@@ -13,12 +13,17 @@ function verify(overrides={}){
  for(const css of manifest.stylesheets)assert.equal(hash(read(css.path)),css.sha256,'Pinned CSS: '+css.path);
  const candidate=read('efg-nutrition/pilot/dual-workspace-candidate.mjs').toString();
  assert.match(candidate,/export const DUAL_WORKSPACE_RELEASE_ENABLED = false;/);
+ for(const [name,flags] of [['candidate',['PROFESSIONAL_SCREENS_RELEASE_ENABLED']],['transport',['PROFESSIONAL_TRANSPORT_ENABLED','PROFESSIONAL_BACKEND_EXECUTION_ENABLED']]]){
+  const source=read('efg-nutrition/pilot/professional-screens-'+name+'.mjs').toString();
+  for(const flag of flags)assert.ok(source.includes('export const '+flag+' = false;'));
+ }
  return assertPwaBuildIdentity(read('efg-nutrition/pilot/index.html').toString(),bytes);
 }
 test('R4 asset graph is pinned without changing server release identity',()=>{
  assert.equal(manifest.baseline,'9aaddfe21d77302224f93ea82be3b215c86769d6');
- assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-dual-workspace-r4-20261106');
+ assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-professional-screens-r1-20261107');
  assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/dual-workspace-')).length,5);
+ assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/professional-screens-')).length,3);
  assert.equal(Object.keys(manifest.immutablePeriodPdfAssets).length,5);assert.equal(Object.keys(manifest.immutableReportAssets).length,10);
  assert.deepEqual(verify(),{build:manifest.build,assetVersion:manifest.assetVersion});
 });

@@ -1,5 +1,6 @@
-import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-dual-workspace-r4-20261106';
-import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-dual-workspace-r4-20261106';
+import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-screens-r1-20261107';
+import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-professional-screens-r1-20261107';
+import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-professional-screens-r1-20261107';
 import {reportCoachName} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -5413,6 +5414,11 @@ const dualWorkspaceBootstrap=createDualWorkspaceBootstrap({
  rpc:(name,args)=>sb.rpc(name,args)
 });
 const dualWorkspaceFrame=createDualWorkspaceFrame({
+ navigationTarget:window,
+ syntheticEnvironment:()=>["localhost","127.0.0.1","[::1]"].includes(location.hostname),
+ createScreenTransport:({readContext})=>createProfessionalContextualTransport({
+  sdk:sb,readContext,backendUrl:SUPABASE_URL,environment:()=>"localhost"
+ }),
  rpc:(name,args)=>sb.rpc(name,args),
  readSession:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,epoch:state.authContextEpoch||0}),
  readLegacyPersonal:()=>({profile:state.profile,organization:state.org}),

@@ -16,7 +16,7 @@ export function createWorkspaceGateway({client,readLegacyPersonal,hasUnsavedDraf
  function view(){
   const {contexts,legacy}=verify(),snapshot=client.snapshot();
   const professional=contexts.coach_contexts.find(o=>'coach:'+o.id===snapshot.selected)||null;
-  return structuredClone({selected:snapshot.selected,choices:snapshot.choices,
+  return structuredClone({selected:snapshot.selected,choices:snapshot.choices,navigationEpoch:revision,
    originalProfile:legacy.profile,originalOrganization:legacy.organization,
    professional,professionalState:professional?(professional.legal_ready===true?'candidate_roster':'professional_terms'):'personal',
    roster:rosterCache});

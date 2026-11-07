@@ -305,7 +305,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install exact official test dependencies in disposable runner storage
+      - name: Install exact SDK and harness dependencies; use existing official Chrome
         timeout-minutes: 14
         run: |
           set -euo pipefail
@@ -316,12 +316,11 @@ jobs:
           cp efg-nutrition/tests/professional-browser-api/package.json "$deps/package.json"
           npm install --prefix "$deps" --registry=https://registry.npmjs.org --package-lock-only --ignore-scripts --no-audit --no-fund
           npm ci --prefix "$deps" --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
-          "$deps/node_modules/.bin/playwright" install --with-deps chromium
       - name: Build local SDK bundle and test real browser recovery against fictional HTTP API
         timeout-minutes: 5
         env:
           NCC_SYNTHETIC_BROWSER_API: '1'
-          NCC_BROWSER: chromium
+          NCC_BROWSER: system-chrome
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"

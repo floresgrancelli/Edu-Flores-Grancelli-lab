@@ -115,7 +115,7 @@ test('harness does not restore auth or collect token-bearing artifacts',async()=
   assert.match(r,/page.reload\(\)/);assert.match(r,/route.continue\(\)/);assert.doesNotMatch(r,/route\.(fetch|fulfill)\(/);
   assert.doesNotMatch(b+r,/storageState\s*\(|tracing\.start|recordHar:|recordVideo:|console\.error\s*\(/);
   assert.match(r,/console\.log\(JSON\.stringify\(report\)\)/);
-  assert.match(r,/chromiumSandbox:true/);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);assert.match(r,/inspectLaunchPreflight\(executablePath\)/);assert.match(r,/browserBinarySha256:report\.launchPreflight\.selectedExecutable\.sha256/);
+  assert.match(r,/chromiumSandbox:true/);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);assert.match(r,/inspectLaunchPreflight\(OFFICIAL_CHROME_TARGET\.executablePath\)/);assert.match(r,/browserBinarySha256:report\.launchPreflight\.selectedExecutable\.sha256/);
 });
 
 
@@ -207,5 +207,22 @@ test('diagnostic patch keeps one sandboxed launch and has no shell, alternate la
   const r=await readFile(new URL('./run.mjs',import.meta.url),'utf8');
   assert.equal((r.match(/\.launch\(/g)||[]).length,1);assert.match(r,/launch\(\{executablePath,headless:true,chromiumSandbox:true\}\)/);
   assert.doesNotMatch(r,/child_process|execSync|execFile|spawn\(|chmod\(|chown\(|writeFile\(/);
-  assert.match(r,/selection:'PLAYWRIGHT_PINNED_DOWNLOAD_ONLY',alternativeExecutableLaunched:false/);
+  assert.match(r,/selection:OFFICIAL_CHROME_TARGET\.selector,automaticFallback:false,downloadedChromiumRetried:false/);
+  assert.doesNotMatch(r,/chromium\.executablePath\(/);
+  assert.match(r,/process\.env\.NCC_BROWSER===OFFICIAL_CHROME_TARGET\.environmentValue/);
+});
+
+test('official Chrome selection is one fixed verified target, not an arbitrary path or fallback',async()=>{
+  const {OFFICIAL_CHROME_TARGET:t,verifyOfficialChromeTarget}=await import('./run.mjs');
+  assert.equal(t.environmentValue,'system-chrome');assert.equal(t.executablePath,'/opt/google/chrome/chrome');assert.equal(t.browserVersion,'156.0.8078.79');
+  const observed={selection:t.selector,system:{googleChromePackageInstalled:true,googleChromePackageVersion:t.packageVersion,chromeProfileFileReadable:true,chromeProfileMentionsOfficialBinary:true,chromeProfileHasUsernsRule:true,chromeProfileListedAsLoaded:null},
+    selectedExecutable:{status:'PRESENT',elf:true,executableBit:true,ownedByRoot:true,sha256:t.sha256}};
+  assert.equal(verifyOfficialChromeTarget(observed),t.executablePath); // unknown loaded profile is not promoted to proof
+  assert.equal(observed.system.chromeProfileListedAsLoaded,null);
+  for(const change of [p=>p.selection='PLAYWRIGHT_PINNED_DOWNLOAD_ONLY',p=>p.system.googleChromePackageInstalled=false,p=>p.system.googleChromePackageInstalled=null,p=>p.system.googleChromePackageVersion='1.0.0',
+    p=>p.selectedExecutable.status='MISSING',p=>p.selectedExecutable.sha256='a'.repeat(64),p=>p.selectedExecutable.elf=false,p=>p.selectedExecutable.executableBit=false,p=>p.selectedExecutable.ownedByRoot=false,
+    p=>p.system.chromeProfileFileReadable=false,p=>p.system.chromeProfileMentionsOfficialBinary=false,p=>p.system.chromeProfileHasUsernsRule=null]){
+    const p=structuredClone(observed);change(p);assert.throws(()=>verifyOfficialChromeTarget(p));
+  }
+  const extra=structuredClone(observed);extra.executablePath='/arbitrary/unsafe';assert.equal(verifyOfficialChromeTarget(extra),'/opt/google/chrome/chrome');
 });

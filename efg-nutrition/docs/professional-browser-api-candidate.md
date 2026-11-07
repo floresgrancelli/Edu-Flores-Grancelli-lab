@@ -6,7 +6,7 @@ Esta candidata agrega un ensayo autónomo en el runner estándar de CI del repos
 
 El ensayo usa los tres módulos profesionales de la candidata, sin modificar sus bytes ni sus flags `false`. Su página mínima de pruebas habilita únicamente la ejecución sintética mediante las opciones ya previstas. No cambia `pilot.js`, el perfil original, el vínculo personal de alumna, los assets de publicación ni la versión desplegada.
 
-- Reales: paquete npm `@supabase/supabase-js` 2.118.0, Chromium, IndexedDB, recarga de página y solicitudes HTTP de navegador entre dos orígenes loopback propios.
+- Reales: paquete npm `@supabase/supabase-js` 2.118.0, Google Chrome preinstalado (motor Chromium), IndexedDB, recarga de página y solicitudes HTTP de navegador entre dos orígenes loopback propios.
 - Construido para este ensayo: bundle navegador local de ese paquete mediante esbuild 0.25.5. No se presenta como distribución publicada ni como paridad con esm.sh.
 - Ficticios: autenticación, sesiones, permisos, contextos, filas de mensajes y contadores del servidor HTTP. El servidor es una fixture en memoria y no implementa ni certifica GoTrue, PostgREST, PostgreSQL o RLS.
 - No probados aquí: backend privado, datos reales, servicio alojado, OTP, dispositivo físico y aplicación completa. El harness es una página mínima, no la app publicada.
@@ -16,6 +16,8 @@ Un resultado favorable acredita únicamente esta combinación. No habilita el do
 ## Ejecución y recursos
 
 El job `real-sdk-browser-http-fixture` del workflow `ncc-dual-workspace-fullapp-qa.yml` se limita al repositorio público esperado y a su rama candidata. Conserva `contents: read`, checkout del commit exacto y credenciales no persistidas. Usa Ubuntu estándar con dependencias oficiales de versiones superiores fijadas. El grafo transitivo se resuelve en un lock dentro del runner y se instala mediante `npm ci`; la evidencia identifica los bytes y versiones efectivamente usados, no un grafo preauditado fuera de la corrida.
+
+El navegador se toma exclusivamente de la instalación oficial existente en `/opt/google/chrome/chrome`; se exigen el paquete `156.0.8078.79-1` y el hash SHA256 `da143614d917f346b02c1b29587cc13bf891d4b73faf2bea7b20cbd8fa61510f`, observados en la corrida diagnóstica. La versión de navegador esperada es `156.0.8078.79` y se contrasta después del lanzamiento; aún no fue observada en el diagnóstico previo. Una imagen futura distinta requiere revisar el nuevo objetivo; no se relaja el pin automáticamente. No se copia un binario a una ruta autorizada, no hay fallback y no se cambia la política del sistema. El Chromium descargado que informó sandbox no disponible queda fuera de la selección.
 
 No se suben artifacts ni se crean caches para este job. Sólo se publican resultados sanitizados en logs y resumen del job. Las credenciales ficticias, tokens, cuerpos de mensajes, almacenamiento del navegador y encabezados quedan fuera de esa evidencia. Los recursos HTTP y de navegador pertenecen a la prueba y se cierran al terminar.
 

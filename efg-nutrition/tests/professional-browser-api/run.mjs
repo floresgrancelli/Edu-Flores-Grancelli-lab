@@ -10,6 +10,23 @@ import {assertBrowserRequest,validatePublicConfig,requireThat,metadataOnly,UUID,
 import {sha256,versions} from './verify-inputs.mjs';
 import {prepareAssets,startAssets} from './assets-server.mjs';
 import {startFixtureApi,SYNTHETIC_PUBLIC_ANON_KEY} from './fixture-server.mjs';
+// Explicit new target observed in CI df7ad2f6. This is not an automatic fallback.
+// The downloaded Chromium is never selected, launched or copied by this runner.
+export const OFFICIAL_CHROME_TARGET=Object.freeze({
+  selector:'RUNNER_EXISTING_GOOGLE_CHROME_ONLY',environmentValue:'system-chrome',
+  executablePath:'/opt/google/chrome/chrome',packageVersion:'156.0.8078.79-1',browserVersion:'156.0.8078.79',
+  sha256:'da143614d917f346b02c1b29587cc13bf891d4b73faf2bea7b20cbd8fa61510f'
+});
+export function verifyOfficialChromeTarget(preflight) {
+  requireThat(preflight?.selection===OFFICIAL_CHROME_TARGET.selector,'OFFICIAL_CHROME_TARGET_MISMATCH');
+  requireThat(preflight.system?.googleChromePackageInstalled===true&&preflight.system.googleChromePackageVersion===OFFICIAL_CHROME_TARGET.packageVersion,'OFFICIAL_CHROME_PACKAGE_MISMATCH');
+  const file=preflight.selectedExecutable;
+  requireThat(file?.status==='PRESENT'&&file.elf===true&&file.executableBit===true&&file.ownedByRoot===true&&file.sha256===OFFICIAL_CHROME_TARGET.sha256,'OFFICIAL_CHROME_BINARY_MISMATCH');
+  requireThat(preflight.system.chromeProfileFileReadable===true&&preflight.system.chromeProfileMentionsOfficialBinary===true&&preflight.system.chromeProfileHasUsernsRule===true,'OFFICIAL_CHROME_PROFILE_UNVERIFIED');
+  // A readable installed profile is context, not proof it is loaded or works.
+  // The single normal sandboxed launch is the runtime check. No settings change.
+  return OFFICIAL_CHROME_TARGET.executablePath;
+}
 // Launch diagnostics reduce local evidence to fixed codes and public system facts.
 // Raw Playwright messages/stderr, command lines and environment values are never emitted.
 export function classifyLaunchError(error) {
@@ -75,16 +92,15 @@ async function inspectLaunchPreflight(executablePath) {
     loadedProfiles:'/sys/kernel/security/apparmor/profiles',dpkgStatus:'/var/lib/dpkg/status'};
   const facts={};
   for(const [key,path] of Object.entries(sources)){try{const text=await readFile(path,'utf8');facts[key]=text.length<=16*1024*1024?text:null;}catch{facts[key]=null;}}
-  return {selection:'PLAYWRIGHT_PINNED_DOWNLOAD_ONLY',alternativeExecutableLaunched:false,
+  return {selection:OFFICIAL_CHROME_TARGET.selector,automaticFallback:false,downloadedChromiumRetried:false,
     imageOS:/^ubuntu\d+$/.test(process.env.ImageOS||'')?process.env.ImageOS:null,
     imageVersion:/^\d{8}\.\d+(?:\.\d+)?$/.test(process.env.ImageVersion||'')?process.env.ImageVersion:null,
     runningAsRoot:typeof process.getuid==='function'?process.getuid()===0:null,displayConfigured:!!process.env.DISPLAY,
     system:summarizeLaunchSystemFacts(facts),selectedExecutable:await inspectExecutableFile(executablePath),
-    selectedSandboxHelpers:{underscore:await inspectExecutableFile(join(dirname(executablePath),'chrome_sandbox'),{hash:false}),hyphen:await inspectExecutableFile(join(dirname(executablePath),'chrome-sandbox'),{hash:false})},
-    existingGoogleChrome:{candidateOnly:true,executable:await inspectExecutableFile('/opt/google/chrome/chrome'),sandboxHelper:await inspectExecutableFile('/opt/google/chrome/chrome-sandbox',{hash:false})}};
+    selectedSandboxHelpers:{underscore:await inspectExecutableFile(join(dirname(executablePath),'chrome_sandbox'),{hash:false}),hyphen:await inspectExecutableFile(join(dirname(executablePath),'chrome-sandbox'),{hash:false})}};
 }
 const modes=['persisted','absent','revoked','alias','read_at'];
-const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED','BROWSER_LAUNCH_FAILED'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
+const fixedCode=e=>['CI_ONLY','SYNTHETIC_OPT_IN_REQUIRED','SDK_VERSION_MISMATCH','MODULE_HASH_MISMATCH','BUNDLE_MISMATCH','LOCKFILE_CHANGED','BROWSER_LAUNCH_FAILED','SYSTEM_CHROME_REQUIRED','OFFICIAL_CHROME_TARGET_MISMATCH','OFFICIAL_CHROME_PACKAGE_MISMATCH','OFFICIAL_CHROME_BINARY_MISMATCH','OFFICIAL_CHROME_PROFILE_UNVERIFIED','BROWSER_VERSION_MISMATCH'].includes(e?.code)?e.code:'SYNTHETIC_BRIDGE_FAILED';
 const browserCodes=new Set(['LOGIN_REQUIRED','DENIED','OUTCOME_UNCERTAIN','WORKSPACE_REQUIRED','STUDENT_REQUIRED','INVALID_RECEIPT','JOURNAL_UNAVAILABLE','SDK_VERSION_MISMATCH','LOSS_ALREADY_ARMED','RESPONSE_LOST_AFTER_CONSUMPTION','STALE_CONTEXT','OPERATION_PENDING','42501','OPERATION_REJECTED']);
 const browserMethods=new Set(['initialize','authenticate','enterProfessional','armLoss','send','setAlias','markRead','reconcile','cancel','logout','inspect','auditStorage']);
 const unwrap=r=>{
@@ -119,18 +135,19 @@ export async function runSyntheticBrowserBridge() {
     requireThat(process.env.GITHUB_ACTIONS==='true'&&process.platform==='linux','CI_ONLY');
     requireThat(process.env.NCC_SYNTHETIC_BROWSER_API==='1','SYNTHETIC_OPT_IN_REQUIRED');
     requireThat(!process.env.DEBUG&&!process.env.PWDEBUG&&!process.env.NODE_DEBUG&&!/--inspect/.test(process.env.NODE_OPTIONS||''),'DEBUG_LOGGING_REJECTED');
-    requireThat(process.env.NCC_BROWSER==='chromium','CHROMIUM_REQUIRED');
+    requireThat(process.env.NCC_BROWSER===OFFICIAL_CHROME_TARGET.environmentValue,'SYSTEM_CHROME_REQUIRED');
     requireThat(/^[0-9a-f]{40}$/.test(report.runCommit||''),'RUN_COMMIT_REQUIRED');
     const prepared=await prepareAssets();
     const playwright=await import(pathToFileURL(join(prepared.dependencies.modules,'playwright/index.mjs')).href);
-    const executablePath=playwright.chromium.executablePath();
-    phase='inspect_browser_launch';report.launchPreflight=await inspectLaunchPreflight(executablePath);
-    report.runtime={engine:'chromium',browserVersion:null,browserBinarySha256:report.launchPreflight.selectedExecutable.sha256||null,
+    phase='inspect_browser_launch';report.launchPreflight=await inspectLaunchPreflight(OFFICIAL_CHROME_TARGET.executablePath);
+    const executablePath=verifyOfficialChromeTarget(report.launchPreflight);
+    report.runtime={engine:'chromium',distribution:'Google Chrome',provider:'runner-preinstalled-official-package',expectedBrowserVersion:OFFICIAL_CHROME_TARGET.browserVersion,packageVersion:OFFICIAL_CHROME_TARGET.packageVersion,browserVersion:null,browserBinarySha256:report.launchPreflight.selectedExecutable.sha256||null,
       playwrightVersion:versions.playwright,sandboxRequested:true,sdk:prepared.bundleReport,candidateModuleHashes:prepared.candidateHashes};
     runtimeAttempted=true;report.status='RUNNING';phase='launch_browser';
     try {browser=await playwright.chromium.launch({executablePath,headless:true,chromiumSandbox:true});}
     catch(error){report.launchFailure=classifyLaunchError(error);throw Object.assign(new Error('BROWSER_LAUNCH_FAILED'),{code:'BROWSER_LAUNCH_FAILED'});}
     report.runtime.browserVersion=browser.version();
+    phase='verify_browser_version';requireThat(report.runtime.browserVersion===OFFICIAL_CHROME_TARGET.browserVersion,'BROWSER_VERSION_MISMATCH');
     for(const mode of modes) {
       phase=mode+':start_fixture';
       assetsServer=await startAssets(prepared);apiServer=await startFixtureApi({allowedOrigin:assetsServer.origin});

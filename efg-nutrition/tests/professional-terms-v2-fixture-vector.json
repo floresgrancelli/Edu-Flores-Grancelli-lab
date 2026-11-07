@@ -1,0 +1,106 @@
+{
+  "contract_version_name": "ncc-professional-legal-v2-proposal-1",
+  "status": "FICTIONAL_VECTOR_ONLY_NOT_HOSTED_NOT_APPROVED",
+  "note": "The timestamps, UUIDs and bodies are fictional fixtures; the canon intentionally preserves composed and decomposed version strings without NFC.",
+  "bundle": {
+    "contract_version": 2,
+    "actor_id": "72000000-0000-4000-8000-000000000001",
+    "organization_id": "72000000-0000-4000-8000-000000000002",
+    "scope": "professional_workspace_acceptance_v2",
+    "binding_sha256": "8f1eaf93ad040faa396fa423fd904b428f0897c57e64226ce1ea5f904232a3ae",
+    "documents": [
+      {
+        "kind": "terms",
+        "document_id": "72000000-0000-4000-8000-000000000003",
+        "version": "fixture-v1-é",
+        "sha256": "7a17eb0439dbf202d03273f9e03a0a1e4e140d8b6ec36c0225e44a5666eed5f7",
+        "body": "FICTICIO: términos α. No es un documento legal.\n",
+        "published_at": "2026-11-07T00:00:00Z",
+        "is_current": true,
+        "url": null
+      },
+      {
+        "kind": "privacy",
+        "document_id": "72000000-0000-4000-8000-000000000004",
+        "version": "fixture-v1-é",
+        "sha256": "69ad72654ae6315901a3c3181b9f39388be2b193a37f8d9380e08af6b961377a",
+        "body": "FICTICIO: privacidad β. No es una publicación.\n",
+        "published_at": "2026-11-07T00:00:00Z",
+        "is_current": true,
+        "url": null
+      }
+    ]
+  },
+  "canonical_field_byte_lengths": [
+    36,
+    36,
+    36,
+    36,
+    13,
+    64,
+    36,
+    14,
+    64
+  ],
+  "canonical_preimage_utf8_hex": "4e43432d50524f46455353494f4e414c2d4c4547414c2d42554e444c452d56320a33363a37323030303030302d303030302d343030302d383030302d30303030303030303030303133363a37323030303030302d303030302d343030302d383030302d30303030303030303030303233363a70726f66657373696f6e616c5f776f726b73706163655f616363657074616e63655f763233363a37323030303030302d303030302d343030302d383030302d30303030303030303030303331333a666978747572652d76312dc3a936343a3761313765623034333964626632303264303332373366396530336130613165346531343064386236656333366330323235653434613536363665656435663733363a37323030303030302d303030302d343030302d383030302d30303030303030303030303431343a666978747572652d76312d65cc8136343a36396164373236353461653633313539303161336333313831623966333933383862653262313933613337663864393338306530386166366239363133373761",
+  "acceptance_request": {
+    "p_org": "72000000-0000-4000-8000-000000000002",
+    "p_expected_binding_sha256": "8f1eaf93ad040faa396fa423fd904b428f0897c57e64226ce1ea5f904232a3ae",
+    "p_request_id": "72000000-0000-4000-8000-000000000005"
+  },
+  "acceptance_result": {
+    "contract_version": 2,
+    "actor_id": "72000000-0000-4000-8000-000000000001",
+    "organization_id": "72000000-0000-4000-8000-000000000002",
+    "request_id": "72000000-0000-4000-8000-000000000005",
+    "legal_ready": true,
+    "legal_binding_sha256": "8f1eaf93ad040faa396fa423fd904b428f0897c57e64226ce1ea5f904232a3ae"
+  },
+  "receipt_request": {
+    "p_request_id": "72000000-0000-4000-8000-000000000005"
+  },
+  "receipt_result": {
+    "operation": "acceptTerms",
+    "payload": {
+      "p_org": "72000000-0000-4000-8000-000000000002",
+      "p_expected_binding_sha256": "8f1eaf93ad040faa396fa423fd904b428f0897c57e64226ce1ea5f904232a3ae"
+    },
+    "result": {
+      "contract_version": 2,
+      "actor_id": "72000000-0000-4000-8000-000000000001",
+      "organization_id": "72000000-0000-4000-8000-000000000002",
+      "request_id": "72000000-0000-4000-8000-000000000005",
+      "legal_ready": true,
+      "legal_binding_sha256": "8f1eaf93ad040faa396fa423fd904b428f0897c57e64226ce1ea5f904232a3ae"
+    }
+  },
+  "errors": {
+    "unbound": {
+      "data": null,
+      "error": {
+        "code": "55000",
+        "message": "NCC_LEGAL_BINDING_UNBOUND",
+        "details": null,
+        "hint": null
+      }
+    },
+    "binding_changed": {
+      "data": null,
+      "error": {
+        "code": "22023",
+        "message": "NCC_LEGAL_BINDING_CHANGED",
+        "details": null,
+        "hint": null
+      }
+    },
+    "busy": {
+      "data": null,
+      "error": {
+        "code": "55P03",
+        "message": "NCC_LEGAL_BINDING_BUSY",
+        "details": null,
+        "hint": null
+      }
+    }
+  }
+}

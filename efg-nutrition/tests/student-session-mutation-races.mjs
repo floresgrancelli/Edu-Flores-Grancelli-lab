@@ -70,14 +70,15 @@ async function privatePdfFixture(userId){
  return view;
 }
 
+let releaseFrameResets=0;
 const resetPrivateSession=new Function(
- 'state','pendingMealRegistrations','pendingHabitualSlots',
+ 'state','pendingMealRegistrations','pendingHabitualSlots','dualWorkspaceFrame','dualWorkspaceBootstrap','professionalReleaseFrame',
  'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView','weeklyPdfReview','luxuryWeeklyEditor','weeklyReportDelivery',
  'let myWeeklyReports=[],cloudRecipes=[],cloudHabituales=[],coachRosterConsent={};'+
  'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false;'+
  section('function resetPrivateSession(){','function handleAuthStateChange(')+
  ';return resetPrivateSession;')(
- state,mealLocks,favoriteLocks,{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});
+ state,mealLocks,favoriteLocks,{invalidate(){}},{invalidate(){}},{invalidate(){releaseFrameResets++;}},{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});
 
 const leaseA=mealLocks.add('desayuno');
 const favoriteLeaseA=favoriteLocks.add('cena');
@@ -87,6 +88,7 @@ assert.equal(deferred.length,1,'First diary write should be in flight');
 const pdfA=await privatePdfFixture(idA);
 resetPrivateSession();
 assert.equal(pdfView.get(),null,'Logout closes an in-flight private PDF view');
+assert.equal(releaseFrameResets,1,'Logout invalidates the independent professional release view');
 assert.equal(pdfA.host.periodReviewed,null,'Logout revokes the old review');
 assert.equal(pdfA.host.periodPdfSnapshot,null,'Logout clears the old PDF snapshot');
 assert.equal(pdfA.ticket,null,'Late PDF generation cannot attach after logout');

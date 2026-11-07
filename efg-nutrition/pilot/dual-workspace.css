@@ -1,0 +1,17 @@
+/* R4 candidate only: selectors are absent when the release flag is OFF. */
+[data-ncc-dual-panel] { margin-block-end: 18px; min-width: 0; overflow-wrap: anywhere; }
+[data-ncc-dual-panel] label { display: grid; gap: 6px; margin-block: 10px; }
+[data-ncc-dual-panel] input, [data-ncc-dual-panel] select { width: 100%; max-width: 100%; box-sizing: border-box; }
+[data-ncc-dual-panel] input[type="checkbox"] { width: auto; justify-self: start; }
+[data-ncc-dual-panel] form { display: grid; gap: 8px; margin-block: 12px; }
+[data-ncc-dual-panel] section { margin-block: 16px; }
+[data-ncc-personal-content][hidden] { display: none !important; }
+[data-ncc-workspace="professional"] .pilot-nav [data-tab] { opacity: .4; cursor: not-allowed; }
+
+/* Separate professional screen surface; absent while both release flags are OFF. */
+[data-ncc-professional-screens] { border-top:1px solid #d1dfda; padding-top:16px; }
+[data-ncc-professional-screens] section { padding:14px; border:1px solid #d1dfda; border-radius:12px; }
+[data-ncc-professional-screens] textarea { width:100%; min-height:92px; box-sizing:border-box; }
+[data-ncc-professional-screens] button { min-height:44px; margin:6px 8px 6px 0; }
+[data-ncc-professional-screens] [role="log"] { max-height:320px; overflow:auto; overflow-wrap:anywhere; }
+@media(max-width:500px){[data-ncc-professional-screens] button{width:100%;margin:6px 0}}

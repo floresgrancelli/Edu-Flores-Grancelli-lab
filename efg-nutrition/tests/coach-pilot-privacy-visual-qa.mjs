@@ -7,7 +7,7 @@ import {chromium,webkit} from 'playwright';
 import assert from 'node:assert/strict';
 const base=process.cwd(),out=join(base,'artifacts/premium-visual-qa');
 mkdirSync(out,{recursive:true});
-const types={'.js':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.avif':'image/avif'};
+const types={'.js':'text/javascript','.mjs':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.avif':'image/avif'};
 const server=createServer((req,res)=>{
  try{
   const path=new URL(req.url,'http://localhost').pathname;

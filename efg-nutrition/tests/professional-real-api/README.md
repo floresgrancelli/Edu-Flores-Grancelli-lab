@@ -95,6 +95,12 @@ Failures report only a fixed stage/code and, for psql failures when available,
 the five-character SQLSTATE. SQL text, stderr, response bodies and credentials
 are never included in those diagnostics.
 
+Legacy API-key parsing follows the pinned CLI's
+[generateJWT implementation](https://github.com/supabase/cli/blob/v2.84.2/pkg/config/apikeys.go#L75-L85):
+its issuer is `supabase-demo`, not `supabase`. The untouched init template leaves
+`signing_keys_path` commented out, so the legacy keys use HS256. Shape/algorithm,
+role, issuer, and scope failures report distinct fixed codes, never claim values.
+
 Setup rejects an existing application schema or any existing Auth users. The
 Node backend creates fresh `example.invalid` users through the local GoTrue admin
 API, with synthetic runtime passwords. No user token is minted by this code.

@@ -15,8 +15,8 @@ const env = {GITHUB_ACTIONS: 'true', NCC_REAL_BROWSER_API: '1',
   EFG_LOCAL_STATUS_ENV: '/tmp/runner/ncc-professional-real-123-1-status.env'};
 const owner = checkRuntimeEnv(env, 'linux');
 // Explicitly invalid cryptographic signatures, used only to test parsing.
-const key = (role, extra = {}) => [Buffer.from(JSON.stringify({alg: 'HS256', typ: 'JWT'})).toString('base64url'),
-  Buffer.from(JSON.stringify({iss: 'supabase', role, ...extra})).toString('base64url'), 'not-a-signature'].join('.');
+const key = (role, extra = {}, header = {}) => [Buffer.from(JSON.stringify({alg: 'HS256', typ: 'JWT', ...header})).toString('base64url'),
+  Buffer.from(JSON.stringify({iss: 'supabase-demo', role, ...extra})).toString('base64url'), 'not-a-signature'].join('.');
 const status = (extra = {}) => Object.entries({API_URL: 'http://127.0.0.1:54321',
   DB_URL: 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
   ANON_KEY: key('anon'), SERVICE_ROLE_KEY: key('service_role'), ...extra}).map(([k, v]) => `${k}="${v}"`).join('\n');
@@ -29,11 +29,28 @@ test('CI gate rejects non-CI, hosted overrides, foreign owner and non-owned path
     {NCC_REAL_STACK_ID: 'another-stack'}, {NCC_REAL_STACK_DIR: '/tmp/not-owned'}]) assert.throws(() => checkRuntimeEnv({...env, ...change}, 'linux'));
   assert.throws(() => checkRuntimeEnv(env, 'darwin'));
 });
-test('status permits historical/local claims only and never exposes DB/signing secrets', () => {
+test('status matches CLI 2.84.2 local issuer and exposes only fixed rejection codes', () => {
   const parsed = parseLocalStatus(status({JWT_SECRET: 'discard-this-local-field'}));
   assert.deepEqual(Object.keys(parsed).sort(), ['adminKey', 'anonKey', 'origin']);
   assert.equal(parsed.origin, 'http://127.0.0.1:54321');
   parseLocalStatus(status({ANON_KEY: key('anon', {ref: 'supabase-demo'})}));
+  // Regression: the prior parser incorrectly required iss="supabase". The
+  // pinned CLI's generateJWT sets iss="supabase-demo" for BOTH legacy keys.
+  for (const field of ['ANON_KEY', 'SERVICE_ROLE_KEY']) {
+    const role = field === 'ANON_KEY' ? 'anon' : 'service_role';
+    for (const issuer of ['supabase', 'https://hosted.example.invalid/auth/v1', 'unexpected-issuer']) {
+      fails(() => parseLocalStatus(status({[field]: key(role, {iss: issuer})})), 'REAL_STACK_LOCAL_KEY_ISSUER_REJECTED');
+    }
+    fails(() => parseLocalStatus(status({[field]: key(role, {}, {alg: 'ES256'})})), 'REAL_STACK_LOCAL_KEY_ALGORITHM_REJECTED');
+  }
+  const malformed = Buffer.from('null').toString('base64url') + '.' + Buffer.from('{}').toString('base64url') + '.invalid-signature';
+  fails(() => parseLocalStatus(status({ANON_KEY: malformed})), 'REAL_STACK_LOCAL_KEY_ENCODING_REJECTED');
+  const rejected = key('anon', {iss: 'DO_NOT_INCLUDE_CLAIM_VALUE'});
+  assert.throws(() => parseLocalStatus(status({ANON_KEY: rejected})), error => {
+    assert.equal(error.message, 'REAL_STACK_LOCAL_KEY_ISSUER_REJECTED');
+    assert.deepEqual(Object.keys(error), ['code']);
+    assert.equal(JSON.stringify(error).includes(rejected), false);return true;
+  });
   for (const extra of [{API_URL: 'https://demo.supabase.co'}, {DB_URL: 'postgresql://postgres:postgres@elsewhere:54322/postgres'},
     {ANON_KEY: key('service_role')}, {SERVICE_ROLE_KEY: key('service_role', {ref: 'hosted-ref'})}]) assert.throws(() => parseLocalStatus(status(extra)));
   fails(() => parseLocalStatus(status() + '\nAPI_URL="http://127.0.0.1:54321"'), 'REAL_STACK_STATUS_REJECTED');

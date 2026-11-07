@@ -65,9 +65,18 @@ export function parseLocalStatus(raw) {
     requireThat(typeof key === 'string' && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(key), 'REAL_STACK_LOCAL_KEY_REQUIRED');
     let header, claims;
     try {const p = key.split('.');header = JSON.parse(Buffer.from(p[0], 'base64url'));claims = JSON.parse(Buffer.from(p[1], 'base64url'));}
-    catch {requireThat(false, 'REAL_STACK_LOCAL_KEY_REQUIRED');}
-    requireThat(header.alg === 'HS256' && claims.role === role && claims.iss === 'supabase' &&
-      (claims.ref === undefined || claims.ref === 'supabase-demo') && !claims.sub, 'REAL_STACK_LOCAL_KEY_REQUIRED');
+    catch {requireThat(false, 'REAL_STACK_LOCAL_KEY_ENCODING_REJECTED');}
+    requireThat(header && typeof header === 'object' && !Array.isArray(header) &&
+      claims && typeof claims === 'object' && !Array.isArray(claims), 'REAL_STACK_LOCAL_KEY_ENCODING_REJECTED');
+    // Exact pinned CLI source: v2.84.2/pkg/config/apikeys.go:75-82 sets
+    // Issuer="supabase-demo" for generated legacy API keys (not "supabase").
+    // init's signing_keys_path is commented out, so these keys use HS256.
+    // These fixed failure codes disclose no token fragments or arbitrary claims.
+    requireThat(header.alg === 'HS256', 'REAL_STACK_LOCAL_KEY_ALGORITHM_REJECTED');
+    requireThat(claims.role === role, 'REAL_STACK_LOCAL_KEY_ROLE_REJECTED');
+    requireThat(claims.iss === 'supabase-demo', 'REAL_STACK_LOCAL_KEY_ISSUER_REJECTED');
+    requireThat((claims.ref === undefined || claims.ref === 'supabase-demo') && !claims.sub,
+      'REAL_STACK_LOCAL_KEY_SCOPE_REJECTED');
     return key;
   }
   // Local key claims are a target guard, not JWT verification. Real GoTrue and

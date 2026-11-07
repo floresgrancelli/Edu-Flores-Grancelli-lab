@@ -396,7 +396,7 @@ jobs:
           npm install --prefix "$deps" --registry=https://registry.npmjs.org --package-lock-only --ignore-scripts --no-audit --no-fund
           npm ci --prefix "$deps" --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
           node efg-nutrition/tests/professional-browser-api/verify-inputs.mjs
-          node efg-nutrition/tests/professional-browser-api/build-sdk.mjs
+          NCC_SYNTHETIC_BROWSER_API=1 node efg-nutrition/tests/professional-browser-api/build-sdk.mjs
       - name: Start own loopback-bound ephemeral Supabase stack
         timeout-minutes: 14
         run: node efg-nutrition/tests/professional-real-api/lifecycle.mjs start

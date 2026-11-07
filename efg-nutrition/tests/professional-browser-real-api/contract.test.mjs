@@ -98,3 +98,15 @@ test('CDP rejects redirects without counting redirected mutations or completed p
   responseRedirect.finished({requestId:'one'});
   assert.equal(responseRedirect.snapshot().cors.optionsCompleted,0);assert.ok(responseRedirect.snapshot().violations.includes('CDP_RESPONSE_REJECTED'));
 });
+
+test('existing SDK build opt-in is scoped to compilation, not the real API runtime',async()=>{
+  const workflow=await source('../../../.github/workflows/ncc-dual-workspace-fullapp-qa.yml');
+  const job=workflow.split('\n  real-sdk-browser-auth-api-demo:\n')[1];assert.ok(job);
+  assert.match(job,/NCC_REAL_BROWSER_API: '1'/);
+  assert.match(job,/NCC_SYNTHETIC_BROWSER_API=1 node efg-nutrition\/tests\/professional-browser-api\/build-sdk\.mjs/);
+  assert.equal([...job.matchAll(/NCC_SYNTHETIC_BROWSER_API/g)].length,1);
+  assert.match(job,/run: node efg-nutrition\/tests\/professional-browser-real-api\/run\.mjs/);
+  const build=await source('../professional-browser-api/build-sdk.mjs');
+  assert.ok(build.includes("process.env.NCC_SYNTHETIC_BROWSER_API==='1'"));
+  assert.ok(build.includes("'CI_BUILD_ONLY'"));
+});

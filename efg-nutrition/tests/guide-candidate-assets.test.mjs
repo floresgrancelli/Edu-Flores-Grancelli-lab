@@ -13,7 +13,7 @@ function verifyPinnedAssets(pins){
 }
 test('private manifest pins HTML, complete module graph, and existing CSS',()=>{
  assert.equal(m.status,'RELEASE_CANDIDATE');
- assert.equal(m.build,'ncc-pilot-3a40474052be');assert.equal(m.noFlagChanges,true);
+ assert.equal(m.build,'ncc-pilot-3a40474052be');assert.equal(m.noFlagChanges,false);assert.equal(m.professionalWorkspaceActivation.enabled,true);assert.equal(m.professionalWorkspaceActivation.individualAcceptanceRequired,true);
  assert.ok(Object.keys(m.sha256).length>=100);
  verifyPinnedAssets(m);
  const altered=structuredClone(m);altered.sha256['efg-nutrition/pilot/period-report-history.js']='0'.repeat(64);

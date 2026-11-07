@@ -7,8 +7,10 @@ on:
       - 'efg-nutrition/pilot/dual-workspace*'
       - 'efg-nutrition/pilot/professional-*'
       - 'efg-nutrition/tests/professional-*'
+      - 'efg-nutrition/tests/professional-browser-api/**'
       - 'efg-nutrition/docs/professional-screens-candidate.md'
       - 'efg-nutrition/docs/professional-reconciliation-candidate.md'
+      - 'efg-nutrition/docs/professional-browser-api-candidate.md'
       - 'efg-nutrition/tools/prepare-professional-reconciliation-assets.py'
       - 'efg-nutrition/tools/prepare-professional-screens-assets.py'
       - 'efg-nutrition/pilot/pilot.js'
@@ -63,6 +65,19 @@ jobs:
           import {execFileSync} from 'node:child_process';
           const allowed = new Set([
             '.github/workflows/ncc-dual-workspace-fullapp-qa.yml',
+            'efg-nutrition/docs/professional-browser-api-candidate.md',
+            'efg-nutrition/tests/professional-browser-api/browser.mjs',
+            'efg-nutrition/tests/professional-browser-api/index.html',
+            'efg-nutrition/tests/professional-browser-api/policy.mjs',
+            'efg-nutrition/tests/professional-browser-api/loss-fetch.mjs',
+            'efg-nutrition/tests/professional-browser-api/verify-inputs.mjs',
+            'efg-nutrition/tests/professional-browser-api/build-sdk.mjs',
+            'efg-nutrition/tests/professional-browser-api/run.mjs',
+            'efg-nutrition/tests/professional-browser-api/fixture-server.mjs',
+            'efg-nutrition/tests/professional-browser-api/fixture-server.test.mjs',
+            'efg-nutrition/tests/professional-browser-api/contract.test.mjs',
+            'efg-nutrition/tests/professional-browser-api/package.json',
+            'efg-nutrition/tests/professional-browser-api/assets-server.mjs',
             'efg-nutrition/pilot/professional-mutation-journal.mjs',
             'efg-nutrition/tests/professional-mutation-journal.test.mjs',
             'efg-nutrition/tests/professional-screens-reconciliation.test.mjs',
@@ -153,13 +168,13 @@ jobs:
           set -euo pipefail
           export NCC_R4_BASELINE_ROOT="$RUNNER_TEMP/ncc-r4-reference/baseline"
           export NCC_R4_BASE_TREE_JSON="$RUNNER_TEMP/ncc-r4-reference/base-tree.json"
-          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-*.test.mjs
+          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-*.test.mjs efg-nutrition/tests/professional-browser-api/*.test.mjs
           node efg-nutrition/tests/student-session-mutation-races.mjs
           node efg-nutrition/tests/student-food-restrictions-runtime.mjs
           node efg-nutrition/tests/weekly-preview-state.mjs
           node efg-nutrition/tests/approved-release-flags.mjs
           node --test efg-nutrition/tests/guide-candidate-assets.test.mjs
-          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-*.mjs efg-nutrition/tests/professional-*.mjs; do node --check "$source"; done
+          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-*.mjs efg-nutrition/tests/professional-*.mjs efg-nutrition/tests/professional-browser-api/*.mjs; do node --check "$source"; done
           node --check efg-nutrition/pilot/pilot.js
           python - <<'PYTHON'
           import ast
@@ -276,3 +291,44 @@ jobs:
             "$NCC_PG_BIN/pg_ctl" -D "$RUNNER_TEMP/ncc-pg-data" -m immediate -w stop
           fi
 
+
+  real-sdk-browser-http-fixture:
+    needs: isolated-contracts
+    if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install exact official test dependencies in disposable runner storage
+        timeout-minutes: 14
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "${GITHUB_REPOSITORY}" = 'floresgrancelli/Edu-Flores-Grancelli-lab'
+          deps="$RUNNER_TEMP/ncc-browser-api-deps"
+          mkdir -p "$deps"
+          cp efg-nutrition/tests/professional-browser-api/package.json "$deps/package.json"
+          npm install --prefix "$deps" --registry=https://registry.npmjs.org --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --prefix "$deps" --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
+          "$deps/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Build local SDK bundle and test real browser recovery against fictional HTTP API
+        timeout-minutes: 5
+        env:
+          NCC_SYNTHETIC_BROWSER_API: '1'
+          NCC_BROWSER: chromium
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          export NCC_BRIDGE_NODE_MODULES="$RUNNER_TEMP/ncc-browser-api-deps/node_modules"
+          export NCC_BRIDGE_BUILD_DIR="$RUNNER_TEMP/ncc-browser-api-build"
+          node efg-nutrition/tests/professional-browser-api/verify-inputs.mjs
+          node efg-nutrition/tests/professional-browser-api/build-sdk.mjs
+          node efg-nutrition/tests/professional-browser-api/run.mjs
+      # Deliberately no cache or artifact upload. Sanitized result metadata is in job logs
+      # and GITHUB_STEP_SUMMARY; no browser storage, credentials, headers or traces leave runtime.

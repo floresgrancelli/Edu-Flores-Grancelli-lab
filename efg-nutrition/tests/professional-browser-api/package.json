@@ -1,0 +1,12 @@
+{
+  "name": "ncc-synthetic-browser-api-ci",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Public synthetic HTTP fixture QA only; no production credentials or database",
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
+    "esbuild": "0.25.5",
+    "playwright": "1.56.1"
+  }
+}

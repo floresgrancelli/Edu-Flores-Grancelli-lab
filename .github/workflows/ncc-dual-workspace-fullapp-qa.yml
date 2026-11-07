@@ -8,6 +8,8 @@ on:
       - 'efg-nutrition/pilot/professional-*'
       - 'efg-nutrition/tests/professional-*'
       - 'efg-nutrition/tests/professional-browser-api/**'
+      - 'efg-nutrition/tests/professional-browser-real-api/**'
+      - 'efg-nutrition/tests/professional-real-api/**'
       - 'efg-nutrition/docs/professional-screens-candidate.md'
       - 'efg-nutrition/docs/professional-reconciliation-candidate.md'
       - 'efg-nutrition/docs/professional-browser-api-candidate.md'
@@ -71,6 +73,19 @@ jobs:
             'efg-nutrition/pilot/professional-release-journal.mjs',
             'efg-nutrition/tests/professional-release-adapter.test.mjs',
             'efg-nutrition/docs/PROFESSIONAL_RELEASE_ADAPTER.md',
+            'efg-nutrition/tests/professional-browser-real-api/run.mjs',
+            'efg-nutrition/tests/professional-browser-real-api/assets-server.mjs',
+            'efg-nutrition/tests/professional-browser-real-api/browser.mjs',
+            'efg-nutrition/tests/professional-browser-real-api/network-observer.mjs',
+            'efg-nutrition/tests/professional-browser-real-api/contract.test.mjs',
+            'efg-nutrition/tests/professional-browser-real-api/README.md',
+            'efg-nutrition/tests/professional-real-api/local-runtime.mjs',
+            'efg-nutrition/tests/professional-real-api/schema.synthetic.sql',
+            'efg-nutrition/tests/professional-real-api/lifecycle.mjs',
+            'efg-nutrition/tests/professional-real-api/setup.mjs',
+            'efg-nutrition/tests/professional-real-api/backend.mjs',
+            'efg-nutrition/tests/professional-real-api/contract.test.mjs',
+            'efg-nutrition/tests/professional-real-api/README.md',
             'efg-nutrition/tests/professional-browser-api/browser.mjs',
             'efg-nutrition/tests/professional-browser-api/index.html',
             'efg-nutrition/tests/professional-browser-api/policy.mjs',
@@ -173,13 +188,13 @@ jobs:
           set -euo pipefail
           export NCC_R4_BASELINE_ROOT="$RUNNER_TEMP/ncc-r4-reference/baseline"
           export NCC_R4_BASE_TREE_JSON="$RUNNER_TEMP/ncc-r4-reference/base-tree.json"
-          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-*.test.mjs efg-nutrition/tests/professional-browser-api/*.test.mjs
+          node --test efg-nutrition/tests/dual-workspace-*.test.mjs efg-nutrition/tests/professional-*.test.mjs efg-nutrition/tests/professional-browser-api/*.test.mjs efg-nutrition/tests/professional-browser-real-api/*.test.mjs efg-nutrition/tests/professional-real-api/*.test.mjs
           node efg-nutrition/tests/student-session-mutation-races.mjs
           node efg-nutrition/tests/student-food-restrictions-runtime.mjs
           node efg-nutrition/tests/weekly-preview-state.mjs
           node efg-nutrition/tests/approved-release-flags.mjs
           node --test efg-nutrition/tests/guide-candidate-assets.test.mjs
-          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-*.mjs efg-nutrition/tests/professional-*.mjs efg-nutrition/tests/professional-browser-api/*.mjs; do node --check "$source"; done
+          for source in efg-nutrition/pilot/dual-workspace-*.mjs efg-nutrition/tests/dual-workspace-*.mjs efg-nutrition/pilot/professional-*.mjs efg-nutrition/tests/professional-*.mjs efg-nutrition/tests/professional-browser-api/*.mjs efg-nutrition/tests/professional-browser-real-api/*.mjs efg-nutrition/tests/professional-real-api/*.mjs; do node --check "$source"; done
           node --check efg-nutrition/pilot/pilot.js
           python - <<'PYTHON'
           import ast
@@ -336,3 +351,63 @@ jobs:
           node efg-nutrition/tests/professional-browser-api/run.mjs
       # Deliberately no cache or artifact upload. Sanitized result metadata is in job logs
       # and GITHUB_STEP_SUMMARY; no browser storage, credentials, headers or traces leave runtime.
+
+
+  real-sdk-browser-auth-api-demo:
+    needs: isolated-contracts
+    if: github.repository == 'floresgrancelli/Edu-Flores-Grancelli-lab' && github.event.repository.private == false && startsWith(github.ref, 'refs/heads/work/ncc-dual-workspace-r4-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      NCC_REAL_BROWSER_API: '1'
+      NCC_BROWSER: system-chrome
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install existing official Supabase CLI version for disposable local stack
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Set own temporary runtime paths and verify existing PostgreSQL client
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$GITHUB_REPOSITORY" = 'floresgrancelli/Edu-Flores-Grancelli-lab'
+          command -v psql >/dev/null
+          id="ncc-professional-real-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          printf 'NCC_REAL_STACK_ID=%s\n' "$id" >> "$GITHUB_ENV"
+          printf 'NCC_REAL_STACK_DIR=%s/%s\n' "$RUNNER_TEMP" "$id" >> "$GITHUB_ENV"
+          printf 'NCC_REAL_STACK_NETWORK=%s-network\n' "$id" >> "$GITHUB_ENV"
+          printf 'EFG_LOCAL_STATUS_ENV=%s/%s-status.env\n' "$RUNNER_TEMP" "$id" >> "$GITHUB_ENV"
+          printf 'NCC_BRIDGE_NODE_MODULES=%s/ncc-real-browser-api-deps/node_modules\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'NCC_BRIDGE_BUILD_DIR=%s/ncc-real-browser-api-build\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - name: Install exact SDK and harness packages; use existing official Chrome
+        timeout-minutes: 14
+        run: |
+          set -euo pipefail
+          deps="$RUNNER_TEMP/ncc-real-browser-api-deps"
+          mkdir -p "$deps"
+          cp efg-nutrition/tests/professional-browser-api/package.json "$deps/package.json"
+          npm install --prefix "$deps" --registry=https://registry.npmjs.org --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --prefix "$deps" --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
+          node efg-nutrition/tests/professional-browser-api/verify-inputs.mjs
+          node efg-nutrition/tests/professional-browser-api/build-sdk.mjs
+      - name: Start own loopback-bound ephemeral Supabase stack
+        timeout-minutes: 14
+        run: node efg-nutrition/tests/professional-real-api/lifecycle.mjs start
+      - name: Create new public DEMO schema only after verifying own local stack
+        run: node efg-nutrition/tests/professional-real-api/setup.mjs
+      - name: Real SDK browser IndexedDB recovery through local Auth API and DEMO schema
+        timeout-minutes: 8
+        run: node efg-nutrition/tests/professional-browser-real-api/run.mjs
+      - name: Stop and verify removal of own stack network and ephemeral credentials
+        if: always()
+        timeout-minutes: 5
+        run: node efg-nutrition/tests/professional-real-api/lifecycle.mjs stop
+      # No cache or artifact upload. Runtime credentials, SQL rows, browser storage,
+      # headers and private logs are never emitted. Cleanup failure fails the job.

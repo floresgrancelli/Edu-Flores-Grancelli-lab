@@ -185,6 +185,7 @@ jobs:
             'efg-nutrition/docs/guide-return-candidate/asset-manifest.json',
             'efg-nutrition/tools/pwa-build-identity.mjs',
             'efg-nutrition/tools/prepare-dual-workspace-r4-assets.py',
+            'efg-nutrition/tests/guide-candidate-assets.test.mjs',
             'efg-nutrition/tests/approved-release-flags.mjs',
             'efg-nutrition/tests/dual-workspace-assets.test.mjs',
             'efg-nutrition/pilot/dual-workspace-bootstrap.mjs',

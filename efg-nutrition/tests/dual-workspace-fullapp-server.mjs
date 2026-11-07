@@ -12,6 +12,12 @@ function once(source,before,after){assert.equal(source.split(before).length,2,'E
 export function syntheticResponse(pathname,source,{enabled=true,professionalScreens=false,professionalFixture=professionalScreens,professionalReconciliation=false}={}){
  if(professionalReconciliation)assert.ok(enabled&&professionalScreens&&professionalFixture,'Reconciliation requires the complete synthetic fixture');
  let value=source;
+ // These older protocol fixtures enable their own independent candidate. The
+ // separately tested installed release backend must stay outside that fixture.
+ if(pathname==='/efg-nutrition/pilot/professional-workspace-release-config.mjs'){
+  value=once(value,'export const PROFESSIONAL_WORKSPACE_RELEASE_ENABLED = true;','export const PROFESSIONAL_WORKSPACE_RELEASE_ENABLED = false;');
+ }
+
  if(professionalReconciliation&&pathname==='/efg-nutrition/pilot/professional-mutation-journal.mjs')
   value=once(value,'export const PROFESSIONAL_RECONCILIATION_ENABLED = false;','export const PROFESSIONAL_RECONCILIATION_ENABLED = true;');
  if(professionalReconciliation&&pathname===fixtureBase+'professional-screens-fullapp-sdk.mjs')

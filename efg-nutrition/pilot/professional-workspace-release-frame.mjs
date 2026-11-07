@@ -1,5 +1,5 @@
-import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
-import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-dual-role-release-r3-20261107';
+import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r4-20261107';
+import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-dual-role-release-r4-20261107';
 // OFF entry in the existing app; no synthetic guard or account-role substitution.
 export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RELEASE_ENABLED,sdk,config,
  readSession,readLegacyPersonal,hasUnsavedDraft,navigationTarget,mountPanel=mountProfessionalWorkspaceReleasePanel}={}){
@@ -14,10 +14,19 @@ export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RE
    panel=mountPanel({root:mount,sdk,config,enabled:true,readLegacyPersonal,hasUnsavedDraft,onView(value){professional=!!value;apply();}});
   }else slot.append(mount);apply();
  }
+ // The independent coach space must also be available before student onboarding.
+ function mountUnframedRoot(root){
+  if(enabled!==true||!revalidate()||root.querySelector('[data-ncc-release-slot]'))return;
+  prepareUnframed(root);
+ }
+ function prepareUnframed(root){
+  mount?.remove();const slot=root.ownerDocument.createElement('div'),personal=root.ownerDocument.createElement('div');
+  slot.setAttribute('data-ncc-release-slot','');personal.setAttribute('data-ncc-release-personal','');personal.append(...Array.from(root.childNodes));root.replaceChildren(slot,personal);mountFrame(root);
+ }
  const history=()=>{invalidate();if(frameRoot)mountFrame(frameRoot);};const hide=()=>invalidate();const show=e=>{if(e?.persisted)history();};
  if(enabled===true){navigationTarget?.addEventListener('popstate',history);navigationTarget?.addEventListener('pagehide',hide);navigationTarget?.addEventListener('pageshow',show);}
  return Object.freeze({wrap:html=>enabled===true?'<div data-ncc-release-slot></div><div data-ncc-release-personal>'+html+'</div>':html,
-  prepareFrame(){if(enabled===true){revalidate();mount?.remove();}},mountFrame,revalidate,invalidate,
+  prepareFrame(){if(enabled===true){revalidate();mount?.remove();}},mountFrame,mountUnframedRoot,revalidate,invalidate,
   guardEvent(event){if(enabled!==true)return false;revalidate();if(event.target?.closest?.('[data-ncc-professional-release-host]'))return false;if(!professional||event.type==='click'&&event.target?.closest?.('[data-act="logout"]'))return false;event.preventDefault();event.stopImmediatePropagation();return true;},
   isProfessional:()=>enabled===true&&revalidate()&&professional,
   ready:()=>panel?.ready||Promise.resolve({disabled:enabled!==true}),

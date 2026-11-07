@@ -21,7 +21,8 @@ try{
   assert.equal(await page.evaluate(()=>window.fixture.state.writes),1);
   await page.reload();await page.waitForFunction(()=>!!window.fixture);await page.evaluate(()=>window.fixture.ready);await chooser.selectOption('72000000-0000-4000-8000-000000000002');
   await page.getByRole('button',{name:'Verificar aceptación anterior',exact:true}).click();await page.getByRole('button',{name:'Invitar alumno',exact:true}).waitFor();assert.equal(await page.evaluate(()=>window.fixture.state.writes),1);
-  assert.equal(await page.getByRole('checkbox').count(),0);
+  assert.equal(await page.getByRole('checkbox').count(),1);
+  assert.equal(await page.getByRole('checkbox').isChecked(),false);
   await chooser.selectOption('');assert.equal(await page.locator('#personal').isVisible(),true);
   assert.equal(await page.evaluate(()=>window.fixture.original.role),'student');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

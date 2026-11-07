@@ -1,5 +1,5 @@
-import {createProfessionalReleaseAdapter, PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
-import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalReleaseAdapter, PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r4-20261107';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(x);
 const exact=(o,keys)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).length===keys.length&&keys.every(k=>Object.hasOwn(o,k));
 const fail=code=>{throw Object.assign(new Error(code),{code});};

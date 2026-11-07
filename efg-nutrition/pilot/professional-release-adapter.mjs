@@ -1,4 +1,4 @@
-import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r4-20261107';
 export const PROFESSIONAL_RELEASE_ENABLED = false;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const valid=x=>typeof x==='string'&&UUID.test(x);
@@ -115,6 +115,32 @@ export function createProfessionalReleaseAdapter({sdk,config,enabled=PROFESSIONA
   }catch(error){throw Object.assign(new Error(error?.code||error?.message||'RELEASE_FAILED'),{code:error?.code||'RELEASE_FAILED',outcome:reserved||action==='reconcileMessage'?'uncertain':'not_applied'});}
  }
 
+ // Existing R53 server method infers one owned managed destination, locks it and
+ // rechecks authorization. Never derive an alias destination from the student profile.
+ async function paymentAliasPending(){
+  const backend=gate(),s=clone(selected),e=epoch,n=navigation;if(!s)fail('WORKSPACE_REQUIRED');
+  await authority(e,n,s,s.organizationId);const namespace=JSON.stringify([backend,s.userId,s.organizationId]);
+  const r=await journal.get(JSON.stringify([namespace,'saveAlias',s.organizationId]));check(e,n);
+  if(r&&(r.namespace!==namespace||r.operation!=='saveAlias'||r.studentId!==s.organizationId||r.senderId!==s.userId))fail('INVALID_JOURNAL_RECORD');
+  return r?.state==='uncertain';
+ }
+ async function setPaymentAlias(input){
+  let reserved=false;
+  try{
+   const backend=gate(),s=clone(selected),e=epoch,n=navigation;if(!s)fail('WORKSPACE_REQUIRED');
+   if(typeof input!=='string'||input!==input.trim()||input.length<3||input.length>100||/[\x00-\x1f\x7f]/.test(input))fail('INVALID_ALIAS');
+   await authority(e,n,s,s.organizationId);const namespace=JSON.stringify([backend,s.userId,s.organizationId]);
+   const record={claimId:crypto.randomUUID(),key:JSON.stringify([namespace,'saveAlias',s.organizationId]),namespace,operation:'saveAlias',id:crypto.randomUUID(),studentId:s.organizationId,senderId:s.userId,digest:await digest(input)};check(e,n);
+   reserved=await journal.reserve(record);if(!reserved)fail('OPERATION_ALREADY_RECORDED');check(e,n);
+   await authority(e,n,s,s.organizationId);
+   const changed=await result(sdk.rpc('efg_set_coach_alias',{p_alias:input}));check(e,n);
+   if(changed!==true)fail('INVALID_ALIAS_RECEIPT');await authority(e,n,s,s.organizationId);
+   const after=await result(sdk.from('efg_organizations').select('id,coach_id,payment_alias').eq('id',s.organizationId).eq('coach_id',s.userId).single());check(e,n);
+   if(after?.id!==s.organizationId||after.coach_id!==s.userId||after.payment_alias!==input)fail('INVALID_ALIAS_RECEIPT');
+   await authority(e,n,s,s.organizationId);if(!await journal.settle(record))fail('JOURNAL_FAILED');check(e,n);return clone(after);
+  }catch(error){throw Object.assign(new Error(error?.code||error?.message||'ALIAS_FAILED'),{code:error?.code||'ALIAS_FAILED',outcome:reserved||error?.code==='OPERATION_ALREADY_RECORDED'?'uncertain':'not_applied'});}
+ }
+
  // Reuse existing coach modules through a student/org-bound SDK view. The original
  // profile is returned unchanged; capability authorization remains server-owned.
  async function studentClient(id) {
@@ -206,5 +232,5 @@ export function createProfessionalReleaseAdapter({sdk,config,enabled=PROFESSIONA
   return Object.freeze({scope,isCurrent(){try{check(e,n);return true;}catch{return false;}},verify,
    sdk:Object.freeze({from,rpc,auth:Object.freeze({async getUser(){await verify();return {data:{user:{id:s.userId}},error:null};}})}),payment,receiptUrl});
  }
- return Object.freeze({bootstrap,selectOrganization,perform,studentClient,invalidate,dispose(){disposed=true;invalidate();subscription?.data?.subscription?.unsubscribe?.();}});
+ return Object.freeze({bootstrap,selectOrganization,perform,studentClient,setPaymentAlias,paymentAliasPending,invalidate,dispose(){disposed=true;invalidate();subscription?.data?.subscription?.unsubscribe?.();}});
 }

@@ -1,4 +1,4 @@
-import {createProfessionalReleaseAdapter} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalReleaseAdapter} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r4-20261107';
 
 // SDK seam only. The proposed v2 backend is UNIMPLEMENTED; nothing mounts this transport.
 export const PROFESSIONAL_TERMS_SDK_ENABLED = false;

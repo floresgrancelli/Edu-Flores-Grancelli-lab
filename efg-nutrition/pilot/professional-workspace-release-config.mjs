@@ -1,4 +1,3 @@
-// Activation requires a separate owner-authorized backend migration and published professional binding.
-// Merely selecting a role or changing metadata never enables a professional capability.
-export const PROFESSIONAL_WORKSPACE_RELEASE_ENABLED = false;
-export const PROFESSIONAL_WORKSPACE_RELEASE_BACKEND = null;
+// Owner approved 2026-11-07. Server capability and exact professional acceptance remain required.
+export const PROFESSIONAL_WORKSPACE_RELEASE_ENABLED = true;
+export const PROFESSIONAL_WORKSPACE_RELEASE_BACKEND = 'https://cyjvddhimbsfipjfctsl.supabase.co';

@@ -1,22 +1,23 @@
-import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r3-20261107';
-import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
-import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r3-20261107';
-import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r3-20261107';
-import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r3-20261107';
-import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r3-20261107';
+import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r4-20261107';
+import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r4-20261107';
 // An owned professional capability remains independent of the original student's profile.
 export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=PROFESSIONAL_RELEASE_ENABLED,
  readLegacyPersonal,hasUnsavedDraft=()=>false,onView=()=>{},crypto=globalThis.crypto}={}){
  if(enabled!==true)return Object.freeze({ready:Promise.resolve({disabled:true}),dispose(){},assertCanLeave(){}});
  const doc=root.ownerDocument,reader=createProfessionalReleaseAdapter({sdk,config,enabled:true}),
  client=createProfessionalWorkspaceReleaseClient({sdk,config,enabled:true}),terms=createProfessionalTermsSdkTransport({sdk,config,enabled:true});
+ let aliasPending=false;
  let readerOrganization=null,toolsPanel=null,toolsMount=null,toolsStudent=null;
  const disposeTools=()=>{toolsPanel?.dispose();toolsPanel=null;toolsMount=null;toolsStudent=null;};
  let snapshot=null,selected=null,workspace=null,studentId=null,messages=[],pending=[],termsPanel=null,busy=false,disposed=false,epoch=0,notice='',messageDraft='';
  const node=(tag,text='')=>{const e=doc.createElement(tag);e.textContent=text;return e;};
  const stop=e=>e.stopPropagation();for(const type of ['click','input','change','submit'])root.addEventListener(type,stop);
  function personalMatches(next){const old=readLegacyPersonal?.();if(!old?.profile||old.profile.user_id!==next.profile.user_id||old.profile.role!==next.profile.role||
-  old.profile.role==='student'&&(old.profile.organization_id!==next.profile.organization_id||old.organization?.id!==next.profile.organization_id))throw Error('PERSONAL_CONTEXT_MISMATCH');}
+  old.profile.role==='student'&&(old.profile.organization_id!==next.profile.organization_id||old.organization!=null&&old.organization.id!==next.profile.organization_id))throw Error('PERSONAL_CONTEXT_MISMATCH');}
  function check(t){if(disposed||t!==epoch)throw Error('STALE_CONTEXT');}
  function assertCanLeave(){toolsPanel?.assertCanLeave();if(messageDraft.trim())throw Error('Guardá o cancelá tu mensaje antes de cambiar de espacio.');}
  const button=(parent,text,action,disabled=false)=>{const e=node('button',text);e.type='button';e.disabled=busy||disabled;e.addEventListener('click',()=>run(action));parent.append(e);return e;};
@@ -24,7 +25,7 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
  function form(parent,fields,text,submit){const f=node('form'),controls=fields.map(([label,type,value])=>input(f,label,type,value));const b=node('button',text);b.type='submit';b.disabled=busy;f.append(b);f.addEventListener('submit',e=>{e.preventDefault();const values=controls.map(c=>c.value);run(()=>submit(values));});parent.append(f);}
  async function refresh(){const t=epoch,next=await client.bootstrap();check(t);personalMatches(next);snapshot=next;
   if(selected){const org=next.contexts.coach_contexts.find(o=>o.id===selected);if(!org)throw Error('WORKSPACE_UNAVAILABLE');
-   if(org.legal_ready){if(readerOrganization!==selected){await reader.selectOrganization(selected);readerOrganization=selected;}check(t);workspace=(await reader.perform('workspace')).data;check(t);}
+   if(org.legal_ready){if(readerOrganization!==selected){await reader.selectOrganization(selected);readerOrganization=selected;}check(t);workspace=(await reader.perform('workspace')).data;check(t);aliasPending=await reader.paymentAliasPending();check(t);}
    else workspace=null;
   }
  }
@@ -39,6 +40,7 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
  }
  async function loadMessages(){if(!studentId)return;const t=epoch;messages=(await reader.perform('messages',{student_id:studentId})).data;check(t);pending=(await reader.perform('pendingMutations',{student_id:studentId})).data;check(t);}
  function render(){if(disposed)return;termsPanel?.dispose();termsPanel=null;root.replaceChildren();root.setAttribute('data-ncc-professional-release-panel','');
+  if(snapshot&&snapshot.profile.role!=='admin'&&snapshot.contexts.coach_contexts.length===0){root.hidden=true;onView(false);return;}root.hidden=false;
   root.append(node('h2','Tus espacios'));const status=node('p',notice);status.setAttribute('role','status');status.setAttribute('aria-live','polite');root.append(status);
   if(!snapshot){onView(false);button(root,'Volver a consultar',refresh);return;}
   const select=node('select');select.setAttribute('aria-label','Elegí tu espacio');const personal=node('option','Mi espacio personal');personal.value='';personal.selected=!selected;select.append(personal);
@@ -63,6 +65,13 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
   }
   if(!workspace){button(root,'Consultar alumnos',refresh);return;}
   root.append(node('p','Alias de cobro: '+(workspace.organization.payment_alias||'Sin alias configurado')));
+  const aliasForm=node('section');root.append(aliasForm);
+  const aliasInput=input(aliasForm,'Alias de cobro de este espacio','text',workspace.organization.payment_alias||'');aliasInput.maxLength=100;
+  const aliasLabel=node('label','Revisé el alias de cobro de este espacio'),aliasCheck=node('input');aliasCheck.type='checkbox';aliasCheck.disabled=busy||aliasPending;aliasLabel.prepend(aliasCheck);aliasForm.append(aliasLabel);
+  const aliasSave=button(aliasForm,'Guardar alias de este espacio',async()=>{if(!aliasCheck.checked)throw Error('ALIAS_REVIEW_REQUIRED');await reader.setPaymentAlias(aliasInput.value.trim());await refresh();},true);
+  const aliasValidity=()=>{aliasSave.disabled=busy||aliasPending||!aliasCheck.checked||aliasInput.value.trim().length<3||aliasInput.value.trim().length>100;};aliasInput.addEventListener('input',aliasValidity);aliasCheck.addEventListener('change',aliasValidity);
+  if(aliasPending)aliasForm.append(node('p','Hay un cambio de alias pendiente de revisión. No se reenviará automáticamente.'));
+
   const invite=async(values,reconcile=false)=>{const [email,name]=values;const args={organizationId:selected,email:email.trim().toLowerCase(),name:name.trim()};await client[reconcile?'reconcile':'mutate']('invite',args);await refresh();};
   form(root,[['Correo del alumno','email',''],['Nombre del alumno','text','']],'Invitar alumno',values=>invite(values));
   form(root,[['Mismo correo invitado','email',''],['Mismo nombre invitado','text','']],'Verificar invitación anterior',values=>invite(values,true));

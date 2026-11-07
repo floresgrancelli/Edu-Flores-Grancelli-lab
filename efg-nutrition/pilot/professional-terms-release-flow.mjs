@@ -1,5 +1,5 @@
-import {createProfessionalTermsJournal, professionalTermsScope, validateProfessionalTermsRecord} from './professional-terms-journal.mjs?v=ncc-dual-role-release-r3-20261107';
-import {verifiedBundle, verifyResult, verifyReceipt} from './professional-terms-validation.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalTermsJournal, professionalTermsScope, validateProfessionalTermsRecord} from './professional-terms-journal.mjs?v=ncc-dual-role-release-r4-20261107';
+import {verifiedBundle, verifyResult, verifyReceipt} from './professional-terms-validation.mjs?v=ncc-dual-role-release-r4-20261107';
 export const PROFESSIONAL_TERMS_RELEASE_FLOW_ENABLED = false;
 const PROFESSIONAL_TERMS_V2_RPC = Object.freeze({bundle:'ncc_pilot_workspace_legal_bundle_v2',accept:'ncc_pilot_workspace_accept_terms_v2',receipt:'ncc_pilot_workspace_receipt_v1'});
 const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(v);

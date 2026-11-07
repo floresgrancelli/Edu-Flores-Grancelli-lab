@@ -1,4 +1,4 @@
-import {createProfessionalTermsReleaseFlow, PROFESSIONAL_TERMS_RELEASE_FLOW_ENABLED} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalTermsReleaseFlow, PROFESSIONAL_TERMS_RELEASE_FLOW_ENABLED} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r5-20261107';
 
 // Release UI: exact inline documents, explicit separate checks, durable request, no automatic resend.
 export function mountProfessionalTermsReleasePanel({root, enabled = PROFESSIONAL_TERMS_RELEASE_FLOW_ENABLED, onAccepted = () => {}, ...options} = {}) {

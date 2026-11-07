@@ -25,7 +25,7 @@ async function harness({enabled=true,invited=true}={}){
   readSession:()=>({userId:state.session?.user?.id,sessionId:'synthetic',epoch:state.authContextEpoch}),rpc,
   readProfile:async()=>({data:service.inspect().profiles.find(p=>p.user_id===user.id)||null}),requestId:()=>crypto.randomUUID()});
  const render=compile(section('async function render(){','function updateFoodHint(){'),'render',{
-  state,weeklyPdfReview:{close(){}},closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
+  state,professionalReleaseFrame:{mountUnframedRoot(){}},root:{},weeklyPdfReview:{close(){}},closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
   loginView(){throw Error('Unexpected login route');},frame:html=>frames.push(html)});
  const gate={begin:()=>({}),read:async(_ticket,p)=>p,verified(){},current:()=>true,finish(){}};
  const refresh=compile(section('async function refresh(){','// Explicit pull-to-refresh:'),'refresh',{

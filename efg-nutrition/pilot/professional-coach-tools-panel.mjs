@@ -1,4 +1,4 @@
-import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-dual-role-release-r4-20261107';
+import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-dual-role-release-r5-20261107';
 import {guidedCountablePortion} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {guideTotals} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {COACH_GUIDE_WINDOWS} from './coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';

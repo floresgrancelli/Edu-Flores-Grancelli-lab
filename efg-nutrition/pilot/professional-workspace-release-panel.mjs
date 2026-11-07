@@ -1,9 +1,9 @@
-import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r4-20261107';
-import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r4-20261107';
-import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r4-20261107';
-import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r4-20261107';
-import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r4-20261107';
-import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r4-20261107';
+import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r5-20261107';
+import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r5-20261107';
 // An owned professional capability remains independent of the original student's profile.
 export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=PROFESSIONAL_RELEASE_ENABLED,
  readLegacyPersonal,hasUnsavedDraft=()=>false,onView=()=>{},crypto=globalThis.crypto}={}){
@@ -41,6 +41,16 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
  async function loadMessages(){if(!studentId)return;const t=epoch;messages=(await reader.perform('messages',{student_id:studentId})).data;check(t);pending=(await reader.perform('pendingMutations',{student_id:studentId})).data;check(t);}
  function render(){if(disposed)return;termsPanel?.dispose();termsPanel=null;root.replaceChildren();root.setAttribute('data-ncc-professional-release-panel','');
   if(snapshot&&snapshot.profile.role!=='admin'&&snapshot.contexts.coach_contexts.length===0){root.hidden=true;onView(false);return;}root.hidden=false;
+  const style=node('style',`[data-ncc-professional-release-panel]{max-width:960px;margin:0 auto;padding:16px;box-sizing:border-box;color:#17343e;overflow-wrap:anywhere}
+[data-ncc-professional-release-panel] form,[data-ncc-professional-release-panel]>section{margin:16px 0}
+[data-ncc-professional-release-panel] label{display:block;margin:10px 0;font-weight:500}
+[data-ncc-professional-release-panel] input:not([type=checkbox]),[data-ncc-professional-release-panel] select,[data-ncc-professional-release-panel] textarea{display:block;width:100%;max-width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #b5c9c9;border-radius:10px;background:#fff;color:#17343e;font:inherit;margin:6px 0}
+[data-ncc-professional-release-panel] input[type=checkbox]{margin-right:8px}
+[data-ncc-professional-release-panel] button{max-width:100%;box-sizing:border-box;padding:10px 14px;margin:6px 6px 6px 0;border:1px solid #bad5d0;border-radius:10px;background:#e5f4ef;color:#006d6b;font:600 15px system-ui;cursor:pointer}
+[data-ncc-professional-release-panel] button:disabled{opacity:.55;cursor:default}
+[data-ncc-professional-release-panel] h2,[data-ncc-professional-release-panel] h3{margin:12px 0}
+[data-ncc-professional-release-panel] [data-ncc-coach-tools] section{padding:16px;margin:14px 0;border-radius:16px;background:white}
+[data-ncc-professional-release-panel] pre{white-space:pre-wrap}`);root.append(style);
   root.append(node('h2','Tus espacios'));const status=node('p',notice);status.setAttribute('role','status');status.setAttribute('aria-live','polite');root.append(status);
   if(!snapshot){onView(false);button(root,'Volver a consultar',refresh);return;}
   const select=node('select');select.setAttribute('aria-label','Elegí tu espacio');const personal=node('option','Mi espacio personal');personal.value='';personal.selected=!selected;select.append(personal);

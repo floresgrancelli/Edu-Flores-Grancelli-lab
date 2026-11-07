@@ -80,6 +80,7 @@ function assertPrivateCleanup(source){
   foodCompatEvidence:[{private:true}],coachReportGoals:{private:true},coachHistory:[{private:true}]};
  const context={state,
   dualWorkspaceBootstrap:{invalidate:()=>calls.push('dual-bootstrap')},dualWorkspaceFrame:{invalidate:()=>calls.push('dual-frame')},
+  professionalReleaseFrame:{invalidate:()=>calls.push('professional-release-frame')},
   weeklyPdfReview:{close:force=>calls.push(['weekly-close',force])},
   luxuryWeeklyEditor:{reset:()=>calls.push('weekly-editor')},weeklyReportDelivery:{clear:()=>calls.push('weekly-delivery')},
   closePeriodPdfView:force=>calls.push(['period-close',force]),
@@ -87,7 +88,7 @@ function assertPrivateCleanup(source){
   pendingMealRegistrations:new Set(['pending']),pendingHabitualSlots:new Set(['pending'])};
  vm.runInNewContext(source+';resetPrivateSession();',context);
  for(const call of [['weekly-close',true],['period-close',true]])assert.equal(calls.filter(x=>JSON.stringify(x)===JSON.stringify(call)).length,1,JSON.stringify(call));
- for(const call of ['restrictions','health','weekly-editor','weekly-delivery','guide','workspace','dual-bootstrap','dual-frame'])assert.equal(calls.filter(x=>x===call).length,1,call);
+ for(const call of ['restrictions','health','weekly-editor','weekly-delivery','guide','workspace','dual-bootstrap','dual-frame','professional-release-frame'])assert.equal(calls.filter(x=>x===call).length,1,call);
  const restrictionIndex=calls.indexOf('restrictions');
  assert.ok(calls.findIndex(x=>Array.isArray(x)&&x[0]==='weekly-close')<restrictionIndex,'Weekly private viewer is force-closed before restriction invalidation');
  assert.ok(calls.findIndex(x=>Array.isArray(x)&&x[0]==='period-close')<restrictionIndex,'Period private viewer is force-closed before restriction invalidation');

@@ -44,6 +44,7 @@ function assertSessionResetLifecycle(reset){
  const context={state:sessionState,
   dualWorkspaceBootstrap:{invalidate:()=>calls.push('dual-bootstrap')},
   dualWorkspaceFrame:{invalidate:()=>calls.push('dual-frame')},
+  professionalReleaseFrame:{invalidate:()=>calls.push('professional-release-frame')},
   weeklyPdfReview:{close:force=>calls.push(force===true?'weekly-close-forced':'weekly-close-unforced')},
   luxuryWeeklyEditor:{reset:()=>calls.push('weekly-editor')},weeklyReportDelivery:{clear(){}},
   closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
@@ -51,14 +52,14 @@ function assertSessionResetLifecycle(reset){
  assert.match(reset,/weeklyPdfReview\.close\(true\);luxuryWeeklyEditor\.reset\(\)/,
   'Forced weekly PDF close must still immediately precede editor reset');
  vm.runInNewContext(reset+';resetPrivateSession();',context);
- assert.deepEqual(calls,['dual-bootstrap','dual-frame','weekly-close-forced','weekly-editor'],
+ assert.deepEqual(calls,['dual-bootstrap','dual-frame','professional-release-frame','weekly-close-forced','weekly-editor'],
   'Each dual invalidation must execute once before the existing PDF/editor cleanup');
  assert.equal(sessionState.dualCandidateCoach,false,'Candidate shell marker must clear');
  assert.equal(sessionState.session,null);assert.equal(sessionState.profile,null);
 }
 assertSessionResetLifecycle(resetSource);
 for(const required of ['dualWorkspaceBootstrap.invalidate();','state.dualCandidateCoach=false;',
- 'dualWorkspaceFrame.invalidate();','weeklyPdfReview.close(true);','luxuryWeeklyEditor.reset();']){
+ 'dualWorkspaceFrame.invalidate();','professionalReleaseFrame.invalidate();','weeklyPdfReview.close(true);','luxuryWeeklyEditor.reset();']){
  assert.equal(resetSource.split(required).length,2,'Required cleanup occurs exactly once: '+required);
  assert.throws(()=>assertSessionResetLifecycle(resetSource.replace(required,'')),
   'Removing required cleanup must fail: '+required);

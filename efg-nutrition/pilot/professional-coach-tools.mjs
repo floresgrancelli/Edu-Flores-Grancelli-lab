@@ -1,4 +1,4 @@
-import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r2-20261107';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r3-20261107';
 import {createCoachPlanDraftClient,validateCoachPlanProposal} from './coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {createCoachCalculatorPrefill} from './coach-intake-prefill.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {estimateMacros} from './macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';

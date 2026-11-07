@@ -1,9 +1,9 @@
-import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r2-20261107';
-import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r2-20261107';
-import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r2-20261107';
-import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r2-20261107';
-import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r2-20261107';
-import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r2-20261107';
+import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r3-20261107';
+import {createProfessionalTermsReleaseFlow} from './professional-terms-release-flow.mjs?v=ncc-dual-role-release-r3-20261107';
+import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r3-20261107';
 // An owned professional capability remains independent of the original student's profile.
 export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=PROFESSIONAL_RELEASE_ENABLED,
  readLegacyPersonal,hasUnsavedDraft=()=>false,onView=()=>{},crypto=globalThis.crypto}={}){
@@ -29,7 +29,7 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
   }
  }
  async function run(action){if(disposed||busy)return;const t=epoch;busy=true;
-  for(const control of root.querySelectorAll('button,input,textarea,select'))control.disabled=true;
+  for(const control of root.querySelectorAll('button,input,textarea,select'))if(!control.closest('[data-ncc-coach-tools]'))control.disabled=true;
   try{await action();check(t);notice='Consulta confirmada.';}
   catch(e){if(t===epoch)notice=e.outcome==='uncertain'?'Resultado incierto. Se conservó la operación; verificá su recibo antes de volver a enviar.':({PROFESSIONAL_BINDING_UNBOUND:'Falta publicar los documentos profesionales revisados.',OPERATION_ALREADY_RECORDED:'Hay una operación registrada. Consultá su recibo con los mismos datos.',ADMIN_REQUIRED:'Esta acción corresponde al administrador.'}[e.code]||'No se pudo verificar la operación. Volvé a consultar.');}
   finally{if(t===epoch){busy=false;render();}}

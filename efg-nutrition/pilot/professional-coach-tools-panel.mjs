@@ -1,4 +1,4 @@
-import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-dual-role-release-r2-20261107';
+import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-dual-role-release-r3-20261107';
 import {guidedCountablePortion} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {guideTotals} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {COACH_GUIDE_WINDOWS} from './coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
@@ -54,8 +54,8 @@ export function mountProfessionalCoachTools({root,reader,studentId,studentName,c
    button(guide,'Guardar borrador revisado',()=>tools.save({reviewed:review.checked===true}),!state.dirty||state.pending.some(p=>p.operation==='savePlan'));
    const publishLabel=node('label','Apruebo enviar este objetivo y esta guía al alumno'),confirm=node('input');confirm.type='checkbox';publishLabel.prepend(confirm);guide.append(publishLabel);
    button(guide,'Publicar objetivo y Dieta Guía',()=>tools.publish({confirmed:confirm.checked===true}),state.dirty||state.draft?.status!=='draft'||state.pending.some(p=>p.operation==='publishPlan'));
-   if(state.pending.some(p=>p.operation==='publishPlan'))button(guide,'Verificar publicación pendiente',()=>tools.reconcilePublication());
   }
+  if(state.pending.some(p=>p.operation==='publishPlan'))button(root,'Verificar publicación pendiente',()=>tools.reconcilePublication());
   const reports=section('Informe Luxury Pro por fechas'),end=today(),start=new Date(end+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-6);
   const from=field(reports,'Informe desde','date',state.report?.from||start.toISOString().slice(0,10)),to=field(reports,'Informe hasta','date',state.report?.to||end);button(reports,'Generar informe Luxury Pro',()=>tools.report({from:from.value,to:to.value,today:today()}));
   if(state.report){const conclusion=node('textarea');conclusion.value=state.report.conclusion;conclusion.maxLength=2200;conclusion.setAttribute('aria-label','Devolución del coach');reports.append(conclusion);const flexible=node('textarea');flexible.value=state.report.flexibleNote;flexible.maxLength=750;flexible.setAttribute('aria-label','Espacio para disfrutar');reports.append(flexible);

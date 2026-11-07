@@ -19,6 +19,9 @@ try{for(const width of [390,1280]){
  await page.getByRole('combobox',{name:'Elegí tu espacio'}).selectOption('11000000-0000-4000-8000-000000000003');
  await page.getByRole('combobox',{name:'Alumno del espacio profesional'}).selectOption('11000000-0000-4000-8000-000000000004');
  await page.getByRole('heading',{name:'Ficha de Alumno ficticio',exact:true}).waitFor();
+ await page.getByRole('button',{name:'Consultar conversación',exact:true}).click();
+ await page.waitForFunction(()=>!document.querySelector('select[aria-label="Elegí tu espacio"]')?.disabled);
+ assert.equal(await page.getByRole('button',{name:'Calcular propuesta',exact:true}).isEnabled(),true);
  await page.getByRole('combobox',{name:'Parámetro de la ecuación'}).selectOption('male');await page.getByRole('button',{name:'Calcular propuesta',exact:true}).click();
  await page.getByRole('button',{name:'Generar Dieta Guía de seis horarios',exact:true}).click();await page.getByRole('heading',{name:'Dieta Guía para revisar',exact:true}).waitFor();
  const guide=page.locator('[data-ncc-coach-tools] section').filter({has:page.getByRole('heading',{name:'Dieta Guía para revisar',exact:true})}).first();assert.equal(await guide.locator('h4').count(),6);

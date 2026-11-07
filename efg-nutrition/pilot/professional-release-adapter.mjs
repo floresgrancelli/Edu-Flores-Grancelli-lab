@@ -1,4 +1,4 @@
-import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r2-20261107';
+import {createReleaseJournal} from './professional-release-journal.mjs?v=ncc-dual-role-release-r3-20261107';
 export const PROFESSIONAL_RELEASE_ENABLED = false;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const valid=x=>typeof x==='string'&&UUID.test(x);

@@ -1,5 +1,5 @@
-import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r2-20261107';
-import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-dual-role-release-r2-20261107';
+import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r3-20261107';
+import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-dual-role-release-r3-20261107';
 // OFF entry in the existing app; no synthetic guard or account-role substitution.
 export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RELEASE_ENABLED,sdk,config,
  readSession,readLegacyPersonal,hasUnsavedDraft,navigationTarget,mountPanel=mountProfessionalWorkspaceReleasePanel}={}){

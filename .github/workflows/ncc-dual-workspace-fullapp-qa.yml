@@ -11,6 +11,7 @@ on:
       - 'efg-nutrition/docs/professional-screens-candidate.md'
       - 'efg-nutrition/docs/professional-reconciliation-candidate.md'
       - 'efg-nutrition/docs/professional-browser-api-candidate.md'
+      - 'efg-nutrition/docs/PROFESSIONAL_RELEASE_ADAPTER.md'
       - 'efg-nutrition/tools/prepare-professional-reconciliation-assets.py'
       - 'efg-nutrition/tools/prepare-professional-screens-assets.py'
       - 'efg-nutrition/pilot/pilot.js'
@@ -66,6 +67,10 @@ jobs:
           const allowed = new Set([
             '.github/workflows/ncc-dual-workspace-fullapp-qa.yml',
             'efg-nutrition/docs/professional-browser-api-candidate.md',
+            'efg-nutrition/pilot/professional-release-adapter.mjs',
+            'efg-nutrition/pilot/professional-release-journal.mjs',
+            'efg-nutrition/tests/professional-release-adapter.test.mjs',
+            'efg-nutrition/docs/PROFESSIONAL_RELEASE_ADAPTER.md',
             'efg-nutrition/tests/professional-browser-api/browser.mjs',
             'efg-nutrition/tests/professional-browser-api/index.html',
             'efg-nutrition/tests/professional-browser-api/policy.mjs',

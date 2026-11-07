@@ -30,14 +30,14 @@ async function run(readyCallback){
   return q;
  }};
  const context=vm.createContext({state,root,sb,
-  weeklyPdfReview:{close(){}},closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
+  professionalReleaseFrame:{mountUnframedRoot(){}},weeklyPdfReview:{close(){}},closePeriodPdfView(){},pilotGuideLifecycle:{invalidate(){}},coachAdaptedWorkspace:{close(){}},
   PRIVATE_HEALTH_DECLARATION_UI_ENABLED:true,COACH_STUDENT_JOURNEY_ENABLED:true,
   SCIENCE_WELCOME_ENABLED:false,MAJOR_RELEASE_FLOW_ENABLED:false,PERSONAL_WORKSPACE_ENABLED:false,
   COACH_RELAUNCH_ONBOARDING_ENABLED:false});
  // Stop only after the unmodified gate. Full rendering remains covered by the
  // browser job; this unit test does not replace its DOM, touch or pixel checks.
  vm.runInContext('let myWeeklyReports=[];'+loader+renderPrefix+
-  '\nroot.innerHTML="REACHED_VERIFIED_RENDER_BOUNDARY";}'+
+  '\nroot.innerHTML="REACHED_VERIFIED_RENDER_BOUNDARY";}finally{if(state.profile?.active)professionalReleaseFrame.mountUnframedRoot?.(root);}}'+
   '\nglobalThis.window={__EFG_VISUAL_QA__:{state,render,loadMyWeeklyReports}};',context);
  await vm.runInContext('('+callbacks[0]+')()',context);
  assert.match(root.innerHTML,/Tu ingreso necesita verificación/);

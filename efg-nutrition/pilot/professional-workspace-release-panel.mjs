@@ -6,11 +6,23 @@ import {createProfessionalTermsReleaseFlow} from './professional-terms-release-f
 import {mountProfessionalTermsReleasePanel} from './professional-terms-release-panel.mjs?v=ncc-dual-role-release-r5-20261107';
 // An owned professional capability remains independent of the original student's profile.
 export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=PROFESSIONAL_RELEASE_ENABLED,
- readLegacyPersonal,hasUnsavedDraft=()=>false,onView=()=>{},crypto=globalThis.crypto}={}){
+ readLegacyPersonal,hasUnsavedDraft=()=>false,adminLocation=false,onView=()=>{},crypto=globalThis.crypto}={}){
  if(enabled!==true)return Object.freeze({ready:Promise.resolve({disabled:true}),dispose(){},assertCanLeave(){}});
  const doc=root.ownerDocument,reader=createProfessionalReleaseAdapter({sdk,config,enabled:true}),
  client=createProfessionalWorkspaceReleaseClient({sdk,config,enabled:true}),terms=createProfessionalTermsSdkTransport({sdk,config,enabled:true});
- let aliasPending=false;
+ let aliasPending=false,adminArea=null,adminHeading=null,statusNode=null;
+ let inAdministration=adminLocation===true;
+ // This is a presentation boundary only; server authorization remains unchanged.
+ function applyLocation(){
+  const showAdmin=inAdministration&&snapshot?.profile.role==='admin'&&!selected;
+  if(adminArea){if(showAdmin&&!adminArea.parentNode)root.append(adminArea);else if(!showAdmin)adminArea.remove();}
+  if(adminHeading)adminHeading.hidden=!showAdmin;
+  root.hidden=!!snapshot&&!selected&&!snapshot.contexts.coach_contexts.length&&!showAdmin;
+  root.setAttribute('data-ncc-workspace-mode',selected?'professional':showAdmin?'admin':'chooser');
+  if(statusNode)statusNode.hidden=!notice||(!selected&&!showAdmin&&notice==='Consulta confirmada.');
+ }
+ function setAdminLocation(value){inAdministration=value===true;applyLocation();}
+ const disclosure=(parent,label)=>{const details=node('details'),summary=node('summary',label);details.append(summary);parent.append(details);return details;};
  let readerOrganization=null,toolsPanel=null,toolsMount=null,toolsStudent=null;
  const disposeTools=()=>{toolsPanel?.dispose();toolsPanel=null;toolsMount=null;toolsStudent=null;};
  let snapshot=null,selected=null,workspace=null,studentId=null,messages=[],pending=[],termsPanel=null,busy=false,disposed=false,epoch=0,notice='',messageDraft='';
@@ -39,7 +51,7 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
   termsPanel?.dispose();termsPanel=null;reader.invalidate();terms.invalidate();onView(!!selected);await refresh();
  }
  async function loadMessages(){if(!studentId)return;const t=epoch;messages=(await reader.perform('messages',{student_id:studentId})).data;check(t);pending=(await reader.perform('pendingMutations',{student_id:studentId})).data;check(t);}
- function render(){if(disposed)return;termsPanel?.dispose();termsPanel=null;root.replaceChildren();root.setAttribute('data-ncc-professional-release-panel','');
+ function render(){if(disposed)return;termsPanel?.dispose();termsPanel=null;root.replaceChildren();adminArea=null;adminHeading=null;statusNode=null;root.setAttribute('data-ncc-professional-release-panel','');
   if(snapshot&&snapshot.profile.role!=='admin'&&snapshot.contexts.coach_contexts.length===0){root.hidden=true;onView(false);return;}root.hidden=false;
   const style=node('style',`[data-ncc-professional-release-panel]{max-width:960px;margin:0 auto;padding:16px;box-sizing:border-box;color:#17343e;overflow-wrap:anywhere}
 [data-ncc-professional-release-panel] form,[data-ncc-professional-release-panel]>section{margin:16px 0}
@@ -50,21 +62,35 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
 [data-ncc-professional-release-panel] button:disabled{opacity:.55;cursor:default}
 [data-ncc-professional-release-panel] h2,[data-ncc-professional-release-panel] h3{margin:12px 0}
 [data-ncc-professional-release-panel] [data-ncc-coach-tools] section{padding:16px;margin:14px 0;border-radius:16px;background:white}
-[data-ncc-professional-release-panel] pre{white-space:pre-wrap}`);root.append(style);
-  root.append(node('h2','Tus espacios'));const status=node('p',notice);status.setAttribute('role','status');status.setAttribute('aria-live','polite');root.append(status);
-  if(!snapshot){onView(false);button(root,'Volver a consultar',refresh);return;}
+[data-ncc-professional-release-panel] pre{white-space:pre-wrap}
+[data-ncc-professional-release-panel] [hidden]{display:none!important}
+[data-ncc-professional-release-panel][hidden]{display:none!important}
+[data-ncc-professional-release-panel] [data-ncc-admin-controls]{border:1px solid #d4dedb;border-radius:12px;padding:10px 14px;margin:8px 0}
+[data-ncc-professional-release-panel] summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;font-weight:600;font-size:16px}
+[data-ncc-professional-release-panel] [data-ncc-admin-controls] form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px 12px;margin:10px 0}
+[data-ncc-professional-release-panel] [data-ncc-admin-controls] label{font-size:15px;margin:4px 0}
+[data-ncc-professional-release-panel] [data-ncc-admin-controls] input{min-height:44px;font-size:16px;padding:8px 10px;margin:4px 0}
+[data-ncc-professional-release-panel] [data-ncc-admin-controls] button{min-height:44px;align-self:end;font-size:14px;margin:4px 0}
+[data-ncc-professional-release-panel][data-ncc-workspace-mode=chooser]{padding:6px 16px}
+[data-ncc-professional-release-panel][data-ncc-workspace-mode=chooser] select{min-height:44px;font-size:16px;padding:8px 10px;margin:0}
+[data-ncc-professional-release-panel]>h2{font-size:18px;margin:4px 0 8px}
+[data-ncc-professional-release-panel]>[role=status]{font-size:14px;margin:4px 0 8px}`);root.append(style);
+  adminHeading=node('h2','Administración de espacios');root.append(adminHeading);const status=node('p',notice);statusNode=status;status.setAttribute('role','status');status.setAttribute('aria-live','polite');root.append(status);
+  if(!snapshot){onView(false);button(root,'Volver a consultar',refresh);applyLocation();return;}
   const select=node('select');select.setAttribute('aria-label','Elegí tu espacio');const personal=node('option','Mi espacio personal');personal.value='';personal.selected=!selected;select.append(personal);
   for(const org of snapshot.contexts.coach_contexts){const option=node('option','Coach · '+org.name);option.value=org.id;option.selected=selected===org.id;select.append(option);}select.disabled=busy;
-  select.addEventListener('change',()=>run(()=>choose(select.value)));root.append(select);
+  select.addEventListener('change',()=>run(()=>choose(select.value)));if(snapshot.contexts.coach_contexts.length)root.append(select);
   if(snapshot.profile.role==='admin'){
-   form(root,[['Correo del coach','email',''],['Nombre profesional','text',''],['Cupo inicial','number','10']],'Crear espacio de coach',async([email,name,seats])=>{await client.mutate('create',{email:email.trim().toLowerCase(),name:name.trim(),seats:Number(seats)});await refresh();});
-   form(root,[['Mismo correo a verificar','email',''],['Mismo nombre a verificar','text',''],['Mismo cupo a verificar','number','10']],'Verificar creación anterior',async([email,name,seats])=>{await client.reconcile('create',{email:email.trim().toLowerCase(),name:name.trim(),seats:Number(seats)});await refresh();});
-   for(const org of snapshot.contexts.managed_coaches||[]){root.append(node('h3',org.name),node('p',`${org.active_students} activos + ${org.pending_invitations} invitados de ${org.seat_limit} cupos`));
-    form(root,[['Cupo para '+org.name,'number',String(org.seat_limit)]],'Guardar cupo',async([seats])=>{await client.mutate('seats',{organizationId:org.id,seats:Number(seats)});await refresh();});
-    form(root,[['Cupo anterior para verificar '+org.name,'number',String(org.seat_limit)]],'Verificar cambio de cupo',async([seats])=>{await client.reconcile('seats',{organizationId:org.id,seats:Number(seats)});await refresh();});
+   adminArea=disclosure(root,'Administrar coaches y cupos');adminArea.setAttribute('data-ncc-admin-controls','');
+   form(adminArea,[['Correo del coach','email',''],['Nombre profesional','text',''],['Cupo inicial','number','10']],'Crear espacio de coach',async([email,name,seats])=>{await client.mutate('create',{email:email.trim().toLowerCase(),name:name.trim(),seats:Number(seats)});await refresh();});
+   form(disclosure(adminArea,'Verificar una creación anterior'),[['Mismo correo a verificar','email',''],['Mismo nombre a verificar','text',''],['Mismo cupo a verificar','number','10']],'Verificar creación anterior',async([email,name,seats])=>{await client.reconcile('create',{email:email.trim().toLowerCase(),name:name.trim(),seats:Number(seats)});await refresh();});
+   for(const org of snapshot.contexts.managed_coaches||[]){adminArea.append(node('h3',org.name),node('p',`${org.active_students} activos + ${org.pending_invitations} invitados de ${org.seat_limit} cupos`));
+    form(adminArea,[['Cupo para '+org.name,'number',String(org.seat_limit)]],'Guardar cupo',async([seats])=>{await client.mutate('seats',{organizationId:org.id,seats:Number(seats)});await refresh();});
+    form(disclosure(adminArea,'Verificar un cambio de cupo anterior'),[['Cupo anterior para verificar '+org.name,'number',String(org.seat_limit)]],'Verificar cambio de cupo',async([seats])=>{await client.reconcile('seats',{organizationId:org.id,seats:Number(seats)});await refresh();});
    }
   }
-  if(!selected){root.append(node('p','Tu seguimiento personal conserva su cuenta, datos y coach.'));onView(false);return;}
+  applyLocation();
+  if(!selected){onView(false);return;}
   onView(true);const org=snapshot.contexts.coach_contexts.find(o=>o.id===selected);if(!org){root.replaceChildren(node('p','Espacio no disponible.'));return;}
   root.append(node('h3',org.name),node('p',`${org.active_students} alumnos activos · ${org.pending_invitations} invitaciones pendientes · ${org.seat_limit} cupos`));
   if(!org.legal_ready){const section=node('section');root.append(section);
@@ -100,5 +126,5 @@ export function mountProfessionalWorkspaceReleasePanel({root,sdk,config,enabled=
  }
  const subscription=sdk.auth.onAuthStateChange(event=>{if(event==='INITIAL_SESSION')return;epoch++;disposeTools();readerOrganization=null;snapshot=null;selected=null;workspace=null;messages=[];messageDraft='';termsPanel?.dispose();termsPanel=null;reader.invalidate();client.invalidate();terms.invalidate();root.replaceChildren();onView(false);});
  const ready=run(refresh).then(()=>({disabled:false}));
- return Object.freeze({ready,assertCanLeave,dispose(){if(disposed)return;disposed=true;epoch++;disposeTools();readerOrganization=null;termsPanel?.dispose();reader.dispose();client.dispose();terms.dispose();subscription?.data?.subscription?.unsubscribe?.();for(const type of ['click','input','change','submit'])root.removeEventListener(type,stop);root.replaceChildren();onView(false);}});
+ return Object.freeze({ready,assertCanLeave,setAdminLocation,dispose(){if(disposed)return;disposed=true;epoch++;disposeTools();readerOrganization=null;termsPanel?.dispose();reader.dispose();client.dispose();terms.dispose();subscription?.data?.subscription?.unsubscribe?.();for(const type of ['click','input','change','submit'])root.removeEventListener(type,stop);root.replaceChildren();onView(false);}});
 }

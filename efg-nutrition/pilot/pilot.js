@@ -1,4 +1,4 @@
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-admin-location-r1-20261109';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -5438,6 +5438,7 @@ const dualWorkspaceFrame=createDualWorkspaceFrame({
 });
 const professionalReleaseFrame=createProfessionalWorkspaceReleaseFrame({
  enabled:PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,
+ readAdminLocation:()=>state.profile?.role==="admin"&&["admin","adminManage"].includes(state.tab),
  sdk:sb,config:{explicitReleaseConfiguration:true,backendOrigin:PROFESSIONAL_WORKSPACE_RELEASE_BACKEND},navigationTarget:window,
  readSession:()=>({userId:state.session?.user?.id,sessionId:state.session?.session_id,epoch:state.authContextEpoch||0}),
  readLegacyPersonal:()=>({profile:state.profile,organization:state.org}),hasUnsavedDraft:hasPendingUnsavedEdits

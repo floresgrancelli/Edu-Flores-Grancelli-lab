@@ -1,8 +1,8 @@
 import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r5-20261107';
-import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-dual-role-release-r5-20261107';
+import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-admin-location-r1-20261109';
 // OFF entry in the existing app; no synthetic guard or account-role substitution.
 export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RELEASE_ENABLED,sdk,config,
- readSession,readLegacyPersonal,hasUnsavedDraft,navigationTarget,mountPanel=mountProfessionalWorkspaceReleasePanel}={}){
+ readSession,readLegacyPersonal,hasUnsavedDraft,readAdminLocation=()=>false,navigationTarget,mountPanel=mountProfessionalWorkspaceReleasePanel}={}){
  let identity=null,panel=null,mount=null,frameRoot=null,professional=false;
  const key=()=>{const s=readSession?.();return s?.userId&&s?.sessionId&&Number.isSafeInteger(s.epoch)?JSON.stringify([s.userId,s.sessionId,s.epoch]):null;};
  const apply=()=>{const body=frameRoot?.querySelector('[data-ncc-release-personal]');if(body){body.hidden=professional;body.inert=professional;body.setAttribute('aria-hidden',String(professional));}
@@ -11,8 +11,8 @@ export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RE
  function revalidate(){if(enabled!==true)return false;const next=key();if(identity!==next){invalidate();identity=next;}return !!next;}
  function mountFrame(root){if(enabled!==true)return;frameRoot=root;if(!revalidate())return;const slot=root.querySelector('[data-ncc-release-slot]');if(!slot)return;
   if(!mount){mount=root.ownerDocument.createElement('section');mount.setAttribute('data-ncc-professional-release-host','');slot.append(mount);
-   panel=mountPanel({root:mount,sdk,config,enabled:true,readLegacyPersonal,hasUnsavedDraft,onView(value){professional=!!value;apply();}});
-  }else slot.append(mount);apply();
+   panel=mountPanel({root:mount,sdk,config,enabled:true,readLegacyPersonal,hasUnsavedDraft,adminLocation:readAdminLocation()===true,onView(value){professional=!!value;apply();}});
+  }else slot.append(mount);panel?.setAdminLocation?.(readAdminLocation()===true);apply();
  }
  // The independent coach space must also be available before student onboarding.
  function mountUnframedRoot(root){

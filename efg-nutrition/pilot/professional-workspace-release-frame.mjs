@@ -1,5 +1,5 @@
 import {PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r5-20261107';
-import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-admin-location-r1-20261109';
+import {mountProfessionalWorkspaceReleasePanel} from './professional-workspace-release-panel.mjs?v=ncc-coach-plan-steps-r1-20261110';
 // OFF entry in the existing app; no synthetic guard or account-role substitution.
 export function createProfessionalWorkspaceReleaseFrame({enabled=PROFESSIONAL_RELEASE_ENABLED,sdk,config,
  readSession,readLegacyPersonal,hasUnsavedDraft,readAdminLocation=()=>false,navigationTarget,mountPanel=mountProfessionalWorkspaceReleasePanel}={}){

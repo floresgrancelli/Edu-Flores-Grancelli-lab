@@ -2191,7 +2191,7 @@ function updateMealDialogHint(){
  }
  if(BEVERAGE_IDS.has(f.id)){try{const result=calculateBeverage(f,grams);hint.textContent=result.summary+" · "+result.source;}catch(err){hint.textContent=err.message;}return;}
  hint.innerHTML='<strong>'+escapeHTML((useUnits?num(qty)+" "+portion.label+(qty===1?"":"s")+" ≈ "+num(grams,1)+" g. ":"")+
- num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína")+'</strong><small>HC '+num(f.c*grams,1)+' g · Grasas '+num(f.f*grams,1)+' g</small><details><summary>Porción y referencia nutricional</summary>'+escapeHTML(foodProvenance(f)+". "+f.source+
+ num(f.k*grams)+" kcal y "+num(f.p*grams,1)+" g de proteína")+'</strong><br><small>HC '+num(f.c*grams,1)+' g · Grasas '+num(f.f*grams,1)+' g</small><details><summary>Porción y referencia nutricional</summary>'+escapeHTML(foodProvenance(f)+". "+f.source+
  (useUnits?(f.oilIncluded?". Porción estimada: el aceite de esta preparación ya está contemplado; no lo registres dos veces.":". Porción estimada: puede variar por tamaño. Si agregaste aceite no incluido en el alimento, registralo aparte."):""))+'</details>';
 }
 async function saveSelectedMeal(continueGuided=false){

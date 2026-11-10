@@ -38,7 +38,9 @@ assert.ok(css.includes("--pastel-lilac")&&css.includes("--pastel-coral")&&css.in
 assert.ok(css.includes(".efg-role-coach")||css.includes(".efg-coach-banner"),"Coach included");
 assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
-assert.ok(app.includes('return rootText("MI DÍA"'),"Main daily heading is uppercase");
+assert.ok(app.includes('rootText("MI DÍA"'),"Professional personal heading retains MI DÍA");
+assert.match(app,/studentDay\?studentDayWelcome\(state.profile\?\.nickname,today\(\)\)/,"Student uses the approved distinct daily heading");
+assert.match(read("student-day-presentation.js"),/<h1>Tu día,<br><span>a tu ritmo\.<\/span><\/h1>/,"Approved student heading remains visible");
 assert.ok(app.includes('["home","","Mi día"]'),"Student navigation label readable");
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");
 assert.match(app,/\["adminManage","⚙️","Organizaciones","lilac"\]/,"Admin management entry uses a single legible word");

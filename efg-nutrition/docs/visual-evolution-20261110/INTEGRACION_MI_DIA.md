@@ -57,6 +57,7 @@ La captura `mi-dia-integrated.png` es evidencia local de la PWA sintética; no u
 - `guide-candidate-assets.test.mjs` + `dual-workspace-assets.test.mjs`: 10 casos de grafo, recursos inmutables, versiones, hashes y rechazos negativos.
 - `version-notice-opt-in.mjs`: conserva el comportamiento de actualización menor y su identidad estricta.
 - Contratos de integración del doble rol/profesional: 11 casos aprobados con la referencia histórica exacta requerida por sus fixtures. El primer intento carecía del archivo de referencia; se recuperó el commit histórico real y se ejecutaron sin modificar los contratos.
+- `pastel-phase3-preview.mjs`: se actualiza la comprobación del encabezado tras el fallo CI inicial (buscaba la antigua forma exacta `return rootText`). Sigue verificando el título MI DÍA del profesional y verifica además el encabezado aprobado exclusivo del alumno; no se elimina ninguna comprobación de cálculos o privacidad.
 - Sintaxis de los módulos modificados y `git diff --check`.
 
 ## Pendientes

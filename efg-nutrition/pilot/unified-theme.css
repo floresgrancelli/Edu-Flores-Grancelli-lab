@@ -164,3 +164,9 @@ html.ncc-lime-theme #app :is(.efg-menu-emoji,.efg-streak-trackhead>b,.efg-habitu
 html.ncc-lime-theme #app .efg-menu-card .efg-lux-menu-icon{stroke:var(--ncc-lime)!important;color:var(--ncc-lime)!important;filter:none!important}
 html.ncc-lime-theme #app :is(.efg-habitual-food-name,.efg-habitual-food-qty){color:var(--ncc-text)!important}
 html.ncc-lime-theme #app .efg-coach-stat-grid>div>span{color:var(--ncc-muted)!important}
+html.ncc-lime-theme #app .pilot-nav button.navitem:not(.active):not(:hover){background:transparent!important}
+html.ncc-lime-theme #app :is(h1,h2,h3) em{font-family:inherit!important;color:var(--ncc-lime)!important}
+html.ncc-lime-theme #app :is(.ns-myth-credit,.ns-disclaimer,.ns-wellbeing-kicker){color:var(--ncc-muted)!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-bell-svg{stroke:var(--ncc-lime)!important;fill:#d7ff3f15!important;filter:none!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-bell:before{background:none!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-bell:focus-visible{outline:3px solid var(--ncc-lime)!important}

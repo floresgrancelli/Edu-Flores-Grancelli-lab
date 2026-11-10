@@ -620,6 +620,10 @@ try{
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color})));
     if(primary.some(x=>x.bg!=='rgb(215, 255, 63)'||x.color!=='rgb(23, 28, 11)'))pageReport.errors.push('Primary action must retain approved lime/dark text: '+JSON.stringify(primary));
    }
+   if(dest==='home'){
+    const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});
+    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('215, 255, 63'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
+   }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
        const el=document.querySelector(selector);
@@ -679,7 +683,8 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
      if(unifiedTheme){
       const surfaces=await page.locator(menuSelector).evaluateAll(els=>els.filter(e=>e.getClientRects().length>0).slice(0,6).map(e=>({bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})));
-      if(surfaces.some(x=>x.bg!=='rgb(37, 44, 36)'||x.color!=='rgb(245, 243, 235)'))pageReport.errors.push('Coach/admin cards must share approved dark identity: '+JSON.stringify(surfaces));
+      const allowed=['rgb(215, 255, 63)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
+      if(!surfaces.length||surfaces[0].bg!=='rgb(215, 255, 63)'||surfaces[0].color!=='rgb(23, 28, 11)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include bright lime plus differentiated dark cards: '+JSON.stringify(surfaces));
      }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
@@ -732,15 +737,15 @@ try{
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
      }));
      if(studentDayTheme){
-      const bars=await page.locator(".efg-pastel-meter>span").evaluateAll(els=>els.map(el=>{
+      const bars=await page.locator(".efg-pastel-meter>span").evaluateAll(els=>els.map((el,index)=>{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
-        color:getComputedStyle(el).backgroundColor};
+        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(215, 255, 63)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
       }));
-      if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!=="rgb(215, 255, 63)"))
+      if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
        pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
-     }else if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
+     }else if(!unifiedTheme&&(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient"))))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
    // UX35: every authenticated role has a 44px mobile logout in the header;

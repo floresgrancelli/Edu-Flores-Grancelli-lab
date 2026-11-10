@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-unified-theme-r1-20261110",
+  "assetVersion": "ncc-focus-contrast-r2-20261110",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -96,7 +96,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-unified-theme-r1-20261110",
+    "efg-nutrition/pilot/pilot.js": "ncc-focus-contrast-r2-20261110",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-dual-role-release-r5-20261107",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-dual-role-release-r5-20261107",
@@ -217,7 +217,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "fa8370b8156e150f8dabb737d9c54012a7ad43c95d22350f33cd4653af77d46c",
+    "efg-nutrition/pilot/index.html": "a389a92c23d2359e516066e063c54e817a58ea7170b1aeaa60c7569fd3feedb8",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -445,8 +445,8 @@
     },
     {
       "path": "efg-nutrition/pilot/unified-theme.css",
-      "sha256": "ed200290f1df7a7042e7b745e1b16f3b7c6d54d361a6d0fe3baf5981796cee2f",
-      "url": "./unified-theme.css?v=ncc-unified-theme-r1-20261110"
+      "sha256": "461126dfa3ec4135ed706af784571d4c32d907743b474bd714f43ada09fea89b",
+      "url": "./unified-theme.css?v=ncc-focus-contrast-r2-20261110"
     }
   ],
   "moduleResources": [

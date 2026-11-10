@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {studentDayWelcome,studentDayDashboard} from '../pilot/student-day-presentation.js';
+import {pastelDaySummary} from '../pilot/pastel-day.js';
+
+const slots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almuerzo','Almuerzo'],['media_tarde','Media tarde'],['merienda','Merienda'],['cena','Cena']];
+const diary={meals:Object.fromEntries(slots.map(([id])=>[id,[]])),skipped:{}};
+const totals={k:2480,p:182,c:294,f:64,fi:30},goal={k:2200,p:150,c:250,f:66,fi:30};
+const original=structuredClone({diary,totals,goal});
+const page=studentDayDashboard({totals,goal,diary,mealSlots:slots,hasGuide:true});
+assert.ok(page.includes(pastelDaySummary(totals,goal,diary,slots)),'Existing renderer consumes the unchanged numbers');
+assert.match(page,/\+280/,'Over-goal amount remains visible');
+assert.match(page,/data-student-day-guide="1"/);
+assert.doesNotMatch(page,/data-setmeal=/,'Overview CTA must not pick a meal or register automatically');
+assert.deepEqual({diary,totals,goal},original,'Presentation does not mutate records or targets');
+const pending=studentDayDashboard({totals,goal:null,diary,mealSlots:slots,hasGuide:false});
+assert.match(pending,/sin meta de kcal/);
+assert.match(pending,/data-tab="messages"/);
+assert.doesNotMatch(pending,/data-student-day-guide=/,'Unavailable guide has no active opener');
+const welcome=studentDayWelcome('<img src=x onerror=alert(1)>','2026-11-10');
+assert.match(welcome,/&lt;img/);assert.doesNotMatch(welcome,/<img/);
+assert.match(welcome,/datetime="2026-11-10"/);assert.match(welcome,/10\/11\/2026/);
+console.log('PASS student day presentation: existing totals, over-goal, no goal/guide, no mutation, escaped identity.');

@@ -6,7 +6,7 @@ import {readFileSync,writeFileSync,mkdirSync,copyFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {resolve,extname} from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
-const preview=resolve(root,'../food-entry-preview'),out=resolve(root,'artifacts/food-entry');
+const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,'artifacts/food-entry');
 mkdirSync(out,{recursive:true});
 const prepare=spawnSync(process.execPath,['efg-nutrition/tests/prepare-student-day-visual.mjs',preview],{cwd:root,encoding:'utf8'});
 assert.equal(prepare.status,0,prepare.stderr);

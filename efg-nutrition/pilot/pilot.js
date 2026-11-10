@@ -848,10 +848,10 @@ function habitualPickerHTML(slot){
  '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
 }
 function updateHabitualPreview(slot){
- const id=document.getElementById('habitualChoice_'+slot)?.value||"";
+ const id=(document.getElementById('mealEntryHabitualChoice_'+slot)||document.getElementById('habitualChoice_'+slot))?.value||"";
  state.habitualSelection[slot]=id;
  const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
- const host=document.getElementById('habitualPreview_'+slot);
+ const host=document.getElementById('mealEntryHabitualPreview_'+slot)||document.getElementById('habitualPreview_'+slot);
  if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
 }
 function validateHabitualCatalog(habitual){
@@ -865,7 +865,7 @@ function validateHabitualCatalog(habitual){
  if(forbidden.length)throw Error('Este habitual contiene alimentos que tu coach ya no incluyó en tu catálogo. Revisá tu plan antes de registrarlo.');
 }
 function chosenHabitual(slot){
- const id=document.getElementById('habitualChoice_'+slot)?.value;
+ const id=(document.getElementById('mealEntryHabitualChoice_'+slot)||document.getElementById('habitualChoice_'+slot))?.value;
  if(!id)throw Error('Primero elegí una comida habitual de la lista.');
  const item=getHabitualList(slot).find((x,index)=>habitualEntryKey(x,index)===String(id));
  if(!item||!Array.isArray(item.items)||!item.items.length)throw Error('Ese habitual no está disponible. Actualizá y volvé a elegir.');
@@ -2069,7 +2069,7 @@ function renderMealEntryShortcuts(){
  const words=normalize(document.getElementById("mealFoodSearch")?.value).trim().split(/\s+/).filter(Boolean);
  const matches=value=>words.every(word=>normalize(value).includes(word));
  if(mealEntrySource==="habitual"){
-  host.innerHTML=habitualPickerHTML(state.activeMeal);
+  host.innerHTML=habitualPickerHTML(state.activeMeal).replaceAll('habitualChoice_'+state.activeMeal,'mealEntryHabitualChoice_'+state.activeMeal).replaceAll('habitualPreview_'+state.activeMeal,'mealEntryHabitualPreview_'+state.activeMeal);
   const selector=host.querySelector('select');
   if(selector){
    const list=getHabitualList(state.activeMeal);

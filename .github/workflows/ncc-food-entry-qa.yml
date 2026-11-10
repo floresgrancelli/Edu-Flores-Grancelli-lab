@@ -21,6 +21,7 @@ jobs:
           node-version: '22'
       - run: npm install --prefix efg-nutrition/tests/professional-browser-api
       - run: npx --prefix efg-nutrition/tests/professional-browser-api playwright install --with-deps chromium webkit
+      - run: sudo mkdir -p /workspace && sudo chown "$USER" /workspace
       - run: node efg-nutrition/tests/food-entry-browser.mjs
         env:
           NCC_PLAYWRIGHT_MODULE: ./professional-browser-api/node_modules/playwright/index.mjs

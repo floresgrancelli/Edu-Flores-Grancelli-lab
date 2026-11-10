@@ -174,3 +174,40 @@ html.ncc-lime-theme #app input.planner-food-search{background:var(--ncc-input)!i
 html.ncc-lime-theme #app .coach-intake-summary>div{background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
 /* Native fields win component surface rules, including dynamic and disabled controls. */
 html.ncc-lime-theme #app :is(input,select,textarea):is(:enabled,:disabled){background:var(--ncc-input)!important;color:var(--ncc-text)!important;border-color:#616b60!important}
+/* Focus comparison R2: hierarchy, visible actions, and a shared circular summary.
+   The old professional summary used an absolute square inner face. Keep a
+   genuine circular track at zero, partial progress and over-goal for every role. */
+html.ncc-lime-theme #app .efg-pastel-day{background:linear-gradient(135deg,#24301f,#1b2325 72%)!important;border-color:#4d6240!important}
+html.ncc-lime-theme #app .efg-pastel-day-grid{display:grid!important;grid-template-columns:minmax(130px,.95fr) minmax(0,1fr)!important;gap:24px!important;align-items:center;margin:24px 0}
+html.ncc-lime-theme #app .efg-pastel-ring{position:relative!important;inset:auto!important;display:grid!important;place-items:center;aspect-ratio:1;width:180px!important;height:180px!important;max-width:100%!important;min-width:0;padding:9px!important;border:0!important;border-radius:50%!important;overflow:hidden;background:conic-gradient(#d7ff3f 0 var(--ring-c),#3c4738 var(--ring-c) 360deg)!important;box-shadow:none!important;margin-inline:auto}
+html.ncc-lime-theme #app .efg-pastel-ring:before{display:none!important;content:none!important}
+html.ncc-lime-theme #app .efg-pastel-ring-inner{position:static!important;inset:auto!important;width:100%!important;height:100%!important;border-radius:50%!important;background:#1b2325!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;overflow:hidden}
+html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:36px!important;line-height:1.1;font-variant-numeric:tabular-nums}
+html.ncc-lime-theme #app .efg-pastel-ring-inner small{font-size:10px!important;max-width:125px;line-height:1.4}
+html.ncc-lime-theme #app .efg-pastel-macros{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:17px!important}
+html.ncc-lime-theme #app .efg-pastel-macro{display:block!important;text-align:left!important}
+html.ncc-lime-theme #app .efg-pastel-macro-icon{display:none!important}
+html.ncc-lime-theme #app .efg-pastel-macro-info{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:4px!important}
+html.ncc-lime-theme #app .efg-pastel-macro-info>span{grid-column:1/-1;font-size:12px!important;text-transform:none!important;color:var(--ncc-muted)!important}
+html.ncc-lime-theme #app .efg-pastel-macro-info strong{font-size:18px!important}
+html.ncc-lime-theme #app .efg-pastel-macro-info small{align-self:end;font-size:11px!important}
+html.ncc-lime-theme #app .efg-pastel-meter{height:5px!important;max-width:none!important;width:100%!important;grid-column:1/-1;background:#44504b!important;border-radius:8px!important;overflow:hidden;margin:5px 0 0!important}
+html.ncc-lime-theme #app .efg-pastel-meter>span{display:block;width:var(--macro-progress);height:100%;background:#d7ff3f!important}
+html.ncc-lime-theme #app .efg-pastel-macro:nth-child(2) .efg-pastel-meter>span{background:#7ddde2!important}
+html.ncc-lime-theme #app .efg-pastel-macro:nth-child(3) .efg-pastel-meter>span{background:#c5a6ff!important}
+html.ncc-lime-theme #app .efg-personal-hello{background:linear-gradient(90deg,#132014f5,#1320149c),url('./welcome-bowl.jpg') center 45%/cover!important;border-color:#566b3f!important;min-height:100px;box-shadow:none!important}
+html.ncc-lime-theme #app .efg-personal-hello strong{font-family:inherit!important;color:#f5f3eb!important;font-size:30px!important}
+html.ncc-lime-theme #app .efg-personal-hello span{color:#d7ff3f!important}
+/* Large, bright actions instead of a page full of subdued secondary buttons. */
+html.ncc-lime-theme #app .student-shortcuts button[data-scrollto],html.ncc-lime-theme #app .student-meal-details button[data-setmeal],html.ncc-lime-theme #app button[data-resolve-day],html.ncc-lime-theme #app .efg-pastel-motivation .btn{background:#d7ff3f!important;color:#171c0b!important;border-color:#d7ff3f!important;box-shadow:0 4px 20px #d7ff3f20!important}
+html.ncc-lime-theme #app .student-shortcuts button:nth-child(2){background:#253b2b!important;border-color:#99c557!important;color:#edf7df!important}
+html.ncc-lime-theme #app .student-shortcuts button:nth-child(3){background:#233647!important;border-color:#65a4c3!important;color:#e0f4ff!important}
+html.ncc-lime-theme #app .efg-menu-card:first-child{background:#d7ff3f!important;color:#171c0b!important;border-color:#d7ff3f!important}
+html.ncc-lime-theme #app .efg-menu-card:nth-child(3n+2){background:#223442!important;border-color:#3e677e!important}
+html.ncc-lime-theme #app .efg-menu-card:nth-child(3n+3){background:#302a43!important;border-color:#62517d!important}
+html.ncc-lime-theme #app .efg-menu-card:first-child :is(strong,span,.efg-lux-menu-icon){color:#171c0b!important;stroke:#171c0b!important}
+html.ncc-lime-theme #app .efg-menu-card:first-child .efg-menu-emoji{background:#b9db35!important;border-color:#93ae2b!important}
+html.ncc-lime-theme #app .efg-pastel-stat:first-child{background:#d7ff3f!important;border-color:#d7ff3f!important;border-radius:14px!important;padding:13px 9px!important}
+html.ncc-lime-theme #app .efg-pastel-stat:first-child :is(strong,small){color:#171c0b!important}
+@media(max-width:720px){html.ncc-lime-theme #app .efg-pastel-day-grid{gap:17px!important;grid-template-columns:minmax(125px,1fr) minmax(0,1fr)!important}html.ncc-lime-theme #app .efg-pastel-ring{width:148px!important;height:148px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:31px!important}}
+@media(max-width:380px){html.ncc-lime-theme #app .efg-pastel-ring{width:126px!important;height:126px!important;padding:7px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:27px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner small{font-size:9px!important;max-width:100px}html.ncc-lime-theme #app .efg-pastel-day-grid{gap:12px!important}html.ncc-lime-theme #app .efg-pastel-macro-info strong{font-size:16px!important}}

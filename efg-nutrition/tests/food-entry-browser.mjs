@@ -68,7 +68,7 @@ try{
    // Named favorites and recipes are original account-scoped backups; no new store.
    await page.evaluate(()=>{
     const s=window.__NCC_R4_FULLAPP__.state,item=s.diary.meals.cena[0];
-    localStorage.setItem('efg-nutrition-habitual-v2:learner:cena',JSON.stringify([{name:'Mi cena sushi',items:[item]}]));
+    localStorage.setItem('efg-nutrition-habitual-v2:learner:cena',JSON.stringify([{name:'Mi cena sushi',items:[item]},{name:'Mi cena huevo',items:[s.diary.meals.media_manana[0]]}]));
     localStorage.setItem('efg-nutrition-custom-recipes:learner',JSON.stringify([{name:'Tortilla prueba',ingredients:[{foodId:'egg',grams:100}],portions:2,totals:{k:148,p:12.4,c:.96,f:9.96,fi:0}}]));
    });
    await open('cena');await page.locator('[data-mealsource="habitual"]').click();await page.locator('#mealFoodSearch').fill('sushi');assert.match(await page.locator('#mealEntryShortcuts').innerText(),/Mi cena sushi/);
@@ -84,6 +84,11 @@ try{
    await page.evaluate(async()=>{const app=window.__NCC_R4_FULLAPP__,old=structuredClone(app.state.diary);old.log_day='2026-01-01';app.state.progressLogs=[old];app.state.diary.meals=Object.fromEntries(Object.keys(old.meals).map(k=>[k,[]]));await app.render();});
    await open('cena');await page.locator('[data-mealsource="habitual"]').click();assert.match(await page.locator('#mealEntryShortcuts').innerText(),/Mi cena sushi/);
    await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="sushi_maki_salmon"]').count(),1);
+   await page.locator('[data-mealsource="habitual"]').click();
+   await page.locator('#mealEntryHabitualChoice_cena').selectOption('local-1');
+   await page.locator('.meal-popup [data-habitualapply="cena"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
+   assert.equal((await snapshot()).meals.cena[0].id,'egg','Popup favorite choice must win over the daily selector behind it');
+   await open('cena');await page.locator('[data-mealsource="recent"]').click();
    await page.screenshot({path:resolve(out,engine+'-'+width+'-recent.png')});
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    assert.deepEqual(errors,[]);results.push({engine,width,status:'PASS',scope:'synthetic transport, mobile viewport; no physical device or hosted auth'});await context.close();

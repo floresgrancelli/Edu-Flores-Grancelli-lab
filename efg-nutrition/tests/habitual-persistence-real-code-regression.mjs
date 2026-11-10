@@ -42,7 +42,7 @@ const localStorage={
  removeItem:key=>{legacyStore.delete(key)}
 };
 const diary={meals:{desayuno:[{id:'egg',name:'Huevos',qty:100,unit:'g',k:140,p:12,c:2,f:8}]},skipped:{}};
-const fakeDocument={getElementById(id){const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
+const fakeDocument={getElementById(id){if(!id.startsWith('habitualChoice_'))return null;const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
 const pendingMealRegistrations=new Set();
 const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',

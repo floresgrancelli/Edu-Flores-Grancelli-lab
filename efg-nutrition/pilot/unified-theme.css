@@ -62,7 +62,7 @@ html.ncc-lime-theme #app .pilot-nav button.navitem:is(.active,:hover){background
 html.ncc-lime-theme #app .pilot-nav button.navitem.active:before{background:var(--ncc-lime)!important}
 html.ncc-lime-theme #app :is(.avatar,.efg-mobile-avatar,.coach-profile-avatar,.coach-roster-avatar,.efg-chat-avatar){background:#28311b!important;color:var(--ncc-lime)!important;border-color:#56643d!important;box-shadow:none!important}
 /* Base buttons also cover dynamically mounted professional/admin tools. */
-html.ncc-lime-theme #app button:not(.navitem){background:#252c24!important;color:var(--ncc-text)!important;border-color:#48523e!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;touch-action:manipulation}
+html.ncc-lime-theme #app button:where(:not(.navitem)){background:#252c24!important;color:var(--ncc-text)!important;border-color:#48523e!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;touch-action:manipulation}
 /* Primary action, secondary action and navigation cards share one vocabulary. */
 html.ncc-lime-theme #app :is(.btn,.ns-next,.efg-onboard-cta){background:var(--ncc-lime)!important;border:1px solid var(--ncc-lime)!important;color:var(--ncc-action-ink)!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;font-weight:750;touch-action:manipulation}
 html.ncc-lime-theme #app :is(.btn.light,.btn.ghost,.pilot-logout,.efg-mobile-logout,
@@ -156,3 +156,11 @@ html.ncc-lime-theme #app :is(.coach-food-choices label,.food-library-tools,.coac
 html.ncc-lime-theme #app :is(.ns-macro-emoji,.ns-wellbeing-orbit,.ns-wellbeing-points p>span:first-child){background:#28311b!important;color:var(--ncc-lime)!important}
 html.ncc-lime-theme #app .ns-welcome-progress i{background:var(--ncc-line)!important}
 html.ncc-lime-theme #app .ns-welcome-progress i.is-current{background:var(--ncc-lime)!important}
+/* Final contrast details found in the actual cross-role captures. */
+html.ncc-lime-theme #app :is(.warning){background:#442323!important;color:#ffdad6!important;border-color:#a85b58!important}
+html.ncc-lime-theme #app .efg-fit-art{background-color:var(--ncc-panel)!important}
+html.ncc-lime-theme #app :is(.efg-seats-caption,.efg-guided-meal-summary,.efg-meal-guidance-fat){background:var(--ncc-panel)!important;color:var(--ncc-muted)!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app :is(.efg-menu-emoji,.efg-streak-trackhead>b,.efg-habitual-preview-heading>span){background:#28311b!important;color:var(--ncc-lime)!important;box-shadow:none!important;border-color:#56643d!important}
+html.ncc-lime-theme #app .efg-menu-card .efg-lux-menu-icon{stroke:var(--ncc-lime)!important;color:var(--ncc-lime)!important;filter:none!important}
+html.ncc-lime-theme #app :is(.efg-habitual-food-name,.efg-habitual-food-qty){color:var(--ncc-text)!important}
+html.ncc-lime-theme #app .efg-coach-stat-grid>div>span{color:var(--ncc-muted)!important}

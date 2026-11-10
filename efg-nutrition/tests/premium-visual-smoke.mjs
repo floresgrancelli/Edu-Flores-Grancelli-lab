@@ -616,6 +616,10 @@ try{
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
    }
+   if(unifiedTheme){
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color})));
+    if(primary.some(x=>x.bg!=='rgb(215, 255, 63)'||x.color!=='rgb(23, 28, 11)'))pageReport.errors.push('Primary action must retain approved lime/dark text: '+JSON.stringify(primary));
+   }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
        const el=document.querySelector(selector);

@@ -722,6 +722,7 @@ try{
          else{
            if(await guide.locator("[data-mealgroup]").count()!==4)pageReport.errors.push("Guided main meal needs 4 food categories");
            if(await guide.locator("[data-mealomit]").count()!==2)pageReport.errors.push("Guided meal needs independent omit protein and carb controls");
+           await openMealControls(page,'groups');
            if(!(await guide.innerText()).includes("Grasas registradas"))pageReport.errors.push("Automatic fat summary missing");
            await openMealControls(page,'groups');
            await guide.locator('[data-mealgroup="prepared"]').click();

@@ -50,6 +50,7 @@ try{
    assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_manana.length),1);
    await open('cena');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
    await page.locator('[data-mealsource="all"]').click();await search('sushi','sushi_maki_salmon');
+   assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears when a new food entry starts');
    await page.locator('#mealEditorQty').fill('6');assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/pieza/i);
    if(width===390){
     await page.setViewportSize({width,height:460});
@@ -57,6 +58,7 @@ try{
     await page.locator('[data-act="saveSelectedMeal"]').scrollIntoViewIfNeeded();
     const bounds=await page.locator('[data-act="saveSelectedMeal"]').boundingBox();
     assert.ok(bounds&&bounds.y>=0&&bounds.y+bounds.height<=460,'Save must remain reachable in reduced mobile viewport');
+    assert.equal(await page.locator('[data-act="saveSelectedMeal"]').evaluate(el=>{const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return hit===el||el.contains(hit);}),true,'Save must receive the tap, including after a previous confirmation');
     await page.setViewportSize({width,height:844});
    }
    await page.screenshot({path:resolve(out,engine+'-'+width+'-quantity.png')});

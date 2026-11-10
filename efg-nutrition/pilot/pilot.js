@@ -2022,6 +2022,8 @@ function closeMealDialog(){
  mealDialogReturnFocus=null;
 }
 function openMealDialog(slot,initialGroup="protein"){
+ const previousNotice=document.getElementById("pilot-toast");
+ if(previousNotice){previousNotice.style.display="none";clearTimeout(notify.timer);}
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
  const guided=isGuidedMealSlot(slot);
  activeGuidedMealGroup=guided&&GUIDED_MEAL_GROUPS.some(g=>g.id===initialGroup)?initialGroup:"protein";

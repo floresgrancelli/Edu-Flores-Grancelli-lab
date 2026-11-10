@@ -115,7 +115,7 @@ html.ncc-lime-theme #app :is(.ns-next,.efg-onboard-cta) *{color:var(--ncc-action
 html.ncc-lime-theme #app .pilot-loader :is(.pilot-loader-wordmark,.pilot-loader-message,.pilot-loader-subtitle,.pilot-loader-signature){color:var(--ncc-text)!important}
 html.ncc-lime-theme #app .pilot-loader-message em{color:var(--ncc-lime)!important}
 html.ncc-lime-theme #app .spin{border-color:#48523e!important;border-top-color:var(--ncc-lime)!important}
-html.ncc-lime-theme #pilot-toast{background:#29321a!important;color:var(--ncc-text)!important;border-color:#56643d!important}
+html.ncc-lime-theme #pilot-toast{pointer-events:none;background:#29321a!important;color:var(--ncc-text)!important;border-color:#56643d!important}
 @media(prefers-reduced-motion:reduce){html.ncc-lime-theme #app *,html.ncc-lime-theme #app *:before,html.ncc-lime-theme #app *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* The inbox is intentionally mounted beside #app, so it shares the same tokens. */

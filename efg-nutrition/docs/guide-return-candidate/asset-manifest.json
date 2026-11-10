@@ -247,7 +247,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "d797194e7ab9ee0882758b19b926f65676f24f5924282692ecb3d5f7f955713b",
+    "efg-nutrition/pilot/pilot.js": "c9019722abff0a1fdd75e83fdc1a67a7786660302645be96d96b48bc68787e01",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -447,7 +447,7 @@
     },
     {
       "path": "efg-nutrition/pilot/unified-theme.css",
-      "sha256": "3ce20e8965a52d81839917aa16cb0ae3b7590293d5ec67a0db501432d1eae6eb",
+      "sha256": "a897298fdba8df41e3768a64f09f64e6fb50a1544f766bc4ebf3e7a383ccf750",
       "url": "./unified-theme.css?v=ncc-food-entry-r1-20261110"
     }
   ],

@@ -211,3 +211,14 @@ html.ncc-lime-theme #app .efg-pastel-stat:first-child{background:#d7ff3f!importa
 html.ncc-lime-theme #app .efg-pastel-stat:first-child :is(strong,small){color:#171c0b!important}
 @media(max-width:720px){html.ncc-lime-theme #app .efg-pastel-day-grid{gap:17px!important;grid-template-columns:minmax(125px,1fr) minmax(0,1fr)!important}html.ncc-lime-theme #app .efg-pastel-ring{width:148px!important;height:148px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:31px!important}}
 @media(max-width:380px){html.ncc-lime-theme #app .efg-pastel-ring{width:126px!important;height:126px!important;padding:7px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:27px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner small{font-size:9px!important;max-width:100px}html.ncc-lime-theme #app .efg-pastel-day-grid{gap:12px!important}html.ncc-lime-theme #app .efg-pastel-macro-info strong{font-size:16px!important}}
+/* Coach plan journey: one stage at a time; step changes never submit forms. */
+html.ncc-lime-theme #app .ncc-plan-journey{border:1px solid #52663d;border-radius:20px;padding:14px;margin-block:16px;scroll-margin-top:100px;background:#172018}
+html.ncc-lime-theme #app .ncc-plan-steps{position:sticky;top:76px;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px;background:#172018f5;border-radius:14px;border:1px solid #46523c}
+html.ncc-lime-theme #app .ncc-plan-steps button{margin:0!important;padding:9px 6px!important;min-height:48px;font-size:12px;white-space:normal;border:1px solid #53623d}
+html.ncc-lime-theme #app .ncc-plan-steps button[aria-current=step]{background:#d7ff3f!important;color:#171c0b!important;border-color:#d7ff3f!important}
+html.ncc-lime-theme #app .ncc-plan-step[hidden]{display:none!important}
+html.ncc-lime-theme #app .ncc-plan-step-actions{display:flex;justify-content:space-between;gap:10px;position:sticky;bottom:12px;z-index:3;padding:10px;background:#172018f5;border:1px solid #46523c;border-radius:14px}
+html.ncc-lime-theme #app .ncc-plan-step-actions button{margin:0!important}
+html.ncc-lime-theme #app .ncc-intake-received{padding:13px;border:1px solid #99c557;border-radius:12px;background:#2b3a20!important;color:#e1f9a9!important;font-weight:750}
+@media(min-width:721px){html.ncc-lime-theme #app .ncc-plan-steps{top:8px}}
+@media(max-width:480px){html.ncc-lime-theme #app .ncc-plan-steps{grid-template-columns:repeat(2,minmax(0,1fr))}html.ncc-lime-theme #app .ncc-plan-step-actions{bottom:92px;flex-wrap:wrap}}

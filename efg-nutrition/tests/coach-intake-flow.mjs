@@ -183,7 +183,7 @@ fields.efgIntakeShare.checked=true;
 await flow.save(); // Re-share a fake draft so the DELETE also removes its sharing.
 assert.ok(stored.shared_at);
 await flow.refreshCoachDetail("student-fixture",true);
-assert.match(flow.details("student-fixture"),/Ficha inicial compartida/,"Coach can view current, explicitly shared fake intake");
+assert.match(flow.details("student-fixture"),/Ficha recibida del alumno/,"Coach can view current, explicitly shared fake intake");
 assert.match(flow.details("student-fixture"),/Patrón alimentario/);
 assert.match(flow.details("student-fixture"),/Vegetariano/);
 assert.match(flow.details("student-fixture"),/Legumbres, arroz, frutas/);

@@ -220,7 +220,7 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const v=state.coachIntakeForms[studentId];
   if(!v||!v.shared_at)return "";
   const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Patrón alimentario",diets[v.dietary_pattern]],["Horario elegido",EATING_WINDOWS.find(w=>w.id===v.eating_window)?.label],["Alimentos preferidos",v.preferred_foods],["Evita por gusto",v.disliked_foods],["Horarios de comida",v.meal_routine],["Observaciones",v.notes]];
-  return '<section class="card coach-intake-shared"><h3>Ficha inicial compartida</h3><p class="pilot-hint">Datos autodeclarados por el alumno. Úsalos únicamente para el acompañamiento autorizado.</p>'+
+  return '<section class="card coach-intake-shared"><h3>Ficha recibida del alumno</h3><p class="ncc-intake-received">Lista para revisar y preparar su plan</p><p class="pilot-hint">Datos autodeclarados por el alumno. Úsalos únicamente para el acompañamiento autorizado.</p>'+
    items.filter(x=>x[1]).map(x=>'<p><strong>'+escapeHTML(x[0])+':</strong> '+escapeHTML(String(x[1]))+'</p>').join("")+
     '<div class="pilot-toolbar"><button class="btn" type="button" data-act="prepareCoachPlanFromIntake">Preparar plan con esta ficha</button></div>'+
     '<p class="pilot-hint">Precarga datos autorizados sin aprobar ni publicar objetivos. Confirmá parámetros y restricciones antes de enviar una guía.</p></section>';

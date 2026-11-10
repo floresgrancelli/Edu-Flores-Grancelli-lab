@@ -22,14 +22,14 @@ function verify(overrides={}){
 }
 test('R4 asset graph is pinned without changing server release identity',()=>{
  assert.equal(manifest.baseline,'9aaddfe21d77302224f93ea82be3b215c86769d6');
- assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-admin-location-r1-20261109');
+ assert.equal(manifest.build,'ncc-pilot-3a40474052be');assert.equal(manifest.assetVersion,'ncc-student-day-r1-20261110');
  assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/dual-workspace-')).length,5);
  assert.equal(Object.keys(manifest.moduleVersions).filter(p=>p.includes('/professional-screens-')).length,3);
  assert.equal(Object.keys(manifest.immutablePeriodPdfAssets).length,5);assert.equal(Object.keys(manifest.immutableReportAssets).length,10);
  assert.deepEqual(verify(),{build:manifest.build,assetVersion:manifest.assetVersion});
 });
 test('modified new or historical module is still rejected by exact pins',()=>{
- for(const path of ['efg-nutrition/pilot/dual-workspace-frame.mjs','efg-nutrition/pilot/weekly-report-pdf-v1.js'])
+ for(const path of ['efg-nutrition/pilot/dual-workspace-frame.mjs','efg-nutrition/pilot/weekly-report-pdf-v1.js','efg-nutrition/pilot/student-day-presentation.js'])
   assert.throws(()=>verify({[path]:readFileSync(resolve(root,path),'utf8')+'\n// altered\n'}),/Pinned asset/);
 });
 test('flipping DUAL flag is rejected even though all other assets are unchanged',()=>{

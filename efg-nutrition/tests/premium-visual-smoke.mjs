@@ -586,6 +586,13 @@ try{
        }
      }
    }
+   const studentDayTheme=role==="student"&&dest==="home"&&await page.locator(".ncc-student-day").count()===1;
+   if(role==="student"&&dest==="home"&&!studentDayTheme)pageReport.errors.push("Approved student daily theme missing");
+   if((role!=="student"||dest!=="home")&&await page.locator(".ncc-student-day").count())pageReport.errors.push("Student day theme leaked into another role or screen");
+   if(studentDayTheme){
+    const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
+    if(canvas!=="rgb(16, 18, 20)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
+   }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
        const el=document.querySelector(selector);
@@ -608,7 +615,8 @@ try{
        button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
    });
    for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
-     if(sample&&sample.transform!=="uppercase")pageReport.errors.push(kind+" must render uppercase: "+sample.text);
+     const expected=studentDayTheme&&kind==="heading"?"none":"uppercase";
+     if(sample&&sample.transform!==expected)pageReport.errors.push(kind+" typography does not match its approved role/theme: "+sample.text+" ("+sample.transform+")");
    }
    if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))
      pageReport.errors.push("Coach/admin KPI stat backgrounds cannot be white");
@@ -617,7 +625,7 @@ try{
      const luma=v=>{const x=v/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;};
      const lum=c=>.2126*luma(c[0])+.7152*luma(c[1])+.0722*luma(c[2]);
      const contrast=(a,b)=>{const aa=lum(a),bb=lum(b);return (Math.max(aa,bb)+.05)/(Math.min(aa,bb)+.05);};
-     const selector=".student-shortcuts button,.efg-quick-more button,.efg-menu-card";
+     const selector=".student-shortcuts button,.efg-quick-more button,.efg-menu-card,.ncc-day-primary";
      return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
        .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
          return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
@@ -627,7 +635,11 @@ try{
    // Los accesos usan materiales / gradientes luxury. Solo los graficos
    // (circulos de macros, barras de progreso) usan colores vivos semanticos.
    for(const action of actionAudit){
-     if(!action.gradient||!action.gradient.includes("gradient"))
+     if(studentDayTheme){
+      // Approved student UI uses solid surfaces and lime actions. Preserve
+      // the material-gradient requirement everywhere else.
+      if(action.ratio<4.5)pageReport.errors.push("Student action contrast <4.5: "+action.text+" "+action.ratio);
+     }else if(!action.gradient||!action.gradient.includes("gradient"))
        pageReport.errors.push("Luxury action has no material gradient: "+action.text);
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
    }
@@ -690,7 +702,16 @@ try{
        const styles=getComputedStyle(el);
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
      }));
-     if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
+     if(studentDayTheme){
+      const bars=await page.locator(".efg-pastel-meter>span").evaluateAll(els=>els.map(el=>{
+       const track=el.parentElement,w=track.getBoundingClientRect().width;
+       return {width:el.getBoundingClientRect().width,track:w,
+        expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
+        color:getComputedStyle(el).backgroundColor};
+      }));
+      if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!=="rgb(215, 255, 63)"))
+       pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
+     }else if(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient")))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
    // UX35: every authenticated role has a 44px mobile logout in the header;
@@ -1055,10 +1076,14 @@ try{
     if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
-    const shortcut=page.locator('button[data-scrollto="studentMeals"]');
-    await shortcut.click();
-    const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
-    if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
+    // The approved student dashboard adds a prominent register CTA while
+    // preserving the original meals shortcut. Verify every matching access.
+    const shortcuts=page.locator('button[data-scrollto="studentMeals"]');
+    for(const shortcut of await shortcuts.all()){
+     await shortcut.click();
+     const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
+     if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
+    }
    }
    if(role==="admin"&&dest==="admin"){
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));

@@ -1055,10 +1055,14 @@ try{
     if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
-    const shortcut=page.locator('button[data-scrollto="studentMeals"]');
-    await shortcut.click();
-    const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
-    if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
+    // The approved student dashboard adds a prominent register CTA while
+    // preserving the original meals shortcut. Verify every matching access.
+    const shortcuts=page.locator('button[data-scrollto="studentMeals"]');
+    for(const shortcut of await shortcuts.all()){
+     await shortcut.click();
+     const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
+     if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
+    }
    }
    if(role==="admin"&&dest==="admin"){
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));

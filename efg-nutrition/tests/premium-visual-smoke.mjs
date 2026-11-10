@@ -10,6 +10,12 @@ import { extname, join, resolve } from "node:path";
 import { chromium,webkit,devices } from "playwright";
 import assert from "node:assert/strict";
 
+// Legacy catalog/group scenarios explicitly open the optional EV-03 controls.
+// The primary search/shortcut path has its own full-app food-entry-browser test.
+async function openMealControls(page,kind){
+ const summary=page.locator((kind==='catalog'?'.ncc-meal-catalog':'.ncc-meal-guidance-details')+':not([open]) > summary');
+ if(await summary.count())await summary.click();
+}
 const coachGuideLayoutMode=process.env.EFG_QA_COACH_GUIDE_LAYOUT==='1';
 if(coachGuideLayoutMode)assert.equal(process.env.GITHUB_ACTIONS,'true','Focused layout requires real CI');
 const officialCoachMode=process.env.EFG_QA_OFFICIAL_COACH==='1';
@@ -465,6 +471,7 @@ try{
      if(initial!=="")pageReport.errors.push("Meal food editor must start with unselected placeholder, got "+initial);
      const first=await page.locator('#mealEditorFood option[value]:not([value=""]):not([disabled])').first().getAttribute("value");
      if(first){
+       await openMealControls(page,'catalog');
        await page.locator("#mealEditorFood").selectOption(first);
        if(await page.locator("#mealEditorFood").inputValue()!==first)pageReport.errors.push("iOS first food option did not stick for "+role);
        await page.locator('[data-act="saveSelectedMeal"]').click();
@@ -500,6 +507,7 @@ try{
        }));
        if(!input.focused||input.query!=="banana"||input.width!==390||input.height!==520)
          pageReport.errors.push("Keyboard-height fixture lost food search focus/value: "+JSON.stringify(input));
+       await openMealControls(page,'catalog');
        await page.locator("#mealEditorFood").selectOption("banana");
        const submit=page.locator('[data-act="saveSelectedMeal"]');
        await submit.scrollIntoViewIfNeeded();
@@ -715,9 +723,11 @@ try{
            if(await guide.locator("[data-mealgroup]").count()!==4)pageReport.errors.push("Guided main meal needs 4 food categories");
            if(await guide.locator("[data-mealomit]").count()!==2)pageReport.errors.push("Guided meal needs independent omit protein and carb controls");
            if(!(await guide.innerText()).includes("Grasas registradas"))pageReport.errors.push("Automatic fat summary missing");
+           await openMealControls(page,'groups');
            await guide.locator('[data-mealgroup="prepared"]').click();
            const preparedOptions=await page.locator("#mealEditorFood option").allTextContents();
            if(!preparedOptions.some(x=>/tarta|pizza|sushi|empanada/i.test(x)))pageReport.errors.push("Plato preparado did not expose mixed dishes");
+           await openMealControls(page,'groups');
            await guide.locator('[data-mealgroup="carb"]').click();
            const carbOptions=await page.locator("#mealEditorFood option").allTextContents();
            if(!carbOptions.some(x=>/arroz|pan|avena|papa/i.test(x)))pageReport.errors.push("Hydrate tab did not expose carbohydrate choices");
@@ -858,6 +868,7 @@ try{
       pageReport.errors.push("Main meal must offer protein, carb, prepared and other sections");
     if((await page.locator("[data-mealomit]").count())!==2)
       pageReport.errors.push("Main meal must offer optional omit for protein and carbs");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="prepared"]').click();
     const foodSearch=page.locator("#mealFoodSearch");
     // Simulate the actual browser's composition events on the real mobile
@@ -913,11 +924,13 @@ try{
     await foodSearch.fill("sushi");
     const sushi=await page.locator("#mealEditorFood option").allTextContents();
     if(!sushi.some(t=>t.toLowerCase().includes("maki"))||sushi.length<10)pageReport.errors.push("Sushi options not searchable on student mobile");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
     const unit=page.locator("#mealEntryMode");
     if((await unit.inputValue())!=="units")pageReport.errors.push("Sushi is not defaulting to unit/piece");
     const hint=await page.locator("#mealEditorHint").textContent();
     if(!hint.includes("pieza")||!hint.includes("28 g"))pageReport.errors.push("Sushi piece grams are not disclosed");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("zapallo");
     const squash=await page.locator("#mealEditorFood option").allTextContents();
@@ -926,56 +939,71 @@ try{
     const sweets=await page.locator("#mealEditorFood option").allTextContents();
     if(!sweets.some(t=>t.includes("Gomitas")))pageReport.errors.push("Gummy candy foods missing");
     await page.locator("#mealFoodSearch").fill("helado chocolate");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("helado_chocolate");
     const verifiedHint=await page.locator("#mealEditorHint").textContent();
     if(!verifiedHint.includes("USDA")||!verifiedHint.includes("FDC 168809"))
       pageReport.errors.push("Audited chocolate ice cream has no source trace on student mobile");
     await page.locator("#mealFoodSearch").fill("espinaca");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("espinaca_hervida");
     const leafHint=await page.locator("#mealEditorHint").textContent();
     if(!leafHint.includes("USDA")||!leafHint.includes("FDC 168463"))
       pageReport.errors.push("Second audit batch spinach source not visible to student");
     await page.locator("#mealFoodSearch").fill("choclo");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("choclo_hervido");
     const cornHint=await page.locator("#mealEditorHint").textContent();
     if(!cornHint.includes("FDC 169999"))
       pageReport.errors.push("Second audit batch corn source not visible to student");
     await page.locator("#mealFoodSearch").fill("chocolate almendras");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("chocolate_almendras");
     const almondHint=await page.locator("#mealEditorHint").textContent();
     if(!almondHint.includes("FDC 168754"))
       pageReport.errors.push("Third audit batch chocolate almonds source missing");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("pochoclo");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("palomitas_saladas");
     const popcornHint=await page.locator("#mealEditorHint").textContent();
     if(!popcornHint.includes("FDC 170247"))
       pageReport.errors.push("Third audit batch popcorn source missing");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("helado frutilla");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("helado_frutilla_crema");
     const strawberryHint=await page.locator("#mealEditorHint").textContent();
     if(!strawberryHint.includes("FDC 168810"))
       pageReport.errors.push("Fourth audit batch strawberry ice cream source missing");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="carb"]').click();
     await page.locator("#mealFoodSearch").fill("donut");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("factura_donut");
     const donutHint=await page.locator("#mealEditorHint").textContent();
     if(!donutHint.includes("FDC 172758"))
       pageReport.errors.push("Fourth audit batch donut source missing");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="other"]').click();
     await page.locator("#mealFoodSearch").fill("lemon pie");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("lemon_pie");
     const lemonHint=await page.locator("#mealEditorHint").textContent();
     if(!lemonHint.includes("FDC 172785"))
       pageReport.errors.push("Fourth audit batch lemon pie source missing");
     await page.locator("#mealFoodSearch").fill("galletitas rellenas");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("galletitas_rellenas");
     const cookieHint=await page.locator("#mealEditorHint").textContent();
     if(!cookieHint.includes("FDC 172718"))
       pageReport.errors.push("Fourth audit batch sandwich cookies source missing");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("tarta atun");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     const recipeHint=await page.locator("#mealEditorHint").textContent();
     if(!recipeHint.includes("Receta o preparación estimada")||
@@ -984,16 +1012,19 @@ try{
        !recipeHint.includes("Atún al natural escurrido 320 g"))
       pageReport.errors.push("Tuna pie must disclose ingredients, yield and recipe uncertainty");
     await page.locator("#mealFoodSearch").fill("tarta de atun sin tapa");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_atun_light");
     const tunaNoTop=await page.locator("#mealEditorHint").textContent();
     if(!tunaNoTop.includes("Una sola tapa inferior")||!tunaNoTop.includes("930 g"))
       pageReport.errors.push("Open tuna pie model is not transparent");
     await page.locator("#mealFoodSearch").fill("tarta verdura espinaca");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_verdura_espinaca");
     const spinachPie=await page.locator("#mealEditorHint").textContent();
     if(!spinachPie.includes("Espinaca cocida 300 g")||!spinachPie.includes("Ricota magra 180 g"))
       pageReport.errors.push("Spinach pie model ingredient trace is unavailable");
     await page.locator("#mealFoodSearch").fill("tarta jyq");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_jamon_queso");
     const hamPie=await page.locator("#mealEditorHint").textContent();
     if(!hamPie.includes("Jamón cocido 260 g")||!hamPie.includes("Mozzarella 260 g"))
@@ -1003,8 +1034,10 @@ try{
     await page.locator('[data-mealomit="protein"]').click();
     const marked=await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.diary?.skipped?._guidedComponents?.almuerzo?.protein);
     if(marked!==true)pageReport.errors.push("Optional protein omission was not persisted");
+    await openMealControls(page,'groups');
     await page.locator('[data-mealgroup="prepared"]').click();
     await page.locator("#mealFoodSearch").fill("tarta atun");
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
     await page.locator('[data-act="saveSelectedMealContinue"]').click();
     const savedMixed=await page.evaluate(()=>{
@@ -1046,6 +1079,7 @@ try{
     if(!allowedIds.includes("sushi_maki_salmon")||!allowedIds.includes("sushi_nigiri_salmon")||
        new Set(allowedIds).size!==allowedIds.length||allowedIds.length<3)
      pageReport.errors.push("Shared catalog lost or duplicated sushi options: "+JSON.stringify(allowedIds));
+    await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("sushi_maki_salmon");
     if(await page.locator("#mealEntryMode").inputValue()!=="units")
      pageReport.errors.push("Approved sushi should default to counting pieces");

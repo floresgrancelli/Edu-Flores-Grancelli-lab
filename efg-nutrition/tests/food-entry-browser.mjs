@@ -28,7 +28,7 @@ try{
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(origin+'/efg-nutrition/pilot/');
    await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();
-   const open=async(slot='desayuno')=>{await page.locator('[data-setmeal="'+slot+'"]').first().click();await page.locator('.meal-popup').waitFor();};
+   const open=async(slot='desayuno')=>{const add=page.locator('[data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
    await open();assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
@@ -51,7 +51,18 @@ try{
    await open('cena');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
    await page.locator('[data-mealsource="all"]').click();await search('sushi','sushi_maki_salmon');
    await page.locator('#mealEditorQty').fill('6');assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/pieza/i);
+   if(width===390){
+    await page.setViewportSize({width,height:460});
+    await page.locator('#mealEditorQty').scrollIntoViewIfNeeded();
+    await page.locator('[data-act="saveSelectedMeal"]').scrollIntoViewIfNeeded();
+    const bounds=await page.locator('[data-act="saveSelectedMeal"]').boundingBox();
+    assert.ok(bounds&&bounds.y>=0&&bounds.y+bounds.height<=460,'Save must remain reachable in reduced mobile viewport');
+    await page.setViewportSize({width,height:844});
+   }
    await page.screenshot({path:resolve(out,engine+'-'+width+'-quantity.png')});
+   if(engine==='chromium'&&width===390){
+    const image=await page.screenshot({type:'jpeg',quality:48});console.log('EV03_SCREENSHOT_BASE64 '+image.toString('base64'));
+   }
    await page.locator('[data-act="saveSelectedMeal"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
    saved=await snapshot();assert.equal(saved.meals.cena.length,1);assert.equal(saved.meals.cena[0].displayQty,6);
    // Named favorites and recipes are original account-scoped backups; no new store.

@@ -1,3 +1,5 @@
+// Direct handler harness has no rendered DOM; button-state assertions run in food-entry-browser.mjs.
+globalThis.document={querySelectorAll:()=>[]};
 import assert from "node:assert/strict";
 import "./student-diary-catalog-gates.mjs";
 import {readFileSync} from "node:fs";
@@ -736,7 +738,7 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
   "foodAllowedForMeal","state","isGuidedMealSlot","guidedMealGroupFor",
   "groupIdFor","activeGuidedMealGroup","foodSearchText","groupedFoodOptions",
   "renderMealSearchSuggestions","updateMealEntryMode",
-  source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
+  'const mealEntrySource="all";const renderMealEntryShortcuts=()=>{};const recentMealFoodIds=()=>new Set();\n'+source.slice(mealBegin,mealEnd)+";return filterMealFoods;")(
   {getElementById:id=>id==="mealEditorFood"?foodSelector:id==="mealFoodSearch"?mealSearchInput:null},
   mealCatalog,()=>mealCatalog,()=>mealCatalog.map(f=>f.id),{},()=>true,{activeMeal:"desayuno"},
   ()=>false,()=>false,()=>"",null,food=>food.name,
@@ -769,10 +771,10 @@ console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quan
  const end=source.indexOf("function filterMealFoods(){",begin);
  assert.ok(begin>=0&&end>begin,"Real meal suggestion handler must be present");
  const selector={value:"egg",options:[{value:"egg",disabled:false},{value:"rice",disabled:false}]};
- const search={value:"",focus(){}};
+ const search={value:"",focus(){},blur(){}};
  const changes=[];
  const pick=new Function("document","foods","selectableFoods","hideMealSearchSuggestions","updateMealEntryMode",
-  source.slice(begin,end)+";return pickMealSearchSuggestion;")(
+  'const allowedFoods=()=>selectableFoods().map(f=>f.id),FOOD_STATE_PAIRS={},foodAllowedForMeal=()=>true,state={activeMeal:"desayuno"};\n'+source.slice(begin,end)+";return pickMealSearchSuggestion;")(
   {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
   [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>[{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
  );

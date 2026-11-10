@@ -130,7 +130,7 @@ html.ncc-lime-theme #app :is(table,thead,tbody,tr,th,td){border-color:var(--ncc-
 html.ncc-lime-theme #app :is(th,tr:nth-child(even)){background:var(--ncc-panel)!important}
 /* Planner, progress and secondary meal surfaces use the same card system. */
 html.ncc-lime-theme #app :is(.planner-panel,.planner-mode,.planner-remaining,.planner-item,
- .planner-left,.planner-left.planner-complete,.macro-preview,.planner-food-search,
+ .planner-left,.planner-left.planner-complete,.macro-preview,
  .planner-split-target,.planner-energy-summary,.planner-extras-helper,.planner-extra-chip,
  .planner-real-balance,.planner-simulated-balance,.planner-energy-stats>div,
  .efg-guide-meal,.efg-progress-range,.efg-chart-empty,.efg-macro-warnings,

@@ -279,3 +279,5 @@ html.ncc-lime-theme #app .student-meal-details{padding:16px!important}
 
 html.ncc-lime-theme #app .ncc-day-date{background:#142014e8;padding:7px 10px;border-radius:10px;align-self:flex-end}
 @media(max-width:600px){html.ncc-lime-theme #app .ncc-day-date{width:auto}}
+
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading strong{color:#17200c!important}

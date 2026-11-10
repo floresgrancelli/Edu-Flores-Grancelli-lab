@@ -46,7 +46,7 @@ html.ncc-lime-theme #app :is(
 /* Consistent sans headings, readable labels. Printable report markup keeps its own palette. */
 html.ncc-lime-theme #app :is(h1,h2,h3,h4,h5,h6,.pilot-title):not(:where(.lux-report *)){
  color:var(--ncc-text)!important;font-family:inherit!important;text-transform:none!important;letter-spacing:-.025em!important}
-html.ncc-lime-theme #app :is(p,li,label,summary,dt,dd,th,td,strong,b,a):not(:where(.lux-report *)){
+html.ncc-lime-theme #app :is(p,li,label,summary,dt,dd,th,td,strong,b,a,span):not(:where(.lux-report *)){
  color:var(--ncc-text)!important}
 html.ncc-lime-theme #app :is(small,.pilot-hint,.pilot-lead,.eyebrow,.pilot-bottom,.meal-food-empty,
  .meal-food-line span,.efg-guided-meal-summary,.efg-mobile-user,.efg-mobile-brand-text small,
@@ -128,3 +128,19 @@ html.ncc-lime-theme .efg-notifications :is(small,.efg-notify-empty){color:var(--
 html.ncc-lime-theme .efg-notifications .efg-notify-count{background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
 html.ncc-lime-theme #app :is(table,thead,tbody,tr,th,td){border-color:var(--ncc-line)!important}
 html.ncc-lime-theme #app :is(th,tr:nth-child(even)){background:var(--ncc-panel)!important}
+/* Planner, progress and secondary meal surfaces use the same card system. */
+html.ncc-lime-theme #app :is(.planner-panel,.planner-mode,.planner-remaining,.planner-item,
+ .planner-left,.planner-left.planner-complete,.macro-preview,.planner-food-search,
+ .planner-split-target,.planner-energy-summary,.planner-extras-helper,.planner-extra-chip,
+ .planner-real-balance,.planner-simulated-balance,.planner-energy-stats>div,
+ .efg-guide-meal,.efg-progress-range,.efg-chart-empty,.efg-macro-warnings,
+ .efg-student-macros .metric-card,.efg-pastel-stat,.efg-payment-new,
+ .efg-payment-summary>div,.efg-license-meta,.efg-streak-weekly-note,
+ .weight-chart-scroll,.nutrition-line-scroll){background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(.planner-mode button.on,.efg-progress-range button.selected){background:#394821!important;color:var(--ncc-text)!important}
+html.ncc-lime-theme #app .student-meal-card .student-meal-heading{background:transparent!important;color:var(--ncc-text)!important}
+html.ncc-lime-theme #app .efg-pastel-day{background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(.efg-pastel-ring-inner,.efg-pastel-ring:before,.efg-pastel-macro-icon:before){background:var(--ncc-surface)!important}
+html.ncc-lime-theme #app :is(.efg-pastel-ring-inner span,.efg-pastel-ring-inner small){color:var(--ncc-muted)!important}
+html.ncc-lime-theme #app .pilot-layout :is(div,span,em):not(:where(.lux-report *)):not(.efg-menu-arrow):not(.efg-lux-menu-icon){color:inherit}
+html.ncc-lime-theme #app .pilot-main svg text{fill:var(--ncc-muted)}

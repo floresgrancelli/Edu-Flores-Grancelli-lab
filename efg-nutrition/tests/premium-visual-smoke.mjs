@@ -370,11 +370,15 @@ try{
    await page.evaluate(async(role)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=role==="student"?"home":role==="coach"?"coach":"admin";await v.render();},role);
   }
   const pageReport={role,width,pages:[],errors:[]};
-  const destinations=role==="student"?["home","planner","weight","studentMore","recipes"]:role==="coach"?["coach","home","studentMore","coachTools","coachStudents","reports","payments","recipes"]:["admin","home","testCoach","adminMore","payments"];
+  const destinations=role==="student"?["home","planner","weight","studentMore","recipes","nutritionScience","messages","supplements","sport","reports","privacy"]:role==="coach"?["coach","home","studentMore","coachTools","coachStudents","reports","payments","recipes","coachIntake","nutritionScience","messages","weight","planner","supplements","sport"]:["admin","home","testCoach","adminMore","payments","adminManage","nutritionScience","messages","reports","weight","planner","recipes","supplements","sport"];
   for(const dest of destinations){
    if(role==="admin"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.tab="payments";v.state.payments=[{id:"admin-test-receipt",payer_id:"demo-student-a",recipient_id:"demo-admin",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    else if(dest==="recipes"||dest==="coachTools"||(role==="coach"&&dest==="reports"))await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
-   else await page.locator('.pilot-nav button[data-tab="'+dest+'"]').click();
+   else {
+    const nav=page.locator('.pilot-nav button[data-tab="'+dest+'"]');
+    if(await nav.count())await nav.click();
+    else await page.evaluate(async(dest)=>{const v=window.__EFG_VISUAL_QA__;v.state.tab=dest;await v.render();},dest);
+   }
    if(role==="coach"&&dest==="payments")await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;v.state.org={id:"demo-org",payment_alias:"COACH.DEMO",is_test:false};v.state.platformAlias="EFG.ALIAS.DEMO";v.state.payments=[{id:"payment-demo",payer_id:"demo-student-a",recipient_id:"demo-coach",organization_id:"demo-org",payment_kind:"student_coach",amount_ars:12000,period_label:"2026-10",status:"pending",receipt_path:"demo/receipt.jpg",created_at:new Date().toISOString()}];await v.render();});
    await page.waitForTimeout(120);
    if(role==="student"&&width===390&&dest==="home"&&engine==="chromium"){
@@ -589,9 +593,32 @@ try{
    const studentDayTheme=role==="student"&&dest==="home"&&await page.locator(".ncc-student-day").count()===1;
    if(role==="student"&&dest==="home"&&!studentDayTheme)pageReport.errors.push("Approved student daily theme missing");
    if((role!=="student"||dest!=="home")&&await page.locator(".ncc-student-day").count())pageReport.errors.push("Student day theme leaked into another role or screen");
+   const unifiedTheme=await page.locator('html.ncc-lime-theme').count()===1;
+   if(!unifiedTheme)pageReport.errors.push('Unified charcoal/lime theme missing: '+role+'/'+dest);
+   if(unifiedTheme){
+    const colors=await page.evaluate(()=>{
+     const style=s=>{const e=document.querySelector(s);return e?getComputedStyle(e):null};
+     return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
+      nav:style('.pilot-nav')?.backgroundColor,field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
+    });
+    if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
+    if(colors.field&&colors.field!=='rgb(20, 24, 25)')pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
+   }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
     if(canvas!=="rgb(16, 18, 20)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
+   }
+   if(unifiedTheme){
+    const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
+     .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
+     .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
+    if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
+   }
+   if(unifiedTheme){
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color})));
+    if(primary.some(x=>x.bg!=='rgb(215, 255, 63)'||x.color!=='rgb(23, 28, 11)'))pageReport.errors.push('Primary action must retain approved lime/dark text: '+JSON.stringify(primary));
    }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
@@ -615,7 +642,7 @@ try{
        button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
    });
    for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
-     const expected=studentDayTheme&&kind==="heading"?"none":"uppercase";
+     const expected=unifiedTheme&&kind==="heading"?"none":"uppercase";
      if(sample&&sample.transform!==expected)pageReport.errors.push(kind+" typography does not match its approved role/theme: "+sample.text+" ("+sample.transform+")");
    }
    if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))
@@ -635,10 +662,9 @@ try{
    // Los accesos usan materiales / gradientes luxury. Solo los graficos
    // (circulos de macros, barras de progreso) usan colores vivos semanticos.
    for(const action of actionAudit){
-     if(studentDayTheme){
-      // Approved student UI uses solid surfaces and lime actions. Preserve
-      // the material-gradient requirement everywhere else.
-      if(action.ratio<4.5)pageReport.errors.push("Student action contrast <4.5: "+action.text+" "+action.ratio);
+     if(unifiedTheme){
+      // Edu approved the same solid charcoal/lime identity for every role and tab.
+      if(action.ratio<4.5)pageReport.errors.push("Unified action contrast <4.5: "+action.text+" "+action.ratio);
      }else if(!action.gradient||!action.gradient.includes("gradient"))
        pageReport.errors.push("Luxury action has no material gradient: "+action.text);
      if(action.height<44)pageReport.errors.push("Touch action <44px: "+action.text+" "+action.height);
@@ -651,7 +677,10 @@ try{
        els.filter(el=>el.getClientRects().length>0).slice(0,6)
          .map(el=>getComputedStyle(el).backgroundImage));
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
-     if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
+     if(unifiedTheme){
+      const surfaces=await page.locator(menuSelector).evaluateAll(els=>els.filter(e=>e.getClientRects().length>0).slice(0,6).map(e=>({bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})));
+      if(surfaces.some(x=>x.bg!=='rgb(37, 44, 36)'||x.color!=='rgb(245, 243, 235)'))pageReport.errors.push('Coach/admin cards must share approved dark identity: '+JSON.stringify(surfaces));
+     }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
    if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");
@@ -1104,8 +1133,8 @@ try{
     const welcomeBrand=page.locator(".efg-onboard-serotonin");
     if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
-    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
-    if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
+    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundColor);
+    if(welcomeStyle!=="rgb(27, 31, 35)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
     await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();

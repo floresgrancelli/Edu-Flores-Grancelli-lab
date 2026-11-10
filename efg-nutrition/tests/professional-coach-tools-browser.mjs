@@ -1,24 +1,24 @@
 // New clinical/tool routes only. Real Chromium + native IDB + actual PDF bytes;
 // backend is an explicit in-memory SDK fixture, not Auth/API/SQL certification.
-import assert from 'node:assert/strict';import {createServer} from 'node:http';import {readFileSync,writeFileSync} from 'node:fs';import {resolve,extname} from 'node:path';import {fileURLToPath} from 'node:url';
-const {chromium}=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
+import assert from 'node:assert/strict';import {createServer} from 'node:http';import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';import {resolve,extname} from 'node:path';import {fileURLToPath} from 'node:url';
+const {chromium,webkit}=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');const engine=process.env.NCC_BROWSER==='webkit'?'webkit':'chromium';const evidenceDir='artifacts/coach-plan-steps';mkdirSync(evidenceDir,{recursive:true});
 const root=resolve(fileURLToPath(new URL('../../',import.meta.url)));
-const html='<!doctype html><meta name="viewport" content="width=device-width"><style>body{font:16px system-ui;margin:16px}section,article{max-width:100%}label{display:block}input,select,textarea,button{max-width:100%;box-sizing:border-box}pre{white-space:pre-wrap;overflow-wrap:anywhere}button{margin:6px 4px 6px 0}</style><main><section id="personal">Historial personal intacto</section><section id="professional"></section></main><script type="module" src="/efg-nutrition/tests/professional-coach-tools-browser-entry.mjs"></script>';
+const html='<!doctype html><html class="ncc-lime-theme"><link rel="stylesheet" href="/efg-nutrition/pilot/unified-theme.css"><meta name="viewport" content="width=device-width"><style>body{font:16px system-ui;margin:16px}section,article{max-width:100%}label{display:block}input,select,textarea,button{max-width:100%;box-sizing:border-box}pre{white-space:pre-wrap;overflow-wrap:anywhere}button{margin:6px 4px 6px 0}</style><main id="app"><section id="personal">Historial personal intacto</section><section id="professional"></section></main><script type="module" src="/efg-nutrition/tests/professional-coach-tools-browser-entry.mjs"></script>';
 const server=createServer((req,res)=>{try{if(!/^127\.0\.0\.1:\d+$/.test(req.headers.host||''))throw Error('loopback only');const path=new URL(req.url,'http://127.0.0.1').pathname;if(path==='/'){res.setHeader('Content-Type','text/html');res.end(html);return;}const file=resolve(root,'.'+path);if(!file.startsWith(root+'/'))throw Error('outside');let data=readFileSync(file);if(path.endsWith('/professional-coach-tools-fixture.mjs')){
  let source=data.toString();const once=(a,b)=>{assert.equal(source.split(a).length,2);source=source.replace(a,b);};
  once("import {webcrypto} from 'node:crypto';","const webcrypto=globalThis.crypto;");once("import {readFileSync} from 'node:fs';",'');once("import {fakeIDB} from './professional-terms-test-support.mjs';",'');
  once("JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url)))",readFileSync(resolve(root,'efg-nutrition/catalog/guide-catalog.json'),'utf8'));
  once("Buffer.from(JSON.stringify({session_id:s.session})).toString('base64url')","btoa(JSON.stringify({session_id:s.session}))");once('createReleaseJournal(fakeIDB())','createReleaseJournal()');data=Buffer.from(source);
- }res.setHeader('Content-Type',extname(file)==='.json'?'application/json':'text/javascript');res.end(data);}catch(e){res.statusCode=404;res.end('Fixture resource unavailable');}});
+ }res.setHeader('Content-Type',extname(file)==='.json'?'application/json':extname(file)==='.css'?'text/css':'text/javascript');res.end(data);}catch(e){res.statusCode=404;res.end('Fixture resource unavailable');}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
-const browser=await chromium.launch({headless:true,...(process.env.NCC_CHROMIUM_EXECUTABLE?{executablePath:process.env.NCC_CHROMIUM_EXECUTABLE}:{}),args:process.env.NCC_CHROMIUM_ARGS?JSON.parse(process.env.NCC_CHROMIUM_ARGS):[]});
+const browser=await (engine==='webkit'?webkit:chromium).launch({headless:true,...(process.env.NCC_CHROMIUM_EXECUTABLE?{executablePath:process.env.NCC_CHROMIUM_EXECUTABLE}:{}),args:process.env.NCC_CHROMIUM_ARGS?JSON.parse(process.env.NCC_CHROMIUM_ARGS):[]});
 const result={scope:'Existing release parent + new coach tools at 390/1280, native IDB and actual Luxury PDF; synthetic SDK, no hosted backend claim',checks:[],errors:[],external:[]};
 try{for(const width of [390,1280]){
  const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});await context.route('**/*',r=>{if(new URL(r.request().url()).origin===origin)return r.continue();result.external.push(r.request().url());return r.abort();});const page=await context.newPage();page.setDefaultTimeout(15000);page.on('pageerror',e=>result.errors.push(e.message));
  await page.goto(origin);await page.waitForFunction(()=>!!window.coachFixture);await page.evaluate(()=>window.coachFixture.ready);
  await page.getByRole('combobox',{name:'Elegí tu espacio'}).selectOption('11000000-0000-4000-8000-000000000003');
  await page.getByRole('combobox',{name:'Alumno del espacio profesional'}).selectOption('11000000-0000-4000-8000-000000000004');
- await page.getByRole('heading',{name:'Ficha de Alumno ficticio',exact:true}).waitFor();
+ await page.getByRole('heading',{name:'Ficha de Alumno ficticio',exact:true}).waitFor();await page.screenshot({path:evidenceDir+'/'+engine+'-'+width+'-1-ficha.png',fullPage:true});
  await page.getByRole('button',{name:'Consultar conversación',exact:true}).click();
  await page.waitForFunction(()=>!document.querySelector('select[aria-label="Elegí tu espacio"]')?.disabled);
  assert.equal(await page.getByText('Ficha recibida · lista para revisar',{exact:true}).isVisible(),true);
@@ -30,11 +30,11 @@ try{for(const width of [390,1280]){
  await page.getByRole('button',{name:'Continuar a objetivos',exact:true}).click();
  assert.equal(await page.getByRole('combobox',{name:'Parámetro de la ecuación'}).inputValue(),'male','Switching steps preserves calculator input without submitting');
  await page.getByRole('button',{name:'Calcular propuesta',exact:true}).click();
- await page.getByRole('button',{name:'Generar Dieta Guía de seis horarios',exact:true}).click();await page.getByRole('heading',{name:'Dieta Guía para revisar',exact:true}).waitFor();
+ await page.screenshot({path:evidenceDir+'/'+engine+'-'+width+'-2-objetivos.png',fullPage:true});await page.getByRole('button',{name:'Generar Dieta Guía de seis horarios',exact:true}).click();await page.getByRole('heading',{name:'Dieta Guía para revisar',exact:true}).waitFor();
  const guide=page.locator('[data-ncc-coach-tools] section').filter({has:page.getByRole('heading',{name:'Dieta Guía para revisar',exact:true})}).first();assert.equal(await guide.locator('h4').count(),6);
- await page.getByRole('button',{name:'Revisar y enviar',exact:true}).click();
+ await page.screenshot({path:evidenceDir+'/'+engine+'-'+width+'-3-guia.png',fullPage:true});await page.getByRole('button',{name:'Revisar y enviar',exact:true}).click();
  assert.equal(await page.locator('.ncc-plan-step:visible').count(),1);
- await page.getByRole('checkbox',{name:'Revisé cantidades, alimentos y objetivos de este borrador',exact:true}).check();await page.getByRole('button',{name:'Guardar borrador revisado',exact:true}).click();
+ await page.screenshot({path:evidenceDir+'/'+engine+'-'+width+'-4-enviar.png',fullPage:true});await page.getByRole('checkbox',{name:'Revisé cantidades, alimentos y objetivos de este borrador',exact:true}).check();await page.getByRole('button',{name:'Guardar borrador revisado',exact:true}).click();
  await page.waitForFunction(()=>window.coachFixture.f.s.tables.efg_coach_plan_drafts[0]?.draft_revision===1);
  await page.getByRole('checkbox',{name:'Apruebo enviar este objetivo y esta guía al alumno',exact:true}).check();await page.getByRole('button',{name:'Publicar objetivo y Dieta Guía',exact:true}).click();await page.waitForFunction(()=>window.coachFixture.f.s.tables.efg_coach_plan_drafts[0]?.status==='published');
  assert.equal(await page.evaluate(()=>window.coachFixture.f.original.role),'student');assert.equal(await page.evaluate(()=>window.coachFixture.f.original.organization_id),'11000000-0000-4000-8000-000000000005');

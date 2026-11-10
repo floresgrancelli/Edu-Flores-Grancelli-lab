@@ -36,6 +36,10 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Install Safari-engine WebKit for mobile compatibility
         run: npx playwright install --with-deps webkit
+      - name: Coach intake to plan steps (synthetic; existing atomic publisher)
+        run: |
+          NCC_COACH_TOOLS_EVIDENCE=artifacts/coach-plan-steps/chromium-result.json node efg-nutrition/tests/professional-coach-tools-browser.mjs
+          NCC_BROWSER=webkit NCC_COACH_TOOLS_EVIDENCE=artifacts/coach-plan-steps/webkit-result.json node efg-nutrition/tests/professional-coach-tools-browser.mjs
       - name: Private adapted guide functional and visual delta
         if: (github.event_name == 'workflow_dispatch' && inputs.guide_delta) || (github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && contains(github.event.head_commit.message, '[guide-delta]'))
         env:
@@ -207,6 +211,7 @@ jobs:
             artifacts/premium-visual-qa/
             artifacts/guide-preview/
             artifacts/period-report-pdf/
+            artifacts/coach-plan-steps/
           if-no-files-found: warn
           retention-days: 14
       - name: Confirm release remains manual

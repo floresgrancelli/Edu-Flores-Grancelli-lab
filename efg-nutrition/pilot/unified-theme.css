@@ -1,0 +1,130 @@
+/* Nutrición Con-Ciencia · approved charcoal/lime identity across every role.
+   Presentation only. Layout, nutrition data, role guards and handlers are unchanged.
+   #app wins the historical theme cascade without changing generated report documents. */
+html.ncc-lime-theme{
+ --ncc-bg:#101214;--ncc-surface:#1b1f23;--ncc-panel:#242a2e;
+ --ncc-lime:#d7ff3f;--ncc-text:#f5f3eb;--ncc-muted:#b1b9b9;
+ --ncc-line:#343a3e;--ncc-input:#141819;--ncc-action-ink:#171c0b;
+ --efg-bg:var(--ncc-bg);--efg-ink:var(--ncc-text);--efg-subtle:var(--ncc-muted);
+ --efg-line:var(--ncc-line);--efg-green:var(--ncc-lime);
+ --pastel-bg:var(--ncc-bg);--pastel-surface:var(--ncc-surface);
+ --pastel-panel-alt:var(--ncc-panel);--pastel-panel-soft:var(--ncc-panel);
+ --pastel-ink:var(--ncc-text);--pastel-muted:var(--ncc-muted);--pastel-line:var(--ncc-line);
+ --lux-ink:var(--ncc-text);--lux-muted:var(--ncc-muted);
+ color-scheme:dark;background:var(--ncc-bg)!important;
+}
+html.ncc-lime-theme body{background:var(--ncc-bg)!important;color:var(--ncc-text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html.ncc-lime-theme #app :is(.pilot-layout,.pilot-login,.pilot-loader,.efg-onboard,.ns-welcome-shell){background:var(--ncc-bg)!important;color:var(--ncc-text)!important;min-height:100dvh;font-family:inherit!important}
+html.ncc-lime-theme #app .pilot-main{color:var(--ncc-text)!important;min-width:0;max-width:1260px;width:100%;margin-inline:auto;background:transparent!important}
+/* Shared cards and nested working surfaces, including the independent coach space. */
+html.ncc-lime-theme #app :is(
+ .card,.pilot-record,.pilot-hero,.efg-coach-banner,.efg-admin-banner,.meal-day-section,
+ .efg-fit-card,.efg-content-card,.efg-guide-student,.coach-profile-accordion,
+ .efg-payment-inbox,.coach-inbox,.efg-quick-add[open],.efg-pastel-guide,
+ .pilot-consent,.student-meal-card,.efg-progress-panel,.efg-planner-stage,
+ .efg-pastel-motivation,.efg-weekly-streak,.efg-daily-tip,.efg-daily-tip-copy,
+ .coach-student-profile,.coach-intake-intro,.coach-intake-group,.coach-intake-shared,
+ .coach-intake-summary,.coach-intake-person,.coach-inbox-item,.efg-student-intake-card,
+ .efg-legal-entry,.efg-legal-document,.efg-legal-readable,.efg-legal-body,.efg-coach-legal,
+ .efg-release-announcement,.efg-release-whatsnew,.efg-intake-prefill,
+ .efg-gut-intake,.efg-gut-choice,.efg-gut-consent,.efg-coach-relaunch,
+ .efg-seats-panel,.efg-license-summary,.efg-payment-channel,.efg-payment-transfer,
+ .efg-payment-target,.efg-habitual-preview,.efg-habitual-preview-empty,.efg-habitual-picker,
+ .efg-self-shell,.efg-self-hero,.efg-self-foods,.efg-self-metrics,.efg-self-metric,
+ .efg-self-meal,.efg-self-balance,.efg-self-plan-preview,.efg-self-balance-suggestions,
+ .efg-walk-card,.efg-walk-preview,.efg-walk-details,.efg-walk-empty,.efg-walk-history,
+ .nutrition-daily-report,.nutrition-day-sheet,.nutrition-day-close,
+ .ns-hero,.ns-intro,.ns-energy,.ns-macro,.ns-myth,.ns-balance,.ns-compare,
+ .ns-takeaway,.ns-faq,.ns-sources,.ns-protein-focus,.ns-protein-note,
+ .ns-library-panel,.ns-meals,.ns-meal,.ns-conclusions,.ns-wellbeing,.ns-library-summary,
+ .ns-owner-reference,.ns-owner-reference-transcript,
+ .pilot-login-form,.pilot-login-card,.efg-onboard-sheet,
+ .meal-popup,.efg-recipe-register-card,.efg-notify-popup,
+ .efg-chat-layout,.efg-chat-list,.efg-chat-thread,.efg-chat-thread-top,.efg-chat-welcome,
+ .efg-message-compose,.weekly-pdf-dialog
+){background:var(--ncc-surface)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+/* Consistent sans headings, readable labels. Printable report markup keeps its own palette. */
+html.ncc-lime-theme #app :is(h1,h2,h3,h4,h5,h6,.pilot-title):not(:where(.lux-report *)){
+ color:var(--ncc-text)!important;font-family:inherit!important;text-transform:none!important;letter-spacing:-.025em!important}
+html.ncc-lime-theme #app :is(p,li,label,summary,dt,dd,th,td,strong,b,a):not(:where(.lux-report *)){
+ color:var(--ncc-text)!important}
+html.ncc-lime-theme #app :is(small,.pilot-hint,.pilot-lead,.eyebrow,.pilot-bottom,.meal-food-empty,
+ .meal-food-line span,.efg-guided-meal-summary,.efg-mobile-user,.efg-mobile-brand-text small,
+ .pilot-logo small,.metric-label,.efg-self-muted,.efg-chat-empty,.efg-chat-count,
+ .efg-chat-contact-copy small,.efg-chat-side time,.efg-chat-privacy,.efg-daily-tip-description,
+ .efg-daily-tip-disclaimer,.efg-daily-tip-credit,.efg-habitual-preview-note,
+ .efg-streak-weekly-note,.efg-streak-daylabel,.efg-streak-trackhead):not(:where(.lux-report *)){
+ color:var(--ncc-muted)!important}
+html.ncc-lime-theme #app :is(.efg-mobile-header,.pilot-nav,.efg-self-head,.ns-welcome-header){background:#191e21f5!important;border-color:var(--ncc-line)!important;box-shadow:0 8px 25px #0003!important}
+html.ncc-lime-theme #app :is(.pilot-logo,.efg-mobile-brand-text strong,.pilot-avatar strong){color:var(--ncc-text)!important;font-family:inherit!important}
+html.ncc-lime-theme #app .pilot-nav button.navitem{color:var(--ncc-muted)!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-nav button.navitem:is(.active,:hover){background:#29321a!important;color:var(--ncc-lime)!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-nav button.navitem.active:before{background:var(--ncc-lime)!important}
+html.ncc-lime-theme #app :is(.avatar,.efg-mobile-avatar,.coach-profile-avatar,.coach-roster-avatar,.efg-chat-avatar){background:#28311b!important;color:var(--ncc-lime)!important;border-color:#56643d!important;box-shadow:none!important}
+/* Base buttons also cover dynamically mounted professional/admin tools. */
+html.ncc-lime-theme #app button:not(.navitem){background:#252c24!important;color:var(--ncc-text)!important;border-color:#48523e!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;touch-action:manipulation}
+/* Primary action, secondary action and navigation cards share one vocabulary. */
+html.ncc-lime-theme #app :is(.btn,.ns-next,.efg-onboard-cta){background:var(--ncc-lime)!important;border:1px solid var(--ncc-lime)!important;color:var(--ncc-action-ink)!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;font-weight:750;touch-action:manipulation}
+html.ncc-lime-theme #app :is(.btn.light,.btn.ghost,.pilot-logout,.efg-mobile-logout,
+ .student-shortcuts button,.efg-quick-more button,.ns-back,.ns-skip,
+ .efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile,
+ .efg-guidance-tab,.efg-guidance-omit,.efg-chat-tabs button,.efg-chat-back,
+ .efg-chat-load-more,.efg-reward-open,[data-ncc-dual-panel] button,
+ [data-ncc-release-professional] button){background:#252c24!important;border:1px solid #48523e!important;color:var(--ncc-text)!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;touch-action:manipulation}
+html.ncc-lime-theme #app :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile){border-radius:20px!important}
+html.ncc-lime-theme #app :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile):before{background:none!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(button,.btn) :is(strong,b,small,span,svg){color:inherit!important;font-family:inherit!important}
+html.ncc-lime-theme #app :is(.efg-menu-arrow,.efg-lux-menu-icon,.coach-hub-icon){color:var(--ncc-lime)!important;background:transparent!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(button,.btn):disabled{opacity:.48;cursor:not-allowed}
+html.ncc-lime-theme #app :is(.efg-guidance-tab.selected,.efg-chat-tabs button.active,
+ [aria-pressed="true"],.coach-profile-tabs a.active){background:#394821!important;color:var(--ncc-text)!important;border-color:#8d9f5b!important}
+/* Form fields and contextual dialogs retain original sizes and keyboard behavior. */
+html.ncc-lime-theme #app :is(input,select,textarea){background:var(--ncc-input)!important;color:var(--ncc-text)!important;border-color:#616b60!important;color-scheme:dark}
+html.ncc-lime-theme #app :is(input,textarea)::placeholder{color:var(--ncc-muted)!important;opacity:1}
+html.ncc-lime-theme #app :is(input[type=checkbox],input[type=radio],progress){accent-color:var(--ncc-lime)}
+html.ncc-lime-theme #app :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid var(--ncc-lime)!important;outline-offset:3px}
+html.ncc-lime-theme #app :is(.pilot-alert,.pilot-notice,.note,.efg-consent-reminder,
+ .efg-meal-guidance,.efg-meal-guidance-choice,.efg-meal-search-results,.meal-food-line,
+ .efg-habitual-preview-foods,.efg-habitual-preview-macros,.efg-habitual-preview-heading,
+ .efg-notify-item,.efg-inbox-warning,.efg-streak-weekly-sunday,.efg-weekly-streak-sunday,
+ .efg-weekly-streak-today,.efg-streak-acceptable,.efg-streak-ideal,.efg-reward-intro,
+ .efg-reward-reveal,.efg-reward-coach-controls,.efg-gnocchi-recipe,
+ .efg-coach-stat-grid>div,.nutrition-report-kpis>div,.nutrition-macro-grid>span,
+ .efg-walk-kpis>div,.ns-hero-chips>span,.ns-protein-benefits>div,.ns-protein-numbers>div,
+ .ns-wellbeing-points>div,.ns-meal-caution,.ns-final-motto,.ns-takeaway,
+ .ns-conclusion-list>li,.ns-faq details,.ns-energy-line,.efg-self-totals){background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(.pilot-pill,.pilot-role-badge,.efg-fit-tag,.pilot-tag,
+ .ns-kicker,.ns-eyebrow,.ns-myth-badge,.ns-compare-badge,.efg-daily-tip-action,
+ .efg-streak-star,.efg-streak-dot,.efg-walk-emblem){background:#28311b!important;color:var(--ncc-lime)!important;border-color:#56643d!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(.efg-message-bubble){background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app .efg-message-bubble.self{background:#303d20!important;color:var(--ncc-text)!important}
+html.ncc-lime-theme #app :is(.efg-chat-contact,.efg-chat-contact-copy strong){color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app .efg-chat-contact:is(:hover,.is-selected){background:#29321a!important}
+html.ncc-lime-theme #app :is(.efg-chat-unread,.efg-notify-count){background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+html.ncc-lime-theme #app :is(.efg-chat-thread-top,.efg-chat-list,.efg-message-compose){border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app :is(.efg-notify-bell,.efg-chat-tabs button){color:var(--ncc-text)!important}
+html.ncc-lime-theme #app :is(.weekly-pdf-dialog footer,.ns-welcome-actions){background:#1b1f23f5!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app :is(.weekly-pdf-stage){background:#111518!important;border-color:var(--ncc-line)!important}
+/* Semantic compatibility remains green/yellow/red with both labels and symbols. */
+html.ncc-lime-theme #app .efg-compat-green{background:#193b2b!important;color:#a5edbd!important;border-color:#4c8d65!important}
+html.ncc-lime-theme #app .efg-compat-yellow{background:#3d3215!important;color:#ffe09a!important;border-color:#ad8b3e!important}
+html.ncc-lime-theme #app .efg-compat-red{background:#442323!important;color:#ffb7b2!important;border-color:#a85b58!important}
+html.ncc-lime-theme #app .efg-in-plan{background:#28311b!important;color:var(--ncc-lime)!important}
+html.ncc-lime-theme #app :is(.ncc-day-welcome h1 span,.ncc-day-guide-copy h2 span){color:var(--ncc-lime)!important}
+html.ncc-lime-theme #app :is(.ns-next,.efg-onboard-cta) *{color:var(--ncc-action-ink)!important}
+html.ncc-lime-theme #app .pilot-loader :is(.pilot-loader-wordmark,.pilot-loader-message,.pilot-loader-subtitle,.pilot-loader-signature){color:var(--ncc-text)!important}
+html.ncc-lime-theme #app .pilot-loader-message em{color:var(--ncc-lime)!important}
+html.ncc-lime-theme #app .spin{border-color:#48523e!important;border-top-color:var(--ncc-lime)!important}
+html.ncc-lime-theme #pilot-toast{background:#29321a!important;color:var(--ncc-text)!important;border-color:#56643d!important}
+@media(prefers-reduced-motion:reduce){html.ncc-lime-theme #app *,html.ncc-lime-theme #app *:before,html.ncc-lime-theme #app *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* The inbox is intentionally mounted beside #app, so it shares the same tokens. */
+html.ncc-lime-theme .efg-notifications{color:var(--ncc-text)!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-bell{background:transparent!important;color:var(--ncc-lime)!important;box-shadow:none!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-popup{background:var(--ncc-surface)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme .efg-notifications :is(.efg-notify-title,.efg-notify-item,.efg-notify-item.unread){background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+html.ncc-lime-theme .efg-notifications :is(button,b,strong,span){color:var(--ncc-text)!important}
+html.ncc-lime-theme .efg-notifications :is(small,.efg-notify-empty){color:var(--ncc-muted)!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-count{background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+html.ncc-lime-theme #app :is(table,thead,tbody,tr,th,td){border-color:var(--ncc-line)!important}
+html.ncc-lime-theme #app :is(th,tr:nth-child(even)){background:var(--ncc-panel)!important}

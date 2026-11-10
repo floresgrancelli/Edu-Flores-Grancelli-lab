@@ -170,3 +170,5 @@ html.ncc-lime-theme #app :is(.ns-myth-credit,.ns-disclaimer,.ns-wellbeing-kicker
 html.ncc-lime-theme .efg-notifications .efg-notify-bell-svg{stroke:var(--ncc-lime)!important;fill:#d7ff3f15!important;filter:none!important}
 html.ncc-lime-theme .efg-notifications .efg-notify-bell:before{background:none!important}
 html.ncc-lime-theme .efg-notifications .efg-notify-bell:focus-visible{outline:3px solid var(--ncc-lime)!important}
+html.ncc-lime-theme #app input.planner-food-search{background:var(--ncc-input)!important}
+html.ncc-lime-theme #app .coach-intake-summary>div{background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}

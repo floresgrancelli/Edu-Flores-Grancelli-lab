@@ -144,3 +144,15 @@ html.ncc-lime-theme #app :is(.efg-pastel-ring-inner,.efg-pastel-ring:before,.efg
 html.ncc-lime-theme #app :is(.efg-pastel-ring-inner span,.efg-pastel-ring-inner small){color:var(--ncc-muted)!important}
 html.ncc-lime-theme #app .pilot-layout :is(div,span,em):not(:where(.lux-report *)):not(.efg-menu-arrow):not(.efg-lux-menu-icon){color:inherit}
 html.ncc-lime-theme #app .pilot-main svg text{fill:var(--ncc-muted)}
+html.ncc-lime-theme #app :is(.coach-food-choices label,.food-library-tools,.coach-food-group,
+ .nutrition-trend,.weight-summary>div,.budin-recipe,.beverage-editor,.nutrition-supplements,
+ .coach-comment-detail,.efg-guide-shell,.efg-guide-base,.efg-guide-summary,
+ .efg-self-overview,.efg-self-meal-grid>div,.efg-self-plan-scroll caption,
+ .ns-compare article,.ns-protein-benefits article,.ns-movement,.ns-disclaimer,
+ .ns-conclusion-list article,.ns-welcome-slide,.ns-welcome-header>span,
+ .ns-welcome-error,.ns-wellbeing-quote,.efg-onboard-copy,
+ [data-ncc-professional-release-panel],[data-ncc-coach-tools] section,
+ [data-ncc-admin-controls]){background:var(--ncc-surface)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+html.ncc-lime-theme #app :is(.ns-macro-emoji,.ns-wellbeing-orbit,.ns-wellbeing-points p>span:first-child){background:#28311b!important;color:var(--ncc-lime)!important}
+html.ncc-lime-theme #app .ns-welcome-progress i{background:var(--ncc-line)!important}
+html.ncc-lime-theme #app .ns-welcome-progress i.is-current{background:var(--ncc-lime)!important}

@@ -61,7 +61,12 @@ assert.ok(!app.includes('class="brand-mark"'),"No decorative logo box in desktop
 assert.ok(!app.includes('class="efg-mobile-monogram"'),"No decorative logo box in mobile header");
 assert.ok(app.includes('class="efg-mobile-brand-text"'),"Keep the full EFG Nutrition name");
 assert.ok(css.includes("--pastel-surface:#FAECF2"),"Dusty rose cards");
-assert.ok(html.includes('name="theme-color" content="#DCD8D2"'),"iPhone theme-color matches luxury stone canvas");
+assert.ok(html.includes('name="theme-color" content="#101214"'),"iPhone theme-color matches approved charcoal canvas");
+assert.ok(html.includes('class="ncc-lime-theme"'),"All roles and login receive the unified identity");
+assert.ok(html.lastIndexOf("unified-theme.css")>html.lastIndexOf("student-day.css"),"Unified theme is the final shared layer");
+const unified=read("unified-theme.css");
+assert.match(unified,/--ncc-lime:#d7ff3f/);
+assert.match(unified,/\.efg-compat-green/);assert.match(unified,/\.efg-compat-yellow/);assert.match(unified,/\.efg-compat-red/);
 assert.ok(html.lastIndexOf("pastel-system.css")>html.lastIndexOf("premium-system.css"),"Pastel base comes after premium");
 assert.ok(html.lastIndexOf("luxury-theme.css")>html.lastIndexOf("weekly-consistency.css"),"Luxury preview must load last");
 assert.ok(luxury.includes("--lux-night:#142439")&&luxury.includes("--lux-gold:#b08b4e"),"Premium night blue and gold palette");

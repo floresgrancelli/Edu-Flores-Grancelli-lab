@@ -1129,8 +1129,8 @@ try{
     const welcomeBrand=page.locator(".efg-onboard-serotonin");
     if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
-    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundImage);
-    if(!welcomeStyle.includes("gradient"))pageReport.errors.push("Onboarding lacks premium material");
+    const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundColor);
+    if(welcomeStyle!=="rgb(27, 31, 35)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
     await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();

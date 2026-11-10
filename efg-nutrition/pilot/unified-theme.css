@@ -222,3 +222,18 @@ html.ncc-lime-theme #app .ncc-plan-step-actions button{margin:0!important}
 html.ncc-lime-theme #app .ncc-intake-received{padding:13px;border:1px solid #99c557;border-radius:12px;background:#2b3a20!important;color:#e1f9a9!important;font-weight:750}
 @media(min-width:721px){html.ncc-lime-theme #app .ncc-plan-steps{top:8px}}
 @media(max-width:480px){html.ncc-lime-theme #app .ncc-plan-steps{grid-template-columns:repeat(2,minmax(0,1fr))}html.ncc-lime-theme #app .ncc-plan-step-actions{bottom:92px;flex-wrap:wrap}}
+
+/* EV-03: one search surface, optional guidance and reachable save on mobile. */
+.ncc-lime-theme .meal-popup{overscroll-behavior:contain;scroll-padding-bottom:90px}
+.ncc-meal-sources{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+.ncc-lime-theme .ncc-meal-sources .btn{min-height:44px;flex:1 1 auto}
+.ncc-lime-theme .ncc-meal-sources .btn[aria-pressed=true]{background:#d7ff3f!important;color:#18200b!important;border-color:#d7ff3f!important}
+.ncc-meal-guidance-details,.ncc-meal-catalog{margin:8px 0 12px;padding:10px;border:1px solid #535d60;border-radius:12px}
+.ncc-meal-guidance-details summary,.ncc-meal-catalog summary{cursor:pointer;min-height:28px;font-size:14px}
+.ncc-meal-selected{padding:12px;margin:10px 0;border-left:4px solid #d7ff3f;border-radius:8px;background:#29312d;font-weight:700}
+.ncc-meal-shortcuts{max-height:240px;overflow:auto;overscroll-behavior:contain}
+.ncc-meal-shortcuts .efg-meal-search-choice{width:100%;min-height:48px;text-align:left}
+.ncc-lime-theme .ncc-meal-save{position:sticky;bottom:-24px;padding:14px 0 calc(12px + env(safe-area-inset-bottom,0px));background:#1b1f23;z-index:2;margin-top:12px;border-top:1px solid #535d60}
+.ncc-meal-save button{min-height:48px}
+.ncc-lime-theme .ncc-meal-save button:disabled{opacity:.55}
+@media(max-width:600px){.ncc-lime-theme .meal-backdrop{padding:8px;align-items:center}.ncc-lime-theme .meal-popup{max-height:calc(100dvh - 16px);padding:16px;width:100%}.ncc-lime-theme .ncc-meal-save{bottom:-16px}.ncc-meal-sources .btn{font-size:12px;padding:9px 10px}.ncc-meal-shortcuts{max-height:180px}}

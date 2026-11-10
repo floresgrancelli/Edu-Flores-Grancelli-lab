@@ -1,0 +1,31 @@
+name: NCC food entry browser QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/pilot.js'
+      - 'efg-nutrition/pilot/unified-theme.css'
+      - 'efg-nutrition/tests/food-entry*'
+      - '.github/workflows/ncc-food-entry-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix efg-nutrition/tests/professional-browser-api
+      - run: npx --prefix efg-nutrition/tests/professional-browser-api playwright install --with-deps chromium webkit
+      - run: node efg-nutrition/tests/food-entry-browser.mjs
+        env:
+          NCC_PLAYWRIGHT_MODULE: ./professional-browser-api/node_modules/playwright/index.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: food-entry-synthetic-browser
+          path: artifacts/food-entry/

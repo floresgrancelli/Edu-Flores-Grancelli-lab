@@ -2013,6 +2013,7 @@ async function addPlannedFood(key){
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 let mealDialogReturnFocus=null;
+let mealEntrySource="all";
 let activeGuidedMealGroup="protein";
 function closeMealDialog(){
  const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
@@ -2039,19 +2040,52 @@ function openMealDialog(slot,initialGroup="protein"){
   '<p class="efg-meal-guidance-hint" id="mealGuidanceHint" aria-live="polite">'+escapeHTML(GUIDED_MEAL_GROUPS.find(g=>g.id===activeGuidedMealGroup).hint)+'</p>'+
   '<p class="efg-meal-guidance-fat">Grasas registradas en esta comida: <strong>'+num(current.f,1)+' g</strong>. Se calculan solas con todo lo que elegís.</p>'+
   '<small>Una tarta de atún va en «Plato preparado» y aporta proteínas, hidratos y grasas. No se registra de nuevo en las otras secciones. Omitir una sección significa no agregar una fuente por separado: un plato mixto igualmente aporta sus nutrientes.</small></section>':"";
+ mealEntrySource="all";
  state.activeMeal=slot;state.lastEditedMeal=slot;
  mealDialogReturnFocus=document.activeElement;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
- guidedPanel+
- '<div class="pilot-form"><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
- '<div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div>'+
+ (guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'</details>':'')+
+ '<div class="pilot-form"><div class="field"><label for="mealEntrySlot">Horario</label><select id="mealEntrySlot">'+mealSlots.map(m=>'<option value="'+m[0]+'" '+(m[0]===slot?'selected':'')+'>'+escapeHTML(m[1])+'</option>').join('')+'</select></div><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
+ '<div class="ncc-meal-sources" role="group" aria-label="Dónde buscar">'+[['all','Buscar'],['recent','Recientes'],['habitual','Habituales / Favoritos'],['recipes','Mis recetas']].map(([id,label])=>'<button type="button" class="btn small ghost" data-act="mealEntrySource" data-mealsource="'+id+'" aria-pressed="'+(id==='all')+'">'+label+'</button>').join('')+'</div><div id="mealEntryShortcuts" class="ncc-meal-shortcuts" aria-live="polite"></div>'+
+ '<details class="ncc-meal-catalog"><summary>Ver catálogo por categorías</summary><div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div></details>'+
+ '<div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
- '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" type="number" min=".1" max="5000" step="any" value="100"></div>'+
+ '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" inputmode="decimal" type="number" min=".1" max="5000" step="any" value="100"></div>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div>'+
- (guided?'<div class="efg-guided-save-actions"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<button class="btn block" data-act="saveSelectedMeal">Registrar y recalcular</button>')+'</div></div></div>';
+ (guided?'<div class="efg-guided-save-actions ncc-meal-save"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<div class="ncc-meal-save"><button class="btn block" data-act="saveSelectedMeal">Registrar y cerrar</button></div>')+'</div></div></div>';
  updateMealEntryMode(true);
+ renderMealEntryShortcuts();
  document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
+}
+function recentMealFoodIds(){
+ const uid=state.session?.user?.id;
+ const rows=[activeDiary(),...state.progressLogs].filter(row=>row?.student_id===uid).sort((a,b)=>String(b.log_day).localeCompare(String(a.log_day)));
+ return new Set(rows.flatMap(row=>Object.values(row.meals||{}).flat().map(item=>item.id)));
+}
+function renderMealEntryShortcuts(){
+ const host=document.getElementById("mealEntryShortcuts");if(!host)return;
+ const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
+ const words=normalize(document.getElementById("mealFoodSearch")?.value).trim().split(/\s+/).filter(Boolean);
+ const matches=value=>words.every(word=>normalize(value).includes(word));
+ if(mealEntrySource==="habitual"){
+  host.innerHTML=habitualPickerHTML(state.activeMeal);
+  const selector=host.querySelector('select');
+  if(selector){
+   const list=getHabitualList(state.activeMeal);
+   for(const option of selector.options){const item=list.find((item,i)=>habitualEntryKey(item,i)===option.value);option.hidden=!!item&&!matches(item.name+' '+item.items.map(x=>x.name).join(' '));}
+   const first=[...selector.options].find(o=>o.value&&!o.hidden);
+   selector.value=first?.value||"";updateHabitualPreview(state.activeMeal);
+   if(!first)host.innerHTML='<p class="pilot-hint">No hay habituales que coincidan en este horario. Podés guardarlos desde la comida registrada.</p>';
+  }
+  return;
+ }
+ if(words.length){host.innerHTML="";return;}
+ const permitted=new Set(allowedFoods());for(const [cooked,raw] of Object.values(FOOD_STATE_PAIRS))if(permitted.has(cooked))permitted.add(raw);
+ const catalog=selectableFoods().filter(f=>permitted.has(f.id)&&foodAllowedForMeal(f,state.activeMeal));
+ const recent=recentMealFoodIds();
+ const items=mealEntrySource==="recipes"?catalog.filter(f=>f.privateRecipe):[...recent].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).slice(0,8);
+ host.innerHTML='<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Tus recetas · elegí y ajustá las porciones':mealEntrySource==='recent'?'Alimentos registrados recientemente':'Buscá por nombre o ingrediente, o elegí un reciente')+'</p>'+items.map(f=>'<button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML(f.name)+'</span><small>Elegir</small></button>').join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
 }
 function hideMealSearchSuggestions(){
  const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
@@ -2074,11 +2108,13 @@ function renderMealSearchSuggestions(items,term){
 function pickMealSearchSuggestion(foodId){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
  const food=selectableFoods().find(f=>f.id===foodId);
- if(!selector||!search||!food||![...selector.options].some(o=>o.value===food.id&&!o.disabled))return;
+ if(!selector||!search||!food||!allowedFoods().includes(food.id)&&!Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===food.id&&allowedFoods().includes(cooked))||!foodAllowedForMeal(food,state.activeMeal))return;
+ if(![...selector.options].some(o=>o.value===food.id))selector.add(new Option(food.name,food.id));
  const foodChanged=selector.value!==food.id;
  selector.value=food.id;search.value=food.name;
  hideMealSearchSuggestions();updateMealEntryMode(foodChanged);
- search.focus({preventScroll:true});
+ search.blur();
+ document.getElementById("mealEditorQty")?.scrollIntoView({block:"nearest"});
 }
 function filterMealFoods(){
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
@@ -2099,7 +2135,8 @@ function filterMealFoods(){
  selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
  else selector.value="";
- renderMealSearchSuggestions(filtered,term);
+ renderMealSearchSuggestions(filtered.filter(f=>mealEntrySource!=="recipes"||f.privateRecipe).filter(f=>mealEntrySource!=="recent"||recentMealFoodIds().has(f.id)),mealEntrySource==="habitual"?"":term);
+ renderMealEntryShortcuts();
  // No autoseleccionar la primera opción: iOS no emite "change" si el
  // usuario elige un valor que el select ya consideraba seleccionado.
  // When a typed query keeps the same selection, do not reset its custom quantity.
@@ -2122,9 +2159,12 @@ function updateMealEntryMode(foodChanged=false){
  if(counting&&!Number.isInteger(Number(qty.value)))qty.value=1;
  const stateInput=document.getElementById("mealWeightState"),stateHint=document.getElementById("mealWeightStateHint");
  const stateWrap=document.getElementById("mealWeightStateWrap");
- if(stateWrap)stateWrap.style.display=f?.unit==="porción"?"none":"";
+ if(stateWrap)stateWrap.style.display=f&&Object.values(FOOD_STATE_PAIRS).some(ids=>ids.includes(f.id))?"":"none";
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
+ const selected=document.getElementById("mealEntrySelected");
+ if(selected){selected.hidden=!f;selected.textContent=f?f.name:"";}
+ for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f;
  updateMealRecipe();
  updateMealDialogHint();
 }
@@ -2160,6 +2200,9 @@ async function saveSelectedMeal(continueGuided=false){
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const slotLease=pendingMealRegistrations.add(slot);
+ const saveButtons=[...document.querySelectorAll('.ncc-meal-save button')];
+ const buttonLabels=saveButtons.map(b=>b.textContent);
+ saveButtons.forEach(b=>{b.disabled=true;b.textContent="Guardando…";});
  try{
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -2190,7 +2233,10 @@ async function saveSelectedMeal(continueGuided=false){
   if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
   notify("Alimento agregado, balance actualizado.");
  }
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
+ }finally{
+  pendingMealRegistrations.delete(slot,slotLease);
+  saveButtons.forEach((b,i)=>{if(b.isConnected){b.disabled=false;b.textContent=buttonLabels[i];}});
+ }
 }
 function coachFoodChoices(p,consent){
  if(!consent?.accepted)return "";
@@ -4816,6 +4862,12 @@ if(el.dataset.foodbulk){
   else window.prompt("Copiá el informe:",content);
   return;
  }
+ if(action==="mealEntrySource"){
+  mealEntrySource=el.dataset.mealsource;
+  document.getElementById("mealFoodSearch").value="";
+  for(const b of document.querySelectorAll('[data-mealsource]'))b.setAttribute('aria-pressed',String(b.dataset.mealsource===mealEntrySource));
+  filterMealFoods();return;
+ }
  if(el.dataset.mealgroup){
   if(isGuidedMealSlot(state.activeMeal)&&GUIDED_MEAL_GROUPS.some(g=>g.id===el.dataset.mealgroup)){
    activeGuidedMealGroup=el.dataset.mealgroup;
@@ -5209,7 +5261,12 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
  notify("Cantidad cambiada: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
-}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
+}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEntrySlot"){
+  if(pendingMealRegistrations.has(state.activeMeal))return;
+  const foodId=document.getElementById("mealEditorFood")?.value,quantity=document.getElementById("mealEditorQty")?.value,mode=document.getElementById("mealEntryMode")?.value;
+  openMealDialog(e.target.value);
+  if(foodId){pickMealSearchSuggestion(foodId);if(document.getElementById("mealEditorFood")?.value===foodId){document.getElementById("mealEditorQty").value=quantity;document.getElementById("mealEntryMode").value=mode;updateMealEntryMode(false);}}
+ }if(e.target.id==="mealEditorFood")updateMealEntryMode(true);if(e.target.id==="mealEntryMode")updateMealEntryMode(false);if(e.target.id==="beverageMilkType")updateMealDialogHint();if(e.target.dataset.planselect){const key=e.target.dataset.planselect;state.plannerSelections[key]=e.target.value;delete state.plannerDraftGrams[key];syncPlannerSearchActions(key);updatePlannerPreview();}if(e.target.dataset.skipmeal){saveSkippedMealChoice(e.target.dataset.skipmeal,e.target.checked,e.target).catch(fail);}});
 // Prevent Gboard IME input before compositionend from rebuilding native selects.
 const composingFoodSearchTargets=new WeakSet();
 root.addEventListener("compositionstart",event=>{

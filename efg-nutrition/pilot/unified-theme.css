@@ -172,3 +172,5 @@ html.ncc-lime-theme .efg-notifications .efg-notify-bell:before{background:none!i
 html.ncc-lime-theme .efg-notifications .efg-notify-bell:focus-visible{outline:3px solid var(--ncc-lime)!important}
 html.ncc-lime-theme #app input.planner-food-search{background:var(--ncc-input)!important}
 html.ncc-lime-theme #app .coach-intake-summary>div{background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+/* Native fields win component surface rules, including dynamic and disabled controls. */
+html.ncc-lime-theme #app :is(input,select,textarea):is(:enabled,:disabled){background:var(--ncc-input)!important;color:var(--ncc-text)!important;border-color:#616b60!important}

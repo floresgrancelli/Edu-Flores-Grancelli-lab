@@ -599,10 +599,10 @@ try{
     const colors=await page.evaluate(()=>{
      const style=s=>{const e=document.querySelector(s);return e?getComputedStyle(e):null};
      return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
-      nav:style('.pilot-nav')?.backgroundColor,field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor};
+      nav:style('.pilot-nav')?.backgroundColor,field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
     if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
-    if(colors.field&&colors.field!=='rgb(20, 24, 25)')pageReport.errors.push('Unified input field missing: '+JSON.stringify(colors));
+    if(colors.field&&colors.field!=='rgb(20, 24, 25)')pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);

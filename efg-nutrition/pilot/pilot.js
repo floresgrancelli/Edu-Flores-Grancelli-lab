@@ -3003,6 +3003,7 @@ function coachGuidePickerFoods(){
 // Generic family thumbnails are presentation only; never food identity or portions.
 function foodFamilyVisual(food){
  const text=(String(food?.id||'')+' '+String(food?.name||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ if(/queso.?crema|queso.*untable|cream.cheese|casancrem|philadelphia/.test(text))return {src:'./assets/cream-cheese-r1.webp',label:'Queso crema o untable'};
  const rules=[
   [/pizza/,16,'Pizza'],[/empanada/,17,'Empanadas'],[/sandwich|hamburgues|choripan|pancho|wrap|rapidita/,26,'Sándwich'],
   [/cafe|coffee|capuch|cappucc|latte/,2,'Café'],[/mate|yerba/,27,'Mate'],

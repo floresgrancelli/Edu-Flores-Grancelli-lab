@@ -139,6 +139,8 @@ try{
    await open('cena');await page.locator('[data-mealsource="habitual"]').click();await page.locator('#mealFoodSearch').fill('sushi');assert.match(await page.locator('#mealEntryShortcuts').innerText(),/Mi cena sushi/);
    await page.locator('[data-mealsource="recipes"]').click();await page.locator('#mealEntryShortcuts [data-mealsuggestion]').first().click();
    assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/Porciones/);await page.locator('#mealEditorQty').fill('1.5');
+   const recipeChoice=await page.locator('#mealEditorFood').inputValue();
+   for(const source of ['recent','all','recipes']){await page.locator('[data-mealsource="'+source+'"]').click();assert.equal(await page.locator('#mealEditorFood').inputValue(),recipeChoice);assert.equal(await page.locator('#mealEditorQty').inputValue(),'1.5','Recipe draft survives changing source');}
    await page.evaluate(()=>{window.__NCC_FOOD_ENTRY_FIXTURE__.fail=true;});
    await page.locator('[data-act="saveSelectedMeal"]').click();await page.waitForFunction(()=>!document.querySelector('[data-act="saveSelectedMeal"]').disabled);
    assert.equal(await page.locator('#mealEditorQty').inputValue(),'1.5');assert.equal((await snapshot()).meals.cena.length,1);

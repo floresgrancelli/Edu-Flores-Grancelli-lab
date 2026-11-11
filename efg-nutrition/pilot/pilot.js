@@ -2211,6 +2211,7 @@ function pickMealSearchSuggestion(foodId){
  document.getElementById("mealEditorQty")?.scrollIntoView({block:"nearest"});
 }
 function filterMealFoods(){
+ const preserveChoice=arguments[0]===true;
  const selector=document.getElementById("mealEditorFood"),search=document.getElementById("mealFoodSearch");
  if(!selector||!search)return;
  const normalizeQuery=(v)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();
@@ -2228,7 +2229,9 @@ function filterMealFoods(){
  });
  selector.innerHTML='<option value="" disabled selected>'+(filtered.length?'Elegí el alimento que querés registrar':'Sin coincidencias')+'</option>'+groupedFoodOptions(filtered,state.activeMeal);
  if(filtered.some(f=>f.id===previous))selector.value=previous;
- else selector.value="";
+ else if(preserveChoice&&permittedFoodIds.has(previous)&&catalog.some(f=>f.id===previous&&foodAllowedForMeal(f,state.activeMeal))){
+  const selected=catalog.find(f=>f.id===previous);selector.add(new Option(selected.name,previous));selector.value=previous;
+ }else selector.value="";
  renderMealSearchSuggestions(filtered.filter(f=>mealEntrySource!=="recipes"||f.privateRecipe).filter(f=>mealEntrySource!=="recent"||recentMealFoodIds().has(f.id)),mealEntrySource==="habitual"?"":term);
  renderMealEntryShortcuts();
  // No autoseleccionar la primera opción: iOS no emite "change" si el
@@ -5153,7 +5156,7 @@ if(el.dataset.foodbulk){
   mealEntrySource=el.dataset.mealsource;
   document.getElementById("mealFoodSearch").value="";
   for(const b of document.querySelectorAll('[data-mealsource]'))b.setAttribute('aria-pressed',String(b.dataset.mealsource===mealEntrySource));
-  filterMealFoods();
+  filterMealFoods(true);
   if(selectedFood){const selector=document.getElementById("mealEditorFood");if([...selector.options].some(o=>o.value===selectedFood)){selector.value=selectedFood;document.getElementById("mealEditorQty").value=selectedQty;document.getElementById("mealEntryMode").value=selectedMode;updateMealEntryMode(false);}}
   return;
  }

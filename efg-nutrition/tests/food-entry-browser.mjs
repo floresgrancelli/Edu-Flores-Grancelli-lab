@@ -103,6 +103,8 @@ try{
    await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="sushi_maki_salmon"]').count(),1);
    await page.locator('[data-mealsource="habitual"]').click();
    await page.locator('#mealEntryHabitualChoice_cena').selectOption('local-1');
+   const habitualColors=await page.locator('.meal-popup [data-habitualapply="cena"]').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,fg:getComputedStyle(el).color}));
+   assert.deepEqual(habitualColors,{bg:'rgb(215, 255, 63)',fg:'rgb(33, 51, 30)'},'Habitual primary action stays readable');
    await page.locator('.meal-popup [data-habitualapply="cena"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
    assert.equal((await snapshot()).meals.cena[0].id,'egg','Popup favorite choice must win over the daily selector behind it');
    await open('cena');await page.locator('[data-mealsource="recent"]').click();

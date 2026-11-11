@@ -398,3 +398,7 @@ html.ncc-lime-theme #app #coachGuidePreview :is(h2,p,small){color:#21331e!import
 html.ncc-lime-theme #app #coachGuidePreview .efg-guide-preview-actions{background:#f7f5e9!important;border-color:#b5c0a4!important}
 html.ncc-lime-theme #app #coachGuidePreview .btn:is(.ghost,.light){background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important}
 html.ncc-lime-theme #app #studentMeals .pilot-pill,html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-preview-heading>span{background:#dcebb8!important;color:#21331e!important;border-color:#81966a!important}
+
+/* Personal diary: habitual primary action must remain legible on cream surfaces. */
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]{background:#d7ff3f!important;color:#21331e!important;border-color:#a9cb24!important;opacity:1}
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]:disabled{background:#e3ebd2!important;color:#4a5941!important;border-color:#81966a!important}

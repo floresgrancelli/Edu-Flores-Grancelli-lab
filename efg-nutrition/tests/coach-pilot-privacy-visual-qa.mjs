@@ -109,6 +109,10 @@ try{
   await page.locator('.ncc-intake-steps [data-intakestep="0"]').click();
   assert.equal(await newForm.locator('[data-intakepanel]:visible').count(),1);
   assert.equal(await page.locator('#coachRelaunch_age_years').inputValue(),'40');
+  await newForm.evaluate(form=>form.requestSubmit());
+  assert.equal(await newForm.locator('[data-intakepanel="3"]').isVisible(),true,'Enter from an earlier step opens review without saving');
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0);
+  await revealIntakeField(page,'age_years');
   await page.locator('[data-intakenext="1"]').click();
   await page.locator('[data-intakenext="2"]').click();
   await page.locator('[data-intakenext="3"]').click();

@@ -233,7 +233,10 @@ export function showCoachIntakeStep(form,index,{validate=false}={}){
 export function validateCoachIntakeSteps(form){
  if(!form?.hasAttribute('data-intakewizard'))return true;
  const invalid=[...form.querySelectorAll('input,select,textarea')].find(x=>!x.checkValidity());
- if(!invalid)return true;
+ if(!invalid){
+  if(form.querySelector('[data-intakepanel="3"]')?.hidden){showCoachIntakeStep(form,3);return false;}
+  return true;
+ }
  showCoachIntakeStep(form,invalid.closest('[data-intakepanel]')?.dataset.intakepanel);
  invalid.reportValidity();return false;
 }

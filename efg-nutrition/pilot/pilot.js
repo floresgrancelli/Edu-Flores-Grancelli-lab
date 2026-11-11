@@ -32,7 +32,7 @@ import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilo
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {studentDayWelcome,studentDayDashboard} from "./student-day-presentation.js?v=ncc-direct-daily-r1-20261111";
+import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation.js?v=ncc-focus-day-r1-20261111";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1654,7 +1654,7 @@ function homeView(){
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  const selectedMeal=mealSlots.some(([slot])=>slot===state.lastEditedMeal)?state.lastEditedMeal:'desayuno';
- const mealTabs='<nav class="ncc-day-meal-tabs" aria-label="Elegí una comida">'+mealSlots.map(([slot,label])=>'<button type="button" class="btn small light" data-daymeal="'+slot+'" aria-controls="ncc-day-meal-'+slot+'" aria-pressed="'+(slot===selectedMeal)+'">'+'<span>'+label+'</span><small>'+((d.meals[slot]||[]).length?((d.meals[slot]||[]).length+' alimento'+((d.meals[slot]||[]).length===1?'':'s')):d.skipped?.[slot]?'Omitida':'Sin registrar')+'</small></button>').join('')+'</nav>';
+ const mealTabs='<nav class="ncc-day-meal-tabs" aria-label="Elegí una comida">'+mealSlots.map(([slot,label])=>'<button type="button" class="btn small light" data-daymeal="'+slot+'" aria-controls="ncc-day-meal-'+slot+'" aria-pressed="'+(slot===selectedMeal)+'">'+'<span><span class="ncc-meal-check" aria-hidden="true">✓ </span>'+label+'</span><small>'+((d.meals[slot]||[]).length?((d.meals[slot]||[]).length+' alimento'+((d.meals[slot]||[]).length===1?'':'s')):d.skipped?.[slot]?'Omitida':'Sin registrar')+'</small></button>').join('')+'</nav>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -1666,7 +1666,7 @@ function homeView(){
   const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
   const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
   return '<details class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel" id="ncc-day-meal-'+key+'" data-daymealpanel="'+key+'" open '+(selectedMeal===key?'':'hidden')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  guideIngredientPhoto({items})+detail+guidanceStatus+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones y habituales</summary><div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</details></div></details>';
+  detail+guidanceStatus+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones y habituales</summary><div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</details></div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -1685,12 +1685,12 @@ const cons=state.consent,showConsent=state.profile.role==="student";
   allowExplore:!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending"
  }):"");
   return '<div class="ncc-direct-day">'+(studentDay?studentDayWelcome(state.profile?.nickname,today()):rootText("MI DÍA",isPersonalProfessional?"Tu alimentación personal, tus objetivos y tu progreso. Ningún registro se mezcla con los de tus alumnos.":"Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo."))+
- (studentDay?studentDayDashboard({totals:tot,goal,diary:d,mealSlots,hasGuide:!!state.foodPlan?.guided_plan&&state.goals.some(x=>x.id===state.foodPlan.guided_goal_id)}):'<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+pastelDaySummary(tot,goal,d,mealSlots))+
+ (studentDay?studentDayDashboard({totals:tot,goal,diary:d,mealSlots,hasGuide:!!state.foodPlan?.guided_plan&&state.goals.some(x=>x.id===state.foodPlan.guided_goal_id)}):'<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+compactDaySummary(tot,goal,d,mealSlots))+
  ''+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
- '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+dayExtras+'<div class="ncc-register-dock"><button type="button" class="btn" data-act="registerDayFood">＋ Registrar comida</button></div><div id="mealDialogContainer"></div>'+goalForm+'</div>';
+ '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><details class="card ncc-balance-details"><summary>Balance restante</summary>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></details></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+dayExtras+'<div id="mealDialogContainer"></div>'+goalForm+'</div>';
 }
 
 // One catalog across student, coach, planner and diary. A guided example and
@@ -2141,11 +2141,11 @@ function openMealDialog(slot,initialGroup="protein"){
  '<div class="pilot-form"><div class="field"><label for="mealEntrySlot">Horario</label><select id="mealEntrySlot">'+mealSlots.map(m=>'<option value="'+m[0]+'" '+(m[0]===slot?'selected':'')+'>'+escapeHTML(m[1])+'</option>').join('')+'</select></div><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
  '<div class="ncc-meal-sources" role="group" aria-label="Dónde buscar">'+[['all','Buscar'],['recent','Recientes'],['habitual','Habituales / Favoritos'],['recipes','Mis recetas']].map(([id,label])=>'<button type="button" class="btn small ghost" data-act="mealEntrySource" data-mealsource="'+id+'" aria-pressed="'+(id==='all')+'">'+label+'</button>').join('')+'</div><div id="mealEntryShortcuts" class="ncc-meal-shortcuts" aria-live="polite"></div>'+
  '<details class="ncc-meal-catalog"><summary>Ver catálogo por categorías</summary><div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div></details>'+
- '<div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
+ '<div id="mealQuantityHome"></div><section id="mealQuantityCard" class="ncc-quantity-card" aria-label="Alimento y cantidad" hidden><div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
  '<div class="field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><input id="mealEditorQty" inputmode="decimal" type="number" min=".1" max="5000" step="any" value="100"></div>'+
- '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div>'+
- (guided?'<div class="efg-guided-save-actions ncc-meal-save"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Registrar y cerrar</button></div>':'<div class="ncc-meal-save"><button class="btn block" data-act="saveSelectedMeal">Registrar y cerrar</button></div>')+'</div></div></div>';
+ '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div></section>'+
+ (guided?'<div class="efg-guided-save-actions ncc-meal-save"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Agregar alimento</button></div>':'<div class="ncc-meal-save"><button class="btn block" data-act="saveSelectedMeal">Agregar alimento</button></div>')+'</div></div></div>';
  updateMealEntryMode(true);
  renderMealEntryShortcuts();
  document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
@@ -2157,6 +2157,8 @@ function recentMealFoodIds(){
 }
 function renderMealEntryShortcuts(){
  const host=document.getElementById("mealEntryShortcuts");if(!host)return;
+ const quantityCard=document.getElementById("mealQuantityCard"),quantityHome=document.getElementById("mealQuantityHome");
+ if(quantityCard&&quantityHome)quantityHome.after(quantityCard);
  const normalize=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR");
  const words=normalize(document.getElementById("mealFoodSearch")?.value).trim().split(/\s+/).filter(Boolean);
  const matches=value=>words.every(word=>normalize(value).includes(word));
@@ -2177,7 +2179,7 @@ function renderMealEntryShortcuts(){
  const catalog=selectableFoods().filter(f=>permitted.has(f.id)&&foodAllowedForMeal(f,state.activeMeal));
  const recent=recentMealFoodIds();
  const items=mealEntrySource==="recipes"?catalog.filter(f=>f.privateRecipe):[...recent].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).slice(0,8);
- host.innerHTML='<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Tus recetas · elegí y ajustá las porciones':mealEntrySource==='recent'?'Alimentos registrados recientemente':'Buscá por nombre o ingrediente, o elegí un reciente')+'</p>'+items.map(f=>'<button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML(f.name)+'</span><small>Elegir</small></button>').join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
+ host.innerHTML='<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Tus recetas · elegí y ajustá las porciones':mealEntrySource==='recent'?'Alimentos registrados recientemente':'Buscá por nombre o ingrediente, o elegí un reciente')+'</p>'+items.map(f=>'<div class="ncc-shortcut-choice"><button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML(f.name)+'</span><small>Elegir</small></button></div>').join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
 }
 function hideMealSearchSuggestions(){
  const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
@@ -2255,7 +2257,13 @@ function updateMealEntryMode(foodChanged=false){
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
  const selected=document.getElementById("mealEntrySelected");
- if(selected){selected.hidden=!f;selected.innerHTML=f?guideIngredientPhoto({items:[{...f,qty:1}]})+'<strong>'+escapeHTML(f.name)+'</strong>':"";}
+ if(selected){selected.hidden=!f;selected.innerHTML=f?'<strong><span aria-hidden="true">✓ </span>'+escapeHTML(f.name)+'</strong>':"";}
+ const quantityCard=document.getElementById('mealQuantityCard'),quantityHome=document.getElementById('mealQuantityHome');
+ if(quantityCard&&quantityHome){
+  quantityCard.hidden=!f;quantityHome.after(quantityCard);
+  const choices=[...document.querySelectorAll('#mealEntryShortcuts [data-mealsuggestion]')];
+  for(const choice of choices){const active=choice.dataset.mealsuggestion===f?.id;choice.setAttribute('aria-pressed',String(active));if(active)choice.parentElement.append(quantityCard);}
+ }
  for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f;
  updateMealRecipe();
  updateMealDialogHint();
@@ -5139,10 +5147,13 @@ if(el.dataset.foodbulk){
   return;
  }
  if(action==="mealEntrySource"){
+  const selectedFood=document.getElementById("mealEditorFood")?.value,selectedQty=document.getElementById("mealEditorQty")?.value,selectedMode=document.getElementById("mealEntryMode")?.value;
   mealEntrySource=el.dataset.mealsource;
   document.getElementById("mealFoodSearch").value="";
   for(const b of document.querySelectorAll('[data-mealsource]'))b.setAttribute('aria-pressed',String(b.dataset.mealsource===mealEntrySource));
-  filterMealFoods();return;
+  filterMealFoods();
+  if(selectedFood){const selector=document.getElementById("mealEditorFood");if([...selector.options].some(o=>o.value===selectedFood)){selector.value=selectedFood;document.getElementById("mealEditorQty").value=selectedQty;document.getElementById("mealEntryMode").value=selectedMode;updateMealEntryMode(false);}}
+  return;
  }
  if(el.dataset.mealgroup){
   if(isGuidedMealSlot(state.activeMeal)&&GUIDED_MEAL_GROUPS.some(g=>g.id===el.dataset.mealgroup)){
@@ -5612,6 +5623,13 @@ root.addEventListener("change",e=>{
  }
  if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 document.addEventListener("keydown",event=>{
+ const mealTab=event.target.closest?.('[data-daymeal]');
+ if(mealTab&&!document.querySelector('#mealDialogContainer .meal-popup')&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
+  const tabs=[...document.querySelectorAll('[data-daymeal]')],index=tabs.indexOf(mealTab);
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  event.preventDefault();selectDayMeal(tabs[next].dataset.daymeal);tabs[next].focus();return;
+ }
+
  const dialog=document.querySelector("#mealDialogContainer .meal-popup")||document.querySelector("#efgRecipeRegisterOverlay .efg-recipe-register-card");
  if(!dialog)return;
  // Android Gboard / IMEs: Enter can confirm text composition, not an actual food choice.

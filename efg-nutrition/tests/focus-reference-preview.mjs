@@ -26,12 +26,12 @@ try {
  const page=await context.newPage();
  await page.goto(origin+'/efg-nutrition/pilot/');
  await page.getByRole('button',{name:'Alumno: parcial',exact:true}).click();
- await page.locator('.ncc-day-register-row').waitFor();
+ await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(()=>document.getElementById('ncc-student-day-fixture-controls')?.remove());
  await page.locator('[data-daymeal="desayuno"]').click();
  await page.evaluate(()=>{const e=document.querySelector('.ncc-day-meal-tabs');window.scrollTo(0,e.getBoundingClientRect().top+window.scrollY-110);});
  await page.screenshot({path:resolve(out,'NCC-propuesta-comidas.png')});
- await page.locator('.ncc-register-dock .btn').click();
+ await page.locator('[data-daymealpanel]:visible [data-setmeal]').click();
  await page.locator('.meal-popup').waitFor();
  await page.screenshot({path:resolve(out,'NCC-propuesta-registro.png')});
  await page.reload();await page.getByRole('button',{name:'Alumno: parcial',exact:true}).click();

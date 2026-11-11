@@ -47,10 +47,11 @@ export async function assertCompactCoach(page){
 }
 export async function assertDirectDay(page){
  const before=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary));
- const dock=page.locator('.ncc-register-dock button');
- await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
- const rect=await dock.boundingBox();const height=await page.evaluate(()=>innerHeight);
- assert.ok(rect.y>=0&&rect.y+rect.height<height&&rect.height>=44,'Register remains in viewport');
+ assert.equal(await page.locator('.ncc-register-dock,[data-act="registerDayFood"]').count(),0,'Removed oversized/duplicate entry');
+ const entrySlot=await page.locator('[data-daymeal][aria-pressed="true"]').getAttribute('data-daymeal');
+ const dock=page.locator('[data-daymealpanel="'+entrySlot+'"] [data-setmeal]');
+ await dock.scrollIntoViewIfNeeded();
+ const rect=await dock.boundingBox();assert.ok(rect.height>=44,'Local add control remains touch accessible');
  await dock.click();
  assert.equal(await page.locator('.meal-popup').isVisible(),true);
  for(const source of ['recent','habitual','recipes']){
@@ -71,16 +72,17 @@ export async function assertDirectDay(page){
   assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),slot);
   if(counts[slot])assert.equal(await tab.locator('small').textContent(),counts[slot]+' alimento'+(counts[slot]===1?'':'s'));
  }
- await dock.click();await page.locator('#mealEntrySlot').selectOption('almuerzo');
+ await page.locator('[data-daymealpanel]:visible [data-setmeal]').click();await page.locator('#mealEntrySlot').selectOption('almuerzo');
  await page.getByRole('button',{name:'Cerrar ventana de alimentos'}).click();
  assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),'almuerzo');
- assert.equal(await dock.evaluate(el=>el===document.activeElement),true,'Changing schedules preserves the original dialog trigger');
+ assert.equal(await page.locator('[data-daymeal="almuerzo"]').evaluate(el=>el===document.activeElement),true,'Changing schedules restores focus to the visible schedule');
  // A trigger hidden by the new schedule must return focus to its visible tab.
  await page.locator('[data-daymealpanel="almuerzo"] [data-setmeal]').click();
  await page.locator('#mealEntrySlot').selectOption('cena');await page.keyboard.press('Escape');
  assert.equal(await page.locator('[data-daymeal="cena"]').evaluate(el=>el===document.activeElement),true);
  if(originalComment!==null){assert.equal(await page.locator('#dayComment').inputValue(),'Comentario sin guardar');await page.locator('#dayComment').fill(originalComment);}
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),before,'Schedule changes and cancel leave diary intact');
+ await page.locator('[data-daymeal="desayuno"]').focus();await page.keyboard.press('End');assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),'cena');await page.keyboard.press('ArrowRight');assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),'desayuno');
  await page.locator('[data-daymeal="'+originalSlot+'"]').click();
  await page.evaluate(()=>scrollTo(0,0));
 }

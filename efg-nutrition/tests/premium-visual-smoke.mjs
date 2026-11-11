@@ -673,8 +673,8 @@ try{
       : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
    }
    if(dest==='home'){
-    const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});
-    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('145, 191, 80'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
+    const geometry=await page.locator('.ncc-focus-energy').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.split(' ').length,width:el.scrollWidth,box:el.clientWidth}));
+    if(geometry.columns!==2||geometry.width>geometry.box+1)pageReport.errors.push('Compact calorie summary overflow: '+JSON.stringify(geometry));
    }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
@@ -1179,11 +1179,11 @@ try{
      await page.locator('[data-progress-range="7"]').click();
    }
    if(role==="student"&&dest==="home"){
-    const ring=page.locator(".efg-pastel-ring");
-    if((await ring.count())!==1)pageReport.errors.push("Phase 3 ring missing");
+    const summary=page.locator('.ncc-focus-summary');
+    if((await summary.count())!==1)pageReport.errors.push('Compact summary missing');
     else{
-     const ringLabel=await ring.getAttribute("aria-label")||"";
-     if(!ringLabel.includes("560")||!ringLabel.includes("2.100"))pageReport.errors.push("Ring does not reflect REAL diary: "+ringLabel);
+     const label=await summary.innerText();
+     if(!label.includes('560')||!label.includes('2.100'))pageReport.errors.push('Summary does not reflect real diary and target: '+label);
      const rendered=await page.locator(".efg-pastel-day").innerText();
      if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
      if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 export async function assertCoachReportLayout(page){
+ await page.locator('[data-coachsection="coachStudentNutrition"]').click();
  const geometry=await page.locator('.coach-student-profile').evaluate(profile=>{
   const header=profile.querySelector('.efg-progress-header'),title=header.querySelector('h2');
   const nav=profile.querySelector('.coach-profile-tabs'),tab=nav.querySelector('[data-coachsection="coachStudentGoals"]');
@@ -37,4 +38,13 @@ export async function assertCoachReportLayout(page){
  const tab=page.locator('.coach-profile-tabs [data-coachsection="coachStudentGoals"]');
  await tab.click();
  assert.equal(await page.locator('#coachStudentGoals').evaluate(el=>el.open),true,'Objectives action must open its section');
+ const age=page.locator('#targetAge'),previous=await age.inputValue();
+ await age.fill('41');
+ for(const id of ['coachStudentIntake','coachStudentWeight','coachStudentNutrition','coachStudentGoals']){
+  await page.locator('[data-coachsection="'+id+'"]').click();
+  assert.equal(await page.locator('.coach-student-profile [data-coachpanel]:visible').count(),1,'One coach section visible');
+  assert.equal(await page.locator('#'+id).isVisible(),true);
+ }
+ assert.equal(await age.inputValue(),'41','Section switches retain unsaved fields');
+ await age.fill(previous);
 }

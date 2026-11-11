@@ -47,7 +47,7 @@ export async function runCoachGuideContainer(page,width,outDir){
     {slot:'almuerzo',label:'Almuerzo',items:[item('chicken',175),item('brownrice',185),item('oil',10)]},
     {slot:'merienda',label:'Merienda',items:[item('banana',150),item('yogurt',200)]},
     {slot:'cena',label:'Cena',items:[item('chicken',175),item('potato',120),item('oil',10)]}]};
-   await v.render();document.querySelector('#coachStudentGoals').open=true;
+   await v.render();document.querySelector('[data-coachsection="coachStudentGoals"]').click();
    return JSON.stringify({plan:s.coachGuidedDraft,totals:v.guideTotals(s.coachGuidedDraft)});
   });
   await page.locator('#coachGuidedSlot select').first().waitFor({state:'visible'});

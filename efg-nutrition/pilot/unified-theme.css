@@ -402,3 +402,13 @@ html.ncc-lime-theme #app #studentMeals .pilot-pill,html.ncc-lime-theme #app :is(
 /* Personal diary: habitual primary action must remain legible on cream surfaces. */
 html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]{background:#d7ff3f!important;color:#21331e!important;border-color:#a9cb24!important;opacity:1}
 html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]:disabled{background:#e3ebd2!important;color:#4a5941!important;border-color:#81966a!important}
+/* Coach student sections: keep navigation compact and forms mounted. */
+html.ncc-lime-theme #app .coach-student-profile [data-coachpanel][hidden]{display:none!important}
+html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;background:#f7f5e9!important;border-radius:18px;margin:14px 0}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]{min-height:46px;min-width:0;padding:10px 5px;background:#e3ebd2!important;color:#21331e!important;border:1px solid #81966a!important;border-radius:12px;font-weight:700;text-transform:none;white-space:normal;overflow-wrap:normal}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection][aria-pressed=true]{background:#d7ff3f!important;color:#21331e!important;border-color:#a9cb24!important}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]:focus-visible{outline:3px solid #d7ff3f;outline-offset:3px}
+html.ncc-lime-theme #app .coach-student-profile>.coach-student-heading{background:#e3ebd2!important;color:#21331e!important;border-radius:18px;padding:16px}
+html.ncc-lime-theme #app .coach-student-heading h2{color:#21331e!important}
+html.ncc-lime-theme #app .coach-student-profile>[data-coachpanel]{margin-top:0}
+@media(max-width:420px){html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}

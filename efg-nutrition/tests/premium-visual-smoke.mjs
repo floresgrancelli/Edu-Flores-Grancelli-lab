@@ -250,7 +250,7 @@ try{
     s.coachGuidedDraft=v.createSixGuide(s.pendingGoal);
     s.tab='coachStudents';await v.render();
    });
-   await page.locator('#coachStudentGoals > summary').click();
+   await page.locator('[data-coachsection="coachStudentGoals"]').click();
    const editor=page.locator('#coachGuidedSlot');
    assert.equal(await editor.locator('.efg-guide-meal').count(),6,
     'Coach must initially see six guide cards in actual PWA');
@@ -311,7 +311,7 @@ try{
     s.consent={accepted:true,student_id:'demo-student-a',organization_id:'demo-org'};
     s.tab='coachStudents';await v.render();
    });
-   await page.locator('#coachStudentGoals > summary').click();
+   await page.locator('[data-coachsection="coachStudentGoals"]').click();
    await assertCoachReportLayout(page);
    const publishedBefore=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
    await page.locator('[data-act="openCoachAdaptedPreview"]').click();
@@ -1219,8 +1219,10 @@ try{
     x.state.coachGoals=[{id:"goal-demo",kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,start_on:"2026-10-01"}];
     x.state.coachFoodPlan=null;await x.render();
    });
+   await assertCoachReportLayout(page);
+   await page.locator(".coach-student-profile").screenshot({path:join(outDir,"coach-sections-"+engine+"-"+width+".png")});
    const goals=page.locator("#coachStudentGoals");
-   await page.locator("details#coachStudentGoals > summary").click();
+   await page.locator('[data-coachsection="coachStudentGoals"]').click();
    await page.locator("#targetAge").fill("41");
    // Safari WebKit puede animar scrollTo de forma asíncrona; comparar cuando la animación terminó.
    await page.evaluate(()=>window.scrollTo({top:1500,behavior:"instant"}));

@@ -3348,10 +3348,25 @@ async function approveGuidedDay(){
  if(result.error)throw result.error;
  state.coachGuidedDraft=null;state.coachFoodPlan=result.data;
  await loadStudentDetail(student);await render();
+ selectCoachSection("coachStudentGoals");
  const details=document.getElementById("coachStudentGoals");if(details){details.open=true;details.scrollIntoView({block:"start"});}
  notify("Guía aprobada y compartida con el alumno.");
 }
 
+// Section changes retain the mounted form DOM: no render, save, or field reset.
+function selectCoachSection(id){
+ const profile=document.querySelector('.coach-student-profile');
+ const panels=[...(profile?.querySelectorAll('[data-coachpanel]')||[])];
+ const selected=panels.find(panel=>panel.id===id);
+ if(!selected)return;
+ state.coachSectionSelection={studentId:state.selectedStudent,section:id};
+ for(const panel of panels){panel.hidden=panel!==selected;if(panel===selected&&panel.tagName==="DETAILS")panel.open=true;}
+ for(const button of profile.querySelectorAll('[data-coachsection]'))button.setAttribute('aria-pressed',String(button.dataset.coachsection===id));
+}
+function restoreCoachSection(){
+ const saved=state.coachSectionSelection;
+ selectCoachSection(saved?.studentId===state.selectedStudent?saved.section:'coachStudentNutrition');
+}
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
@@ -3362,11 +3377,11 @@ function studentDetailView(p,consent){
  (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
  (intakeDraft.dislikedFoods?'<p><strong>Evita por gusto:</strong> '+escapeHTML(intakeDraft.dislikedFoods)+'</p>':"")+
  (intakeDraft.mealRoutine?'<p><strong>Horarios:</strong> '+escapeHTML(intakeDraft.mealRoutine)+'</p>':"")+'</div>':"";
- return coachIntakeFlow.details(p.user_id)+'<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno"><button type="button" data-coachsection="coachStudentNutrition">Alimentación</button><button type="button" data-coachsection="coachStudentWeight">Evolución</button><button type="button" data-coachsection="coachStudentGoals">Objetivos</button></nav><div id="coachStudentNutrition"></div><div class="divider"></div>'+coachDailyReport(p)+nutritionProgressPanel(true)+
- coachRewardPanel()+
- '<details class="coach-profile-accordion" id="coachStudentWeight"><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
+ return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno">'+[['coachStudentIntake','Ficha'],['coachStudentNutrition','Alimentación'],['coachStudentWeight','Evolución'],['coachStudentGoals','Plan']].map(([id,label])=>'<button type="button" data-coachsection="'+id+'" aria-controls="'+id+'" aria-pressed="false">'+label+'</button>').join('')+'</nav><section id="coachStudentIntake" data-coachpanel hidden aria-label="Ficha del alumno">'+(coachIntakeFlow.details(p.user_id)||'<p class="pilot-hint">Todavía no hay una ficha compartida. Solo se muestran datos que el alumno autorizó compartir.</p>')+'</section><section id="coachStudentNutrition" data-coachpanel aria-label="Alimentación del alumno">'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ coachRewardPanel()+'</section>'+
+ '<details class="coach-profile-accordion" id="coachStudentWeight" data-coachpanel hidden><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
- '</details><details class="coach-profile-accordion" id="coachStudentGoals"><summary>🎯 Preparar objetivos y Dieta Guía</summary><details class="ncc-plan-history"><summary>Plan actual e historial</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
+ '</details><details class="coach-profile-accordion" id="coachStudentGoals" data-coachpanel hidden><summary>🎯 Preparar objetivos y Dieta Guía</summary><details class="ncc-plan-history"><summary>Plan actual e historial</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  baselinePreview()+goalRevisionSection(latest)+'</details><div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Paso 1 · Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  intakeWarnings+(goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
@@ -3658,6 +3673,7 @@ async function render(){
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
+ restoreCoachSection();
  if(state.tab==="notifications")inbox.repaint();
  if(state.tab==="messages")messages.mount();
  if(state.tab==="planner")updatePlannerPreview();
@@ -4439,6 +4455,7 @@ if(el.dataset.reportstudent){
  const p=(state.roster||[]).find(p=>p.user_id===el.dataset.reportstudent&&p.active);
  if(!p)throw new Error("No tenés permiso para consultar este alumno.");
  state.reportDate=null;await loadStudentDetail(p.user_id);await render();
+ selectCoachSection("coachStudentNutrition");
  document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;
 }
 if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+(state.session?.user?.id||"local"),JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
@@ -4479,7 +4496,7 @@ if(el.dataset.foodbulk){
   openWeeklyPdfView(Number(el.dataset.reportindex),el);return;
  }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
- if(el.dataset.coachsection){const sec=document.getElementById(el.dataset.coachsection);if(!sec)return;if(sec.tagName==="DETAILS")sec.open=true;sec.scrollIntoView({behavior:"smooth",block:"start"});return;}
+ if(el.dataset.coachsection){selectCoachSection(el.dataset.coachsection);return;}
  if(el.dataset.coachfilter){const target=document.getElementById("coachRosterSection");target?.scrollIntoView({behavior:"smooth",block:"start"});const btn=target?.querySelector('[data-rosterfilter="'+el.dataset.coachfilter+'"]');btn?.click();return;}
  if(el.dataset.coachjump){const target=document.getElementById(el.dataset.coachjump);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.rosterfilter){
@@ -4770,6 +4787,7 @@ if(el.dataset.foodbulk){
   });
   state.coachIntakeGuidePreview=null;
   state.tab="coachStudents";await render();
+  selectCoachSection("coachStudentGoals");
   const panel=document.getElementById("coachStudentGoals");
   if(panel){panel.open=true;panel.scrollIntoView?.({behavior:"smooth",block:"start"});}
   notify("Datos autorizados precargados. Confirmá y calculá la propuesta antes de aprobar.");
@@ -4783,7 +4801,8 @@ if(el.dataset.foodbulk){
   if(!state.selectedStudent||!state.consent?.accepted)throw new Error("Seleccioná un alumno que haya autorizado el seguimiento.");
   await loadStudentDetail(state.selectedStudent);
   await render();
-  document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});
+  selectCoachSection("coachStudentNutrition");
+ document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});
   notify("Informe actualizado con los consumos registrados.");
   return;
  }
@@ -5296,7 +5315,8 @@ root.addEventListener("change",e=>{invalidateCoachDraft(e);
  state.coachGuidedDraft=rebalanceGuidedDay(draft,targetGoal);
  showGuidedEditor();
  notify("Cantidad cambiada: recalculé automáticamente las porciones ajustables de las demás comidas.");return;
-}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEntrySlot"){
+}if(e.target.id==="coachReportDate"){state.reportDate=e.target.value;render();selectCoachSection("coachStudentNutrition");
+ document.getElementById("coachDailyReport")?.scrollIntoView?.({behavior:"smooth",block:"start"});return;}if(e.target.dataset.coachfood)updateCoachFoodCount();if(e.target.id==="sportItem")updateSportHint();if(e.target.id==="supplementItem")updateSupplementHint();if(e.target.id==="mealEntrySlot"){
   if(pendingMealRegistrations.has(state.activeMeal))return;
   const foodId=document.getElementById("mealEditorFood")?.value,quantity=document.getElementById("mealEditorQty")?.value,mode=document.getElementById("mealEntryMode")?.value;
   openMealDialog(e.target.value);

@@ -91,7 +91,7 @@ export async function runPersistedCoachBrowser({users,orgs,official,request,rpc,
     s.coachProgressLogs=[];s.progressLogs=[];s.weights=[];s.activities=[];s.invitations=[];s.testInvitations=[];s.payments=[];
     s.welcomePending=false;s.tab='coachStudents';await v.render();
    },{token,key:env.ANON_KEY||env.PUBLISHABLE_KEY,coach:{id:coach.id,email:coach.email},student:{id:student.id},org,goal:yes(await rpc('efg_read_bound_guide',token,{p_student:student.id}),'load UI goal').goal});
-   await page.locator('#coachStudentGoals > summary').click();
+   await page.locator('[data-coachsection="coachStudentGoals"]').click();
    await page.locator('[data-act="openCoachAdaptedPreview"]').click();
    await page.locator('[data-persisted-revision]').waitFor();
   };

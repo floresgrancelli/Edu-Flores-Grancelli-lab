@@ -571,3 +571,12 @@ html.ncc-lime-theme #app .efg-guide-description{background:#1d271e!important;col
 /* Actual diary counts, readable without opening every schedule. */
 html.ncc-lime-theme #app .ncc-day-meal-tabs .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 html.ncc-lime-theme #app .ncc-day-meal-tabs .btn small{font-size:11px;font-weight:400;line-height:1.25;color:#b6c0ac!important}
+
+html.ncc-lime-theme #app .ncc-food-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+html.ncc-lime-theme #app .ncc-food-actions .btn{min-height:44px;padding:8px 10px}
+html.ncc-lime-theme #app .ncc-meal-more{margin-top:14px}
+html.ncc-lime-theme #app .ncc-meal-more>summary{min-height:44px;padding:12px 0;cursor:pointer;color:#b6c0ac!important}
+html.ncc-lime-theme #app .ncc-food-edit{max-width:460px}
+html.ncc-lime-theme #app .ncc-food-edit .ncc-meal-save{display:flex;gap:12px;flex-wrap:wrap}
+html.ncc-lime-theme #app .ncc-food-edit .ncc-meal-save .btn{flex:1;min-height:48px}
+html.ncc-lime-theme #app #diaryFoodError{color:#ffb7b2!important}

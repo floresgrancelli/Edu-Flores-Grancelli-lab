@@ -1,3 +1,4 @@
+import {resizeDiaryFood} from '../pilot/diary-food-edit.js';
 // Student UX regression: execute REAL handlers from pilot.js against isolated
 // session/REST fixtures. No hosted credentials, production data or device UAT.
 import assert from 'node:assert/strict';
@@ -78,23 +79,33 @@ for(const fails of [false,true]){
  assert.deepEqual(alerts,[],'A favorite must not notify B');
 }
 
-const removeBody=slice('if(el.dataset.removefood){','if(el.dataset.removesupp!==undefined){');
+const foodSaveBody=slice('async function saveDiaryFoodDialog(button){','function closeMealDialog(){');
 const clearBody=slice('if(el.dataset.clearm){','if(el.dataset.removesport!==undefined)');
-for(const [kind,code,el] of [
- ['remove',removeBody,{dataset:{removefood:'cena:0'}}],
- ['clear',clearBody,{dataset:{clearm:'cena'}}]
-]){
+for(const kind of ['remove','edit','clear']){
  for(const fails of [false,true]){
   const a=initialDiary(),b=nextDiary(),state={session:{user:{id:'A'}},diary:a};
   const beforeA=structuredClone(a),beforeB=structuredClone(b),alerts=[],hold=deferred(),locks=new Set();
-  const handler=new Function('el','pendingMealRegistrations','activeDiary','saveDiary',
-    'state','mealSlots','notify','today',
-    'return async()=>{'+code+'};')(
-    el,locks,()=>a,()=>hold.promise,state,[['cena','Cena']],m=>alerts.push(m),today);
-  const task=handler();switchAccount(state,b);
-  if(fails){hold.reject(new Error('offline'));await assert.rejects(task,/offline/);
+  let task;
+  if(kind==='clear'){
+   const handler=new Function('el','pendingMealRegistrations','activeDiary','saveDiary',
+    'state','mealSlots','notify','today','confirm',
+    'return async()=>{'+clearBody+'};')(
+    {dataset:{clearm:'cena'}},locks,()=>a,()=>hold.promise,state,[['cena','Cena']],m=>alerts.push(m),today,()=>true);
+   task=handler();
+  }else{
+   const errorBox={textContent:''},input={value:'150'},dialog={querySelector:s=>s==='input'?input:errorBox,querySelectorAll:()=>[],isConnected:true};
+   const edit={slot:'cena',index:0,remove:kind==='remove',owner:'A',day,epoch:0,view:'home',snapshot:JSON.stringify(a.meals.cena[0])};
+   const dialogs=new WeakMap([[dialog,edit]]);
+   const handler=new Function('diaryFoodDialogs','pendingMealRegistrations','state','activeDiary','today','activeViewKey','resizeDiaryFood','saveDiary','selectDayMeal','document','notify',
+    foodSaveBody+';return saveDiaryFoodDialog;')(
+    dialogs,locks,state,()=>a,today,()=> 'home',resizeDiaryFood,()=>hold.promise,()=>{throw Error('Must not navigate B');},
+    {querySelector:()=>{throw Error('Must not focus B');}},m=>alerts.push(m));
+   task=handler({closest:()=>dialog});
+  }
+  switchAccount(state,b);
+  if(fails){hold.reject(new Error('offline'));if(kind==='clear')await assert.rejects(task,/offline/);else await task;
    assert.deepEqual(a,beforeA,kind+' rejected write must restore old diary only');
-  }else{hold.resolve();await task;assert.deepEqual(a.meals.cena,[],kind+' confirmed write clears A');}
+  }else{hold.resolve();await task;if(kind==='edit')assert.equal(a.meals.cena[0].qty,150);else assert.deepEqual(a.meals.cena,[],kind+' confirmed write clears A');}
   assert.deepEqual(b,beforeB,kind+' response must preserve all B data');
   assert.strictEqual(state.diary,b,kind+' late callback may not restore old A diary');
   assert.deepEqual(alerts,[],kind+' late callback may not toast B');

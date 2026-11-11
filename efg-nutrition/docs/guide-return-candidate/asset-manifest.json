@@ -470,11 +470,6 @@
       "url": "./section-backgrounds.css?v=ncc-focus-photos-r1-20261111"
     },
     {
-      "path": "efg-nutrition/pilot/focus-reference-layout-r1.css",
-      "sha256": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
-      "url": "./focus-reference-layout-r1.css?v=ncc-food-family-photos-r1-20261111"
-    },
-    {
       "path": "efg-nutrition/pilot/meal-entry-context-r2.css",
       "sha256": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
       "url": "./meal-entry-context-r2.css?v=ncc-meal-context-r2-20261111"

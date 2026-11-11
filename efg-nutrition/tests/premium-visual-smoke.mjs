@@ -431,8 +431,11 @@ try{
      }
    }
    if(role==="coach"){
+     const groupedWeek=dest==="home"&&await page.locator('#nccDayWeekly').count();
+     if(groupedWeek){await page.locator('#nccDayTools > summary').click();await page.locator('#nccDayWeekly > summary').click();assert.equal(await page.locator('.efg-weekly-streak').isVisible(),true);}
      const content=await page.locator(".pilot-main").innerText();
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
+     if(groupedWeek){await page.locator('#nccDayWeekly > summary').click();await page.locator('#nccDayTools > summary').click();}
      if(dest==="studentMore"&&(!content.toLocaleUpperCase("es-AR").includes("MI PLANIFICADOR")||!content.toLocaleUpperCase("es-AR").includes("MIS SUPLEMENTOS")))pageReport.errors.push("Coach MI ESPACIO incomplete: "+content.slice(0,320));
      if(dest==="payments"&&(!content.toLocaleUpperCase("es-AR").includes("COBRAR A MIS ALUMNOS")||!content.toLocaleUpperCase("es-AR").includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing: "+content.slice(0,470));
    }
@@ -755,10 +758,13 @@ try{
      if(!b.src.includes("serotonina-acuarela.avif"))pageReport.errors.push("Wrong serotonin logo asset");
    }
    if(role==="student"&&dest==="home"){
+     const groupedWeek=await page.locator('#nccDayWeekly').count();
+     if(groupedWeek){await page.locator('#nccDayTools > summary').click();await page.locator('#nccDayWeekly > summary').click();assert.equal(await page.locator('.efg-weekly-streak').isVisible(),true);}
      const bars=page.locator(".efg-weekly-streak .efg-streak-track");
      if(await bars.count()!==1)pageReport.errors.push("Need exactly one ±5% weekly bar");
      if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==6)pageReport.errors.push("One ±5% track must show Monday-Saturday only");
      if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
+     if(groupedWeek){await page.locator('#nccDayWeekly > summary').click();await page.locator('#nccDayTools > summary').click();}
      if(width===390&&engine==="chromium"){
        await page.locator('[data-daymeal="desayuno"]').click();
        const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
@@ -1201,7 +1207,16 @@ try{
       pageReport.errors.push("Each meal needs its own Add food button");
     const macroPositions=await page.locator(".ncc-focus-summary > .ncc-focus-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
     if(macroPositions.length!==3)pageReport.errors.push("Compact summary must show all 3 macros");
-    if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
+    if(await page.locator('#nccDayTools').count()){
+      // Approved one-line summary: verify the label, meter and value geometry,
+      // replacing the old stacked-row height assumption without dropping legibility checks.
+      const rows=await page.locator('.ncc-focus-summary > .ncc-focus-macro').evaluateAll(es=>es.map(e=>{
+        const label=e.querySelector('strong'),value=e.querySelector('div:first-child > span'),meter=e.querySelector('.ncc-focus-meter');
+        return {label:label.getBoundingClientRect().toJSON(),value:value.getBoundingClientRect().toJSON(),meter:meter.getBoundingClientRect().toJSON(),font:parseFloat(getComputedStyle(label).fontSize)};
+      }));
+      assert.equal(rows.length,3);
+      for(const r of rows){assert.ok(r.font>=13&&r.label.height>=16&&r.value.height>=16,'Readable macro labels');assert.ok(r.meter.width>=60&&r.meter.height>=8,'Visible macro progress');assert.ok(r.label.right<=r.meter.left&&r.meter.right<=r.value.left,'Macro label, bar and value must not overlap');}
+    }else if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     // The approved student dashboard adds a prominent register CTA while
     // preserving the original meals shortcut. Verify every matching access.

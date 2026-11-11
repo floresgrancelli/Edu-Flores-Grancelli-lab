@@ -2380,7 +2380,7 @@ function progressView(){
  const last=weights[0];
  const daysSinceLast=last?Math.round((Date.parse(today()+"T12:00:00Z")-Date.parse(last.measured_on+"T12:00:00Z"))/86400000):null;
  const note=last?'<p class="pilot-hint">Último control: '+escapeHTML(weightDateLabel(last))+' · '+num(last.kg,1)+' kg. '+(daysSinceLast<7?'Para una comparación semanal, podés hacer el siguiente control en '+Math.max(1,7-daysSinceLast)+' día(s).':'Podés registrar tu próximo control semanal.')+'</p>':'<p class="pilot-hint">Comenzá registrando tu primer pesaje con fecha y hora.</p>';
- return rootText("Mi progreso","Seguimiento del peso corporal, actividad y evolución semanal.")+
+ const weightPanel=
  '<div class="pilot-two"><div class="pilot-stack"><div class="card"><h2>Peso corporal semanal</h2>'+
  '<div class="warning" style="margin-top:15px">⚖️ Sugerimos un pesaje por semana, idealmente el mismo día y a la misma hora, después de ir al baño, antes del desayuno, con la misma balanza y ropa similar. Podés registrar controles adicionales si hace falta.</div>'+note+
  '<div class="pilot-form"><div class="field-row"><div class="field"><label for="weightDay">Fecha del pesaje</label><input id="weightDay" type="date" value="'+today()+'" max="'+today()+'" required></div>'+
@@ -2390,8 +2390,15 @@ function progressView(){
  '<div class="card"><h2>Historial de pesajes</h2>'+(weights.length?'<div class="pilot-table-wrap"><table class="pilot-table"><thead><tr><th>Fecha y hora</th><th>Peso</th></tr></thead><tbody>'+
  weights.map(w=>'<tr><td>'+escapeHTML(weightDateLabel(w))+'</td><td><b>'+num(w.kg,1)+' kg</b></td></tr>').join("")+'</tbody></table></div>':'<div class="empty">Todavía no registraste tu peso.</div>')+'</div></div>'+
  '<div class="pilot-stack"><div class="card"><h2>Mi evolución del peso</h2>'+weightTrendChart(state.weights)+'</div>'+
- movementCard()+
- '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div></div></div>'+nutritionProgressPanel();
+ '</div></div>';
+ const activityPanel=movementCard()+
+ '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div>';
+ const owner=state.session?.user?.id||'';
+ const selected=state.progressSection?.owner===owner?state.progressSection.section:'summary';
+ const sections=[['summary','Resumen',nutritionProgressPanel()],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
+ return rootText('Mi progreso','Elegí qué querés consultar o registrar.')+
+ '<nav class="ncc-progress-tabs" aria-label="Secciones de Avance">'+sections.map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
+ sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+html+'</section>').join('');
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
@@ -2433,12 +2440,16 @@ function coachHomeView(){
  const roster=(state.roster||[]).filter(p=>p.active);
  const pending=(state.profile.role==="admin"&&test?state.testInvitations:state.invitations||[]).filter(i=>i.role==="student"&&!i.claimed_by&&!i.revoked_at);
  const needsConsent=roster.filter(p=>coachRosterConsent[p.user_id]!==true);
+ const awaitingPlan=state.coachIntakeVerified?roster.filter(p=>coachRosterConsent[p.user_id]===true&&state.coachIntakeForms?.[p.user_id]?.shared_at&&!state.coachIntakeGoals?.[p.user_id]&&state.coachIntakeAccess?.[p.user_id]?.status!=='published'):[];
+ const nextStudent=awaitingPlan[0];
+ const nextAction=nextStudent?'Revisar ficha de '+coachDisplayName(nextStudent):'Revisar nuevos ingresos';
+ const nextDetail=nextStudent?awaitingPlan.length+' ficha(s) recibida(s) para preparar objetivos y guía.':pending.length?pending.length+' invitación(es) esperando el ingreso del alumno.':'Abrí ingresos para consultar el estado actualizado de las fichas.';
  const testOrgSeats=Number(state.org?.seat_limit)||0;
  const availableSeats=Math.max(0,testOrgSeats-roster.length-pending.length);
  return rootText(test?"MI LABORATORIO DE COACH":"HOLA, "+escapeHTML(state.profile.nickname),"Ingresos nuevos, planes por preparar y seguimiento: cada cosa en su lugar.")+
- '<section class="efg-coach-banner"><div><span class="eyebrow">NUTRICIÓN CON-CIENCIA · ESPACIO DEL ENTRENADOR</span><h2>El progreso empieza con el seguimiento.</h2><p>Tu panel de trabajo, sin formularios interminables.</p></div><span aria-hidden="true" class="efg-coach-banner-icon">✦</span></section>'+
  '<div class="efg-coach-stat-grid"><div><strong>'+roster.length+'</strong><span>Alumnos activos</span></div><div><strong>'+needsConsent.length+'</strong><span>Sin autorización</span></div><div><strong>'+pending.length+'</strong><span>Invitaciones</span></div></div>'+
  '<p class="efg-seats-caption">'+availableSeats+' de '+testOrgSeats+' cupos disponibles · Incluye invitaciones pendientes</p>'+
+ '<section class="ncc-coach-next"><span class="eyebrow">PRÓXIMA ACCIÓN</span><h2>'+escapeHTML(nextAction)+'</h2><p>'+escapeHTML(nextDetail)+'</p><button type="button" class="btn" '+(nextStudent?'data-student="'+escapeHTML(nextStudent.user_id)+'"':'data-tab="coachIntake"')+'>'+(nextStudent?'Abrir ficha y plan':'Abrir ingresos')+'</button></section>'+
  '<section class="efg-menu-grid efg-coach-tiles">'+[
   ["coachIntake","📋","Nuevos ingresos","peach"],["coachStudents","👥","Mis alumnos","mint"],["reports","📈","Informes","blue"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajes","mint"],["coachStudents","🎯","Objetivos","peach"],["coachTools","🧮","Herramientas","lilac"]
  ].map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow">↗</span></button>').join("")+'</section>'+
@@ -2897,6 +2908,10 @@ function guideQuantityLabel(food){
 }
 function guidedDayContents(plan,goal,editable=false){
  const flexible=plan.kind==="flexible_meal_guide";
+ const viewKey=[state.session?.user?.id||'',state.selectedStudent||'',editable?'edit':'view',goal?.id||''].join('|');
+ const selection=state.guideSections?.[viewKey]||{};
+ const selected=plan.meals.some(m=>m.slot===selection.slot)?selection.slot:plan.meals[0]?.slot;
+ const all=selection.all===true;
  const totals=guideTotals(plan),deviations=guideDeviation(plan,goal);
  const mealCards=plan.meals.map(meal=>{
   const mt=totals.perMeal.find(r=>r.slot===meal.slot)?.totals;
@@ -2926,7 +2941,7 @@ function guidedDayContents(plan,goal,editable=false){
      '</section>').join('')+
     '<p class="efg-guide-education-foot">Las grasas se calculan a partir de todos los alimentos y de los aceites que figuren en la guía. Un plato preparado se cuenta una sola vez.</p></div>':
    meal.items.map(foodRow).join("");
-  return '<article class="efg-guide-meal ncc-guide-meal" data-guidecard="'+escapeHTML(meal.slot)+'"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
+  return '<article class="efg-guide-meal ncc-guide-meal" data-guidecard="'+escapeHTML(meal.slot)+'" '+(!all&&selected!==meal.slot?'hidden':'')+'><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
    (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
    guideIngredientPhoto(meal)+'<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
@@ -2945,13 +2960,13 @@ function guidedDayContents(plan,goal,editable=false){
    '<small class="ncc-guide-nutrients" data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small>'+
    (!editable&&state.profile?.role==='student'&&mealSlots.some(([slot])=>slot===meal.slot)?'<button type="button" class="btn ncc-guide-register" data-setmeal="'+escapeHTML(meal.slot)+'">Registrar lo que comí</button><small class="ncc-guide-register-hint">Elegís y confirmás lo que comiste.</small>':'')+'</article>';
  }).join("");
- return '<div class="ncc-guide-status"><b>'+(editable?'Prepará tu Dieta Guía':'Tu Dieta Guía')+'</b><span>'+(editable?'Borrador · revisá antes de enviar':'Plan sugerido · no registrado')+'</span></div>'+ (validGuideWindow(plan.windowId)?'<p class="pilot-hint">Organización horaria: '+guideWindowLabel(plan.windowId)+' · '+plan.meals.length+' comidas en esta guía.</p>':'')+'<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
+ return '<section class="ncc-guide-view" data-guideview="'+escapeHTML(viewKey)+'"><div class="ncc-guide-status"><b>'+(editable?'Prepará tu Dieta Guía':'Tu Dieta Guía')+'</b><span>'+(editable?'Borrador · revisá antes de enviar':'Plan sugerido · no registrado')+'</span></div>'+ (validGuideWindow(plan.windowId)?'<p class="pilot-hint">Organización horaria: '+guideWindowLabel(plan.windowId)+' · '+plan.meals.length+' comidas en esta guía.</p>':'')+'<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
  '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations,plan))+'</p></div>'+
  (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
- '<nav class="ncc-guide-jumps" aria-label="Horarios de la guía">'+plan.meals.map(m=>'<button type="button" class="btn small light" data-guidejump="'+escapeHTML(m.slot)+'">'+escapeHTML(m.label)+'</button>').join('')+'</nav><div class="efg-guide-grid">'+mealCards+'</div>'+
+ '<button type="button" class="btn small light ncc-guide-all" data-guideall="1" aria-expanded="'+all+'">'+(all?'Ver un horario':'Ver todos los horarios')+'</button><nav class="ncc-guide-jumps" aria-label="Horarios de la guía">'+plan.meals.map(m=>'<button type="button" class="btn small light" data-guidejump="'+escapeHTML(m.slot)+'" aria-pressed="'+(!all&&selected===m.slot)+'">'+escapeHTML(m.label)+'</button>').join('')+'</nav><div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
- '<p class="pilot-hint">Referencia educativa, no ingesta registrada. Las porciones y macros dependen de la marca, cocción y datos del catálogo. Considerá alergias, hábitos y contexto clínico.</p>';
+ '<p class="pilot-hint">Referencia educativa, no ingesta registrada. Las porciones y macros dependen de la marca, cocción y datos del catálogo. Considerá alergias, hábitos y contexto clínico.</p></section>';
 }
 function coachAtomicDraftPanel(){
  if(!COACH_ATOMIC_PLAN_UI_ENABLED)return "";
@@ -4431,6 +4446,13 @@ async function mainClick(event){
  else window.prompt("Copiá el alias:",alias);
  return;
 }
+ if(el.dataset.progresssection){
+  const section=el.dataset.progresssection;if(!['summary','weight','activity'].includes(section))return;
+  state.progressSection={owner:state.session?.user?.id||'',section};
+  for(const panel of root.querySelectorAll('[data-progresspanel]'))panel.hidden=panel.dataset.progresspanel!==section;
+  for(const button of root.querySelectorAll('[data-progresssection]'))button.setAttribute('aria-pressed',String(button.dataset.progresssection===section));
+  return;
+ }
  if(el.dataset.progressHighlights){
   const id=state.session?.user?.id;if(!id)return;
   const show=el.dataset.progressHighlights==='show';state.progressHighlightsPreference={id,show};
@@ -4451,11 +4473,21 @@ async function mainClick(event){
   for(const tab of document.querySelectorAll('[data-daymeal]'))tab.setAttribute('aria-pressed',String(tab.dataset.daymeal===slot));
   return;
  }
- if(el.dataset.guidejump){
-  const cards=el.closest('.ncc-guide-jumps')?.nextElementSibling;
-  const target=[...(cards?.querySelectorAll('[data-guidecard]')||[])].find(card=>card.dataset.guidecard===el.dataset.guidejump);
-  if(target){target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({behavior:'instant',block:'start'});}return;
+ if(el.dataset.guidejump||el.dataset.guideall){
+  const view=el.closest('[data-guideview]');if(!view)return;
+  const cards=[...view.querySelectorAll('[data-guidecard]')],prior=state.guideSections?.[view.dataset.guideview]||{};
+  const requested=el.dataset.guidejump||prior.slot;
+  const slot=cards.some(card=>card.dataset.guidecard===requested)?requested:cards[0]?.dataset.guidecard;
+  if(!cards.some(card=>card.dataset.guidecard===slot))return;
+  const all=!!el.dataset.guideall&&view.querySelector('[data-guideall]')?.getAttribute('aria-expanded')!=='true';
+  state.guideSections={...(state.guideSections||{}),[view.dataset.guideview]:{slot,all}};
+  for(const card of cards)card.hidden=!all&&card.dataset.guidecard!==slot;
+  for(const button of view.querySelectorAll('[data-guidejump]'))button.setAttribute('aria-pressed',String(!all&&button.dataset.guidejump===slot));
+  const toggle=view.querySelector('[data-guideall]');toggle.setAttribute('aria-expanded',String(all));toggle.textContent=all?'Ver un horario':'Ver todos los horarios';
+  if(el.dataset.guidejump){const target=cards.find(card=>card.dataset.guidecard===slot);target.setAttribute('tabindex','-1');target.focus({preventScroll:true});view.querySelector('.ncc-guide-jumps')?.scrollIntoView({block:'nearest',behavior:'instant'});}
+  return;
  }
+
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:el.classList.contains("ncc-day-primary")||window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}return;}
  if(el.dataset.tab){
   const nextTab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;

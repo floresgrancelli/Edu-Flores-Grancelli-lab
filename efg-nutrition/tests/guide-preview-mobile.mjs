@@ -48,9 +48,14 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.ok((await firstPhoto.innerText()).includes('No indica la porción'));
  // Restore the loaded fixture so later screenshots exercise the normal image path.
  await firstPhoto.evaluate(el=>{el.querySelector('img').hidden=false;el.querySelector('.ncc-guide-photo-fallback').hidden=true;});
+ assert.equal(await page.locator('[data-guidecard]:visible').count(),1);
+ const beforeTabs=await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft));
  assert.equal(await page.locator('.ncc-guide-jumps button').count(),6);
  await page.locator('.ncc-guide-jumps button').last().click();
  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.guidecard),'cena');
+ assert.equal(await page.locator('[data-guidecard]:visible').count(),1);
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),beforeTabs,'Changing guide hours never writes food or modifies a plan');
+ await page.locator('[data-guideall]').click();assert.equal(await page.locator('[data-guidecard]:visible').count(),6);
  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  const touchEvidence={};
  const mobileTouch=engine==='chromium'&&width<720;
@@ -114,6 +119,10 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.ok(eggKey);await page.locator(`[data-guideqty="${eggKey}"]`).fill('2');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},eggKey),100,'2 catalog eggs = 100g');
  await page.locator(`[data-guideqty="${eggKey}"]`).blur();
+ await page.locator('[data-guidejump="cena"]').click();
+ await page.locator(`[data-guidejump="${eggKey.split(':')[0]}"]`).click();
+ assert.equal(await page.locator(`[data-guideqty="${eggKey}"]`).inputValue(),'2');
+ await page.locator('[data-guideall]').click();
  const breadKey=await page.evaluate(()=>{for(const m of window.__GUIDE_QA__.state.coachGuidedDraft.meals){const i=m.items.findIndex(f=>f.id==='bread');if(i>=0)return m.slot+':'+i;}});
  assert.ok(breadKey);await page.locator(`[data-guideqty="${breadKey}"]`).fill('1');
  assert.equal(await page.evaluate(key=>{const [slot,i]=key.split(':');return window.__GUIDE_QA__.state.coachGuidedDraft.meals.find(m=>m.slot===slot).items[i].qty},breadKey),30,'1 catalog slice = 30g');
@@ -126,6 +135,9 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(previewInk,'rgb(33, 51, 30)','Preview heading must remain readable on cream');
  assert.equal(await page.locator('#coachGuidePreview [data-act="closeCoachGuidePreview"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(227, 235, 210)','Back to editing uses the readable light secondary surface');
  assert.equal(await page.locator('#coachGuidePreview [data-guideqty]').count(),0);
+ assert.equal(await page.locator('#coachGuidePreview [data-guidecard]:visible').count(),1);
+ await page.locator('#coachGuidePreview [data-guideall]').click();
+ assert.equal(await page.locator('#coachGuidePreview [data-guidecard]:visible').count(),6);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/2 × huevo mediano/);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/Nota ficticia de prueba/);
  await page.screenshot({path:resolve(out,`preview-${engine}-${role}-${width}.png`)});

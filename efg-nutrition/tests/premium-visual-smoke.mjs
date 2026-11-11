@@ -1,3 +1,4 @@
+import {assertCompactProgress,assertCompactCoach} from './compact-navigation-browser.mjs';
 import {assertProgressPolish} from './progress-polish-browser.mjs';
 import {runCoachGuideContainer} from './coach-guide-container-regression.mjs';
 import {runOfficialCoachFlow} from './coach-official-flow-private.mjs';
@@ -253,6 +254,8 @@ try{
    });
    await page.locator('[data-coachsection="coachStudentGoals"]').click();
    const editor=page.locator('#coachGuidedSlot');
+   assert.equal(await editor.locator('[data-guidecard]:visible').count(),1);
+   await editor.locator('[data-guideall]').click();
    assert.equal(await editor.locator('.efg-guide-meal').count(),6,
     'Coach must initially see six guide cards in actual PWA');
    const catalogSize=await page.evaluate(()=>window.__EFG_VISUAL_QA__.foods.length);
@@ -264,10 +267,15 @@ try{
    await editor.locator('[data-guideaddfood="almuerzo"]').click();
    await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft
     ?.meals.find(m=>m.slot==='almuerzo')?.items[0]?.id==='tofu_firm');
+   await editor.locator('[data-guidejump="media_tarde"]').click();
    await editor.locator('[data-guideremovemeal="media_tarde"]').click();
    await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft?.meals.length===5);
+   assert.equal(await editor.locator('[data-guidecard]:visible').count(),1);
+   await editor.locator('[data-guidejump="media_manana"]').click();
    await editor.locator('[data-guideremovemeal="media_manana"]').click();
    await page.waitForFunction(()=>window.__EFG_VISUAL_QA__.state.coachGuidedDraft?.meals.length===4);
+   await editor.locator('[data-guideall]').click();
+   assert.equal(await editor.locator('[data-guidecard]:visible').count(),4);
    const checked=await page.evaluate(()=>({
     kind:window.__EFG_VISUAL_QA__.state.coachGuidedDraft.kind,
     guideSlots:window.__EFG_VISUAL_QA__.state.coachGuidedDraft.meals.map(m=>m.slot),
@@ -635,13 +643,13 @@ try{
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
-     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard,.ncc-progress-highlights,.efg-seats-grid')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard,.ncc-progress-highlights,.efg-seats-grid,.ncc-coach-next')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
      .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
      .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
     // Approved light diary, progress and seat cards: require readable contrast instead of banning their surfaces.
-    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard,.ncc-progress-highlights,.efg-seats-grid').evaluateAll(cards=>{
+    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard,.ncc-progress-highlights,.efg-seats-grid,.ncc-coach-next').evaluateAll(cards=>{
      const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
      const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
      return cards.flatMap(card=>[card,...card.querySelectorAll('strong,small,span,p,time')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).flatMap(e=>{
@@ -1146,6 +1154,8 @@ try{
      if((await page.locator(".efg-payment-inbox .efg-payment-item").count())!==1)pageReport.errors.push("Coach receipts inbox should contain one org-scoped receipt");
      if(role==="admin"&&!(await page.getByText("COBRAR LICENCIAS DE COACHES",{exact:true}).count()))pageReport.errors.push("Admin license billing view is missing");
    }
+   if(dest==='weight'&&[390,1280].includes(width))await assertCompactProgress(page,join(outDir,captureEngine+'-'+role+'-'+width+'-compact-progress.png'));
+   if(dest==='coach'&&width===390)await assertCompactCoach(page);
    if(role==="student"&&dest==="weight"){
      if(width===390)await assertProgressPolish(page,join(outDir,captureEngine+"-progress-polish.png"));
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){

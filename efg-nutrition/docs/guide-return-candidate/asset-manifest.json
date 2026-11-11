@@ -152,8 +152,7 @@
     "efg-nutrition/pilot/weekly-report-delivery.js": "ncc-weekly-preview-r11-20261106",
     "efg-nutrition/pilot/weekly-report-pdf-v1.js": "ncc-weekly-preview-r11-20261106",
     "efg-nutrition/pilot/weekly-report-pdf-v2.js": "ncc-report-share-return-r12-20261106",
-    "efg-nutrition/pilot/weekly-report-pdf.js": "ncc-report-share-return-r12-20261106",
-    "efg-nutrition/pilot/unified-theme.css": "ncc-day-meal-context-r1-20261111"
+    "efg-nutrition/pilot/weekly-report-pdf.js": "ncc-report-share-return-r12-20261106"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "1bfbcbb53246a00904046a69a71169403956fdf5dd0353f99accf4a9c641a766",
@@ -455,8 +454,8 @@
     },
     {
       "path": "efg-nutrition/pilot/unified-theme.css",
-      "sha256": "f43047ab692867ee7d114929707cff5dfb9760a39e06bb53115b90a2e42b0065",
-      "url": "./unified-theme.css?v=ncc-focus-photos-r1-20261111"
+      "sha256": "e0c3f64c4bef86c4a12c2a70bad0267b8c64c8c7f87034f8762201f51ef975cc",
+      "url": "./unified-theme.css?v=ncc-day-meal-context-r1-20261111"
     },
     {
       "path": "efg-nutrition/pilot/section-backgrounds.css",

@@ -34,6 +34,7 @@ try{
    await page.evaluate(()=>window.__NCC_R4_FULLAPP__.render());
    assert.notEqual(await page.locator('#nccStudentDayGuide').getAttribute('open'),null,'Explicitly opened guide survives rerender');
    await page.locator('#nccStudentDayGuide > summary').click();
+   assert.equal(await page.locator('[data-daymealpanel]:visible [data-setmeal]').isVisible(),true,'Selected schedule is immediately actionable after refresh');
    await page.screenshot({path:resolve(out,engine+'-'+width+'-luminous-day.png'),fullPage:true});
    assert.equal(await page.locator('.ncc-register-dock,[data-act="registerDayFood"]').count(),0,'No duplicate large registration buttons');
    const diaryBeforeTabs=await page.evaluate(()=>sessionStorage.getItem('ncc-student-day-synthetic-record'));

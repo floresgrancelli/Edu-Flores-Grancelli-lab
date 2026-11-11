@@ -625,3 +625,7 @@ html.ncc-lime-theme #app .ncc-food-thumb:empty{display:none}
 html.ncc-lime-theme #app .ncc-food-thumb .ncc-guide-photo{margin:0!important;padding:0!important;border:0!important;width:52px!important}
 html.ncc-lime-theme #app .ncc-food-thumb img{width:52px!important;height:52px!important;object-fit:cover;border-radius:10px}
 html.ncc-lime-theme #app .ncc-food-thumb :is(figcaption,.ncc-guide-photo-fallback){display:none!important}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-meal-panel>.student-meal-heading{display:flex;justify-content:space-between;align-items:center;background:#192210!important;cursor:default}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between h2{margin:0;min-width:0}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between button{flex:0 0 auto}

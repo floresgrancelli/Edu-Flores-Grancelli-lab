@@ -636,12 +636,12 @@ try{
      return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
       nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview,#planSuggestionCard'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
-    if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
-    if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(20, 24, 25)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
+    if(colors.canvas!=='rgb(9, 13, 10)'||colors.body!=='rgb(9, 13, 10)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
+    if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(14, 21, 15)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(canvas!=="rgb(16, 18, 20)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
+    if(canvas!=="rgb(9, 13, 10)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
@@ -1227,7 +1227,7 @@ try{
     if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
     const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(welcomeStyle!=="rgb(27, 31, 35)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
+    if(welcomeStyle!=="rgb(20, 27, 21)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
     await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();

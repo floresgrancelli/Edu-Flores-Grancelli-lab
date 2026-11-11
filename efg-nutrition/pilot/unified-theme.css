@@ -489,3 +489,22 @@ html.ncc-lime-theme #pilot-toast>button{pointer-events:auto;flex:none;min-width:
 @media(prefers-reduced-motion:reduce){html.ncc-lime-theme #pilot-toast{animation:none!important}}
 
 @media(max-width:720px){html.ncc-lime-theme #pilot-toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}}
+/* One task at a time, with mounted controls and the full-day overview available. */
+[data-progresspanel][hidden],[data-guidecard][hidden]{display:none!important}
+.ncc-progress-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0;scroll-margin-top:100px}
+html.ncc-lime-theme #app .ncc-progress-tabs button{background:#e4edce!important;color:#21331e!important;border:1px solid #87996e!important;border-radius:14px;min-height:46px;padding:10px 6px;font:inherit;font-weight:700;cursor:pointer;letter-spacing:0;text-transform:none}
+html.ncc-lime-theme #app .ncc-progress-tabs button[aria-pressed=true]{background:#d7ff3f!important;color:#171c0b!important}
+html.ncc-lime-theme #app .ncc-coach-next{background:#f7f5e9!important;--ncc-text:#21331e;color:#21331e!important;border:1px solid #b5c0a4;border-radius:20px;padding:16px;margin:12px 0 16px}
+html.ncc-lime-theme #app .ncc-coach-next :is(h2,p,span){color:#21331e!important}
+.ncc-coach-next h2{font-size:20px!important;margin:8px 0}.ncc-coach-next p{font-size:13px;line-height:1.5;margin:8px 0 12px}
+html.ncc-lime-theme #app .ncc-coach-next .btn{background:#d7ff3f!important;color:#171c0b!important;min-height:44px}
+html.ncc-lime-theme #app .efg-coach-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+html.ncc-lime-theme #app .efg-coach-tiles>.efg-menu-card{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;min-height:96px!important;padding:12px!important}
+html.ncc-lime-theme #app .efg-coach-tiles .efg-menu-emoji{width:32px;height:32px;min-width:32px;min-height:32px}
+html.ncc-lime-theme #app .efg-coach-tiles strong{font-size:12px!important;letter-spacing:0;line-height:1.3;word-break:normal;overflow-wrap:normal;text-align:left}
+.efg-coach-tiles .efg-menu-arrow{display:none}
+.ncc-guide-view .ncc-guide-jumps{scroll-margin-top:100px}
+html.ncc-lime-theme #app .ncc-guide-jumps button[aria-pressed=true]{background:#d7ff3f!important;color:#171c0b!important;border-color:#728b3a!important}
+.ncc-guide-view:has([data-guideall][aria-expanded=false])>.efg-guide-grid{grid-template-columns:minmax(0,1fr)!important}
+@media(max-width:720px){html.ncc-lime-theme #app .efg-coach-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ncc-guide-view .ncc-guide-jumps{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important}.ncc-guide-jumps button{padding:8px 6px!important;font-size:12px!important;min-width:0!important}}
+@media print{[data-guidecard][hidden]{display:block!important}.ncc-guide-all,.ncc-guide-jumps{display:none!important}}

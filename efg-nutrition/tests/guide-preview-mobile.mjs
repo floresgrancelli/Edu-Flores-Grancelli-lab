@@ -39,6 +39,12 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
   v.coachDraftClient.publish=async payload=>{window.trace.publishes++;window.trace.keys.push(payload.requestId);await new Promise(r=>setTimeout(r,60));throw Error('Guide foods are not independently reviewed and current');};
   v.frame(v.coachGuidedSection()+v.coachAtomicDraftPanel());
  },role);
+ const photoEvidence=await page.locator('.ncc-guide-photo img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),height:img.getBoundingClientRect().height})));
+ assert.ok(photoEvidence.length>0);for(const photo of photoEvidence){assert.ok(photo.height<=96);assert.ok(photo.src.startsWith('./assets/guide/'));}
+ assert.equal(await page.locator('.ncc-guide-jumps button').count(),6);
+ await page.locator('.ncc-guide-jumps button').last().click();
+ assert.equal(await page.evaluate(()=>document.activeElement?.dataset.guidecard),'cena');
+ await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  const touchEvidence={};
  const mobileTouch=engine==='chromium'&&width<720;
  const cdp=mobileTouch?await ctx.newCDPSession(page):null;

@@ -191,15 +191,11 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    const rows=await student.evaluate(id=>window.__SDK_ENTRY_QA__.readGuide(id),s.id);assert.equal(rows.length,1);assert.equal(rows[0].guided_plan.meals.length,5);
    const foreign=await student.evaluate(id=>window.__SDK_ENTRY_QA__.readGuide(id),users['student'+(side==='A'?'B':'A')].id);assert.deepEqual(foreign,[]);
    await student.locator('[data-tab="home"]:visible').first().click();
-   // The current student view labels its real nested approved guide instead
-   // of the old five-meal *example*; check the displayed panel itself.
+   // One disclosure opens the approved guide directly; opening never records food.
    await student.locator('.efg-pastel-guide > summary').click();
-   const displayedGuide=student.locator('.efg-pastel-guide .efg-guide-student > details');
-   assert.equal(await displayedGuide.locator('summary').innerText(),
-    'Ver las comidas de la Dieta Guía');
-   await displayedGuide.locator('summary').click();
-   assert.notEqual(await displayedGuide.getAttribute('open'),null,
-    'Published guide ingredients should expand in the current PWA');
+   const displayedGuide=student.locator('.efg-pastel-guide .efg-guide-student');
+   assert.equal(await displayedGuide.locator('.ncc-guide-meal').count(),5);
+   assert.equal(await displayedGuide.locator('.ncc-guide-meal').first().isVisible(),true);
    assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await student.screenshot({path:join(out,'sdk-student-published-'+width+'.png'),fullPage:true});
    // In the same REAL SDK browser session, republish through actual COACH119

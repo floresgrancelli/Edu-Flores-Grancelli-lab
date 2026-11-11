@@ -317,7 +317,7 @@
     "efg-nutrition/pilot/assets/food-families-r1.webp": "40172904605d6f80f7b164e6a018c0e49a2e552141ae1e70302fb95880b486e2",
     "efg-nutrition/pilot/assets/cream-cheese-r1.webp": "09641938994e733b10ca742e367e2e790ed8bdb56255b3d1fd1aff1d0b20c9e6",
     "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
-    "efg-nutrition/pilot/day-tools-r1.css": "3688f69be0ebfd5550ef7b77740e1c0a74d16f1e59eba8fef83b156872a36002"
+    "efg-nutrition/pilot/day-tools-r1.css": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1"
   },
   "stylesheets": [
     {
@@ -472,7 +472,7 @@
     },
     {
       "path": "efg-nutrition/pilot/day-tools-r1.css",
-      "sha256": "3688f69be0ebfd5550ef7b77740e1c0a74d16f1e59eba8fef83b156872a36002",
+      "sha256": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1",
       "url": "./day-tools-r1.css?v=ncc-day-tools-r1-20261111"
     }
   ],

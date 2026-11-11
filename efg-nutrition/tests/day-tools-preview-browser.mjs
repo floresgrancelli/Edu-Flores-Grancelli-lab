@@ -51,8 +51,10 @@ for(const width of [390,320]){
  assert.equal(await page.locator('#dayComment').count(),0);
  assert.equal(await page.locator('.efg-optional-panel').count(),0);
  await page.evaluate(()=>{document.querySelector('#nccDayTools').open=false;scrollTo(0,0)});
+ await page.addStyleTag({content:'[aria-label="Espacios de la cuenta · candidata"]{display:none!important}'});
  await page.screenshot({path:resolve(out,width+'-closed.png'),fullPage:true});
  await page.locator('#nccDayTools > summary').click();
+ await page.setViewportSize({width,height:1200});
  await page.screenshot({path:resolve(out,width+'-open.png'),fullPage:true});
  const sizes=await page.locator('#nccDayTools summary,#nccDayTools button').evaluateAll(es=>es.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height));
  assert.ok(sizes.every(h=>h>=44));

@@ -28,5 +28,5 @@ Referencia visual: approved-reference.png. Edu aprobó el concepto y exige compa
 ## Estado
 
 Rama nueva desde producción: work/ncc-day-tools-preview-20261111.
-Referencia y criterios preservados. Sin cambios publicados.
-El Chromium local falla antes de iniciar: process_singleton_posix.cc socket() Operation not permitted. No presentar un mockup generado como captura real ni declarar comparación de navegador completada. Próximo paso: implementar en esta rama y generar evidencia por navegador de CI, conservando los seis controles existentes.
+Implementación candidata PR93, sin publicar. Primer ensayo de navegador PASS en 390/320px; se ajustan diferencias visuales observadas antes de pedir aprobación.
+El Chromium local falla antes de iniciar: process_singleton_posix.cc socket() Operation not permitted. No presentar un mockup generado como captura real ni declarar comparación de navegador completada. Capturas reales obtenidas por CI; conservar los seis controles existentes.

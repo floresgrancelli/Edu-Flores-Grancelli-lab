@@ -179,7 +179,7 @@ try{
      assert.ok(sizes.header<=70&&sizes.nav<=80,role+' chrome must remain compact: '+JSON.stringify(sizes));
      assert.ok(sizes.rows.every(h=>h<=110)&&sizes.tabs.every(h=>h<=80),role+' food rows/tabs must match compact reference');
     }
-    await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:"instant"}));await page.waitForFunction(()=>window.scrollY===0);await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-day.png'),fullPage:false});
+    await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:"instant"}));await page.waitForFunction(()=>{window.scrollTo({top:0,left:0,behavior:"instant"});return window.scrollY===0;});await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-day.png'),fullPage:false});
     await open('almuerzo');await page.locator('[data-mealsource="recent"]').click();
     const choice=page.locator('#mealEntryShortcuts [data-mealsuggestion]').first();
     if(await choice.count()){await choice.click();await page.locator('#mealEditorQty').fill('180');await page.getByRole('button',{name:'Aumentar cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'181');await page.getByRole('button',{name:'Disminuir cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'180');}

@@ -237,3 +237,47 @@ html.ncc-lime-theme #app .ncc-meal-sources .btn[aria-pressed=true]{background:#d
 .ncc-meal-save button{min-height:48px}
 .ncc-lime-theme .ncc-meal-save button:disabled{opacity:.55}
 @media(max-width:600px){.ncc-lime-theme .meal-backdrop{padding:8px;align-items:center}.ncc-lime-theme .meal-popup{max-height:calc(100dvh - 16px);padding:16px;width:100%}.ncc-lime-theme .ncc-meal-save{bottom:-16px}.ncc-meal-sources .btn{font-size:12px;padding:9px 10px}.ncc-meal-shortcuts{max-height:180px}}
+
+/* Focus visual study: nutritional identity, luminous surfaces and clear hierarchy.
+   Presentation only: existing actions, diary data and nutrition calculations remain. */
+html.ncc-lime-theme #app .ncc-day-welcome{
+ padding:28px;border:1px solid #647d39;border-radius:24px;min-height:190px;
+ background:linear-gradient(90deg,#142014fa 10%,#142014e6 48%,#14201445),url('./welcome-bowl.jpg') right center/cover;
+ box-shadow:inset 0 1px #d7ff3f24!important;align-items:flex-end;
+}
+html.ncc-lime-theme #app .ncc-day-welcome h1{max-width:440px;text-wrap:balance}
+html.ncc-lime-theme #app .ncc-day-welcome :is(p,.ncc-day-date){color:#e7eddb!important}
+html.ncc-lime-theme #app .ncc-day-welcome .ncc-day-eyebrow{color:#d7ff3f!important}
+html.ncc-lime-theme #app .ncc-day-register-row{
+ background:linear-gradient(110deg,#d7ff3f,#bde949)!important;color:#17200c!important;
+ padding:20px 24px;border-radius:20px;gap:16px;box-shadow:0 8px 28px #bde94912;
+}
+html.ncc-lime-theme #app .ncc-day-register-row p{color:#263612!important;font-size:14px;font-weight:600;max-width:420px}
+html.ncc-lime-theme #app .ncc-day-register-row .btn.ncc-day-primary{
+ background:#19230e!important;color:#f2ffd1!important;border-color:#19230e!important;min-height:48px;
+}
+html.ncc-lime-theme #app .ncc-day-register-row .btn:focus-visible{outline-color:#19230e!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day{
+ background:radial-gradient(ellipse at top right,#60753655,transparent 65%),linear-gradient(135deg,#2b3822,#1b2626)!important;
+ border-color:#607746!important;box-shadow:inset 0 1px #eaffb51a!important;
+}
+html.ncc-lime-theme #app .ncc-day-guide-card{border-color:#607746!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card{border-radius:18px!important;border-color:#485841!important;background:#202b24!important;overflow:hidden}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card .student-meal-heading{padding:18px!important;min-height:64px;gap:12px}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open]{border-color:#b4d760!important;background:#263324!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading{background:#d7ff3f!important;color:#17200c!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading .pilot-pill{background:#bddb58!important;color:#17200c!important;border-color:#7e9a36!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading:focus-visible{outline-color:#17200c!important;outline-offset:-4px}
+html.ncc-lime-theme #app .student-meal-details{padding:16px!important}
+@media(max-width:600px){
+ html.ncc-lime-theme #app .ncc-day-welcome{padding:22px 18px;min-height:180px;flex-wrap:wrap;gap:10px;background-position:65% center}
+ html.ncc-lime-theme #app .ncc-day-date{text-align:left;display:flex;gap:8px;width:100%}
+ html.ncc-lime-theme #app .ncc-day-register-row{padding:18px;align-items:stretch}
+ html.ncc-lime-theme #app .ncc-day-register-row p{flex-basis:100%;font-size:13px}
+ html.ncc-lime-theme #app .ncc-day-register-row .btn{width:100%;justify-content:space-between;font-size:14px}
+}
+
+html.ncc-lime-theme #app .ncc-day-date{background:#142014e8;padding:7px 10px;border-radius:10px;align-self:flex-end}
+@media(max-width:600px){html.ncc-lime-theme #app .ncc-day-date{width:auto}}
+
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading strong{color:#17200c!important}

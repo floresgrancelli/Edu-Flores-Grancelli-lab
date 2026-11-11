@@ -28,6 +28,13 @@ try{
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(origin+'/efg-nutrition/pilot/');
    await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();
+   await page.locator('.ncc-day-register-row').waitFor();
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-luminous-day.png'),fullPage:true});
+   const heading=page.locator('.student-meal-heading').first();await heading.click();
+   await heading.scrollIntoViewIfNeeded();
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-open-meal.png')});
+   console.log('LIME_STYLES',await page.locator('.student-meal-heading').first().evaluate(e=>({background:getComputedStyle(e).backgroundColor,text:getComputedStyle(e.querySelector('strong')).color})));
+   await heading.click();
    const open=async(slot='desayuno')=>{const add=page.locator('[data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));

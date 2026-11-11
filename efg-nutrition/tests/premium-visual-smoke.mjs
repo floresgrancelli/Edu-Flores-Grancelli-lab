@@ -1091,6 +1091,7 @@ try{
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
+    await openMealControls(page,'groups');
     await page.locator('[data-act="saveSelectedMealContinue"]').click();
     const savedMixed=await page.evaluate(()=>{
       const meals=window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[];
@@ -1136,6 +1137,7 @@ try{
     if(await page.locator("#mealEntryMode").inputValue()!=="units")
      pageReport.errors.push("Approved sushi should default to counting pieces");
     await page.locator("#mealEditorQty").fill("3");
+    await openMealControls(page,'groups');
     await page.locator('[data-act="saveSelectedMealContinue"]').click();
     const savedSushi=await page.evaluate(()=>
      (window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[])

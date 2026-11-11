@@ -187,6 +187,24 @@ try{
     await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-entry.png')});
     await page.locator('[data-act="closeMeal"]').first().click();
    }
+   // Regression for the missing breakfast thumbnails reported by Edu.
+   await page.evaluate(async()=>{
+    const a=window.__NCC_R4_FULLAPP__;
+    const items=[['huevo_frito_fritolim','Huevo frito con Fritolín',100,'g'],['custom-coffee','Café con leche · 300 ml leche protein descremada',300,'ml'],['toast_whole','Tostadas integrales',12,'g'],['cheese','Port Salut Light',30,'g'],['quince','Dulce de membrillo',20,'g']];
+    a.state.diary.meals.desayuno=items.map(([id,name,qty,unit])=>({id,name,qty,unit,k:0,p:0,c:0,f:0,fi:0}));a.state.lastEditedMeal='desayuno';await a.render();await a.frame.ready();document.querySelector('[data-ncc-dual-slot]')?.setAttribute('hidden','');
+   });
+   const photos=page.locator('[data-daymealpanel="desayuno"] .ncc-food-thumb .ncc-family-photo');
+   assert.equal(await photos.count(),5,'Every reported breakfast entry gets a photo');
+   const atlas=await page.locator('.ncc-family-atlas').first().evaluate(e=>getComputedStyle(e).backgroundImage.slice(5,-2));
+   assert.ok(atlas.includes('food-families-r1.webp'));
+   await page.evaluate(async url=>{const image=new Image();image.src=url;await image.decode();if(image.naturalWidth<1000)throw Error('Atlas did not load');},atlas);
+   await page.locator('[data-daymealpanel="desayuno"]').scrollIntoViewIfNeeded();
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-family-breakfast.png')});
+   await open('desayuno');await page.locator('#mealFoodSearch').fill('queso');
+   const options=page.locator('#mealFoodSuggestions [role="option"]');assert.ok(await options.count()>0);
+   assert.equal(await options.locator('.ncc-family-photo').count(),await options.count(),'Every search result has a family photo');
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-family-search.png')});
+   await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    assert.deepEqual(errors,[]);results.push({engine,width,status:'PASS',scope:'synthetic transport, mobile viewport; no physical device or hosted auth'});await context.close();
   }}finally{await browser.close();}
  }

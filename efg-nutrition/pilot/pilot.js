@@ -839,6 +839,10 @@ function getHabitualList(slot){
 }
 function getHabitual(slot){return getHabitualList(slot)[0]?.items||null;}
 const habitualEntryKey=(item,index)=>String(item.id||"local-"+index);
+function habitualPreviewWithPhotos(habitual){
+ let index=0;
+ return habitualPreviewHTML(habitual,escapeHTML).replace(/<li>/g,()=>'<li><span class="ncc-habitual-photo" aria-hidden="true">'+foodFamilyPhoto(habitual.items[index++])+'</span>');
+}
 function habitualPickerHTML(slot){
  const list=getHabitualList(slot);
  if(!list.length)return '<p class="pilot-hint efg-no-habitual" aria-live="polite">Todavía no guardaste habituales en este horario. Registrá una comida y tocá «Guardar habitual» para verla acá todos los días.</p>';
@@ -851,7 +855,7 @@ function habitualPickerHTML(slot){
  return '<div class="efg-habitual-picker"><label for="habitualChoice_'+slot+'">Mis habituales de '+escapeHTML(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'</label>'+
  '<select id="habitualChoice_'+slot+'" data-habitualchoice="'+slot+'" aria-label="Elegir comida habitual de '+escapeHTML(slot)+'"><option value="" '+(!selected?'selected':'')+'>Elegí una de tus '+list.length+' comidas habituales</option>'+
  list.map((item,i)=>'<option value="'+escapeHTML(habitualEntryKey(item,i))+'" '+(i===choice?'selected':'')+'>'+escapeHTML(habitualShortLabel(item)+(item.pendingLocal?' · pendiente de sincronizar':''))+'</option>').join('')+'</select>'+
- '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewHTML(selected,escapeHTML)+'</div>'+
+ '<div id="habitualPreview_'+slot+'" class="efg-habitual-preview-host" aria-live="polite">'+habitualPreviewWithPhotos(selected)+'</div>'+
  '<div class="efg-habitual-controls"><button type="button" class="btn small light" data-habitualapply="'+slot+'">↻ Registrar habitual</button>'+
  '<button type="button" class="btn small ghost" data-habitualdelete="'+slot+'">Eliminar habitual</button></div>'+
  '<small>Podés revisar el menú completo sin agregarlo. Solo se registrará al tocar «Registrar habitual».</small></div>';
@@ -861,7 +865,7 @@ function updateHabitualPreview(slot){
  state.habitualSelection[slot]=id;
  const current=getHabitualList(slot).find((item,index)=>habitualEntryKey(item,index)===id);
  const host=document.getElementById('mealEntryHabitualPreview_'+slot)||document.getElementById('habitualPreview_'+slot);
- if(host)host.innerHTML=habitualPreviewHTML(current,escapeHTML);
+ if(host)host.innerHTML=habitualPreviewWithPhotos(current);
 }
 function validateHabitualCatalog(habitual){
  // Older favorites stay visible as historical records, but a recognized catalog
@@ -1667,7 +1671,7 @@ function homeView(){
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
    const portion=i.displayQty?num(i.displayQty,1)+' '+escapeHTML(i.displayUnit)+' (≈'+num(i.qty,1)+' '+escapeHTML(i.unit)+')':num(i.qty,1)+' '+escapeHTML(i.unit);
-   return '<div class="meal-food-line"><span class="ncc-food-thumb" aria-hidden="true">'+guideIngredientPhoto({items:[i]})+'</span><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span class="ncc-diary-quantity" title="'+portion+'">'+num(i.qty,1)+' '+escapeHTML(i.unit)+'</span></div>'+
+   return '<div class="meal-food-line"><span class="ncc-food-thumb" aria-hidden="true">'+foodFamilyPhoto(i)+'</span><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span class="ncc-diary-quantity" title="'+portion+'">'+num(i.qty,1)+' '+escapeHTML(i.unit)+'</span></div>'+
    '<div class="ncc-food-actions"><button type="button" class="btn small ghost" data-editfood="'+key+':'+index+'" aria-label="Editar cantidad de '+escapeHTML(i.name)+'">Editar</button></div></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
@@ -2190,7 +2194,7 @@ function renderMealEntryShortcuts(){
  const recent=recentMealFoodIds();
  const items=mealEntrySource==="recipes"?catalog.filter(f=>f.privateRecipe):[...recent].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).slice(0,8);
  const lastUse=id=>[activeDiary(),...state.progressLogs].filter(row=>row?.student_id===state.session?.user?.id).flatMap(row=>Object.entries(row.meals||{}).flatMap(([slot,items])=>items.filter(i=>i.id===id).map(i=>({slot,item:i})))).at(0);
- host.innerHTML=items.map(f=>{const last=lastUse(f.id);return '<div class="ncc-shortcut-choice"><button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span class="ncc-choice-photo" aria-hidden="true">'+guideIngredientPhoto({items:[{...f,qty:1}]})+'</span><span class="ncc-choice-copy"><strong>'+escapeHTML(f.name)+'</strong><small>'+(last?'Último uso: '+escapeHTML(mealSlots.find(m=>m[0]===last.slot)?.[1]||'')+' · '+num(last.item.qty,1)+' '+escapeHTML(last.item.unit):f.privateRecipe?'Tu receta · porciones editables':'Elegí y ajustá la cantidad')+'</small></span><span class="ncc-choice-tick" aria-hidden="true"></span></button></div>';}).join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
+ host.innerHTML=items.map(f=>{const last=lastUse(f.id);return '<div class="ncc-shortcut-choice"><button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span class="ncc-choice-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><span class="ncc-choice-copy"><strong>'+escapeHTML(f.name)+'</strong><small>'+(last?'Último uso: '+escapeHTML(mealSlots.find(m=>m[0]===last.slot)?.[1]||'')+' · '+num(last.item.qty,1)+' '+escapeHTML(last.item.unit):f.privateRecipe?'Tu receta · porciones editables':'Elegí y ajustá la cantidad')+'</small></span><span class="ncc-choice-tick" aria-hidden="true"></span></button></div>';}).join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
 }
 function hideMealSearchSuggestions(){
  const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
@@ -2206,7 +2210,7 @@ function renderMealSearchSuggestions(items,term){
  const ranked=items.slice().sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name,"es-AR")).slice(0,8);
  panel.innerHTML=ranked.length?
   '<p class="efg-meal-search-count">'+items.length+' coincidencia'+(items.length===1?'':'s')+' · Elegí el alimento para continuar</p>'+
-  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span>'+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</span><small>Elegir</small></button>').join(""):
+  ranked.map(f=>'<button type="button" role="option" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span class="ncc-search-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><span>'+escapeHTML((foodTrafficLight(f).symbol?foodTrafficLight(f).symbol+' ':'')+f.name)+'</span><small>Elegir</small></button>').join(""):
   '<p class="efg-meal-search-count" role="status">No encontramos alimentos con ese nombre. Probá otra palabra o revisá el catálogo habilitado.</p>';
  panel.hidden=false;input.setAttribute("aria-expanded","true");
 }
@@ -2996,6 +3000,44 @@ function coachGuidePickerFoods(){
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }
+// Generic family thumbnails are presentation only; never food identity or portions.
+function foodFamilyVisual(food){
+ const text=(String(food?.id||'')+' '+String(food?.name||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const rules=[
+  [/pizza/,16,'Pizza'],[/empanada/,17,'Empanadas'],[/sandwich|hamburgues|choripan|pancho|wrap|rapidita/,26,'Sándwich'],
+  [/cafe|coffee|capuch|cappucc|latte/,2,'Café'],[/mate|yerba/,27,'Mate'],
+  [/whey|proteina.*polvo|protein.*powder|suplement/,28,'Proteína en polvo'],
+  [/budin|cake|torta|muffin|panqueque|pancake|bizcochuelo|croissant|medialuna|factura|dona|donut|alfajor/,18,'Pastelería'],
+  [/gallet|cookie|cracker/,19,'Galletitas'],[/chocol|cacao/,20,'Chocolate'],[/gomita|caramel|candy|marshmallow/,21,'Golosinas'],[/helado|ice.?cream/,22,'Helado'],
+  [/membrillo|quince|mermelada|dulce|miel|jalea|sugar|azucar/,4,'Dulces'],
+  [/queso|cheese|port.?salut|mozzarella|ricot|parmes|cottage|provol|reggian|cremoso|roquefort/,0,'Queso'],
+  [/yogur|yogurt|kefir/,null,'Yogur','yogurt'],[/leche|milk|bebida.*(soja|almendra|avena)|cream|crema/,3,'Leche'],
+  [/huevo|egg|omelett|clara/,null,'Huevo','eggs'],[/pollo|chicken|pavo|turkey/,null,'Pollo','chicken'],
+  [/pescad|fish|merluza|salmon|atun|tuna|sardina|caballa|bacalao|marisco|langost|camaron|calamar|raba|pulpo|mejillon|abadejo|pejerrey|trucha|cazon/,6,'Pescado'],
+  [/jamon|ham_|salame|salchich|mortadela|fiambre|chorizo|panceta|bacon/,8,'Fiambres'],[/cerdo|pork|bondiola/,7,'Cerdo'],
+  [/carne|beef|bife|vaca|vacun|ternera|lomo|cuadril|asado|cordero|higado|milanesa/,5,'Carne'],
+  [/tofu|tempeh|seitan|texturiz|soja|vegan|vegetal.*queso/,24,'Alternativa vegetal'],
+  [/lenteja|lentil|garbanzo|chickpea|poroto|bean|legumbr|arveja|hummus/,9,'Legumbres'],
+  [/avena|oat|granola|cereal|copos/,null,'Cereales','oats'],[/arroz|rice|quinoa|cuscus|couscous|bulgur|polenta/,null,'Cereales cocidos','rice'],
+  [/fideo|pasta|raviol|noqui|gnocchi|tallarin|lasana|canelon|spaghett|sorrentino/,14,'Pastas'],
+  [/papa|potato|batata|mandioca/,15,'Tubérculos'],[/pan\b|bread|toast|tostada|baguette|pita|bagel/,1,'Pan'],
+  [/nuez|nueces|almendra|mani|castana|pistacho|avellana|semilla|chia|lino|sesamo|nut|peanut/,12,'Frutos secos y semillas'],
+  [/aceite|oil|manteca|mantequilla|margarin|mayonesa|palta|avocado|aceituna|oliva/,13,'Grasas'],
+  [/manzana|apple|banana|mandarina|naranja|fruta|fruit|pera\b|durazno|frutilla|fresa|kiwi|melon|sandia|uva|ciruela|mango|anana|limon|arandano|pomelo|cereza|coco|damasco|higo|datil/,11,'Frutas'],
+  [/verdura|vegetable|calabaza|pumpkin|zapallo|rucula|rocket|tomate|zanahoria|lechuga|espinaca|acelga|brocoli|coliflor|repollo|pepino|berenjena|zucchini|cebolla|ajo\b|morron|champi|hongo|remolacha|choclo|esparrago|chaucha|apio|puerro/,10,'Verduras'],
+  [/sopa|soup|caldo/,25,'Sopa'],[/agua|water|te\b|tea\b|infusion|gaseosa|jugo|bebida|cerveza|vino|soda|zero|cero/,23,'Bebidas']
+ ];
+ for(const [pattern,cell,label,asset] of rules)if(pattern.test(text))return asset?{src:'./assets/guide/'+asset+'-r1.webp',label}:{cell,label};
+ const cell={protein:5,dairy:3,carb:1,legumes:9,fruit:11,vegetable:10,fat:12,recipe:29,plant:24,prepared:29,bakery:1,candy:21,dessert:18,drink:23,extra:29}[food?.category];
+ return {cell:cell??29,label:'Alimento · imagen genérica'};
+}
+function foodFamilyPhoto(food){
+ const photo=foodFamilyVisual(food),label=escapeHTML(photo.label+' · imagen genérica ilustrativa');
+ if(photo.src)return '<img class="ncc-family-photo" src="'+photo.src+'" alt="'+label+'" width="64" height="64" loading="lazy" decoding="async">';
+ const x=(photo.cell%6)*20,y=Math.floor(photo.cell/6)*25;
+ return '<span class="ncc-family-photo ncc-family-atlas" role="img" aria-label="'+label+'" title="'+label+'" style="background-position:'+x+'% '+y+'%"></span>';
+}
+
 // Exact ingredient IDs only: a reference photo never asserts a serving or dietary suitability.
 function guideIngredientVisual(meal){
  const references={

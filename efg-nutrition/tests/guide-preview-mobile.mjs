@@ -115,6 +115,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  await page.screenshot({path:resolve(out,`editor-${engine}-${role}-${width}.png`),fullPage:true});
  await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
  assert.equal(await page.locator('#coachGuidePreview .efg-guide-meal').count(),6);
+ const previewInk=await page.locator('#coachGuidePreview h2').evaluate(e=>getComputedStyle(e).color);
+ assert.equal(previewInk,'rgb(33, 51, 30)','Preview heading must remain readable on cream');
  assert.equal(await page.locator('#coachGuidePreview [data-guideqty]').count(),0);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/2 × huevo mediano/);
  assert.match(await page.locator('#coachGuidePreview').innerText(),/Nota ficticia de prueba/);

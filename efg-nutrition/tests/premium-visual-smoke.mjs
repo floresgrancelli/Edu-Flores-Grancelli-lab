@@ -620,13 +620,13 @@ try{
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
-     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
      .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
      .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
     // The daily summary deliberately uses light surfaces; validate readable text instead of forbidding them.
-    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup').evaluateAll(cards=>{
+    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals').evaluateAll(cards=>{
      const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
      const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
      return cards.flatMap(card=>[card,...card.querySelectorAll('strong,small,span,p,time')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).flatMap(e=>{

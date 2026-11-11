@@ -249,7 +249,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "7cab6c32ea17b16b207f7d66f264b5c07e0483a92b62ad7e24737fb0fcce40fd",
+    "efg-nutrition/pilot/pilot.js": "7a6c3f5117cd7f631754fb3a4d3f522504819ede14d35408d74c44f703c5d815",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -468,7 +468,7 @@
     },
     {
       "path": "efg-nutrition/pilot/focus-reference-layout-r1.css",
-      "sha256": "74c587ff926cba6b93fa94157026eeab6e2028c6ca3d8064e942640693cded65",
+      "sha256": "36b484eb0b371fbe2767731177404bacf45da1110bc7e0c936153db90b43ec1f",
       "url": "./focus-reference-layout-r1.css?v=ncc-focus-reference-r1-20261111"
     }
   ],

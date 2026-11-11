@@ -43,3 +43,4 @@ console.log("NOT TESTED: real auth, live iPhone/Android screenshots, mobile visu
 
 
 await import('./coach-roster-next-actions.mjs');
+await import('./diary-food-edit.mjs');

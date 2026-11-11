@@ -1,3 +1,4 @@
+import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -1659,13 +1660,13 @@ function homeView(){
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
    const portion=i.displayQty?num(i.displayQty,1)+' '+escapeHTML(i.displayUnit)+' (≈'+num(i.qty,1)+' '+escapeHTML(i.unit)+')':num(i.qty,1)+' '+escapeHTML(i.unit);
    return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><b class="ncc-diary-quantity">'+portion+'</b><span>'+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
-   '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
+   '<div class="ncc-food-actions"><button type="button" class="btn small ghost" data-editfood="'+key+':'+index+'" aria-label="Editar cantidad de '+escapeHTML(i.name)+'">Editar</button><button type="button" class="btn small ghost" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'">Eliminar</button></div></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
   const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
   const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
   return '<details class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel" id="ncc-day-meal-'+key+'" data-daymealpanel="'+key+'" open '+(selectedMeal===key?'':'hidden')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  guideIngredientPhoto({items})+detail+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
+  guideIngredientPhoto({items})+detail+guidanceStatus+'<div class="meal-actions"><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button></div><details class="ncc-meal-more"><summary>Más opciones y habituales</summary><div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</details></div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -2052,7 +2053,53 @@ function selectDayMeal(slot){
  for(const panel of document.querySelectorAll('[data-daymealpanel]')){panel.hidden=panel.dataset.daymealpanel!==slot;if(!panel.hidden)panel.open=true;}
  for(const tab of document.querySelectorAll('[data-daymeal]'))tab.setAttribute('aria-pressed',String(tab.dataset.daymeal===slot));
 }
+const diaryFoodDialogs=new WeakMap();
+function openDiaryFoodDialog(ref,remove=false){
+ const [slot,indexText]=ref.split(':'),index=Number(indexText),d=activeDiary(),item=d.meals?.[slot]?.[index];
+ if(!mealSlots.some(([key])=>key===slot)||!Number.isInteger(index)||index<0||!item)return;
+ if(pendingMealRegistrations.has(slot)||state.diaryWritePending)return;
+ selectDayMeal(slot);mealDialogReturnFocus=document.activeElement;
+ const units=Number(item.displayQty)>0,quantity=units?item.displayQty:item.qty;
+ const host=document.getElementById('mealDialogContainer');
+ host.innerHTML='<div class="meal-backdrop"><div class="meal-popup ncc-food-edit" role="dialog" aria-modal="true" aria-labelledby="diaryFoodTitle">'+
+ '<h2 id="diaryFoodTitle">'+(remove?'Eliminar alimento':'Editar cantidad')+'</h2><p><strong>'+escapeHTML(item.name)+'</strong></p>'+
+ (remove?'<p>Se quitará solo este alimento de '+escapeHTML(mealSlots.find(m=>m[0]===slot)[1])+'.</p>':
+ '<div class="field"><label for="diaryFoodQty">Cantidad ('+escapeHTML(units?item.displayUnit:item.unit)+')</label><input id="diaryFoodQty" type="number" inputmode="decimal" min="0.1" step="'+(units?'1':'any')+'" value="'+Number(quantity)+'"></div><p class="pilot-hint">Se conserva la composición registrada'+(item.ingredients&&!Array.isArray(item.ingredients)?' y la misma proporción de leche y azúcar':'')+'.</p>')+
+ '<p id="diaryFoodError" role="alert"></p><div class="ncc-meal-save"><button type="button" class="btn light" data-act="closeMeal">Cancelar</button><button type="button" class="btn" data-savefood="'+escapeHTML(ref)+'">'+(remove?'Eliminar alimento':'Guardar cantidad')+'</button></div></div></div>';
+ const dialog=host.querySelector('.meal-popup');
+ diaryFoodDialogs.set(dialog,{slot,index,remove,owner:state.session?.user?.id,day:d.log_day,epoch:state.authContextEpoch||0,view:activeViewKey(),snapshot:JSON.stringify(item)});
+ (remove?dialog.querySelector('[data-act="closeMeal"]'):dialog.querySelector('input')).focus({preventScroll:true});
+}
+async function saveDiaryFoodDialog(button){
+ const dialog=button.closest('.meal-popup'),edit=diaryFoodDialogs.get(dialog);
+ if(!edit||pendingMealRegistrations.has(edit.slot)||state.diaryWritePending)return;
+ const {slot,index,owner,day,epoch,view,snapshot,remove}=edit,d=activeDiary();
+ const currentOwner=()=>state.session?.user?.id===owner&&today()===day&&(state.authContextEpoch||0)===epoch;
+ const current=()=>currentOwner()&&activeViewKey()===view;
+ if(!current()||d.log_day!==day||JSON.stringify(d.meals?.[slot]?.[index])!==snapshot)throw Error('El registro cambió. Cerrá esta ventana y volvé a abrir el alimento.');
+ const errorBox=dialog.querySelector('#diaryFoodError');errorBox.textContent='';
+ let replacement;
+ try{if(!remove)replacement=resizeDiaryFood(d.meals[slot][index],dialog.querySelector('input').value);}
+ catch(error){errorBox.textContent=error.message;return;}
+ const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ const lease=pendingMealRegistrations.add(slot),controls=[...dialog.querySelectorAll('button,input')];controls.forEach(c=>c.disabled=true);
+ try{
+  if(remove)d.meals[slot].splice(index,1);else d.meals[slot][index]=replacement;
+  d.skipped={...d.skipped,_closed:false};
+  await saveDiary();
+  if(current()){
+   selectDayMeal(slot);
+   const target=remove?document.querySelector('[data-daymeal="'+slot+'"]'):document.querySelector('[data-editfood="'+slot+':'+index+'"]');
+   target?.focus({preventScroll:true});
+   notify(remove?'Alimento eliminado. Balance actualizado.':'Cantidad actualizada. Balance actualizado.');
+  }
+ }catch(error){
+  d.meals[slot]=previousItems;d.skipped=previousSkipped;
+  if(currentOwner()){state.diary=previousDiary;if(current()&&dialog.isConnected)errorBox.textContent=error.message;}
+ }finally{pendingMealRegistrations.delete(slot,lease);controls.forEach(c=>{if(c.isConnected)c.disabled=false;});}
+}
 function closeMealDialog(){
+ if(document.querySelector('.ncc-food-edit [data-savefood]:disabled'))return;
  const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
  state.activeMeal=null;
  const returnTarget=mealDialogReturnFocus?.isConnected&&!mealDialogReturnFocus.closest('[hidden]')
@@ -4750,26 +4797,9 @@ if(el.dataset.foodbulk){
  }
  if(el.dataset.planadd){return addPlannedFood(el.dataset.planadd);}
  if(el.dataset.planopenmeal){return openPlannedFoodEditor(el.dataset.planopenmeal);}
- if(el.dataset.removefood){
-  const [slot,indexValue]=el.dataset.removefood.split(":");
-  if(pendingMealRegistrations.has(slot))return;
-  const index=Number(indexValue),d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
-  if(!mealSlots.some(m=>m[0]===slot)||!Number.isInteger(index)||index<0||index>=(d.meals?.[slot]?.length||0))throw new Error("No encontramos ese alimento.");
-  const slotLease=pendingMealRegistrations.add(slot);
-  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
-  const previousDiary=state.diary;
-  try{
-   d.meals[slot].splice(index,1);d.skipped=d.skipped||{};d.skipped._closed=false;
-   await saveDiary();
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)
-    notify("Alimento eliminado. Los macros se actualizaron.");
-  }catch(error){
-   d.meals[slot]=previousItems;d.skipped=previousSkipped;
-   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.diary=previousDiary;
-   throw error;
-  }finally{pendingMealRegistrations.delete(slot,slotLease);}
-  return;
- }
+ if(el.dataset.editfood){openDiaryFoodDialog(el.dataset.editfood);return;}
+ if(el.dataset.removefood){openDiaryFoodDialog(el.dataset.removefood,true);return;}
+ if(el.dataset.savefood){await saveDiaryFoodDialog(el);return;}
  if(el.dataset.removesupp!==undefined){
   const index=Number(el.dataset.removesupp);
   await mutateSportDiary(d=>{
@@ -4781,6 +4811,7 @@ if(el.dataset.foodbulk){
   const slot=el.dataset.clearm;
   if(!mealSlots.some(meal=>meal[0]===slot))throw Error("Comida no válida.");
   if(pendingMealRegistrations.has(slot))return;
+  if(!confirm('¿Vaciar todos los alimentos de esta comida?'))return;
   const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;
   const beforeItems=structuredClone(d.meals?.[slot]||[]),beforeSkipped=structuredClone(d.skipped||{}),beforeDiary=state.diary;
   const slotLease=pendingMealRegistrations.add(slot);

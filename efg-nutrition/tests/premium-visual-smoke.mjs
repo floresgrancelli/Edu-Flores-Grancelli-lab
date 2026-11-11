@@ -453,6 +453,7 @@ try{
        const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
        if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
        if((await block.getAttribute("open"))===null)await block.locator("summary").click();
+       await block.locator('.ncc-meal-more > summary').click();
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);

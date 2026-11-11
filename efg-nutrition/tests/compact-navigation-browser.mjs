@@ -60,6 +60,28 @@ export async function assertDirectDay(page){
  await page.getByRole('button',{name:'Cerrar ventana de alimentos'}).click();
  assert.equal(await dock.evaluate(el=>el===document.activeElement),true);
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),before,'Opening and canceling never records a food');
+ // Existing schedule tabs now expose actual entries, including zero-calorie foods.
+ const originalSlot=await page.locator('[data-daymeal][aria-pressed="true"]').getAttribute('data-daymeal');
+ const originalComment=await page.locator('#dayComment').count()?await page.locator('#dayComment').inputValue():null;
+ if(originalComment!==null){await page.locator('#dayComment').evaluate(el=>el.closest('details').open=true);await page.locator('#dayComment').fill('Comentario sin guardar');}
+ const counts=await page.evaluate(()=>Object.fromEntries(Object.entries(window.__EFG_VISUAL_QA__.state.diary.meals).map(([slot,items])=>[slot,items.length])));
+ for(const slot of ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']){
+  const tab=page.locator('[data-daymeal="'+slot+'"]');await tab.click();
+  assert.equal(await page.locator('[data-daymealpanel]:visible').count(),1);
+  assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),slot);
+  if(counts[slot])assert.equal(await tab.locator('small').textContent(),counts[slot]+' alimento'+(counts[slot]===1?'':'s'));
+ }
+ await dock.click();await page.locator('#mealEntrySlot').selectOption('almuerzo');
+ await page.getByRole('button',{name:'Cerrar ventana de alimentos'}).click();
+ assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),'almuerzo');
+ assert.equal(await dock.evaluate(el=>el===document.activeElement),true,'Changing schedules preserves the original dialog trigger');
+ // A trigger hidden by the new schedule must return focus to its visible tab.
+ await page.locator('[data-daymealpanel="almuerzo"] [data-setmeal]').click();
+ await page.locator('#mealEntrySlot').selectOption('cena');await page.keyboard.press('Escape');
+ assert.equal(await page.locator('[data-daymeal="cena"]').evaluate(el=>el===document.activeElement),true);
+ if(originalComment!==null){assert.equal(await page.locator('#dayComment').inputValue(),'Comentario sin guardar');await page.locator('#dayComment').fill(originalComment);}
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),before,'Schedule changes and cancel leave diary intact');
+ await page.locator('[data-daymeal="'+originalSlot+'"]').click();
  await page.evaluate(()=>scrollTo(0,0));
 }
 export async function assertRosterActions(page){

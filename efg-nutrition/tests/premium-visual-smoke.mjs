@@ -782,7 +782,7 @@ try{
            const carbOptions=await page.locator("#mealEditorFood option").allTextContents();
            if(!carbOptions.some(x=>/arroz|pan|avena|papa/i.test(x)))pageReport.errors.push("Hydrate tab did not expose carbohydrate choices");
          }
-         await page.locator('[data-act="closeMeal"]').click();
+         await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
        }
        await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
@@ -790,7 +790,7 @@ try{
          if(!await snack.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
-         await page.locator('[data-act="closeMeal"]').click();
+         await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
        }
      }
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
@@ -859,7 +859,7 @@ try{
       if(!(await page.locator("#mealEditorHint").innerText()).includes("kcal"))
         pageReport.errors.push("MacBook: suggestion did not update meal nutrients");
     }
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    }
    if(role==="student"&&(width===390||width===1280)&&dest==="home"){
     // UX-GUIDE-01 actual renderer: same HTML for coach editor and student viewer.
@@ -1102,7 +1102,7 @@ try{
       pageReport.errors.push("Mixed tuna pie must register once incl protein, carbs, fat after optional omission: "+JSON.stringify(savedMixed));
     if((await page.locator("[data-mealgroup]").count())!==4)
       pageReport.errors.push("Add and continue did not reopen guided meal");
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
     await page.evaluate(async previous=>{
       const fixture=window.__EFG_VISUAL_QA__;fixture.state.diary=previous;await fixture.render();
       fixture.openMealDialog("media_manana");
@@ -1111,7 +1111,7 @@ try{
       pageReport.errors.push("Media mañana must retain classic food selector");
     if((await page.locator('#mealEditorFood option').count())<10)
       pageReport.errors.push("Media mañana classic selector lost food categories");
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    }
    // COACH119 02-03 + sushi pieces: actual meal editor with synthetic Coach selection,
 // not hosted login, not a physical device, no production connection.

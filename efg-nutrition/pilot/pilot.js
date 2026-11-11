@@ -3751,6 +3751,16 @@ async function render(){
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
  restoreCoachSection();
+ const rosterSearch=document.getElementById('coachRosterSearch');
+ if(rosterSearch){
+  if(!snapshot)root.dataset.rosterFilter='all';
+  const filter=root.dataset.rosterFilter||'all';
+  for(const button of root.querySelectorAll('[data-rosterfilter]')){
+   const active=button.dataset.rosterfilter===filter;
+   button.setAttribute('aria-pressed',String(active));button.classList.toggle('light',active);button.classList.toggle('ghost',!active);
+  }
+  rosterSearch.dispatchEvent(new Event('input',{bubbles:true}));
+ }
  if(state.tab==="notifications")inbox.repaint();
  if(state.tab==="messages")messages.mount();
  if(state.tab==="planner")updatePlannerPreview();
@@ -4617,7 +4627,7 @@ if(el.dataset.foodbulk){
   root.dataset.rosterFilter=el.dataset.rosterfilter;
   const search=document.getElementById("coachRosterSearch");
   if(search)search.dispatchEvent(new Event("input",{bubbles:true}));
-  for(const button of root.querySelectorAll("[data-rosterfilter]")){button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
+  for(const button of root.querySelectorAll("[data-rosterfilter]")){button.setAttribute("aria-pressed",String(button.dataset.rosterfilter===el.dataset.rosterfilter));button.classList.toggle("light",button.dataset.rosterfilter===el.dataset.rosterfilter);button.classList.toggle("ghost",button.dataset.rosterfilter!==el.dataset.rosterfilter);}
   return;
  }
  if(el.dataset.recipedelete){

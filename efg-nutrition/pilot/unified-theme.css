@@ -543,10 +543,8 @@ html.ncc-lime-theme #app .ncc-roster-person{display:grid;gap:12px;padding:16px}
  .ncc-direct-day{padding-bottom:90px}
  html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day{padding:16px!important}
  html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day-grid{gap:14px}
- html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-ring{width:172px;height:172px;margin-inline:auto}
  html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day-note{font-size:11px;margin-bottom:0}
  html.ncc-lime-theme #app .ncc-direct-day .ncc-day-guide-card{min-height:180px}
- html.ncc-lime-theme #pilot-toast:has(~*){max-width:calc(100vw - 32px)}
  body:has(.ncc-register-dock) #pilot-toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}
 }
 @media print{.ncc-register-dock,.ncc-guide-food-options,.ncc-guide-add-options{display:none!important}}

@@ -55,6 +55,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.guidecard),'cena');
  assert.equal(await page.locator('[data-guidecard]:visible').count(),1);
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),beforeTabs,'Changing guide hours never writes food or modifies a plan');
+ assert.equal(await page.locator('.ncc-guide-jumps [aria-pressed=true]').getAttribute('data-guidejump'),'cena');
+ assert.equal(await page.locator('.ncc-guide-jumps [aria-pressed=true]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(215, 255, 63)');
  await page.screenshot({path:resolve(out,`single-hour-${engine}-${role}-${width}.png`),fullPage:true});
  await page.locator('[data-guideall]').click();assert.equal(await page.locator('[data-guidecard]:visible').count(),6);
  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));

@@ -204,6 +204,13 @@ try{
    const options=page.locator('#mealFoodSuggestions [role="option"]');assert.ok(await options.count()>0);
    assert.equal(await options.locator('.ncc-family-photo').count(),await options.count(),'Every search result has a family photo');
    await page.screenshot({path:resolve(out,engine+'-'+width+'-family-search.png')});
+   assert.equal(await page.locator('#mealFoodSuggestions .efg-meal-search-count').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(32, 39, 27)');
+   await page.locator('#mealFoodSearch').fill('queso untable');
+   const creamy=page.locator('#mealFoodSuggestions .ncc-family-photo');assert.ok(await creamy.count()>0);
+   for(const photo of await creamy.all())assert.ok((await photo.getAttribute('src')).includes('cream-cheese-r1.webp'),'Spreadable cheese has its own image');
+   await creamy.evaluateAll(els=>Promise.all(els.map(e=>e.decode())));
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-family-cream-cheese.png')});
+
    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    assert.deepEqual(errors,[]);results.push({engine,width,status:'PASS',scope:'synthetic transport, mobile viewport; no physical device or hosted auth'});await context.close();
   }}finally{await browser.close();}

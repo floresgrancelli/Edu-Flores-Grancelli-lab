@@ -412,3 +412,25 @@ html.ncc-lime-theme #app .coach-student-profile>.coach-student-heading{backgroun
 html.ncc-lime-theme #app .coach-student-heading h2{color:#21331e!important}
 html.ncc-lime-theme #app .coach-student-profile>[data-coachpanel]{margin-top:0}
 @media(max-width:420px){html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* EV-05: real balance and adjustable suggestions, one meal at a time. */
+html.ncc-lime-theme #app #planSuggestionCard{--ncc-surface:#f7f5e9;--ncc-panel:#eeeedf;--ncc-text:#21331e;--ncc-muted:#4a5941;--ncc-input:#fffef8;--ncc-line:#b5c0a4;background:#f7f5e9!important;color:#21331e!important;color-scheme:light}
+html.ncc-lime-theme #app #planSuggestionCard [data-suggestionpanel][hidden]{display:none!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(h2,h3,h4,label,p,small,strong,b,.pilot-hint,.planner-recommendation){color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(.planner-item,.efg-planner-stage,.planner-energy-summary,.planner-split-target,.planner-extras-helper,.planner-real-balance,.planner-simulated-balance,.planner-energy-stats>div){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(input,select){background:#fffef8!important;color:#21331e!important;border-color:#81966a!important;color-scheme:light}
+html.ncc-lime-theme #app #planSuggestionCard :is(.btn,[data-plannerslot]){background:#d7ff3f!important;color:#21331e!important;border:1px solid #a9cb24!important;min-height:44px;border-radius:12px}
+html.ncc-lime-theme #app #planSuggestionCard .ncc-suggestion-tabs{display:flex;gap:8px;margin:14px 0}
+html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot]{flex:1;font-weight:700}
+html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{background:#e3ebd2!important;border-color:#81966a!important}
+html.ncc-lime-theme #app #planSuggestionCard .planner-remaining{background:#d7ff3f!important;color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(.planner-mode button,.planner-extra-chip){background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important;min-height:44px}
+html.ncc-lime-theme #app #planSuggestionCard .planner-mode button.on{background:#d7ff3f!important;color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo{margin:10px 0}
+html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo img{width:100%;height:90px;object-fit:cover;border-radius:14px}
+html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo figcaption{font-size:11px;color:#4a5941}
+html.ncc-lime-theme #app #planSuggestionCard :is(.ncc-suggestion-safety,.ncc-suggestion-preferences,.ncc-suggestion-why){font-size:13px;line-height:1.5}
+html.ncc-lime-theme #app #planSuggestionCard .pilot-pill{background:#dcebb8!important;color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard .efg-compat-yellow{color:#ffe09a!important}
+html.ncc-lime-theme #app #planSuggestionCard .efg-compat-red{color:#ffb7b2!important}
+html.ncc-lime-theme #app #planSuggestionCard .efg-compat-green{color:#d7ff3f!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(.efg-compat-yellow,.efg-compat-red,.efg-compat-green) *{color:inherit!important}

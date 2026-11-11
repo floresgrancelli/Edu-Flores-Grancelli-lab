@@ -1,3 +1,4 @@
+import './planner-suggestions-private.mjs';
 import './student-navigation-contract.mjs';
 // EFG Nutrition Pro — static UX smoke gate (no Supabase writes or credentials).
 // Run: node efg-nutrition/tests/premium-ui-smoke.mjs

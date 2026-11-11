@@ -44,11 +44,11 @@ const localStorage={
 const diary={meals:{desayuno:[{id:'egg',name:'Huevos',qty:100,unit:'g',k:140,p:12,c:2,f:8}]},skipped:{}};
 const fakeDocument={getElementById(id){if(!id.startsWith('habitualChoice_'))return null;const slot=id.replace('habitualChoice_','');return {value:state.habitualSelection[slot]||''}}};
 const pendingMealRegistrations=new Set();
-const api=new Function('sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
+const api=new Function('foodFamilyPhoto','sb','state','mealSlots','localStorage','activeDiary','prompt','confirm',
  'habitualShortLabel','habitualPreviewHTML','escapeHTML','notify','render','saveDiary','num',
  'foods','FOOD_STATE_PAIRS','allowedFoods','document','pendingMealRegistrations','today','sameRecipeIngredients',
  subsystem+'\nreturn {loadCloudHabituales,getHabitualList,habitualPickerHTML,habitualAction,applyChosenHabitual,updateHabitualPreview,resetMemory(){cloudHabituales=[]}};')(
- sb,state,mealSlots,localStorage,()=>diary,
+ ()=>'',sb,state,mealSlots,localStorage,()=>diary,
  msg=>msg.startsWith('Elegí la comida habitual escribiendo su número:')?'1':seq===0?'Desayuno de huevos':'Desayuno de avena',()=>true,
  x=>x.name,x=>x?x.items.map(z=>z.name).join(', '):'',x=>String(x),
  msg=>notified.push(msg),async()=>{rendered++},async()=>{diaryWrites++},x=>String(x),

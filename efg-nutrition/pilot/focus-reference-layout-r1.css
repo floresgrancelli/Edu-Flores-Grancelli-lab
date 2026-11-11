@@ -145,3 +145,15 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(
 
 /* Selection marks must contrast with their pale olive circle. */
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs .ncc-meal-check,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup [aria-pressed=true]>.ncc-choice-tick{color:#17200b!important;--ncc-text:#17200b!important}
+
+/* Shared family photos: one local atlas, no per-food network requests. */
+.ncc-family-photo{display:block;width:54px;height:54px;flex:none;border-radius:9px;object-fit:cover;background-color:#303926}
+.ncc-family-atlas{background-image:url('./assets/food-families-r1.webp');background-size:600% 500%;background-repeat:no-repeat}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-photo .ncc-family-photo{width:64px;height:64px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #mealFoodSuggestions .efg-meal-search-choice{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-search-photo .ncc-family-photo{width:44px;height:44px}
+
+html.ncc-lime-theme #app .efg-habitual-preview-foods li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:8px}
+html.ncc-lime-theme #app .ncc-habitual-photo .ncc-family-photo{width:36px;height:36px;border-radius:6px}
+
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealFoodSuggestions .efg-meal-search-count{background:#20271b!important;color:#edf2e6!important;padding:10px!important}

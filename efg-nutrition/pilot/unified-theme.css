@@ -548,3 +548,4 @@ html.ncc-lime-theme #app .ncc-roster-person{display:grid;gap:12px;padding:16px}
  body:has(.ncc-register-dock) #pilot-toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}
 }
 @media print{.ncc-register-dock,.ncc-guide-food-options,.ncc-guide-add-options{display:none!important}}
+html.ncc-lime-theme #app .coach-roster-total{background:#e3ebd2!important;color:#21331e!important;border:1px solid #81966a}

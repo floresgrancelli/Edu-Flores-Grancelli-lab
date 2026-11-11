@@ -144,7 +144,7 @@ await guardedSave();
 assert.equal(diary.meals.cena.length,beforeConcurrent+1,'Busy slot cannot accept a simultaneous manual save');
 
 // Removal uses the same meal lock and restores both list and skipped flags on failed upsert.
-assert.match(source,/if\(el\.dataset\.removefood\)\{[\s\S]*?pendingMealRegistrations\.has\(slot\)[\s\S]*?previousItems=structuredClone\(d\.meals\[slot\]\)[\s\S]*?catch\(error\)\{[\s\S]*?d\.meals\[slot\]=previousItems/);
+assert.match(source,/async function saveDiaryFoodDialog\(button\)\{[\s\S]*?pendingMealRegistrations\.has\(edit\.slot\)[\s\S]*?previousItems=structuredClone\(d\.meals\[slot\]\)[\s\S]*?catch\(error\)\{[\s\S]*?d\.meals\[slot\]=previousItems/);
 
 
 
@@ -274,10 +274,12 @@ assert.equal(recipeLocks.size,0,'Personal recipe releases lock');
 const clearStart=source.indexOf('if(el.dataset.clearm){');
 const clearEnd=source.indexOf('if(el.dataset.removesport!==undefined)',clearStart);
 assert.ok(clearStart>0&&clearEnd>clearStart,'Actual clear meal branch must exist');
-const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots','today',
+let confirmClear=false;
+const clearHandler=new Function('el','activeDiary','saveDiary','state','pendingMealRegistrations','mealSlots','today','confirm',
  'return async()=>{'+source.slice(clearStart,clearEnd)+'};')(
- {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']],()=>recipeDiary.log_day);
+ {dataset:{clearm:'cena'}},()=>recipeDiary,writeRecipe,personalState,recipeLocks,[['cena','Cena']],()=>recipeDiary.log_day,()=>confirmClear);
 const beforeClear=structuredClone(recipeDiary);
+await clearHandler();assert.deepEqual(recipeDiary,beforeClear,'Canceling clear preserves the meal');confirmClear=true;
 recipeFailure=true;
 await assert.rejects(clearHandler(),/network offline/);
 assert.deepEqual(recipeDiary,beforeClear,'Rejected clear restores all food and skipped state');

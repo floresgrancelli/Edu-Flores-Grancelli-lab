@@ -802,10 +802,10 @@ try{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:Math.min(100,window.__EFG_VISUAL_QA__.dailyTotals(window.__EFG_VISUAL_QA__.state.diary)[["p","c","f"][index]]/window.__EFG_VISUAL_QA__.activeGoal()[["p","c","f"][index]]*100)*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(145, 191, 80)"};
+        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(163, 190, 97)"};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
-       pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
+       pageReport.errors.push("Student macro bars must show actual per-macro progress in reference olive: "+JSON.stringify(bars));
      }else if(!unifiedTheme&&(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient"))))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }

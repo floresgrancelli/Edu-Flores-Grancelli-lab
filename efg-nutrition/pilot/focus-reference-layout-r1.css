@@ -142,3 +142,6 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mea
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(.ncc-food-edit){position:relative;isolation:isolate}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(.ncc-food-edit)::before{content:"";position:absolute;top:0;right:0;width:65%;height:210px;z-index:-1;pointer-events:none;background-image:url('./assets/section-backgrounds.webp');background-repeat:no-repeat;background-size:200% 400%;background-position:100% 0;opacity:.25;mask-image:linear-gradient(90deg,transparent,#000),linear-gradient(#000,transparent);mask-composite:intersect;-webkit-mask-image:linear-gradient(90deg,transparent,#000);}
 @media(prefers-reduced-transparency:reduce),(forced-colors:active){html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup::before{display:none!important}}
+
+/* Selection marks must contrast with their pale olive circle. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs .ncc-meal-check,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup [aria-pressed=true]>.ncc-choice-tick{color:#17200b!important;--ncc-text:#17200b!important}

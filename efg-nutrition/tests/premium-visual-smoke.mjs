@@ -439,7 +439,7 @@ try{
        await page.locator('[data-daymeal="'+slot+'"]').click();
        const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
        if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
-       if(!(await block.getAttribute("open")))await block.locator("summary").click();
+       if((await block.getAttribute("open"))===null)await block.locator("summary").click();
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
@@ -732,7 +732,7 @@ try{
        const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
        if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
        else{
-         if(!(await breakfast.getAttribute("open")))await breakfast.locator("summary").click();
+         if((await breakfast.getAttribute("open"))===null)await breakfast.locator("summary").click();
          await breakfast.locator('[data-setmeal="desayuno"]').click();
          const guide=page.locator(".efg-meal-guidance");
          if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
@@ -755,7 +755,7 @@ try{
        await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
        if(await snack.count()===1){
-         if(!(await snack.getAttribute("open")))await snack.locator("summary").click();
+         if((await snack.getAttribute("open"))===null)await snack.locator("summary").click();
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
          await page.locator('[data-act="closeMeal"]').click();

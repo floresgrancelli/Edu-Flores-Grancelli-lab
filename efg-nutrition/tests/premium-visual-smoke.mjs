@@ -542,6 +542,17 @@ try{
      // Repro de captura real: buscar Sandía en "extra opcional 1".
      // El buscador debe mostrar la acción SIN cerrar el teclado Safari.
      await page.locator('[data-planmode="both"]').click(); // fixture defaults to Solo cena; screenshot uses Merienda + cena
+     const diaryBeforeTabs=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary));
+     const plannerTabs=page.locator('[data-plannerslot]');
+     if(await plannerTabs.count()===2){
+       const field=page.locator('[id="planQty_merienda|protein"]');
+       const previous=await field.inputValue();await field.fill('123');
+       await page.locator('[data-plannerslot="cena"]').click();
+       assert.equal(await page.locator('[data-suggestionpanel]:visible').count(),1);
+       await page.locator('[data-plannerslot="merienda"]').click();
+       assert.equal(await field.inputValue(),'123');await field.fill(previous);
+       assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),diaryBeforeTabs);
+     }
      const key="merienda|vegetable";
      const search=page.locator('[data-plansearch="'+key+'"]');
      const row=page.locator('[data-plancontrols="'+key+'"]');
@@ -609,7 +620,7 @@ try{
     const colors=await page.evaluate(()=>{
      const style=s=>{const e=document.querySelector(s);return e?getComputedStyle(e):null};
      return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
-      nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
+      nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview,#planSuggestionCard'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
     if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
     if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(20, 24, 25)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
@@ -620,13 +631,13 @@ try{
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
-     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
      .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
      .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
     // The daily summary deliberately uses light surfaces; validate readable text instead of forbidding them.
-    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals').evaluateAll(cards=>{
+    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals,#planSuggestionCard').evaluateAll(cards=>{
      const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
      const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
      return cards.flatMap(card=>[card,...card.querySelectorAll('strong,small,span,p,time')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).flatMap(e=>{
@@ -639,10 +650,10 @@ try{
 
    }
    if(unifiedTheme){
-    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
     if(primary.some(x=>x.onLimeRegister
       ? x.bg!=='rgb(25, 35, 14)'||x.color!=='rgb(242, 255, 209)'||!x.surface.includes('215, 255, 63')
-      : x.bg!=='rgb(215, 255, 63)'||x.color!=='rgb(23, 28, 11)'))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
+      : x.bg!=='rgb(215, 255, 63)'||x.color!==(x.onSuggestion?'rgb(33, 51, 30)':'rgb(23, 28, 11)')))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
    }
    if(dest==='home'){
     const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});

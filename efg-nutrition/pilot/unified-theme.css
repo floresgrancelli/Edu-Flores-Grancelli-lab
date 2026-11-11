@@ -370,3 +370,17 @@ html.ncc-lime-theme #app .meal-popup :is(.ncc-meal-selected,.ncc-meal-save,.efg-
 html.ncc-lime-theme #app .meal-popup .btn.ghost,html.ncc-lime-theme #app .meal-popup .btn.light{background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important}
 html.ncc-lime-theme #app .meal-popup [data-mealsource][aria-pressed=true]{background:#d7ff3f!important;color:#21331e!important;border-color:#d7ff3f!important}
 html.ncc-lime-theme #app .meal-popup :is(input,select,button):focus-visible,html.ncc-lime-theme #app .ncc-day-meal-tabs button:focus-visible{outline:3px solid #36561f!important;outline-offset:3px}
+html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-picker,.efg-habitual-preview,.efg-habitual-preview-empty,.efg-habitual-preview-foods,.efg-habitual-preview-macros,.efg-habitual-preview-heading,.efg-habitual-preview-host){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
+html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-food-name,.efg-habitual-food-qty){color:#21331e!important}
+html.ncc-lime-theme #app .ncc-day-meal-panel select{background:#fffef8!important;color:#21331e!important;border-color:#7c896e!important}
+html.ncc-lime-theme #app .meal-popup :is(.efg-meal-search-choice,.efg-meal-guidance,.efg-meal-guidance-hint,.efg-meal-guidance-fat,.note){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
+/* Scoped light tokens also reach legacy nested surfaces with stronger selectors. */
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup,.ncc-guide-meal){
+ --ncc-surface:#f7f5e9;--ncc-panel:#eeeedf;--ncc-text:#21331e;--ncc-muted:#4a5941;--ncc-input:#fffef8;--ncc-line:#b5c0a4;
+ --pastel-surface:#f7f5e9;--pastel-panel-alt:#eeeedf;--pastel-panel-soft:#eeeedf;--pastel-ink:#21331e;--pastel-muted:#4a5941;
+ color-scheme:light;
+}
+html.ncc-lime-theme #app #studentMeals .student-meal-details{background:#f7f5e9!important;color:#21331e!important}
+html.ncc-lime-theme #app #studentMeals .ncc-day-meal-tabs .btn[data-daymeal][aria-pressed=true]{background:#d7ff3f!important;color:#21331e!important;border-color:#d7ff3f!important}
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup,.ncc-guide-meal) :is(input,select,textarea){color-scheme:light}
+html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#21331e}

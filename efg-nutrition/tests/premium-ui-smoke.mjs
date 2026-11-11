@@ -24,7 +24,7 @@ includesAll(css,[".efg-mobile-header","efg-mobile-avatar","efg-student-macros","
 assert.match(js,/data-scrollto="studentMeals"/,"The meals shortcut must scroll to the actual meal section");
 assert.match(js,/id="studentMeals"/,"The meals destination must exist");
 assert.doesNotMatch(js,/studentQuickAdd|efg-quick-add-grid/,"Do not render a duplicate six-color meal picker");
-assert.match(js,/class="pilot-record meal-day-section student-meal-card"/,"Retain meal card accordions");
+assert.match(js,/class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel"/,"Retain meal controls inside the approved tabbed diary");
 assert.match(js,/\+ Añadir alimento/,"Every meal must keep direct Add food control");
 assert.match(css,/\.pilot-layout \.meal-remove-item\{min-width:44px;height:44px/,"Meal delete targets must be at least 44px");
 

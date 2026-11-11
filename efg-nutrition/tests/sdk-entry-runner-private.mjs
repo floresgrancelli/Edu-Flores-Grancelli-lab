@@ -226,10 +226,8 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
    await guideShell.waitFor();
    if((await guideShell.getAttribute('open'))===null)
     await guideShell.locator(':scope > summary').click();
-   const sixView=guideShell.locator('.efg-guide-student > details');
+   const sixView=guideShell.locator('.efg-guide-student');
    await sixView.waitFor({state:'visible'});
-   if((await sixView.getAttribute('open'))===null)
-    await sixView.locator(':scope > summary').click();
    assert.equal(await sixView.locator('.efg-guide-meal').count(),6,
     'Current PWA must display all six signed published guide slots');
    assert.equal(await student.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

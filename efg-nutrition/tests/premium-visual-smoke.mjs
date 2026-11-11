@@ -458,6 +458,7 @@ try{
      const diaryAfterPreview=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
      if(JSON.stringify(diaryBefore)!==JSON.stringify(diaryAfterPreview))
        pageReport.errors.push("Previewing a habitual changed the diary before confirming for "+role);
+     await page.locator('[data-daymeal="media_tarde"]').click();
      await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
      await page.locator('[data-habitualapply="media_tarde"]').click();
      await page.waitForTimeout(150);

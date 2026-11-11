@@ -157,3 +157,11 @@ html.ncc-lime-theme #app .efg-habitual-preview-foods li{display:grid;grid-templa
 html.ncc-lime-theme #app .ncc-habitual-photo .ncc-family-photo{width:36px;height:36px;border-radius:6px}
 
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealFoodSuggestions .efg-meal-search-count{background:#20271b!important;color:#edf2e6!important;padding:10px!important}
+
+/* Two-column fallback also protects an already-open client with older markup. */
+#mealFoodSuggestions .efg-meal-search-choice{grid-template-columns:minmax(0,1fr) auto!important}
+#mealFoodSuggestions .efg-meal-search-choice:has(.ncc-search-photo){grid-template-columns:44px minmax(0,1fr) auto!important}
+#mealFoodSuggestions .efg-meal-search-choice>span{min-width:0;overflow-wrap:normal;word-break:normal}
+#mealEntrySelected{display:flex;align-items:center;gap:12px}
+#mealEntrySelected[hidden]{display:none}
+.ncc-selected-photo{flex:0 0 54px}

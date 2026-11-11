@@ -1,3 +1,4 @@
+const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./meal-entry-context-r2.css';document.head.append(mealEntryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
@@ -2164,10 +2165,10 @@ function openMealDialog(slot,initialGroup="protein"){
  renderMealEntryShortcuts();
  document.getElementById("mealFoodSearch")?.focus({preventScroll:true});
 }
-function recentMealFoodIds(){
+function recentMealFoodIds(slot=state.activeMeal){
  const uid=state.session?.user?.id;
  const rows=[activeDiary(),...state.progressLogs].filter(row=>row?.student_id===uid).sort((a,b)=>String(b.log_day).localeCompare(String(a.log_day)));
- return new Set(rows.flatMap(row=>Object.values(row.meals||{}).flat().map(item=>item.id)));
+ return new Set(rows.flatMap(row=>(row.meals?.[slot]||[]).map(item=>item.id)));
 }
 function renderMealEntryShortcuts(){
  const host=document.getElementById("mealEntryShortcuts");if(!host)return;
@@ -2193,8 +2194,8 @@ function renderMealEntryShortcuts(){
  const catalog=selectableFoods().filter(f=>permitted.has(f.id)&&foodAllowedForMeal(f,state.activeMeal));
  const recent=recentMealFoodIds();
  const items=mealEntrySource==="recipes"?catalog.filter(f=>f.privateRecipe):[...recent].map(id=>catalog.find(f=>f.id===id)).filter(Boolean).slice(0,8);
- const lastUse=id=>[activeDiary(),...state.progressLogs].filter(row=>row?.student_id===state.session?.user?.id).flatMap(row=>Object.entries(row.meals||{}).flatMap(([slot,items])=>items.filter(i=>i.id===id).map(i=>({slot,item:i})))).at(0);
- host.innerHTML=items.map(f=>{const last=lastUse(f.id);return '<div class="ncc-shortcut-choice"><button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span class="ncc-choice-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><span class="ncc-choice-copy"><strong>'+escapeHTML(f.name)+'</strong><small>'+(last?'Último uso: '+escapeHTML(mealSlots.find(m=>m[0]===last.slot)?.[1]||'')+' · '+num(last.item.qty,1)+' '+escapeHTML(last.item.unit):f.privateRecipe?'Tu receta · porciones editables':'Elegí y ajustá la cantidad')+'</small></span><span class="ncc-choice-tick" aria-hidden="true"></span></button></div>';}).join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Tus próximos registros aparecerán acá.')+'</p>':'');
+ const lastUse=id=>[activeDiary(),...state.progressLogs].filter(row=>row?.student_id===state.session?.user?.id).flatMap(row=>Object.entries(row.meals||{}).filter(([slot])=>slot===state.activeMeal).flatMap(([slot,items])=>items.filter(i=>i.id===id).map(i=>({slot,item:i})))).at(0);
+ host.innerHTML=items.map(f=>{const last=lastUse(f.id);return '<div class="ncc-shortcut-choice"><button type="button" class="efg-meal-search-choice" data-act="mealSuggestion" data-mealsuggestion="'+escapeHTML(f.id)+'"><span class="ncc-choice-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><span class="ncc-choice-copy"><strong>'+escapeHTML(f.name)+'</strong><small>'+(last?'Último uso: '+escapeHTML(mealSlots.find(m=>m[0]===last.slot)?.[1]||'')+' · '+num(last.item.qty,1)+' '+escapeHTML(last.item.unit):f.privateRecipe?'Tu receta · porciones editables':'Elegí y ajustá la cantidad')+'</small></span><span class="ncc-choice-tick" aria-hidden="true"></span></button></div>';}).join('')+(!items.length?'<p class="pilot-hint">'+(mealEntrySource==='recipes'?'Todavía no tenés recetas propias guardadas. Podés crearlas en Mis recetas.':'Todavía no hay recientes para '+escapeHTML(mealSlots.find(m=>m[0]===state.activeMeal)?.[1]||'este horario')+'. Buscá un alimento para comenzar.')+'</p>':'');
 }
 function hideMealSearchSuggestions(){
  const panel=document.getElementById("mealFoodSuggestions"),input=document.getElementById("mealFoodSearch");
@@ -2277,7 +2278,7 @@ function updateMealEntryMode(foodChanged=false){
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
  const selected=document.getElementById("mealEntrySelected");
- if(selected){selected.hidden=!f;selected.innerHTML=f?'<strong><span aria-hidden="true">✓ </span>'+escapeHTML(f.name)+'</strong>':"";}
+ if(selected){selected.hidden=!f;selected.innerHTML=f?'<span class="ncc-selected-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><strong><span aria-hidden="true">✓ </span>'+escapeHTML(f.name)+'</strong>':"";}
  const quantityCard=document.getElementById('mealQuantityCard'),quantityHome=document.getElementById('mealQuantityHome');
  if(quantityCard&&quantityHome){
   quantityCard.hidden=!f;quantityHome.after(quantityCard);

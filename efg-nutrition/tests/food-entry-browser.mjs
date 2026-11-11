@@ -72,14 +72,14 @@ try{
    let saved=await snapshot();assert.equal(saved.meals.media_manana.length,1);assert.equal(saved.meals.media_manana[0].displayQty,2);assert.equal(saved.totals.k,saved.meals.media_manana[0].k);
    await page.reload();await page.getByRole('button',{name:'Recuperar registro ficticio',exact:true}).click();
    assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_manana.length),1);
-   await open('cena');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
+   await open('media_manana');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
    await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').click();
    assert.equal(await page.locator('.ncc-shortcut-choice #mealQuantityCard').count(),1,'Selected recent expands its own quantity card');
    await page.locator('#mealEditorQty').fill('3');
    await page.locator('[data-mealsource="recipes"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3','Source navigation preserves quantity');
    await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3');
    await page.screenshot({path:resolve(out,engine+'-'+width+'-recent-expanded.png')});
-   await page.locator('[data-mealsource="all"]').click();await search('sushi','sushi_maki_salmon');
+   await page.locator('#mealEntrySlot').selectOption('cena');await page.locator('[data-mealsource="all"]').click();await search('sushi','sushi_maki_salmon');
    assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears when a new food entry starts');
    await page.locator('#mealEditorQty').fill('6');assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/pieza/i);
    if(width===390){
@@ -212,6 +212,20 @@ try{
    await page.screenshot({path:resolve(out,engine+'-'+width+'-family-cream-cheese.png')});
 
    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
+   await open('almuerzo');
+   assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="huevo_frito_fritolim"]').count(),0,'Lunch must not show breakfast recents');
+   assert.ok(!(await page.locator('#mealEntryShortcuts').innerText()).includes('Último uso: Desayuno'));
+   await page.locator('#mealFoodSearch').fill('pollo');
+   const chickenChoices=page.locator('#mealFoodSuggestions [role="option"]');assert.ok(await chickenChoices.count()>0);
+   assert.equal(await chickenChoices.locator('.ncc-family-photo').count(),await chickenChoices.count());
+   const widths=await chickenChoices.first().evaluate(e=>({row:e.getBoundingClientRect().width,text:e.children[1].getBoundingClientRect().width}));
+   assert.ok(widths.text>widths.row/2,'Chicken label keeps a readable column: '+JSON.stringify(widths));
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-lunch-chicken-search.png')});
+   await chickenChoices.first().click();
+   assert.equal(await page.locator('#mealEntrySelected .ncc-family-photo').count(),1,'Selected food keeps its photo');
+   assert.equal(await page.locator('#mealEntryDestination').innerText(),'Almuerzo');
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-lunch-chicken-selected.png')});
+   await page.locator('[data-act="closeMeal"]').first().click();
    assert.deepEqual(errors,[]);results.push({engine,width,status:'PASS',scope:'synthetic transport, mobile viewport; no physical device or hosted auth'});await context.close();
   }}finally{await browser.close();}
  }

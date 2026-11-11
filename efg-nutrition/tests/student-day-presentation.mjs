@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {studentDayWelcome,studentDayDashboard,compactDaySummary} from '../pilot/student-day-presentation.js';
+import {studentDayWelcome,studentDayDashboard,compactDaySummary} from '../pilot/student-day-presentation-b13c52657593.js';
 import {pastelDaySummary} from '../pilot/pastel-day.js';
 
 const slots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almuerzo','Almuerzo'],['media_tarde','Media tarde'],['merienda','Merienda'],['cena','Cena']];
@@ -23,3 +23,12 @@ console.log('PASS student day presentation: existing totals, over-goal, no goal/
 
 for(const [k,target,label] of [[1250,2000,'750'],[2300,2000,'+300'],[2000,2000,'0']]){const out=compactDaySummary({...totals,k},{...goal,k:target},diary,slots);assert.ok(out.includes(label));assert.doesNotMatch(out,/NaN|Infinity/);}
 const missing=compactDaySummary({k:100,p:0,c:0,f:0,fi:0},null,diary,slots);assert.match(missing,/sin meta de kcal/);assert.doesNotMatch(missing,/width:|\/ 0 g/);
+
+// The new export must never be requested from the previously cached module URL.
+const {readFileSync}=await import('node:fs');
+const {createHash}=await import('node:crypto');
+const source=readFileSync(new URL('../pilot/student-day-presentation-b13c52657593.js',import.meta.url));
+assert.equal(createHash('sha256').update(source).digest('hex').slice(0,12),'b13c52657593');
+const entry=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+assert.match(entry,/from \"\.\/student-day-presentation-b13c52657593\.js\?v=/);
+assert.doesNotMatch(entry,/from \"\.\/student-day-presentation\.js/);

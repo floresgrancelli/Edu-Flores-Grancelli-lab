@@ -452,8 +452,8 @@ try{
        await page.locator('[data-daymeal="'+slot+'"]').click();
        const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
        if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
-       if((await block.getAttribute("open"))===null)await block.locator("summary").click();
-       await block.locator('.ncc-meal-more > summary').click();
+       if(!await block.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
+       if((await block.locator('.ncc-meal-more').getAttribute('open'))===null)await block.locator('.ncc-meal-more > summary').click();
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
@@ -501,7 +501,7 @@ try{
        v.state.lastEditedMeal=null;
        await v.render();
      },diaryBefore);
-     await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
+     if(await page.locator("[data-daymealpanel]:visible").count()!==1)pageReport.errors.push("Exactly one schedule stays visible after restoring diary");
    }
 
    // UAT-N07/N08 preflight: shrink the actual browser viewport to model the
@@ -764,7 +764,7 @@ try{
        const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
        if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
        else{
-         if((await breakfast.getAttribute("open"))===null)await breakfast.locator("summary").click();
+         if(!await breakfast.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await breakfast.locator('[data-setmeal="desayuno"]').click();
          const guide=page.locator(".efg-meal-guidance");
          if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
@@ -787,7 +787,7 @@ try{
        await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
        if(await snack.count()===1){
-         if((await snack.getAttribute("open"))===null)await snack.locator("summary").click();
+         if(!await snack.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
          await page.locator('[data-act="closeMeal"]').click();
@@ -914,7 +914,7 @@ try{
     const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
     await page.locator('[data-daymeal="almuerzo"]').click();
     const lunch=page.locator(".student-meal-card").nth(2);
-    if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
+    if(!await lunch.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
     await lunch.locator('[data-setmeal="almuerzo"]').click();
     if((await page.locator("[data-mealgroup]").count())!==4)
       pageReport.errors.push("Main meal must offer protein, carb, prepared and other sections");

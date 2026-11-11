@@ -41,3 +41,5 @@ let depth=0;for(const c of css){if(c==="{")depth++;if(c==="}"){depth--;assert.ok
 console.log("PASS: JS syntax, UX destinations, profile sections, CSS/mobile structure, macro markup.");
 console.log("NOT TESTED: real auth, live iPhone/Android screenshots, mobile visual overflow, live Supabase persistence and permissions.");
 
+
+await import('./coach-roster-next-actions.mjs');

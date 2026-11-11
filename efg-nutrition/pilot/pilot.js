@@ -2508,17 +2508,32 @@ function coachRosterNext(p){
  if(!p.active)return {stage:'inactive',label:'Baja temporal',action:'',section:''};
  if(coachRosterConsent[p.user_id]!==true)return {stage:'consent',label:'Autorización pendiente',action:'Ver estado',section:'coachStudentNutrition'};
  if(!state.coachIntakeVerified)return {stage:'unknown',label:'Estado por verificar',action:'Ver seguimiento',section:'coachStudentNutrition'};
- if(state.coachIntakeAccess[p.user_id]?.status==='published')return {stage:'follow',label:'Plan publicado',action:'Continuar seguimiento',section:'coachStudentNutrition'};
  const draft=state.coachIntakeDraftVerified&&currentCoachIntakeDraft(state.coachIntakeDraftStatuses[p.user_id],state.coachIntakeForms[p.user_id],{studentId:p.user_id,organizationId:state.org?.id,coachId:state.session?.user?.id});
- if(draft)return {stage:'plan',label:'Borrador en preparación',action:'Continuar plan',section:'coachStudentGoals'};
- if(state.coachIntakeGoals[p.user_id])return {stage:'follow',label:'Objetivo existente · publicación sin confirmar',action:'Continuar seguimiento',section:'coachStudentNutrition'};
+ if(draft)return {stage:'draft',label:'Borrador guardado',action:'Continuar plan',section:'coachStudentGoals'};
+ if(state.coachIntakeAccess[p.user_id]?.status==='published')return {stage:'follow',label:'Plan publicado',action:'Continuar seguimiento',section:'coachStudentNutrition'};
+ if(state.coachIntakeGoals[p.user_id])return {stage:'follow',label:'Objetivo existente · publicación sin confirmar',action:'Revisar plan',section:'coachStudentGoals'};
  if(state.coachIntakeForms[p.user_id]?.shared_at)return {stage:'intake',label:'Ficha recibida · sin objetivo',action:'Revisar ficha',section:'coachStudentIntake'};
- return {stage:'plan',label:'Sin objetivo configurado',action:'Preparar plan',section:'coachStudentGoals'};
+ return {stage:'plan',label:'Plan por preparar',action:'Preparar plan',section:'coachStudentGoals'};
+}
+function coachRosterMatches(stage,filter){
+ return filter==='all'||(filter==='active'&&stage!=='inactive')||
+  (filter==='pending'&&['intake','draft','plan','consent'].includes(stage))||
+  (filter==='plan'&&['plan','draft'].includes(stage))||stage===filter;
+}
+function coachRosterOrdered(roster){
+ const priority={intake:0,draft:1,plan:2,consent:3,unknown:4,follow:5,inactive:6};
+ return roster.map((person,index)=>({person,index,rank:priority[coachRosterNext(person).stage]}))
+  .sort((a,b)=>a.rank-b.rank||a.index-b.index).map(item=>item.person);
+}
+function coachRosterFilters(roster){
+ const stages=roster.map(p=>coachRosterNext(p).stage);
+ return [['all','Todos'],['pending','Pendientes'],['intake','Fichas recibidas'],['plan','Planes pendientes'],['active','Activos'],['inactive','Inactivos'],['consent','Sin autorización']]
+  .map(([filter,label])=>'<button type="button" class="btn small '+(filter==='all'?'light':'ghost')+'" data-rosterfilter="'+filter+'">'+label+' · '+stages.filter(stage=>coachRosterMatches(stage,filter)).length+'</button>').join('');
 }
 function coachRosterCard(p){
  const next=coachRosterNext(p);
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
- '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small><small>'+next.label+'</small></div></div>'+
+ '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small><small class="pilot-pill">'+next.label+'</small></div></div>'+
  (p.active?'<button type="button" class="btn ncc-roster-primary" data-student="'+p.user_id+'" data-rostersection="'+next.section+'">'+next.action+'</button>':'')+
  '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></details></div>';
 }
@@ -2537,8 +2552,8 @@ function coachView(){
  (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 '+(state.profile.role==="admin"?"Laboratorio de EFG":"Coach piloto EFG")+' — '+seats+' cupos gratuitos de prueba</strong><small>Solo ves alumnos de este espacio que hayan autorizado el seguimiento. No se generan cobros de licencias durante la prueba.</small></div>':'')+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="coachRosterSection"><div class="coach-roster-heading"><div><div class="eyebrow">PERSONAS PRIMERO</div><h2>Mis alumnos</h2><p class="pilot-hint">Avatares individuales. Las fotografías se mostrarán solamente cuando el alumno las autorice.</p></div><span class="coach-roster-total">'+activeRoster.length+' activos</span></div>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
- (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="pending">Pendientes</button><button class="btn small ghost" data-rosterfilter="intake">Fichas recibidas</button><button class="btn small ghost" data-rosterfilter="plan">Por preparar</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
- (roster.length?roster.map(coachRosterCard).join(''):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
+ (roster.length?'<div class="pilot-toolbar" style="margin:10px 0">'+coachRosterFilters(roster)+'</div><p class="pilot-hint">Pendientes primero: fichas recibidas, borradores y planes por preparar. Los estados se muestran según los permisos vigentes.</p>':'')+
+ (roster.length?coachRosterOrdered(roster).map(coachRosterCard).join(''):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de Nutrición Con-Ciencia con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
@@ -4610,7 +4625,13 @@ if(el.dataset.student){
   await loadStudentDetail(studentId);
  // If still same signed Coach + student + consent, leave local unsaved guide untouched.
  await render();
- if(el.dataset.rostersection&&state.consent?.accepted===true)selectCoachSection(el.dataset.rostersection);
+ if(el.dataset.rostersection&&state.consent?.accepted===true){
+  // The list may have changed during the signed refresh: use the current next action.
+  const person=state.roster.find(p=>p.user_id===studentId),next=person&&coachRosterNext(person);
+  if(next?.section)selectCoachSection(next.section);
+  if(next?.stage==='draft'&&state.selectedStudent===studentId&&state.coachGuidedDraft)
+   document.querySelector('[data-planflow-step="1"]')?.click();
+ }
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
  notify("Ficha de "+(state.roster.find(p=>p.user_id===el.dataset.student)?.nickname||"alumno")+" abierta.");
  return;
@@ -5518,7 +5539,7 @@ root.addEventListener("input",e=>{
   if(status)status.textContent="Editaste el informe: volvé a abrir el PDF para revisarlo antes de compartir.";
   return;
  }
- invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted)||(filter==="pending"&&active&&["intake","plan","consent"].includes(row.dataset.rosterstage))||(["intake","plan"].includes(filter)&&active&&row.dataset.rosterstage===filter);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
+ invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=coachRosterMatches(row.dataset.rosterstage,filter);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value)*(guidePortion(food)?.grams||1);

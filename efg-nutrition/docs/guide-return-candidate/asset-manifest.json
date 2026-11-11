@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-food-entry-r1-20261110",
+  "assetVersion": "ncc-visual-guide-r1-20261111",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -97,7 +97,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-food-entry-r1-20261110",
+    "efg-nutrition/pilot/pilot.js": "ncc-visual-guide-r1-20261111",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-coach-plan-steps-r1-20261110",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-dual-role-release-r5-20261107",
@@ -219,7 +219,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "f0c3ffd4de96bd85c9596ee09645723a248cef745edc7d4d8f6f146623e7b7e0",
+    "efg-nutrition/pilot/index.html": "bf630117cca67128ec42574ad87ddb299c0ef5887dbe649835fd93f9a2f55c27",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -247,7 +247,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "c9019722abff0a1fdd75e83fdc1a67a7786660302645be96d96b48bc68787e01",
+    "efg-nutrition/pilot/pilot.js": "eb662ef4f237028146e0ad83427a3f5eeb92cbd0b25e9b52570c8ff53677c73a",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -302,7 +302,13 @@
     "efg-nutrition/pilot/weekly-report-delivery.js": "7b175e22d3112764ec40a55fffa4e75da979a8e38f535da680f7e3619c0f3d4a",
     "efg-nutrition/pilot/weekly-report-pdf-v1.js": "e965be9fe78e315e1ca0e60fc84323b94c5bc2b6e94dd3d5ef5abbdf6038fa6a",
     "efg-nutrition/pilot/weekly-report-pdf-v2.js": "45aebff42d066f19a217807f21be3bee544819853f0931ac66f05322fb7f32a0",
-    "efg-nutrition/pilot/weekly-report-pdf.js": "b1c16af305f8e31b74863d44237be7f9fa68e022e3a12e489bb09c9049690b58"
+    "efg-nutrition/pilot/weekly-report-pdf.js": "b1c16af305f8e31b74863d44237be7f9fa68e022e3a12e489bb09c9049690b58",
+    "efg-nutrition/pilot/assets/guide/apple-r1.webp": "adba85c2eb114cebea7b57375af0ac6f0beb7baf212f4d1eb76a0cee3a602198",
+    "efg-nutrition/pilot/assets/guide/rice-r1.webp": "63887fdc6be24d932bf74d5bce4646fdecc6b05f29ea07c0e3586c685b0835da",
+    "efg-nutrition/pilot/assets/guide/eggs-r1.webp": "461dbb72468ef87e3d61673865d8e5ae9e35e56ff068c8d5afc9027d0b521726",
+    "efg-nutrition/pilot/assets/guide/chicken-r1.webp": "9fca46780bc2a84961bb22b213427b08564748cdc245fe2a5730088e5137f2f4",
+    "efg-nutrition/pilot/assets/guide/yogurt-r1.webp": "dcd9f16141aa6732adaaa8b6b1a21d4818896513fbb7246b89c2091d35882db5",
+    "efg-nutrition/pilot/assets/guide/oats-r1.webp": "1c82227e0bc2f1737d82eefca4eef1af2ed1cd1f640103d30373f5d7f69922b3"
   },
   "stylesheets": [
     {
@@ -447,8 +453,8 @@
     },
     {
       "path": "efg-nutrition/pilot/unified-theme.css",
-      "sha256": "f8b56f0586cfe1709265102399d83a9f53d022c4739dbfbea23b2ca503508495",
-      "url": "./unified-theme.css?v=ncc-fresh-day-r1-20261111"
+      "sha256": "ffb5c41ab31f038da90a3081e9d5b0fefbe8167def6bcfab97f8a45449fe4e0d",
+      "url": "./unified-theme.css?v=ncc-visual-guide-r1-20261111"
     }
   ],
   "moduleResources": [

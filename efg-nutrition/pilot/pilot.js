@@ -1643,18 +1643,20 @@ function homeView(){
     verified:!isPersonalProfessional&&state.rewardFeatureReady===true,
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
+ const selectedMeal=mealSlots.some(([slot])=>slot===state.lastEditedMeal)?state.lastEditedMeal:'desayuno';
+ const mealTabs='<nav class="ncc-day-meal-tabs" aria-label="Elegí una comida">'+mealSlots.map(([slot,label])=>'<button type="button" class="btn small light" data-daymeal="'+slot+'" aria-controls="ncc-day-meal-'+slot+'" aria-pressed="'+(slot===selectedMeal)+'">'+label+'</button>').join('')+'</nav>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
    const portion=i.displayQty?num(i.displayQty,1)+' '+escapeHTML(i.displayUnit)+' (≈'+num(i.qty,1)+' '+escapeHTML(i.unit)+')':num(i.qty,1)+' '+escapeHTML(i.unit);
-   return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><span>'+portion+' · '+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
+   return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><b class="ncc-diary-quantity">'+portion+'</b><span>'+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
    '<button type="button" class="meal-remove-item" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'" title="Quitar solo este alimento">×</button></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
   const omissions=[marks.protein?"Sin proteína adicional":null,marks.carb?"Sin hidrato adicional":null].filter(Boolean);
   const guidanceStatus=isGuidedMealSlot(key)?'<p class="efg-guided-meal-summary">Grasas calculadas: '+num(fat,1)+' g'+(omissions.length?' · '+omissions.join(" · "):"")+'. Los platos preparados cuentan todos sus macros.</p>':"";
-  return '<details class="pilot-record meal-day-section student-meal-card" '+(state.lastEditedMeal===key?'open':'')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
-  detail+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
+  return '<details class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel" id="ncc-day-meal-'+key+'" data-daymealpanel="'+key+'" open '+(selectedMeal===key?'':'hidden')+'><summary class="student-meal-heading"><strong>'+emoji+' '+title+'</strong><span class="pilot-pill">'+(omitted?'Omitida':items.length?num(values(items).k)+' kcal':'Sin cargar')+'</span></summary><div class="student-meal-details">'+
+  guideIngredientPhoto({items})+detail+guidanceStatus+'<div class="meal-actions"><label class="pilot-switch"><input type="checkbox" data-skipmeal="'+key+'" '+(omitted?'checked':'')+'> Omitir</label><button class="btn small light" data-setmeal="'+key+'">+ Añadir alimento</button>'+(items.length?'<button class="btn small ghost" data-clearm="'+key+'">Vaciar comida</button>':'')+'<button class="btn small ghost" data-habitualsave="'+key+'" '+(!items.length?'disabled':'')+'>☆ Guardar habitual</button></div>'+habitualPickerHTML(key)+'</div></details>';
  }).join("");
 const cons=state.consent,showConsent=state.profile.role==="student";
  const consentPanel=showConsent?'<section class="pilot-consent" style="margin-bottom:20px"><h3>🔒 Privacidad y seguimiento</h3><p class="pilot-hint">Tu coach asignado puede consultar registros de alimentación, peso, actividad y suplementos solo si elegís «Autorizar seguimiento del coach» en esta sección. Ingresar con un código no concede permiso. Podés revocarlo cuando quieras.</p><small style="display:block;margin:10px 0;color:#77958a">Seguimiento: '+(cons?.accepted?'Autorizado':'No autorizado')+'</small>'+(cons?.accepted?'<button class="btn small ghost" data-act="revokeConsent">Revocar acceso del coach</button>':'<button class="btn small light" data-act="grantConsent">Autorizar seguimiento del coach</button>')+'</section>':'';
@@ -1678,7 +1680,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
- '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+(studentDay?dayExtras:'')+'<div id="mealDialogContainer"></div>'+goalForm;
+ '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+(studentDay?dayExtras:'')+'<div id="mealDialogContainer"></div>'+goalForm;
 }
 
 // One catalog across student, coach, planner and diary. A guided example and
@@ -2165,7 +2167,7 @@ function updateMealEntryMode(foodChanged=false){
  if(stateInput&&stateHint){const id=f?.id||"";const pair=Object.entries(FOOD_STATE_PAIRS).find(([key,ids])=>ids.includes(id));const raw=pair?pair[1]===id:/\b(crud[oa]|sec[oa])\b/i.test(f?.name||"");stateInput.value=raw?"raw":"cooked";stateInput.disabled=!pair;stateHint.textContent=pair?"Podés cambiar de estado: los valores por 100 g se actualizarán usando su ficha nutricional específica. No convertimos automáticamente los gramos.":"Para este alimento no contamos con dos fichas equivalentes verificadas. Usá el estado indicado en el nombre del alimento.";}
 
  const selected=document.getElementById("mealEntrySelected");
- if(selected){selected.hidden=!f;selected.textContent=f?f.name:"";}
+ if(selected){selected.hidden=!f;selected.innerHTML=f?guideIngredientPhoto({items:[{...f,qty:1}]})+'<strong>'+escapeHTML(f.name)+'</strong>':"";}
  for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f;
  updateMealRecipe();
  updateMealDialogHint();
@@ -2832,6 +2834,24 @@ function coachGuidePickerFoods(){
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }
+// Exact ingredient IDs only: a reference photo never asserts a serving or dietary suitability.
+function guideIngredientVisual(meal){
+ const references={
+  oats_raw:['oats','Avena'],egg:['eggs','Huevo'],huevo_frito_fritolim:['eggs','Huevo'],
+  chicken:['chicken','Pollo cocido'],chicken_breast_roasted:['chicken','Pechuga de pollo cocida'],
+  yogurt:['yogurt','Yogur natural'],yogurt_greek_light:['yogurt','Yogur natural'],
+  apple:['apple','Manzana'],rice:['rice','Arroz blanco cocido']
+ };
+ for(const food of meal.items||[]){
+  const ref=Object.hasOwn(references,food.id)?references[food.id]:null;
+  if(ref&&Number(food.qty)>0)return {src:'./assets/guide/'+ref[0]+'-r1.webp',label:ref[1]};
+ }
+ return null;
+}
+function guideIngredientPhoto(meal){
+ const photo=guideIngredientVisual(meal);
+ return photo?'<figure class="ncc-guide-photo"><img src="'+photo.src+'" width="768" height="512" loading="lazy" decoding="async" alt="'+escapeHTML(photo.label)+' · referencia visual del ingrediente"><figcaption>'+escapeHTML(photo.label)+' · imagen ilustrativa generada. No indica la porción ni la preparación.</figcaption></figure>':'';
+}
 // Display portions use the same catalog equivalences as the diary. Stored amounts
 // remain in the canonical unit; rendering alone must never round or mutate them.
 function guidePortion(food){
@@ -2854,12 +2874,12 @@ function guidedDayContents(plan,goal,editable=false){
    const [min,max]=recipeIngredientLimits(f)||guidedPortionBounds(f.id);
    const countable=f.recipeComponent?null:guidedCountablePortion(f.id);
    const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
-   const select=alt.length>1?'<label class="efg-guide-select-label">Alternativa <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
+   const select=alt.length>1?'<label class="efg-guide-select-label">Sustituir <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
    return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?'<strong class="efg-guide-full-name">'+escapeHTML(f.name)+'</strong>'+select:'<span>'+escapeHTML(f.name)+'</span>')+
      (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
     (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> '+escapeHTML(portion?.label||f.unit)+(portion?' (aprox.)':'')+'</label>'+
      (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
-     '<b>'+escapeHTML(guideQuantityLabel(f))+'</b>')+'</div>';
+     '<b class="ncc-guide-quantity">'+escapeHTML(guideQuantityLabel(f))+'</b>')+'</div>';
   };
   const sections=educationalGuideSections(meal,groupIdFor);
   const contents=sections?
@@ -2873,9 +2893,9 @@ function guidedDayContents(plan,goal,editable=false){
      '</section>').join('')+
     '<p class="efg-guide-education-foot">Las grasas se calculan a partir de todos los alimentos y de los aceites que figuren en la guía. Un plato preparado se cuenta una sola vez.</p></div>':
    meal.items.map(foodRow).join("");
-  return '<article class="efg-guide-meal"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
+  return '<article class="efg-guide-meal ncc-guide-meal" data-guidecard="'+escapeHTML(meal.slot)+'"><div class="efg-guide-meal-head"><b>'+escapeHTML(meal.label)+'</b><span data-guidemealmetric="'+escapeHTML(meal.slot)+'">'+num(mt.k)+' kcal</span>'+
    (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
-   '<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
+   guideIngredientPhoto(meal)+'<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
    (editable&&flexible?'<div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
     '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
@@ -2889,12 +2909,13 @@ function guidedDayContents(plan,goal,editable=false){
      '</select></label>'+
     '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
     '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div>':'')+
-   '<small data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small></article>';
+   '<small class="ncc-guide-nutrients" data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small>'+
+   (!editable&&state.profile?.role==='student'&&mealSlots.some(([slot])=>slot===meal.slot)?'<button type="button" class="btn ncc-guide-register" data-setmeal="'+escapeHTML(meal.slot)+'">Registrar lo que comí</button><small class="ncc-guide-register-hint">Elegís y confirmás lo que comiste.</small>':'')+'</article>';
  }).join("");
- return (validGuideWindow(plan.windowId)?'<p class="pilot-hint">Organización horaria: '+guideWindowLabel(plan.windowId)+' · '+plan.meals.length+' comidas en esta guía.</p>':'')+'<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
+ return '<div class="ncc-guide-status"><b>'+(editable?'Prepará tu Dieta Guía':'Tu Dieta Guía')+'</b><span>'+(editable?'Borrador · revisá antes de enviar':'Plan sugerido · no registrado')+'</span></div>'+ (validGuideWindow(plan.windowId)?'<p class="pilot-hint">Organización horaria: '+guideWindowLabel(plan.windowId)+' · '+plan.meals.length+' comidas en esta guía.</p>':'')+'<div class="efg-guide-summary"><b data-guideoverall>Menú modelo: '+guideNumbers(totals.totals)+'</b><small>Meta: '+num(goal.kcal)+' kcal · P '+goal.protein_g+' g · HC '+goal.carb_g+' g · G '+goal.fat_g+' g</small>'+
  '<small data-guidedeviations>Desvíos: '+["k","p","c","f"].map(k=>(k==="k"?"Kcal":k==="p"?"P":k==="c"?"HC":"G")+" "+(deviations[k].percent>0?"+":"")+num(deviations[k].percent,1)+"%").join(" · ")+(deviations.fi.target>0?" · Fibra "+(deviations.fi.percent>0?"+":"")+num(deviations.fi.percent,1)+"% (meta "+num(deviations.fi.target,1)+" g)":" · Fibra: sin objetivo indicado")+'</small><p class="pilot-hint" data-guidetargetstatus role="status">'+escapeHTML(guidedTargetFeedback(deviations,plan))+'</p></div>'+
  (Array.isArray(plan.profileReviewNotes)&&plan.profileReviewNotes.length?'<details class="pilot-notice"><summary>Revisión orientativa del perfil</summary><ul>'+plan.profileReviewNotes.map(x=>'<li>'+escapeHTML(x)+'</li>').join('')+'</ul></details>':'')+
- '<div class="efg-guide-grid">'+mealCards+'</div>'+
+ '<nav class="ncc-guide-jumps" aria-label="Horarios de la guía">'+plan.meals.map(m=>'<button type="button" class="btn small light" data-guidejump="'+escapeHTML(m.slot)+'">'+escapeHTML(m.label)+'</button>').join('')+'</nav><div class="efg-guide-grid">'+mealCards+'</div>'+
  (editable?'<label class="efg-guide-note">Suplementos (opcional, según indicación del profesional)<textarea id="guideSupplementNote" rows="2" maxlength="300" placeholder="Ej.: no indicados. Si se indican, anotar producto y momento.">'+escapeHTML(plan.supplementNote||"")+'</textarea></label>':
  '<p class="pilot-hint">'+(plan.supplementNote?'<b>Indicación de suplementos:</b> '+escapeHTML(plan.supplementNote):'Suplementos: no indicados en esta guía.')+'</p>')+
  '<p class="pilot-hint">Referencia educativa, no ingesta registrada. Las porciones y macros dependen de la marca, cocción y datos del catálogo. Considerá alergias, hábitos y contexto clínico.</p>';
@@ -3250,7 +3271,7 @@ function studentGuidedSection(){
  return '<section class="card efg-guide-student"><span class="eyebrow">GUÍA APROBADA POR TU COACH</span><h2>🍽️ Mi día de alimentación, explicado</h2>'+
  '<p>Conocé una guía orientativa y cantidades. Podés comer algo distinto y seguir registrando normalmente.</p>'+
  (stale?'<div class="pilot-alert">Tu objetivo cambió después de este ejemplo: pedile al coach una nueva guía.</div>':'')+
- '<details><summary>Ver las comidas de la Dieta Guía</summary>'+guidedDayContents(guide,goal)+'</details>'+
+ guidedDayContents(guide,goal)+
  '<button type="button" class="btn small light" data-tab="planner">Resolver lo que me falta hoy</button></section>';
 }
 function baselinePreview(){
@@ -4361,6 +4382,18 @@ async function mainClick(event){
   if(state.profile?.role!=="student"||state.tab!=="home"||!state.foodPlan?.guided_plan||!state.goals.some(x=>x.id===state.foodPlan.guided_goal_id))return;
   const guide=document.getElementById("nccStudentDayGuide");
   if(guide){guide.open=true;const heading=guide.querySelector("summary");heading?.focus({preventScroll:true});guide.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}return;
+ }
+ if(el.dataset.daymeal){
+  const slot=el.dataset.daymeal;if(!mealSlots.some(([key])=>key===slot))return;
+  state.lastEditedMeal=slot;
+  for(const panel of document.querySelectorAll('[data-daymealpanel]')){panel.hidden=panel.dataset.daymealpanel!==slot;if(!panel.hidden)panel.open=true;}
+  for(const tab of document.querySelectorAll('[data-daymeal]'))tab.setAttribute('aria-pressed',String(tab.dataset.daymeal===slot));
+  return;
+ }
+ if(el.dataset.guidejump){
+  const cards=el.closest('.ncc-guide-jumps')?.nextElementSibling;
+  const target=[...(cards?.querySelectorAll('[data-guidecard]')||[])].find(card=>card.dataset.guidecard===el.dataset.guidejump);
+  if(target){target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({behavior:'instant',block:'start'});}return;
  }
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:el.classList.contains("ncc-day-primary")||window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}return;}
  if(el.dataset.tab){

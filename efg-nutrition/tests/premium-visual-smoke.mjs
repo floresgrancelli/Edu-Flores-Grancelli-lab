@@ -436,9 +436,10 @@ try{
        await v.render();
      },role);
      for(const slot of slots){
+       await page.locator('[data-daymeal="'+slot+'"]').click();
        const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
        if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
-       if(!(await block.getAttribute("open")))await block.locator("summary").click();
+       if((await block.getAttribute("open"))===null)await block.locator("summary").click();
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
@@ -457,6 +458,7 @@ try{
      const diaryAfterPreview=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
      if(JSON.stringify(diaryBefore)!==JSON.stringify(diaryAfterPreview))
        pageReport.errors.push("Previewing a habitual changed the diary before confirming for "+role);
+     await page.locator('[data-daymeal="media_tarde"]').click();
      await page.locator('[data-habitualchoice="media_tarde"]').selectOption("demo-"+role+"-media_tarde-2");
      await page.locator('[data-habitualapply="media_tarde"]').click();
      await page.waitForTimeout(150);
@@ -607,10 +609,10 @@ try{
     const colors=await page.evaluate(()=>{
      const style=s=>{const e=document.querySelector(s);return e?getComputedStyle(e):null};
      return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
-      nav:style('.pilot-nav')?.backgroundColor,field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
+      nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
     if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
-    if(colors.field&&colors.field!=='rgb(20, 24, 25)')pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
+    if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(20, 24, 25)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
@@ -618,13 +620,13 @@ try{
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
-     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
      .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
      .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
     // The daily summary deliberately uses light surfaces; validate readable text instead of forbidding them.
-    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date').evaluateAll(cards=>{
+    const summaryContrast=await page.locator('.efg-pastel-day,.ncc-day-date,.ncc-guide-meal,.ncc-guide-status,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-day-meal-tabs,.meal-popup,#studentMeals').evaluateAll(cards=>{
      const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
      const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
      return cards.flatMap(card=>[card,...card.querySelectorAll('strong,small,span,p,time')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).flatMap(e=>{
@@ -726,10 +728,11 @@ try{
      if(await page.locator(".efg-weekly-streak .efg-streak-daylabel").count()!==6)pageReport.errors.push("One ±5% track must show Monday-Saturday only");
      if(!(await page.locator(".efg-weekly-streak").innerText()).includes("Domingo"))pageReport.errors.push("Discretionary Sunday note missing");
      if(width===390&&engine==="chromium"){
+       await page.locator('[data-daymeal="desayuno"]').click();
        const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
        if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
        else{
-         if(!(await breakfast.getAttribute("open")))await breakfast.locator("summary").click();
+         if((await breakfast.getAttribute("open"))===null)await breakfast.locator("summary").click();
          await breakfast.locator('[data-setmeal="desayuno"]').click();
          const guide=page.locator(".efg-meal-guidance");
          if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
@@ -749,9 +752,10 @@ try{
          }
          await page.locator('[data-act="closeMeal"]').click();
        }
+       await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
        if(await snack.count()===1){
-         if(!(await snack.getAttribute("open")))await snack.locator("summary").click();
+         if((await snack.getAttribute("open"))===null)await snack.locator("summary").click();
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
          await page.locator('[data-act="closeMeal"]').click();
@@ -876,6 +880,7 @@ try{
    if(role==="student"&&width===390&&dest==="home"){
     // Catálogo y registro desde «Mis comidas de hoy», sin panel de botones redundante.
     const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
+    await page.locator('[data-daymeal="almuerzo"]').click();
     const lunch=page.locator(".student-meal-card").nth(2);
     if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
     await lunch.locator('[data-setmeal="almuerzo"]').click();

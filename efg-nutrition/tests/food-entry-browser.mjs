@@ -30,12 +30,20 @@ try{
    await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();
    await page.locator('.ncc-day-register-row').waitFor();
    await page.screenshot({path:resolve(out,engine+'-'+width+'-luminous-day.png'),fullPage:true});
-   const heading=page.locator('.student-meal-heading').first();await heading.click();
+   const diaryBeforeTabs=await page.evaluate(()=>sessionStorage.getItem('ncc-student-day-synthetic-record'));
+   for(const slot of ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']){
+    await page.locator('[data-daymeal="'+slot+'"]').click();
+    assert.equal(await page.locator('[data-daymealpanel]:visible').count(),1);
+    assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),slot);
+    assert.equal(await page.locator('[data-daymeal="'+slot+'"]').getAttribute('aria-pressed'),'true');
+   }
+   assert.equal(await page.evaluate(()=>sessionStorage.getItem('ncc-student-day-synthetic-record')),diaryBeforeTabs,'Changing tabs never writes food');
+   const heading=page.locator('.student-meal-heading').first();await page.locator('[data-daymeal="desayuno"]').click();
    await heading.scrollIntoViewIfNeeded();
    await page.screenshot({path:resolve(out,engine+'-'+width+'-open-meal.png')});
    console.log('LIME_STYLES',await page.locator('.student-meal-heading').first().evaluate(e=>({background:getComputedStyle(e).backgroundColor,text:getComputedStyle(e.querySelector('strong')).color})));
-   await heading.click();
-   const open=async(slot='desayuno')=>{const add=page.locator('[data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
+
+   const open=async(slot='desayuno')=>{await page.locator('[data-daymeal="'+slot+'"]').click();const add=page.locator('[data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
    await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(215, 255, 63)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);

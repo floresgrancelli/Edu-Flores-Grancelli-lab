@@ -62,7 +62,7 @@ const server=createServer((req,res)=>{
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={notify,guideIngredientPhoto,progressHighlightsVisible,state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={notify,dailyTotals,activeGoal,guideIngredientPhoto,progressHighlightsVisible,state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -798,11 +798,11 @@ try{
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
      }));
      if(studentDayTheme){
-      const bars=await page.locator(".efg-pastel-meter>span").evaluateAll(els=>els.map((el,index)=>{
+      const bars=await page.locator(".ncc-focus-meter>span").evaluateAll(els=>els.map((el,index)=>{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
-        expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(145, 191, 80)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
+        expected:Math.min(100,window.__EFG_VISUAL_QA__.dailyTotals(window.__EFG_VISUAL_QA__.state.diary)[["p","c","f"][index]]/window.__EFG_VISUAL_QA__.activeGoal()[["p","c","f"][index]]*100)*w/100,
+        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(145, 191, 80)"};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
        pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
@@ -1197,8 +1197,8 @@ try{
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
     if(await page.locator('.student-meal-card [data-setmeal]').count()!==6)
       pageReport.errors.push("Each meal needs its own Add food button");
-    const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
-    if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
+    const macroPositions=await page.locator(".ncc-focus-summary > .ncc-focus-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
+    if(macroPositions.length!==3)pageReport.errors.push("Compact summary must show all 3 macros");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     // The approved student dashboard adds a prominent register CTA while

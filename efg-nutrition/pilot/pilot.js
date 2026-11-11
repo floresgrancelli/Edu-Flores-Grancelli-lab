@@ -1653,7 +1653,7 @@ function homeView(){
     approved:!isPersonalProfessional&&state.rewardFeatureReady===true&&state.consent?.accepted===true&&state.rewardApproval?.approved===true&&!!state.rewardApproval?.approved_at&&state.rewardApproval?.week_monday===currentWeekMonday()&&state.rewardApproval?.coach_id===state.org?.coach_id}):"";
  const recipeTools='<section class="card"><h2>🍽️ Mis recetas propias</h2><p class="pilot-hint">Calculá los macros según ingredientes pesados y porciones. Son estimaciones y no recetas terapéuticas.</p><div class="meal-actions"><button class="btn small light" data-act="createPersonalRecipe">Crear receta</button><button class="btn small ghost" data-act="registerPersonalRecipe" '+(!myRecipes().length?'disabled':'')+'>Registrar receta</button></div><small>'+myRecipes().length+' recetas visibles (pueden incluir pendientes de sincronización)</small><div class="pilot-stack" style="margin-top:12px">'+myRecipes().map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>Porción: '+num(r.totals.k/r.portions)+' kcal · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join("")+'</div></section>';
  const selectedMeal=mealSlots.some(([slot])=>slot===state.lastEditedMeal)?state.lastEditedMeal:'desayuno';
- const mealTabs='<nav class="ncc-day-meal-tabs" aria-label="Elegí una comida">'+mealSlots.map(([slot,label])=>'<button type="button" class="btn small light" data-daymeal="'+slot+'" aria-controls="ncc-day-meal-'+slot+'" aria-pressed="'+(slot===selectedMeal)+'">'+label+'</button>').join('')+'</nav>';
+ const mealTabs='<nav class="ncc-day-meal-tabs" aria-label="Elegí una comida">'+mealSlots.map(([slot,label])=>'<button type="button" class="btn small light" data-daymeal="'+slot+'" aria-controls="ncc-day-meal-'+slot+'" aria-pressed="'+(slot===selectedMeal)+'">'+'<span>'+label+'</span><small>'+((d.meals[slot]||[]).length?((d.meals[slot]||[]).length+' alimento'+((d.meals[slot]||[]).length===1?'':'s')):d.skipped?.[slot]?'Omitida':'Sin registrar')+'</small></button>').join('')+'</nav>';
  let meals=mealSlots.map(([key,title,emoji])=>{
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
@@ -2045,10 +2045,19 @@ async function addPlannedFood(key){
 let mealDialogReturnFocus=null;
 let mealEntrySource="all";
 let activeGuidedMealGroup="protein";
+// Select the visible schedule without remounting inputs or saving diary data.
+function selectDayMeal(slot){
+ if(!mealSlots.some(([key])=>key===slot))return;
+ state.lastEditedMeal=slot;
+ for(const panel of document.querySelectorAll('[data-daymealpanel]')){panel.hidden=panel.dataset.daymealpanel!==slot;if(!panel.hidden)panel.open=true;}
+ for(const tab of document.querySelectorAll('[data-daymeal]'))tab.setAttribute('aria-pressed',String(tab.dataset.daymeal===slot));
+}
 function closeMealDialog(){
  const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
  state.activeMeal=null;
- if(mealDialogReturnFocus?.isConnected)mealDialogReturnFocus.focus({preventScroll:true});
+ const returnTarget=mealDialogReturnFocus?.isConnected&&!mealDialogReturnFocus.closest('[hidden]')
+  ?mealDialogReturnFocus:document.querySelector('[data-daymeal][aria-pressed="true"]');
+ returnTarget?.focus({preventScroll:true});
  mealDialogReturnFocus=null;
 }
 function openMealDialog(slot,initialGroup="protein"){
@@ -2073,8 +2082,10 @@ function openMealDialog(slot,initialGroup="protein"){
   '<p class="efg-meal-guidance-fat">Grasas registradas en esta comida: <strong>'+num(current.f,1)+' g</strong>. Se calculan solas con todo lo que elegís.</p>'+
   '<small>Una tarta de atún va en «Plato preparado» y aporta proteínas, hidratos y grasas. No se registra de nuevo en las otras secciones. Omitir una sección significa no agregar una fuente por separado: un plato mixto igualmente aporta sus nutrientes.</small></section>':"";
  mealEntrySource="all";
- state.activeMeal=slot;state.lastEditedMeal=slot;
- mealDialogReturnFocus=document.activeElement;
+ state.activeMeal=slot;
+ selectDayMeal(slot);
+ // Reopening for a different schedule must keep the original, mounted trigger.
+ if(!document.querySelector('.meal-popup'))mealDialogReturnFocus=document.activeElement;
  document.getElementById("mealDialogContainer").innerHTML='<div class="meal-backdrop" role="presentation"><div class="meal-popup" role="dialog" aria-modal="true" aria-labelledby="meal-popup-title">'+
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  (guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'</details>':'')+
@@ -4548,9 +4559,7 @@ async function mainClick(event){
  }
  if(el.dataset.daymeal){
   const slot=el.dataset.daymeal;if(!mealSlots.some(([key])=>key===slot))return;
-  state.lastEditedMeal=slot;
-  for(const panel of document.querySelectorAll('[data-daymealpanel]')){panel.hidden=panel.dataset.daymealpanel!==slot;if(!panel.hidden)panel.open=true;}
-  for(const tab of document.querySelectorAll('[data-daymeal]'))tab.setAttribute('aria-pressed',String(tab.dataset.daymeal===slot));
+  selectDayMeal(slot);
   return;
  }
  if(el.dataset.guidejump||el.dataset.guideall){

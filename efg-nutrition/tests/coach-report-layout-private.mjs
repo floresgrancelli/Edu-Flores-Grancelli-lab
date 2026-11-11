@@ -40,9 +40,14 @@ export async function assertCoachReportLayout(page){
  assert.equal(await page.locator('#coachStudentGoals').evaluate(el=>el.open),true,'Objectives action must open its section');
  const age=page.locator('#targetAge'),previous=await age.inputValue();
  await age.fill('41');
- for(const id of ['coachStudentIntake','coachStudentWeight','coachStudentNutrition','coachStudentGoals']){
+ for(const id of ['coachStudentIntake','coachStudentWeight','coachStudentNutrition','coachStudentReports','coachStudentGoals']){
   await page.locator('[data-coachsection="'+id+'"]').click();
   assert.equal(await page.locator('.coach-student-profile [data-coachpanel]:visible').count(),1,'One coach section visible');
+  assert.equal(await page.locator('#'+id).isVisible(),true);
+ }
+ for(const id of ['coachStudentNutrition','coachStudentReports','coachStudentGoals']){
+  await page.locator('[data-coachquick="'+id+'"]').click();
+  assert.equal(await page.locator('.coach-student-profile [data-coachpanel]:visible').count(),1);
   assert.equal(await page.locator('#'+id).isVisible(),true);
  }
  assert.equal(await age.inputValue(),'41','Section switches retain unsaved fields');

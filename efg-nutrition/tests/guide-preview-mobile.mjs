@@ -41,6 +41,13 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  },role);
  const photoEvidence=await page.locator('.ncc-guide-photo img').evaluateAll(imgs=>imgs.map(img=>({src:img.getAttribute('src'),height:img.getBoundingClientRect().height})));
  assert.ok(photoEvidence.length>0);for(const photo of photoEvidence){assert.ok(photo.height<=96);assert.ok(photo.src.startsWith('./assets/guide/'));}
+ const firstPhoto=page.locator('.ncc-guide-photo').first();
+ await firstPhoto.locator('img').dispatchEvent('error');
+ assert.equal(await firstPhoto.locator('img').isVisible(),false);
+ assert.equal(await firstPhoto.locator('.ncc-guide-photo-fallback').isVisible(),true);
+ assert.ok((await firstPhoto.innerText()).includes('No indica la porción'));
+ // Restore the loaded fixture so later screenshots exercise the normal image path.
+ await firstPhoto.evaluate(el=>{el.querySelector('img').hidden=false;el.querySelector('.ncc-guide-photo-fallback').hidden=true;});
  assert.equal(await page.locator('.ncc-guide-jumps button').count(),6);
  await page.locator('.ncc-guide-jumps button').last().click();
  assert.equal(await page.evaluate(()=>document.activeElement?.dataset.guidecard),'cena');

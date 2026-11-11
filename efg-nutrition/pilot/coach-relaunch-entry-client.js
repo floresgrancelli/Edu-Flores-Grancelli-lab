@@ -76,7 +76,7 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  '<button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
  const data=editing?initialCoachRelaunchIntake({draftVersion:COACH_RELEASE_INTAKE_VERSION,
   currentVersionDraft:entry.status}):initialCoachRelaunchIntake();
- const labels=['Tus datos','Preferencias','Tu rutina','Revisar'];
+ const labels=['Tus datos','Comidas','Tu rutina','Revisar'];
  const stage=(n,title)=>guided?'<section data-intakepanel="'+n+'" '+(n?'hidden':'')+'><h3 tabindex="-1">'+title+'</h3>':'';
  const endStage=n=>guided?'<div class="ncc-intake-actions">'+(n?'<button class="btn light" type="button" data-intakestep="'+(n-1)+'">Atrás</button>':'')+(n<3?'<button class="btn" type="button" data-intakenext="'+(n+1)+'">Continuar</button>':'')+'</div></section>':'';
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
@@ -213,7 +213,7 @@ export function showCoachIntakeStep(form,index,{validate=false}={}){
  }
  for(const panel of panels)panel.hidden=panel!==target;
  for(const button of form.querySelectorAll('[data-intakestep]'))button.setAttribute('aria-pressed',String(button.dataset.intakestep===String(index)));
- const names=['Tus datos','Preferencias','Tu rutina','Revisar'];
+ const names=['Tus datos','Comidas','Tu rutina','Revisar'];
  form.querySelector('[data-intakeprogress]').textContent='Paso '+(Number(index)+1)+' de 4 · '+names[index];
  const review=form.querySelector('[data-intakereview]');
  if(Number(index)===3&&review){

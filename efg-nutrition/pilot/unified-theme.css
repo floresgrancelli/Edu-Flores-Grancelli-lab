@@ -3,7 +3,7 @@
    #app wins the historical theme cascade without changing generated report documents. */
 html.ncc-lime-theme{
  --ncc-bg:#090d0a;--ncc-surface:#141b15;--ncc-panel:#1d271e;
- --ncc-lime:#a3e635;--ncc-text:#f5f3eb;--ncc-muted:#b1b9b9;
+ --ncc-lime:#91bf50;--ncc-text:#f5f3eb;--ncc-muted:#b1b9b9;
  --ncc-line:#344235;--ncc-input:#0e150f;--ncc-action-ink:#171c0b;
  --efg-bg:var(--ncc-bg);--efg-ink:var(--ncc-text);--efg-subtle:var(--ncc-muted);
  --efg-line:var(--ncc-line);--efg-green:var(--ncc-lime);
@@ -59,12 +59,12 @@ html.ncc-lime-theme #app :is(.efg-mobile-header,.pilot-nav,.efg-self-head,.ns-we
 html.ncc-lime-theme #app :is(.pilot-logo,.efg-mobile-brand-text strong,.pilot-avatar strong){color:var(--ncc-text)!important;font-family:inherit!important}
 html.ncc-lime-theme #app .pilot-nav button.navitem{color:var(--ncc-muted)!important;box-shadow:none!important}
 html.ncc-lime-theme #app .pilot-nav button.navitem:is(.active,:hover){background:#29321a!important;color:var(--ncc-lime)!important;box-shadow:none!important}
-html.ncc-lime-theme #app .pilot-nav button.navitem.active:before{background:var(--ncc-lime)!important}
+html.ncc-lime-theme #app .pilot-nav button.navitem.active:before{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app :is(.avatar,.efg-mobile-avatar,.coach-profile-avatar,.coach-roster-avatar,.efg-chat-avatar){background:#28311b!important;color:var(--ncc-lime)!important;border-color:#56643d!important;box-shadow:none!important}
 /* Base buttons also cover dynamically mounted professional/admin tools. */
 html.ncc-lime-theme #app button:where(:not(.navitem)){background:#252c24!important;color:var(--ncc-text)!important;border-color:#48523e!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;touch-action:manipulation}
 /* Primary action, secondary action and navigation cards share one vocabulary. */
-html.ncc-lime-theme #app :is(.btn,.ns-next,.efg-onboard-cta){background:var(--ncc-lime)!important;border:1px solid var(--ncc-lime)!important;color:var(--ncc-action-ink)!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;font-weight:750;touch-action:manipulation}
+html.ncc-lime-theme #app :is(.btn,.ns-next,.efg-onboard-cta){background:linear-gradient(180deg,#a1e144,#83ce30)!important;border:1px solid var(--ncc-lime)!important;color:var(--ncc-action-ink)!important;box-shadow:none!important;border-radius:12px!important;min-height:44px;font-weight:750;touch-action:manipulation;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app :is(.btn.light,.btn.ghost,.pilot-logout,.efg-mobile-logout,
  .student-shortcuts button,.efg-quick-more button,.ns-back,.ns-skip,
  .efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile,
@@ -100,7 +100,7 @@ html.ncc-lime-theme #app :is(.efg-message-bubble){background:var(--ncc-panel)!im
 html.ncc-lime-theme #app .efg-message-bubble.self{background:#303d20!important;color:var(--ncc-text)!important}
 html.ncc-lime-theme #app :is(.efg-chat-contact,.efg-chat-contact-copy strong){color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
 html.ncc-lime-theme #app .efg-chat-contact:is(:hover,.is-selected){background:#29321a!important}
-html.ncc-lime-theme #app :is(.efg-chat-unread,.efg-notify-count){background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+html.ncc-lime-theme #app :is(.efg-chat-unread,.efg-notify-count){background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:var(--ncc-action-ink)!important;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app :is(.efg-chat-thread-top,.efg-chat-list,.efg-message-compose){border-color:var(--ncc-line)!important}
 html.ncc-lime-theme #app :is(.efg-notify-bell,.efg-chat-tabs button){color:var(--ncc-text)!important}
 html.ncc-lime-theme #app :is(.weekly-pdf-dialog footer,.ns-welcome-actions){background:#141b15f5!important;border-color:var(--ncc-line)!important}
@@ -125,7 +125,7 @@ html.ncc-lime-theme .efg-notifications .efg-notify-popup{background:var(--ncc-su
 html.ncc-lime-theme .efg-notifications :is(.efg-notify-title,.efg-notify-item,.efg-notify-item.unread){background:var(--ncc-panel)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
 html.ncc-lime-theme .efg-notifications :is(button,b,strong,span){color:var(--ncc-text)!important}
 html.ncc-lime-theme .efg-notifications :is(small,.efg-notify-empty){color:var(--ncc-muted)!important}
-html.ncc-lime-theme .efg-notifications .efg-notify-count{background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-count{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:var(--ncc-action-ink)!important;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app :is(table,thead,tbody,tr,th,td){border-color:var(--ncc-line)!important}
 html.ncc-lime-theme #app :is(th,tr:nth-child(even)){background:var(--ncc-panel)!important}
 /* Planner, progress and secondary meal surfaces use the same card system. */
@@ -155,7 +155,7 @@ html.ncc-lime-theme #app :is(.coach-food-choices label,.food-library-tools,.coac
  [data-ncc-admin-controls]){background:var(--ncc-surface)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
 html.ncc-lime-theme #app :is(.ns-macro-emoji,.ns-wellbeing-orbit,.ns-wellbeing-points p>span:first-child){background:#28311b!important;color:var(--ncc-lime)!important}
 html.ncc-lime-theme #app .ns-welcome-progress i{background:var(--ncc-line)!important}
-html.ncc-lime-theme #app .ns-welcome-progress i.is-current{background:var(--ncc-lime)!important}
+html.ncc-lime-theme #app .ns-welcome-progress i.is-current{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#101609!important;--ncc-text:#101609;}
 /* Final contrast details found in the actual cross-role captures. */
 html.ncc-lime-theme #app :is(.warning){background:#442323!important;color:#ffdad6!important;border-color:#a85b58!important}
 html.ncc-lime-theme #app .efg-fit-art{background-color:var(--ncc-panel)!important}
@@ -167,7 +167,7 @@ html.ncc-lime-theme #app .efg-coach-stat-grid>div>span{color:var(--ncc-muted)!im
 html.ncc-lime-theme #app .pilot-nav button.navitem:not(.active):not(:hover){background:transparent!important}
 html.ncc-lime-theme #app :is(h1,h2,h3) em{font-family:inherit!important;color:var(--ncc-lime)!important}
 html.ncc-lime-theme #app :is(.ns-myth-credit,.ns-disclaimer,.ns-wellbeing-kicker){color:var(--ncc-muted)!important}
-html.ncc-lime-theme .efg-notifications .efg-notify-bell-svg{stroke:var(--ncc-lime)!important;fill:#a3e63515!important;filter:none!important}
+html.ncc-lime-theme .efg-notifications .efg-notify-bell-svg{stroke:var(--ncc-lime)!important;fill:#91bf5015!important;filter:none!important}
 html.ncc-lime-theme .efg-notifications .efg-notify-bell:before{background:none!important}
 html.ncc-lime-theme .efg-notifications .efg-notify-bell:focus-visible{outline:3px solid var(--ncc-lime)!important}
 html.ncc-lime-theme #app input.planner-food-search{background:var(--ncc-input)!important}
@@ -179,7 +179,7 @@ html.ncc-lime-theme #app :is(input,select,textarea):is(:enabled,:disabled){backg
    genuine circular track at zero, partial progress and over-goal for every role. */
 html.ncc-lime-theme #app .efg-pastel-day{background:linear-gradient(135deg,#24301f,#1b2325 72%)!important;border-color:#4d6240!important}
 html.ncc-lime-theme #app .efg-pastel-day-grid{display:grid!important;grid-template-columns:minmax(130px,.95fr) minmax(0,1fr)!important;gap:24px!important;align-items:center;margin:24px 0}
-html.ncc-lime-theme #app .efg-pastel-ring{position:relative!important;inset:auto!important;display:grid!important;place-items:center;aspect-ratio:1;width:180px!important;height:180px!important;max-width:100%!important;min-width:0;padding:9px!important;border:0!important;border-radius:50%!important;overflow:hidden;background:conic-gradient(#a3e635 0 var(--ring-c),#3c4738 var(--ring-c) 360deg)!important;box-shadow:none!important;margin-inline:auto}
+html.ncc-lime-theme #app .efg-pastel-ring{position:relative!important;inset:auto!important;display:grid!important;place-items:center;aspect-ratio:1;width:180px!important;height:180px!important;max-width:100%!important;min-width:0;padding:9px!important;border:0!important;border-radius:50%!important;overflow:hidden;background:conic-gradient(#91bf50 0 var(--ring-c),#3c4738 var(--ring-c) 360deg)!important;box-shadow:none!important;margin-inline:auto}
 html.ncc-lime-theme #app .efg-pastel-ring:before{display:none!important;content:none!important}
 html.ncc-lime-theme #app .efg-pastel-ring-inner{position:static!important;inset:auto!important;width:100%!important;height:100%!important;border-radius:50%!important;background:#1b2325!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;overflow:hidden}
 html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:36px!important;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -192,22 +192,22 @@ html.ncc-lime-theme #app .efg-pastel-macro-info>span{grid-column:1/-1;font-size:
 html.ncc-lime-theme #app .efg-pastel-macro-info strong{font-size:18px!important}
 html.ncc-lime-theme #app .efg-pastel-macro-info small{align-self:end;font-size:11px!important}
 html.ncc-lime-theme #app .efg-pastel-meter{height:5px!important;max-width:none!important;width:100%!important;grid-column:1/-1;background:#44504b!important;border-radius:8px!important;overflow:hidden;margin:5px 0 0!important}
-html.ncc-lime-theme #app .efg-pastel-meter>span{display:block;width:var(--macro-progress);height:100%;background:#a3e635!important}
+html.ncc-lime-theme #app .efg-pastel-meter>span{display:block;width:var(--macro-progress);height:100%;background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app .efg-pastel-macro:nth-child(2) .efg-pastel-meter>span{background:#7ddde2!important}
 html.ncc-lime-theme #app .efg-pastel-macro:nth-child(3) .efg-pastel-meter>span{background:#c5a6ff!important}
 html.ncc-lime-theme #app .efg-personal-hello{background:linear-gradient(90deg,#132014f5,#1320149c),url('./welcome-bowl.jpg') center 45%/cover!important;border-color:#566b3f!important;min-height:100px;box-shadow:none!important}
 html.ncc-lime-theme #app .efg-personal-hello strong{font-family:inherit!important;color:#f5f3eb!important;font-size:30px!important}
-html.ncc-lime-theme #app .efg-personal-hello span{color:#a3e635!important}
+html.ncc-lime-theme #app .efg-personal-hello span{color:#91bf50!important}
 /* Large, bright actions instead of a page full of subdued secondary buttons. */
-html.ncc-lime-theme #app .student-shortcuts button[data-scrollto],html.ncc-lime-theme #app .student-meal-details button[data-setmeal],html.ncc-lime-theme #app button[data-resolve-day],html.ncc-lime-theme #app .efg-pastel-motivation .btn{background:#a3e635!important;color:#171c0b!important;border-color:#a3e635!important;box-shadow:0 4px 20px #a3e63520!important}
+html.ncc-lime-theme #app .student-shortcuts button[data-scrollto],html.ncc-lime-theme #app .student-meal-details button[data-setmeal],html.ncc-lime-theme #app button[data-resolve-day],html.ncc-lime-theme #app .efg-pastel-motivation .btn{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#171c0b!important;border-color:#91bf50!important;box-shadow:0 4px 20px #91bf5020!important;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app .student-shortcuts button:nth-child(2){background:#253b2b!important;border-color:#99c557!important;color:#edf7df!important}
 html.ncc-lime-theme #app .student-shortcuts button:nth-child(3){background:#233647!important;border-color:#65a4c3!important;color:#e0f4ff!important}
-html.ncc-lime-theme #app .efg-menu-card:first-child{background:#a3e635!important;color:#171c0b!important;border-color:#a3e635!important}
+html.ncc-lime-theme #app .efg-menu-card:first-child{background:#192210!important;color:#171c0b!important;border-color:#91bf50!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .efg-menu-card:nth-child(3n+2){background:#223442!important;border-color:#3e677e!important}
 html.ncc-lime-theme #app .efg-menu-card:nth-child(3n+3){background:#302a43!important;border-color:#62517d!important}
 html.ncc-lime-theme #app .efg-menu-card:first-child :is(strong,span,.efg-lux-menu-icon){color:#171c0b!important;stroke:#171c0b!important}
 html.ncc-lime-theme #app .efg-menu-card:first-child .efg-menu-emoji{background:#78b921!important;border-color:#93ae2b!important}
-html.ncc-lime-theme #app .efg-pastel-stat:first-child{background:#a3e635!important;border-color:#a3e635!important;border-radius:14px!important;padding:13px 9px!important}
+html.ncc-lime-theme #app .efg-pastel-stat:first-child{background:#192210!important;border-color:#91bf50!important;border-radius:14px!important;padding:13px 9px!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .efg-pastel-stat:first-child :is(strong,small){color:#171c0b!important}
 @media(max-width:720px){html.ncc-lime-theme #app .efg-pastel-day-grid{gap:17px!important;grid-template-columns:minmax(125px,1fr) minmax(0,1fr)!important}html.ncc-lime-theme #app .efg-pastel-ring{width:148px!important;height:148px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:31px!important}}
 @media(max-width:380px){html.ncc-lime-theme #app .efg-pastel-ring{width:126px!important;height:126px!important;padding:7px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner strong{font-size:27px!important}html.ncc-lime-theme #app .efg-pastel-ring-inner small{font-size:9px!important;max-width:100px}html.ncc-lime-theme #app .efg-pastel-day-grid{gap:12px!important}html.ncc-lime-theme #app .efg-pastel-macro-info strong{font-size:16px!important}}
@@ -215,7 +215,7 @@ html.ncc-lime-theme #app .efg-pastel-stat:first-child :is(strong,small){color:#1
 html.ncc-lime-theme #app .ncc-plan-journey{border:1px solid #52663d;border-radius:20px;padding:14px;margin-block:16px;scroll-margin-top:100px;background:#172018}
 html.ncc-lime-theme #app .ncc-plan-steps{position:sticky;top:76px;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px;background:#172018f5;border-radius:14px;border:1px solid #46523c}
 html.ncc-lime-theme #app .ncc-plan-steps button{margin:0!important;padding:9px 6px!important;min-height:48px;font-size:12px;white-space:normal;border:1px solid #53623d}
-html.ncc-lime-theme #app .ncc-plan-steps button[aria-current=step]{background:#a3e635!important;color:#171c0b!important;border-color:#a3e635!important}
+html.ncc-lime-theme #app .ncc-plan-steps button[aria-current=step]{background:#192210!important;color:#171c0b!important;border-color:#91bf50!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .ncc-plan-step[hidden]{display:none!important}
 html.ncc-lime-theme #app .ncc-plan-step-actions{display:flex;justify-content:space-between;gap:10px;position:sticky;bottom:12px;z-index:3;padding:10px;background:#172018f5;border:1px solid #46523c;border-radius:14px}
 html.ncc-lime-theme #app .ncc-plan-step-actions button{margin:0!important}
@@ -227,10 +227,10 @@ html.ncc-lime-theme #app .ncc-intake-received{padding:13px;border:1px solid #99c
 .ncc-lime-theme .meal-popup{overscroll-behavior:contain;scroll-padding-bottom:90px}
 .ncc-meal-sources{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
 .ncc-lime-theme .ncc-meal-sources .btn{min-height:44px;flex:1 1 auto}
-html.ncc-lime-theme #app .ncc-meal-sources .btn[aria-pressed=true]{background:#a3e635!important;color:#18200b!important;border-color:#a3e635!important}
+html.ncc-lime-theme #app .ncc-meal-sources .btn[aria-pressed=true]{background:#192210!important;color:#18200b!important;border-color:#91bf50!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 .ncc-meal-guidance-details,.ncc-meal-catalog{margin:8px 0 12px;padding:10px;border:1px solid #535d60;border-radius:12px}
 .ncc-meal-guidance-details summary,.ncc-meal-catalog summary{cursor:pointer;min-height:28px;font-size:14px}
-.ncc-meal-selected{padding:12px;margin:10px 0;border-left:4px solid #a3e635;border-radius:8px;background:#29312d;font-weight:700}
+.ncc-meal-selected{padding:12px;margin:10px 0;border-left:4px solid #91bf50;border-radius:8px;background:#29312d;font-weight:700}
 .ncc-meal-shortcuts{max-height:240px;overflow:auto;overscroll-behavior:contain}
 .ncc-meal-shortcuts .efg-meal-search-choice{width:100%;min-height:48px;text-align:left}
 .ncc-lime-theme .ncc-meal-save{position:sticky;bottom:-24px;padding:14px 0 calc(12px + env(safe-area-inset-bottom,0px));background:#141b15;z-index:2;margin-top:12px;border-top:1px solid #535d60}
@@ -243,16 +243,16 @@ html.ncc-lime-theme #app .ncc-meal-sources .btn[aria-pressed=true]{background:#a
 html.ncc-lime-theme #app .ncc-day-welcome{
  padding:28px;border:1px solid #647d39;border-radius:24px;min-height:190px;
  background:linear-gradient(90deg,#142014fa 10%,#142014e6 48%,#14201445),url('./welcome-bowl.jpg') right center/cover;
- box-shadow:inset 0 1px #a3e63524!important;align-items:flex-end;
+ box-shadow:inset 0 1px #91bf5024!important;align-items:flex-end;
 }
 html.ncc-lime-theme #app .ncc-day-welcome h1{max-width:440px;text-wrap:balance}
 html.ncc-lime-theme #app .ncc-day-welcome :is(p,.ncc-day-date){color:#e7eddb!important}
-html.ncc-lime-theme #app .ncc-day-welcome .ncc-day-eyebrow{color:#a3e635!important}
+html.ncc-lime-theme #app .ncc-day-welcome .ncc-day-eyebrow{color:#91bf50!important}
 html.ncc-lime-theme #app .ncc-day-register-row{
- background:linear-gradient(110deg,#a3e635,#84cc16)!important;color:#17200c!important;
- padding:20px 24px;border-radius:20px;gap:16px;box-shadow:0 8px 28px #84cc1612;
+ background:linear-gradient(135deg,#192210,#10150c)!important;color:#edf2e6!important;
+ padding:20px 24px;border-radius:20px;gap:16px;box-shadow:0 8px 28px #789b4212;
 }
-html.ncc-lime-theme #app .ncc-day-register-row p{color:#263612!important;font-size:14px;font-weight:600;max-width:420px}
+html.ncc-lime-theme #app .ncc-day-register-row p{color:#edf2e6!important;font-size:14px;font-weight:600;max-width:420px}
 html.ncc-lime-theme #app .ncc-day-register-row .btn.ncc-day-primary{
  background:#19230e!important;color:#f2ffd1!important;border-color:#19230e!important;min-height:48px;
 }
@@ -265,7 +265,7 @@ html.ncc-lime-theme #app .ncc-day-guide-card{border-color:#607746!important}
 html.ncc-lime-theme #app .pilot-layout .student-meal-card{border-radius:18px!important;border-color:#485841!important;background:#202b24!important;overflow:hidden}
 html.ncc-lime-theme #app .pilot-layout .student-meal-card .student-meal-heading{padding:18px!important;min-height:64px;gap:12px}
 html.ncc-lime-theme #app .pilot-layout .student-meal-card[open]{border-color:#b4d760!important;background:#263324!important}
-html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading{background:#a3e635!important;color:#17200c!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading{background:#192210!important;color:#17200c!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading .pilot-pill{background:#83c62e!important;color:#17200c!important;border-color:#7e9a36!important}
 html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading:focus-visible{outline-color:#17200c!important;outline-offset:-4px}
 html.ncc-lime-theme #app .student-meal-details{padding:16px!important}
@@ -284,35 +284,35 @@ html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-he
 
 /* EV-02B: light is a surface, not only a button. No nutrition/state changes. */
 html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome{
- background:radial-gradient(ellipse at 95% 0%,#c7f59b 0,transparent 55%),linear-gradient(120deg,#a3e635,#84cc16)!important;
- border-color:#a3e635!important;padding:26px!important;min-height:180px;position:relative;overflow:hidden;
+ background:linear-gradient(135deg,#192210,#10150c)!important;
+ border-color:#91bf50!important;padding:26px!important;min-height:180px;position:relative;overflow:hidden;
 }
-html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome :is(h1,h1 span,p,.ncc-day-eyebrow,.ncc-day-date,time){color:#192b16!important}
+html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome :is(h1,h1 span,p,.ncc-day-eyebrow,.ncc-day-date,time){color:#edf2e6!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome h1{font-weight:800!important;letter-spacing:-.045em!important}
-html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome h1 span{color:#355522!important}
-html.ncc-lime-theme #app .pilot-layout .ncc-day-date{background:#d2f5ad!important;border:1px solid #6b8b36}
+html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome h1 span{color:#b6c0ac!important}
+html.ncc-lime-theme #app .pilot-layout .ncc-day-date{background:#151a13!important;border:1px solid #6b8b36}
 html.ncc-lime-theme #app .pilot-layout .efg-pastel-day{
- background:#f7f5e9!important;color:#243222!important;border-color:#e1e6c7!important;box-shadow:0 10px 28px #00000015!important;
+ background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;box-shadow:0 10px 28px #00000015!important;
 }
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day :is(strong,small,span,p){color:#243222!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-day-head small{color:#4c5948!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day :is(strong,small,span,p){color:#edf2e6!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-day-head small{color:#b6c0ac!important}
 html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-ring-inner{background:#203020!important}
 html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-ring-inner :is(strong,span,small){color:#f7f9eb!important}
 html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macros{gap:10px!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro{padding:12px;border-radius:14px;background:#e1f2b5!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro:nth-child(2){background:#c7edf0!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro:nth-child(3){background:#e3d7f5!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro-info>span{font-weight:750;color:#243222!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro{padding:12px;border-radius:14px;background:#151a13!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro:nth-child(2){background:#1c3033!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro:nth-child(3){background:#2b2538!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-macro-info>span{font-weight:750;color:#edf2e6!important}
 html.ncc-lime-theme #app .pilot-layout .efg-pastel-day .efg-pastel-meter{background:#344933!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-day-stats{border-color:#bdc8af!important;gap:8px!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat{border-radius:14px!important;padding:13px 9px!important;background:#e3edda!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:first-child{background:#a3e635!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:nth-child(2){background:#e3d7f5!important}
-html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:nth-child(3){background:#c7edf0!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-day-stats{border-color:#3e4a34!important;gap:8px!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat{border-radius:14px!important;padding:13px 9px!important;background:#151a13!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:first-child{background:#192210!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:nth-child(2){background:#2b2538!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:nth-child(3){background:#1c3033!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-day-guide-card{min-height:390px;align-items:end;background:#243b25!important;border-color:#9fbf67!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-day-guide-card:after{background:linear-gradient(0deg,#122514 0%,#122514ed 35%,#12251415 78%,transparent)!important}
 html.ncc-lime-theme #app .pilot-layout .ncc-day-guide-photo{object-position:center 28%}
-html.ncc-lime-theme #app .pilot-layout .student-meal-details .efg-no-habitual{background:#e9f1db!important;color:#304326!important;border-radius:12px;padding:12px;line-height:1.5}
+html.ncc-lime-theme #app .pilot-layout .student-meal-details .efg-no-habitual{background:#151a13!important;color:#edf2e6!important;border-radius:12px;padding:12px;line-height:1.5}
 @media(max-width:600px){
  html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome{padding:22px 20px!important;min-height:170px}
  html.ncc-lime-theme #app .pilot-layout .ncc-day-guide-card{min-height:320px}
@@ -322,169 +322,169 @@ html.ncc-lime-theme #app .pilot-layout .student-meal-details .efg-no-habitual{ba
 }
 
 /* EV-04 approved compact guide: photos support quantities, never represent a serving. */
-html.ncc-lime-theme #app .ncc-guide-status{background:#a3e635!important;color:#21331e!important;border-radius:18px;padding:20px;display:grid;gap:8px;margin:14px 0}
-html.ncc-lime-theme #app .ncc-guide-status b{font-size:24px;color:#21331e!important}
-html.ncc-lime-theme #app .ncc-guide-status span{color:#21331e!important;font-size:14px}
+html.ncc-lime-theme #app .ncc-guide-status{background:#192210!important;color:#edf2e6!important;border-radius:18px;padding:20px;display:grid;gap:8px;margin:14px 0;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app .ncc-guide-status b{font-size:24px;color:#edf2e6!important}
+html.ncc-lime-theme #app .ncc-guide-status span{color:#edf2e6!important;font-size:14px}
 html.ncc-lime-theme #app .efg-guide-grid{align-items:start;gap:16px}
-html.ncc-lime-theme #app .ncc-guide-meal{background:#f7f5e9!important;color:#21331e!important;border:1px solid #d8dfc9!important;border-radius:20px;padding:18px!important;min-width:0;box-shadow:0 4px 15px #0000000a!important}
-html.ncc-lime-theme #app .ncc-guide-meal :is(b,strong,span,p,small,h4,label,figcaption){color:#21331e!important}
+html.ncc-lime-theme #app .ncc-guide-meal{background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;border-radius:20px;padding:18px!important;min-width:0;box-shadow:0 4px 15px #0000000a!important}
+html.ncc-lime-theme #app .ncc-guide-meal :is(b,strong,span,p,small,h4,label,figcaption){color:#edf2e6!important}
 html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-meal-head{gap:10px;flex-wrap:wrap;margin-bottom:12px}
 html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-meal-head>b{font-size:21px}
-html.ncc-lime-theme #app .ncc-guide-meal [data-guidemealmetric]{background:#e3d7f5!important;padding:6px 10px;border-radius:12px;font-weight:700}
+html.ncc-lime-theme #app .ncc-guide-meal [data-guidemealmetric]{background:#2b2538!important;padding:6px 10px;border-radius:12px;font-weight:700}
 html.ncc-lime-theme #app .ncc-guide-photo{margin:0 0 12px}
-html.ncc-lime-theme #app .ncc-guide-photo img{display:block;width:100%;height:96px;object-fit:cover;border-radius:12px;background:#e8e9da}
+html.ncc-lime-theme #app .ncc-guide-photo img{display:block;width:100%;height:96px;object-fit:cover;border-radius:12px;background:#151a13}
 html.ncc-lime-theme #app .ncc-guide-photo figcaption{font-size:11px;line-height:1.4;margin-top:6px}
-html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-food{background:#eeeedd!important;border-color:#d4dbc8!important;border-radius:12px;padding:12px!important;margin:8px 0;gap:10px;align-items:center}
-html.ncc-lime-theme #app .ncc-guide-meal .ncc-guide-quantity{background:#c7edf0!important;border-radius:12px;padding:8px 12px;white-space:normal;font-size:17px}
-html.ncc-lime-theme #app .ncc-guide-meal :is(input,select){background:#fffef8!important;color:#21331e!important;border:1px solid #7c896e!important;min-height:44px;font-size:16px!important;max-width:100%}
-html.ncc-lime-theme #app .ncc-guide-meal :is(.efg-guide-food-group,.efg-guide-add-food){background:transparent!important;border-color:#becbaa!important}
-html.ncc-lime-theme #app .ncc-guide-meal .btn.ghost,html.ncc-lime-theme #app .ncc-guide-meal .btn.light{background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important;min-height:44px}
+html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-food{background:#151a13!important;border-color:#3e4a34!important;border-radius:12px;padding:12px!important;margin:8px 0;gap:10px;align-items:center}
+html.ncc-lime-theme #app .ncc-guide-meal .ncc-guide-quantity{background:#1c3033!important;border-radius:12px;padding:8px 12px;white-space:normal;font-size:17px}
+html.ncc-lime-theme #app .ncc-guide-meal :is(input,select){background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;min-height:44px;font-size:16px!important;max-width:100%}
+html.ncc-lime-theme #app .ncc-guide-meal :is(.efg-guide-food-group,.efg-guide-add-food){background:transparent!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .ncc-guide-meal .btn.ghost,html.ncc-lime-theme #app .ncc-guide-meal .btn.light{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;min-height:44px}
 html.ncc-lime-theme #app .ncc-guide-meal :is(input,select,button):focus-visible{outline:3px solid #36561f!important;outline-offset:3px}
-html.ncc-lime-theme #app .ncc-guide-nutrients{display:block;background:#e3d7f5!important;padding:10px;border-radius:12px;margin-top:12px;line-height:1.6}
+html.ncc-lime-theme #app .ncc-guide-nutrients{display:block;background:#2b2538!important;padding:10px;border-radius:12px;margin-top:12px;line-height:1.6}
 html.ncc-lime-theme #app .ncc-guide-register{display:block;width:100%;margin-top:14px;min-height:48px}
 html.ncc-lime-theme #app .ncc-guide-register-hint{display:block;text-align:center;margin-top:7px}
 @media(max-width:600px){html.ncc-lime-theme #app .ncc-guide-meal{padding:14px!important}html.ncc-lime-theme #app .ncc-guide-photo img{height:90px}}
 
 html.ncc-lime-theme #app .ncc-guide-jumps{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
-html.ncc-lime-theme #app .ncc-guide-jumps .btn{background:#e8f1ca!important;color:#21331e!important;border-color:#8a9e6a!important;min-height:44px}
+html.ncc-lime-theme #app .ncc-guide-jumps .btn{background:#151a13!important;color:#edf2e6!important;border-color:#8a9e6a!important;min-height:44px}
 html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-education{background:transparent!important;border:0!important;padding:0!important;grid-template-columns:minmax(0,1fr)!important}
-html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-food-group-hint{color:#3c4b34!important}
-html.ncc-lime-theme #app .ncc-guide-meal:focus-visible{outline:3px solid #a3e635;outline-offset:4px}
+html.ncc-lime-theme #app .ncc-guide-meal .efg-guide-food-group-hint{color:#b6c0ac!important}
+html.ncc-lime-theme #app .ncc-guide-meal:focus-visible{outline:3px solid #91bf50;outline-offset:4px}
 
 /* Mi Día shares the approved guide hierarchy; each tab shows actual diary entries only. */
 html.ncc-lime-theme #app .ncc-day-meal-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0}
-html.ncc-lime-theme #app .ncc-day-meal-tabs .btn{min-width:0;min-height:48px;white-space:normal;background:#f7f5e9!important;color:#21331e!important;border-color:#b5c0a4!important}
-html.ncc-lime-theme #app .ncc-day-meal-tabs [aria-pressed=true]{background:#a3e635!important;border-color:#a3e635!important;font-weight:800}
+html.ncc-lime-theme #app .ncc-day-meal-tabs .btn{min-width:0;min-height:48px;white-space:normal;background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .ncc-day-meal-tabs [aria-pressed=true]{background:#192210!important;border-color:#91bf50!important;font-weight:800;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .ncc-day-meal-panel[hidden]{display:none!important}
-html.ncc-lime-theme #app .pilot-layout .student-meal-card.ncc-day-meal-panel{background:#f7f5e9!important;color:#21331e!important;border-color:#d8dfc9!important}
-html.ncc-lime-theme #app .ncc-day-meal-panel :is(strong,span,p,small,label,b){color:#21331e!important}
-html.ncc-lime-theme #app .ncc-day-meal-panel .meal-food-line{background:#eeeedf!important;border-radius:12px;padding:12px;border-color:#d5ddc6!important}
-html.ncc-lime-theme #app .ncc-diary-quantity{display:table;background:#c7edf0!important;border-radius:10px;padding:6px 10px;margin:8px 0;font-size:16px}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card.ncc-day-meal-panel{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .ncc-day-meal-panel :is(strong,span,p,small,label,b){color:#edf2e6!important}
+html.ncc-lime-theme #app .ncc-day-meal-panel .meal-food-line{background:#151a13!important;border-radius:12px;padding:12px;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .ncc-diary-quantity{display:table;background:#1c3033!important;border-radius:10px;padding:6px 10px;margin:8px 0;font-size:16px}
 html.ncc-lime-theme #app .ncc-day-meal-panel .meal-actions{gap:10px;margin-top:18px}
 html.ncc-lime-theme #app .ncc-day-meal-panel .meal-actions [data-setmeal]{width:100%;order:-1;min-height:48px;font-size:16px}
-html.ncc-lime-theme #app .ncc-day-meal-panel .btn.ghost,html.ncc-lime-theme #app .ncc-day-meal-panel .meal-remove-item{background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important;min-height:44px}
-html.ncc-lime-theme #app .meal-popup{background:#f7f5e9!important;color:#21331e!important;border-color:#d8dfc9!important}
-html.ncc-lime-theme #app .meal-popup :is(h2,h3,label,p,span,small,strong,summary,b,figcaption){color:#21331e!important}
-html.ncc-lime-theme #app .meal-popup :is(input,select){background:#fffef8!important;color:#21331e!important;border-color:#7c896e!important}
-html.ncc-lime-theme #app .meal-popup :is(.ncc-meal-selected,.ncc-meal-save,.efg-meal-search-results,.ncc-meal-shortcuts,.pilot-notice){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
-html.ncc-lime-theme #app .meal-popup .btn.ghost,html.ncc-lime-theme #app .meal-popup .btn.light{background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important}
-html.ncc-lime-theme #app .meal-popup [data-mealsource][aria-pressed=true]{background:#a3e635!important;color:#21331e!important;border-color:#a3e635!important}
+html.ncc-lime-theme #app .ncc-day-meal-panel .btn.ghost,html.ncc-lime-theme #app .ncc-day-meal-panel .meal-remove-item{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;min-height:44px}
+html.ncc-lime-theme #app .meal-popup{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .meal-popup :is(h2,h3,label,p,span,small,strong,summary,b,figcaption){color:#edf2e6!important}
+html.ncc-lime-theme #app .meal-popup :is(input,select){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .meal-popup :is(.ncc-meal-selected,.ncc-meal-save,.efg-meal-search-results,.ncc-meal-shortcuts,.pilot-notice){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .meal-popup .btn.ghost,html.ncc-lime-theme #app .meal-popup .btn.light{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .meal-popup [data-mealsource][aria-pressed=true]{background:#192210!important;color:#edf2e6!important;border-color:#91bf50!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .meal-popup :is(input,select,button):focus-visible,html.ncc-lime-theme #app .ncc-day-meal-tabs button:focus-visible{outline:3px solid #36561f!important;outline-offset:3px}
-html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-picker,.efg-habitual-preview,.efg-habitual-preview-empty,.efg-habitual-preview-foods,.efg-habitual-preview-macros,.efg-habitual-preview-heading,.efg-habitual-preview-host){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
-html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-food-name,.efg-habitual-food-qty){color:#21331e!important}
-html.ncc-lime-theme #app .ncc-day-meal-panel select{background:#fffef8!important;color:#21331e!important;border-color:#7c896e!important}
-html.ncc-lime-theme #app .meal-popup :is(.efg-meal-search-choice,.efg-meal-guidance,.efg-meal-guidance-hint,.efg-meal-guidance-fat,.note){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
+html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-picker,.efg-habitual-preview,.efg-habitual-preview-empty,.efg-habitual-preview-foods,.efg-habitual-preview-macros,.efg-habitual-preview-heading,.efg-habitual-preview-host){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.meal-popup) :is(.efg-habitual-food-name,.efg-habitual-food-qty){color:#edf2e6!important}
+html.ncc-lime-theme #app .ncc-day-meal-panel select{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .meal-popup :is(.efg-meal-search-choice,.efg-meal-guidance,.efg-meal-guidance-hint,.efg-meal-guidance-fat,.note){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
 /* Scoped light tokens also reach legacy nested surfaces with stronger selectors. */
 html.ncc-lime-theme #app :is(#studentMeals,.meal-popup,.ncc-guide-meal){
- --ncc-surface:#f7f5e9;--ncc-panel:#eeeedf;--ncc-text:#21331e;--ncc-muted:#4a5941;--ncc-input:#fffef8;--ncc-line:#b5c0a4;
- --pastel-surface:#f7f5e9;--pastel-panel-alt:#eeeedf;--pastel-panel-soft:#eeeedf;--pastel-ink:#21331e;--pastel-muted:#4a5941;
- color-scheme:light;
+ --ncc-surface:#151a13;--ncc-panel:#151a13;--ncc-text:#edf2e6;--ncc-muted:#b6c0ac;--ncc-input:#151a13;--ncc-line:#3e4a34;
+ --pastel-surface:#151a13;--pastel-panel-alt:#151a13;--pastel-panel-soft:#151a13;--pastel-ink:#edf2e6;--pastel-muted:#b6c0ac;
+ color-scheme:dark;
 }
-html.ncc-lime-theme #app #studentMeals .student-meal-details{background:#f7f5e9!important;color:#21331e!important}
-html.ncc-lime-theme #app #studentMeals .ncc-day-meal-tabs .btn[data-daymeal][aria-pressed=true]{background:#a3e635!important;color:#21331e!important;border-color:#a3e635!important}
-html.ncc-lime-theme #app :is(#studentMeals,.meal-popup,.ncc-guide-meal) :is(input,select,textarea){color-scheme:light}
-html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#21331e}
-html.ncc-lime-theme #app #studentMeals .meal-actions{background:transparent!important;box-shadow:none!important;border-color:#b5c0a4!important}
+html.ncc-lime-theme #app #studentMeals .student-meal-details{background:#151a13!important;color:#edf2e6!important}
+html.ncc-lime-theme #app #studentMeals .ncc-day-meal-tabs .btn[data-daymeal][aria-pressed=true]{background:#192210!important;color:#edf2e6!important;border-color:#91bf50!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup,.ncc-guide-meal) :is(input,select,textarea){color-scheme:dark}
+html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#edf2e6}
+html.ncc-lime-theme #app #studentMeals .meal-actions{background:transparent!important;box-shadow:none!important;border-color:#3e4a34!important}
 html.ncc-lime-theme #app .meal-popup .efg-compat-yellow{color:#ffe09a!important}
 html.ncc-lime-theme #app .meal-popup .efg-compat-red{color:#ffb7b2!important}
-html.ncc-lime-theme #app .meal-popup .efg-compat-green{color:#a3e635!important}
+html.ncc-lime-theme #app .meal-popup .efg-compat-green{color:#91bf50!important}
 html.ncc-lime-theme #app .meal-popup :is(.efg-compat-yellow,.efg-compat-red,.efg-compat-green) *{color:inherit!important}
 html.ncc-lime-theme #app :is(.ncc-day-meal-tabs,.ncc-guide-jumps,.ncc-day-meal-panel,.ncc-guide-meal,.meal-popup) .btn{text-transform:none!important;letter-spacing:normal!important}
 html.ncc-lime-theme #app #coachGuidePreview{
- --ncc-surface:#f7f5e9;--ncc-panel:#eeeedf;--ncc-text:#21331e;--ncc-muted:#4a5941;--ncc-input:#fffef8;--ncc-line:#b5c0a4;
- background:#f7f5e9!important;color:#21331e!important;color-scheme:light;
+ --ncc-surface:#151a13;--ncc-panel:#151a13;--ncc-text:#edf2e6;--ncc-muted:#b6c0ac;--ncc-input:#151a13;--ncc-line:#3e4a34;
+ background:#151a13!important;color:#edf2e6!important;color-scheme:dark;
 }
-html.ncc-lime-theme #app #coachGuidePreview :is(h2,p,small){color:#21331e!important}
-html.ncc-lime-theme #app #coachGuidePreview .efg-guide-preview-actions{background:#f7f5e9!important;border-color:#b5c0a4!important}
-html.ncc-lime-theme #app #coachGuidePreview .btn:is(.ghost,.light){background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important}
-html.ncc-lime-theme #app #studentMeals .pilot-pill,html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-preview-heading>span{background:#dcebb8!important;color:#21331e!important;border-color:#81966a!important}
+html.ncc-lime-theme #app #coachGuidePreview :is(h2,p,small){color:#edf2e6!important}
+html.ncc-lime-theme #app #coachGuidePreview .efg-guide-preview-actions{background:#151a13!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app #coachGuidePreview .btn:is(.ghost,.light){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app #studentMeals .pilot-pill,html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-preview-heading>span{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
 
 /* Personal diary: habitual primary action must remain legible on cream surfaces. */
-html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]{background:#a3e635!important;color:#21331e!important;border-color:#a9cb24!important;opacity:1}
-html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]:disabled{background:#e3ebd2!important;color:#4a5941!important;border-color:#81966a!important}
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#edf2e6!important;border-color:#a9cb24!important;opacity:1;color:#101609!important;--ncc-text:#101609;}
+html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-controls .btn[data-habitualapply]:disabled{background:#151a13!important;color:#b6c0ac!important;border-color:#3e4a34!important}
 /* Coach student sections: keep navigation compact and forms mounted. */
 html.ncc-lime-theme #app .coach-student-profile [data-coachpanel][hidden]{display:none!important}
-html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;background:#f7f5e9!important;border-radius:18px;margin:14px 0}
-html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]{min-height:46px;min-width:0;padding:10px 5px;background:#e3ebd2!important;color:#21331e!important;border:1px solid #81966a!important;border-radius:12px;font-weight:700;text-transform:none;white-space:normal;overflow-wrap:normal}
-html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection][aria-pressed=true]{background:#a3e635!important;color:#21331e!important;border-color:#a9cb24!important}
-html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]:focus-visible{outline:3px solid #a3e635;outline-offset:3px}
-html.ncc-lime-theme #app .coach-student-profile>.coach-student-heading{background:#e3ebd2!important;color:#21331e!important;border-radius:18px;padding:16px}
-html.ncc-lime-theme #app .coach-student-heading h2{color:#21331e!important}
+html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;background:#151a13!important;border-radius:18px;margin:14px 0}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]{min-height:46px;min-width:0;padding:10px 5px;background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;border-radius:12px;font-weight:700;text-transform:none;white-space:normal;overflow-wrap:normal}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection][aria-pressed=true]{background:#192210!important;color:#edf2e6!important;border-color:#a9cb24!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app .coach-profile-tabs [data-coachsection]:focus-visible{outline:3px solid #91bf50;outline-offset:3px}
+html.ncc-lime-theme #app .coach-student-profile>.coach-student-heading{background:#151a13!important;color:#edf2e6!important;border-radius:18px;padding:16px}
+html.ncc-lime-theme #app .coach-student-heading h2{color:#edf2e6!important}
 html.ncc-lime-theme #app .coach-student-profile>[data-coachpanel]{margin-top:0}
 @media(max-width:420px){html.ncc-lime-theme #app .coach-student-profile>.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* EV-05: real balance and adjustable suggestions, one meal at a time. */
-html.ncc-lime-theme #app #planSuggestionCard{--ncc-surface:#f7f5e9;--ncc-panel:#eeeedf;--ncc-text:#21331e;--ncc-muted:#4a5941;--ncc-input:#fffef8;--ncc-line:#b5c0a4;background:#f7f5e9!important;color:#21331e!important;color-scheme:light}
+html.ncc-lime-theme #app #planSuggestionCard{--ncc-surface:#151a13;--ncc-panel:#151a13;--ncc-text:#edf2e6;--ncc-muted:#b6c0ac;--ncc-input:#151a13;--ncc-line:#3e4a34;background:#151a13!important;color:#edf2e6!important;color-scheme:dark}
 html.ncc-lime-theme #app #planSuggestionCard [data-suggestionpanel][hidden]{display:none!important}
-html.ncc-lime-theme #app #planSuggestionCard :is(h2,h3,h4,label,p,small,strong,b,.pilot-hint,.planner-recommendation){color:#21331e!important}
-html.ncc-lime-theme #app #planSuggestionCard :is(.planner-item,.efg-planner-stage,.planner-energy-summary,.planner-split-target,.planner-extras-helper,.planner-real-balance,.planner-simulated-balance,.planner-energy-stats>div){background:#eeeedf!important;color:#21331e!important;border-color:#b5c0a4!important}
-html.ncc-lime-theme #app #planSuggestionCard :is(input,select){background:#fffef8!important;color:#21331e!important;border-color:#81966a!important;color-scheme:light}
-html.ncc-lime-theme #app #planSuggestionCard :is(.btn,[data-plannerslot]){background:#a3e635!important;color:#21331e!important;border:1px solid #a9cb24!important;min-height:44px;border-radius:12px}
+html.ncc-lime-theme #app #planSuggestionCard :is(h2,h3,h4,label,p,small,strong,b,.pilot-hint,.planner-recommendation){color:#edf2e6!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(.planner-item,.efg-planner-stage,.planner-energy-summary,.planner-split-target,.planner-extras-helper,.planner-real-balance,.planner-simulated-balance,.planner-energy-stats>div){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app #planSuggestionCard :is(input,select){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;color-scheme:dark}
+html.ncc-lime-theme #app #planSuggestionCard :is(.btn,[data-plannerslot]){background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#edf2e6!important;border:1px solid #a9cb24!important;min-height:44px;border-radius:12px;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app #planSuggestionCard .ncc-suggestion-tabs{display:flex;gap:8px;margin:14px 0}
 html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot]{flex:1;font-weight:700}
-html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{background:#e3ebd2!important;border-color:#81966a!important}
-html.ncc-lime-theme #app #planSuggestionCard .planner-remaining{background:#a3e635!important;color:#21331e!important}
-html.ncc-lime-theme #app #planSuggestionCard :is(.planner-mode button,.planner-extra-chip){background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important;min-height:44px}
-html.ncc-lime-theme #app #planSuggestionCard .planner-mode button.on{background:#a3e635!important;color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{background:#151a13!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app #planSuggestionCard .planner-remaining{background:#192210!important;color:#edf2e6!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app #planSuggestionCard :is(.planner-mode button,.planner-extra-chip){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;min-height:44px}
+html.ncc-lime-theme #app #planSuggestionCard .planner-mode button.on{background:#192210!important;color:#edf2e6!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo{margin:10px 0}
 html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo img{width:100%;height:90px;object-fit:cover;border-radius:14px}
-html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo figcaption{font-size:11px;color:#4a5941}
+html.ncc-lime-theme #app #planSuggestionCard .ncc-guide-photo figcaption{font-size:11px;color:#b6c0ac}
 html.ncc-lime-theme #app #planSuggestionCard :is(.ncc-suggestion-safety,.ncc-suggestion-preferences,.ncc-suggestion-why){font-size:13px;line-height:1.5}
-html.ncc-lime-theme #app #planSuggestionCard .pilot-pill{background:#dcebb8!important;color:#21331e!important}
+html.ncc-lime-theme #app #planSuggestionCard .pilot-pill{background:#151a13!important;color:#edf2e6!important}
 html.ncc-lime-theme #app #planSuggestionCard .efg-compat-yellow{color:#ffe09a!important}
 html.ncc-lime-theme #app #planSuggestionCard .efg-compat-red{color:#ffb7b2!important}
-html.ncc-lime-theme #app #planSuggestionCard .efg-compat-green{color:#a3e635!important}
+html.ncc-lime-theme #app #planSuggestionCard .efg-compat-green{color:#91bf50!important}
 html.ncc-lime-theme #app #planSuggestionCard :is(.efg-compat-yellow,.efg-compat-red,.efg-compat-green) *{color:inherit!important}
 /* Compact journeys: mounted steps preserve fields; optional extras stay available. */
-.efg-coach-relaunch:has([data-intakewizard]){background:#f8f6e9!important;color:#21331e!important;--ncc-text:#21331e;--ncc-muted:#40503a;--ncc-surface:#f8f6e9;color-scheme:light}
+.efg-coach-relaunch:has([data-intakewizard]){background:#151a13!important;color:#edf2e6!important;--ncc-text:#edf2e6;--ncc-muted:#b6c0ac;--ncc-surface:#151a13;color-scheme:dark}
 [data-intakewizard] [data-intakepanel][hidden]{display:none!important}
-.efg-coach-relaunch:has([data-intakewizard]) :is(h2,h3,p,label,small){color:#21331e!important}
-[data-intakewizard] :is(input,select,textarea){background:#fffef8!important;color:#21331e!important;border:1px solid #889873!important;font-size:16px}
+.efg-coach-relaunch:has([data-intakewizard]) :is(h2,h3,p,label,small){color:#edf2e6!important}
+[data-intakewizard] :is(input,select,textarea){background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;font-size:16px}
 .ncc-intake-steps,.ncc-intake-actions,.ncc-coach-actions{display:flex;flex-wrap:wrap;gap:8px}
-.ncc-intake-steps button,.ncc-coach-actions button{flex:1;min-width:110px;min-height:46px;background:#e4edce;color:#21331e;border:1px solid #889873;border-radius:14px;padding:10px;font:inherit;font-weight:700;cursor:pointer}
-.ncc-intake-steps [aria-pressed=true],.ncc-coach-actions button:last-child{background:#a3e635}
-[data-intakeprogress]{background:#a3e635;color:#21331e;padding:10px 14px;border-radius:12px;font-weight:700}
+.ncc-intake-steps button,.ncc-coach-actions button{flex:1;min-width:110px;min-height:46px;background:#151a13;color:#edf2e6;border:1px solid #3e4a34;border-radius:14px;padding:10px;font:inherit;font-weight:700;cursor:pointer}
+.ncc-intake-steps [aria-pressed=true],.ncc-coach-actions button:last-child{background:#192210;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+[data-intakeprogress]{background:#192210;color:#edf2e6;padding:10px 14px;border-radius:12px;font-weight:700;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 .ncc-intake-actions{justify-content:space-between;margin-top:18px}
 .ncc-intake-actions button{min-width:110px;min-height:46px}
-[data-intakewizard] .btn:not(.light){background:#a3e635!important;color:#171c0b!important}
+[data-intakewizard] .btn:not(.light){background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#171c0b!important;color:#101609!important;--ncc-text:#101609;}
 .ncc-intake-review{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:12px 0 20px}
-.ncc-intake-review dt{font-size:13px;color:#40503a}.ncc-intake-review dd{margin:0;overflow-wrap:anywhere;font-weight:600}
-.ncc-planner-extras{margin-top:12px;border:1px solid #b5c29c;border-radius:16px;padding:12px}
+.ncc-intake-review dt{font-size:13px;color:#b6c0ac}.ncc-intake-review dd{margin:0;overflow-wrap:anywhere;font-weight:600}
+.ncc-planner-extras{margin-top:12px;border:1px solid #3e4a34;border-radius:16px;padding:12px}
 .ncc-planner-extras>summary,.planner-split-target>summary{min-height:44px;cursor:pointer;font-weight:700;padding:10px 0}
 #planSuggestionCard .planner-split-target:not([open]){display:block;padding:4px 12px}
-.ncc-coach-quick{background:#e9efd9;border:1px solid #b5c29c;border-radius:18px;padding:14px;margin:14px 0;color:#21331e}
-.ncc-coach-quick h3{margin:0 0 10px!important;color:#21331e!important}
+.ncc-coach-quick{background:#151a13;border:1px solid #3e4a34;border-radius:18px;padding:14px;margin:14px 0;color:#edf2e6}
+.ncc-coach-quick h3{margin:0 0 10px!important;color:#edf2e6!important}
 .ncc-coach-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;font-size:13px}
-.ncc-coach-status span{padding:6px 9px;border-radius:10px;background:#f8f6e9}
+.ncc-coach-status span{padding:6px 9px;border-radius:10px;background:#151a13}
 .coach-profile-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:600px){.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ncc-intake-steps button{flex-basis:40%}.ncc-coach-actions button{flex-basis:100%}}
 /* Override the shared dark control theme only inside these light panels. */
-html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){--ncc-input:#fffef8;--ncc-text:#21331e;--ncc-muted:#40503a}
-html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea){background:#fffef8!important;color:#21331e!important;border-color:#889873!important;color-scheme:light}
-html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
-html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(.ncc-intake-steps button[aria-pressed=true],.btn:not(.light):not(.ghost)){background:#a3e635!important;color:#171c0b!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){--ncc-input:#151a13;--ncc-text:#edf2e6;--ncc-muted:#b6c0ac}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea){background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important;color-scheme:dark}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) button{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(.ncc-intake-steps button[aria-pressed=true],.btn:not(.light):not(.ghost)){background:#192210!important;color:#171c0b!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea,button):focus-visible{outline-color:#36561f!important}
-html.ncc-lime-theme #app .ncc-coach-quick{--ncc-text:#21331e;color:#21331e!important}
-html.ncc-lime-theme #app .ncc-coach-quick button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
-html.ncc-lime-theme #app .ncc-coach-quick button:last-child{background:#a3e635!important}
+html.ncc-lime-theme #app .ncc-coach-quick{--ncc-text:#edf2e6;color:#edf2e6!important}
+html.ncc-lime-theme #app .ncc-coach-quick button{background:#151a13!important;color:#edf2e6!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .ncc-coach-quick button:last-child{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#101609!important;--ncc-text:#101609;}
 [data-intakewizard],.coach-profile-tabs{scroll-margin-top:110px}
 /* EV07/08: actual records, optional recognitions, small resilient photographs. */
-html.ncc-lime-theme #app .efg-seats-grid>div{background:#e9efd9!important;border-color:#a9b893!important}
-html.ncc-lime-theme #app .efg-seats-grid :is(strong,span){color:#21331e!important}
+html.ncc-lime-theme #app .efg-seats-grid>div{background:#151a13!important;border-color:#3e4a34!important}
+html.ncc-lime-theme #app .efg-seats-grid :is(strong,span){color:#edf2e6!important}
 html.ncc-lime-theme #app .ncc-intake-steps button{letter-spacing:0!important;word-break:normal!important;overflow-wrap:normal!important}
-html.ncc-lime-theme #app .ncc-progress-highlights{background:#f7f5e9!important;color:#21331e!important;border:1px solid #b5c0a4;border-radius:20px;padding:16px;margin:16px 0;--ncc-text:#21331e}
-html.ncc-lime-theme #app .ncc-progress-highlights :is(h3,p,b,strong,span){color:#21331e!important}
+html.ncc-lime-theme #app .ncc-progress-highlights{background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34;border-radius:20px;padding:16px;margin:16px 0;--ncc-text:#edf2e6}
+html.ncc-lime-theme #app .ncc-progress-highlights :is(h3,p,b,strong,span){color:#edf2e6!important}
 .ncc-highlights-heading{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-html.ncc-lime-theme #app .ncc-progress-highlights button{background:#e4edce!important;color:#21331e!important;border:1px solid #87996e!important;min-height:44px;padding:10px;border-radius:12px}
+html.ncc-lime-theme #app .ncc-progress-highlights button{background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;min-height:44px;padding:10px;border-radius:12px}
 .ncc-progress-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
-.ncc-progress-facts>div{background:#a3e635;border-radius:14px;padding:12px 8px;display:grid;gap:6px;align-content:start}
-.ncc-progress-facts>div:nth-child(2){background:#c7eff0}.ncc-progress-facts>div:nth-child(3){background:#e4d6f5}
+.ncc-progress-facts>div{background:#192210;border-radius:14px;padding:12px 8px;display:grid;gap:6px;align-content:start;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+.ncc-progress-facts>div:nth-child(2){background:#1c3033}.ncc-progress-facts>div:nth-child(3){background:#2b2538}
 .ncc-progress-facts strong{font-size:24px}.ncc-progress-facts span{font-size:12px;overflow-wrap:normal;word-break:normal}
 .ncc-progress-highlights p{font-size:13px;line-height:1.5;margin:12px 0 0}
 .ncc-guide-photo img[hidden],.ncc-guide-photo-fallback[hidden]{display:none!important}
-.ncc-guide-photo-fallback:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:90px;padding:12px;background:#e4edce;color:#21331e;border-radius:12px;font-size:13px}
-html.ncc-lime-theme #pilot-toast{background:#f7f5e9!important;color:#21331e!important;border:2px solid #84cc16!important;align-items:center;gap:12px;max-width:min(520px,calc(100vw - 24px));box-sizing:border-box;padding:12px 14px;animation:ncc-notice-in .16s ease-out}
+.ncc-guide-photo-fallback:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:90px;padding:12px;background:#151a13;color:#edf2e6;border-radius:12px;font-size:13px}
+html.ncc-lime-theme #pilot-toast{background:#151a13!important;color:#edf2e6!important;border:2px solid #789b42!important;align-items:center;gap:12px;max-width:min(520px,calc(100vw - 24px));box-sizing:border-box;padding:12px 14px;animation:ncc-notice-in .16s ease-out}
 html.ncc-lime-theme #pilot-toast>span{flex:1;min-width:0;overflow-wrap:anywhere}
-html.ncc-lime-theme #pilot-toast>button{pointer-events:auto;flex:none;min-width:58px;min-height:44px;background:#a3e635!important;color:#171c0b!important;border:1px solid #87996e;border-radius:10px;cursor:pointer;font:inherit;font-weight:700;padding:8px}
+html.ncc-lime-theme #pilot-toast>button{pointer-events:auto;flex:none;min-width:58px;min-height:44px;background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#171c0b!important;border:1px solid #3e4a34;border-radius:10px;cursor:pointer;font:inherit;font-weight:700;padding:8px;color:#101609!important;--ncc-text:#101609;}
 @keyframes ncc-notice-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){html.ncc-lime-theme #pilot-toast{animation:none!important}}
 
@@ -492,26 +492,26 @@ html.ncc-lime-theme #pilot-toast>button{pointer-events:auto;flex:none;min-width:
 /* One task at a time, with mounted controls and the full-day overview available. */
 [data-progresspanel][hidden],[data-guidecard][hidden]{display:none!important}
 .ncc-progress-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0;scroll-margin-top:100px}
-html.ncc-lime-theme #app .ncc-progress-tabs button{background:#e4edce!important;color:#21331e!important;border:1px solid #87996e!important;border-radius:14px;min-height:46px;padding:10px 6px;font:inherit;font-weight:700;cursor:pointer;letter-spacing:0;text-transform:none}
-html.ncc-lime-theme #app .ncc-progress-tabs button[aria-pressed=true]{background:#a3e635!important;color:#171c0b!important}
-html.ncc-lime-theme #app .ncc-coach-next{background:#f7f5e9!important;--ncc-text:#21331e;color:#21331e!important;border:1px solid #b5c0a4;border-radius:20px;padding:16px;margin:12px 0 16px}
-html.ncc-lime-theme #app .ncc-coach-next :is(h2,p,span){color:#21331e!important}
+html.ncc-lime-theme #app .ncc-progress-tabs button{background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34!important;border-radius:14px;min-height:46px;padding:10px 6px;font:inherit;font-weight:700;cursor:pointer;letter-spacing:0;text-transform:none}
+html.ncc-lime-theme #app .ncc-progress-tabs button[aria-pressed=true]{background:#192210!important;color:#171c0b!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
+html.ncc-lime-theme #app .ncc-coach-next{background:#151a13!important;--ncc-text:#edf2e6;color:#edf2e6!important;border:1px solid #3e4a34;border-radius:20px;padding:16px;margin:12px 0 16px}
+html.ncc-lime-theme #app .ncc-coach-next :is(h2,p,span){color:#edf2e6!important}
 .ncc-coach-next h2{font-size:20px!important;margin:8px 0}.ncc-coach-next p{font-size:13px;line-height:1.5;margin:8px 0 12px}
-html.ncc-lime-theme #app .ncc-coach-next .btn{background:#a3e635!important;color:#171c0b!important;min-height:44px}
+html.ncc-lime-theme #app .ncc-coach-next .btn{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#171c0b!important;min-height:44px;color:#101609!important;--ncc-text:#101609;}
 html.ncc-lime-theme #app .efg-coach-tiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
 html.ncc-lime-theme #app .efg-coach-tiles>.efg-menu-card{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;min-height:96px!important;padding:12px!important}
 html.ncc-lime-theme #app .efg-coach-tiles .efg-menu-emoji{width:32px;height:32px;min-width:32px;min-height:32px}
 html.ncc-lime-theme #app .efg-coach-tiles strong{font-size:12px!important;letter-spacing:0;line-height:1.3;word-break:normal;overflow-wrap:normal;text-align:left}
 .efg-coach-tiles .efg-menu-arrow{display:none}
 .ncc-guide-view .ncc-guide-jumps{scroll-margin-top:100px}
-html.ncc-lime-theme #app .ncc-guide-jumps button[aria-pressed=true]{background:#a3e635!important;color:#171c0b!important;border-color:#728b3a!important}
+html.ncc-lime-theme #app .ncc-guide-jumps button[aria-pressed=true]{background:#192210!important;color:#171c0b!important;border-color:#728b3a!important;color:#edf2e6!important;--ncc-text:#edf2e6;border-color:#789b42!important;}
 .ncc-guide-view:has([data-guideall][aria-expanded=false])>.efg-guide-grid{grid-template-columns:minmax(0,1fr)!important}
 @media(max-width:720px){html.ncc-lime-theme #app .efg-coach-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ncc-guide-view .ncc-guide-jumps{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important}.ncc-guide-jumps button{padding:8px 6px!important;font-size:12px!important;min-width:0!important}}
 @media print{[data-guidecard][hidden]{display:block!important}.ncc-guide-all,.ncc-guide-jumps{display:none!important}}
 
 /* Direct daily work: compact overview, persistent entry and disclosure editors. */
 .ncc-register-dock{position:fixed;bottom:24px;right:28px;z-index:90}
-html.ncc-lime-theme #app .ncc-register-dock .btn{min-height:50px;padding:12px 24px;background:#a3e635!important;color:#171c0b!important;border:1px solid #718b33!important;box-shadow:0 6px 22px #0005!important;font-size:16px}
+html.ncc-lime-theme #app .ncc-register-dock .btn{min-height:50px;padding:12px 24px;background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#171c0b!important;border:1px solid #718b33!important;box-shadow:0 6px 22px #0005!important;font-size:16px;color:#101609!important;--ncc-text:#101609;}
 .ncc-direct-day{padding-bottom:76px}
 .ncc-direct-day:has(.meal-backdrop) .ncc-register-dock{visibility:hidden}
 html.ncc-lime-theme #app .ncc-direct-day .ncc-day-welcome{min-height:0;padding:18px 20px!important;margin-bottom:16px}
@@ -527,7 +527,7 @@ html.ncc-lime-theme #app .ncc-guide-food-line .efg-guide-food-name{min-width:0;o
 html.ncc-lime-theme #app .ncc-guide-food-line .ncc-guide-amount{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:12px}
 html.ncc-lime-theme #app .ncc-guide-food-line input{width:100%;min-height:44px;margin:0}
 html.ncc-lime-theme #app :is(.ncc-guide-food-options,.ncc-guide-add-options,.ncc-roster-options,.ncc-roster-seats)>summary{cursor:pointer;min-height:44px;padding:10px 0;font-weight:650;list-style-position:inside}
-html.ncc-lime-theme #app :is(.ncc-guide-food-options,.ncc-guide-add-options)>summary{color:#21331e!important}
+html.ncc-lime-theme #app :is(.ncc-guide-food-options,.ncc-guide-add-options)>summary{color:#edf2e6!important}
 .ncc-guide-food-options>div{display:grid;gap:10px;padding:8px 0}
 .ncc-guide-add-options{margin:12px 0}
 html.ncc-lime-theme #app .ncc-roster-person{display:grid;gap:12px;padding:16px}
@@ -548,4 +548,22 @@ html.ncc-lime-theme #app .ncc-roster-person{display:grid;gap:12px;padding:16px}
  body:has(.ncc-register-dock) #pilot-toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}
 }
 @media print{.ncc-register-dock,.ncc-guide-food-options,.ncc-guide-add-options{display:none!important}}
-html.ncc-lime-theme #app .coach-roster-total{background:#e3ebd2!important;color:#21331e!important;border:1px solid #81966a}
+html.ncc-lime-theme #app .coach-roster-total{background:#151a13!important;color:#edf2e6!important;border:1px solid #3e4a34}
+
+/* Focus video reference proposal: dark selected surfaces, one luminous main action. */
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading,
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading strong{color:#edf2e6!important}
+html.ncc-lime-theme #app .pilot-layout .student-meal-card[open] .student-meal-heading .pilot-pill{background:#28331c!important;color:#d8e6c9!important;border-color:#536b34!important}
+html.ncc-lime-theme #app .ncc-day-register-row .btn.ncc-day-primary{background:linear-gradient(180deg,#a1e144,#83ce30)!important;color:#101609!important;border-color:#a4cd6b!important}
+html.ncc-lime-theme #app .ncc-day-register-row .btn.ncc-day-primary *{color:inherit!important}
+html.ncc-lime-theme #app .pilot-layout .efg-pastel-stat:first-child :is(strong,small){color:#edf2e6!important}
+html.ncc-lime-theme #app .efg-menu-card:first-child :is(strong,span,.efg-lux-menu-icon){color:#edf2e6!important;stroke:#edf2e6!important}
+html.ncc-lime-theme #app .ncc-day-welcome .ncc-day-eyebrow,
+html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome h1 span{color:#a4cc70!important}
+html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#edf2e6}
+
+/* Keep secondary controls readable after inheriting primary button tokens. */
+html.ncc-lime-theme #app :is(.btn.light,.btn.ghost){--ncc-text:#edf2e6!important;color:#edf2e6!important}
+html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{--ncc-text:#edf2e6!important;color:#edf2e6!important}
+html.ncc-lime-theme #app .efg-pastel-meter>span{background:#91bf50!important}
+html.ncc-lime-theme #app .efg-guide-description{background:#1d271e!important;color:#edf2e6!important;border:1px solid #344235}

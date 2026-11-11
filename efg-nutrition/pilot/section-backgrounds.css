@@ -1,0 +1,22 @@
+/* Decorative photography only: no added layout height or interactive layer.
+   One local compressed atlas; no third-party image requests or personal data. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background]{isolation:isolate;position:relative}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{
+ content:"";position:fixed;top:64px;left:50%;transform:translateX(-50%);
+ width:min(100vw,900px);aspect-ratio:4/3;z-index:-1;pointer-events:none;
+ background-image:url('./assets/section-backgrounds.webp');background-repeat:no-repeat;
+ background-size:200% 400%;background-position:var(--ncc-photo-x,0%) var(--ncc-photo-y,0%);
+ opacity:.48;mask-image:linear-gradient(#000 0%,#000b 55%,transparent 100%);
+ -webkit-mask-image:linear-gradient(#000 0%,#000b 55%,transparent 100%);
+}
+html.ncc-lime-theme #app [data-ncc-background=day]{--ncc-photo-x:100%}
+html.ncc-lime-theme #app [data-ncc-background=plan]{--ncc-photo-y:33.333333%}
+html.ncc-lime-theme #app [data-ncc-background=progress]{--ncc-photo-x:100%;--ncc-photo-y:33.333333%}
+html.ncc-lime-theme #app [data-ncc-background=science]{--ncc-photo-y:66.666667%}
+html.ncc-lime-theme #app [data-ncc-background=coach]{--ncc-photo-x:100%;--ncc-photo-y:66.666667%}
+html.ncc-lime-theme #app [data-ncc-background=admin]{--ncc-photo-y:100%}
+html.ncc-lime-theme #app .pilot-layout :is(.ncc-day-welcome,.pilot-hero,.efg-coach-banner,.efg-admin-banner){background:rgba(14,21,12,.76)!important}
+/* Form and content surfaces remain opaque; photography never competes with data. */
+html.ncc-lime-theme #app .pilot-layout :is(.meal-popup,input,select,textarea){background-color:var(--ncc-input)!important}
+@media(min-width:900px){html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{top:0;left:calc(50% + 100px)}}
+@media print, (prefers-reduced-transparency:reduce), (forced-colors:active){html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{display:none}}

@@ -56,8 +56,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.locator('[data-guidecard]:visible').count(),1);
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__GUIDE_QA__.state.coachGuidedDraft)),beforeTabs,'Changing guide hours never writes food or modifies a plan');
  assert.equal(await page.locator('.ncc-guide-jumps [aria-pressed=true]').getAttribute('data-guidejump'),'cena');
- await page.waitForFunction(()=>getComputedStyle(document.querySelector('.ncc-guide-jumps [aria-pressed=true]')).backgroundColor==='rgb(163, 230, 53)');
- assert.equal(await page.locator('.ncc-guide-jumps [aria-pressed=true]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(163, 230, 53)');
+ await page.waitForFunction(()=>getComputedStyle(document.querySelector('.ncc-guide-jumps [aria-pressed=true]')).backgroundColor==='rgb(25, 34, 16)');
+ assert.equal(await page.locator('.ncc-guide-jumps [aria-pressed=true]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(25, 34, 16)');
  await page.screenshot({path:resolve(out,`single-hour-${engine}-${role}-${width}.png`),fullPage:true});
  await page.locator('[data-guideall]').click();assert.equal(await page.locator('[data-guidecard]:visible').count(),6);
  await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
@@ -136,8 +136,8 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  await page.getByRole('button',{name:'Ver dieta armada y enviar'}).click();
  assert.equal(await page.locator('#coachGuidePreview .efg-guide-meal').count(),6);
  const previewInk=await page.locator('#coachGuidePreview h2').evaluate(e=>getComputedStyle(e).color);
- assert.equal(previewInk,'rgb(33, 51, 30)','Preview heading must remain readable on cream');
- assert.equal(await page.locator('#coachGuidePreview [data-act="closeCoachGuidePreview"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(227, 235, 210)','Back to editing uses the readable light secondary surface');
+ assert.equal(previewInk,'rgb(237, 242, 230)','Preview heading must remain readable on dark olive');
+ assert.equal(await page.locator('#coachGuidePreview [data-act="closeCoachGuidePreview"]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(21, 26, 19)','Back to editing uses the readable dark secondary surface');
  assert.equal(await page.locator('#coachGuidePreview [data-guideqty]').count(),0);
  assert.equal(await page.locator('#coachGuidePreview [data-guidecard]:visible').count(),1);
  await page.locator('#coachGuidePreview [data-guideall]').click();

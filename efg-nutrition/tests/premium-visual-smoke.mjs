@@ -698,7 +698,7 @@ try{
        button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
    });
    for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
-     const expected=unifiedTheme&&kind==="heading"?"none":"uppercase";
+     const expected=unifiedTheme&&(kind==="heading"||(dest==="home"&&width<=760))?"none":"uppercase";
      if(sample&&sample.transform!==expected)pageReport.errors.push(kind+" typography does not match its approved role/theme: "+sample.text+" ("+sample.transform+")");
    }
    if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))

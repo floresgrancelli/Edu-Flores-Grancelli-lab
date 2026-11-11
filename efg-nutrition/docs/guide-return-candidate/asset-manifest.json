@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-focus-boot-r2-20261111",
+  "assetVersion": "ncc-focus-reference-r1-20261111",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -221,7 +221,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "cc9baf6242b88d1aabff84e2845ec40b192e746a979d8ecc57e7a2bc5e1b6589",
+    "efg-nutrition/pilot/index.html": "022d4aa4b2c4ea76a5d36c546bcff8104d4794b8415a27aa2fe030e0504601af",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -249,7 +249,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "38a550d2121b735abd369aeff09b59aef59a732e1909b6d371b5129f4195dafd",
+    "efg-nutrition/pilot/pilot.js": "94ad3eec04fe82f070e831f332ca702218aa1b5455c9ec0456113bbb23ad61ec",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -465,6 +465,11 @@
       "path": "efg-nutrition/pilot/section-backgrounds.css",
       "sha256": "75e361ae13e70fbf30f2314ddfeff26e99094bfc77f33f5c75e2f9a299543c1e",
       "url": "./section-backgrounds.css?v=ncc-focus-photos-r1-20261111"
+    },
+    {
+      "path": "efg-nutrition/pilot/focus-reference-layout-r1.css",
+      "sha256": "d40c2733b001323a0afeaf3e40c37c3e8e51bc686e609f528f353a7554fd0636",
+      "url": "./focus-reference-layout-r1.css?v=ncc-focus-reference-r1-20261111"
     }
   ],
   "moduleResources": [

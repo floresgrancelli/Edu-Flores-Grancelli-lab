@@ -629,3 +629,6 @@ html.ncc-lime-theme #app .ncc-direct-day .ncc-day-meal-panel>.student-meal-headi
 html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between{display:flex;justify-content:space-between;align-items:center;gap:12px}
 html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between h2{margin:0;min-width:0}
 html.ncc-lime-theme #app .ncc-direct-day .meal-popup>.between button{flex:0 0 auto}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-meal-panel>.student-meal-heading::after{content:none!important}
+html.ncc-lime-theme #app .pilot-layout .ncc-direct-day #studentMeals .ncc-day-meal-panel .meal-actions [data-setmeal]{background:#91bf50!important;color:#101609!important;--ncc-text:#101609;border-color:#789b42!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-layout .ncc-direct-day .student-shortcuts button:first-child{background:#192210!important;color:#edf2e6!important;border:1px solid #789b42!important;box-shadow:none!important}

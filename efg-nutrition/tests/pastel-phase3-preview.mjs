@@ -40,7 +40,7 @@ assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
 assert.ok(app.includes('rootText("MI DÍA"'),"Professional personal heading retains MI DÍA");
 assert.match(app,/studentDay\?studentDayWelcome\(state.profile\?\.nickname,today\(\)\)/,"Student uses the approved distinct daily heading");
-assert.match(read("student-day-presentation.js"),/<h1>Tu día,<br><span>a tu ritmo\.<\/span><\/h1>/,"Approved student heading remains visible");
+assert.match(read("student-day-presentation.js"),/<h1>Mi Día<\/h1>/,"Approved student heading remains visible");
 assert.ok(app.includes('["home","","Mi día"]'),"Student navigation label readable");
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");
 assert.match(app,/\["adminManage","⚙️","Organizaciones","lilac"\]/,"Admin management entry uses a single legible word");
@@ -73,7 +73,7 @@ assert.ok(luxury.includes("--lux-night:#142439")&&luxury.includes("--lux-gold:#b
 assert.ok(luxury.includes("repeating-linear-gradient")&&luxury.includes("inset 0"),"Material textures and raised cards exist");
 assert.ok(luxury.includes("Do not override background/conic-gradient"),"Vivid macro charts are explicitly preserved");
 assert.ok(!luxury.includes("filter:grayscale"),"Never desaturate charts");
-assert.match(app,/pastelDaySummary\(tot,goal,d,mealSlots\)/);
+assert.match(app,/compactDaySummary\(tot,goal,d,mealSlots\)/);
 assert.ok(!app.includes("el.dataset.openquickadd"),"Obsolete quick-add handler must be removed");
 assert.doesNotMatch(app,/id="studentQuickAdd"/,"Duplicate colored meal selector removed");
 assert.match(app,/id="studentMeals"/,"Meal diary retained");

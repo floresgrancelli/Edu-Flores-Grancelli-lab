@@ -28,8 +28,15 @@ try{
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(origin+'/efg-nutrition/pilot/');
    await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();
-   await page.locator('.ncc-day-register-row').waitFor();
+   await page.locator('.ncc-focus-summary').waitFor();
+   assert.equal(await page.locator('#nccStudentDayGuide').getAttribute('open'),null,'Loaded guide stays collapsed rather than inheriting a meal state');
+   await page.locator('#nccStudentDayGuide > summary').click();
+   await page.evaluate(()=>window.__NCC_R4_FULLAPP__.render());
+   assert.notEqual(await page.locator('#nccStudentDayGuide').getAttribute('open'),null,'Explicitly opened guide survives rerender');
+   await page.locator('#nccStudentDayGuide > summary').click();
+   assert.equal(await page.locator('[data-daymealpanel]:visible [data-setmeal]').isVisible(),true,'Selected schedule is immediately actionable after refresh');
    await page.screenshot({path:resolve(out,engine+'-'+width+'-luminous-day.png'),fullPage:true});
+   assert.equal(await page.locator('.ncc-register-dock,[data-act="registerDayFood"]').count(),0,'No duplicate large registration buttons');
    const diaryBeforeTabs=await page.evaluate(()=>sessionStorage.getItem('ncc-student-day-synthetic-record'));
    for(const slot of ['desayuno','media_manana','almuerzo','media_tarde','merienda','cena']){
     await page.locator('[data-daymeal="'+slot+'"]').click();
@@ -48,6 +55,8 @@ try{
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
    await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(25, 34, 16)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
    assert.equal(await page.locator('[data-act="saveSelectedMeal"]').isDisabled(),true);
+   assert.equal(await page.locator('#mealQuantityCard').isVisible(),false,'Quantity only appears after selection');
+   if(width===390)assert.equal(await page.locator('.pilot-nav').isVisible(),false,'Bottom menu yields to registration');
    await search('huevo','egg');await page.locator('#mealEditorQty').fill('2');
    assert.equal(await page.locator('#mealEntryMode').inputValue(),'units');
    await page.locator('#mealEntrySlot').selectOption('media_manana');
@@ -64,6 +73,12 @@ try{
    await page.reload();await page.getByRole('button',{name:'Recuperar registro ficticio',exact:true}).click();
    assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_manana.length),1);
    await open('cena');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
+   await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').click();
+   assert.equal(await page.locator('.ncc-shortcut-choice #mealQuantityCard').count(),1,'Selected recent expands its own quantity card');
+   await page.locator('#mealEditorQty').fill('3');
+   await page.locator('[data-mealsource="recipes"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3','Source navigation preserves quantity');
+   await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3');
+   await page.screenshot({path:resolve(out,engine+'-'+width+'-recent-expanded.png')});
    await page.locator('[data-mealsource="all"]').click();await search('sushi','sushi_maki_salmon');
    assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears when a new food entry starts');
    await page.locator('#mealEditorQty').fill('6');assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/pieza/i);
@@ -124,6 +139,8 @@ try{
    await open('cena');await page.locator('[data-mealsource="habitual"]').click();await page.locator('#mealFoodSearch').fill('sushi');assert.match(await page.locator('#mealEntryShortcuts').innerText(),/Mi cena sushi/);
    await page.locator('[data-mealsource="recipes"]').click();await page.locator('#mealEntryShortcuts [data-mealsuggestion]').first().click();
    assert.match(await page.locator('#mealEditorQtyLabel').innerText(),/Porciones/);await page.locator('#mealEditorQty').fill('1.5');
+   const recipeChoice=await page.locator('#mealEditorFood').inputValue();
+   for(const source of ['recent','all','recipes']){await page.locator('[data-mealsource="'+source+'"]').click();assert.equal(await page.locator('#mealEditorFood').inputValue(),recipeChoice);assert.equal(await page.locator('#mealEditorQty').inputValue(),'1.5','Recipe draft survives changing source');}
    await page.evaluate(()=>{window.__NCC_FOOD_ENTRY_FIXTURE__.fail=true;});
    await page.locator('[data-act="saveSelectedMeal"]').click();await page.waitForFunction(()=>!document.querySelector('[data-act="saveSelectedMeal"]').disabled);
    assert.equal(await page.locator('#mealEditorQty').inputValue(),'1.5');assert.equal((await snapshot()).meals.cena.length,1);

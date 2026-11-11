@@ -62,7 +62,7 @@ const server=createServer((req,res)=>{
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={notify,guideIngredientPhoto,progressHighlightsVisible,state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={notify,dailyTotals,activeGoal,guideIngredientPhoto,progressHighlightsVisible,state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -452,8 +452,8 @@ try{
        await page.locator('[data-daymeal="'+slot+'"]').click();
        const block=page.locator('.student-meal-card').filter({has:page.locator('[data-habitualchoice="'+slot+'"]')});
        if((await block.count())!==1){pageReport.errors.push("No habitual picker for "+role+" "+slot);continue;}
-       if((await block.getAttribute("open"))===null)await block.locator("summary").click();
-       await block.locator('.ncc-meal-more > summary').click();
+       if(!await block.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
+       if((await block.locator('.ncc-meal-more').getAttribute('open'))===null)await block.locator('.ncc-meal-more > summary').click();
        const select=block.locator('[data-habitualchoice="'+slot+'"]');
        const options=await select.locator("option").allTextContents();
        if(options.length!==3)pageReport.errors.push("Habituales did not show both saved options in "+slot+": "+options.length);
@@ -501,7 +501,7 @@ try{
        v.state.lastEditedMeal=null;
        await v.render();
      },diaryBefore);
-     await page.locator(".student-meal-card").evaluateAll(nodes=>nodes.forEach(n=>n.open=false));
+     if(await page.locator("[data-daymealpanel]:visible").count()!==1)pageReport.errors.push("Exactly one schedule stays visible after restoring diary");
    }
 
    // UAT-N07/N08 preflight: shrink the actual browser viewport to model the
@@ -668,13 +668,13 @@ try{
    }
    if(unifiedTheme){
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
-    if(primary.some(x=>x.image.includes('161, 225, 68')
+    if(primary.some(x=>(x.image.includes('161, 225, 68')||x.bg==='rgb(145, 191, 80)')
       ? x.color!=='rgb(16, 22, 9)'
       : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
    }
    if(dest==='home'){
-    const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});
-    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('145, 191, 80'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
+    const geometry=await page.locator('.ncc-focus-energy').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.split(' ').length,width:el.scrollWidth,box:el.clientWidth}));
+    if(geometry.columns!==2||geometry.width>geometry.box+1)pageReport.errors.push('Compact calorie summary overflow: '+JSON.stringify(geometry));
    }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
@@ -764,7 +764,7 @@ try{
        const breakfast=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="desayuno"]')});
        if(await breakfast.count()!==1)pageReport.errors.push("Guided breakfast card absent");
        else{
-         if((await breakfast.getAttribute("open"))===null)await breakfast.locator("summary").click();
+         if(!await breakfast.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await breakfast.locator('[data-setmeal="desayuno"]').click();
          const guide=page.locator(".efg-meal-guidance");
          if(await guide.count()!==1)pageReport.errors.push("Guided main-meal panel missing");
@@ -787,7 +787,7 @@ try{
        await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
        if(await snack.count()===1){
-         if((await snack.getAttribute("open"))===null)await snack.locator("summary").click();
+         if(!await snack.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
          await page.locator('[data-act="closeMeal"]').click();
@@ -798,11 +798,11 @@ try{
        return {w:el.getBoundingClientRect().width,bg:styles.backgroundImage};
      }));
      if(studentDayTheme){
-      const bars=await page.locator(".efg-pastel-meter>span").evaluateAll(els=>els.map((el,index)=>{
+      const bars=await page.locator(".ncc-focus-meter>span").evaluateAll(els=>els.map((el,index)=>{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
-        expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(145, 191, 80)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
+        expected:Math.min(100,window.__EFG_VISUAL_QA__.dailyTotals(window.__EFG_VISUAL_QA__.state.diary)[["p","c","f"][index]]/window.__EFG_VISUAL_QA__.activeGoal()[["p","c","f"][index]]*100)*w/100,
+        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(145, 191, 80)"};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
        pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
@@ -914,7 +914,7 @@ try{
     const beforeGuided=await page.evaluate(()=>structuredClone(window.__EFG_VISUAL_QA__.state.diary));
     await page.locator('[data-daymeal="almuerzo"]').click();
     const lunch=page.locator(".student-meal-card").nth(2);
-    if((await lunch.getAttribute("open"))===null)await lunch.locator("summary").click();
+    if(!await lunch.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
     await lunch.locator('[data-setmeal="almuerzo"]').click();
     if((await page.locator("[data-mealgroup]").count())!==4)
       pageReport.errors.push("Main meal must offer protein, carb, prepared and other sections");
@@ -1179,11 +1179,11 @@ try{
      await page.locator('[data-progress-range="7"]').click();
    }
    if(role==="student"&&dest==="home"){
-    const ring=page.locator(".efg-pastel-ring");
-    if((await ring.count())!==1)pageReport.errors.push("Phase 3 ring missing");
+    const summary=page.locator('.ncc-focus-summary');
+    if((await summary.count())!==1)pageReport.errors.push('Compact summary missing');
     else{
-     const ringLabel=await ring.getAttribute("aria-label")||"";
-     if(!ringLabel.includes("560")||!ringLabel.includes("2.100"))pageReport.errors.push("Ring does not reflect REAL diary: "+ringLabel);
+     const label=await summary.innerText();
+     if(!label.includes('560')||!label.includes('2.100'))pageReport.errors.push('Summary does not reflect real diary and target: '+label);
      const rendered=await page.locator(".efg-pastel-day").innerText();
      if(!rendered.includes("560")||!rendered.includes("1.540"))pageReport.errors.push("Energy remainder incorrect");
      if(!rendered.includes("3")||!rendered.includes("77"))pageReport.errors.push("Macro/meal count incorrect");
@@ -1197,8 +1197,8 @@ try{
     if(mealCount!==6)pageReport.errors.push("Expected six meal cards, got "+mealCount);
     if(await page.locator('.student-meal-card [data-setmeal]').count()!==6)
       pageReport.errors.push("Each meal needs its own Add food button");
-    const macroPositions=await page.locator(".efg-pastel-macros > .efg-pastel-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
-    if(macroPositions.length!==3)pageReport.errors.push("Must show 3 macros beside the circular chart");
+    const macroPositions=await page.locator(".ncc-focus-summary > .ncc-focus-macro").evaluateAll(cards=>cards.map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height})));
+    if(macroPositions.length!==3)pageReport.errors.push("Compact summary must show all 3 macros");
     if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     // The approved student dashboard adds a prominent register CTA while

@@ -708,9 +708,13 @@ try{
      const selector=".student-shortcuts button,.efg-quick-more button,.efg-menu-card,.ncc-day-primary";
      return [...document.querySelectorAll(selector)].filter(el=>el.getClientRects().length>0)
        .map(el=>{const cs=getComputedStyle(el),fg=rgb(cs.color),bg=rgb(cs.backgroundColor);
+         // A gradient paints over background-color, which may be transparent.
+         // Measure its actual colors, including intermediate samples, not transparent black.
+         const stops=cs.backgroundImage.includes('gradient(')?[...cs.backgroundImage.matchAll(/rgba?\([^)]+\)/g)].map(m=>rgb(m[0])):[];
+         const samples=stops.length>1?stops.slice(1).flatMap((end,i)=>Array.from({length:17},(_,n)=>stops[i].map((v,c)=>v+(end[c]-v)*n/16))):[bg];
          return {text:(el.textContent||"").trim().slice(0,30),className:el.className,
            color:cs.color,background:cs.backgroundColor,gradient:cs.backgroundImage,height:el.getBoundingClientRect().height,
-           ratio:fg&&bg?contrast(fg,bg):0};});
+           ratio:fg&&samples.every(Boolean)?Math.min(...samples.map(color=>contrast(fg,color))):0};});
    });
    // Los accesos usan materiales / gradientes luxury. Solo los graficos
    // (circulos de macros, barras de progreso) usan colores vivos semanticos.

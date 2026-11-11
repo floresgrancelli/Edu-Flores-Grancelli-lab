@@ -93,7 +93,7 @@ import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilot
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-compact-journeys-r1-20261111";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
@@ -1757,13 +1757,14 @@ function plannerCard(){
   if(meal.split){
    const snack=meal.split==="snack-third";
    const budget=meal.target||meal.baselineTarget||{};
-   out+='<div class="planner-split-target"><b>'+(snack?'⅓ para la merienda':'⅔ para la cena + lo no cubierto en la merienda')+'</b>'+
+   out+='<details class="planner-split-target"><summary>Cómo se reparte entre comidas</summary><b>'+(snack?'⅓ para la merienda':'⅔ para la cena + lo no cubierto en la merienda')+'</b>'+
     '<span>Objetivo orientativo: '+num(budget.k)+' kcal · P '+num(budget.p,1)+' g · HC '+num(budget.c,1)+' g · G '+num(budget.f,1)+' g</span>'+
     (snack?'<small>Porciones moderadas; lo que no cubras se reserva para la cena.</small>':'<small>La cena considera el remanente real de la merienda, no solo su fracción inicial.</small>')+
-    '</div>';
+    '</details>';
   }
   for(const row of meal.rows){
    if(row.category==="vegetable"){
+    out+='<details class="ncc-planner-extras" data-plannerextras="'+meal.slot+'" '+(meal.rows.slice(2).some(r=>r.food)?'open':'')+'><summary>Agregar un extra · opcional</summary>';
     const choices=meal.slot==="merienda"?["banana","bread","walnuts"]:["avocado","bread","potato"];
     const idsAlready=new Set(meal.rows.slice(0,2).map(x=>x.food?.id));
     const suggestions=choices.map(id=>available.find(f=>f.id===id)).filter(f=>f&&!idsAlready.has(f.id));
@@ -1806,6 +1807,7 @@ function plannerCard(){
    }
    out+='</div></div>';
   }
+  out+='</details>';
   out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
  out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
@@ -3384,6 +3386,11 @@ function restoreCoachSection(){
  const saved=state.coachSectionSelection;
  selectCoachSection(saved?.studentId===state.selectedStudent?saved.section:'coachStudentNutrition');
 }
+function coachStudentQuickSummary(p){
+ const intake=state.coachIntakeForms?.[p.user_id];
+ const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
+ return '<aside class="ncc-coach-quick"><h3>Para revisar</h3><div class="ncc-coach-status"><span>'+ (intake?.shared_at?'Ficha compartida':'Sin ficha compartida disponible')+'</span><span>'+ (state.coachGoals.length?'Objetivo disponible':'Objetivo pendiente')+'</span><span>'+report.daysRecorded+' días con registros disponibles</span></div><div class="ncc-coach-actions"><button type="button" data-coachquick="coachStudentNutrition">Ver registros</button><button type="button" data-coachquick="coachStudentGoals">Revisar plan</button><button type="button" data-coachquick="coachStudentReports">Preparar informe</button></div></aside>';
+}
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
@@ -3394,7 +3401,7 @@ function studentDetailView(p,consent){
  (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
  (intakeDraft.dislikedFoods?'<p><strong>Evita por gusto:</strong> '+escapeHTML(intakeDraft.dislikedFoods)+'</p>':"")+
  (intakeDraft.mealRoutine?'<p><strong>Horarios:</strong> '+escapeHTML(intakeDraft.mealRoutine)+'</p>':"")+'</div>':"";
- return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div><nav class="coach-profile-tabs" aria-label="Secciones del alumno">'+[['coachStudentIntake','Ficha'],['coachStudentNutrition','Alimentación'],['coachStudentWeight','Evolución'],['coachStudentGoals','Plan']].map(([id,label])=>'<button type="button" data-coachsection="'+id+'" aria-controls="'+id+'" aria-pressed="false">'+label+'</button>').join('')+'</nav><section id="coachStudentIntake" data-coachpanel hidden aria-label="Ficha del alumno">'+(coachIntakeFlow.details(p.user_id)||'<p class="pilot-hint">Todavía no hay una ficha compartida. Solo se muestran datos que el alumno autorizó compartir.</p>')+'</section><section id="coachStudentNutrition" data-coachpanel aria-label="Alimentación del alumno">'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div>'+coachStudentQuickSummary(p)+'<nav class="coach-profile-tabs" aria-label="Secciones del alumno">'+[['coachStudentIntake','Ficha'],['coachStudentNutrition','Alimentación'],['coachStudentWeight','Evolución'],['coachStudentGoals','Plan'],['coachStudentReports','Informes']].map(([id,label])=>'<button type="button" data-coachsection="'+id+'" aria-controls="'+id+'" aria-pressed="false">'+label+'</button>').join('')+'</nav><section id="coachStudentIntake" data-coachpanel hidden aria-label="Ficha del alumno">'+(coachIntakeFlow.details(p.user_id)||'<p class="pilot-hint">Todavía no hay una ficha compartida. Solo se muestran datos que el alumno autorizó compartir.</p>')+'</section><section id="coachStudentNutrition" data-coachpanel aria-label="Alimentación del alumno">'+coachDailyReport(p)+nutritionProgressPanel(true)+
  coachRewardPanel()+'</section>'+
  '<details class="coach-profile-accordion" id="coachStudentWeight" data-coachpanel hidden><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
@@ -3405,7 +3412,7 @@ function studentDetailView(p,consent){
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
  '<div class="field"><label>Recomposición · estrategia energética</label><select id="targetRecompMode">'+recompOptions("deficit05")+'</select></div>'+activityHint+recompHint+
- '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button><div class="divider"></div><h3>Paso 2 · Preparar la Dieta Guía</h3>'+coachGuidedSection()+'<div class="divider"></div><h3>Paso 3 · Revisar y enviar juntos</h3>'+coachAtomicDraftPanel()+'</details></section>';
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button><div class="divider"></div><h3>Paso 2 · Preparar la Dieta Guía</h3>'+coachGuidedSection()+'<div class="divider"></div><h3>Paso 3 · Revisar y enviar juntos</h3>'+coachAtomicDraftPanel()+'</details><section id="coachStudentReports" data-coachpanel hidden aria-label="Informes del alumno">'+coachPeriodReportPanel()+'</section></section>';
 }
 
 function adminHomeView(){
@@ -3637,14 +3644,14 @@ async function render(){
     const saved=state.coachPilotIntake;
     root.innerHTML=renderCoachRelaunchEntry(
      saved?{route:"ready",status:saved}:{route:"intake",status:null},
-     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED});
+     {editing:!!saved,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true});
    }else if(pilot?.route==="review"||pilot?.route==="private"){
     // Reading nutrition education must not allow diary writes before plan.
     if(state.tab==="nutritionScience")frame(renderScienceVerticalView());
     else if(state.tab==="messages"){frame(messagesView());messages.mount();}
     else if(state.tab==="privacy")frame(studentPrivacyView());
     else if(state.tab==="studentMore")frame(studentMoreView());
-    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED}));
+    else if(state.tab==="intake"&&state.coachPilotIntake)frame(renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true}));
     else if(PRIVATE_HEALTH_DECLARATION_UI_ENABLED&&state.tab==="privateHealth")
      await renderPrivateHealthDeclaration();
     else if(pilot.route==="private")
@@ -3685,8 +3692,8 @@ async function render(){
  if(state.plannerDraftDay!==today()){state.plannerDraftGrams={};state.plannerDraftDay=today();}
  state.renderedDay=today();
  let page={intake:()=>COACH_STUDENT_JOURNEY_ENABLED&&state.profile.role==="student"&&state.coachPilotIntake?
-   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
-   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
+   renderCoachRelaunchEntry({route:"ready",status:state.coachPilotIntake},{editing:true,privateHealthEnabled:PRIVATE_HEALTH_DECLARATION_UI_ENABLED,guided:true}):COACH_RELAUNCH_ONBOARDING_ENABLED&&state.profile.role==="student"?
+   renderCoachRelaunchEntry(state.coachRelaunchEntry,{editing:true,guided:true}):coachIntakeFlow.view(),notifications:notificationsView,messages:messagesView,home:homeView,planner:studentPlannerView,nutritionScience:renderScienceVerticalView,studentMore:state.profile.role==="coach"?coachPersonalMoreView:studentMoreView,recipes:studentRecipesView,supplements:studentSupplementsView,summaries:studentSummariesView,privacy:studentPrivacyView,adminMore:adminMoreView,weight:progressView,sport:sportView,coach:coachHomeView,coachIntake:coachIntakeView,coachStudents:coachView,coachTools:coachToolsView,testCoach:state.profile.role==="admin"?coachHomeView:homeView,reports:coachReportsView,admin:adminHomeView,adminManage:adminView,payments:paymentsView}[state.tab]||homeView;
  frame(page());
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
@@ -4513,6 +4520,9 @@ if(el.dataset.foodbulk){
   openWeeklyPdfView(Number(el.dataset.reportindex),el);return;
  }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
+ if(el.dataset.intakestep!==undefined||el.dataset.intakenext!==undefined){
+  showCoachIntakeStep(el.closest('form'),el.dataset.intakenext??el.dataset.intakestep,{validate:el.dataset.intakenext!==undefined});return;
+ }
  if(el.dataset.plannerslot){
  const slot=el.dataset.plannerslot,host=document.getElementById('planSuggestionCard');
  if(!host?.querySelector('[data-suggestionpanel="'+slot+'"]'))return;
@@ -4521,6 +4531,7 @@ if(el.dataset.foodbulk){
  for(const button of host.querySelectorAll('[data-plannerslot]'))button.setAttribute('aria-pressed',String(button.dataset.plannerslot===slot));
  return;
  }
+ if(el.dataset.coachquick){selectCoachSection(el.dataset.coachquick);document.querySelector('.coach-profile-tabs')?.scrollIntoView({block:'start',behavior:'smooth'});return;}
  if(el.dataset.coachsection){selectCoachSection(el.dataset.coachsection);return;}
  if(el.dataset.coachfilter){const target=document.getElementById("coachRosterSection");target?.scrollIntoView({behavior:"smooth",block:"start"});const btn=target?.querySelector('[data-rosterfilter="'+el.dataset.coachfilter+'"]');btn?.click();return;}
  if(el.dataset.coachjump){const target=document.getElementById(el.dataset.coachjump);if(target)target.scrollIntoView({behavior:"smooth",block:"start"});return;}
@@ -5441,6 +5452,7 @@ document.addEventListener("keydown",event=>{
 root.addEventListener("submit",e=>{
  if(e.target.id==="efgCoachRelaunchForm"||e.target.id==="efgCoachRelaunchManageForm"){
   e.preventDefault();
+  if(!validateCoachIntakeSteps(e.target))return;
   if(COACH_STUDENT_JOURNEY_ENABLED){
    (async()=>{
     if(state.profile?.role!=="student"||!["intake","private","review","ready"].includes(state.coachPilotEntry?.route))

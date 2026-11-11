@@ -553,6 +553,9 @@ try{
        assert.equal(await field.inputValue(),'123');await field.fill(previous);
        assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),diaryBeforeTabs);
      }
+     const extras=page.locator('[data-plannerextras="merienda"]');
+     assert.equal(await extras.getAttribute('open'),null,'Unused extras start folded');
+     await extras.locator('summary').first().click();
      const key="merienda|vegetable";
      const search=page.locator('[data-plansearch="'+key+'"]');
      const row=page.locator('[data-plancontrols="'+key+'"]');

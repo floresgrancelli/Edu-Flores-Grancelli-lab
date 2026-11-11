@@ -61,7 +61,7 @@ const select=(id,label,value)=>'<div class="field"><label for="coachRelaunch_'+i
 const textarea=(id,label,value,max)=>
  '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
  '<textarea id="coachRelaunch_'+id+'" maxlength="'+max+'" rows="2">'+esc(value||"")+'</textarea></div>';
-export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabled=false}={}){
+export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabled=false,guided=false}={}){
  if(!entry||!["intake","legal","retry","verify","inactive","ready"].includes(entry.route))
   throw Error("No se verificó el ingreso Coach.");
  if(entry.route==="ready"&&!editing)return "";
@@ -76,18 +76,22 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  '<button type="button" class="btn light" data-act="logout">Cerrar sesión</button></section>';
  const data=editing?initialCoachRelaunchIntake({draftVersion:COACH_RELEASE_INTAKE_VERSION,
   currentVersionDraft:entry.status}):initialCoachRelaunchIntake();
+ const labels=['Tus datos','Preferencias','Tu rutina','Revisar'];
+ const stage=(n,title)=>guided?'<section data-intakepanel="'+n+'" '+(n?'hidden':'')+'><h3 tabindex="-1">'+title+'</h3>':'';
+ const endStage=n=>guided?'<div class="ncc-intake-actions">'+(n?'<button class="btn light" type="button" data-intakestep="'+(n-1)+'">Atrás</button>':'')+(n<3?'<button class="btn" type="button" data-intakenext="'+(n+1)+'">Continuar</button>':'')+'</div></section>':'';
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
  '<span class="eyebrow">Nutrición Con-Ciencia COACH · NUEVA ETAPA</span>'+
  '<h2 id="efgCoachRelaunchTitle">'+(editing?'Revisar mi ficha nueva':'Conozcámonos de nuevo')+'</h2>'+ 
- '<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>'+
+ (guided?'<p>Vamos de a poco. Revisá tus datos en cuatro pasos; lo ya guardado aparece completo.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
  '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Compartir la ficha requiere tu autorización separada y revocable. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
- '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form">'+ 
- select("objective","Mi objetivo",data.objective)+
+ '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form"'+(guided?' novalidate data-intakewizard':'')+'>'+
+ (guided?'<nav class="ncc-intake-steps" aria-label="Pasos de tu ficha">'+labels.map((label,n)=>'<button type="button" data-intakestep="'+n+'" aria-pressed="'+(n===0)+'">'+(n+1)+'. '+label+'</button>').join('')+'</nav><p data-intakeprogress role="status">Paso 1 de 4 · Tus datos</p>':'')+
+ stage(0,'¿Qué querés lograr?')+select("objective","Mi objetivo",data.objective)+
  '<div class="field-row">'+field("age_years","Edad (años)",data.age_years,1,18,100)+
  field("height_cm","Altura (cm)",data.height_cm,.1,100,250)+
  field("weight_kg","Peso (kg)",data.weight_kg,.1,20,400)+'</div>'+
  select("activity_level","Actividad habitual",data.activity_level)+
- select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
+ endStage(0)+stage(1,"¿Qué te gusta comer?")+select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
  select("eating_window","Organización horaria / ayuno intermitente",data.eating_window||"regular")+
  '<p class="pilot-hint">El patrón y la ventana horaria son preferencias de planificación para conversar con tu coach. Keto y ayuno no se aplican automáticamente ni reducen por sí solos tus calorías.</p>'+
  (privateHealthEnabled?
@@ -95,11 +99,12 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
   renderGutClinicalDraft())+
  textarea("preferred_foods","Alimentos que me gustan",data.preferred_foods,400)+
  textarea("disliked_foods","Alimentos que evito por gusto",data.disliked_foods,400)+
- textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+
+ endStage(1)+stage(2,"¿Cómo es tu día?")+(guided?'<p class="pilot-hint">Opcional: contá cómo te organizás y qué te cuesta sostener por falta de tiempo o constancia. Sin datos médicos.</p>':'')+textarea("meal_routine","Horarios de comidas",data.meal_routine,400)+
  textarea("notes","Hábitos generales, sin información médica",data.notes,1000)+
+ endStage(2)+stage(3,'Revisá y elegí cómo guardar')+(guided?'<dl data-intakereview class="ncc-intake-review"></dl>':'')+
  '<label class="efg-intake-share-label" for="coachRelaunch_share"><input type="checkbox" id="coachRelaunch_share"'+(editing&&entry.status.shared_at?' checked':'')+'>'+ 
  ' Autorizo compartir esta nueva ficha con mi coach. Este permiso es independiente de aceptar los términos y puede revocarse.</label>'+
- '<p class="pilot-hint" role="note">Podés continuar con la ficha privada: dejá «Autorizo compartir» desmarcado y confirmá. Para compartirla después, entrá en Privacidad, autorizá el seguimiento nutricional y abrí «Revisar permiso del piloto» para autorizar compartir. Luego volvé a Mi ficha y marcá «Autorizo compartir». Son decisiones independientes y nunca se activan automáticamente.</p>'+ '<p id="efgCoachIntakeSaveError" role="alert" hidden></p><button type="submit" class="btn block">'+(editing?'Guardar cambios de mi ficha':'Confirmar mi ficha nueva')+'</button></form>'+
+ '<p class="pilot-hint" role="note">Podés continuar con la ficha privada: dejá «Autorizo compartir» desmarcado y confirmá. Para compartirla después, entrá en Privacidad, autorizá el seguimiento nutricional y abrí «Revisar permiso del piloto» para autorizar compartir. Luego volvé a Mi ficha y marcá «Autorizo compartir». Son decisiones independientes y nunca se activan automáticamente.</p>'+ '<p id="efgCoachIntakeSaveError" role="alert" hidden></p><button type="submit" class="btn block">'+(editing?'Guardar cambios de mi ficha':'Confirmar mi ficha nueva')+'</button>'+endStage(3)+'</form>'+
  (editing?'<div class="pilot-toolbar"><button class="btn light" type="button" data-act="revokeCoachRelaunch">Retirar permiso de compartir</button><button class="btn light" type="button" data-act="clearCoachRelaunch">Borrar solo los datos de esta ficha</button></div><p class="pilot-hint">Los datos se borran de la ficha nueva y tu permiso para compartir queda revocado; conservamos un comprobante técnico de que completaste esta versión. No se borran tu plan, historial ni mensajes. Los derechos de supresión de otros registros se gestionan aparte.</p>':'')+ 
  '<p class="pilot-hint">El acceso a tu historia nutricional anterior no se elimina. No se publica ningún plan sin revisión y aprobación del coach.</p></section>';
 }
@@ -194,4 +199,44 @@ export async function clearCoachRelaunchData(sb,{profile,userId,entry,explicitSu
   throw Error("Confirmá expresamente el borrado de la ficha.");
  return submitCoachRelaunchEntry(sb,{profile,userId,entry,
   payload:emptyCoachRelaunchPayload(),shareWithCoach:false,explicitSubmit:true});
+}
+
+// Changes visibility only: all controls stay mounted, no storage, consent or RPC.
+export function showCoachIntakeStep(form,index,{validate=false}={}){
+ if(!form?.hasAttribute('data-intakewizard'))return false;
+ const panels=[...form.querySelectorAll('[data-intakepanel]')];
+ const target=panels.find(p=>p.dataset.intakepanel===String(index));
+ if(!target)return false;
+ if(validate){
+  const invalid=[...(panels.find(p=>!p.hidden)?.querySelectorAll('input,select,textarea')||[])].find(x=>!x.checkValidity());
+  if(invalid){invalid.reportValidity();return false;}
+ }
+ for(const panel of panels)panel.hidden=panel!==target;
+ for(const button of form.querySelectorAll('[data-intakestep]'))button.setAttribute('aria-pressed',String(button.dataset.intakestep===String(index)));
+ const names=['Tus datos','Preferencias','Tu rutina','Revisar'];
+ form.querySelector('[data-intakeprogress]').textContent='Paso '+(Number(index)+1)+' de 4 · '+names[index];
+ const review=form.querySelector('[data-intakereview]');
+ if(Number(index)===3&&review){
+  review.replaceChildren();
+  for(const input of form.querySelectorAll('[data-intakepanel]:not([data-intakepanel="3"]) input,[data-intakepanel]:not([data-intakepanel="3"]) select,[data-intakepanel]:not([data-intakepanel="3"]) textarea')){
+   if(!input.id.startsWith('coachRelaunch_'))continue;
+   const dt=form.ownerDocument.createElement('dt'),dd=form.ownerDocument.createElement('dd');
+   dt.textContent=form.querySelector('label[for="'+input.id+'"]')?.textContent||input.id;
+   dd.textContent=input.value?(input.tagName==='SELECT'?input.selectedOptions[0]?.textContent:input.value):'No informado';
+   review.append(dt,dd);
+  }
+ }
+ target.querySelector('h3')?.focus({preventScroll:true});
+ form.scrollIntoView?.({block:'start',behavior:'smooth'});
+ return true;
+}
+export function validateCoachIntakeSteps(form){
+ if(!form?.hasAttribute('data-intakewizard'))return true;
+ const invalid=[...form.querySelectorAll('input,select,textarea')].find(x=>!x.checkValidity());
+ if(!invalid){
+  if(form.querySelector('[data-intakepanel="3"]')?.hidden){showCoachIntakeStep(form,3);return false;}
+  return true;
+ }
+ showCoachIntakeStep(form,invalid.closest('[data-intakepanel]')?.dataset.intakepanel);
+ invalid.reportValidity();return false;
 }

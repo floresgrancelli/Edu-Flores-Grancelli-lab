@@ -1,3 +1,4 @@
+import {revealIntakeField} from './intake-step-browser.mjs';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
@@ -82,20 +83,20 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   phase='student-legal';await legalAndIntro(page,'student');await page.locator('#efgPilotParticipate').waitFor();
   await page.locator('#efgPilotParticipate').check();await page.locator('#efgPilotShare').check();await page.locator('#efgPilotContinue').click();
   await page.locator('#efgCoachRelaunchForm').waitFor();
-  await page.locator('#coachRelaunch_objective').selectOption('fat_loss');
-  await page.locator('#coachRelaunch_activity_level').selectOption('moderate');
-  await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
-  await page.locator('#coachRelaunch_age_years').fill('40');await page.locator('#coachRelaunch_height_cm').fill('175');await page.locator('#coachRelaunch_weight_kg').fill('86.4');
-  await page.locator('#coachRelaunch_preferred_foods').fill('banana');await page.locator('#coachRelaunch_disliked_foods').fill('apple');await page.locator('#coachRelaunch_share').uncheck();
+  await revealIntakeField(page,'objective');await page.locator('#coachRelaunch_objective').selectOption('fat_loss');
+  await revealIntakeField(page,'activity_level');await page.locator('#coachRelaunch_activity_level').selectOption('moderate');
+  await revealIntakeField(page,'dietary_pattern');await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
+  await revealIntakeField(page,'age_years');await page.locator('#coachRelaunch_age_years').fill('40');await revealIntakeField(page,'height_cm');await page.locator('#coachRelaunch_height_cm').fill('175');await revealIntakeField(page,'weight_kg');await page.locator('#coachRelaunch_weight_kg').fill('86.4');
+  await revealIntakeField(page,'preferred_foods');await page.locator('#coachRelaunch_preferred_foods').fill('banana');await revealIntakeField(page,'disliked_foods');await page.locator('#coachRelaunch_disliked_foods').fill('apple');await revealIntakeField(page,'share');await page.locator('#coachRelaunch_share').uncheck();
   phase='student-save-private-intake';await page.locator('#efgCoachRelaunchForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===1);await settled(page);
   assert.equal((await snapshot(page)).route,'private');
   phase='student-followup-consent';await page.locator('[data-tab="privacy"]:visible').first().click();await page.locator('[data-act="grantConsent"]').click();await page.locator('[data-act="revokeConsent"]').waitFor();
-  phase='student-share-intake';await page.locator('[data-tab="intake"]:visible').first().click();await page.locator('#coachRelaunch_share').check();
+  phase='student-share-intake';await page.locator('[data-tab="intake"]:visible').first().click();await revealIntakeField(page,'share');await page.locator('#coachRelaunch_share').check();
   await page.locator('#efgCoachRelaunchManageForm button[type=submit]').click();await page.waitForFunction(()=>window.__SDK_ENTRY_QA__.snapshot().intakeRevision===2);await settled(page);
   assert.equal((await snapshot(page)).route,'review');
   phase='student-declaration';
   await declare(page);await revoke(page);await declare(page); // Same open panel: regression covers both transitions.
-  await page.locator('[data-tab="intake"]:visible').first().click();await page.locator('#coachRelaunch_disliked_foods').fill('UNSAVED TEST ONLY');
+  await page.locator('[data-tab="intake"]:visible').first().click();await revealIntakeField(page,'disliked_foods');await page.locator('#coachRelaunch_disliked_foods').fill('UNSAVED TEST ONLY');
   await page.reload();await settled(page);await page.locator('[data-tab="intake"]:visible').first().click();
   assert.equal(await page.locator('#coachRelaunch_disliked_foods').inputValue(),'apple');assert.equal((await snapshot(page)).intakeRevision,2);
   return sid;

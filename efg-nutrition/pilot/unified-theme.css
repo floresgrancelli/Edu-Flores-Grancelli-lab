@@ -434,3 +434,36 @@ html.ncc-lime-theme #app #planSuggestionCard .efg-compat-yellow{color:#ffe09a!im
 html.ncc-lime-theme #app #planSuggestionCard .efg-compat-red{color:#ffb7b2!important}
 html.ncc-lime-theme #app #planSuggestionCard .efg-compat-green{color:#d7ff3f!important}
 html.ncc-lime-theme #app #planSuggestionCard :is(.efg-compat-yellow,.efg-compat-red,.efg-compat-green) *{color:inherit!important}
+/* Compact journeys: mounted steps preserve fields; optional extras stay available. */
+.efg-coach-relaunch:has([data-intakewizard]){background:#f8f6e9!important;color:#21331e!important;--ncc-text:#21331e;--ncc-muted:#40503a;--ncc-surface:#f8f6e9;color-scheme:light}
+[data-intakewizard] [data-intakepanel][hidden]{display:none!important}
+.efg-coach-relaunch:has([data-intakewizard]) :is(h2,h3,p,label,small){color:#21331e!important}
+[data-intakewizard] :is(input,select,textarea){background:#fffef8!important;color:#21331e!important;border:1px solid #889873!important;font-size:16px}
+.ncc-intake-steps,.ncc-intake-actions,.ncc-coach-actions{display:flex;flex-wrap:wrap;gap:8px}
+.ncc-intake-steps button,.ncc-coach-actions button{flex:1;min-width:110px;min-height:46px;background:#e4edce;color:#21331e;border:1px solid #889873;border-radius:14px;padding:10px;font:inherit;font-weight:700;cursor:pointer}
+.ncc-intake-steps [aria-pressed=true],.ncc-coach-actions button:last-child{background:#d7ff3f}
+[data-intakeprogress]{background:#d7ff3f;color:#21331e;padding:10px 14px;border-radius:12px;font-weight:700}
+.ncc-intake-actions{justify-content:space-between;margin-top:18px}
+.ncc-intake-actions button{min-width:110px;min-height:46px}
+[data-intakewizard] .btn:not(.light){background:#d7ff3f!important;color:#171c0b!important}
+.ncc-intake-review{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:12px 0 20px}
+.ncc-intake-review dt{font-size:13px;color:#40503a}.ncc-intake-review dd{margin:0;overflow-wrap:anywhere;font-weight:600}
+.ncc-planner-extras{margin-top:12px;border:1px solid #b5c29c;border-radius:16px;padding:12px}
+.ncc-planner-extras>summary,.planner-split-target>summary{min-height:44px;cursor:pointer;font-weight:700;padding:10px 0}
+#planSuggestionCard .planner-split-target:not([open]){display:block;padding:4px 12px}
+.ncc-coach-quick{background:#e9efd9;border:1px solid #b5c29c;border-radius:18px;padding:14px;margin:14px 0;color:#21331e}
+.ncc-coach-quick h3{margin:0 0 10px!important;color:#21331e!important}
+.ncc-coach-status{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;font-size:13px}
+.ncc-coach-status span{padding:6px 9px;border-radius:10px;background:#f8f6e9}
+.coach-profile-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:600px){.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ncc-intake-steps button{flex-basis:40%}.ncc-coach-actions button{flex-basis:100%}}
+/* Override the shared dark control theme only inside these light panels. */
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){--ncc-input:#fffef8;--ncc-text:#21331e;--ncc-muted:#40503a}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea){background:#fffef8!important;color:#21331e!important;border-color:#889873!important;color-scheme:light}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(.ncc-intake-steps button[aria-pressed=true],.btn:not(.light):not(.ghost)){background:#d7ff3f!important;color:#171c0b!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea,button):focus-visible{outline-color:#36561f!important}
+html.ncc-lime-theme #app .ncc-coach-quick{--ncc-text:#21331e;color:#21331e!important}
+html.ncc-lime-theme #app .ncc-coach-quick button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
+html.ncc-lime-theme #app .ncc-coach-quick button:last-child{background:#d7ff3f!important}
+[data-intakewizard],.coach-profile-tabs{scroll-margin-top:110px}

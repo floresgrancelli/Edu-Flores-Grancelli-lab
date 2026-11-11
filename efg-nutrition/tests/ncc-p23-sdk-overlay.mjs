@@ -1,3 +1,4 @@
+import {revealIntakeField} from './intake-step-browser.mjs';
 // NCC P23: P20/P21 staged pilot code + REAL local Supabase SDK/GoTrue/RLS.
 // Executes within the EXISTING disposable sdk-entry-local CI stack, with a
 // NEW fictional student. Absolutely no hosted calls, deployments or approvals.
@@ -147,18 +148,19 @@ export async function runP23SdkOverlay({users,orgs,request,sql}={}){
   await studentPage.locator('#efgPilotShare').check();
   await studentPage.locator('#efgPilotContinue').click();
   const form=studentPage.locator('#efgCoachRelaunchForm');await form.waitFor();
-  await studentPage.locator('#coachRelaunch_objective').selectOption('fat_loss');
-  await studentPage.locator('#coachRelaunch_activity_level').selectOption('moderate');
-  await studentPage.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
+  await revealIntakeField(studentPage,'objective');await studentPage.locator('#coachRelaunch_objective').selectOption('fat_loss');
+  await revealIntakeField(studentPage,'activity_level');await studentPage.locator('#coachRelaunch_activity_level').selectOption('moderate');
+  await revealIntakeField(studentPage,'dietary_pattern');await studentPage.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
+  await revealIntakeField(studentPage,'age_years');
   for(const [key,value] of [['age_years','40'],['height_cm','175'],['weight_kg','86.4']])
    await studentPage.locator('#coachRelaunch_'+key).fill(value);
-  await studentPage.locator('#coachRelaunch_share').uncheck();
+  await revealIntakeField(studentPage,'share');await studentPage.locator('#coachRelaunch_share').uncheck();
   await form.locator('button[type=submit]').click();
   await studentPage.locator('[data-tab="privacy"]:visible').first().click();
   await studentPage.locator('[data-act="grantConsent"]').click();
   await studentPage.locator('[data-act="revokeConsent"]').waitFor();
   await studentPage.locator('[data-tab="intake"]:visible').first().click();
-  await studentPage.locator('#coachRelaunch_share').check();
+  await revealIntakeField(studentPage,'share');await studentPage.locator('#coachRelaunch_share').check();
   await studentPage.locator('#efgCoachRelaunchManageForm button[type=submit]').click();
   // The intake editor legitimately stays open while its tab is selected.
   // Check the REAL database receipt, then reload into the Home waiting route.

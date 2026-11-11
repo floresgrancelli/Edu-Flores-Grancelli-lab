@@ -1,3 +1,4 @@
+import {revealIntakeField} from './intake-step-browser.mjs';
 // Actual app/module graph; new journey enabled ONLY in an isolated HTTP fixture.
 // No real users, external requests, JWT assertions or hosted data.
 import {createServer} from 'node:http';
@@ -58,6 +59,7 @@ try{
   assert.equal(await page.locator('[data-act="clearCoachRelaunch"]').count(),1);
   assert.equal(await page.locator('[name="gutClinicalCondition"]').count(),0,
    'Released private-health flow removes legacy clinical controls from general intake');
+  await revealIntakeField(page,'dietary_pattern');
   assert.match(await page.locator('#efgCoachRelaunchManageForm').innerText(),/Mis restricciones/);
   assert.equal(await page.locator('[name="gutClinicalCondition"]:enabled').count(),0);
   await page.evaluate(async()=>{window.__PILOT_QA__.state.tab='privacy';await window.__PILOT_QA__.render()});
@@ -65,6 +67,16 @@ try{
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
   await page.evaluate(async()=>{window.__PILOT_QA__.state.coachPilotEntry={route:'ready',canLogMeals:true};await window.__PILOT_QA__.render()});
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
+  const contrast=await page.locator('.efg-coach-relaunch').evaluate(panel=>{
+   const rgb=s=>(s.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+   const lum=a=>a.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+   return [...panel.querySelectorAll('button,input:not([type=checkbox]),select,textarea')].filter(el=>el.getClientRects().length).map(el=>{
+    const cs=getComputedStyle(el),a=lum(rgb(cs.color)),b=lum(rgb(cs.backgroundColor));
+    return {id:el.id||el.textContent.trim(),ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+   });
+  });
+  assert.ok(contrast.length>=8,'Verify actual mounted intake controls');
+  assert.deepEqual(contrast.filter(x=>x.ratio<4.5),[],'Intake control contrast must reach 4.5:1');
   const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(bounds.scroll<=width+2,'Horizontal overflow '+JSON.stringify(bounds));
   await page.screenshot({path:join(out,`pilot-privacy-${engine}-${width}.png`),fullPage:true});
@@ -90,13 +102,34 @@ try{
   });
   const newForm=page.locator('#efgCoachRelaunchForm');
   await newForm.waitFor();
+  assert.equal(await newForm.locator('[data-intakepanel]:visible').count(),1);
+  await revealIntakeField(page,'share');
+  await newForm.locator('button[type="submit"]').click();
+  assert.equal(await newForm.locator('[data-intakepanel="0"]').isVisible(),true,'Invalid hidden field opens its step');
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0,'Incomplete required data never reaches backend');
+
   for(const [field,value] of Object.entries({objective:'recomp',activity_level:'moderate',dietary_pattern:'keto',eating_window:'14_10'}))
-   await page.locator('#coachRelaunch_'+field).selectOption(value);
+   {await revealIntakeField(page,field);await page.locator('#coachRelaunch_'+field).selectOption(value);}
   for(const [field,value] of Object.entries({age_years:'40',height_cm:'174',weight_kg:'80',preferred_foods:'Arroz ficticio',disliked_foods:'Ninguno',meal_routine:'12 y 20',notes:'Ensayo sintético'}))
-   await page.locator('#coachRelaunch_'+field).fill(value);
+   {await revealIntakeField(page,field);await page.locator('#coachRelaunch_'+field).fill(value);}
+  await revealIntakeField(page,'share');
   await page.locator('#coachRelaunch_share').check();
   const formSnapshot=()=>newForm.evaluate(form=>Array.from(form.querySelectorAll('input,select,textarea')).map(el=>({id:el.id,value:el.value,checked:el.checked})));
   const originalFields=await formSnapshot();
+  await page.locator('.ncc-intake-steps [data-intakestep="0"]').click();
+  assert.equal(await newForm.locator('[data-intakepanel]:visible').count(),1);
+  assert.equal(await page.locator('#coachRelaunch_age_years').inputValue(),'40');
+  await newForm.evaluate(form=>form.requestSubmit());
+  assert.equal(await newForm.locator('[data-intakepanel="3"]').isVisible(),true,'Enter from an earlier step opens review without saving');
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0);
+  await revealIntakeField(page,'age_years');
+  await page.locator('[data-intakenext="1"]').click();
+  await page.locator('[data-intakenext="2"]').click();
+  await page.locator('[data-intakenext="3"]').click();
+  assert.match(await newForm.locator('[data-intakereview]').innerText(),/Arroz ficticio/);
+  assert.deepEqual(await formSnapshot(),originalFields,'Back and forward preserve all fields and sharing');
+  assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0,'Step navigation never writes');
+
   for(let retry=0;retry<2;retry++){
    await newForm.locator('button[type="submit"]').click();
    await page.waitForFunction(()=>document.querySelector('#efgCoachIntakeSaveError')?.textContent.includes('Falta el permiso de compartir'));

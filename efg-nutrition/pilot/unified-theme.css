@@ -566,3 +566,4 @@ html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#edf
 html.ncc-lime-theme #app :is(.btn.light,.btn.ghost){--ncc-text:#edf2e6!important;color:#edf2e6!important}
 html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{--ncc-text:#edf2e6!important;color:#edf2e6!important}
 html.ncc-lime-theme #app .efg-pastel-meter>span{background:#91bf50!important}
+html.ncc-lime-theme #app .efg-guide-description{background:#1d271e!important;color:#edf2e6!important;border:1px solid #344235}

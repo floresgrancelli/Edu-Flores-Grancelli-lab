@@ -43,7 +43,7 @@ try{
    await page.screenshot({path:resolve(out,engine+'-'+width+'-open-meal.png')});
    console.log('LIME_STYLES',await page.locator('.student-meal-heading').first().evaluate(e=>({background:getComputedStyle(e).backgroundColor,text:getComputedStyle(e.querySelector('strong')).color})));
 
-   const open=async(slot='desayuno')=>{await page.locator('[data-daymeal="'+slot+'"]').click();const add=page.locator('[data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
+   const open=async(slot='desayuno')=>{await page.locator('[data-daymeal="'+slot+'"]').click();const add=page.locator('.student-meal-card [data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
    await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(215, 255, 63)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);

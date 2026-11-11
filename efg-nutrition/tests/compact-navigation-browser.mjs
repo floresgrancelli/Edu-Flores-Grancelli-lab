@@ -45,3 +45,51 @@ export async function assertCompactCoach(page){
  assert.deepEqual(states,{unknown:true,pending:true,existing:true},'Coach priority must distinguish verified pending work from missing data or existing goals');
 
 }
+export async function assertDirectDay(page){
+ const before=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary));
+ const dock=page.locator('.ncc-register-dock button');
+ await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));
+ const rect=await dock.boundingBox();const height=await page.evaluate(()=>innerHeight);
+ assert.ok(rect.y>=0&&rect.y+rect.height<height&&rect.height>=44,'Register remains in viewport');
+ await dock.click();
+ assert.equal(await page.locator('.meal-popup').isVisible(),true);
+ for(const source of ['recent','habitual','recipes']){
+  await page.locator('[data-mealsource="'+source+'"]').click();
+  assert.equal(await page.locator('[data-mealsource="'+source+'"]').getAttribute('aria-pressed'),'true');
+ }
+ await page.getByRole('button',{name:'Cerrar ventana de alimentos'}).click();
+ assert.equal(await dock.evaluate(el=>el===document.activeElement),true);
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),before,'Opening and canceling never records a food');
+ await page.evaluate(()=>scrollTo(0,0));
+}
+export async function assertRosterActions(page){
+ const original=await page.evaluate(()=>{
+  const s=window.__EFG_VISUAL_QA__.state;return Object.fromEntries(['coachIntakeVerified','coachIntakeForms','coachIntakeGoals','coachIntakeAccess','coachIntakeDraftVerified'].map(k=>[k,s[k]]));
+ });
+ const stage=async(values)=>{
+  await page.evaluate(async values=>{Object.assign(window.__EFG_VISUAL_QA__.state,values);await window.__EFG_VISUAL_QA__.render();},values);
+  return page.locator('[data-rostername]').first().getAttribute('data-rosterstage');
+ };
+ assert.equal(await stage({coachIntakeVerified:false}),'unknown');
+ await page.locator('[data-rosterfilter="pending"]').click();
+ assert.equal(await page.locator('[data-rosterstage="unknown"]:visible').count(),0,'Unknown state is not a confirmed pending plan');
+ assert.equal(await stage({coachIntakeVerified:true,coachIntakeGoals:{},coachIntakeForms:{'demo-student-a':{shared_at:'2026-11-11'}},coachIntakeAccess:{},coachIntakeDraftVerified:false}),'intake');
+ await page.locator('[data-rosterfilter="intake"]').click();assert.equal(await page.locator('[data-rostername]:visible').count(),1);
+ await page.locator('#coachRosterSearch').fill('no existe');assert.equal(await page.locator('[data-rostername]:visible').count(),0);
+ await page.locator('#coachRosterSearch').fill('');assert.equal(await page.locator('[data-rostername]:visible').count(),1);
+ assert.equal(await stage({coachIntakeForms:{}}),'plan','Optional form is not required to prepare a plan');
+ assert.equal(await stage({coachIntakeAccess:{'demo-student-a':{status:'published'}}}),'follow');
+ await stage(original);await page.locator('[data-rosterfilter="all"]').click();
+}
+export async function assertCompactGuideEditor(page){
+ const card=page.locator('#coachGuidedSlot [data-guidecard]:visible').first();
+ const row=card.locator('.ncc-guide-food-compact').first();
+ const input=row.locator('[data-guideqty]');const old=await input.inputValue();
+ const before=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.coachGuidedDraft));
+ assert.equal(await row.locator('details').getAttribute('open'),null);
+ await row.locator('summary').click();await row.locator('summary').click();
+ assert.equal(await input.inputValue(),old);assert.equal(await input.isVisible(),true);
+ assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.coachGuidedDraft)),before,'Disclosure changes do not change the plan');
+ const sizes=await row.evaluate(el=>{const name=el.querySelector('.efg-guide-food-name').getBoundingClientRect(),qty=el.querySelector('input').getBoundingClientRect();return {name,qty};});
+ assert.ok(sizes.qty.x>=sizes.name.right&&sizes.qty.height>=44,'Food and quantity share a row');
+}

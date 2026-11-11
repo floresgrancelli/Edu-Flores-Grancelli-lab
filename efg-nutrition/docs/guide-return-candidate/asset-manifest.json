@@ -219,7 +219,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "1668f659c68b79a646936c1cdc89e6b3052016e7fb13c5aa5b8f477c4f065b25",
+    "efg-nutrition/pilot/index.html": "f0c3ffd4de96bd85c9596ee09645723a248cef745edc7d4d8f6f146623e7b7e0",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -447,8 +447,8 @@
     },
     {
       "path": "efg-nutrition/pilot/unified-theme.css",
-      "sha256": "b44f33f0118143561f839f563702fae3e76312cd5a5e53149b2ec6a9024e8e74",
-      "url": "./unified-theme.css?v=ncc-luminous-day-r1-20261110"
+      "sha256": "f8b56f0586cfe1709265102399d83a9f53d022c4739dbfbea23b2ca503508495",
+      "url": "./unified-theme.css?v=ncc-fresh-day-r1-20261111"
     }
   ],
   "moduleResources": [

@@ -2058,6 +2058,8 @@ function openDiaryFoodDialog(ref,remove=false){
  const [slot,indexText]=ref.split(':'),index=Number(indexText),d=activeDiary(),item=d.meals?.[slot]?.[index];
  if(!mealSlots.some(([key])=>key===slot)||!Number.isInteger(index)||index<0||!item)return;
  if(pendingMealRegistrations.has(slot)||state.diaryWritePending)return;
+ const previousNotice=document.getElementById("pilot-toast");
+ if(previousNotice){previousNotice.style.display="none";clearTimeout(notify.timer);}
  selectDayMeal(slot);mealDialogReturnFocus=document.activeElement;
  const units=Number(item.displayQty)>0,quantity=units?item.displayQty:item.qty;
  const host=document.getElementById('mealDialogContainer');

@@ -85,7 +85,7 @@ try{
    // Correct a recorded portion in place, keeping the existing diary writer and scope.
    const originalSushi=structuredClone(saved.meals.cena[0]);
    const editButton=page.locator('[data-editfood="cena:0"]');
-   await editButton.click();await page.locator('#diaryFoodQty').fill('8');
+   await editButton.click();assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears before editing');await page.locator('#diaryFoodQty').fill('8');
    if(width===390){
     await page.setViewportSize({width,height:460});await page.locator('[data-savefood]').scrollIntoViewIfNeeded();
     assert.equal(await page.locator('[data-savefood]').evaluate(el=>{const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return r.y>=0&&r.bottom<=innerHeight&&(hit===el||el.contains(hit));}),true,'Quantity save remains reachable above a keyboard-height viewport');

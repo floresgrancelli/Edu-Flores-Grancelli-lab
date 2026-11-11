@@ -467,3 +467,25 @@ html.ncc-lime-theme #app .ncc-coach-quick{--ncc-text:#21331e;color:#21331e!impor
 html.ncc-lime-theme #app .ncc-coach-quick button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
 html.ncc-lime-theme #app .ncc-coach-quick button:last-child{background:#d7ff3f!important}
 [data-intakewizard],.coach-profile-tabs{scroll-margin-top:110px}
+/* EV07/08: actual records, optional recognitions, small resilient photographs. */
+html.ncc-lime-theme #app .efg-seats-grid>div{background:#e9efd9!important;border-color:#a9b893!important}
+html.ncc-lime-theme #app .efg-seats-grid :is(strong,span){color:#21331e!important}
+html.ncc-lime-theme #app .ncc-intake-steps button{letter-spacing:0!important;word-break:normal!important;overflow-wrap:normal!important}
+html.ncc-lime-theme #app .ncc-progress-highlights{background:#f7f5e9!important;color:#21331e!important;border:1px solid #b5c0a4;border-radius:20px;padding:16px;margin:16px 0;--ncc-text:#21331e}
+html.ncc-lime-theme #app .ncc-progress-highlights :is(h3,p,b,strong,span){color:#21331e!important}
+.ncc-highlights-heading{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+html.ncc-lime-theme #app .ncc-progress-highlights button{background:#e4edce!important;color:#21331e!important;border:1px solid #87996e!important;min-height:44px;padding:10px;border-radius:12px}
+.ncc-progress-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.ncc-progress-facts>div{background:#d7ff3f;border-radius:14px;padding:12px 8px;display:grid;gap:6px;align-content:start}
+.ncc-progress-facts>div:nth-child(2){background:#c7eff0}.ncc-progress-facts>div:nth-child(3){background:#e4d6f5}
+.ncc-progress-facts strong{font-size:24px}.ncc-progress-facts span{font-size:12px;overflow-wrap:normal;word-break:normal}
+.ncc-progress-highlights p{font-size:13px;line-height:1.5;margin:12px 0 0}
+.ncc-guide-photo img[hidden],.ncc-guide-photo-fallback[hidden]{display:none!important}
+.ncc-guide-photo-fallback:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:90px;padding:12px;background:#e4edce;color:#21331e;border-radius:12px;font-size:13px}
+html.ncc-lime-theme #pilot-toast{background:#f7f5e9!important;color:#21331e!important;border:2px solid #bce52d!important;align-items:center;gap:12px;max-width:min(520px,calc(100vw - 24px));box-sizing:border-box;padding:12px 14px;animation:ncc-notice-in .16s ease-out}
+html.ncc-lime-theme #pilot-toast>span{flex:1;min-width:0;overflow-wrap:anywhere}
+html.ncc-lime-theme #pilot-toast>button{pointer-events:auto;flex:none;min-width:58px;min-height:44px;background:#d7ff3f!important;color:#171c0b!important;border:1px solid #87996e;border-radius:10px;cursor:pointer;font:inherit;font-weight:700;padding:8px}
+@keyframes ncc-notice-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){html.ncc-lime-theme #pilot-toast{animation:none!important}}
+
+@media(max-width:720px){html.ncc-lime-theme #pilot-toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}}

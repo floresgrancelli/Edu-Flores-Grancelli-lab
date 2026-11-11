@@ -1,3 +1,4 @@
+import {assertProgressPolish} from './progress-polish-browser.mjs';
 import {runCoachGuideContainer} from './coach-guide-container-regression.mjs';
 import {runOfficialCoachFlow} from './coach-official-flow-private.mjs';
 import {weeklyReportTransportSource} from './weekly-report-transport-private.mjs';
@@ -60,7 +61,7 @@ const server=createServer((req,res)=>{
     "readScope:adaptedCoachScope,loadInput:async()=>{const f=await import('../tests/adapted-guide-fixtures.mjs');return {synthetic:true,catalog:f.catalog,goal:f.goal,template:f.template,context:f.context};}"));
    if(weeklyReportMode)bytes=Buffer.from(bytes.toString()+"\nwindow.__EFG_WEEKLY_HOOKS__={publishWeeklyReport,loadMyWeeklyReports,weeklyReportWindow};\n");
    bytes=Buffer.from(bytes.toString("utf8")+
-    "\nwindow.__EFG_VISUAL_QA__={state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
+    "\nwindow.__EFG_VISUAL_QA__={notify,guideIngredientPhoto,progressHighlightsVisible,state,render,today,handleAuthStateChange,versionNotice,openMealDialog,messages,inbox,guideEducationHTML:guidedDayContents,guideTotals,foods,createSixGuide:(goal)=>generateFlexibleGuidedDay(foods,goal,{patternId:'balanced',restrictionStatus:'none_declared'}),setHabituales:(v)=>{cloudHabituales=v;state.cloudHabitualesUserId=state.session?.user?.id||null},setConsentMap:(v)=>{coachRosterConsent=v}};\n");
   }
   res.writeHead(200,{"content-type":mime[extname(file)]||"application/octet-stream","cache-control":"no-store"});
   res.end(bytes);
@@ -1146,6 +1147,7 @@ try{
      if(role==="admin"&&!(await page.getByText("COBRAR LICENCIAS DE COACHES",{exact:true}).count()))pageReport.errors.push("Admin license billing view is missing");
    }
    if(role==="student"&&dest==="weight"){
+     if(width===390)await assertProgressPolish(page,join(outDir,captureEngine+"-progress-polish.png"));
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){
        if(!(await page.getByText(heading,{exact:true}).count()))pageReport.errors.push("Missing chart "+heading);
      }
@@ -1186,6 +1188,10 @@ try{
      const focus=await page.locator("#studentMeals").evaluate(x=>x===document.activeElement);
      if(!focus)pageReport.errors.push("Meals shortcut did not focus meals section");
     }
+   }
+   if(await page.locator('.efg-seats-grid').count()){
+    const seatColors=await page.locator('.efg-seats-grid strong,.efg-seats-grid span').evaluateAll(els=>els.map(e=>getComputedStyle(e).color));
+    assert.ok(seatColors.length>=6&&seatColors.every(c=>c==='rgb(33, 51, 30)'),'Seat counts and labels must remain readable');
    }
    if(role==="admin"&&dest==="admin"){
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));

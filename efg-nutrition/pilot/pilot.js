@@ -50,7 +50,7 @@ import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-week
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {progressDashboard} from "./progress-charts.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {progressDashboard} from "./progress-charts.js?v=ncc-progress-polish-r1-20261111";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -93,7 +93,7 @@ import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilot
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-compact-journeys-r1-20261111";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-progress-polish-r1-20261111";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
@@ -592,7 +592,15 @@ const messages=createMessagesCenter({sb,
  }),
  afterSend:()=>inbox.refresh()
 });
-const notify=(msg)=>{let e=document.getElementById("pilot-toast");e.textContent=msg;e.style.display="block";clearTimeout(notify.timer);notify.timer=setTimeout(()=>e.style.display="none",4500);};
+const notify=(msg)=>{
+ const e=document.getElementById("pilot-toast");
+ const text=document.createElement('span');text.textContent=msg;
+ const close=document.createElement('button');close.type='button';close.textContent='Cerrar';close.setAttribute('aria-label','Cerrar aviso');
+ close.onclick=()=>{clearTimeout(notify.timer);e.style.display='none';};
+ e.replaceChildren(text,close);e.style.display="flex";clearTimeout(notify.timer);
+ const hideLater=()=>{clearTimeout(notify.timer);notify.timer=setTimeout(()=>{if(!e.contains(document.activeElement))e.style.display='none';},4500);};
+ e.onfocusin=()=>clearTimeout(notify.timer);e.onfocusout=hideLater;hideLater();
+};
 const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
 const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,
  versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED});
@@ -2356,10 +2364,16 @@ function weightTrendChart(items){
  return '<div class="weight-trend"><div class="weight-summary"><div><small>Primer pesaje</small><strong>'+num(first.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(first))+'</span></div><div><small>Último pesaje</small><strong>'+num(last.kg,1)+' kg</strong><span>'+escapeHTML(weightDateLabel(last))+'</span></div><div><small>Variación total</small><strong>'+delta(Number(last.kg),weights.length>1?Number(first.kg):null)+'</strong><span>Desde el anterior: '+delta(Number(last.kg),previous?Number(previous.kg):null)+'</span></div></div><div class="weight-chart-scroll"><svg class="weight-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Gráfico de '+weights.length+' pesajes, desde '+num(first.kg,1)+' hasta '+num(last.kg,1)+' kilos">'+grid+(weights.length>1?'<polyline class="weight-chart-line" points="'+points+'"></polyline>':'')+circles+xLabels+'</svg></div><p class="pilot-hint">Cada punto es un pesaje real. Los días sin registro no se cuentan ni interpolan. Las variaciones aisladas pueden reflejar cambios de agua corporal.</p></div>';
 }
 const argentinaTime=()=>new Intl.DateTimeFormat("en-GB",{timeZone:"America/Argentina/Buenos_Aires",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date());
+function progressHighlightsVisible(){
+ const id=state.session?.user?.id;
+ if(!id)return true;
+ if(state.progressHighlightsPreference?.id===id)return state.progressHighlightsPreference.show;
+ try{return localStorage.getItem('ncc-progress-highlights-'+id)!=='off';}catch{return true;}
+}
 function nutritionProgressPanel(isCoach=false){
  const logs=isCoach?state.coachProgressLogs:state.progressLogs;
  const goals=isCoach?state.coachGoals:state.goals;
- return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student");
+ return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible()});
 }
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
@@ -2869,7 +2883,7 @@ function guideIngredientVisual(meal){
 }
 function guideIngredientPhoto(meal){
  const photo=guideIngredientVisual(meal);
- return photo?'<figure class="ncc-guide-photo"><img src="'+photo.src+'" width="768" height="512" loading="lazy" decoding="async" alt="'+escapeHTML(photo.label)+' · referencia visual del ingrediente"><figcaption>'+escapeHTML(photo.label)+' · imagen ilustrativa generada. No indica la porción ni la preparación.</figcaption></figure>':'';
+ return photo?'<figure class="ncc-guide-photo"><img src="'+photo.src+'" width="768" height="512" loading="lazy" decoding="async" fetchpriority="low" onerror="this.hidden=true;this.nextElementSibling.hidden=false" alt="'+escapeHTML(photo.label)+' · referencia visual del ingrediente"><span class="ncc-guide-photo-fallback" hidden>Imagen no disponible · podés seguir usando las cantidades y el registro.</span><figcaption>'+escapeHTML(photo.label)+' · imagen ilustrativa generada. No indica la porción ni la preparación.</figcaption></figure>':'';
 }
 // Display portions use the same catalog equivalences as the diary. Stored amounts
 // remain in the canonical unit; rendering alone must never round or mutate them.
@@ -4417,6 +4431,13 @@ async function mainClick(event){
  else window.prompt("Copiá el alias:",alias);
  return;
 }
+ if(el.dataset.progressHighlights){
+  const id=state.session?.user?.id;if(!id)return;
+  const show=el.dataset.progressHighlights==='show';state.progressHighlightsPreference={id,show};
+  try{localStorage.setItem('ncc-progress-highlights-'+id,show?'on':'off');}catch{}
+  await render();document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
+  document.querySelector('[data-progress-highlights]')?.focus({preventScroll:true});return;
+ }
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.studentDayGuide){
   if(state.profile?.role!=="student"||state.tab!=="home"||!state.foodPlan?.guided_plan||!state.goals.some(x=>x.id===state.foodPlan.guided_goal_id))return;

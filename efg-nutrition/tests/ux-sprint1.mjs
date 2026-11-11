@@ -157,8 +157,10 @@ for(const fragment of ["Huevos","110 g","Tostada integral","35 g","Dulce de memb
 assert.match(habitualPreviewHTML(null,testEsc),/Elegí un habitual/);
 assert.match(habitualPreviewHTML({name:"Archivo antiguo",items:[{name:"Alimento",qty:50,unit:"g"}]},testEsc),/Macros no disponibles/);
 assert.doesNotMatch(habitualPreviewHTML({name:"<img src=x>",items:[{name:"<script>alert(1)</script>",qty:40,unit:"g",k:50,p:2,c:2,f:2}]},testEsc),/<script>|<img src=x>/,"Never trust stored food names");
-assert.match(pilotSource,/habitualPreviewHTML\(selected,escapeHTML\)/,"Selected habitual must show its saved menu");
+assert.match(pilotSource,/habitualPreviewWithPhotos\(selected\)/,"Selected habitual must show its saved menu");
 assert.match(pilotSource,/if\(e\.target\.dataset\.habitualchoice\)\{updateHabitualPreview/,"Change of habitual must repaint preview");
 assert.match(pilotSource,/data-habitualapply=/,"Preview must not auto-register a meal");
 assert.match(pilotSource,/state\.habitualSelection\[slot\]=String\(data\.id\)/,"Newly saved menu should be previewed");
 console.log("PASS: saved habitual selection shows full quantities and macros, handles incomplete snapshots and escapes untrusted names.");
+
+assert.match(pilotSource,/habitualPreviewHTML\(habitual,escapeHTML\)/,'Family photos wrap the existing saved-menu renderer');

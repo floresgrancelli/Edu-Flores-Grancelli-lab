@@ -2980,7 +2980,7 @@ function guidedDayContents(plan,goal,editable=false){
      meal.items.map((item,index)=>'<option value="'+index+'">Reemplazar '+escapeHTML(item.name||item.id)+'</option>').join('')+
      '</select></label>'+
     '<label>Porciones de receta <input data-guiderecipeserving="'+escapeHTML(meal.slot)+'" type="number" min="0.5" max="4" step="0.5" value="1"></label>'+
-    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div>':'')+
+    '<button type="button" class="btn small light" data-act="addGuidedFood" data-guideaddfood="'+escapeHTML(meal.slot)+'">Agregar o reemplazar</button></div></details>':'')+
    '<small class="ncc-guide-nutrients" data-guidemealnumbers="'+escapeHTML(meal.slot)+'">'+guideNumbers(mt)+'</small>'+
    (!editable&&state.profile?.role==='student'&&mealSlots.some(([slot])=>slot===meal.slot)?'<button type="button" class="btn ncc-guide-register" data-setmeal="'+escapeHTML(meal.slot)+'">Registrar lo que comí</button><small class="ncc-guide-register-hint">Elegís y confirmás lo que comiste.</small>':'')+'</article>';
  }).join("");

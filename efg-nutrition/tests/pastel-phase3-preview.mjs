@@ -38,8 +38,8 @@ assert.ok(css.includes("--pastel-lilac")&&css.includes("--pastel-coral")&&css.in
 assert.ok(css.includes(".efg-role-coach")||css.includes(".efg-coach-banner"),"Coach included");
 assert.ok(css.includes(".efg-admin-banner"),"Admin included");
 assert.ok(css.includes(".efg-pastel-ring"),"Calorie ring implemented");
-assert.ok(app.includes('rootText("MI DÍA"'),"Professional personal heading retains MI DÍA");
-assert.match(app,/studentDay\?studentDayWelcome\(state.profile\?\.nickname,today\(\)\)/,"Student uses the approved distinct daily heading");
+assert.ok(app.includes('<h1>Mi Día</h1><time'),"Personal daily heading is shared across all roles");
+assert.match(app,/compactDaySummary\(tot,goal,d,mealSlots\)/,"Personal roles use the same approved compact summary");
 assert.match(read("student-day-presentation.js"),/<h1>Mi Día<\/h1>/,"Approved student heading remains visible");
 assert.ok(app.includes('["home","","Mi día"]'),"Student navigation label readable");
 assert.ok(app.includes('["home","🍽️","MI DÍA","mint"]'),"Admin access uses same label MI DÍA");

@@ -777,7 +777,7 @@ console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quan
  const changes=[];
  const pick=new Function("document","foods","selectableFoods","hideMealSearchSuggestions","updateMealEntryMode",
   'const allowedFoods=()=>selectableFoods().map(f=>f.id),FOOD_STATE_PAIRS={},foodAllowedForMeal=()=>true,state={activeMeal:"desayuno"};\n'+source.slice(begin,end)+";return pickMealSearchSuggestion;")(
-  {getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
+  {querySelector:()=>null,getElementById:id=>id==="mealEditorFood"?selector:id==="mealFoodSearch"?search:null},
   [{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>[{id:"egg",name:"Huevo"},{id:"rice",name:"Arroz"}],()=>{},changed=>changes.push(changed)
  );
  pick("egg");

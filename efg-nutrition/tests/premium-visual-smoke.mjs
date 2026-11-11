@@ -698,7 +698,7 @@ try{
        button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
    });
    for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
-     const expected=unifiedTheme&&kind==="heading"?"none":"uppercase";
+     const expected=unifiedTheme&&(kind==="heading"||(dest==="home"&&width<=760))?"none":"uppercase";
      if(sample&&sample.transform!==expected)pageReport.errors.push(kind+" typography does not match its approved role/theme: "+sample.text+" ("+sample.transform+")");
    }
    if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))
@@ -782,7 +782,7 @@ try{
            const carbOptions=await page.locator("#mealEditorFood option").allTextContents();
            if(!carbOptions.some(x=>/arroz|pan|avena|papa/i.test(x)))pageReport.errors.push("Hydrate tab did not expose carbohydrate choices");
          }
-         await page.locator('[data-act="closeMeal"]').click();
+         await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
        }
        await page.locator('[data-daymeal="media_tarde"]').click();
        const snack=page.locator('.student-meal-card').filter({has:page.locator('[data-setmeal="media_tarde"]')});
@@ -790,7 +790,7 @@ try{
          if(!await snack.locator("[data-setmeal]").isVisible())pageReport.errors.push("Selected meal must show its add action directly");
          await snack.locator('[data-setmeal="media_tarde"]').click();
          if(await page.locator(".efg-meal-guidance").count())pageReport.errors.push("Media tarde must retain the classic entry flow");
-         await page.locator('[data-act="closeMeal"]').click();
+         await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
        }
      }
      const macroRings=await page.locator(".efg-pastel-macro-icon").evaluateAll(items=>items.map(el=>{
@@ -802,10 +802,10 @@ try{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:Math.min(100,window.__EFG_VISUAL_QA__.dailyTotals(window.__EFG_VISUAL_QA__.state.diary)[["p","c","f"][index]]/window.__EFG_VISUAL_QA__.activeGoal()[["p","c","f"][index]]*100)*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(145, 191, 80)"};
+        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(163, 190, 97)"};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
-       pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
+       pageReport.errors.push("Student macro bars must show actual per-macro progress in reference olive: "+JSON.stringify(bars));
      }else if(!unifiedTheme&&(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient"))))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
@@ -859,7 +859,7 @@ try{
       if(!(await page.locator("#mealEditorHint").innerText()).includes("kcal"))
         pageReport.errors.push("MacBook: suggestion did not update meal nutrients");
     }
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    }
    if(role==="student"&&(width===390||width===1280)&&dest==="home"){
     // UX-GUIDE-01 actual renderer: same HTML for coach editor and student viewer.
@@ -1091,6 +1091,7 @@ try{
     await page.locator("#mealFoodSearch").fill("tarta atun");
     await openMealControls(page,'catalog');
     await page.locator("#mealEditorFood").selectOption("tarta_atun_horno");
+    await openMealControls(page,'groups');
     await page.locator('[data-act="saveSelectedMealContinue"]').click();
     const savedMixed=await page.evaluate(()=>{
       const meals=window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[];
@@ -1102,7 +1103,7 @@ try{
       pageReport.errors.push("Mixed tuna pie must register once incl protein, carbs, fat after optional omission: "+JSON.stringify(savedMixed));
     if((await page.locator("[data-mealgroup]").count())!==4)
       pageReport.errors.push("Add and continue did not reopen guided meal");
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
     await page.evaluate(async previous=>{
       const fixture=window.__EFG_VISUAL_QA__;fixture.state.diary=previous;await fixture.render();
       fixture.openMealDialog("media_manana");
@@ -1111,7 +1112,7 @@ try{
       pageReport.errors.push("Media mañana must retain classic food selector");
     if((await page.locator('#mealEditorFood option').count())<10)
       pageReport.errors.push("Media mañana classic selector lost food categories");
-    await page.locator('[data-act="closeMeal"]').click();
+    await page.getByRole('button',{name:'Cerrar ventana de alimentos',exact:true}).click();
    }
    // COACH119 02-03 + sushi pieces: actual meal editor with synthetic Coach selection,
 // not hosted login, not a physical device, no production connection.
@@ -1136,6 +1137,7 @@ try{
     if(await page.locator("#mealEntryMode").inputValue()!=="units")
      pageReport.errors.push("Approved sushi should default to counting pieces");
     await page.locator("#mealEditorQty").fill("3");
+    await openMealControls(page,'groups');
     await page.locator('[data-act="saveSelectedMealContinue"]').click();
     const savedSushi=await page.evaluate(()=>
      (window.__EFG_VISUAL_QA__.state.diary?.meals?.almuerzo||[])

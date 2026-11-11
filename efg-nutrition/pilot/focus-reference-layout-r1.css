@@ -1,0 +1,147 @@
+/* Approved Mi Día reference: shared by personal student, coach and admin views.
+   Layout only; all record writers, permissions and nutritional values stay intact. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day]{--ncc-focus-accent:#a5be69;--ncc-focus-border:#535c49}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day{max-width:720px;margin:auto;line-height:1.35}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-welcome{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:14px 0 18px!important;margin:0!important;min-height:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-welcome h1{font-size:36px!important;font-weight:750;line-height:1.1;letter-spacing:-.7px;text-transform:none!important;margin:0 0 6px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-welcome time{display:block;font-size:18px;color:#eeeede}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-summary{padding:16px 18px!important;margin:0 0 14px!important;border:1px solid #535c49!important;border-radius:15px!important;background:linear-gradient(125deg,#20251de8,#11170fe8)!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy{text-align:center;gap:12px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy strong{font-size:30px!important;font-weight:750!important;white-space:nowrap;letter-spacing:-.7px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy strong small{font-size:20px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy>div+div strong{color:#b3cd78!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy>div>span{display:block;font-size:17px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-macro{margin-top:14px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-macro>div:first-child{font-size:14px;line-height:1.2;flex-wrap:nowrap}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-meter{height:9px;margin-top:6px;background:#3b4135}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-meter>span{background:#a3be61}
+/* Targets are already expressed by the energy balance and the three bars. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] :is(.ncc-focus-target,.ncc-focus-foot){position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%);padding:0!important;margin:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #nccStudentDayGuide{background:transparent!important;border:1px solid #a5be69!important;border-radius:12px!important;margin:0 0 16px!important;padding:0!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #nccStudentDayGuide>summary{padding:12px 16px!important;min-height:44px;font-size:16px!important;text-transform:none;letter-spacing:0}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .student-daily-layout{display:block!important;margin:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals>.section-head{margin:0 0 12px!important;padding:0!important;min-height:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals>.section-head h2{font-size:25px!important;line-height:1.15;letter-spacing:-.3px;text-transform:none!important;margin:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals>.section-head>.pilot-pill{display:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;margin:0 0 14px!important;padding:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px!important;padding:8px 6px!important;height:76px;min-height:76px!important;border:1px solid #535c49!important;border-radius:13px!important;background:linear-gradient(130deg,#24291f,#181e15)!important;box-shadow:none!important;color:#f2f1e5!important;font-size:14px!important;line-height:1.1!important;text-transform:none!important;letter-spacing:0!important;font-weight:600}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs button[aria-pressed=true]{border:2px solid #b4cb72!important;padding:7px 5px!important;background:#29321b!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-meal-tabs svg{width:25px;height:25px;flex:none;color:#eae9d5}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-meal-tabs .ncc-meal-check{display:none;position:absolute;right:7px;top:6px;width:18px;height:18px;background:#b4cb72;border-radius:50%;color:#17200b;font-size:13px;line-height:18px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-meal-tabs [aria-pressed=true]>.ncc-meal-check{display:block}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-meal-tabs small{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-panel{padding:0!important;border:1px solid #535c49!important;border-radius:14px!important;background:linear-gradient(130deg,#20261c,#151b12)!important;box-shadow:none!important;margin:0!important;overflow:hidden}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-panel>.student-meal-heading{padding:9px 14px!important;min-height:40px!important;gap:6px!important;border-radius:0!important;background:#535f32!important;color:#faf9e9!important;justify-content:flex-start!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-heading strong{font-size:17px!important;text-transform:none!important;letter-spacing:0!important;color:#f5f3e3!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-heading .pilot-pill{background:transparent!important;padding:0!important;border:0!important;font-size:16px!important;color:#f5f3e3!important;font-weight:600}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-heading .pilot-pill:before{content:'· ';}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-details{padding:0 14px!important;background:transparent!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .meal-food-list{display:block!important;gap:0!important;margin:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .meal-food-line{display:grid!important;grid-template-columns:54px minmax(0,1fr) 52px;gap:10px!important;align-items:center;padding:10px 0!important;margin:0!important;border:0!important;border-bottom:1px solid #444d3c!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;min-height:74px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .meal-food-label{display:flex!important;flex-direction:column;gap:4px!important;min-width:0}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .meal-food-label strong{display:block;font-size:15px!important;line-height:1.25!important;text-transform:none!important;font-weight:650!important;letter-spacing:0!important;overflow-wrap:anywhere}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-diary-quantity{padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#dedfd3!important;font-size:14px!important;line-height:1.3!important;font-weight:400!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-food-actions{display:block!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-food-actions button{padding:0!important;margin:0!important;min-height:44px!important;width:52px;min-width:0!important;background:transparent!important;border:0!important;border-radius:0!important;font-size:14px!important;text-transform:none!important;font-weight:500!important;text-decoration:underline;text-underline-offset:3px;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-food-thumb{float:none!important;display:block;width:54px!important;margin:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-food-thumb:empty{display:block;background:#303926;border-radius:8px;height:54px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-food-thumb :is(figure,img){width:54px!important;height:54px!important;margin:0!important;padding:0!important;border:0!important;border-radius:9px;object-fit:cover}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-details>.meal-actions{padding:0!important;margin:6px 0!important;background:transparent!important;display:flex!important;justify-content:flex-end}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-details>.meal-actions [data-setmeal]{min-height:44px!important;padding:6px 10px!important;border:0!important;background:transparent!important;color:#c7d99c!important;--ncc-text:#c7d99c!important;box-shadow:none!important;font-size:14px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-meal-more{margin:0!important;border-top:1px solid #444d3c!important;padding:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-meal-more>summary{text-align:center;min-height:44px;padding:11px!important;font-size:14px!important;list-style:none;cursor:pointer}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-meal-more>summary::-webkit-details-marker{display:none}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-meal-more>summary span{margin-left:10px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup{background:#0c120beF!important;border:1px solid #535c49!important;border-radius:20px!important;padding:22px!important;box-shadow:0 20px 100px #000a!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup h2{font-size:28px!important;line-height:1.15;text-transform:none!important;letter-spacing:-.4px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup>.between{margin-bottom:16px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup>.between [data-act=closeMeal]{font-size:24px!important;border:0!important;background:transparent!important;min-width:44px;min-height:44px;padding:6px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .pilot-form{gap:14px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-slot-field{margin:0!important;max-width:180px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-slot-field>label,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-search-field>label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealEntrySlot{min-height:44px!important;padding:8px 14px!important;font-size:17px!important;font-weight:650!important;background:#46542b!important;border:1px solid #91a45e!important;border-radius:18px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealFoodSearch{min-height:48px!important;background:#24291f!important;border:1px solid #6c7163!important;border-radius:14px!important;padding:12px 16px!important;font-size:16px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-meal-sources{gap:7px!important;margin:4px 0 12px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-meal-sources button{min-height:44px!important;border-radius:14px!important;background:#1b2117!important;padding:8px 3px!important;letter-spacing:0!important;font-size:12px!important;font-weight:500!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-meal-sources button[aria-pressed=true]{background:#192210!important;border:2px solid #b4cb72!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-shortcut-choice{border:1px solid #535c49;border-radius:15px;margin:0 0 12px;background:linear-gradient(130deg,#252b20,#161d13);overflow:hidden}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-shortcut-choice:has([aria-pressed=true]){border:2px solid #b4cb72}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-shortcut-choice>button{display:grid!important;grid-template-columns:64px minmax(0,1fr) 24px;align-items:center;gap:12px;padding:12px!important;margin:0!important;width:100%;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;text-align:left!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-copy{display:flex;flex-direction:column;gap:7px;min-width:0}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-copy strong{font-size:17px!important;line-height:1.25;text-transform:none!important;letter-spacing:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-copy small{font-size:12px!important;font-weight:400!important;line-height:1.3;color:#d3d6c8!important;text-transform:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-photo :is(figure,img){width:64px!important;height:64px!important;margin:0!important;padding:0!important;border:0!important;border-radius:10px!important;object-fit:cover}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-photo :is(figcaption,.ncc-guide-photo-fallback){display:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-choice-tick{width:22px;height:22px;border:1px solid #eeeede;border-radius:50%;font-size:17px;text-align:center;line-height:22px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup [aria-pressed=true]>.ncc-choice-tick{background:#b4cb72;border-color:#b4cb72;color:#18210c}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup [aria-pressed=true]>.ncc-choice-tick:before{content:'✓'}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-shortcut-choice #mealQuantityCard{border:0!important;margin:0!important;padding:4px 14px 16px!important;background:transparent!important;border-radius:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-shortcut-choice #mealEntrySelected{display:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealEditorQty{font-size:26px!important;font-weight:700!important;text-align:center;min-height:50px!important;background:#141a11!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-meal-save{display:flex!important;flex-direction:column-reverse;gap:8px;border-top:1px solid #535c49!important;padding-top:14px!important;background:transparent!important;position:static!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-meal-save [data-act=saveSelectedMeal]{background:#a5be69!important;--ncc-text:#111908!important;color:#111908!important;border:0!important;min-height:52px!important;font-size:18px!important;border-radius:14px!important;box-shadow:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-cancel{min-height:48px!important;border:1px solid #e3e2cc!important;background:transparent!important;font-size:17px!important;border-radius:14px!important}
+@media(max-width:760px){
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .efg-mobile-header{position:relative!important;top:auto!important;padding:14px 18px!important;min-height:64px!important;height:64px!important;border:0!important;background:transparent!important;box-shadow:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .efg-mobile-brand{gap:9px!important;max-width:235px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .efg-mobile-brand img{width:38px!important;height:30px!important;flex:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .efg-mobile-brand-text strong{font-size:15px!important;line-height:1.05!important;letter-spacing:0!important;max-width:180px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] :is(.efg-mobile-brand-text small,.efg-mobile-user,.efg-mobile-avatar){display:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .efg-mobile-logout{min-width:44px!important;min-height:44px!important;padding:5px!important;font-size:11px!important;border:0!important;background:transparent!important;margin-right:40px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-main{padding:0 18px calc(80px + env(safe-area-inset-bottom))!important;margin:0!important;width:100%!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day]::before{top:0;opacity:.4;width:100vw;max-height:350px;mask-image:linear-gradient(#000,transparent);-webkit-mask-image:linear-gradient(#000,transparent)}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav{height:calc(65px + env(safe-area-inset-bottom))!important;min-height:65px!important;padding:4px 7px calc(4px + env(safe-area-inset-bottom))!important;border-radius:0!important;background:#0c130bf5!important;border-top:1px solid #414b35!important;gap:0!important;box-shadow:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav .navitem{min-height:54px!important;height:54px!important;padding:3px!important;border-radius:0!important;border:0!important;background:transparent!important;gap:4px!important;box-shadow:none!important;position:relative}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav .navitem.active{color:#b4cb72!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav .navitem:before{display:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav .navitem.active:after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:2px;background:#b4cb72}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-icon,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-icon svg{width:23px!important;height:23px!important;min-height:0!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-label{font-size:10px!important;line-height:1.1!important;text-transform:none!important;letter-spacing:0!important;white-space:nowrap}
+ body:has(#app [data-ncc-background=day]) .efg-notifications{top:15px!important;right:14px!important}
+ body:has(#app [data-ncc-background=day]) .efg-notify-bell{width:44px!important;height:44px!important;padding:5px!important}
+ body:has(#app [data-ncc-background=day]) .efg-notify-bell svg{width:24px!important;height:24px!important}
+ body:has(#mealDialogContainer .meal-backdrop) .efg-notifications{visibility:hidden}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-backdrop{padding:0!important;align-items:stretch!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup{width:100%!important;max-width:100%!important;max-height:100dvh!important;height:100dvh!important;border-radius:0!important;padding:22px 18px calc(20px + env(safe-area-inset-bottom))!important;overflow-y:auto!important}
+}
+@media(max-width:350px){html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy strong{font-size:25px!important}html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy strong small{font-size:16px!important}}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-qty-controls{display:grid;grid-template-columns:44px minmax(70px,1fr) 44px 38px;gap:7px;align-items:center}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-qty-controls button{min-height:48px!important;padding:0!important;font-size:24px!important;border:1px solid #626958!important;border-radius:9px!important;background:#30362a!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealQtyUnit{font-size:17px;text-align:center}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-quantity-options>summary{font-size:12px;min-height:44px;padding:12px 0;color:#c8ceb9;cursor:pointer}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealEditorHint{font-size:12px!important;padding:0!important;background:transparent!important;border:0!important;color:#c8ceb9!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-destination{margin:10px 0 0;font-size:16px;color:#ebeddf}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-destination strong{color:#b4cb72!important}
+@media(max-width:760px){html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .pilot-nav .navitem{text-transform:none!important}}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.05;font-weight:650;margin-bottom:32px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand img{object-fit:contain}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-quantity-options:not([open])~#mealEditorHint{display:none}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-details>.meal-actions [data-setmeal]{width:auto!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day :is(h1,h2,h3,p,strong,span,small,b,button,input,select,label,summary){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup{background:#0c120b!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealCompatibilityStatus{font-size:12px!important;margin:0!important;padding:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealCompatibilityStatus ul{margin:4px 0!important;padding-left:18px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealEntrySlot{-webkit-appearance:none;appearance:none;background:#46542b!important;padding-right:32px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='m2 2 6 6 6-6' fill='none' stroke='%23eeeede' stroke-width='2'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 12px center!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand{margin-bottom:18px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-footer{flex:none;background:#0c120b;padding-top:10px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-footer .ncc-meal-save{border:0!important;padding-top:8px!important;margin-bottom:8px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-footer .ncc-entry-cancel{width:100%}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-footer .ncc-entry-destination{border-top:1px solid #535c49;padding-top:12px;margin-top:0}
+@media(max-width:760px) and (min-height:601px){
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup:not(.ncc-food-edit){display:flex;flex-direction:column;overflow:hidden!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(.ncc-food-edit)>.pilot-form{display:flex!important;flex-direction:column;flex:1;min-height:0;gap:10px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-results{overflow-y:auto;overscroll-behavior:contain;flex:1;min-height:0}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-results>.ncc-meal-shortcuts{margin:0!important}
+}
+@media(max-height:600px){html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand{display:none}}
+
+/* Match the muted reference accent despite older high-specificity action rules. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup .ncc-entry-footer .ncc-meal-save button[data-act=saveSelectedMeal]:not(:disabled){background:#a5be69!important;color:#111908!important;--ncc-text:#111908;border-color:#a5be69!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealEntrySlot{background-size:16px 10px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(.ncc-food-edit){position:relative;isolation:isolate}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup:not(.ncc-food-edit)::before{content:"";position:absolute;top:0;right:0;width:65%;height:210px;z-index:-1;pointer-events:none;background-image:url('./assets/section-backgrounds.webp');background-repeat:no-repeat;background-size:200% 400%;background-position:100% 0;opacity:.25;mask-image:linear-gradient(90deg,transparent,#000),linear-gradient(#000,transparent);mask-composite:intersect;-webkit-mask-image:linear-gradient(90deg,transparent,#000);}
+@media(prefers-reduced-transparency:reduce),(forced-colors:active){html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup::before{display:none!important}}
+
+/* Selection marks must contrast with their pale olive circle. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .ncc-day-meal-tabs .ncc-meal-check,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup [aria-pressed=true]>.ncc-choice-tick{color:#17200b!important;--ncc-text:#17200b!important}

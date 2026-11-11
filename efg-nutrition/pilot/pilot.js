@@ -1297,7 +1297,7 @@ function frame(content){
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
- const visibleMenu=menu;
+ const visibleMenu=state.tab==="home"&&!state.dualCandidateCoach?[["home","","Mi Día"],["planner","","Plan"],["weight","","Avance"],["nutritionScience","","Ciencia"],[role==="admin"?"adminMore":"studentMore","","Más"]]:menu;
  const primaryTabs=menu.map(m=>m[0]);
  const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  const backgroundKey=state.tab==="home"?"day":state.tab==="planner"?"plan":state.tab==="weight"?"progress":state.tab==="nutritionScience"?"science":["coach","coachStudents","coachIntake","coachTools","testCoach"].includes(state.tab)?"coach":["admin","adminMore","adminManage"].includes(state.tab)?"admin":"start";
@@ -2146,7 +2146,7 @@ function openMealDialog(slot,initialGroup="protein"){
  '<div id="mealQuantityHome"></div><section id="mealQuantityCard" class="ncc-quantity-card" aria-label="Alimento y cantidad" hidden><div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
  '<div class="field ncc-quantity-field"><label id="mealEditorQtyLabel" for="mealEditorQty">Cantidad (g o ml)</label><div class="ncc-qty-controls"><button type="button" class="btn ghost" data-act="mealQtyDown" aria-label="Disminuir cantidad">−</button><input id="mealEditorQty" inputmode="decimal" type="number" min=".1" max="5000" step="any" value="100"><button type="button" class="btn ghost" data-act="mealQtyUp" aria-label="Aumentar cantidad">+</button><span id="mealQtyUnit">g</span></div></div>'+
  '<details class="ncc-quantity-options"><summary>Unidad y estado del alimento</summary><div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div></details>'+
- '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div><div class="note" id="mealEditorHint"></div></section>'+
+ '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div></section><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div>'+
  '<p class="ncc-entry-destination">Se agregará a <strong id="mealEntryDestination">'+escapeHTML(meal[1])+'</strong></p>'+
  (guided?'<div class="efg-guided-save-actions ncc-meal-save"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button><button class="btn" data-act="saveSelectedMeal">Agregar alimento</button></div>':'<div class="ncc-meal-save"><button class="btn block" data-act="saveSelectedMeal">Agregar alimento</button></div>')+
 '<button type="button" class="btn ghost ncc-entry-cancel" data-act="closeMeal">Cancelar</button>'+
@@ -2212,7 +2212,7 @@ function pickMealSearchSuggestion(foodId){
  if(!selector||!search||!food||!allowedFoods().includes(food.id)&&!Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===food.id&&allowedFoods().includes(cooked))||!foodAllowedForMeal(food,state.activeMeal))return;
  if(![...selector.options].some(o=>o.value===food.id))selector.add(new Option(food.name,food.id));
  const foodChanged=selector.value!==food.id;
- selector.value=food.id;search.value=food.name;
+ selector.value=food.id;search.value=document.querySelector('#mealEntryShortcuts [data-mealsuggestion="'+food.id+'"]')?"":food.name;
  hideMealSearchSuggestions();updateMealEntryMode(foodChanged);
  search.blur();
  document.getElementById("mealEditorQty")?.scrollIntoView({block:"nearest"});

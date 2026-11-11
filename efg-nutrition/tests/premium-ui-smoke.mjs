@@ -20,9 +20,9 @@ includesAll(js,[
  '["home","","Mi día"]','["coach","⌂","Inicio"]','["admin","⌂","Inicio"]'
 ]);
 includesAll(css,["efg-menu-grid","efg-role-student","safe-area-inset-bottom","@media(max-width:720px)","coach-profile-accordion"]);
-includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-scrollto=\"studentMeals\"",'aria-current="page"',"if(el.dataset.scrollto)"]);
+includesAll(js,["function efgNavIcon(tab)","function efgAvatarLetters(name)","efg-mobile-header","data-daymeal=\"",'aria-current="page"',"if(el.dataset.scrollto)"]);
 includesAll(css,[".efg-mobile-header","efg-mobile-avatar","efg-student-macros","meal-remove-item","safe-area-inset-top"]);
-assert.match(js,/data-scrollto="studentMeals"/,"The meals shortcut must scroll to the actual meal section");
+assert.match(js,/aria-controls="ncc-day-meal-/,"Schedule tabs target the actual selected meal panel");
 assert.match(js,/id="studentMeals"/,"The meals destination must exist");
 assert.doesNotMatch(js,/studentQuickAdd|efg-quick-add-grid/,"Do not render a duplicate six-color meal picker");
 assert.match(js,/class="pilot-record meal-day-section student-meal-card ncc-day-meal-panel"/,"Retain meal controls inside the approved tabbed diary");

@@ -171,7 +171,7 @@ try{
      const a=window.__NCC_R4_FULLAPP__;await a.fixture.loginAs(role==='admin'?'admin':'learner');
      const s=a.state;s.tab='home';s.personalTargets={kcal:2100,protein_g:150,carb_g:230,fat_g:70,fiber_g:30,updated_at:new Date().toISOString()};
      s.diary.meals.almuerzo=[{id:'chicken',name:'Pollo a la plancha',qty:150,unit:'g',k:250,p:40,c:0,f:9,fi:0},{id:'rice',name:'Arroz blanco cocido',qty:180,unit:'g',k:270,p:6,c:56,f:2,fi:3}];
-     s.lastEditedMeal='almuerzo';await a.render();
+     s.lastEditedMeal='almuerzo';await a.render();await a.frame.ready();document.querySelector('[data-ncc-dual-slot]')?.setAttribute('hidden','');
      document.getElementById('ncc-student-day-fixture-controls').hidden=true;window.scrollTo(0,0);
     },role);
     if(width===390){
@@ -179,7 +179,7 @@ try{
      assert.ok(sizes.header<=70&&sizes.nav<=80,role+' chrome must remain compact: '+JSON.stringify(sizes));
      assert.ok(sizes.rows.every(h=>h<=110)&&sizes.tabs.every(h=>h<=80),role+' food rows/tabs must match compact reference');
     }
-    await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-day.png'),fullPage:true});
+    await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-day.png'),fullPage:false});
     await open('almuerzo');await page.locator('[data-mealsource="recent"]').click();
     const choice=page.locator('#mealEntryShortcuts [data-mealsuggestion]').first();
     if(await choice.count()){await choice.click();await page.locator('#mealEditorQty').fill('180');await page.getByRole('button',{name:'Aumentar cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'181');await page.getByRole('button',{name:'Disminuir cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'180');}

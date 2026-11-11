@@ -99,7 +99,7 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc
  html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-icon,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-icon svg{width:23px!important;height:23px!important;min-height:0!important}
  html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .nav-label{font-size:10px!important;line-height:1.1!important;text-transform:none!important;letter-spacing:0!important;white-space:nowrap}
  body:has(#app [data-ncc-background=day]) .efg-notifications{top:15px!important;right:14px!important}
- body:has(#app [data-ncc-background=day]) .efg-notify-bell{width:36px!important;height:36px!important;padding:5px!important}
+ body:has(#app [data-ncc-background=day]) .efg-notify-bell{width:44px!important;height:44px!important;padding:5px!important}
  body:has(#app [data-ncc-background=day]) .efg-notify-bell svg{width:24px!important;height:24px!important}
  body:has(#mealDialogContainer .meal-backdrop) .efg-notifications{visibility:hidden}
  html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-backdrop{padding:0!important;align-items:stretch!important}
@@ -117,3 +117,8 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.05;font-weight:650;margin-bottom:32px}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-entry-brand img{object-fit:contain}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup .ncc-quantity-options:not([open])~#mealEditorHint{display:none}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .student-meal-details>.meal-actions [data-setmeal]{width:auto!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day,html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day :is(h1,h2,h3,p,strong,span,small,b,button,input,select,label,summary){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-direct-day .meal-popup{background:#0c120b!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealCompatibilityStatus{font-size:12px!important;margin:0!important;padding:0!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .meal-popup #mealCompatibilityStatus ul{margin:4px 0!important;padding-left:18px!important}

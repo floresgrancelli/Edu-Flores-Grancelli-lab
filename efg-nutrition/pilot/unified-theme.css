@@ -397,3 +397,4 @@ html.ncc-lime-theme #app #coachGuidePreview{
 html.ncc-lime-theme #app #coachGuidePreview :is(h2,p,small){color:#21331e!important}
 html.ncc-lime-theme #app #coachGuidePreview .efg-guide-preview-actions{background:#f7f5e9!important;border-color:#b5c0a4!important}
 html.ncc-lime-theme #app #coachGuidePreview .btn.ghost{background:#e3ebd2!important;color:#21331e!important;border-color:#81966a!important}
+html.ncc-lime-theme #app #studentMeals .pilot-pill,html.ncc-lime-theme #app :is(#studentMeals,.meal-popup) .efg-habitual-preview-heading>span{background:#dcebb8!important;color:#21331e!important;border-color:#81966a!important}

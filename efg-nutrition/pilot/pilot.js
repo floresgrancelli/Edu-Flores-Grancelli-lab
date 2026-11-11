@@ -31,7 +31,7 @@ import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilo
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {studentDayWelcome,studentDayDashboard} from "./student-day-presentation.js?v=ncc-student-day-r1-20261110";
+import {studentDayWelcome,studentDayDashboard} from "./student-day-presentation.js?v=ncc-direct-daily-r1-20261111";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1682,13 +1682,13 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  (state.profile.role==="student"?nutritionTipCardHTML({
   allowExplore:!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending"
  }):"");
-  return (studentDay?studentDayWelcome(state.profile?.nickname,today()):rootText("MI DÍA",isPersonalProfessional?"Tu alimentación personal, tus objetivos y tu progreso. Ningún registro se mezcla con los de tus alumnos.":"Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo."))+
+  return '<div class="ncc-direct-day">'+(studentDay?studentDayWelcome(state.profile?.nickname,today()):rootText("MI DÍA",isPersonalProfessional?"Tu alimentación personal, tus objetivos y tu progreso. Ningún registro se mezcla con los de tus alumnos.":"Tu registro de hoy. Las metas provienen de tu coach y la guía no se registra como consumo."))+
  (studentDay?studentDayDashboard({totals:tot,goal,diary:d,mealSlots,hasGuide:!!state.foodPlan?.guided_plan&&state.goals.some(x=>x.id===state.foodPlan.guided_goal_id)}):'<section class="efg-personal-hello"><span>HOLA,</span><strong>'+escapeHTML((state.profile?.nickname||"ALUMNO").trim())+'</strong></section>'+pastelDaySummary(tot,goal,d,mealSlots))+
- (!studentDay?dayExtras:"")+
+ ''+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi guía aprobada del coach</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+'<nav class="student-shortcuts" aria-label="Accesos rápidos"><button type="button" data-scrollto="studentMeals">🍽️ Mis comidas</button><button data-tab="planner">✨ Planificar</button><button data-tab="weight">📈 Progreso</button></nav>'+
- '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+(studentDay?dayExtras:'')+'<div id="mealDialogContainer"></div>'+goalForm;
+ '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas de hoy</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><div class="card"><h2>Balance restante</h2>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></div></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+dayExtras+'<div class="ncc-register-dock"><button type="button" class="btn" data-act="registerDayFood">＋ Registrar comida</button></div><div id="mealDialogContainer"></div>'+goalForm+'</div>';
 }
 
 // One catalog across student, coach, planner and diary. A guided example and
@@ -2503,6 +2503,24 @@ function coachIntakeView(){
 function coachToolsView(){
  return rootText("Herramientas del coach","Calculá propuestas de objetivos y revisalas antes de asignarlas.")+macroPlayground()+versionCheckCard();
 }
+function coachRosterNext(p){
+ if(!p.active)return {stage:'inactive',label:'Baja temporal',action:'',section:''};
+ if(coachRosterConsent[p.user_id]!==true)return {stage:'consent',label:'Autorización pendiente',action:'Ver estado',section:'coachStudentNutrition'};
+ if(!state.coachIntakeVerified)return {stage:'unknown',label:'Estado por verificar',action:'Ver seguimiento',section:'coachStudentNutrition'};
+ if(state.coachIntakeAccess[p.user_id]?.status==='published')return {stage:'follow',label:'Plan publicado',action:'Continuar seguimiento',section:'coachStudentNutrition'};
+ const draft=state.coachIntakeDraftVerified&&currentCoachIntakeDraft(state.coachIntakeDraftStatuses[p.user_id],state.coachIntakeForms[p.user_id],{studentId:p.user_id,organizationId:state.org?.id,coachId:state.session?.user?.id});
+ if(draft)return {stage:'plan',label:'Borrador en preparación',action:'Continuar plan',section:'coachStudentGoals'};
+ if(state.coachIntakeGoals[p.user_id])return {stage:'follow',label:'Objetivo existente · publicación sin confirmar',action:'Continuar seguimiento',section:'coachStudentNutrition'};
+ if(state.coachIntakeForms[p.user_id]?.shared_at)return {stage:'intake',label:'Ficha recibida · sin objetivo',action:'Revisar ficha',section:'coachStudentIntake'};
+ return {stage:'plan',label:'Sin objetivo configurado',action:'Preparar plan',section:'coachStudentGoals'};
+}
+function coachRosterCard(p){
+ const next=coachRosterNext(p);
+ return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
+ '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small><small>'+next.label+'</small></div></div>'+
+ (p.active?'<button type="button" class="btn ncc-roster-primary" data-student="'+p.user_id+'" data-rostersection="'+next.section+'">'+next.action+'</button>':'')+
+ '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></details></div>';
+}
 function coachView(){
  const org=state.org;
  const isTest=!!org?.is_test;
@@ -2514,12 +2532,12 @@ function coachView(){
   '<div class="pilot-toolbar"><button type="button" class="btn small light" data-act="refreshCoachRoster">Actualizar alumnos y permisos</button></div>'+
   (state.coachIntakeRefreshNotice?'<p class="pilot-alert" role="status">'+escapeHTML(state.coachIntakeRefreshNotice)+'</p>':'')+
  ' <div class="efg-roster-summary"><span class="pilot-pill">'+activeRoster.length+' alumnos activos</span><button type="button" class="btn small light" data-tab="coach">Volver al inicio</button></div>'+
- '<section class="card efg-seats-panel" aria-label="Cupos disponibles"><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest&&state.profile.role==="admin"?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></section>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
+ '<details class="card efg-seats-panel ncc-roster-seats"><summary>Cupos: '+available+' disponibles de '+seats+'</summary><div class="section-head"><h2>CUPO DE ALUMNOS</h2>'+(isTest&&state.profile.role==="admin"?'<button type="button" class="btn small light" data-testseats="1">Modificar cupos de prueba</button>':'')+'</div><div class="efg-seats-grid"><div><strong>'+seats+'</strong><span>Habilitados</span></div><div><strong>'+used+'</strong><span>Ocupados</span></div><div><strong>'+available+'</strong><span>Disponibles</span></div></div><p class="pilot-hint">Los cupos ocupados incluyen alumnos activos e invitaciones pendientes. Las bajas temporales no consumen cupo.</p></details>'+(!commercialReady?'<div class="pilot-alert" role="status">Tu licencia EFG está pendiente de activación por el administrador. Podés usar MI DÍA, pero todavía no invitar alumnos.</div>':'')+''+
  (isTest?'<div class="pilot-notice" style="margin-bottom:18px"><strong>🧪 '+(state.profile.role==="admin"?"Laboratorio de EFG":"Coach piloto EFG")+' — '+seats+' cupos gratuitos de prueba</strong><small>Solo ves alumnos de este espacio que hayan autorizado el seguimiento. No se generan cobros de licencias durante la prueba.</small></div>':'')+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="coachRosterSection"><div class="coach-roster-heading"><div><div class="eyebrow">PERSONAS PRIMERO</div><h2>Mis alumnos</h2><p class="pilot-hint">Avatares individuales. Las fotografías se mostrarán solamente cuando el alumno las autorice.</p></div><span class="coach-roster-total">'+activeRoster.length+' activos</span></div>'+
  (roster.length?'<div class="field"><label for="coachRosterSearch">Buscar alumno</label><input id="coachRosterSearch" type="search" autocomplete="off" placeholder="Nombre o correo…"><small id="coachRosterCount" class="pilot-hint">'+roster.length+' alumnos en la lista</small></div>':'')+
- (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
- (roster.length?roster.map(p=>'<div class="pilot-record" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML((p.nickname+" "+(p.email||"")).toLocaleLowerCase("es-AR"))+'"><div class="between"><div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+((coachDisplayName(p)!==p.nickname)?escapeHTML(p.nickname)+' · ':'')+safePhoneEmail(p.email)+' · '+(p.active?'Activo':'Baja temporal')+'</small></div></div><div class="pilot-toolbar">'+(p.active?'<button class="btn small light" data-student="'+p.user_id+'">Ver seguimiento</button>':'')+'<button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button>'+'<button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></div></div>').join(""):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
+ (roster.length?'<div class="pilot-toolbar" style="margin:10px 0"><button class="btn small light" data-rosterfilter="all">Todos</button><button class="btn small ghost" data-rosterfilter="pending">Pendientes</button><button class="btn small ghost" data-rosterfilter="intake">Fichas recibidas</button><button class="btn small ghost" data-rosterfilter="plan">Por preparar</button><button class="btn small ghost" data-rosterfilter="active">Activos</button><button class="btn small ghost" data-rosterfilter="inactive">Inactivos</button><button class="btn small ghost" data-rosterfilter="consent">Sin autorización</button></div><p class="pilot-hint">Los indicadores reflejan el estado administrativo y los permisos; no son diagnósticos nutricionales.</p>':'')+
+ (roster.length?roster.map(coachRosterCard).join(''):'<div class="empty">Aún no hay alumnos. Podés probar la calculadora y después invitar a alguien.</div>')+
  (pending.length?'<div class="divider"></div><h3>Invitaciones pendientes de ingreso</h3>'+pending.map(i=>'<div class="pilot-record"><strong>'+escapeHTML(i.nickname)+'</strong><small>'+safePhoneEmail(i.email)+'</small><button class="btn small ghost" style="margin-top:8px" data-deleteinvite="'+i.id+'">Eliminar correo</button></div>').join(""):'')+'</div>'+
  '<div class="card"><h2>Habilitar un alumno'+(isTest?' de prueba':'')+'</h2><p class="pilot-hint">Elegí un usuario y correo reales. Después compartí el mismo enlace privado de Nutrición Con-Ciencia con esa persona.</p>'+
  '<div class="pilot-form"><div class="field"><label>Nombre o usuario del alumno</label><input id="studentName" maxlength="70" placeholder="AlumnoPrueba01"></div><div class="field"><label>Correo electrónico del alumno</label><input id="studentEmail" type="email" placeholder="alumno@email.com"></div>'+
@@ -2923,11 +2941,17 @@ function guidedDayContents(plan,goal,editable=false){
    const countable=f.recipeComponent?null:guidedCountablePortion(f.id);
    const portion=guidePortion(f),factor=portion?.grams||1,displayQty=portion?Number((f.qty/factor).toFixed(2)):f.qty;
    const select=alt.length>1?'<label class="efg-guide-select-label">Sustituir <select data-guideswap="'+escapeHTML(meal.slot)+':'+i+'" aria-label="Alternativa para '+escapeHTML(f.name)+'">'+alt.map(id=>{const x=foods.find(t=>t.id===id);return '<option value="'+escapeHTML(id)+'" '+(id===f.id?'selected':'')+'>'+escapeHTML(x?.name||id)+'</option>';}).join('')+'</select></label>':'<span>'+escapeHTML(f.name)+'</span>';
-   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+(editable?'<strong class="efg-guide-full-name">'+escapeHTML(f.name)+'</strong>'+select:'<span>'+escapeHTML(f.name)+'</span>')+
-     (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+(portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+(f.recipeComponent?'<small> · '+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'')+'</div>'+
-    (editable?'<label><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> '+escapeHTML(portion?.label||f.unit)+(portion?' (aprox.)':'')+'</label>'+
-     (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar</button>':''):
-     '<b class="ncc-guide-quantity">'+escapeHTML(guideQuantityLabel(f))+'</b>')+'</div>';
+   const identity='<strong class="efg-guide-full-name">'+escapeHTML(f.name)+'</strong>'+
+    (flexible?' <small>'+escapeHTML(({avoid:'🔴',review:'🟡',possible:''})[guideFoodSignal(f,currentCoachGuideProfile()).status]||'')+'</small>':'')+
+    (f.recipeComponent?'<small>'+escapeHTML(f.recipeLabel||'Ingrediente de receta')+'</small>':'');
+   if(editable)return '<div class="efg-guide-food ncc-guide-food-compact"><div class="ncc-guide-food-line"><div class="efg-guide-food-name">'+identity+'</div>'+
+    '<label class="ncc-guide-amount"><input data-guideqty="'+escapeHTML(meal.slot)+':'+i+'" type="number" min="'+(min/factor)+'" max="'+(max/factor)+'" step="'+(countable?1:"any")+'" data-guideoriginal="'+f.qty+'" data-guidedisplay="'+displayQty+'" value="'+displayQty+'" aria-label="Cantidad de '+escapeHTML(f.name)+'"> <span>'+escapeHTML(portion?.label||f.unit)+'</span></label></div>'+
+    '<details class="ncc-guide-food-options"><summary>Editar<span class="sr-only"> '+escapeHTML(f.name)+'</span></summary><div>'+
+    (alt.length>1?select:'<p class="pilot-hint">Usá «Agregar o reemplazar alimento» para elegir del catálogo.</p>')+
+    (portion?'<small>1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+
+    (flexible&&meal.items.length>1?'<button type="button" class="btn small ghost" data-act="removeGuidedFood" data-guideremovefood="'+escapeHTML(meal.slot)+':'+i+'">Quitar alimento</button>':'')+'</div></details></div>';
+   return '<div class="efg-guide-food"><div class="efg-guide-food-name">'+identity+
+    (portion?'<small class="efg-guide-equivalence">1 '+escapeHTML(portion.label)+' ≈ '+num(portion.grams,2)+' g</small>':'')+'</div><b class="ncc-guide-quantity">'+escapeHTML(guideQuantityLabel(f))+'</b></div>';
   };
   const sections=educationalGuideSections(meal,groupIdFor);
   const contents=sections?
@@ -2945,7 +2969,7 @@ function guidedDayContents(plan,goal,editable=false){
    (editable&&flexible&&plan.meals.length>2?'<button type="button" class="btn small ghost" data-act="removeGuidedMeal" data-guideremovemeal="'+escapeHTML(meal.slot)+'">Quitar horario</button>':'')+'</div>'+
    guideIngredientPhoto(meal)+'<p class="efg-guide-description">'+escapeHTML(describeGuidedMeal(meal))+'</p>'+
    contents+
-   (editable&&flexible?'<div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
+   (editable&&flexible?'<details class="ncc-guide-add-options"><summary>Agregar o reemplazar alimento</summary><div class="efg-guide-add-food"><label>Buscar para agregar alimento a '+escapeHTML(meal.label)+
     '<input type="search" autocomplete="off" data-guidefoodsearch="'+escapeHTML(meal.slot)+'" placeholder="Alimento o receta Fit…"></label>'+
     '<select aria-label="Seleccionar alimento para agregar" data-guidefoodpick="'+escapeHTML(meal.slot)+'">'+
      '<option value="">Elegí alimento o receta Fit</option>'+option(coachGuidePickerFoods())+'</select>'+
@@ -4545,6 +4569,7 @@ if(el.dataset.student){
   await loadStudentDetail(studentId);
  // If still same signed Coach + student + consent, leave local unsaved guide untouched.
  await render();
+ if(el.dataset.rostersection&&state.consent?.accepted===true)selectCoachSection(el.dataset.rostersection);
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});
  notify("Ficha de "+(state.roster.find(p=>p.user_id===el.dataset.student)?.nickname||"alumno")+" abierta.");
  return;
@@ -4634,6 +4659,10 @@ if(el.dataset.foodbulk){
  if(el.dataset.habitualapply){await applyChosenHabitual(el.dataset.habitualapply);return;}
  if(el.dataset.habitualdelete){await deleteChosenHabitual(el.dataset.habitualdelete);return;}
  if(el.dataset.habitualuse){await habitualAction(el.dataset.habitualuse,"use");return;}
+ if(el.dataset.act==='registerDayFood'){
+  const slot=mealSlots.some(([key])=>key===state.lastEditedMeal)?state.lastEditedMeal:'desayuno';
+  openMealDialog(slot);return;
+ }
  if(el.dataset.setmeal){openMealDialog(el.dataset.setmeal);return;}
  if(el.dataset.planmode){state.plannerMode=el.dataset.planmode==="both"?"both":"dinner";state.plannerDraftGrams={};return render();}
  if(el.dataset.planextra){
@@ -5448,7 +5477,7 @@ root.addEventListener("input",e=>{
   if(status)status.textContent="Editaste el informe: volvé a abrir el PDF para revisarlo antes de compartir.";
   return;
  }
- invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
+ invalidateCoachDraft(e);if(["reviseGoalKcal","reviseGoalMode"].includes(e.target.id)){state.pendingGoalRevision=null;const btn=document.getElementById("approveGoalRevisionButton");if(btn)btn.disabled=true;}if(["proposalGoalKcal","proposalGoalMode"].includes(e.target.id)){state.pendingGoal=null;const btn=document.getElementById("approveGoalButton");if(btn)btn.disabled=true;}if(e.target.id==="coachRosterSearch"){const query=String(e.target.value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("es-AR").trim();let visible=0;for(const row of root.querySelectorAll("[data-rostername]")){const name=String(row.dataset.rostername||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"");const filter=root.dataset.rosterFilter||"all";const active=row.dataset.rosteractive==="yes";const accepted=row.dataset.rosterconsent==="yes";const status=filter==="all"||(filter==="active"&&active)||(filter==="inactive"&&!active)||(filter==="consent"&&active&&!accepted)||(filter==="pending"&&active&&["intake","plan","consent"].includes(row.dataset.rosterstage))||(["intake","plan"].includes(filter)&&active&&row.dataset.rosterstage===filter);const match=name.includes(query)&&status;row.hidden=!match;row.style.display=match?"":"none";if(match)visible++;}const counter=document.getElementById("coachRosterCount");if(counter)counter.textContent=visible+" alumnos encontrados";} if(e.target.dataset.guideqty){
   const [slot,index]=e.target.dataset.guideqty.split(":");
   const food=state.coachGuidedDraft?.meals?.find(x=>x.slot===slot)?.items?.[Number(index)];
   const qty=Number(e.target.value)*(guidePortion(food)?.grams||1);

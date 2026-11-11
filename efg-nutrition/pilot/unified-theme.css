@@ -508,3 +508,45 @@ html.ncc-lime-theme #app .ncc-guide-jumps button[aria-pressed=true]{background:#
 .ncc-guide-view:has([data-guideall][aria-expanded=false])>.efg-guide-grid{grid-template-columns:minmax(0,1fr)!important}
 @media(max-width:720px){html.ncc-lime-theme #app .efg-coach-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ncc-guide-view .ncc-guide-jumps{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important}.ncc-guide-jumps button{padding:8px 6px!important;font-size:12px!important;min-width:0!important}}
 @media print{[data-guidecard][hidden]{display:block!important}.ncc-guide-all,.ncc-guide-jumps{display:none!important}}
+
+/* Direct daily work: compact overview, persistent entry and disclosure editors. */
+.ncc-register-dock{position:fixed;bottom:24px;right:28px;z-index:90}
+html.ncc-lime-theme #app .ncc-register-dock .btn{min-height:50px;padding:12px 24px;background:#d7ff3f!important;color:#171c0b!important;border:1px solid #718b33!important;box-shadow:0 6px 22px #0005!important;font-size:16px}
+.ncc-direct-day{padding-bottom:76px}
+.ncc-direct-day:has(.meal-backdrop) .ncc-register-dock{visibility:hidden}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-welcome{min-height:0;padding:18px 20px!important;margin-bottom:16px}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-welcome h1{font-size:30px!important;line-height:1.1}
+.ncc-direct-day .ncc-day-welcome h1 br{display:none}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-guide-card{min-height:200px}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-guide-copy{padding:16px}
+html.ncc-lime-theme #app .ncc-direct-day .ncc-day-guide-copy h2{font-size:23px!important}
+.ncc-direct-day .ncc-day-register-row{margin:12px 0}
+html.ncc-lime-theme #app .ncc-guide-food-compact{display:block;padding:10px 0}
+.ncc-guide-food-line{display:grid;grid-template-columns:minmax(0,1fr) minmax(88px,110px);align-items:center;gap:12px}
+html.ncc-lime-theme #app .ncc-guide-food-line .efg-guide-food-name{min-width:0;overflow-wrap:anywhere}
+html.ncc-lime-theme #app .ncc-guide-food-line .ncc-guide-amount{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:12px}
+html.ncc-lime-theme #app .ncc-guide-food-line input{width:100%;min-height:44px;margin:0}
+html.ncc-lime-theme #app :is(.ncc-guide-food-options,.ncc-guide-add-options,.ncc-roster-options,.ncc-roster-seats)>summary{cursor:pointer;min-height:44px;padding:10px 0;font-weight:650;list-style-position:inside}
+html.ncc-lime-theme #app :is(.ncc-guide-food-options,.ncc-guide-add-options)>summary{color:#21331e!important}
+.ncc-guide-food-options>div{display:grid;gap:10px;padding:8px 0}
+.ncc-guide-add-options{margin:12px 0}
+html.ncc-lime-theme #app .ncc-roster-person{display:grid;gap:12px;padding:16px}
+.ncc-roster-person .coach-roster-person{min-width:0}
+.ncc-roster-person .coach-roster-person>div{min-width:0;overflow-wrap:anywhere}
+.ncc-roster-primary{justify-self:start;min-height:46px}
+.ncc-roster-options .pilot-toolbar{padding-top:8px}
+.ncc-roster-seats{margin-bottom:14px}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:720px){
+ .ncc-register-dock{bottom:calc(86px + env(safe-area-inset-bottom,0px));right:16px;left:16px;display:flex;justify-content:center;pointer-events:none}
+ html.ncc-lime-theme #app .ncc-register-dock .btn{width:min(100%,420px);pointer-events:auto}
+ .ncc-direct-day{padding-bottom:90px}
+ html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day{padding:16px!important}
+ html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day-grid{gap:14px}
+ html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-ring{width:172px;height:172px;margin-inline:auto}
+ html.ncc-lime-theme #app .ncc-direct-day .efg-pastel-day-note{font-size:11px;margin-bottom:0}
+ html.ncc-lime-theme #app .ncc-direct-day .ncc-day-guide-card{min-height:180px}
+ html.ncc-lime-theme #pilot-toast:has(~*){max-width:calc(100vw - 32px)}
+ body:has(.ncc-register-dock) #pilot-toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))!important}
+}
+@media print{.ncc-register-dock,.ncc-guide-food-options,.ncc-guide-add-options{display:none!important}}

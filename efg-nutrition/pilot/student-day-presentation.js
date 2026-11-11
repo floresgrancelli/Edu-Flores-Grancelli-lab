@@ -21,5 +21,5 @@ export function studentDayDashboard({totals,goal,diary,mealSlots,hasGuide=false}
   '<h2 id="nccDayGuideTitle">'+(hasGuide?'Comidas reales.<br><span>Un plan para vos.</span>':'Tu guía,<br><span>cuando esté lista.</span>')+'</h2>'+
   '<p>'+(hasGuide?'Consultá las comidas, porciones y alternativas de la guía de tu coach.':'Cuando tu coach publique una guía, la vas a encontrar acá.')+'</p>'+
   '<div class="ncc-day-guide-actions">'+(hasGuide?'<button type="button" class="btn ncc-day-primary" data-student-day-guide="1">Ver mi guía '+arrow+'</button>':'<button type="button" class="btn ncc-day-primary" data-tab="messages">Consultar con mi coach '+arrow+'</button>')+'<small>Foto ilustrativa</small></div></div></section></div>'+
-  '<div class="ncc-day-register-row"><p>Tu guía orienta. Tus registros cuentan lo que comiste.</p><button type="button" class="btn ncc-day-primary" data-scrollto="studentMeals">Registrar comida '+arrow+'</button></div>';
+  '<div class="ncc-day-register-row"><p>Tu guía orienta. Tus registros cuentan lo que comiste.</p><button type="button" class="btn ncc-day-primary" data-act="registerDayFood">Registrar comida '+arrow+'</button></div>';
 }

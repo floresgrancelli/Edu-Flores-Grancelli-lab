@@ -1,4 +1,4 @@
-import {assertCompactProgress,assertCompactCoach} from './compact-navigation-browser.mjs';
+import {assertCompactProgress,assertCompactCoach,assertDirectDay,assertRosterActions,assertCompactGuideEditor} from './compact-navigation-browser.mjs';
 import {assertProgressPolish} from './progress-polish-browser.mjs';
 import {runCoachGuideContainer} from './coach-guide-container-regression.mjs';
 import {runOfficialCoachFlow} from './coach-official-flow-private.mjs';
@@ -258,6 +258,8 @@ try{
    await editor.locator('[data-guideall]').click();
    assert.equal(await editor.locator('.efg-guide-meal').count(),6,
     'Coach must initially see six guide cards in actual PWA');
+   await assertCompactGuideEditor(page);
+   await editor.locator('[data-guidecard="almuerzo"] .ncc-guide-add-options > summary').click();
    const catalogSize=await page.evaluate(()=>window.__EFG_VISUAL_QA__.foods.length);
    assert.ok((await editor.locator('[data-guidefoodpick="almuerzo"] option').count())>=catalogSize,
     'Coach must retain full catalog when editing a guide');
@@ -1154,6 +1156,8 @@ try{
      if((await page.locator(".efg-payment-inbox .efg-payment-item").count())!==1)pageReport.errors.push("Coach receipts inbox should contain one org-scoped receipt");
      if(role==="admin"&&!(await page.getByText("COBRAR LICENCIAS DE COACHES",{exact:true}).count()))pageReport.errors.push("Admin license billing view is missing");
    }
+   if(dest==='home'&&width===390)await assertDirectDay(page);
+   if(dest==='coachStudents'&&width===390)await assertRosterActions(page);
    if(dest==='weight'&&[390,1280].includes(width))await assertCompactProgress(page,join(outDir,captureEngine+'-'+role+'-'+width+'-compact-progress.png'));
    if(dest==='coach'&&width===390)await assertCompactCoach(page);
    if(role==="student"&&dest==="weight"){

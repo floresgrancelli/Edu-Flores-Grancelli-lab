@@ -64,11 +64,11 @@ export async function assertDirectDay(page){
 }
 export async function assertRosterActions(page){
  const original=await page.evaluate(()=>{
-  const s=window.__EFG_VISUAL_QA__.state;return Object.fromEntries(['coachIntakeVerified','coachIntakeForms','coachIntakeGoals','coachIntakeAccess','coachIntakeDraftVerified'].map(k=>[k,s[k]]));
+  const s=window.__EFG_VISUAL_QA__.state;return Object.fromEntries(['coachIntakeVerified','coachIntakeForms','coachIntakeGoals','coachIntakeAccess','coachIntakeDraftVerified','coachIntakeDraftStatuses'].map(k=>[k,s[k]]));
  });
  const stage=async(values)=>{
   await page.evaluate(async values=>{Object.assign(window.__EFG_VISUAL_QA__.state,values);await window.__EFG_VISUAL_QA__.render();},values);
-  return page.locator('[data-rostername]').first().getAttribute('data-rosterstage');
+  return page.locator('[data-rostername]:has([data-student="demo-student-a"])').getAttribute('data-rosterstage');
  };
  assert.equal(await stage({coachIntakeVerified:false}),'unknown');
  await page.locator('[data-rosterfilter="pending"]').click();
@@ -79,6 +79,19 @@ export async function assertRosterActions(page){
  await page.locator('#coachRosterSearch').fill('');assert.equal(await page.locator('[data-rostername]:visible').count(),1);
  assert.equal(await stage({coachIntakeForms:{}}),'plan','Optional form is not required to prepare a plan');
  assert.equal(await stage({coachIntakeAccess:{'demo-student-a':{status:'published'}}}),'follow');
+ await page.evaluate(async()=>{
+  const v=window.__EFG_VISUAL_QA__,s=v.state,id='demo-student-a';
+  s.coachIntakeDraftVerified=true;
+  s.coachIntakeForms={[id]:{student_id:id,organization_id:s.org.id,revision:1,shared_at:'2026-11-11'}};
+  s.coachIntakeDraftStatuses={[id]:{student_id:id,organization_id:s.org.id,coach_id:s.session.user.id,status:'draft',draft_revision:1,source_intake_revision:1}};
+  await v.render();
+ });
+ const draftRow=page.locator('[data-rostername]:has([data-student="demo-student-a"])');
+ assert.equal(await draftRow.getAttribute('data-rosterstage'),'draft');
+ assert.equal(await draftRow.locator('.ncc-roster-primary').textContent(),'Continuar plan');
+ await page.locator('[data-rosterfilter="plan"]').click();
+ assert.equal(await draftRow.isVisible(),true,'Published student with a current draft remains in pending plans');
+ assert.equal(await page.locator('[data-rostername]').first().getAttribute('data-rosterstage'),'draft');
  await stage(original);await page.locator('[data-rosterfilter="all"]').click();
 }
 export async function assertCompactGuideEditor(page){

@@ -253,6 +253,7 @@ try{
     s.tab='coachStudents';await v.render();
    });
    await page.locator('[data-coachsection="coachStudentGoals"]').click();
+   await page.locator('[data-planflow-step="1"]').click();
    const editor=page.locator('#coachGuidedSlot');
    assert.equal(await editor.locator('[data-guidecard]:visible').count(),1);
    await editor.locator('[data-guideall]').click();
@@ -325,6 +326,7 @@ try{
    await page.locator('[data-coachsection="coachStudentGoals"]').click();
    await assertCoachReportLayout(page);
    const publishedBefore=await page.evaluate(()=>JSON.stringify({draft:window.__EFG_VISUAL_QA__.state.coachGuidedDraft,foodPlan:window.__EFG_VISUAL_QA__.state.coachFoodPlan}));
+   await page.locator('[data-planflow-step="1"]').click();
    await page.locator('[data-act="openCoachAdaptedPreview"]').click();
    const mount=page.locator('#coachAdaptedDraftMount');
    await mount.getByText('Borrador pendiente de aprobación del coach.',{exact:true}).waitFor();

@@ -616,3 +616,12 @@ html.ncc-lime-theme #app .ncc-meal-sources [aria-pressed=true]::before{content:'
  html.ncc-lime-theme #app .ncc-direct-day .student-daily-layout{display:block}
  html.ncc-lime-theme #app .ncc-direct-day .ncc-balance-details{margin-top:12px}
 }
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup .ncc-meal-save button:not(.light):not(.ghost):not(:disabled){background:#91bf50!important;color:#101609!important;--ncc-text:#101609;border-color:#789b42!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup .ncc-meal-sources{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup .ncc-meal-sources .btn{padding:8px 4px;font-size:12px;min-width:0;white-space:normal}
+html.ncc-lime-theme #app .ncc-direct-day .meal-popup .efg-meal-search-choice{text-transform:none!important;letter-spacing:normal!important}
+html.ncc-lime-theme #app .ncc-food-thumb{float:left;margin:0 10px 6px 0}
+html.ncc-lime-theme #app .ncc-food-thumb:empty{display:none}
+html.ncc-lime-theme #app .ncc-food-thumb .ncc-guide-photo{margin:0!important;padding:0!important;border:0!important;width:52px!important}
+html.ncc-lime-theme #app .ncc-food-thumb img{width:52px!important;height:52px!important;object-fit:cover;border-radius:10px}
+html.ncc-lime-theme #app .ncc-food-thumb :is(figcaption,.ncc-guide-photo-fallback){display:none!important}

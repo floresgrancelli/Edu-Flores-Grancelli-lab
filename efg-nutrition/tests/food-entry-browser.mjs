@@ -29,6 +29,11 @@ try{
    await page.goto(origin+'/efg-nutrition/pilot/');
    await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();
    await page.locator('.ncc-focus-summary').waitFor();
+   assert.equal(await page.locator('#nccStudentDayGuide').getAttribute('open'),null,'Loaded guide stays collapsed rather than inheriting a meal state');
+   await page.locator('#nccStudentDayGuide > summary').click();
+   await page.evaluate(()=>window.__NCC_R4_FULLAPP__.render());
+   assert.notEqual(await page.locator('#nccStudentDayGuide').getAttribute('open'),null,'Explicitly opened guide survives rerender');
+   await page.locator('#nccStudentDayGuide > summary').click();
    await page.screenshot({path:resolve(out,engine+'-'+width+'-luminous-day.png'),fullPage:true});
    assert.equal(await page.locator('.ncc-register-dock,[data-act="registerDayFood"]').count(),0,'No duplicate large registration buttons');
    const diaryBeforeTabs=await page.evaluate(()=>sessionStorage.getItem('ncc-student-day-synthetic-record'));

@@ -668,7 +668,7 @@ try{
    }
    if(unifiedTheme){
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
-    if(primary.some(x=>x.image.includes('161, 225, 68')
+    if(primary.some(x=>(x.image.includes('161, 225, 68')||x.bg==='rgb(145, 191, 80)')
       ? x.color!=='rgb(16, 22, 9)'
       : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
    }

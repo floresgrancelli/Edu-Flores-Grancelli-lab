@@ -364,7 +364,7 @@ function supplementsPanel(d){
  const choices=SUPPLEMENTS.slice().sort((a,b)=>a.name.localeCompare(b.name,"es-AR"));
  return '<section class="nutrition-supplements" id="supplementsToday"><div class="section-head"><h3>💊 Suplementos del día</h3><span class="pilot-pill">'+existing.length+' registrados</span></div>'+
  '<p class="pilot-hint">Separados de las comidas. Registrá solo lo que consumiste; no son recomendaciones para tomar suplementos.</p>'+
- (existing.length?'<div class="supplement-entries">'+existing.map(({e,index})=>'<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(e.name)+'</strong><span>'+supplementSummary(e)+'</span></div><button class="meal-remove-item" type="button" data-removesupp="'+index+'" aria-label="Eliminar suplemento">×</button></div>').join("")+'</div>':'<p class="meal-food-empty">Todavía no registraste suplementos.</p>')+
+ (existing.length?'<div class="supplement-entries">'+existing.map(({e,index})=>'<div class="meal-food-line"><div class="meal-food-label"><span class="ncc-food-thumb" aria-hidden="true">'+guideIngredientPhoto({items:[i]})+'</span><strong>'+escapeHTML(e.name)+'</strong><span>'+supplementSummary(e)+'</span></div><button class="meal-remove-item" type="button" data-removesupp="'+index+'" aria-label="Eliminar suplemento">×</button></div>').join("")+'</div>':'<p class="meal-food-empty">Todavía no registraste suplementos.</p>')+
  '<div class="pilot-form"><div class="field"><label for="supplementItem">Suplemento</label><select id="supplementItem">'+option(choices)+'</select></div>'+
  '<div class="field-row"><div class="field"><label for="supplementQty" id="supplementQtyLabel">Cantidad</label><input type="number" inputmode="decimal" step="any" min="0.01" max="100000" id="supplementQty" placeholder="Según etiqueta"></div>'+
  '<div class="field"><label for="supplementMoment">Momento del día</label><select id="supplementMoment">'+[["desayuno","Desayuno"],["media_manana","Media mañana"],["almuerzo","Almuerzo"],["media_tarde","Media tarde"],["merienda","Merienda"],["cena","Cena"],["otro","Otro momento"]].map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join("")+'</select></div></div>'+
@@ -1659,7 +1659,7 @@ function homeView(){
   let items=(d.meals[key]||[]),omitted=!!d.skipped?.[key];
   const detail=items.length?'<div class="meal-food-list">'+items.map((i,index)=>{
    const portion=i.displayQty?num(i.displayQty,1)+' '+escapeHTML(i.displayUnit)+' (≈'+num(i.qty,1)+' '+escapeHTML(i.unit)+')':num(i.qty,1)+' '+escapeHTML(i.unit);
-   return '<div class="meal-food-line"><div class="meal-food-label"><strong>'+escapeHTML(i.name)+'</strong><b class="ncc-diary-quantity">'+portion+'</b><span>'+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
+   return '<div class="meal-food-line"><div class="meal-food-label"><span class="ncc-food-thumb" aria-hidden="true">'+guideIngredientPhoto({items:[i]})+'</span><strong>'+escapeHTML(i.name)+'</strong><b class="ncc-diary-quantity">'+portion+'</b><span>'+num(i.k,0)+' kcal · P '+num(i.p,1)+' g · HC '+num(i.c,1)+' g · G '+num(i.f,1)+' g</span></div>'+
    '<div class="ncc-food-actions"><button type="button" class="btn small ghost" data-editfood="'+key+':'+index+'" aria-label="Editar cantidad de '+escapeHTML(i.name)+'">Editar</button><button type="button" class="btn small ghost" data-removefood="'+key+':'+index+'" aria-label="Eliminar '+escapeHTML(i.name)+'">Eliminar</button></div></div>';
   }).join("")+'</div>':'<small class="meal-food-empty">Todavía no hay alimentos registrados.</small>';
   const marks=guidedMealMarks(d.skipped,key),fat=guidedMealTotals(items).f;
@@ -2139,7 +2139,7 @@ function openMealDialog(slot,initialGroup="protein"){
  '<div class="between"><h2 id="meal-popup-title">'+meal[2]+' Añadir a '+meal[1]+'</h2><button type="button" class="btn small ghost" data-act="closeMeal" aria-label="Cerrar ventana de alimentos">✕</button></div><p class="pilot-hint">Podés registrar gramos, mililitros o, cuando corresponda, unidades aproximadas.</p>'+
  (guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'</details>':'')+
  '<div class="pilot-form"><div class="field"><label for="mealEntrySlot">Horario</label><select id="mealEntrySlot">'+mealSlots.map(m=>'<option value="'+m[0]+'" '+(m[0]===slot?'selected':'')+'>'+escapeHTML(m[1])+'</option>').join('')+'</select></div><div class="field"><label for="mealFoodSearch">Buscar alimento</label><input type="search" id="mealFoodSearch" placeholder="Ej.: zapallo, pizza, sushi, chocolate…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mealFoodSuggestions"><div id="mealFoodSuggestions" class="efg-meal-search-results" role="listbox" aria-label="Alimentos encontrados" hidden></div></div>'+
- '<div class="ncc-meal-sources" role="group" aria-label="Dónde buscar">'+[['all','Buscar'],['recent','Recientes'],['habitual','Habituales / Favoritos'],['recipes','Mis recetas']].map(([id,label])=>'<button type="button" class="btn small ghost" data-act="mealEntrySource" data-mealsource="'+id+'" aria-pressed="'+(id==='all')+'">'+label+'</button>').join('')+'</div><div id="mealEntryShortcuts" class="ncc-meal-shortcuts" aria-live="polite"></div>'+
+ '<div class="ncc-meal-sources" role="group" aria-label="Dónde buscar">'+[['all','Buscar'],['recent','Recientes'],['habitual','Habituales'],['recipes','Mis recetas']].map(([id,label])=>'<button type="button" class="btn small ghost" data-act="mealEntrySource" data-mealsource="'+id+'" aria-pressed="'+(id==='all')+'">'+label+'</button>').join('')+'</div><div id="mealEntryShortcuts" class="ncc-meal-shortcuts" aria-live="polite"></div>'+
  '<details class="ncc-meal-catalog"><summary>Ver catálogo por categorías</summary><div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div></details>'+
  '<div id="mealQuantityHome"></div><section id="mealQuantityCard" class="ncc-quantity-card" aria-label="Alimento y cantidad" hidden><div id="mealEntrySelected" class="ncc-meal-selected" role="status" hidden></div>'+
  '<div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div>'+
@@ -3661,12 +3661,14 @@ function captureViewContinuity(key){
   if(!key)continue;
   inputValues[key]=el.type==="checkbox"||el.type==="radio"?el.checked:el.value;
  }
- return {openDetails:[...root.querySelectorAll("details")].map(d=>d.open),
+ return {dayGuideOpen:root.querySelector('#nccStudentDayGuide')?.open===true,openDetails:[...root.querySelectorAll("details")].map(d=>d.open),
   scrollX:window.scrollX,scrollY:window.scrollY,inputValues};
 }
 function restoreViewContinuity(snapshot){
  if(!snapshot)return;
  root.querySelectorAll("details").forEach((el,i)=>{if(i<snapshot.openDetails.length)el.open=!!snapshot.openDetails[i];});
+ // A newly loaded guide must not inherit the open state of the former first meal.
+ const dayGuide=root.querySelector("#nccStudentDayGuide");if(dayGuide)dayGuide.open=snapshot.dayGuideOpen===true;
  const controls=[...root.querySelectorAll(".pilot-main input[id],.pilot-main select[id],.pilot-main textarea[id],.pilot-main [data-guideqty]")];
  for(const el of controls){
   if(el.type==="file"||el.type==="password")continue;

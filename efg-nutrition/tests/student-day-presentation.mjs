@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {studentDayWelcome,studentDayDashboard} from '../pilot/student-day-presentation.js';
+import {studentDayWelcome,studentDayDashboard,compactDaySummary} from '../pilot/student-day-presentation.js';
 import {pastelDaySummary} from '../pilot/pastel-day.js';
 
 const slots=[['desayuno','Desayuno'],['media_manana','Media mañana'],['almuerzo','Almuerzo'],['media_tarde','Media tarde'],['merienda','Merienda'],['cena','Cena']];
@@ -20,3 +20,6 @@ const welcome=studentDayWelcome('<img src=x onerror=alert(1)>','2026-11-10');
 assert.match(welcome,/&lt;img/);assert.doesNotMatch(welcome,/<img/);
 assert.match(welcome,/datetime="2026-11-10"/);assert.match(welcome,/10\/11\/2026/);
 console.log('PASS student day presentation: existing totals, over-goal, no goal/guide, no mutation, escaped identity.');
+
+for(const [k,target,label] of [[1250,2000,'750'],[2300,2000,'+300'],[2000,2000,'0']]){const out=compactDaySummary({...totals,k},{...goal,k:target},diary,slots);assert.ok(out.includes(label));assert.doesNotMatch(out,/NaN|Infinity/);}
+const missing=compactDaySummary({k:100,p:0,c:0,f:0,fi:0},null,diary,slots);assert.match(missing,/sin meta de kcal/);assert.doesNotMatch(missing,/width:|\/ 0 g/);

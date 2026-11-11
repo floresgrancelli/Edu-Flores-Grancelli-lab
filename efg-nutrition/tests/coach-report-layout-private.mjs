@@ -43,6 +43,15 @@ export async function assertCoachReportLayout(page){
  assert.equal(await page.locator('#coachStudentGoals').evaluate(el=>el.open),true,'Objectives action must open its section');
  const age=page.locator('#targetAge'),previous=await age.inputValue();
  await age.fill('41');
+ const before=await page.evaluate(()=>JSON.stringify({goal:window.__EFG_VISUAL_QA__.state.pendingGoal,guide:window.__EFG_VISUAL_QA__.state.coachGuidedDraft}));
+ for(const step of [1,2,0]){
+  await page.locator('[data-planflow-step="'+step+'"]').click();
+  assert.equal(await page.locator('[data-planflow-panel]:visible').count(),1,'Only one plan stage is visible');
+  assert.equal(await page.locator('[data-planflow-step="'+step+'"]').getAttribute('aria-current'),'step');
+ }
+ assert.equal(await age.inputValue(),'41','Plan steps preserve unsaved calculator fields');
+ assert.equal(await page.evaluate(()=>JSON.stringify({goal:window.__EFG_VISUAL_QA__.state.pendingGoal,guide:window.__EFG_VISUAL_QA__.state.coachGuidedDraft})),before,'Step navigation never changes a proposal');
+
  for(const id of ['coachStudentIntake','coachStudentWeight','coachStudentNutrition','coachStudentReports','coachStudentGoals']){
   await page.locator('[data-coachsection="'+id+'"]').click();
   assert.equal(await page.locator('.coach-student-profile [data-coachpanel]:visible').count(),1,'One coach section visible');

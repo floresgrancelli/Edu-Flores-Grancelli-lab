@@ -125,12 +125,12 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   }
   assert.equal(prepared.status(),200);await oldButton.waitForElementState('hidden');
   await page.locator('[data-coachsection="coachStudentGoals"]').click();
-  await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();
+  await page.locator('[data-planflow-step="1"]').click();await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();
   const goal=await page.evaluate(()=>window.__SDK_ENTRY_QA__.goal()),view=await page.evaluate(()=>window.__SDK_ENTRY_QA__.guide());
   assert.deepEqual(view.editor.review.targets,{k:goal.kcal,p:goal.protein_g,c:goal.carb_g,f:goal.fat_g,fi:goal.fiber_g});
   assert.ok(view.editor.committed.meals.every(m=>m.items.every(i=>i.id!=='apple')));return goal;
  }
- async function openDraft(page){await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();}
+ async function openDraft(page){await page.locator('[data-planflow-step="1"]').click();await page.locator('[data-act="openCoachAdaptedPreview"]').click();await page.locator('[data-persisted-revision]').waitFor();}
  try{
   await new Promise((r,reject)=>{server.once('error',reject);server.listen(4173,'127.0.0.1',r);});origin='http://127.0.0.1:'+server.address().port;browser=await chromium.launch({headless:true});
   for(const [i,width]of [390,1280].entries()){

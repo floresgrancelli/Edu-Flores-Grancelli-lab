@@ -17,6 +17,7 @@ export async function runOfficialCoachFlow(page,width,outDir,collectedErrors){
   s.tab='coachStudents';await v.render();
  });
  await page.locator('[data-coachsection="coachStudentGoals"]').click();
+ await page.locator('[data-planflow-step="1"]').click();
  const mount=page.locator('#coachAdaptedDraftMount'),open=page.locator('[data-act="openCoachAdaptedPreview"]');
  const before=await page.evaluate(()=>JSON.stringify([window.__EFG_VISUAL_QA__.state.coachGuidedDraft,window.__EFG_VISUAL_QA__.state.coachFoodPlan]));
  await open.click();

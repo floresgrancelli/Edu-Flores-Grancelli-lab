@@ -3437,8 +3437,38 @@ function selectCoachSection(id){
  for(const button of profile.querySelectorAll('[data-coachsection]'))button.setAttribute('aria-pressed',String(button.dataset.coachsection===id));
 }
 function restoreCoachSection(){
+ mountCoachPlanFlow();
  const saved=state.coachSectionSelection;
  selectCoachSection(saved?.studentId===state.selectedStudent?saved.section:'coachStudentNutrition');
+}
+// Keep the original form nodes mounted: navigation never saves or recalculates.
+function mountCoachPlanFlow(){
+ const root=document.getElementById('coachStudentGoals');
+ if(!root||root.querySelector('[data-planflow-nav]'))return;
+ const panels=[...root.querySelectorAll('[data-planflow-panel]')];
+ if(panels.length!==3)return;
+ const nav=document.createElement('nav');nav.className='ncc-plan-steps';nav.dataset.planflowNav='';nav.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
+ nav.setAttribute('aria-label','Preparar el plan');
+ const labels=['Objetivos','Dieta Guía','Revisar y enviar'];
+ const show=(index,focus=false)=>{
+  panels.forEach((panel,i)=>{panel.hidden=i!==index;panel.inert=i!==index;});
+  [...nav.children].forEach((button,i)=>button.setAttribute('aria-current',i===index?'step':'false'));
+  if(focus){panels[index].focus({preventScroll:true});nav.scrollIntoView({block:'start',behavior:'instant'});}
+ };
+ labels.forEach((label,i)=>{
+  const button=document.createElement('button');button.type='button';button.textContent=(i+1)+'. '+label;
+  button.dataset.planflowStep=String(i);button.setAttribute('aria-controls',panels[i].id);
+  button.addEventListener('click',()=>show(i,true));nav.append(button);
+  panels[i].tabIndex=-1;
+  const actions=document.createElement('div');actions.className='ncc-plan-step-actions';
+  for(const next of [i-1,i+1].filter(n=>n>=0&&n<3)){
+   const action=document.createElement('button');action.type='button';action.className='btn '+(next<i?'ghost':'');
+   action.textContent=next<i?'Volver a '+labels[next]:'Continuar a '+labels[next];
+   action.addEventListener('click',()=>show(next,true));actions.append(action);
+  }
+  panels[i].append(actions);
+ });
+ root.insertBefore(nav,panels[0]);show(0);
 }
 function coachStudentQuickSummary(p){
  const intake=state.coachIntakeForms?.[p.user_id];
@@ -3460,13 +3490,13 @@ function studentDetailView(p,consent){
  '<details class="coach-profile-accordion" id="coachStudentWeight" data-coachpanel hidden><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
  '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
  '</details><details class="coach-profile-accordion" id="coachStudentGoals" data-coachpanel hidden><summary>🎯 Preparar objetivos y Dieta Guía</summary><details class="ncc-plan-history"><summary>Plan actual e historial</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
- baselinePreview()+goalRevisionSection(latest)+'</details><div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div class="divider"></div><h3>Paso 1 · Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
+ baselinePreview()+goalRevisionSection(latest)+'</details><div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div id="coachPlanObjectives" class="ncc-plan-step" data-planflow-panel><h3>Paso 1 · Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  intakeWarnings+(goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
  '<div class="field"><label>Grasas</label><select id="targetFat">'+fatOptions(.9)+'</select></div></div>'+
  '<p class="pilot-hint">Mifflin–St Jeor contempla hombre o mujer. La proteína automática para recomposición y descenso parte de 2,0 g/kg y las grasas de 0,9 g/kg, ambas editables. El perfil deportivo no garantiza mayor precisión.</p>'+
  '<div class="field"><label>Recomposición · estrategia energética</label><select id="targetRecompMode">'+recompOptions("deficit05")+'</select></div>'+activityHint+recompHint+
- '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button><div class="divider"></div><h3>Paso 2 · Preparar la Dieta Guía</h3>'+coachGuidedSection()+'<div class="divider"></div><h3>Paso 3 · Revisar y enviar juntos</h3>'+coachAtomicDraftPanel()+'</details><section id="coachStudentReports" data-coachpanel hidden aria-label="Informes del alumno">'+coachPeriodReportPanel()+'</section></section>';
+ '<button class="btn block" data-act="calculateGoal">Calcular propuesta</button></div><div id="goalPreview" class="pilot-notice" style="margin-top:15px">Los resultados aparecerán aquí.</div><button class="btn block" data-act="approveGoal" id="approveGoalButton" disabled style="margin-top:10px;'+(COACH_ATOMIC_PLAN_UI_ENABLED?'display:none;':'')+'">Guardar objetivo para revisar guía</button></div><div id="coachPlanGuide" class="ncc-plan-step" data-planflow-panel><h3>Paso 2 · Preparar la Dieta Guía</h3>'+coachGuidedSection()+'</div><div id="coachPlanReview" class="ncc-plan-step" data-planflow-panel><h3>Paso 3 · Revisar y enviar juntos</h3>'+coachAtomicDraftPanel()+'</div></details><section id="coachStudentReports" data-coachpanel hidden aria-label="Informes del alumno">'+coachPeriodReportPanel()+'</section></section>';
 }
 
 function adminHomeView(){

@@ -90,7 +90,7 @@ jobs:
     env:
       EFG_QA_AUTO_COMPOSITION: ${{ ((github.event_name == 'workflow_dispatch' && inputs.auto_composition) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[auto-composition]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
       EFG_QA_PROVIDER_CONTRACT: ${{ ((github.event_name == 'workflow_dispatch' && inputs.provider_contract) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[provider-contract]'))) && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && '1' || '0' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
@@ -493,7 +493,7 @@ jobs:
         github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' &&
         contains(github.event.head_commit.message, '[sdk-entry]') &&
         (needs.local-auth-rls.result == 'success' || needs.local-auth-rls.result == 'skipped')))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
       EFG_QA_SDK_ENTRY: '1'
@@ -573,7 +573,7 @@ jobs:
   # Marker branch condition is intentional, no schedule/main trigger.
   incremental-install-local:
     if: github.event_name == 'push' && github.ref == 'refs/heads/work/ncc-pr37-41-qa-snapshot-20261101' && (contains(github.event.head_commit.message, '[incremental-install]') || contains(github.event.head_commit.message, '[hydration-fixture]') || contains(github.event.head_commit.message, '[diary-fixture]'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
       contents: read

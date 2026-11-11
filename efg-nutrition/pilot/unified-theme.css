@@ -457,3 +457,13 @@ html.ncc-lime-theme #app #planSuggestionCard :is(.efg-compat-yellow,.efg-compat-
 .ncc-coach-status span{padding:6px 9px;border-radius:10px;background:#f8f6e9}
 .coach-profile-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:600px){.coach-profile-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.ncc-intake-steps button{flex-basis:40%}.ncc-coach-actions button{flex-basis:100%}}
+/* Override the shared dark control theme only inside these light panels. */
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){--ncc-input:#fffef8;--ncc-text:#21331e;--ncc-muted:#40503a}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea){background:#fffef8!important;color:#21331e!important;border-color:#889873!important;color-scheme:light}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(.ncc-intake-steps button[aria-pressed=true],.btn:not(.light):not(.ghost)){background:#d7ff3f!important;color:#171c0b!important}
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]) :is(input,select,textarea,button):focus-visible{outline-color:#36561f!important}
+html.ncc-lime-theme #app .ncc-coach-quick{--ncc-text:#21331e;color:#21331e!important}
+html.ncc-lime-theme #app .ncc-coach-quick button{background:#e4edce!important;color:#21331e!important;border-color:#889873!important}
+html.ncc-lime-theme #app .ncc-coach-quick button:last-child{background:#d7ff3f!important}
+[data-intakewizard],.coach-profile-tabs{scroll-margin-top:110px}

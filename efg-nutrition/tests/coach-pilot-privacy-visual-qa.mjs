@@ -67,6 +67,16 @@ try{
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
   await page.evaluate(async()=>{window.__PILOT_QA__.state.coachPilotEntry={route:'ready',canLogMeals:true};await window.__PILOT_QA__.render()});
   await page.locator('#efgCoachRelaunchManageForm').waitFor();
+  const contrast=await page.locator('.efg-coach-relaunch').evaluate(panel=>{
+   const rgb=s=>(s.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+   const lum=a=>a.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+   return [...panel.querySelectorAll('button,input:not([type=checkbox]),select,textarea')].filter(el=>el.getClientRects().length).map(el=>{
+    const cs=getComputedStyle(el),a=lum(rgb(cs.color)),b=lum(rgb(cs.backgroundColor));
+    return {id:el.id||el.textContent.trim(),ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+   });
+  });
+  assert.ok(contrast.length>=8,'Verify actual mounted intake controls');
+  assert.deepEqual(contrast.filter(x=>x.ratio<4.5),[],'Intake control contrast must reach 4.5:1');
   const bounds=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   assert.ok(bounds.scroll<=width+2,'Horizontal overflow '+JSON.stringify(bounds));
   await page.screenshot({path:join(out,`pilot-privacy-${engine}-${width}.png`),fullPage:true});

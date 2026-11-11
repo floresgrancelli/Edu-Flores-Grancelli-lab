@@ -49,7 +49,7 @@ assert.match(app,/const plannerDisplayFoods=all\.map\(f=>/);
 assert.match(app,/groupedFoodOptions\(plannerDisplayFoods,meal\.slot\)/);
 assert.match(app,/data-plan-compat/);
 assert.match(app,/data-plan-compat/);
-assert.match(app,/signalMount\.innerHTML=row\?\.food\?foodTrafficLight\(row\.food\)\.details/);
+assert.match(app,/signalMount\.innerHTML=row\?\.food\?plannerFoodSignal\(row\.food\)\.details/);
 assert.match(app,/groupedFoodOptions\(matched\.map\(f=>/);
 assert.match(app,/const mealSlots=\[\["desayuno"[^\n]*"media_tarde"[^\n]*"merienda"[^\n]*"cena"/,
  'All six actual diary meal slots must remain unchanged');

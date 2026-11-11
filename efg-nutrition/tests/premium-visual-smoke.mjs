@@ -650,10 +650,10 @@ try{
 
    }
    if(unifiedTheme){
-    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
     if(primary.some(x=>x.onLimeRegister
       ? x.bg!=='rgb(25, 35, 14)'||x.color!=='rgb(242, 255, 209)'||!x.surface.includes('215, 255, 63')
-      : x.bg!=='rgb(215, 255, 63)'||x.color!=='rgb(23, 28, 11)'))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
+      : x.bg!=='rgb(215, 255, 63)'||x.color!==(x.onSuggestion?'rgb(33, 51, 30)':'rgb(23, 28, 11)')))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
    }
    if(dest==='home'){
     const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});

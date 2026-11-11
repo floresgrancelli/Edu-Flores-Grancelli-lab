@@ -37,7 +37,7 @@ assert.ok(saveStart>=0&&saveEnd>saveStart,'Actual planner save handler must exis
 const diary={meals:{},skipped:{}},alerts=[];
 const plannerState={plannerMode:'dinner',plannerSelections:{},plannerDraftGrams:{}};
 let persisted=0,quantity='3',chosenFood=maki,failNextSave=false;
-const runSave=new Function('parsePlannerKey','document','makePlan','foods','selectableFoods','allowedFoods',
+const runSave=new Function('parsePlannerKey','document','makePlan','foods','plannerSuggestionFoods','allowedFoods',
  'activeDiary','activeGoal','dailyTotals','state','plannerMeasuredGrams','plannerSushiPortion',
  'MILK_BEVERAGES','openPlannedFoodEditor','normItem','attachRecipeSnapshot','saveDiary','notify','num','pendingMealRegistrations',
  source.slice(saveStart,saveEnd)+';return addPlannedFood;')(
@@ -109,7 +109,7 @@ assert.equal(diary.meals.cena.length,beforeDirect.length+1,'Manual retry writes 
 const asyncLocks=new Set(),asyncState={plannerMode:'dinner',plannerSelections:{},plannerDraftGrams:{}};
 let releasePlanner,plannerWrites=0,readPlanner='3';
 const pendingPromise=new Promise(resolve=>{releasePlanner=resolve});
-const pendingAdd=new Function('parsePlannerKey','document','makePlan','foods','selectableFoods','allowedFoods',
+const pendingAdd=new Function('parsePlannerKey','document','makePlan','foods','plannerSuggestionFoods','allowedFoods',
  'activeDiary','activeGoal','dailyTotals','state','plannerMeasuredGrams','plannerSushiPortion',
  'MILK_BEVERAGES','openPlannedFoodEditor','normItem','attachRecipeSnapshot','saveDiary','notify','num','pendingMealRegistrations',
  source.slice(saveStart,saveEnd)+';return addPlannedFood;')(
@@ -694,7 +694,7 @@ console.log('PASS UX-04-04 midnight rollover: account-scoped reads, confirmed me
  };
  const plannerState={plannerSelections:{"cena|protein":"egg"},plannerDraftGrams:{"cena|protein":{foodId:"egg",grams:"100"}}};
  const plannerSearch=new Function("root","plannerNormalizeQuery","allPlannerFoods",
-  "foods","selectableFoods","allowedFoods","foodSearchText","foodTrafficLight","groupedFoodOptions","state",
+  "foods","selectableFoods","allowedFoods","foodSearchText","plannerFoodSignal","groupedFoodOptions","state",
   "syncPlannerSearchActions","updatePlannerPreview",
   source.slice(plannerBegin,plannerEnd)+";return filterPlannerFoods;")(
   {querySelectorAll:()=>[plannerSelect]},normalize,items=>items,mealCatalog,()=>mealCatalog,()=>mealCatalog.map(f=>f.id),
@@ -889,7 +889,7 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
     const handler=extract("async function addPlannedFood(key){","let mealDialogReturnFocus=null;","addPlannedFood",{
      parsePlannerKey:key=>key.split("|"),document:{getElementById:id=>id.startsWith("planQty_")?{value:"100"}:null},
      pendingMealRegistrations,makePlan:()=>({meals:[{slot:"cena",rows:[{category:"protein",food:rice}]}]}),
-     foods:[rice],selectableFoods:()=>[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
+     foods:[rice],plannerSuggestionFoods:()=>[rice],selectableFoods:()=>[rice],allowedFoods:()=>["rice"],activeDiary:()=>state.diary,activeGoal:()=>({}),
      dailyTotals:()=>({}),state,plannerMeasuredGrams:(food,qty)=>qty,plannerSushiPortion:()=>null,
      MILK_BEVERAGES:{},openPlannedFoodEditor:()=>{},normItem:(food,qty,slot)=>({id:food.id,qty,when:slot}),attachRecipeSnapshot:entry=>entry,
      saveDiary,notify,num:x=>String(x),today

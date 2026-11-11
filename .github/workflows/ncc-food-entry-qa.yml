@@ -13,22 +13,17 @@ permissions:
 jobs:
   browser:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Use official Ubuntu HTTPS mirror for browser dependencies
-        run: |
-          for source in /etc/apt/apt-mirrors.txt /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
-            if [ -f "$source" ]; then
-              sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g; s|http://security.ubuntu.com/ubuntu|https://security.ubuntu.com/ubuntu|g' "$source"
-            fi
-          done
       - run: npm install --prefix efg-nutrition/tests/professional-browser-api
-      - run: npx --prefix efg-nutrition/tests/professional-browser-api playwright install --with-deps chromium webkit
-      - run: sudo mkdir -p /workspace && sudo chown "$USER" /workspace
+      - run: mkdir -p /workspace
       - run: node efg-nutrition/tests/food-entry-browser.mjs
         env:
           NCC_PLAYWRIGHT_MODULE: ./professional-browser-api/node_modules/playwright/index.mjs

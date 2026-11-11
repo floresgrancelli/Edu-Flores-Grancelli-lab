@@ -618,11 +618,23 @@ try{
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
-     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
+     .filter(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden'&&!el.closest('.lux-report')&&!el.closest('.efg-pastel-day')&&el.getBoundingClientRect().width>80&&el.getBoundingClientRect().height>24)
      .map(el=>({classes:el.className,id:el.id,bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage}))
      .filter(x=>{const rgb=(x.bg.match(/[\d.]+/g)||[]).map(Number);return rgb.length>=3&&(rgb[3]??1)>.9&&Math.min(...rgb.slice(0,3))>170&&x.image==='none'})
      .filter(x=>!/(chart|meter|bar|track|column|compat|streak-dot)/.test(x.classes)).slice(0,12));
     if(light.length)pageReport.errors.push('Light working surfaces remain in unified theme: '+JSON.stringify(light));
+    // The daily summary deliberately uses light surfaces; validate readable text instead of forbidding them.
+    const summaryContrast=await page.locator('.efg-pastel-day').evaluateAll(cards=>{
+     const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
+     const lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+     return cards.flatMap(card=>[...card.querySelectorAll('strong,small,span,p')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).flatMap(e=>{
+      let p=e,bg;while(p){bg=rgb(getComputedStyle(p).backgroundColor);if(bg.length>=3&&(bg[3]??1)>.99)break;p=p.parentElement;}
+      if(!p)return [];const f=lum(rgb(getComputedStyle(e).color)),b=lum(bg),ratio=(Math.max(f,b)+.05)/(Math.min(f,b)+.05);
+      return ratio<4.5?[{text:e.textContent.trim().slice(0,60),ratio}]:[];
+     }));
+    });
+    if(summaryContrast.length)pageReport.errors.push('Daily summary text contrast below 4.5: '+JSON.stringify(summaryContrast));
+
    }
    if(unifiedTheme){
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));

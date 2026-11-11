@@ -46,7 +46,7 @@ try{
    const open=async(slot='desayuno')=>{await page.locator('[data-daymeal="'+slot+'"]').click();const add=page.locator('.student-meal-card [data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
-   await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(215, 255, 63)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
+   await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(163, 230, 53)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
    assert.equal(await page.locator('[data-act="saveSelectedMeal"]').isDisabled(),true);
    await search('huevo','egg');await page.locator('#mealEditorQty').fill('2');
    assert.equal(await page.locator('#mealEntryMode').inputValue(),'units');
@@ -104,7 +104,7 @@ try{
    await page.locator('[data-mealsource="habitual"]').click();
    await page.locator('#mealEntryHabitualChoice_cena').selectOption('local-1');
    const habitualColors=await page.locator('.meal-popup [data-habitualapply="cena"]').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,fg:getComputedStyle(el).color}));
-   assert.deepEqual(habitualColors,{bg:'rgb(215, 255, 63)',fg:'rgb(33, 51, 30)'},'Habitual primary action stays readable');
+   assert.deepEqual(habitualColors,{bg:'rgb(163, 230, 53)',fg:'rgb(33, 51, 30)'},'Habitual primary action stays readable');
    await page.locator('.meal-popup [data-habitualapply="cena"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
    assert.equal((await snapshot()).meals.cena[0].id,'egg','Popup favorite choice must win over the daily selector behind it');
    await open('cena');await page.locator('[data-mealsource="recent"]').click();

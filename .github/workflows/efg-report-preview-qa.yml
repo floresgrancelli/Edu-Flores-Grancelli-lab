@@ -57,6 +57,9 @@ jobs:
           retention-days: 7
   report-browsers:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --init --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -71,7 +74,6 @@ jobs:
         id: browser-runtime
         run: |
           npm install --no-save playwright@1.62.1
-          npx playwright install --with-deps ${{ matrix.engine }}
       - name: Actual weekly handlers, real PDF pages, touch review and read-only history
         if: ${{ !cancelled() && steps.browser-runtime.outcome == 'success' }}
         env:

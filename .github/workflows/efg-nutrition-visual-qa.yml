@@ -24,6 +24,9 @@ permissions:
 jobs:
   browser-visual-qa:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -33,9 +36,6 @@ jobs:
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save --no-package-lock playwright@1.56.1
-          npx playwright install --with-deps chromium
-      - name: Install Safari-engine WebKit for mobile compatibility
-        run: npx playwright install --with-deps webkit
       - name: Coach intake to plan steps (synthetic; existing atomic publisher)
         run: |
           NCC_COACH_TOOLS_EVIDENCE=artifacts/coach-plan-steps/chromium-result.json node efg-nutrition/tests/professional-coach-tools-browser.mjs

@@ -636,12 +636,12 @@ try{
      return {canvas:style('.pilot-layout')?.backgroundColor,body:style('body')?.backgroundColor,
       nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview,#planSuggestionCard'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
-    if(colors.canvas!=='rgb(16, 18, 20)'||colors.body!=='rgb(16, 18, 20)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
-    if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(20, 24, 25)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
+    if(colors.canvas!=='rgb(9, 13, 10)'||colors.body!=='rgb(9, 13, 10)')pageReport.errors.push('Unified charcoal canvas missing: '+JSON.stringify(colors));
+    if(colors.field&&colors.field!==(colors.lightField?'rgb(255, 254, 248)':'rgb(14, 21, 15)'))pageReport.errors.push('Unified input field missing on '+dest+': '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(canvas!=="rgb(16, 18, 20)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
+    if(canvas!=="rgb(9, 13, 10)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
@@ -666,12 +666,12 @@ try{
    if(unifiedTheme){
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
     if(primary.some(x=>x.onLimeRegister
-      ? x.bg!=='rgb(25, 35, 14)'||x.color!=='rgb(242, 255, 209)'||!x.surface.includes('215, 255, 63')
-      : x.bg!=='rgb(215, 255, 63)'||x.color!==(x.onSuggestion?'rgb(33, 51, 30)':'rgb(23, 28, 11)')))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
+      ? x.bg!=='rgb(25, 35, 14)'||x.color!=='rgb(242, 255, 209)'||!x.surface.includes('163, 230, 53')
+      : x.bg!=='rgb(163, 230, 53)'||x.color!==(x.onSuggestion?'rgb(33, 51, 30)':'rgb(23, 28, 11)')))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
    }
    if(dest==='home'){
     const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});
-    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('215, 255, 63'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
+    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('163, 230, 53'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
    }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
@@ -732,8 +732,8 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
      if(unifiedTheme){
       const surfaces=await page.locator(menuSelector).evaluateAll(els=>els.filter(e=>e.getClientRects().length>0).slice(0,6).map(e=>({bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})));
-      const allowed=['rgb(215, 255, 63)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
-      if(!surfaces.length||surfaces[0].bg!=='rgb(215, 255, 63)'||surfaces[0].color!=='rgb(23, 28, 11)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include bright lime plus differentiated dark cards: '+JSON.stringify(surfaces));
+      const allowed=['rgb(163, 230, 53)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
+      if(!surfaces.length||surfaces[0].bg!=='rgb(163, 230, 53)'||surfaces[0].color!=='rgb(23, 28, 11)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include bright lime plus differentiated dark cards: '+JSON.stringify(surfaces));
      }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
@@ -795,7 +795,7 @@ try{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(215, 255, 63)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
+        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(163, 230, 53)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
        pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
@@ -1227,7 +1227,7 @@ try{
     if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
     const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(welcomeStyle!=="rgb(27, 31, 35)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
+    if(welcomeStyle!=="rgb(20, 27, 21)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
     await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();

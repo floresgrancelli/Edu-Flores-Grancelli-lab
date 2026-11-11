@@ -1,4 +1,4 @@
-const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./meal-entry-context-r2.css';document.head.append(mealEntryStyles);
+const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
@@ -1692,17 +1692,25 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
   const studentDay=state.profile.role==="student";
-  const dayExtras=weeklyPanel+
- '<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
+  const toolPanel=(id,label,content)=>content?'<details class="ncc-day-tool" id="'+id+'"><summary>'+label+'</summary><div class="ncc-day-tool-body">'+content+'</div></details>':'';
+ const balance=(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">Todavía no hay metas configuradas.</div>')+'<p class="pilot-hint">Los registros son autodeclarados. No reemplazan la consulta con un profesional matriculado.</p>';
+ const dayMessage='<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
  (state.profile.role==="student"?nutritionTipCardHTML({
   allowExplore:!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending"
  }):"");
+ const tools='<details class="ncc-day-tools" id="nccDayTools"><summary><span aria-hidden="true">⚒</span> Herramientas del día</summary><div class="ncc-day-tools-list">'+
+ toolPanel('nccDayBalance','Balance restante',balance)+
+ '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
+ toolPanel('nccDayWeekly','Resumen semanal',weeklyPanel)+toolPanel('nccDayMessage','Mensaje del día',dayMessage)+toolPanel('nccDayGoals','Mis objetivos personales',goalForm)+'</div></details>';
   return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+
  ''+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi Dieta Guía</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+
- '<div class="pilot-two student-daily-layout"><div class="card" id="studentMeals">'+ '<div class="section-head"><h2>Mis comidas</h2><span class="pilot-pill">'+num(tot.fi,1)+' g fibra</span></div>'+mealTabs+meals+'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>'+'</div><div class="pilot-stack"><details class="card ncc-balance-details"><summary>Balance restante</summary>'+(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">El entrenador todavía no configuró las metas.</div>')+'<p class="pilot-hint" style="margin-top:16px">Los registros son autodeclarados. No representan una valoración médica ni reemplazan la consulta con un profesional matriculado cuando corresponda.</p></details></div></div>'+'<div class="efg-quick-more"><button class="btn light" data-tab="supplements">💊 Suplementos</button><button class="btn light" data-tab="recipes">🍲 Mis recetas</button><button class="btn light" data-tab="summaries">📋 Informes</button></div>'+dayExtras+'<div id="mealDialogContainer"></div>'+goalForm+'</div>';
+ '<div class="student-daily-layout"><div id="studentMeals"><h2 class="ncc-meals-heading">Mis comidas</h2>'+mealTabs+meals+'</div></div>'+
+ (closePanel?'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>':'')+
+ tools+'<div id="mealDialogContainer"></div></div>';
+
 }
 
 // One catalog across student, coach, planner and diary. A guided example and

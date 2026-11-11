@@ -13,13 +13,13 @@ export async function assertProgressPolish(page,screenshot){
  assert.equal(await facts.count(),1);
  const geometry=await facts.evaluate(el=>{const box=el.getBoundingClientRect();return {width:box.width,scroll:el.scrollWidth,colors:[...el.querySelectorAll('strong')].map(x=>getComputedStyle(x).color)};});
  assert.ok(geometry.scroll<=geometry.width+1,'Progress cards must fit mobile');
- assert.ok(geometry.colors.every(x=>x==='rgb(33, 51, 30)'));
+ assert.ok(geometry.colors.every(x=>x==='rgb(237, 242, 230)'));
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.evaluate(()=>window.__EFG_VISUAL_QA__.notify('Registro guardado · prueba ficticia'));
  const toast=page.locator('#pilot-toast');
  assert.equal(await toast.getAttribute('role'),'status');
  assert.equal(await toast.evaluate(el=>getComputedStyle(el).animationName),'none');
- assert.equal(await toast.evaluate(el=>getComputedStyle(el).color),'rgb(33, 51, 30)');
+ assert.equal(await toast.evaluate(el=>getComputedStyle(el).color),'rgb(237, 242, 230)');
  await toast.getByRole('button',{name:'Cerrar aviso'}).focus();
  assert.equal(await toast.getByRole('button',{name:'Cerrar aviso'}).evaluate(el=>el.getBoundingClientRect().height>=44),true);
  await page.screenshot({path:screenshot,fullPage:true,animations:'disabled'});

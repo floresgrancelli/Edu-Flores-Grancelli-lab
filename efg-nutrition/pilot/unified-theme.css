@@ -561,3 +561,8 @@ html.ncc-lime-theme #app .efg-menu-card:first-child :is(strong,span,.efg-lux-men
 html.ncc-lime-theme #app .ncc-day-welcome .ncc-day-eyebrow,
 html.ncc-lime-theme #app .pilot-layout .ncc-day-welcome h1 span{color:#a4cc70!important}
 html.ncc-lime-theme #app :is(.ncc-guide-status,.ncc-guide-jumps){--ncc-text:#edf2e6}
+
+/* Keep secondary controls readable after inheriting primary button tokens. */
+html.ncc-lime-theme #app :is(.btn.light,.btn.ghost){--ncc-text:#edf2e6!important;color:#edf2e6!important}
+html.ncc-lime-theme #app #planSuggestionCard [data-plannerslot][aria-pressed=false]{--ncc-text:#edf2e6!important;color:#edf2e6!important}
+html.ncc-lime-theme #app .efg-pastel-meter>span{background:#91bf50!important}

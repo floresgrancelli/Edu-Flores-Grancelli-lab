@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 export async function assertCoachReportLayout(page){
  const quickColors=await page.locator('.ncc-coach-actions button').evaluateAll(els=>els.map(el=>({bg:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color})));
  assert.equal(quickColors.length,3);
- assert.ok(quickColors.every(x=>x.color==='rgb(33, 51, 30)'&&['rgb(228, 237, 206)','rgb(163, 230, 53)'].includes(x.bg)),'Quick actions must stay readable on light surfaces');
+ assert.ok(quickColors.every(x=>x.color==='rgb(237, 242, 230)'&&['rgb(21, 26, 19)','rgb(25, 34, 16)','rgb(37, 44, 36)'].includes(x.bg)),'Quick actions must stay readable on dark surfaces');
  await page.locator('[data-coachsection="coachStudentNutrition"]').click();
  const geometry=await page.locator('.coach-student-profile').evaluate(profile=>{
   const header=profile.querySelector('.efg-progress-header'),title=header.querySelector('h2');

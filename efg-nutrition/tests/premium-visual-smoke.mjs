@@ -664,14 +664,14 @@ try{
 
    }
    if(unifiedTheme){
-    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
-    if(primary.some(x=>x.onLimeRegister
-      ? x.bg!=='rgb(25, 35, 14)'||x.color!=='rgb(242, 255, 209)'||!x.surface.includes('163, 230, 53')
-      : x.bg!=='rgb(163, 230, 53)'||x.color!==(x.onSuggestion?'rgb(33, 51, 30)':'rgb(23, 28, 11)')))pageReport.errors.push('Primary action must retain contrasting lime surface or lime button: '+JSON.stringify(primary));
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
+    if(primary.some(x=>x.image.includes('161, 225, 68')
+      ? x.color!=='rgb(16, 22, 9)'
+      : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
    }
    if(dest==='home'){
     const geometry=await page.locator('.efg-pastel-ring').evaluate(el=>{const inner=el.querySelector('.efg-pastel-ring-inner'),r=el.getBoundingClientRect(),q=inner.getBoundingClientRect();return {w:r.width,h:r.height,iw:q.width,ih:q.height,radius:getComputedStyle(inner).borderRadius,position:getComputedStyle(inner).position,before:getComputedStyle(el,'::before').display,progress:el.style.getPropertyValue('--ring-c'),bg:getComputedStyle(el).backgroundImage};});
-    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('163, 230, 53'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
+    if(Math.abs(geometry.w-geometry.h)>1||Math.abs(geometry.iw-geometry.ih)>1||geometry.radius!=='50%'||geometry.position!=='static'||geometry.before!=='none'||!geometry.bg.includes('145, 191, 80'))pageReport.errors.push('Calorie ring geometry/palette regression: '+JSON.stringify(geometry));
    }
    const pastelColors=await page.evaluate(()=>{
      const sample=selector=>{
@@ -732,8 +732,8 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
      if(unifiedTheme){
       const surfaces=await page.locator(menuSelector).evaluateAll(els=>els.filter(e=>e.getClientRects().length>0).slice(0,6).map(e=>({bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})));
-      const allowed=['rgb(163, 230, 53)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
-      if(!surfaces.length||surfaces[0].bg!=='rgb(163, 230, 53)'||surfaces[0].color!=='rgb(23, 28, 11)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include bright lime plus differentiated dark cards: '+JSON.stringify(surfaces));
+      const allowed=['rgb(25, 34, 16)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
+      if(!surfaces.length||surfaces[0].bg!=='rgb(25, 34, 16)'||surfaces[0].color!=='rgb(237, 242, 230)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include dark olive plus differentiated dark cards: '+JSON.stringify(surfaces));
      }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
@@ -795,7 +795,7 @@ try{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:parseFloat(track.style.getPropertyValue("--macro-progress"))*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(163, 230, 53)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
+        color:getComputedStyle(el).backgroundColor,expectedColor:["rgb(145, 191, 80)","rgb(125, 221, 226)","rgb(197, 166, 255)"][index]};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
        pageReport.errors.push("Student macro bars must show actual per-macro progress in approved lime: "+JSON.stringify(bars));
@@ -1205,7 +1205,7 @@ try{
    }
    if(await page.locator('.efg-seats-grid').count()){
     const seatColors=await page.locator('.efg-seats-grid strong,.efg-seats-grid span').evaluateAll(els=>els.map(e=>getComputedStyle(e).color));
-    assert.ok(seatColors.length>=6&&seatColors.every(c=>c==='rgb(33, 51, 30)'),'Seat counts and labels must remain readable');
+    assert.ok(seatColors.length>=6&&seatColors.every(c=>c==='rgb(237, 242, 230)'),'Seat counts and labels must remain readable');
    }
    if(role==="admin"&&dest==="admin"){
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));

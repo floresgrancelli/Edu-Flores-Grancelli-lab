@@ -65,7 +65,7 @@ assert.ok(html.includes('name="theme-color" content="#090d0a"'),"iPhone theme-co
 assert.ok(html.includes('class="ncc-lime-theme"'),"All roles and login receive the unified identity");
 assert.ok(html.lastIndexOf("unified-theme.css")>html.lastIndexOf("student-day.css"),"Unified theme is the final shared layer");
 const unified=read("unified-theme.css");
-assert.match(unified,/--ncc-lime:#a3e635/);
+assert.match(unified,/--ncc-lime:#91bf50/);
 assert.match(unified,/\.efg-compat-green/);assert.match(unified,/\.efg-compat-yellow/);assert.match(unified,/\.efg-compat-red/);
 assert.ok(html.lastIndexOf("pastel-system.css")>html.lastIndexOf("premium-system.css"),"Pastel base comes after premium");
 assert.ok(html.lastIndexOf("luxury-theme.css")>html.lastIndexOf("weekly-consistency.css"),"Luxury preview must load last");

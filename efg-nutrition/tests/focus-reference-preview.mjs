@@ -37,7 +37,19 @@ try {
  await page.reload();await page.getByRole('button',{name:'Alumno: parcial',exact:true}).click();
  await page.locator('.ncc-day-welcome').waitFor();
  await page.evaluate(()=>{document.getElementById('ncc-student-day-fixture-controls')?.remove();const e=document.querySelector('.ncc-day-welcome');window.scrollTo(0,e.getBoundingClientRect().top+window.scrollY-110);});
+ await page.locator('[aria-label="Espacios de la cuenta · candidata"]').evaluateAll(es=>es.forEach(e=>e.style.display='none'));
+ await page.evaluate(()=>window.scrollTo(0,0));
  await page.screenshot({path:resolve(out,'NCC-propuesta-inicio.png')});
+ const photo=await page.locator('.pilot-layout').evaluate(el=>{
+  const style=getComputedStyle(el,'::before');return {position:style.backgroundPosition,pointerEvents:style.pointerEvents,width:document.documentElement.scrollWidth,viewport:innerWidth};
+ });
+ assert.equal(photo.position,'100% 0%');assert.equal(photo.pointerEvents,'none');assert.ok(photo.width<=photo.viewport);
+ const asset=await page.request.get(origin+'/efg-nutrition/pilot/assets/section-backgrounds.webp');assert.equal(asset.status(),200);assert.ok((await asset.body()).length<300000);
+ const before=await page.locator('.ncc-day-welcome').boundingBox();
+ await page.locator('link[href*="section-backgrounds.css"]').evaluate(el=>el.disabled=true);
+ const after=await page.locator('.ncc-day-welcome').boundingBox();assert.deepEqual(after,before,'Decorative backgrounds must not add height or move content');
+ await page.locator('link[href*="section-backgrounds.css"]').evaluate(el=>el.disabled=false);
+ console.log('Background checks passed: correct day image, no pointer interception, no horizontal overflow, no layout shift, local asset below 300 KB.');
  console.log('Proposal screenshots only; synthetic data; no approval or release claim.');
  await context.close();
 } finally {await browser.close();server.close();}

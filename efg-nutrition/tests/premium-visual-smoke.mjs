@@ -1219,6 +1219,8 @@ try{
     x.state.coachGoals=[{id:"goal-demo",kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28,start_on:"2026-10-01"}];
     x.state.coachFoodPlan=null;await x.render();
    });
+   await assertCoachReportLayout(page);
+   await page.locator(".coach-student-profile").screenshot({path:join(outDir,"coach-sections-"+engine+"-"+width+".png")});
    const goals=page.locator("#coachStudentGoals");
    await page.locator('[data-coachsection="coachStudentGoals"]').click();
    await page.locator("#targetAge").fill("41");

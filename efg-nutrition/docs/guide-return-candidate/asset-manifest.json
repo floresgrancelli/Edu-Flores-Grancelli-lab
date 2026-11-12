@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-report-flow-r1-20261112",
+  "assetVersion": "ncc-workspace-tabs-r1-20261112",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -25,7 +25,7 @@
     "efg-nutrition/pilot/coach-guide-restriction-scope.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-guide-schedule.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-health-response-provider.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/coach-intake-flow.js": "ncc-coach-plan-steps-r1-20261110",
+    "efg-nutrition/pilot/coach-intake-flow.js": "ncc-workspace-tabs-r1-20261112",
     "efg-nutrition/pilot/coach-intake-prefill.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-intake-queue.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-legal-bridge.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
@@ -35,7 +35,7 @@
     "efg-nutrition/pilot/coach-plan-draft-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-plan-steps.mjs": "ncc-coach-plan-steps-r1-20261110",
     "efg-nutrition/pilot/coach-private-history.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "ncc-progress-polish-r1-20261111",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "ncc-workspace-tabs-r1-20261112",
     "efg-nutrition/pilot/coach-relaunch-onboarding.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-release-plan-gate.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/coach-report-models.js": "ncc-report-gaps-r1-20261112",
@@ -75,7 +75,7 @@
     "efg-nutrition/pilot/macro-engine.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/major-release-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/major-release-reauth-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/messages-ui.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
+    "efg-nutrition/pilot/messages-ui.js": "ncc-workspace-tabs-r1-20261112",
     "efg-nutrition/pilot/notifications-ui.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/nutrition-daily-tip.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/nutrition-science.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
@@ -97,7 +97,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-report-flow-r1-20261112",
+    "efg-nutrition/pilot/pilot.js": "ncc-workspace-tabs-r1-20261112",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-report-gaps-r1-20261112",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-report-gaps-r1-20261112",
@@ -158,7 +158,8 @@
     "efg-nutrition/pilot/report-macro-gaps.js": "ncc-report-gaps-r1-20261112",
     "efg-nutrition/pilot/report-macro-gaps-view.js": "ncc-report-gaps-r1-20261112",
     "efg-nutrition/pilot/period-report-pdf-v4.js": "ncc-report-gaps-r1-20261112",
-    "efg-nutrition/pilot/coach-report-flow.js": "ncc-report-flow-r1-20261112"
+    "efg-nutrition/pilot/coach-report-flow.js": "ncc-report-flow-r1-20261112",
+    "efg-nutrition/pilot/workspace-tabs.js": "ncc-workspace-tabs-r1-20261112"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "1bfbcbb53246a00904046a69a71169403956fdf5dd0353f99accf4a9c641a766",
@@ -180,7 +181,7 @@
     "efg-nutrition/pilot/coach-guide-restriction-scope.js": "2f04dcc43dc0fb916ccb1147da911ea7eecf5990bbe581a71535501c8e2d2aee",
     "efg-nutrition/pilot/coach-guide-schedule.js": "9f93113d49d47252ef84e02649489242d5f43644dfeed27cb65ee4a992a258be",
     "efg-nutrition/pilot/coach-health-response-provider.js": "8930f866d24f799d1b599ec39ccebc178a3ee399534b9b34cd0650c54caf1f55",
-    "efg-nutrition/pilot/coach-intake-flow.js": "03a4e233a0acc4a9f92de0ade965c9b85d7620aece7231d881c0ecf08a381f95",
+    "efg-nutrition/pilot/coach-intake-flow.js": "7bd49d84ec7f61296a7e60d88a8e392a9cfd320c1ebc0eeae1ebd100abae77e9",
     "efg-nutrition/pilot/coach-intake-prefill.js": "c1c5cc98d089589a0fc2949be43d14878ae07c22801337c6adb7f0e1f422adde",
     "efg-nutrition/pilot/coach-intake-queue.js": "e405fa75f74c5b3e5de6f9ff3d564894b4340b4d0fe0a298ee2e244bc581d47c",
     "efg-nutrition/pilot/coach-legal-bridge.js": "1bc3e01566dbb80856673216a29b6b4100e9f37f1f58f448eb8623a557d357ea",
@@ -190,7 +191,7 @@
     "efg-nutrition/pilot/coach-plan-draft-client.js": "cdec0bfb72ee7b2884279eb6c4b7825e42f390a46f34366a4af36d39036dfeb1",
     "efg-nutrition/pilot/coach-plan-steps.mjs": "53a8f6d274e53ff02492e8a86f40ffab3769c638f15b6508d8945317cf584ae5",
     "efg-nutrition/pilot/coach-private-history.js": "cee32841e78583ae7cb042e746a7aac031c74305373c92aa39aaafb4da002cdb",
-    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "53fb8a5e6367ed5781f6796adda6f8287d71aaa223aeb6e02c355cf7a4f000a4",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "5992e311cf87d67c01dfabe1782e0aaba044a81c9722cdd5132c780f6210f77f",
     "efg-nutrition/pilot/coach-relaunch-onboarding.js": "36bf5d6b2f62029a800e3c5dfbb9b472924f359c3592df0bcd0d8ea318e7e7c6",
     "efg-nutrition/pilot/coach-release-plan-gate.js": "0bca14f344336cb65fc51c29cc12b344a58d6cb019001c565a38cf60f965b654",
     "efg-nutrition/pilot/coach-report-models.js": "8cd800176c25a6ae8d879babbc14d0ee7baae1578a14760bbede0f0b702c0c27",
@@ -225,13 +226,13 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "8f70770e00ca3780a82d247e55f85c764f4882206c559d9837446d9c7573df8a",
+    "efg-nutrition/pilot/index.html": "e39490f06b656424e51580d2e2a0f46fd35eeec74345915e806c5062589efe14",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
     "efg-nutrition/pilot/major-release-client.js": "b7ce7dfc27c396126a05ad6821c00514b723ad6a9f566227767c4845a5cf11c2",
     "efg-nutrition/pilot/major-release-reauth-client.js": "3a3c99049afd3803bac5b236cba764e6b6252f452bc0b9b47e118a68991efcc2",
-    "efg-nutrition/pilot/messages-ui.js": "b8156f19fbe505e0bb68d451390ab58e03df571fc72a8a1c027d08249ad7d478",
+    "efg-nutrition/pilot/messages-ui.js": "5aee6dde70900e6116b17ee64bbf14c6a9f2ca848b9a5838e6244ea18a176989",
     "efg-nutrition/pilot/notifications-ui.js": "70ec51c9756d73d4f039d8d4ee7d4843f1f65f6379ea7484a42890f215daa0a1",
     "efg-nutrition/pilot/nutrition-daily-tip.js": "dcc2ccc6a9e61864958468a8aad62da416bbe64a4bd06f6965174863ad140e65",
     "efg-nutrition/pilot/nutrition-science.js": "d7d73d0c5e7ff8bbcff40bf092d1bb73df49c9e547f62afaf4d86f0e73f85a56",
@@ -253,7 +254,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "70631b4615dd1c644d78e6f40239da5a4934b4a5a3f1770fa8746edef29910ba",
+    "efg-nutrition/pilot/pilot.js": "b0bc6deeda2d6a466c8d28a504a07318fab510627859c3b1f9e9a20e48544efd",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ddc87e07660f35a68e9b613bc6496785b1c62593539260af0fe706a5f37233f2",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "c7b6549d2e017cc4de75459c6a43ccb76ec01ccc855fa52b7417e86b11cab907",
@@ -328,7 +329,9 @@
     "efg-nutrition/pilot/report-macro-gaps-view.js": "da016f4b851f55eefcd2eb059db35453699913570f5146f48dc242de0552a032",
     "efg-nutrition/pilot/period-report-pdf-v4.js": "2f170d3144f22879e69e4a18828be99c384eb1567064458a8f114be2e5ca2f32",
     "efg-nutrition/pilot/report-macro-gaps.css": "fab6a1e18080d5b14ea664cbc16b7f9d02de361d499e83e810e5e26f39791eb6",
-    "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b"
+    "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
+    "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
+    "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5"
   },
   "stylesheets": [
     {
@@ -490,6 +493,11 @@
       "path": "efg-nutrition/pilot/recipes-library-r1.css",
       "sha256": "0c0e7ecedefb7c3f0ab51f7fae103725cfe26adf07509eebba9237df52d9a5d3",
       "url": "./recipes-library-r1.css?v=ncc-recipes-r1-20261111"
+    },
+    {
+      "path": "efg-nutrition/pilot/workspace-tabs.css",
+      "sha256": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
+      "url": "./workspace-tabs.css?v=ncc-workspace-tabs-r1-20261112"
     }
   ],
   "moduleResources": [

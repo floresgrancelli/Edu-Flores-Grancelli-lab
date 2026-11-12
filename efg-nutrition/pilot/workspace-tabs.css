@@ -1,0 +1,49 @@
+/* Approved forest/olive palette; only the named workspaces and message center. */
+.ncc-workspace-tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:wrap}
+.ncc-workspace-tabs button{flex:1;min-width:76px;min-height:44px;padding:10px 9px;border:1px solid #48523b;border-radius:12px;background:#22291e;color:#edf0e6;font:inherit;font-weight:600;font-size:14px;line-height:1.2;cursor:pointer}
+.ncc-workspace-tabs button[aria-pressed=true]{background:#414c29;border-color:#b0c56d;color:#f5f6ec}
+.ncc-workspace-tabs button:focus-visible{outline:2px solid #b0c56d;outline-offset:3px}
+.ncc-workspace-panel[hidden]{display:none!important}
+.ncc-workspace-panel{min-width:0}
+.ncc-workspace-panel>.card{margin:12px 0}
+.ncc-workspace-actions{display:flex;gap:10px;flex-wrap:wrap}
+.ncc-workspace-actions button{flex:1;min-height:44px}
+.ncc-workspace-metrics{margin:10px 0;color:#d5dec5}
+.ncc-workspace-metrics summary{padding:10px;cursor:pointer;min-height:44px}
+.ncc-plan .ncc-workspace-panel>.ncc-plan-notes{margin:0}
+.ncc-plan .ncc-workspace-panel h2{font-size:20px}
+#nccAdminPayments>.pilot-hero{display:none}
+html.ncc-lime-theme #efgMessagesContent{padding:0;background:#10170f;border:1px solid #48523b}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-layout{background:#10170f;color:#edf0e6;border:0;box-shadow:none}
+html.ncc-lime-theme #efgMessagesContent :is(.efg-chat-list,.efg-chat-thread){background:#141c12;border-color:#48523b}
+html.ncc-lime-theme #efgMessagesContent :is(.efg-chat-thread-top,.efg-message-compose){background:#20291b;border-color:#48523b}
+html.ncc-lime-theme #efgMessagesContent :is(h2,h3,strong,.efg-chat-back){color:#f0f2e8}
+html.ncc-lime-theme #efgMessagesContent :is(small,time,.efg-chat-count,.efg-chat-empty,.efg-chat-privacy,.eyebrow){color:#bec7b1}
+html.ncc-lime-theme #efgMessagesContent :is(input,textarea){background:#0c130c;color:#edf0e6;border-color:#566149}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-tabs{gap:6px;padding:0 12px 12px}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-tabs button{flex:1;padding:8px 5px;min-height:44px;border-radius:12px;background:#222b1c;border:1px solid #48523b;color:#edf0e6;font-size:12px}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-tabs button.active{background:#414c29;border-color:#b0c56d}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-contact{border-color:#3b4632;color:#edf0e6}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-contact:is(:hover,.is-selected){background:#303c23}
+html.ncc-lime-theme #efgMessagesContent .efg-chat-avatar{background:#414c29;border-color:#687647;color:#e4edc9;box-shadow:none}
+html.ncc-lime-theme #efgMessagesContent .efg-message-bubble{background:#263020;border-color:#4b583c;color:#edf0e6}
+html.ncc-lime-theme #efgMessagesContent .efg-message-bubble.self{background:#3f4b2a;border-color:#7c8f4f}
+html.ncc-lime-theme #efgMessagesContent :is(.efg-message-compose button,.efg-chat-unread,.efg-chat-load-more){background:#adbf72;color:#12190c;border-color:#adbf72}
+@media(max-width:700px){
+ html.ncc-lime-theme #efgMessagesContent .efg-chat-list{height:60dvh;min-height:320px}
+ html.ncc-lime-theme #efgMessagesContent .efg-chat-thread{height:60dvh;min-height:320px}
+ html.ncc-lime-theme #efgMessagesContent .efg-chat-privacy{font-size:10px;padding:0 12px 8px}
+}
+
+/* Ficha: one stage at a time, existing validations and sharing untouched. */
+html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){border:1px solid #48523b!important;border-radius:22px;padding:20px;background:linear-gradient(150deg,#1b2516,#10170f)!important}
+html.ncc-lime-theme #app .ncc-intake-steps button{min-width:0;flex:1 1 40%;border-radius:12px;min-height:44px;font-size:14px}
+html.ncc-lime-theme #app .efg-coach-relaunch .ncc-intake-steps button[aria-pressed=true]{background:#414c29!important;border-color:#b0c56d!important}
+html.ncc-lime-theme #app .efg-coach-relaunch [data-intakeprogress]{color:#bec7b1!important;font-size:13px}
+html.ncc-lime-theme #app .efg-coach-relaunch [data-intakepanel]>h3{font-size:21px;margin:8px 0 14px}
+.ncc-intake-data{margin:12px 0}
+.ncc-intake-data [data-intake-detail]{display:grid;grid-template-columns:minmax(100px,.85fr) minmax(0,1.15fr);gap:12px;padding:12px 0;border-bottom:1px solid #3b4632}
+.ncc-intake-data dt{color:#bec7b1;font-size:14px}
+.ncc-intake-data dd{margin:0;overflow-wrap:anywhere;color:#edf0e6;font-weight:600}
+.coach-intake-shared .ncc-intake-received{color:#cadc9f}
+html.ncc-lime-theme #app .coach-intake-shared [data-act="prepareCoachPlanFromIntake"]{background:#adbf72!important;color:#12190c!important;border-color:#adbf72!important;box-shadow:none!important}

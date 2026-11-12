@@ -57,10 +57,12 @@ export function createMessagesCenter({sb,context,afterSend}){
   const q=filter.trim().toLocaleLowerCase("es-AR");
   if(q)people=people.filter(x=>(x.name+" "+x.role).toLocaleLowerCase("es-AR").includes(q));
   if(listMode==="unread")people=people.filter(x=>x.unread>0);
-  if(!people.length)return '<p class="efg-chat-empty">'+(q?"No hay alumnos o contactos que coincidan con tu búsqueda.":listMode==="unread"?"No tenés mensajes sin leer.":"Todavía no hay conversaciones habilitadas para tu cuenta.")+'</p>';
+  if(listMode==="drafts")people=people.filter(x=>String(drafts.get(x.student)||" ").trim());
+  if(!people.length)return '<p class="efg-chat-empty">'+(q?"No hay alumnos o contactos que coincidan con tu búsqueda.":listMode==="unread"?"No tenés mensajes sin leer.":listMode==="drafts"?"No tenés borradores pendientes.":context().role==="admin"&&!context().testCoach?"Como administrador no tenés acceso general a chats de alumnos. Usá tu espacio de coach para las conversaciones autorizadas.":isCoach()?"Las conversaciones aparecen cuando tus alumnos están vinculados y autorizan el seguimiento.":"Todavía no tenés un coach vinculado para conversar.")+'</p>';
   return people.map(x=>{
    const last=x.last,initials=x.name.trim().split(/\s+/).slice(0,2).map(v=>v[0]||"").join("").toLocaleUpperCase("es-AR");
-   const preview=last?((last.sender_id===context().userId?"Vos: ":"")+last.body):"Tocá para iniciar la conversación";
+   const draft=String(drafts.get(x.student)||" ").trim();
+   const preview=draft?"Borrador: "+draft:last?((last.sender_id===context().userId?"Vos: ":"")+last.body):"Tocá para iniciar la conversación";
    return '<button type="button" class="efg-chat-contact'+(selectedStudent===x.student?" is-selected":"")+'" data-chat-contact="'+esc(x.student)+'" aria-label="Abrir conversación con '+esc(x.name)+'">'+
      '<span class="efg-chat-avatar" aria-hidden="true">'+esc(initials||"EF")+'</span>'+
      '<span class="efg-chat-contact-copy"><strong>'+esc(x.name)+'</strong><small>'+esc(preview)+'</small></span>'+
@@ -73,8 +75,10 @@ export function createMessagesCenter({sb,context,afterSend}){
   return '<header class="efg-chat-list-head"><div><span class="eyebrow">MENSAJERÍA INTERNA</span><h2>Chats</h2></div><span class="efg-chat-count">'+contacts().length+' contactos</span></header>'+
    '<div class="efg-chat-search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>'+
    '<input type="search" id="efgChatSearch" placeholder="Buscar alumno o contacto" autocomplete="off" aria-label="Buscar conversaciones" value="'+esc(filter)+'"></div>'+
-   '<div class="efg-chat-tabs" role="group" aria-label="Filtro de conversaciones"><button type="button" data-chat-filter="all" class="'+(listMode==="all"?"active":"")+'">Todos</button>'+
-   '<button type="button" data-chat-filter="unread" class="'+(listMode==="unread"?"active":"")+'">No leídos'+(unread?" · "+unread:"")+'</button></div>';
+   '<div class="efg-chat-tabs" role="group" aria-label="Filtro de conversaciones">'+[
+    ['all','Todos',contacts().length],['unread','No leídos',unread],['drafts','Borradores',contacts().filter(x=>String(drafts.get(x.student)||'').trim()).length]
+   ].map(([id,label,count])=>'<button type="button" data-chat-filter="'+id+'" aria-pressed="'+(listMode===id)+'" class="'+(listMode===id?'active':'')+'">'+label+' · '+count+'</button>').join('')+'</div>';
+
  }
  function threadHTML(){
   const c=context(),x=pair();

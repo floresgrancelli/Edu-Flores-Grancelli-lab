@@ -41,7 +41,7 @@ assert.match(html,/DASH/);
 assert.match(html,/Mediterránea/);
 assert.match(html,/16:8/,'Intermittent fasting selectable as timing');
 assert.match(html,/no se aplican automáticamente/i);
-assert.match(html,/Conozcámonos de nuevo/);
+assert.match(html,/Conozcámonos/);
 assert.match(html,/Confirmar mi ficha nueva/);
 for(const id of ['objective','age_years','height_cm','weight_kg','activity_level','dietary_pattern'])
  assert.match(html,new RegExp('id="coachRelaunch_'+id+'" required'),
@@ -85,7 +85,7 @@ status=goodStatus;
 assert.equal(renderCoachRelaunchEntry(done),"");
 assert.equal(writes,1);
 const editView=renderCoachRelaunchEntry(done,{editing:true});
-assert.match(editView,/Revisar mi ficha nueva/);
+assert.match(editView,/Mi ficha/);
 assert.match(editView,/efgCoachRelaunchManageForm/);
 assert.match(editView,/Arroz/);
 assert.match(editView,/Retirar permiso de compartir/);

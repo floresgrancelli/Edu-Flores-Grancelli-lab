@@ -648,7 +648,7 @@ try{
     });
     // Exact values from the real recipes screens approved by Edu; all other screens retain their baseline.
     const expectedCanvas=(recipesTheme||planTheme)?'rgb(11, 18, 12)':'rgb(9, 13, 10)';
-    const expectedFields=recipesTheme?['rgb(22, 29, 19)']:['rgb(21, 26, 19)','rgb(14, 21, 15)'];
+    const expectedFields=recipesTheme?['rgb(22, 29, 19)']:dest==='messages'?['rgb(12, 19, 12)','rgb(21, 26, 19)','rgb(14, 21, 15)']:['rgb(21, 26, 19)','rgb(14, 21, 15)'];
     if(colors.canvas!==expectedCanvas||colors.body!=='rgb(9, 13, 10)')pageReport.errors.push('Approved charcoal canvas missing on '+dest+': '+JSON.stringify(colors));
     if(colors.field&&!expectedFields.includes(colors.field))pageReport.errors.push('Approved input field missing on '+dest+': '+JSON.stringify(colors));
     if((recipesTheme||planTheme)&&colors.nav!==(width<=760?'rgba(12, 19, 11, 0.96)':'rgba(16, 24, 17, 0.96)'))pageReport.errors.push('Approved recipes navigation surface missing: '+JSON.stringify(colors));
@@ -678,8 +678,10 @@ try{
 
    }
    if(unifiedTheme){
-    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
-    if(primary.some(x=>(x.image.includes('161, 225, 68')||x.bg==='rgb(145, 191, 80)')
+    const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),intakeAction:e.matches('.coach-intake-shared [data-act=prepareCoachPlanFromIntake]'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
+    if(primary.some(x=>x.intakeAction
+      ? x.bg!=='rgb(173, 191, 114)'||x.color!=='rgb(18, 25, 12)'
+      : (x.image.includes('161, 225, 68')||x.bg==='rgb(145, 191, 80)')
       ? x.color!=='rgb(16, 22, 9)'
       : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
    }
@@ -743,6 +745,7 @@ try{
    if(role==="student"&&dest==="home"&&actionAudit.some(x=>x.text.includes("Registrar alimento")))
      pageReport.errors.push("Duplicate register CTA should not be visible above the meal cards");
    if((role==="coach"&&dest==="coach")||(role==="admin"&&dest==="admin")){
+     if(role==='coach')await page.locator('#nccCoachHomeSections [data-workspace-tab=tools]').click();
      const menuSelector=role==="coach"?".efg-coach-tiles > .efg-menu-card":".efg-role-admin .efg-menu-grid > .efg-menu-card";
      const menuColors=await page.locator(menuSelector).evaluateAll(els=>
        els.filter(el=>el.getClientRects().length>0).slice(0,6)
@@ -753,6 +756,7 @@ try{
       const allowed=['rgb(25, 34, 16)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
       if(!surfaces.length||surfaces[0].bg!=='rgb(25, 34, 16)'||surfaces[0].color!=='rgb(237, 242, 230)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include dark olive plus differentiated dark cards: '+JSON.stringify(surfaces));
      }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
+     if(role==='coach')await page.locator('#nccCoachHomeSections [data-workspace-tab=pending]').click();
    }
    const brandLogo=page.locator(".efg-mobile-brand .efg-serotonin-symbol");
    if((await brandLogo.count())!==1)pageReport.errors.push("Serotonin watercolor logo missing in mobile header");

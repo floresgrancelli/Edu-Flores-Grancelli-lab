@@ -220,10 +220,12 @@ export function createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,rende
   const v=state.coachIntakeForms[studentId];
   if(!v||!v.shared_at)return "";
   const items=[["Objetivo",names[v.objective]],["Edad",v.age_years?String(v.age_years)+" años":null],["Altura",v.height_cm?String(v.height_cm)+" cm":null],["Peso",v.weight_kg?String(v.weight_kg)+" kg":null],["Actividad",activities[v.activity_level]],["Patrón alimentario",diets[v.dietary_pattern]],["Horario elegido",EATING_WINDOWS.find(w=>w.id===v.eating_window)?.label],["Alimentos preferidos",v.preferred_foods],["Evita por gusto",v.disliked_foods],["Horarios de comida",v.meal_routine],["Observaciones",v.notes]];
-  return '<section class="card coach-intake-shared"><h3>Ficha recibida del alumno</h3><p class="ncc-intake-received">Lista para revisar y preparar su plan</p><p class="pilot-hint">Datos autodeclarados por el alumno. Úsalos únicamente para el acompañamiento autorizado.</p>'+
-   items.filter(x=>x[1]).map(x=>'<p><strong>'+escapeHTML(x[0])+':</strong> '+escapeHTML(String(x[1]))+'</p>').join("")+
-    '<div class="pilot-toolbar"><button class="btn" type="button" data-act="prepareCoachPlanFromIntake">Preparar plan con esta ficha</button></div>'+
-    '<p class="pilot-hint">Precarga datos autorizados sin aprobar ni publicar objetivos. Confirmá parámetros y restricciones antes de enviar una guía.</p></section>';
+  const rows=items.map(([label,value],i)=>'<div data-intake-detail="'+(i<5?'basic':'food')+'"><dt>'+escapeHTML(label)+'</dt><dd>'+escapeHTML(value?String(value):'No informado')+'</dd></div>').join('');
+  return '<section class="card coach-intake-shared"><span class="eyebrow">FICHA DEL ALUMNO</span><h3>Ficha compartida</h3><p class="ncc-intake-received">Recibida · disponible para preparar su plan</p>'+
+   '<div class="pilot-toolbar"><button class="btn" type="button" data-act="prepareCoachPlanFromIntake">Usar ficha y preparar Dieta Guía</button></div>'+
+   '<p class="pilot-hint">Primero revisás los objetivos; después la Dieta Guía y el envío. Este botón solo precarga datos autorizados, no publica el plan.</p>'+
+   '<dl class="ncc-intake-data">'+rows+'</dl><p class="pilot-hint">Datos autodeclarados. No informado no significa ausencia de restricciones. Los campos opcionales pueden quedar vacíos.</p></section>';
+
  }
  async function publish(){
   assertCoachReleasePlanWriteAllowed();

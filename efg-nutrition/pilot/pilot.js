@@ -579,7 +579,7 @@ state.foodRestrictionReader=createStudentFoodRestrictionReader({sb,
 function resolveInboxDestination(n){return notificationDestination(n,{role:state.profile?.role,testCoach:!!state.org?.is_test,userId:state.session?.user?.id,roster:state.roster,consented:coachRosterConsent});}
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
- validate:n=>{if(state.tab!=="messages"&&userHasUnconfirmedEdits)throw Error("Guardá los cambios de esta pantalla antes de abrir el aviso. Tu aviso seguirá disponible.");return resolveInboxDestination(n);},
+ validate:n=>{if(state.tab!=="messages"&&userHasUnconfirmedEdits&&root.querySelector(".pilot-main form"))throw Error("Guardá o cerrá el formulario antes de abrir el aviso. Tu aviso seguirá disponible.");return resolveInboxDestination(n);},
  navigate:async n=>{
   const user=state.session?.user?.id,route=resolveInboxDestination(n);
   if(route.student&&route.tab!=="messages"){

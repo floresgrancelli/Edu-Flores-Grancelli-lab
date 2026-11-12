@@ -68,10 +68,10 @@ try{for(const engine of ['chromium','webkit']){
  await inbox.locator('[data-efg-filter=read]').click();assert.equal(await inbox.locator('[data-efg-id]').count(),1);
  await inbox.locator('[data-efg-filter=all]').click();
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
- await page.evaluate(()=>window.__NCC_NOTIFICATION_QA__.setDirty(true));
+ await page.evaluate(()=>{window.__NCC_NOTIFICATION_QA__.setDirty(true);const form=document.createElement("form");form.id="notification-draft-fixture";document.querySelector(".pilot-main").append(form);});
  await inbox.locator('[data-efg-id]').first().click();await page.getByRole('alert').first().waitFor();
  assert.equal(await page.evaluate(()=>window.__NOTICE_WRITES__.length),0,'Draft blocks navigation before read receipt');
- await page.evaluate(()=>window.__NCC_NOTIFICATION_QA__.setDirty(false));
+ await page.evaluate(()=>{window.__NCC_NOTIFICATION_QA__.setDirty(false);document.getElementById("notification-draft-fixture").remove();});
  await page.locator('#efgNotifications [data-efg-action=toggle]').click();
  if(role==='student'){
  await inbox.locator('[data-efg-id=report]').click();

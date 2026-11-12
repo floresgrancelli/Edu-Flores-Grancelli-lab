@@ -1,5 +1,5 @@
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-personal-space-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-plan-tabs-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
@@ -1687,7 +1687,7 @@ function studentGuideView(){
  '<h2>Tus comidas</h2><nav class="ncc-plan-tabs" aria-label="Horarios de mi Dieta Guía">'+plan.meals.map(m=>'<button type="button" data-studentguideslot="'+escapeHTML(m.slot)+'" aria-pressed="'+(m.slot===slot)+'" aria-controls="nccPlanMeal">'+dayMealIcon(m.slot)+'<span>'+escapeHTML(m.label)+'</span>'+(m.slot===slot?'<i aria-hidden="true">✓</i>':'')+'</button>').join('')+'</nav>'+
  (meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>')+
  '<details class="ncc-plan-notes"><summary>Indicaciones del coach</summary><p>'+escapeHTML(plan.supplementNote||'No hay indicaciones de suplementos en esta guía.')+'</p>'+(plan.profileReviewNotes||[]).map(n=>'<p>'+escapeHTML(n)+'</p>').join('')+'<p>Guía orientativa, no ingesta registrada. Las imágenes son ilustrativas; las cantidades corresponden al plan.</p><details><summary>Ver explicación y resumen del plan</summary>'+guidedDayContents(plan,goal)+'</details></details>'+
- '<details class="ncc-plan-notes"><summary>Resolver lo que me falta hoy</summary>'+plannerCard()+'</details><div id="mealDialogContainer"></div></section>';
+ '<details class="ncc-plan-notes"><summary>Totales de mi Dieta Guía</summary><p>Valores del menú de referencia, sin registrar alimentos.</p><p>'+num(totals.totals.k)+' kcal · P '+num(totals.totals.p,1)+' g · HC '+num(totals.totals.c,1)+' g · G '+num(totals.totals.f,1)+' g</p></details><div id="mealDialogContainer"></div></section>';
 }
 let studentGuideSheet=null;
 const studentGuideDrafts=new Map();
@@ -1755,9 +1755,9 @@ async function saveStudentGuideSelection(){
 }
 
 function studentPlannerView(){
- if(currentStudentGuide())return studentGuideView();
- return rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
- plannerCard()+'<div id="mealDialogContainer"></div>';
+ if(currentStudentGuide())return '<div class="ncc-plan-workspace">'+studentGuideView()+'<section class="ncc-plan-planning">'+plannerCard()+'</section></div>';
+ return '<div class="ncc-plan-workspace" data-no-guide="true"><section class="ncc-plan-guide-empty card"><h1>Mi Dieta Guía</h1><p>Acá verás tu Dieta Guía cuando esté disponible.</p></section><section class="ncc-plan-planning">'+rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
+ plannerCard()+'</section><div id="mealDialogContainer"></div></div>';
 }
 function adminMoreView(){
  return personalSpaceMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[

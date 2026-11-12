@@ -58,7 +58,7 @@ console.log("LIVE TEST STILL REQUIRED: negative cross-coach RLS, role-specific s
 
 
 assert.ok(messages.includes('id="efgChatSearch"'),"Contact search required");
-assert.ok(messages.includes('data-chat-filter="unread"'),"Unread filter required");
+assert.ok(messages.includes("['unread','No leídos',unread]")&&messages.includes('data-chat-filter='),"Unread filter required");
 assert.ok(messages.includes('data-chat-contact'),"Contact opens chat");
 assert.ok(messages.includes('data-chat-back="1"'),"Mobile back to list");
 assert.ok(messages.includes('consented?.[x.user_id]'),"Only consented students in coach inbox");

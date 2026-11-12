@@ -80,9 +80,9 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  const stage=(n,title)=>guided?'<section data-intakepanel="'+n+'" '+(n?'hidden':'')+'><h3 tabindex="-1">'+title+'</h3>':'';
  const endStage=n=>guided?'<div class="ncc-intake-actions">'+(n?'<button class="btn light" type="button" data-intakestep="'+(n-1)+'">Atrás</button>':'')+(n<3?'<button class="btn" type="button" data-intakenext="'+(n+1)+'">Continuar</button>':'')+'</div></section>':'';
  return '<section class="card efg-coach-relaunch" aria-labelledby="efgCoachRelaunchTitle">'+
- '<span class="eyebrow">Nutrición Con-Ciencia COACH · NUEVA ETAPA</span>'+
- '<h2 id="efgCoachRelaunchTitle">'+(editing?'Revisar mi ficha nueva':'Conozcámonos de nuevo')+'</h2>'+ 
- (guided?'<p>Vamos de a poco. Revisá tus datos en cuatro pasos; lo ya guardado aparece completo.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
+ '<span class="eyebrow">NUTRICIÓN CON-CIENCIA · MI FICHA</span>'+
+ '<h2 id="efgCoachRelaunchTitle">'+(editing?'Mi ficha':'Conozcámonos')+'</h2>'+
+ (guided?'<p>Tus datos, comidas y rutina, cada uno en su solapa. Al final elegís si compartir la ficha con tu coach.</p>':'<p>Estrenamos herramientas. Revisá esta ficha inicial, incluso si ya usabas Nutrición Con-Ciencia. Tus registros, tu plan y tus mensajes anteriores se conservan.</p>')+
  '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Compartir la ficha requiere tu autorización separada y revocable. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form"'+(guided?' novalidate data-intakewizard':'')+'>'+
  (guided?'<nav class="ncc-intake-steps" aria-label="Pasos de tu ficha">'+labels.map((label,n)=>'<button type="button" data-intakestep="'+n+'" aria-pressed="'+(n===0)+'">'+(n+1)+'. '+label+'</button>').join('')+'</nav><p data-intakeprogress role="status">Paso 1 de 4 · Tus datos</p>':'')+

@@ -36,7 +36,8 @@ try{for(const engine of ['chromium','webkit']){
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  // Capture an actual phone-sized viewport, without hiding header or bottom navigation.
  await page.setViewportSize({width,height:width===390?844:740});
- await page.evaluate(()=>{const report=document.querySelector('.ncc-gap-report'),header=document.querySelector('.efg-mobile-header');window.scrollBy(0,report.getBoundingClientRect().top-(header?.getBoundingClientRect().bottom||0)-8);});
+ await page.evaluate(()=>{const report=document.querySelector('.ncc-gap-report'),header=document.querySelector('.efg-mobile-header');report.scrollIntoView({block:'start',behavior:'instant'});window.scrollBy({top:-(header?.getBoundingClientRect().bottom||0)-8,behavior:'instant'});});
+ await page.waitForFunction(()=>document.querySelector('.ncc-gap-card').getBoundingClientRect().top<innerHeight-100);
  const compact=await page.locator('.ncc-gap-card').evaluateAll(cards=>cards.map(e=>({height:e.getBoundingClientRect().height,font:parseFloat(getComputedStyle(e.querySelector('strong')).fontSize)})));
  assert.ok(compact.every(c=>c.height<105&&c.font>=20&&c.font<=22),'Compact readable summary cards');
  assert.equal(await page.locator('.pilot-nav').isVisible(),true);

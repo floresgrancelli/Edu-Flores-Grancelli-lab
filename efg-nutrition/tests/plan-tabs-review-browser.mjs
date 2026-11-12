@@ -26,7 +26,7 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 
 
 const base='f4260c2266178d6d90a9a1305788f552f521a561';
-const beforeAssets=new Map(['workspace-tabs.js','workspace-tabs.css'].map(file=>[file,execFileSync('git',['show',base+':efg-nutrition/pilot/'+file],{cwd:root})]));
+const beforeAssets=new Map(['workspace-tabs.js','workspace-tabs.css'].map(file=>[file,execFileSync('git',['-c','safe.directory='+root,'show',base+':efg-nutrition/pilot/'+file],{cwd:root})]));
 const evidence=[];
 try{for(const engine of ['chromium','webkit']){
  const browser=await engines[engine].launch({headless:true});

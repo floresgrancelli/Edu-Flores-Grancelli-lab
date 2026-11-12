@@ -210,3 +210,10 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .n
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] #studentMeals .meal-food-line{grid-template-columns:58px minmax(0,1fr) 52px}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-focus-energy>div{flex-direction:row;flex-wrap:nowrap}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-background=day] .ncc-day-tools-list>button{background:transparent!important;border:0!important;border-top:1px solid #535c49!important;border-radius:0!important;box-shadow:none!important;padding:10px 0!important;margin:0!important;color:#f2f1e5!important;text-transform:none!important;letter-spacing:0!important}
+
+@layer ncc-palette {
+ html.ncc-lime-theme #app .meal-popup .ncc-entry-save-options{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ html.ncc-lime-theme #app .meal-popup .ncc-entry-save-options button{min-width:0!important;min-height:56px!important;padding:8px 7px!important;font-size:15px!important;line-height:1.2!important;white-space:normal!important;text-transform:none!important;letter-spacing:normal!important}
+ html.ncc-lime-theme #app .meal-popup .ncc-entry-save-options [data-act=saveSelectedMeal]{background:#b1c579!important;color:#142018!important}
+ html.ncc-lime-theme #app .meal-popup .ncc-entry-save-options [data-act=saveSelectedMealContinue]{background:#172826!important;color:#f0f1e7!important;border:1px solid #4d605b!important;box-shadow:none!important}
+}

@@ -5872,7 +5872,8 @@ root.addEventListener("change",e=>{
   syncPilotParticipationContinueButton(document);return;
  }
  if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
-root.addEventListener('input',e=>{if(e.target.matches('[data-guideentryqty],[data-guideentrycheck]'))updateStudentGuideSummary();});
+function onStudentGuideInput(e){if(e.target.matches('[data-guideentryqty],[data-guideentrycheck]'))updateStudentGuideSummary();}
+root.addEventListener('input',onStudentGuideInput);
 document.addEventListener("keydown",event=>{
  const planTab=event.target.closest?.('[data-studentguideslot]');
  if(planTab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){

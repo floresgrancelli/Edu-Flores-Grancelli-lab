@@ -45,7 +45,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('.ncc-progress-main-tabs [data-progresssection='+section+']').click();
  assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
- if(section==='reports'){await page.locator('#nccProgress-reports details').first().locator('summary').click();assert.equal(await page.locator('#nccProgress-reports [data-act=replyWeeklyReport]').count(),1);}
+ if(section==='reports'){await page.locator('#nccProgress-reports details').first().locator(':scope > summary').click();assert.equal(await page.locator('#nccProgress-reports [data-act=replyWeeklyReport]').count(),1);}
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+section+'.png'),fullPage:true});
  }
  await page.locator('.ncc-progress-main-tabs [data-progresssection=summary]').click();

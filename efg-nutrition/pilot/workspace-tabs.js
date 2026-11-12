@@ -22,6 +22,19 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
  const main=root.querySelector('.pilot-main');if(!main)return;
  const shared=main.querySelector('.coach-intake-shared');
  if(shared){const data=shared.querySelector('.ncc-intake-data');if(data){group(data,'nccReceivedIntakeSections',[['basic','Datos y objetivo',[...data.querySelectorAll('[data-intake-detail=basic]')]],['food','Comidas y rutina',[...data.querySelectorAll('[data-intake-detail=food]')]]]);}}
+ const payments=main.querySelector('.ncc-payments-workspace');
+ if(payments){
+  group(payments,'nccPaymentSections',[...payments.querySelectorAll(':scope > [data-payment-section]')].map(p=>[p.dataset.paymentSection,p.dataset.paymentLabel,[p]]));
+  for(const scope of payments.querySelectorAll('[data-payment-section]')){
+   const buttons=[...scope.querySelectorAll('[data-payment-filter]')];
+   for(const button of buttons)button.addEventListener('click',()=>{
+    const filter=button.dataset.paymentFilter;let visible=0;
+    for(const card of scope.querySelectorAll('[data-payment-status]')){card.hidden=filter!=='all'&&card.dataset.paymentStatus!==filter;if(!card.hidden)visible++;}
+    buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+    const empty=scope.querySelector('.ncc-payment-filter-empty');if(empty)empty.hidden=visible>0||filter==='all';
+   });
+  }
+ }
  if(tab==='planner'&&role==='student'){
   const plan=main.querySelector('.ncc-plan');if(!plan)return;
   const notes=[...plan.querySelectorAll(':scope > .ncc-plan-notes')].map(n=>{const section=document.createElement('section');section.className=n.className;const summary=n.querySelector(':scope > summary');if(summary){const h=document.createElement('h2');h.textContent=summary.textContent;summary.replaceWith(h);}n.replaceWith(section);section.append(...n.childNodes);return section;});

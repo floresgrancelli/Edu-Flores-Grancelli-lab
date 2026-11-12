@@ -60,3 +60,11 @@ html.ncc-lime-theme #app .ncc-progress-main-tabs{display:grid;grid-template-colu
 .ncc-progress-shortcuts button{flex:1;min-width:100px}
 .ncc-progress-weight-preview>summary{cursor:pointer;font-weight:700;padding:8px 0}
 }
+
+html.ncc-lime-theme #app .ncc-payments-workspace [hidden]{display:none!important}
+html.ncc-lime-theme #app .ncc-payment-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+html.ncc-lime-theme #app .ncc-payment-filters button{min-height:44px;background:#172826!important;color:#f0f1e7!important;border:1px solid #526052;border-radius:12px;font-size:14px;text-transform:none!important;letter-spacing:normal!important}
+html.ncc-lime-theme #app .ncc-payment-filters button[aria-pressed=true]{background:#b1c579!important;color:#142018!important}
+.ncc-payments-workspace [data-payment-status]>.between{flex-wrap:wrap;gap:8px}
+.ncc-payments-workspace .efg-payment-target{overflow-wrap:anywhere}
+.ncc-payment-filter-empty{padding:16px;background:#25212c;border-radius:12px}

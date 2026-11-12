@@ -16,7 +16,7 @@ const callbacks=[...section(fixture,'// Student reads the actual serialized INSE
  .map(match=>match[1]+'\n  }');
 assert.equal(callbacks.length,2,'Incomplete transition followed by explicit post-onboarding input');
 const renderPrefix=section(source,'async function render(){',' if(state.profile.role==="student"&&COACH_RELAUNCH_ONBOARDING_ENABLED)');
-const loader=section(source,'async function loadMyWeeklyReports(){','function weeklyStudentPanel(){');
+const loader=section(source,'async function loadMyWeeklyReports(week=null){','function weeklyStudentPanel(){');
 const rows=[{id:'own-saved-report',student_id:'demo-student-a',report_text:'FICTICIO saved snapshot'},
  {id:'other-report',student_id:'other-fictitious-student',report_text:'Must not load'}];
 async function run(readyCallback){

@@ -1,5 +1,5 @@
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-plan-tabs-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-planner-compact-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);

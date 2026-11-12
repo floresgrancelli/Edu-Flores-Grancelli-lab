@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 export async function assertCompactProgress(page,screenshot){
  const panels=page.locator('[data-progresspanel]');
- assert.equal(await panels.count(),3);
+ assert.equal(await panels.count(),5);
  assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
  assert.equal(await page.locator('[data-progresspanel]:visible').getAttribute('data-progresspanel'),'summary');
  await page.waitForFunction(()=>getComputedStyle(document.querySelector('.ncc-progress-tabs [aria-pressed=true]')).backgroundColor==='rgb(25, 34, 16)');
@@ -13,13 +13,13 @@ export async function assertCompactProgress(page,screenshot){
  await page.locator('[data-progresssection="activity"]').click();
  const oldSteps=await page.locator('#activitySteps').inputValue();
  await page.locator('#activitySteps').fill('4321');
- await page.locator('[data-progresssection="summary"]').focus();await page.keyboard.press('Enter');
- await page.locator('[data-progress-range="30"]').click();
+ await page.locator('[data-progresssection="nutrition"]').focus();await page.keyboard.press('Enter');
+ await page.locator('[data-progresspanel]:visible [data-progress-range="30"]').click();
  await page.locator('[data-progresssection="weight"]').click();assert.equal(await page.locator('#weightKg').inputValue(),'79.2');
  await page.locator('#weightKg').fill(oldWeight);
  await page.locator('[data-progresssection="activity"]').click();assert.equal(await page.locator('#activitySteps').inputValue(),'4321');
  await page.locator('#activitySteps').fill(oldSteps);
- await page.locator('[data-progresssection="summary"]').click();await page.locator('[data-progress-range="7"]').click();
+ await page.locator('[data-progresssection="nutrition"]').click();await page.locator('[data-progresspanel]:visible [data-progress-range="7"]').click();
  assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
  assert.equal(await page.evaluate(()=>JSON.stringify([window.__EFG_VISUAL_QA__.state.weights,window.__EFG_VISUAL_QA__.state.activities])),initial,'Changing sections must not save records');
  const length=await page.evaluate(()=>{const panels=[...document.querySelectorAll('[data-progresspanel]')],compact=document.documentElement.scrollHeight;panels.forEach(p=>p.hidden=false);const expanded=document.documentElement.scrollHeight;panels.forEach(p=>p.hidden=p.dataset.progresspanel!=='summary');return {compact,expanded};});

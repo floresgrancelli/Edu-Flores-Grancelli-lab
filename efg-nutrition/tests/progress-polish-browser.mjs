@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 export async function assertProgressPolish(page,screenshot){
+ await page.locator('[data-progresssection="consistency"]').click();
  const facts=page.locator('.ncc-progress-facts');
  assert.equal(await facts.count(),1);
  await page.locator('[data-progress-highlights="hide"]').click();

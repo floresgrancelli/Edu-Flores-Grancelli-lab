@@ -4856,7 +4856,7 @@ async function mainClick(event){
   await render();document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
   document.querySelector('[data-progress-highlights]')?.focus({preventScroll:true});return;
  }
- if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
+ if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector("[data-progresspanel]:not([hidden]) .efg-progress-dashboard, .coach-student-profile .efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.studentDayGuide){
   if(state.profile?.role!=="student"||state.tab!=="home"||!state.foodPlan?.guided_plan||!state.goals.some(x=>x.id===state.foodPlan.guided_goal_id))return;
   const guide=document.getElementById("nccStudentDayGuide");

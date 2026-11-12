@@ -1188,11 +1188,12 @@ try{
      for(const heading of ["Energía y macronutrientes","Objetivos nutricionales","Constancia de registro","Energía por comida"]){
        if(!(await page.getByText(heading,{exact:true}).count()))pageReport.errors.push("Missing chart "+heading);
      }
-     await page.locator('[data-progress-range="30"]').click();
-     if((await page.locator('[data-progress-range="30"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("30-day filter not activated");
-     await page.locator('[data-progress-range="90"]').click();
-     if((await page.locator('[data-progress-range="90"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("90-day filter not activated");
-     await page.locator('[data-progress-range="7"]').click();
+     await page.locator('[data-progresssection="nutrition"]').click();
+     await page.locator('[data-progresspanel]:visible [data-progress-range="30"]').click();
+     if((await page.locator('[data-progresspanel]:visible [data-progress-range="30"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("30-day filter not activated");
+     await page.locator('[data-progresspanel]:visible [data-progress-range="90"]').click();
+     if((await page.locator('[data-progresspanel]:visible [data-progress-range="90"]').getAttribute("aria-pressed"))!=="true")pageReport.errors.push("90-day filter not activated");
+     await page.locator('[data-progresspanel]:visible [data-progress-range="7"]').click();
    }
    if(role==="student"&&dest==="home"){
     const summary=page.locator('.ncc-focus-summary');

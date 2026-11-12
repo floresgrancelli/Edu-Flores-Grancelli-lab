@@ -122,3 +122,15 @@
  @media print {html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{display:none!important}}
  @media(forced-colors:active){html.ncc-lime-theme #app :is(button,input,select,textarea){forced-color-adjust:auto}}
 }
+
+@layer ncc-palette {
+ html.ncc-lime-theme #pilot-toast.ncc-inline-notice{position:static!important;inset:auto!important;transform:none!important;width:100%!important;max-width:none!important;box-sizing:border-box;padding:6px 10px!important;margin:8px 0!important;gap:8px!important;border:1px solid var(--ncc-petrol-line,#496b64)!important;border-radius:12px!important;box-shadow:none!important;animation:none!important;background:#172826!important;color:#f0f1e7!important;font-size:13px!important;line-height:1.4!important;pointer-events:auto!important}
+ html.ncc-lime-theme #pilot-toast.ncc-inline-notice>span{flex:1;min-width:0;overflow-wrap:anywhere}
+ html.ncc-lime-theme #pilot-toast.ncc-inline-notice>button{width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;font-size:22px!important;background:transparent!important;color:#b1c579!important;border:0!important;border-radius:10px!important}
+ html.ncc-lime-theme #pilot-toast[hidden]{display:none!important}
+}
+
+@layer ncc-palette {
+ html.ncc-lime-theme #pilot-toast.ncc-inline-notice[data-notice-kind=error]{border-color:#a85b58!important}
+ html.ncc-lime-theme #pilot-toast.ncc-inline-notice[data-notice-kind=error]>span{color:#ffb7b2!important}
+}

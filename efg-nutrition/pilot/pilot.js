@@ -1,3 +1,4 @@
+import {createOperationNotices} from './operation-notices.js?v=ncc-compact-notices-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-planner-compact-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
@@ -612,15 +613,8 @@ const messages=createMessagesCenter({sb,
  }),
  afterSend:()=>inbox.refresh()
 });
-const notify=(msg)=>{
- const e=document.getElementById("pilot-toast");
- const text=document.createElement('span');text.textContent=msg;
- const close=document.createElement('button');close.type='button';close.textContent='Cerrar';close.setAttribute('aria-label','Cerrar aviso');
- close.onclick=()=>{clearTimeout(notify.timer);e.style.display='none';};
- e.replaceChildren(text,close);e.style.display="flex";clearTimeout(notify.timer);
- const hideLater=()=>{clearTimeout(notify.timer);notify.timer=setTimeout(()=>{if(!e.contains(document.activeElement))e.style.display='none';},4500);};
- e.onfocusin=()=>clearTimeout(notify.timer);e.onfocusout=hideLater;hideLater();
-};
+const notify=createOperationNotices({element:document.getElementById('pilot-toast'),
+ context:()=>({owner:[state.session?.user?.id||'anonymous',state.authContextEpoch||0,today()].join('|'),view:state.tab})});
 const coachIntakeFlow=createCoachIntakeFlow({sb,state,escapeHTML,rootText,notify,render,refresh});
 const coachDraftClient=createCoachPlanDraftClient({sb,enabled:COACH_ATOMIC_PLAN_UI_ENABLED,
  versionedBackendVerified:COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED});
@@ -673,7 +667,7 @@ async function refreshFoodCompatibilityEvidence(){
  }
 }
 const studentPlanPending=()=>coachIntakeFlow.pending();
-const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.");};
+const fail=(error)=>{console.error(error);notify(error?.message||"Ocurrió un problema. Intentá nuevamente.",{kind:"error"});};
 const values=(items)=>items.reduce((a,it)=>{for(const k of ["k","p","c","f","fi"])a[k]+=(Number(it[k])||0);return a;},{k:0,p:0,c:0,f:0,fi:0});
 const dailyTotals=(diary)=>values([...(Object.entries(diary?.meals||{}).filter(([slot])=>!diary?.skipped?.[slot]).flatMap(([,items])=>items||[])),...(diary?.sports||[])]);
 const blankDiary=()=>({student_id:state.session.user.id,log_day:today(),meals:structuredClone(mealDefault),sports:[],skipped:{},totals:{}});
@@ -932,7 +926,7 @@ async function deleteChosenHabitual(slot){
   }
   state.habitualSelection[slot]="";
   await render();
-  notify('Habitual local eliminado. Tus diarios históricos están intactos.');
+  notify('Habitual local eliminado. Tus diarios históricos están intactos.',{kind:'success',slot});
   return;
  }
   const {data,error}=await sb.from("efg_habitual_meals").delete().eq("id",fav.id).eq("student_id",userId).eq("meal_slot",slot).select("id");
@@ -943,7 +937,7 @@ async function deleteChosenHabitual(slot){
  state.habitualesLoadToken=null;
  cloudHabituales=cloudHabituales.filter(x=>x.id!==fav.id);
  state.habitualSelection[slot]="";
- await render();notify('Habitual eliminado. Tus diarios históricos están intactos.');
+ await render();notify('Habitual eliminado. Tus diarios históricos están intactos.',{kind:'success',slot});
  });
 }
 async function applyChosenHabitual(slot){
@@ -967,7 +961,7 @@ async function applyChosenHabitual(slot){
  }
  // An A-account write must not toast or mutate B after an account/day switch.
  if(state.session?.user?.id===ownerId&&today()===ownerDay)
-  notify('Habitual «'+fav.name+'» registrado en '+(mealSlots.find(m=>m[0]===slot)?.[1]||slot)+'.');
+  notify('Habitual «'+fav.name+'» registrado.',{kind:'success',slot});
  });
 }
 async function habitualAction(slot,action){
@@ -1015,7 +1009,7 @@ async function habitualAction(slot,action){
   // preview are visible immediately, rather than hidden in a closed <details>.
   state.lastEditedMeal=slot;
   await render();
-  notify("Guardaste «"+clean+"». Ya podés verlo y elegirlo en Mis habituales.");
+  notify("Guardaste «"+clean+"». Ya podés verlo y elegirlo en Mis habituales.",{kind:"success",slot});
   return;
  }
  const favorites=getHabitualList(slot);
@@ -1038,7 +1032,7 @@ async function habitualAction(slot,action){
   throw error;
  }
  if(state.session?.user?.id===ownerId&&today()===ownerDay)
-  notify("Comida habitual registrada; balance recalculado.");
+  notify("Habitual registrado · balance actualizado.",{kind:"success",slot});
  });
 }
 function recipeStoreKey(){return "efg-nutrition-custom-recipes:"+state.session?.user?.id;}
@@ -1258,7 +1252,7 @@ async function confirmRecipeRegistration(){
   }
   // A delayed account A completion must not close B's popup or toast B.
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-   recipeRegistrationBusy=false;closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+   recipeRegistrationBusy=false;closeRecipeRegistration();notify("Receta registrada y macros recalculados.",{kind:"success"});
   }
  }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot,slotLease);}
 }
@@ -1383,6 +1377,7 @@ async function completeWelcome(){
  }finally{state.welcomeSubmitting=false;}
 }
 function loginView(message=""){
+ notify.clear();
  const verification=!!state.otpEmail;
  const title=verification?"Revisá tu correo":"Ingresá a tu espacio privado.";
  const details=verification
@@ -1641,7 +1636,7 @@ async function registerFitRecipe(id,selection){
    if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))state.diary=beforeDiary;
    throw error;
   }
-  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".");
+  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Agregaste "+num(qty,1)+" porción(es) de "+recipe.name+".",{kind:"success",slot});
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 function studentSupplementsView(){
@@ -1747,7 +1742,7 @@ async function saveStudentGuideSelection(){
   d.skipped={...d.skipped,[sheet.slot]:false};
   await saveDiary();
   studentGuideDrafts.delete(sheet.key);
-  if(studentGuideSheetCurrent(sheet)&&studentGuideSheet===sheet){studentGuideSheet=null;document.getElementById('nccPlanOverlay')?.remove();notify('Comida registrada. Conservamos los alimentos que ya tenías.');document.querySelector('[data-studentguideregister="'+CSS.escape(sheet.slot)+'"]')?.focus({preventScroll:true});}
+  if(studentGuideSheetCurrent(sheet)&&studentGuideSheet===sheet){studentGuideSheet=null;document.getElementById('nccPlanOverlay')?.remove();notify('Comida registrada. Conservamos los alimentos que ya tenías.',{kind:'success',slot:sheet.slot});document.querySelector('[data-studentguideregister="'+CSS.escape(sheet.slot)+'"]')?.focus({preventScroll:true});}
  }catch(e){
   d.meals=before.meals;d.skipped=before.skipped;
   if(studentGuideSheetCurrent(sheet)){state.diary=beforeDiary;if(notice.isConnected)notice.textContent=e.message||'No pudimos guardar. Volvé a intentar.';}
@@ -2259,7 +2254,7 @@ async function addPlannedFood(key){
   }
   throw error;
  }
- if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.");
+ if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.",{kind:"success",slot});
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
 let mealDialogReturnFocus=null;
@@ -2277,8 +2272,7 @@ function openDiaryFoodDialog(ref,remove=false){
  const [slot,indexText]=ref.split(':'),index=Number(indexText),d=activeDiary(),item=d.meals?.[slot]?.[index];
  if(!mealSlots.some(([key])=>key===slot)||!Number.isInteger(index)||index<0||!item)return;
  if(pendingMealRegistrations.has(slot)||state.diaryWritePending)return;
- const previousNotice=document.getElementById("pilot-toast");
- if(previousNotice){previousNotice.style.display="none";clearTimeout(notify.timer);}
+ notify.clear();
  selectDayMeal(slot);if(!document.activeElement?.closest('.meal-popup'))mealDialogReturnFocus=document.activeElement;
  const units=Number(item.displayQty)>0,quantity=units?item.displayQty:item.qty;
  const host=document.getElementById('mealDialogContainer');
@@ -2312,7 +2306,7 @@ async function saveDiaryFoodDialog(button){
    selectDayMeal(slot);
    const target=remove?document.querySelector('[data-daymeal="'+slot+'"]'):document.querySelector('[data-editfood="'+slot+':'+index+'"]');
    target?.focus({preventScroll:true});
-   notify(remove?'Alimento eliminado. Balance actualizado.':'Cantidad actualizada. Balance actualizado.');
+   notify(remove?'Alimento eliminado · balance actualizado.':'Cantidad actualizada · balance actualizado.',{kind:'success',slot});
   }
  }catch(error){
   d.meals[slot]=previousItems;d.skipped=previousSkipped;
@@ -2329,8 +2323,7 @@ function closeMealDialog(){
  mealDialogReturnFocus=null;
 }
 function openMealDialog(slot,initialGroup="protein"){
- const previousNotice=document.getElementById("pilot-toast");
- if(previousNotice){previousNotice.style.display="none";clearTimeout(notify.timer);}
+ notify.clear();
  const meal=mealSlots.find(m=>m[0]===slot);if(!meal)return;
  const guided=isGuidedMealSlot(slot);
  activeGuidedMealGroup=guided&&GUIDED_MEAL_GROUPS.some(g=>g.id===initialGroup)?initialGroup:"protein";
@@ -2559,7 +2552,7 @@ async function saveSelectedMeal(continueGuided=false){
  }
  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
   if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
-  notify("Alimento agregado, balance actualizado.");
+  notify("Alimento agregado · balance actualizado.",{kind:"success",slot});
  }
  }finally{
   pendingMealRegistrations.delete(slot,slotLease);
@@ -3562,6 +3555,7 @@ function coachSessionIdentity(session,user){
 function setCoachSessionIdentity(session,user){
  const id=coachSessionIdentity(session,user);
  if(state.session?.user?.id!==user?.id||state.session?.session_id!==id){
+  notify.clear();
   coachAdaptedWorkspace.close();
  }
  state.session=user?{user,session_id:id}:null;
@@ -4142,7 +4136,7 @@ async function render(){
  if(state.tab==="messages")messages.mount();
  if(state.tab==="planner")updatePlannerPreview();
  if(state.tab==="sport")updateSportHint();
- }finally{if(state.profile?.active)professionalReleaseFrame.mountUnframedRoot?.(root);}
+ }finally{if(state.profile?.active)professionalReleaseFrame.mountUnframedRoot?.(root);notify.mount();}
 }
 function updateFoodHint(){
  const id=document.getElementById("mealFood")?.value||foods[0].id;

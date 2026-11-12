@@ -180,7 +180,9 @@ try{for(const role of ['coach','admin'])for(const width of [360,390,1280]){
  assert.equal(await page.locator('#coachGuidePreview').count(),0);assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.tab),'coachStudents');assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.selectedStudent),null);assert.equal(await page.locator('#coachRosterSection').count(),1);assert.match(await page.locator('#coachRosterSection').innerText(),/Alumno ficticio/);assert.equal(await page.evaluate(()=>document.activeElement.id),'coachRosterSection');
  assert.equal(await page.evaluate(()=>window.__GUIDE_QA__.state.coachPlanPublishRequestId),null);
  if(width<720){
-  await page.locator('#pilot-toast').waitFor({state:'hidden'});
+  const notice=page.locator('#pilot-toast');
+  if(await notice.isVisible())await notice.getByRole('button',{name:'Cerrar aviso'}).click();
+  await notice.waitFor({state:'hidden'});
   for(const route of ['private','review','ready']){
    await page.evaluate(route=>{const v=window.__GUIDE_QA__;v.state.profile={role:'student',active:true,nickname:'Alumno ficticio'};v.state.coachPilotEntry={route};v.state.tab='studentMore';v.frame(v.studentMoreView());},route);
    const nav=page.locator('.pilot-nav .navitem');assert.ok(await nav.count()<=5);

@@ -15,6 +15,9 @@ writeFileSync(staged,readFileSync(staged,'utf8').replace('export const DUAL_WORK
 const pilot=resolve(preview,'dist/efg-nutrition/pilot/pilot.js');
 writeFileSync(pilot,readFileSync(pilot,'utf8').replaceAll('../tests/student-day-visual-sdk.mjs','../tests/food-entry-sdk.mjs'));
 copyFileSync(resolve(root,'efg-nutrition/tests/food-entry-sdk.mjs'),resolve(preview,'dist/efg-nutrition/tests/food-entry-sdk.mjs'));
+// Restore this editorial module's public photo URLs only; the generic adapter
+// replaces every external URL with a placeholder. Auth/SDK isolation stays intact.
+copyFileSync(resolve(root,'efg-nutrition/pilot/nutrition-daily-tip.js'),resolve(preview,'dist/efg-nutrition/pilot/nutrition-daily-tip.js'));
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -57,7 +60,8 @@ try{for(const engine of (process.env.NCC_TIP_ENGINES||'chromium,webkit').split('
  await page.locator('[data-daymeal="almuerzo"]').click();await page.locator('#nccDayTools > summary').click();await page.locator('#nccDayTools > summary').click();
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);
  assert.equal(await tip.isVisible(),false);
- if(photoBytes)await page.locator('.ncc-tip-thumb img').evaluate(img=>img.decode());
+ await summary.scrollIntoViewIfNeeded();
+ if(photoBytes)await page.waitForFunction(()=>document.querySelector('.ncc-tip-thumb img')?.naturalWidth>0);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  assert.equal(await page.locator('[data-ncc-dual-panel]').count(),0);
  assert.deepEqual(errors,[]);

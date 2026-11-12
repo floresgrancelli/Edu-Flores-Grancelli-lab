@@ -3,9 +3,9 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan{max-width:440px!
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan h1{font-size:30px!important;line-height:1.15!important;margin:0 0 4px!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan h2{font-size:22px!important;margin:16px 0 10px!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-subtitle{font-size:15px!important;margin:0 0 16px!important}
-html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target{display:grid!important;grid-template-columns:1.8fr repeat(3,1fr)!important;gap:8px!important;align-items:center!important;border:1px solid #87955f!important;border-radius:10px!important;padding:12px!important;background:#172012d9!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target{display:grid!important;grid-template-columns:2.5fr repeat(3,1fr)!important;gap:8px!important;align-items:center!important;border:1px solid #87955f!important;border-radius:10px!important;padding:12px!important;background:#172012d9!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target>div{border-right:1px solid #87955f!important;padding-right:10px!important}
-html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target strong{display:block!important;font-size:25px!important;margin-top:4px!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target strong{display:block!important;font-size:24px!important;white-space:nowrap!important;margin-top:4px!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target>span{font-size:14px!important;text-align:center!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target span b{display:block!important;font-size:14px!important;margin-top:5px!important}
 html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;margin-bottom:14px!important}
@@ -53,15 +53,15 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .efg-mobile-brand-text str
 body:has(.ncc-plan-overlay){overflow:hidden}
 body:has(.ncc-plan-overlay) :is(.pilot-nav,.efg-notifications){visibility:hidden!important}
 #app .ncc-plan-overlay{position:fixed;inset:0;z-index:30000;background:#0b120c;overflow-y:auto;overscroll-behavior:contain;color:#f0f1e5;font-family:Arial,Helvetica,sans-serif}
-#app .ncc-plan-sheet{max-width:440px;min-height:100dvh;box-sizing:border-box;margin:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(#0b120ccc,#0b120c 190px),url('./assets/guide/chicken-r1.webp') right top/210px auto no-repeat}
-#app .ncc-plan-sheet :is(h2,p,strong,span,label,small,button,input){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal!important;text-transform:none!important;color:#f0f1e5!important}
+html.ncc-lime-theme #app .ncc-plan-sheet{max-width:440px;min-height:100dvh;box-sizing:border-box;margin:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(#0b120ccc,#0b120c 190px),url('./assets/guide/chicken-r1.webp') right top/210px auto no-repeat}
+html.ncc-lime-theme #app .ncc-plan-sheet :is(h2,p,strong,span,label,small,button,input){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal!important;text-transform:none!important;color:#f0f1e5!important}
 #app .ncc-plan-brand{display:flex;gap:9px;align-items:center;min-height:44px;margin-bottom:20px}
 #app .ncc-plan-brand strong{font-size:15px!important;line-height:1.05!important}
 #app .ncc-plan-brand img{width:38px;height:30px;object-fit:contain}
-#app .ncc-plan-sheet-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
-#app .ncc-plan-sheet-title h2{font-size:26px!important;margin:0!important;line-height:1.15!important}
-#app .ncc-plan-sheet-title button{min-width:44px;min-height:44px;background:transparent!important;border:0!important;font-size:34px!important;padding:0!important}
-#app .ncc-plan-sheet p{font-size:15px!important;line-height:1.4!important;margin:10px 0 18px}
+html.ncc-lime-theme #app .ncc-plan-sheet-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html.ncc-lime-theme #app .ncc-plan-sheet-title h2{font-size:26px!important;margin:0!important;line-height:1.15!important}
+html.ncc-lime-theme #app .ncc-plan-sheet-title button{min-width:44px;min-height:44px;background:transparent!important;border:0!important;font-size:34px!important;padding:0!important}
+html.ncc-lime-theme #app .ncc-plan-sheet p{font-size:15px!important;line-height:1.4!important;margin:10px 0 18px}
 #app .ncc-plan-entry-list{display:flex;flex-direction:column;gap:12px;margin:24px 0}
 #app .ncc-plan-entry{display:grid;grid-template-columns:64px minmax(0,1fr) 75px 32px;align-items:center;gap:9px;border:1px solid #87955f;border-radius:12px;padding:8px;background:#172012}
 #app .ncc-plan-entry strong{font-size:15px!important;line-height:1.2!important;overflow-wrap:anywhere}
@@ -75,10 +75,13 @@ body:has(.ncc-plan-overlay) :is(.pilot-nav,.efg-notifications){visibility:hidden
 #app .ncc-plan-selected strong{font-size:26px!important}
 #app .ncc-plan-selected small{grid-column:1/-1;text-align:center;font-size:15px!important}
 #app .ncc-plan-existing{border:1px solid #87955f;border-radius:9px;padding:10px}
-#app .ncc-plan-sheet .ncc-plan-primary,#app .ncc-plan-cancel{width:100%;min-height:44px;box-sizing:border-box;border-radius:9px!important;padding:11px!important;margin:10px 0!important;font-size:17px!important;box-shadow:none!important}
-#app .ncc-plan-sheet .ncc-plan-primary{background:#a5be69!important;color:#10170d!important;border:0!important;font-weight:700!important}
-#app .ncc-plan-cancel{background:transparent!important;border:1px solid #a4af89!important}
+html.ncc-lime-theme #app .ncc-plan-sheet .ncc-plan-primary,html.ncc-lime-theme #app .ncc-plan-cancel{width:100%;min-height:44px;box-sizing:border-box;border-radius:9px!important;padding:11px!important;margin:10px 0!important;font-size:17px!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-plan-sheet .ncc-plan-primary{background:#a5be69!important;color:#10170d!important;border:0!important;font-weight:700!important}
+html.ncc-lime-theme #app .ncc-plan-cancel{background:transparent!important;border:1px solid #a4af89!important}
 #app :is(.ncc-plan,.ncc-plan-sheet) :is(button,input,summary):focus-visible{outline:3px solid #c8d997!important;outline-offset:3px}
 #app #nccPlanError{color:#ffc8b8!important}
 @media(max-width:350px){#app .ncc-plan-entry{grid-template-columns:50px minmax(0,1fr) 62px 26px;gap:6px}#app .ncc-plan-entry .ncc-plan-photo{width:50px;height:62px}#app .ncc-plan-entry input[type=text]{width:43px!important}#app .ncc-plan-entry strong{font-size:14px!important}}
 @media(prefers-reduced-motion:reduce){.ncc-plan *,.ncc-plan-sheet *{scroll-behavior:auto!important}}
+
+html.ncc-lime-theme #app .pilot-layout[data-ncc-plan]::before{left:auto!important;right:0!important;transform:none!important;width:220px!important;height:170px!important;opacity:.2!important;mask-image:linear-gradient(90deg,transparent,#000)!important;-webkit-mask-image:linear-gradient(90deg,transparent,#000)!important}
+@media(max-width:350px){html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target strong{font-size:20px!important}html.ncc-lime-theme #app .pilot-layout[data-ncc-plan] .ncc-plan-target b{font-size:13px!important}}

@@ -29,18 +29,20 @@ try{for(const engine of ['chromium','webkit']){
  await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async()=>{
  const v=window.__NCC_R4_FULLAPP__,s=v.state;s.tab='planner';Object.assign(s.goals[0],{kcal:2100,protein_g:150,carb_g:240,fat_g:60});
- s.foodPlan.guided_plan.meals.find(m=>m.slot==='almuerzo').items=[{id:'chicken',name:'Pollo a la plancha',qty:150,unit:'g',k:1.65,p:.31,c:0,f:.036,fi:0},{id:'rice',name:'Arroz integral cocido',qty:180,unit:'g',k:1.3,p:.027,c:.28,f:.003,fi:.004},{id:'broccoli',name:'Vegetales',qty:150,unit:'g',k:.34,p:.028,c:.066,f:.004,fi:.026}];
+ s.foodPlan.guided_plan.meals.find(m=>m.slot==='almuerzo').items=[{id:'chicken',name:'Pollo a la plancha',qty:150,unit:'g',k:1.65,p:.31,c:0,f:.036,fi:0},{id:'rice',name:'Arroz integral cocido',qty:180,unit:'g',k:1.3,p:.027,c:.28,f:.003,fi:.004},{id:'broccoli',category:'vegetable',name:'Vegetales',qty:150,unit:'g',k:.34,p:.028,c:.066,f:.004,fi:.026}];
  await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
  });
  await page.addStyleTag({content:'[aria-label="Espacios de la cuenta · candidata"]{display:none!important}'});
  await page.locator('[data-studentguideslot="almuerzo"]').click();await page.locator('[data-studentguideregister="almuerzo"]').waitFor();
  assert.equal(await page.locator('.ncc-plan-meal').count(),1);assert.equal(await page.locator('.ncc-plan-food').count(),3);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.locator('.ncc-plan-food img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
  await page.screenshot({path:resolve(out,engine+'-'+width+'-plan.png')});
  const original=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.foodPlan));
  const open=async()=>{await page.locator('[data-studentguideregister="almuerzo"]').click();await page.locator('.ncc-plan-sheet').waitFor();};
  const writes=()=>page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes);
  await open();assert.equal(await page.locator('.pilot-nav').isVisible(),false);
+ await page.locator('.ncc-plan-entry img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
  await page.screenshot({path:resolve(out,engine+'-'+width+'-review.png')});
  await page.locator('[data-guideentryqty="0"]').fill('125,5');await page.locator('[data-guideentrycheck="2"]').uncheck();await page.keyboard.press('Escape');assert.equal(await writes(),0);
  await page.locator('[data-studentguideslot="cena"]').click();await page.locator('[data-studentguideslot="almuerzo"]').click();await open();

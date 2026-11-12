@@ -795,7 +795,7 @@ console.log("PASS UX-SEARCH-EXPLICIT-CHOICE: no implicit planner food; meal quan
  const dialog={classList:{contains:name=>name==="meal-popup"}};
  const fakeDocument={
   addEventListener(name,handler){if(name==="keydown")onKeydown=handler;},
-  querySelector:()=>dialog,
+  querySelector:selector=>selector==='.ncc-plan-sheet'?null:dialog,
   getElementById:id=>id==="mealFoodSuggestions"?suggestions:id==="mealFoodSearch"?searchInput:null,
   activeElement:searchInput
  };

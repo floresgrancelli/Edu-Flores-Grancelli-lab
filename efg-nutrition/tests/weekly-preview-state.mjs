@@ -41,7 +41,7 @@ assert.match(source,/async function render\(\)\{\s*weeklyPdfReview\.close\(true\
 const resetSource=between('function resetPrivateSession(){','function handleAuthStateChange(');
 function assertSessionResetLifecycle(reset){
  const calls=[],sessionState={dualCandidateCoach:true,session:{user:{id:'SYNTHETIC_OLD'}},profile:{role:'coach'}};
- const context={recipeSheet:{owner:'OLD'},recipeSheetDrafts:new Map([['OLD',{qty:'2'}]]),recipeRegistrationBusy:true,state:sessionState,
+ const context={studentGuideSheet:{owner:'OLD'},studentGuideDrafts:new Map([['OLD',[{qty:'123'}]]]),recipeSheet:{owner:'OLD'},recipeSheetDrafts:new Map([['OLD',{qty:'2'}]]),recipeRegistrationBusy:true,state:sessionState,
   dualWorkspaceBootstrap:{invalidate:()=>calls.push('dual-bootstrap')},
   dualWorkspaceFrame:{invalidate:()=>calls.push('dual-frame')},
   professionalReleaseFrame:{invalidate:()=>calls.push('professional-release-frame')},
@@ -52,6 +52,7 @@ function assertSessionResetLifecycle(reset){
  assert.match(reset,/weeklyPdfReview\.close\(true\);luxuryWeeklyEditor\.reset\(\)/,
   'Forced weekly PDF close must still immediately precede editor reset');
  vm.runInNewContext(reset+';resetPrivateSession();',context);
+ assert.equal(context.studentGuideSheet,null);assert.equal(context.studentGuideDrafts.size,0);
  assert.equal(context.recipeSheet,null);assert.equal(context.recipeSheetDrafts.size,0);assert.equal(context.recipeRegistrationBusy,false);
  assert.deepEqual(calls,['dual-bootstrap','dual-frame','professional-release-frame','weekly-close-forced','weekly-editor'],
   'Each dual invalidation must execute once before the existing PDF/editor cleanup');

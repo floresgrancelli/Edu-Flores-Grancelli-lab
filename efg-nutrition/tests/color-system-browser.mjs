@@ -10,6 +10,11 @@ const preview='/workspace/ncc-food-entry-preview-'+process.pid,out=resolve(root,
 mkdirSync(out,{recursive:true});
 const prepare=spawnSync(process.execPath,['efg-nutrition/tests/prepare-student-day-visual.mjs',preview],{cwd:root,encoding:'utf8'});
 assert.equal(prepare.status,0,prepare.stderr);
+// This colour review uses the published arrangement, not the independent staged
+// dual-workspace experiment enabled by the generic fixture builder. Source flags
+// stay untouched; only the isolated copy is brought back to its published OFF.
+const staged=resolve(preview,'dist/efg-nutrition/pilot/dual-workspace-candidate.mjs');
+writeFileSync(staged,readFileSync(staged,'utf8').replace('export const DUAL_WORKSPACE_RELEASE_ENABLED = true;','export const DUAL_WORKSPACE_RELEASE_ENABLED = false;'));
 const pilot=resolve(preview,'dist/efg-nutrition/pilot/pilot.js');
 writeFileSync(pilot,readFileSync(pilot,'utf8').replaceAll('../tests/student-day-visual-sdk.mjs','../tests/workspace-tabs-sdk.mjs'));
 copyFileSync(resolve(root,'efg-nutrition/tests/workspace-tabs-sdk.mjs'),resolve(preview,'dist/efg-nutrition/tests/workspace-tabs-sdk.mjs'));
@@ -30,14 +35,16 @@ try{for(const engine of ['chromium','webkit']){
  await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  const snap=async name=>{
  await page.waitForTimeout(120);
- await page.evaluate(()=>{window.scrollTo(0,0);for(const e of document.querySelectorAll('#app,.pilot-layout,.pilot-main'))e.scrollTop=0;});
+ await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo({top:0,left:0,behavior:'instant'});for(const e of document.querySelectorAll('#app,.pilot-layout,.pilot-main'))e.scrollTo({top:0,left:0,behavior:'instant'});});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name+' overflow');
  const palette=await page.evaluate(()=>{
   const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number),lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
   const buttons=[...document.querySelectorAll('#app button')].filter(e=>e.getClientRects().length&&!e.disabled&&getComputedStyle(e).visibility!=='hidden');
-  const bad=buttons.flatMap(e=>{const s=getComputedStyle(e),bg=rgb(s.backgroundColor),fg=rgb(s.color);if(bg.length<3||(bg[3]??1)<.99)return [];const a=lum(bg),b=lum(fg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);return ratio<4.5?[{text:e.textContent.slice(0,45),ratio}]:[];});
+  const bad=buttons.flatMap(e=>{const s=getComputedStyle(e),bg=rgb(s.backgroundColor),fg=rgb(s.color);if(bg.length<3||(bg[3]??1)<.99)return [];const a=lum(bg),b=lum(fg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);return ratio<4.5?[{text:e.textContent.slice(0,45),classes:e.className,bg:s.backgroundColor,fg:s.color,ratio}]:[];});
   return {body:getComputedStyle(document.body).backgroundColor,bad,macros:[...document.querySelectorAll('.ncc-focus-macro')].map(e=>({key:e.dataset.nccMacro,label:getComputedStyle(e.querySelector('strong')).color,bar:getComputedStyle(e.querySelector('.ncc-focus-meter>span')).backgroundColor}))};
  });
+ await page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png')});
+ assert.equal(await page.locator('[data-ncc-dual-panel]').count(),0,'No independent staged candidate in published-layout review');
  assert.equal(palette.body,'rgb(13, 20, 18)',name+' canvas');assert.deepEqual(palette.bad,[],name+' button contrast');
  const colors={p:'rgb(140, 185, 208)',c:'rgb(211, 174, 117)',f:'rgb(182, 164, 206)'};
  for(const m of palette.macros){assert.equal(m.label,colors[m.key],name+' macro label');assert.equal(m.bar,colors[m.key],name+' macro fill');}

@@ -333,7 +333,7 @@
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
     "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
-    "efg-nutrition/pilot/color-system.css": "c56d905e1c6f80e46745ee6fec56e15089febd8db614152725ce9bf66dc6e24a",
+    "efg-nutrition/pilot/color-system.css": "d2941b0b566fd8b3bc0f550a5eb5d0265f715c11eba25fc84b24c663c173bb2c",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0"
   },
   "stylesheets": [
@@ -504,7 +504,7 @@
     },
     {
       "path": "efg-nutrition/pilot/color-system.css",
-      "sha256": "c56d905e1c6f80e46745ee6fec56e15089febd8db614152725ce9bf66dc6e24a",
+      "sha256": "d2941b0b566fd8b3bc0f550a5eb5d0265f715c11eba25fc84b24c663c173bb2c",
       "url": "./color-system.css?v=ncc-color-system-r1-20261112"
     }
   ],

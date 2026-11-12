@@ -1,4 +1,5 @@
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
+const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
@@ -1197,9 +1198,12 @@ async function createPersonalRecipe(){
 }
 let recipeDialogReturnFocus=null,recipeRegistrationBusy=false;
 function closeRecipeRegistration(){
+ if(recipeRegistrationBusy||recipeSheet?.busy)return;
+ const sheet=recipeSheet;rememberRecipeSheet();
  document.getElementById("efgRecipeRegisterOverlay")?.remove();
  if(recipeDialogReturnFocus?.isConnected)recipeDialogReturnFocus.focus({preventScroll:true});
- recipeDialogReturnFocus=null;
+ else if(recipeSheetCurrent(sheet))document.querySelector('['+(sheet.kind==='fit'?'data-fitrecipe':'data-ownrecipe')+'="'+CSS.escape(sheet.id)+'"]')?.focus({preventScroll:true});
+ recipeDialogReturnFocus=null;recipeSheet=null;
 }
 function registerPersonalRecipe(){
  const saved=myRecipes();if(!saved.length)throw Error("Primero creá una receta.");
@@ -1237,7 +1241,7 @@ async function confirmRecipeRegistration(){
   }
   // A delayed account A completion must not close B's popup or toast B.
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-   closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
+   recipeRegistrationBusy=false;closeRecipeRegistration();notify("Receta registrada y macros recalculados.");
   }
  }finally{recipeRegistrationBusy=false;pendingMealRegistrations.delete(slot,slotLease);}
 }
@@ -1306,12 +1310,12 @@ function frame(content){
   :role==="coach"
   ?([["coach","⌂","Inicio"],["coachIntake","▣","Ingresos"],["coachStudents","♧","Alumnos"],["home","◷","MI DÍA"],["nutritionScience","✦","Nutrición Con-Ciencia"],["studentMore","☷","MI ESPACIO"]].concat(state.org?.is_test?[]:[["payments","▤","Pagos"]]))
   :role==="admin"?[["admin","⌂","Inicio"],["home","◷","MI DÍA"],["testCoach","♧","Coach"],["nutritionScience","✦","Nutrición Con-Ciencia"],["adminMore","☷","Más"]]:[];
- const visibleMenu=state.tab==="home"&&!state.dualCandidateCoach?[["home","","Mi Día"],["planner","","Plan"],["weight","","Avance"],["nutritionScience","","Ciencia"],[role==="admin"?"adminMore":"studentMore","","Más"]]:menu;
+ const visibleMenu=["home","recipes"].includes(state.tab)&&!state.dualCandidateCoach?[["home","","Mi Día"],["planner","","Plan"],["weight","","Avance"],["nutritionScience","","Ciencia"],[role==="admin"?"adminMore":"studentMore","","Más"]]:menu;
  const primaryTabs=menu.map(m=>m[0]);
  const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  const backgroundKey=state.tab==="home"?"day":state.tab==="planner"?"plan":state.tab==="weight"?"progress":state.tab==="nutritionScience"?"science":["coach","coachStudents","coachIntake","coachTools","testCoach"].includes(state.tab)?"coach":["admin","adminMore","adminManage"].includes(state.tab)?"admin":"start";
- root.innerHTML='<div data-ncc-background="'+backgroundKey+'" class="pilot-layout efg-role-'+role+(role==="student"&&state.tab==="home"?' ncc-student-day':'')+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+(state.tab==='home'?dayNavigationIcon(m[0]):efgNavIcon(m[0]))+'</span><span class="nav-label">'+(m[0]==='nutritionScience'?'Ciencia':m[2])+'</span></button>').join("")+
+ root.innerHTML='<div '+(state.tab==='recipes'?'data-ncc-recipes="true" ':'')+'data-ncc-background="'+backgroundKey+'" class="pilot-layout efg-role-'+role+(role==="student"&&state.tab==="home"?' ncc-student-day':'')+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
+ visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+(['home','recipes'].includes(state.tab)?dayNavigationIcon(m[0]):efgNavIcon(m[0]))+'</span><span class="nav-label">'+(m[0]==='nutritionScience'?'Ciencia':m[2])+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+professionalReleaseFrame.wrap(dualWorkspaceFrame.wrap(content))+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
  dualWorkspaceFrame.mountFrame(root);
@@ -1495,38 +1499,97 @@ function studentMoreView(){
  return premiumMenuView("Mi espacio","Tus opciones y permisos, en un solo lugar.",studentSecondaryNavigation());
 }
 
-function fitRecipeCard(recipe){
- const data=recipeTotals(recipe,foods),p=data.perPortion;
+function recipePhoto(recipe){
  const photo=FIT_RECIPE_PHOTOS[recipe.id];
- const picture=photo?'<img class="efg-fit-photo" src="'+escapeHTML(photo.src)+'" alt="Fotografía ilustrativa de '+escapeHTML(recipe.name)+'" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="efg-fit-photo-fallback" hidden>Fotografía temporalmente no disponible</span>':'<span class="efg-fit-photo-fallback">Fotografía temporalmente no disponible</span>';
- const credit=photo?'<a class="efg-fit-photo-credit" href="'+escapeHTML(photo.source)+'" target="_blank" rel="noopener noreferrer" aria-label="Fuente de fotografía: '+escapeHTML(photo.author)+' en '+escapeHTML(photo.provider)+'">Foto: '+escapeHTML(photo.author)+' · '+escapeHTML(photo.provider)+'</a>':'';
- return '<article class="efg-fit-card"><div class="efg-fit-art">'+picture+'<span class="efg-fit-photo-label">Foto ilustrativa</span>'+credit+'</div><div class="efg-fit-card-top"><div><span class="efg-fit-tag">'+escapeHTML(recipe.tag)+' · '+recipe.time+' min</span><h3>'+escapeHTML(recipe.name)+'</h3><p>'+num(p.k)+' kcal · P '+num(p.p,1)+' g · HC '+num(p.c,1)+' g · G '+num(p.f,1)+' g <span class="efg-fit-muted">por porción</span></p></div></div>'+
- '<details class="efg-fit-detail"><summary>Ingredientes y preparación</summary><div class="efg-fit-inner"><strong>Ingredientes para '+recipe.portions+' porciones</strong><ul>'+data.details.map(x=>'<li>'+num(x.grams)+' g · '+escapeHTML(x.name)+'</li>').join("")+'</ul>'+(recipe.extras?'<p>'+escapeHTML(recipe.extras)+'</p>':'')+'<strong>Preparación</strong><ol>'+recipe.steps.map(step=>'<li>'+escapeHTML(step)+'</li>').join("")+'</ol><small>Valores orientativos calculados a partir del catálogo. El rendimiento, las marcas y la cocción pueden modificarlos.</small></div></details>'+
- '<button type="button" class="btn small efg-fit-register" data-fitrecipe="'+recipe.id+'">+ Registrar porción</button></article>';
+ return photo?'<img class="efg-fit-photo" src="'+escapeHTML(photo.src)+'" alt="Fotografía ilustrativa de '+escapeHTML(recipe.name)+'" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="efg-fit-photo-fallback" hidden>Fotografía temporalmente no disponible</span>':'<span class="efg-fit-photo-fallback">Fotografía temporalmente no disponible</span>';
+}
+function recipePhotoCredit(recipe){
+ const photo=FIT_RECIPE_PHOTOS[recipe.id];
+ return photo?'<a class="efg-fit-photo-credit" href="'+escapeHTML(photo.source)+'" target="_blank" rel="noopener noreferrer">Foto ilustrativa · '+escapeHTML(photo.author)+' / '+escapeHTML(photo.provider)+'</a>':'';
+}
+function fitRecipeDetails(recipe){
+ const data=recipeTotals(recipe,foods);
+ return '<details class="efg-fit-detail"><summary>Ingredientes y preparación</summary><div class="efg-fit-inner"><strong>Ingredientes para '+recipe.portions+' porciones</strong><ul>'+data.details.map(x=>'<li>'+num(x.grams)+' g · '+escapeHTML(x.name)+'</li>').join("")+'</ul>'+(recipe.extras?'<p>'+escapeHTML(recipe.extras)+'</p>':'')+'<strong>Preparación</strong><ol>'+recipe.steps.map(step=>'<li>'+escapeHTML(step)+'</li>').join("")+'</ol><small>Valores orientativos calculados a partir del catálogo. El rendimiento, las marcas y la cocción pueden modificarlos.</small></div></details>';
+}
+function fitRecipeCard(recipe){
+ const p=recipeTotals(recipe,foods).perPortion;
+ return '<article class="efg-fit-card"><button type="button" class="ncc-recipe-choice" data-fitrecipe="'+recipe.id+'" aria-label="Ver y registrar '+escapeHTML(recipe.name)+'"><span class="ncc-recipe-photo">'+recipePhoto(recipe)+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(recipe.name)+'</strong><span>'+num(p.k)+' kcal por porción</span><small>'+recipe.time+' min · Rinde '+recipe.portions+' '+(recipe.portions===1?'porción':'porciones')+'</small></span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button></article>';
 }
 function studentRecipesView(){
- const rs=myRecipes();
- return rootText("Mis recetas","Ideas Fit fáciles de preparar, con ingredientes pesados y macros estimados. También podés guardar tus propias recetas.")+
- '<section class="efg-fit-library"><div class="efg-fit-intro"><div><span class="eyebrow">COCINA PRÁCTICA</span><h2>Biblioteca Fit</h2><p>12 preparaciones listas para registrar en tu diario. Ninguna se guarda como receta personal hasta que vos lo decidas.</p></div><span class="efg-fit-count">12 recetas</span></div>'+
- '<div class="efg-fit-filter" role="group" aria-label="Filtrar recetas"><button type="button" data-fitfilter="all" class="'+(state.fitFilter==="all"?'active':'')+'">Todas</button><button type="button" data-fitfilter="Desayunos y meriendas" class="'+(state.fitFilter==="Desayunos y meriendas"?'active':'')+'">Desayunos y meriendas</button><button type="button" data-fitfilter="Almuerzos y cenas" class="'+(state.fitFilter==="Almuerzos y cenas"?'active':'')+'">Almuerzos y cenas</button></div>'+
- '<div class="efg-fit-grid">'+FIT_RECIPES.filter(r=>!state.fitFilter||state.fitFilter==="all"||r.category===state.fitFilter).map(fitRecipeCard).join("")+'</div>'+
- '<p class="efg-fit-disclaimer">Las preparaciones no reemplazan un plan nutricional. Las porciones y valores se calculan según el catálogo EFG; pueden variar por marcas, peso comestible y método de cocción.</p></section>'+
- '<section class="card efg-content-card efg-own-recipes"><div class="efg-own-recipes-header"><div><span class="eyebrow">TU RECETARIO</span><h2>Mis preparaciones guardadas</h2><p class="pilot-hint">Tus recetas personales siguen siendo privadas y editables mediante una nueva carga.</p></div><div class="efg-actions"><button class="btn" data-act="createPersonalRecipe">+ Crear receta</button><button class="btn light" data-act="registerPersonalRecipe" '+(!rs.length?'disabled':'')+'>Registrar receta propia</button></div></div>'+
- (rs.length?rs.map(r=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(r.name)+(r.pendingLocal?' · pendiente de sincronizar':'')+'</strong><small>'+num(r.totals.k/r.portions)+' kcal por porción · P '+num(r.totals.p/r.portions,1)+' g · HC '+num(r.totals.c/r.portions,1)+' g · G '+num(r.totals.f/r.portions,1)+' g</small></div><button class="btn small ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar</button></div></div>').join(""):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas Fit sin crearlas.</div>')+'</section>';
+ const rs=myRecipes(),section=state.recipeLibrary?.owner===state.session?.user?.id?state.recipeLibrary.section:'library';
+ const featured=['budin-whey','pancakes','chicken-bowl'];
+ const recipes=[...featured.map(id=>FIT_RECIPES.find(r=>r.id===id)),...FIT_RECIPES.filter(r=>!featured.includes(r.id))].filter(r=>!state.fitFilter||state.fitFilter==='all'||r.category===state.fitFilter);
+ return '<section class="ncc-recipes"><header class="ncc-recipes-heading"><button type="button" class="ncc-recipes-back" data-tab="'+(state.profile.role==='admin'?'adminMore':'studentMore')+'" aria-label="Volver a Más">‹</button><div><h1>Recetas</h1><p>Elegí, ajustá y registrá</p></div></header>'+
+ '<div class="ncc-recipe-tabs" role="tablist" aria-label="Recetarios">'+[['library','Biblioteca'],['own','Mis recetas']].map(([id,label])=>'<button type="button" role="tab" id="nccRecipeTab-'+id+'" data-recipessection="'+id+'" aria-controls="nccRecipes-'+id+'" aria-selected="'+(section===id)+'">'+label+'</button>').join('')+'</div>'+
+ '<section id="nccRecipes-library" class="efg-fit-library" role="tabpanel" aria-labelledby="nccRecipeTab-library" '+(section!=='library'?'hidden':'')+'><label class="ncc-recipe-category"><span class="ncc-sr-only">Categoría de recetas</span><select id="nccRecipeCategory" data-fitfilter>'+[['all','Todas las categorías'],['Desayunos y meriendas','Desayunos y meriendas'],['Almuerzos y cenas','Almuerzos y cenas']].map(([v,label])=>'<option value="'+v+'" '+((state.fitFilter||'all')===v?'selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="efg-fit-grid" tabindex="0" aria-label="Recetas disponibles. Desplazá para ver más">'+recipes.map(fitRecipeCard).join('')+'</div><p class="ncc-recipe-count">'+recipes.length+' recetas '+(state.fitFilter&&state.fitFilter!=='all'?'en esta categoría':'en la biblioteca')+'</p><small class="ncc-recipe-note">Fotos ilustrativas</small></section>'+
+ '<section id="nccRecipes-own" class="efg-own-recipes" role="tabpanel" aria-labelledby="nccRecipeTab-own" '+(section!=='own'?'hidden':'')+'><div class="ncc-own-heading"><h2>Mis preparaciones</h2><button type="button" class="btn" data-act="createPersonalRecipe">+ Crear receta</button></div><p class="pilot-hint">Tus recetas personales son privadas. Elegí una para registrar sus porciones.</p>'+
+ (rs.length?rs.map(r=>'<article class="ncc-own-recipe"><button type="button" class="ncc-recipe-choice" data-ownrecipe="'+escapeHTML(r.id)+'"><span class="ncc-own-icon" aria-hidden="true">'+efgMenuIcon('recipes')+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(r.name)+'</strong><span>'+num(r.totals.k/r.portions)+' kcal por porción</span>'+(r.pendingLocal?'<small>Pendiente de sincronizar</small>':'')+'</span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button><details><summary>Más opciones</summary><button type="button" class="btn ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar receta</button></details></article>').join(''):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas de la Biblioteca.</div>')+'</section><div id="nccRecipeSheetHost"></div></section>';
 }
-async function registerFitRecipe(id){
+let recipeSheet=null;
+const recipeSheetDrafts=new Map();
+function recipeSheetCurrent(sheet){return sheet&&state.session?.user?.id===sheet.owner&&(state.authContextEpoch||0)===sheet.epoch&&today()===sheet.day&&activeViewKey()===sheet.view;}
+function rememberRecipeSheet(){
+ if(!recipeSheetCurrent(recipeSheet))return;
+ const qty=document.getElementById('efgRecipeRegisterQty'),slot=document.getElementById('efgRecipeRegisterSlot');
+ if(qty&&slot)recipeSheetDrafts.set(recipeSheet.key,{qty:qty.value,slot:slot.value});
+}
+function openLibraryRecipe(kind,id){
+ if(recipeRegistrationBusy||recipeSheet?.busy)return;
+ closeRecipeRegistration();
+ const recipe=kind==='fit'?FIT_RECIPES.find(r=>r.id===id):myRecipes().find(r=>r.id===id);
+ if(!recipe)throw Error('No encontramos esa receta.');
+ const owner=state.session?.user?.id,day=today(),key=owner+':'+day+':'+kind+':'+id;
+ const draft=recipeSheetDrafts.get(key),slot=draft?.slot||state.lastEditedMeal||'desayuno';
+ const perPortion=kind==='fit'?recipeTotals(recipe,foods).perPortion:Object.fromEntries(['k','p','c','f','fi'].map(k=>[k,Number(recipe.totals[k]||0)/recipe.portions]));
+ recipeSheet={kind,id,recipe,perPortion,key,owner,day,epoch:state.authContextEpoch||0,view:activeViewKey(),snapshot:JSON.stringify(recipe),busy:false};
+ recipeDialogReturnFocus=document.activeElement;
+ const details=kind==='fit'?fitRecipeDetails(recipe):'<details class="efg-fit-detail"><summary>Ingredientes de mi receta</summary><ul>'+recipe.ingredients.map(i=>'<li>'+num(i.grams)+' g · '+escapeHTML(foods.find(f=>f.id===i.foodId)?.name||'Ingrediente')+'</li>').join('')+'</ul><small>Valores orientativos calculados a partir del catálogo.</small></details>';
+ document.getElementById('nccRecipeSheetHost').innerHTML='<div class="efg-recipe-register-overlay ncc-recipe-overlay" id="efgRecipeRegisterOverlay"><section class="efg-recipe-register-card ncc-recipe-sheet" role="dialog" aria-modal="true" aria-labelledby="efgRecipeRegisterTitle" tabindex="-1"><div class="ncc-recipe-brand"><img src="./assets/serotonina-acuarela.avif" width="38" height="30" alt=""><strong>Nutrición Con-<br>Ciencia</strong><button type="button" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div><header class="ncc-recipe-sheet-heading"><h2 id="efgRecipeRegisterTitle">Registrar receta</h2><button type="button" data-act="closeRecipeRegistration" aria-label="Cerrar registro de receta">×</button></header>'+
+ (kind==='fit'?'<div class="ncc-recipe-hero">'+recipePhoto(recipe)+'</div>'+recipePhotoCredit(recipe):'')+'<h3>'+escapeHTML(recipe.name)+'</h3><p class="ncc-recipe-yield">'+(kind==='fit'?recipe.time+' min · ':'')+'Rinde '+recipe.portions+' '+(recipe.portions===1?'porción':'porciones')+'</p>'+
+ '<input type="hidden" id="efgRecipeRegisterId" value="'+escapeHTML(id)+'"><label class="ncc-portions-label" for="efgRecipeRegisterQty">Porciones</label><div class="ncc-recipe-quantity"><button type="button" data-recipeqty="-0.5" aria-label="Disminuir media porción">−</button><input id="efgRecipeRegisterQty" type="text" inputmode="decimal" value="'+escapeHTML(draft?.qty||'1')+'" aria-describedby="nccRecipePortionHint"><button type="button" data-recipeqty="0.5" aria-label="Aumentar media porción">+</button></div><small id="nccRecipePortionHint">1 porción = '+(recipe.portions===1?'toda la preparación':'1/'+recipe.portions+' de la preparación')+'</small>'+
+ '<div class="ncc-recipe-nutrients" id="nccRecipeNutrients" aria-live="polite"></div><label class="ncc-recipe-slot" for="efgRecipeRegisterSlot">Horario<select id="efgRecipeRegisterSlot">'+mealSlots.map(m=>'<option value="'+m[0]+'" '+(m[0]===slot?'selected':'')+'>'+m[1]+'</option>').join('')+'</select></label>'+details+
+ '<div class="ncc-recipe-footer"><p id="nccRecipeDestination"></p><p id="nccRecipeError" role="alert"></p><button type="button" class="btn ncc-recipe-confirm" data-act="saveLibraryRecipe"></button><button type="button" class="btn ghost ncc-recipe-cancel" data-act="closeRecipeRegistration">Cancelar</button></div></section></div>';
+ updateLibraryRecipeSummary();
+ document.querySelector('.ncc-recipe-sheet').focus({preventScroll:true});
+}
+function updateLibraryRecipeSummary(){
+ if(!recipeSheetCurrent(recipeSheet))return;
+ const qty=Number(document.getElementById('efgRecipeRegisterQty')?.value.replace(',','.'));
+ const p=recipeSheet.perPortion,valid=Number.isFinite(qty)&&qty>0&&qty<=20;
+ const nutrients=document.getElementById('nccRecipeNutrients');
+ if(nutrients)nutrients.innerHTML=valid?'<strong>'+num(p.k*qty)+' kcal</strong><span>P '+num(p.p*qty,1)+' g · HC '+num(p.c*qty,1)+' g · G '+num(p.f*qty,1)+' g</span>':'<span>Ingresá entre 0,1 y 20 porciones.</span>';
+ const label=mealSlots.find(m=>m[0]===document.getElementById('efgRecipeRegisterSlot')?.value)?.[1]||'';
+ const destination=document.getElementById('nccRecipeDestination');if(destination)destination.textContent='Se agregará a tu '+label;
+ const confirm=document.querySelector('[data-act="saveLibraryRecipe"]');if(confirm)confirm.textContent='Agregar a '+label;
+ rememberRecipeSheet();
+}
+async function saveLibraryRecipe(){
+ const sheet=recipeSheet;if(!recipeSheetCurrent(sheet)||sheet.busy)return;
+ const error=document.getElementById('nccRecipeError'),slot=document.getElementById('efgRecipeRegisterSlot')?.value;
+ const input=document.getElementById('efgRecipeRegisterQty'),qty=Number(input?.value.replace(',','.'));
+ error.textContent='';
+ if(!mealSlots.some(m=>m[0]===slot)||!Number.isFinite(qty)||qty<=0||qty>20){error.textContent='Revisá el horario y las porciones (entre 0,1 y 20).';return;}
+ if(state.diaryWritePending||pendingMealRegistrations.has(slot)){error.textContent='Se está guardando otro registro. Esperá la confirmación.';return;}
+ const current=sheet.kind==='fit'?FIT_RECIPES.find(r=>r.id===sheet.id):myRecipes().find(r=>r.id===sheet.id);
+ if(JSON.stringify(current)!==sheet.snapshot){error.textContent='La receta cambió. Volvé a abrirla para revisar las porciones.';return;}
+ const controls=[...document.querySelectorAll('.ncc-recipe-sheet button,.ncc-recipe-sheet input,.ncc-recipe-sheet select')];
+ sheet.busy=true;controls.forEach(c=>c.disabled=true);
+ try{
+  input.value=String(qty);
+  if(sheet.kind==='fit')await registerFitRecipe(sheet.id,{slot,qty});else await confirmRecipeRegistration();
+  sheet.busy=false;
+  if(recipeSheetCurrent(sheet)&&recipeSheet===sheet){closeRecipeRegistration();recipeSheetDrafts.delete(sheet.key);}
+ }catch(e){if(recipeSheetCurrent(sheet)&&error.isConnected)error.textContent=e.message||'No pudimos guardar. Podés volver a intentar.';}
+ finally{sheet.busy=false;controls.forEach(c=>{if(c.isConnected)c.disabled=false;});}
+}
+async function registerFitRecipe(id,selection){
  if(!["student","coach","admin"].includes(state.profile?.role))throw new Error("Esta función corresponde al diario personal.");
  const recipe=FIT_RECIPES.find(r=>r.id===id);
  if(!recipe)throw new Error("No encontramos esa receta.");
  validateRecipeIngredientAccess(recipe.ingredients);
- const meal=prompt("¿En qué comida querés registrar «"+recipe.name+"»?\n"+mealSlots.map((m,i)=>(i+1)+". "+m[1]).join("\n"),"1");
- if(meal===null)return;
- const slot=mealSlots[Number(meal)-1]?.[0];
- if(!slot)throw new Error("Elegí una comida válida.");
- const answer=prompt("¿Cuántas porciones comiste? (podés usar 0,5)","1");
- if(answer===null)return;
- const qty=Number(answer.replace(",","."));
- if(!Number.isFinite(qty)||qty<=0||qty>20)throw new Error("Ingresá entre 0,1 y 20 porciones.");
+ const slot=selection?.slot,qty=selection?.qty;
+ if(!mealSlots.some(m=>m[0]===slot))throw Error('Elegí una comida válida.');
+ if(!Number.isFinite(qty)||qty<=0||qty>20)throw Error('Ingresá entre 0,1 y 20 porciones.');
  if(pendingMealRegistrations.has(slot))return; // Avoid racing a manual/favorite diary write.
  const slotLease=pendingMealRegistrations.add(slot);
  try{
@@ -4654,7 +4717,20 @@ async function mainClick(event){
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
  if(el.dataset.rewardApproval){await updateSundayPermission(el.dataset.rewardApproval==="yes");return;}
  if(el.dataset.fitfilter){state.fitFilter=el.dataset.fitfilter;await render();document.querySelector(".efg-fit-library")?.scrollIntoView({block:"start"});return;}
- if(el.dataset.fitrecipe){return registerFitRecipe(el.dataset.fitrecipe);}
+ if(el.dataset.fitrecipe){openLibraryRecipe('fit',el.dataset.fitrecipe);return;}
+ if(el.dataset.ownrecipe){openLibraryRecipe('own',el.dataset.ownrecipe);return;}
+ if(el.dataset.recipessection){
+  const section=el.dataset.recipessection;if(!['library','own'].includes(section))return;
+  state.recipeLibrary={owner:state.session?.user?.id,section};
+  for(const tab of root.querySelectorAll('[data-recipessection]'))tab.setAttribute('aria-selected',String(tab.dataset.recipessection===section));
+  for(const panel of root.querySelectorAll('#nccRecipes-library,#nccRecipes-own'))panel.hidden=panel.id!=='nccRecipes-'+section;
+  return;
+ }
+ if(el.dataset.recipeqty){
+  const input=document.getElementById('efgRecipeRegisterQty');if(!input||recipeSheet?.busy)return;
+  const value=Number(input.value.replace(',','.'));input.value=String(Math.min(20,Math.max(.1,Math.round(((Number.isFinite(value)?value:1)+Number(el.dataset.recipeqty))*10)/10)));updateLibraryRecipeSummary();return;
+ }
+ if(el.dataset.act==='saveLibraryRecipe'){await saveLibraryRecipe();return;}
  if(el.dataset.copyalias||el.dataset.copyplatform){
  const isPlatform=el.dataset.copyplatform==="1";
  if(isPlatform&&state.profile.role!=="coach")throw new Error("Solo los coaches pueden copiar el alias oficial desde este acceso.");
@@ -5581,7 +5657,9 @@ async function saveSkippedMealChoice(slot,checked,checkbox){
   throw error;
  }finally{pendingMealRegistrations.delete(slot,slotLease);}
 }
-root.addEventListener("change",e=>{invalidateCoachDraft(e);
+root.addEventListener("change",e=>{
+ if(e.target.id==='efgRecipeRegisterSlot'&&recipeSheet)updateLibraryRecipeSummary();
+ if(e.target.id==='nccRecipeCategory'){state.fitFilter=e.target.value;render();return;}invalidateCoachDraft(e);
  if(e.target.id==="coachGuideWindow"){
   if(!validGuideWindow(e.target.value))return;
   state.coachGuideWindowSelection={scope:coachGuideWindowScope(),windowId:e.target.value};
@@ -5656,6 +5734,7 @@ root.addEventListener('change',e=>{
  if(e.target.id==='periodReportReviewed')syncPeriodReportPreview();
 });
 root.addEventListener("input",e=>{
+ if(e.target.id==="efgRecipeRegisterQty"&&recipeSheet)updateLibraryRecipeSummary();
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){
   weeklyPdfReview.close(true);
@@ -5699,6 +5778,13 @@ root.addEventListener("change",e=>{
  }
  if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
 document.addEventListener("keydown",event=>{
+ const recipeTab=event.target.closest?.('[data-recipessection]');
+ if(recipeTab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
+  const tabs=[...document.querySelectorAll('[data-recipessection]')],index=tabs.indexOf(recipeTab);
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+1)%tabs.length;
+  event.preventDefault();tabs[next].click();tabs[next].focus();return;
+ }
+
  const mealTab=event.target.closest?.('[data-daymeal]');
  if(mealTab&&!document.querySelector('#mealDialogContainer .meal-popup')&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
   const tabs=[...document.querySelectorAll('[data-daymeal]')],index=tabs.indexOf(mealTab);
@@ -5776,6 +5862,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
  dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;
  dualWorkspaceFrame.invalidate();
  professionalReleaseFrame.invalidate();

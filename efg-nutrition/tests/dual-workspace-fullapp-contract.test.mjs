@@ -20,7 +20,7 @@ test('complete app is exact locked baseline plus reviewed integration sites',()=
  assert.match(pilot,/function frame\(content\)\{\s*dualWorkspaceFrame.prepareFrame\(\);/);
  assert.match(pilot,/dualWorkspaceFrame\.wrap\(content\)/);
  assert.match(pilot,/dualWorkspaceFrame\.mountFrame\(root\)/);
- assert.match(pilot,/function resetPrivateSession\(\)\{\s*dualWorkspaceBootstrap.invalidate\(\);state.dualCandidateCoach=false;\s*dualWorkspaceFrame.invalidate\(\)/);
+ assert.match(pilot,/function resetPrivateSession\(\)\{[\s\S]*?dualWorkspaceBootstrap.invalidate\(\);state.dualCandidateCoach=false;\s*dualWorkspaceFrame.invalidate\(\)/);
  assert.match(pilot,/isDualWorkspaceField\(el\)\|\|dualWorkspaceFrame.isProfessional\(\)/);
  assert.match(pilot,/readSession:\(\)=>\(\{userId:state.session\?\.user\?\.id,sessionId:state.session\?\.session_id,epoch:state.authContextEpoch\|\|0\}\)/);
  const integration=pilot.slice(pilot.indexOf('const dualWorkspaceFrame='),pilot.indexOf('const versionNotice='));

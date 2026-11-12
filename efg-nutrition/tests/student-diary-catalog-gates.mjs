@@ -116,7 +116,7 @@ for(const kind of ['remove','edit','clear']){
 // The two real "Omitir" entry points must not restore B's diary, checkbox or
 // guided editor when a pending response from account A completes later.
 const checkboxBody=slice('async function saveSkippedMealChoice(slot,checked,checkbox){',
- 'root.addEventListener("change",e=>{invalidateCoachDraft(e);');
+ 'root.addEventListener("change",e=>{');
 const guidedBody=slice('if(el.dataset.mealomit){','if(action==="closeMeal")');
 for(const [kind,body] of [['checkbox',checkboxBody],['guided',guidedBody]]){
  for(const fails of [false,true]){

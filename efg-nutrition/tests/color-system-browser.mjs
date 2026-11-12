@@ -48,6 +48,10 @@ try{for(const engine of ['chromium','webkit']){
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png')});
  assert.equal(await page.locator('[data-ncc-dual-panel]').count(),0,'No independent staged candidate in published-layout review');
  assert.equal(palette.body,'rgb(13, 20, 18)',name+' canvas');assert.deepEqual(palette.bad,[],name+' button contrast');
+ const icons=await page.locator('.ncc-meal-icon').evaluateAll(els=>els.map(e=>({slot:e.dataset.mealIcon,hidden:e.getAttribute('aria-hidden'),ink:getComputedStyle(e.querySelector('[data-icon-part=body],[data-icon-part=detail]')).stroke,fill:e.querySelector('[data-icon-part=body]')?getComputedStyle(e.querySelector('[data-icon-part=body]')).fill:'none'})));
+ const iconColours={desayuno:['rgb(234, 208, 163)','rgb(177, 132, 85)'],media_manana:['rgb(241, 168, 153)','rgb(213, 111, 98)'],almuerzo:['rgb(163, 208, 194)','rgb(63, 131, 122)'],media_tarde:['rgb(239, 201, 151)','rgb(186, 134, 80)'],merienda:['rgb(240, 210, 156)','rgb(196, 147, 86)'],cena:['rgb(167, 191, 215)','none']};
+ for(const icon of icons){assert.equal(icon.hidden,'true','Labels remain the accessible names');assert.deepEqual([icon.ink,icon.fill],iconColours[icon.slot],name+' coloured meal pictogram '+icon.slot);}
+
  const colors={p:'rgb(140, 185, 208)',c:'rgb(211, 174, 117)',f:'rgb(182, 164, 206)'};
  if(palette.summary)assert.equal(palette.summary,'rgba(0, 0, 0, 0)',name+' transparent summary matches approved reference');
  for(const m of palette.macros){assert.equal(m.label,colors[m.key],name+' macro label');assert.equal(m.bar,colors[m.key],name+' macro fill');}

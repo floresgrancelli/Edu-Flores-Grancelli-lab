@@ -100,6 +100,17 @@
  html.ncc-lime-theme .efg-notifications .efg-notify-count{background:var(--ncc-lime)!important;color:#142018!important}
  html.ncc-lime-theme #pilot-toast{background:var(--ncc-petrol)!important;color:var(--ncc-text)!important;border-color:var(--ncc-lime)!important}
  html.ncc-lime-theme #pilot-toast>button{background:var(--ncc-lime)!important;color:#142018!important}
+ /* Meal pictograms: the same six shapes in Mi Día and Dieta Guía.
+    Colours identify the illustration, never nutritional compatibility/status. */
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=desayuno]{--meal-fill:#b18455;--meal-ink:#ead0a3;--meal-detail:#ead0a3;--meal-accent:#ead0a3}
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=media_manana]{--meal-fill:#d56f62;--meal-ink:#f1a899;--meal-detail:#f1a899;--meal-accent:#b1c579}
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=almuerzo]{--meal-fill:#3f837a;--meal-ink:#a3d0c2;--meal-detail:#a3d0c2;--meal-accent:#bad18b}
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=media_tarde]{--meal-fill:#ba8650;--meal-ink:#efc997;--meal-detail:#efc997;--meal-accent:#efc997}
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=merienda]{--meal-fill:#c49356;--meal-ink:#f0d29c;--meal-detail:#f5dfb5;--meal-accent:#f0d29c}
+ html.ncc-lime-theme #app .ncc-meal-icon[data-meal-icon=cena]{--meal-fill:none;--meal-ink:#a7bfd7;--meal-detail:#a7bfd7;--meal-accent:#a7bfd7}
+ html.ncc-lime-theme #app .ncc-meal-icon [data-icon-part=body]{fill:var(--meal-fill)!important;stroke:var(--meal-ink)!important}
+ html.ncc-lime-theme #app .ncc-meal-icon [data-icon-part=detail]{fill:none!important;stroke:var(--meal-detail)!important}
+ html.ncc-lime-theme #app .ncc-meal-icon [data-icon-part=accent]{fill:none!important;stroke:var(--meal-accent)!important}
  /* Safety/status colours keep their explicit labels and established meanings. */
  html.ncc-lime-theme #app .efg-compat-green{background:#193b2b!important;color:#a5edbd!important;border-color:#4c8d65!important}
  html.ncc-lime-theme #app .efg-compat-yellow{background:#3d3215!important;color:#ffe09a!important;border-color:#ad8b3e!important}

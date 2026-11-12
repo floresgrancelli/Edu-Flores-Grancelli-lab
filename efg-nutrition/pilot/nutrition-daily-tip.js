@@ -495,3 +495,14 @@ export function nutritionTipCardHTML({now=new Date(),allowExplore=false}={}){
  '<small class="efg-daily-tip-credit">Fotografía: <a href="'+escapeHTML(tip.page)+'" target="_blank" rel="noopener noreferrer" aria-label="Fotografía de '+escapeHTML(tip.by)+'" >'+escapeHTML(tip.by)+' / Unsplash</a></small>'+
  '</div></section>';
 }
+
+// A native disclosure keeps the daily suggestion discoverable without pushing
+// the food log and day tools down by the height of the full editorial card.
+export function nutritionTipDisclosureHTML(options={}){
+ const now=options.now||new Date(),tip=nutritionTipForDate(now);
+ return '<details class="ncc-daily-tip-disclosure" id="nccDailyTip">'+
+ '<summary><span class="ncc-tip-thumb" aria-hidden="true"><span>✦</span><img src="'+escapeHTML(tip.src)+'" alt="" width="60" height="60" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>'+
+ '<span class="ncc-tip-heading"><small>TIP NUTRICIONAL DEL DÍA</small><strong>'+escapeHTML(tip.title)+'</strong></span>'+
+ '<span class="ncc-tip-toggle"><span class="ncc-tip-show">Ver tip</span><span class="ncc-tip-hide">Cerrar</span><span class="ncc-tip-chevron" aria-hidden="true">⌄</span></span></summary>'+
+ '<div class="ncc-tip-expanded">'+nutritionTipCardHTML({...options,now})+'</div></details>';
+}

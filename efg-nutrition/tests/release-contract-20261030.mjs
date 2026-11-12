@@ -28,7 +28,9 @@ const sql=read("../docs/COACH119_HOSTED_ATOMIC_RELEASE_CANDIDATE_NOT_APPLIED.sql
 const workflow=read("../../.github/workflows/efg-nutrition-premium-qa.yml");
 assert.match(tip,/DAILY_TIP_LIBRARY_SIZE=72/);
 assert.match(tip,/America\/Argentina\/Buenos_Aires/);
-assert.match(app,/nutritionTipCardHTML/);
+assert.match(app,/const dailyTip=nutritionTipDisclosureHTML\(/);
+assert.match(tip,/export function nutritionTipDisclosureHTML/);
+assert.match(tip,/nutritionTipCardHTML\(\{\.\.\.options,now\}\)/);
 assert.match(html,/nutrition-daily-tip\.css/);
 assert.match(workflow,/PRO-60 monthly ñoquis/);
 assert.match(sql,/create function public\.efg_publish_coach_plan_draft_atomic/);

@@ -19,7 +19,7 @@ copyFileSync(resolve(root,'efg-nutrition/tests/food-entry-sdk.mjs'),resolve(prev
 // replaces every external URL with a placeholder. Auth/SDK isolation stays intact.
 copyFileSync(resolve(root,'efg-nutrition/pilot/nutrition-daily-tip.js'),resolve(preview,'dist/efg-nutrition/pilot/nutrition-daily-tip.js'));
 writeFileSync(pilot,readFileSync(pilot,'utf8')+`
-globalThis.__NCC_NOTIFICATION_QA__={inbox,sb,messages,consent:coachRosterConsent,setDirty:v=>{userHasUnconfirmedEdits=v;},setReports:v=>{myWeeklyReports=v;},stubDetail:()=>{loadStudentDetail=async id=>{state.selectedStudent=id;state.consent={accepted:true};};}};
+globalThis.__NCC_NOTIFICATION_QA__={inbox,sb,messages,setConsent:v=>{coachRosterConsent=v;},setDirty:v=>{userHasUnconfirmedEdits=v;},setReports:v=>{myWeeklyReports=v;},stubDetail:()=>{loadStudentDetail=async id=>{state.selectedStudent=id;state.consent={accepted:true};};}};
 `);
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
@@ -39,7 +39,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async role=>{
  const v=window.__NCC_R4_FULLAPP__,q=window.__NCC_NOTIFICATION_QA__,s=v.state;
- s.profile.role=role;s.org.is_test=role==='admin';s.tab='notifications';s.selectedStudent=null;s.roster=[{user_id:'pupil',nickname:'María · DEMO',active:true}];q.consent.pupil=true;
+ s.profile.role=role;s.org.is_test=role==='admin';s.tab='notifications';s.selectedStudent=null;s.roster=[{user_id:'pupil',nickname:'María · DEMO',active:true}];q.setConsent({pupil:true});
  s.coachIntakeForms.pupil={student_id:'pupil',shared_at:'2026-11-12',objective:'Mejorar mis hábitos',meal_routine:'Desayuno, almuerzo y cena'};
  q.stubDetail();
  const rows=role==='student'?[

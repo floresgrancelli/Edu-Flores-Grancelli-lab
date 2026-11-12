@@ -18,6 +18,7 @@ copyFileSync(resolve(root,'efg-nutrition/tests/food-entry-sdk.mjs'),resolve(prev
 // Restore this editorial module's public photo URLs only; the generic adapter
 // replaces every external URL with a placeholder. Auth/SDK isolation stays intact.
 copyFileSync(resolve(root,'efg-nutrition/pilot/nutrition-daily-tip.js'),resolve(preview,'dist/efg-nutrition/pilot/nutrition-daily-tip.js'));
+writeFileSync(pilot,readFileSync(pilot,'utf8')+'\nglobalThis.__NCC_PROGRESS_QA__={setReports:v=>{myWeeklyReports=v;}};');
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -33,11 +34,18 @@ try{for(const engine of ['chromium','webkit']){
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
  const page=await context.newPage();await page.goto(origin+'/efg-nutrition/pilot/');
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
- await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='weight';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;});
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;const m=await import('/efg-nutrition/pilot/weekly-luxury-report.js');
+ const end=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires'}).format(new Date());
+ v.state.weights=[{measured_on:end,measured_at:end+'T10:00:00Z',kg:78.4}];
+ v.state.progressLogs=Array.from({length:5},(_,i)=>{const d=new Date(end+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-i);return {log_day:d.toISOString().slice(0,10),meals:{almuerzo:[{name:'Pollo y arroz · DEMO',k:620,p:45,c:65,f:20}]}};});
+ const model=m.buildLuxuryWeeklyReport({from:'2026-11-01',to:'2026-11-07',friday:'2026-11-08',studentName:'Alumno · DEMO',coachName:'Coach · DEMO',days:[],goals:[]});
+ window.__NCC_PROGRESS_QA__.setReports([{week_ending:'2026-11-08',report_text:m.reportAsStoredText(model,'Vamos a sostener los hábitos y revisar tus registros en el próximo encuentro.','Un espacio para disfrutar con flexibilidad.')}]);
+ v.state.tab='weight';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;});
  for(const section of ['summary','nutrition','reports']){
  await page.locator('.ncc-progress-main-tabs [data-progresssection='+section+']').click();
  assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ if(section==='reports'){await page.locator('#nccProgress-reports details').first().locator('summary').click();assert.equal(await page.locator('#nccProgress-reports [data-act=replyWeeklyReport]').count(),1);}
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+section+'.png'),fullPage:true});
  }
  await page.locator('.ncc-progress-main-tabs [data-progresssection=summary]').click();

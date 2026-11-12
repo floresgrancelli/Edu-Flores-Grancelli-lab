@@ -50,7 +50,7 @@ try{for(const engine of ['chromium','webkit']){
   },{role,slot});};
   const open=async(which=slot)=>{await page.locator('[data-daymeal="'+which+'"]').click();await page.locator('.student-meal-card [data-setmeal="'+which+'"]').click();await page.locator('.meal-popup').waitFor();};
   const source=async name=>page.locator('[data-mealsource="'+name+'"]').click();
-  const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+slot+'-'+name+'.png')});
+  const shot=async name=>{await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(img=>img.decode().catch(()=>{})));const sources=[...document.querySelectorAll('.ncc-family-atlas')].map(el=>getComputedStyle(el).backgroundImage).filter(value=>value.startsWith('url(')).map(value=>value.slice(4,-1).replace(/^["']|["']$/g,''));await Promise.all([...new Set(sources)].map(src=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve();img.onerror=()=>reject(new Error('Local atlas failed to load'));img.src=src;})));await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+slot+'-'+name+'.png')});};
   if(baseline){await load();await open();await source('recent');await shot('before');baseline=false;}
   await load();await open();const diaryBefore=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
   assert.match(await page.locator('[data-mealsource="recent"]').innerText(),/\(1\)/);assert.match(await page.locator('[data-mealsource="habitual"]').innerText(),/\(2\)/);

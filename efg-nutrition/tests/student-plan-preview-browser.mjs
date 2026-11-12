@@ -42,9 +42,10 @@ try{for(const engine of ['chromium','webkit']){
  const open=async()=>{await page.locator('[data-studentguideregister="almuerzo"]').click();await page.locator('.ncc-plan-sheet').waitFor();};
  const writes=()=>page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes);
  await open();assert.equal(await page.locator('.pilot-nav').isVisible(),false);
+ const targets=await page.locator('.ncc-plan-checkbox,.ncc-plan-sheet button').evaluateAll(es=>es.map(e=>{const b=e.getBoundingClientRect();return {w:b.width,h:b.height};}));assert.ok(targets.every(b=>b.w>=44&&b.h>=44));
  await page.locator('.ncc-plan-entry img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode())));
  await page.screenshot({path:resolve(out,engine+'-'+width+'-review.png')});
- await page.locator('[data-guideentryqty="0"]').fill('125,5');await page.locator('[data-guideentrycheck="2"]').uncheck();await page.keyboard.press('Escape');assert.equal(await writes(),0);
+ await page.locator('[data-guideentryqty="0"]').fill('125,5');assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.hasPendingUnsavedEdits()),true);await page.locator('[data-guideentrycheck="2"]').uncheck();await page.keyboard.press('Escape');assert.equal(await writes(),0);
  await page.locator('[data-studentguideslot="cena"]').click();await page.locator('[data-studentguideslot="almuerzo"]').click();await open();
  assert.equal(await page.locator('[data-guideentryqty="0"]').inputValue(),'125,5');assert.equal(await page.locator('[data-guideentrycheck="2"]').isChecked(),false);
  await page.locator('[data-guideentryqty="0"]').fill('-1');await page.locator('[data-guidesave]').click();assert.equal(await writes(),0);assert.match(await page.locator('#nccPlanError').innerText(),/cantidades/);

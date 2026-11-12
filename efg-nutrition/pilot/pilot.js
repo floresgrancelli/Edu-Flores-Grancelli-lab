@@ -6045,7 +6045,7 @@ const meaningfulField=el=>{
  if(!el?.matches?.("input,textarea,select,[contenteditable]"))return false;
  if(el.matches('input[type="search"],input[type="password"],input[type="email"]'))return false;
  if(el.id&&/search|filter|login|otp/i.test(el.id))return false;
- return !!el.closest(".pilot-main,#efgMessagesContent");
+ return !!el.closest(".pilot-main,#efgMessagesContent,.ncc-plan-sheet");
 };
 root.addEventListener("input",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});
 root.addEventListener("change",e=>{if(meaningfulField(e.target))userHasUnconfirmedEdits=true;},{capture:true});

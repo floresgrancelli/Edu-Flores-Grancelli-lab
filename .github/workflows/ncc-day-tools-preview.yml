@@ -23,6 +23,8 @@ jobs:
       - run: node efg-nutrition/tests/day-tools-preview-browser.mjs
       - run: node efg-nutrition/tests/daily-tips-all-roles-browser.mjs
       - run: node efg-nutrition/tests/science-library-browser.mjs
+      - run: node efg-nutrition/tests/notification-destinations.mjs
+      - run: node efg-nutrition/tests/notification-inbox-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -31,5 +33,6 @@ jobs:
             artifacts/day-tools-preview/
             artifacts/daily-tips/
             artifacts/science-library/
+            artifacts/notification-inbox/
           if-no-files-found: error
           retention-days: 7

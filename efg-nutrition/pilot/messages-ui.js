@@ -217,10 +217,10 @@ export function createMessagesCenter({sb,context,afterSend}){
   }finally{loadingOlder=false;if(key===epoch)paint({prepend:true});}
  }
  async function openStudent(student){
-  resetIfChanged();if(!contacts().some(x=>x.student===student))return;
+  resetIfChanged();if(!contacts().some(x=>x.student===student))return false;
   if(selectedStudent!==student){selectedStudent=student;thread=[];formDraft=drafts.get(student)||"";threadHasMore=false;deliveryNotice="";epoch++;}
   threadOpen=true;paint({force:true});
-  await load(true);
+  await load(true);return true;
  }
  async function send(value){
   resetIfChanged();
@@ -305,6 +305,7 @@ export function createMessagesCenter({sb,context,afterSend}){
  }
  return {mount:()=>{resetIfChanged();paint({force:true});load().catch(console.warn);},
   selectStudent:student=>{openStudent(student).catch(console.warn);},
+  openNotification:openStudent,
   replyToWeeklyReport,replyToPeriodReport,prepareReportDraft,
   refresh:load};
 }

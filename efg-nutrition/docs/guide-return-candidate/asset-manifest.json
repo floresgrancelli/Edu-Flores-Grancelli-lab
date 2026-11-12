@@ -252,7 +252,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "82445738106740ea7366bf78581c5cde7a535a6a7c8998677c8b53c2873b24d0",
+    "efg-nutrition/pilot/pilot.js": "aefb18d41d947ab3d0dd8afe908e18122056f63774876a4e9955e9fc93840062",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ddc87e07660f35a68e9b613bc6496785b1c62593539260af0fe706a5f37233f2",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "c7b6549d2e017cc4de75459c6a43ccb76ec01ccc855fa52b7417e86b11cab907",
@@ -271,7 +271,7 @@
     "efg-nutrition/pilot/professional-workspace-release-config.mjs": "e44aad267b49bb759b3ff63b8a1d68947233d7e7ea3ab689a222d0a70be7ebcc",
     "efg-nutrition/pilot/professional-workspace-release-frame.mjs": "ef59351ba96df81b074159a6f42e83b85e7a70ee91c41f74670825a1be1661f4",
     "efg-nutrition/pilot/professional-workspace-release-panel.mjs": "9c7d01855bf7b9854690542583170dd6983fffe1b75d60c3381fbd11f18562a9",
-    "efg-nutrition/pilot/progress-charts.js": "5ef435ec4ce252d4edc63bde9c9cb166cf0e99ec1722735b894235284c33f0b1",
+    "efg-nutrition/pilot/progress-charts.js": "b7f2cda63f3c1327100831f9103bb9e63388572326e9314444879ed574bd1f26",
     "efg-nutrition/pilot/pull-refresh.js": "e7342b7197852a74058b16e8c7ae6f80ce72ed59e5a0e0fc078e82b5fd74f29c",
     "efg-nutrition/pilot/qa-reviewed-sources.js": "2a52b7e4c61a4939994f45e1dfaacb77ac6816e9ef7ab87b45b15ce1d889da4a",
     "efg-nutrition/pilot/recipe-catalog-bridge.js": "eaf6c8106000232ac994cf81dec61eb86297491439da200bc5064387e34da5b1",
@@ -326,7 +326,7 @@
     "efg-nutrition/pilot/report-macro-gaps.js": "67b6fc049f3d16268225d7008670eb898a2b9a4fc0df44655e92fe6c294d6cb6",
     "efg-nutrition/pilot/report-macro-gaps-view.js": "da016f4b851f55eefcd2eb059db35453699913570f5146f48dc242de0552a032",
     "efg-nutrition/pilot/period-report-pdf-v4.js": "2f170d3144f22879e69e4a18828be99c384eb1567064458a8f114be2e5ca2f32",
-    "efg-nutrition/pilot/report-macro-gaps.css": "a786c6ca5bc8f633e38f55b66357f32e3442f5b40b7ea6d865b1e56904d826f2"
+    "efg-nutrition/pilot/report-macro-gaps.css": "0c6e88965616a18da33d83166e13d38ea33fd5486b77332e72c6e1e41758f301"
   },
   "stylesheets": [
     {

@@ -73,6 +73,20 @@ try{for(const engine of ['chromium','webkit']){
  await page.evaluate(()=>{window.__NCC_MACRO_FIXTURE__.hold=true;});await page.locator('[data-act="loadMacroStats"]').click();await page.waitForFunction(()=>!!window.__NCC_MACRO_FIXTURE__.release);
  await page.evaluate(()=>{window.__NCC_R4_FULLAPP__.state.authContextEpoch++;window.__NCC_MACRO_FIXTURE__.hold=false;window.__NCC_MACRO_FIXTURE__.release();});
  await page.waitForFunction(()=>!document.getElementById('macroStatsResult').loading);assert.equal(await page.locator('.ncc-gap-report').count(),0);
+ // Coach: scoped per-student tabs retain the mounted plan editor.
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;await v.fixture.loginAs('mentor');const s=v.state;s.tab='coachStudents';s.selectedStudent='stats-student-a';s.roster=[{user_id:'stats-student-a',nickname:'Alumno A',active:true},{user_id:'stats-student-b',nickname:'Alumno B',active:true}];s.consent={accepted:true};s.coachLogs=[];s.coachProgressLogs=[];s.coachWeights=[];s.coachActivities=[];s.coachGoals=[];s.coachReportGoals=null;await v.render();});
+ await page.locator('[data-coachsection="coachStudentGoals"]').click();await page.locator('#targetAge').fill('41');
+ await page.locator('[data-coachsection="coachStudentWeight"]').click();
+ for(const section of ['balance','nutrition','consistency','weight','activity']){await page.locator('[data-coachstats="'+section+'"]').click();assert.equal(await page.locator('[data-coachstatspanel]:visible').count(),1);}
+ await page.locator('[data-coachstats="nutrition"]').click();
+ await page.setViewportSize({width,height:width===390?844:740});
+ await page.locator('.coach-profile-tabs').evaluate(e=>{e.scrollIntoView({block:'start',behavior:'instant'});window.scrollBy({top:-80,behavior:'instant'});});
+ await page.screenshot({path:resolve(out,engine+'-'+width+'-coach-student-tabs.png'),fullPage:false});
+ await page.locator('[data-coachsection="coachStudentGoals"]').click();assert.equal(await page.locator('#targetAge').inputValue(),'41');
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.selectedStudent='stats-student-b';await v.render();});
+ await page.locator('[data-coachsection="coachStudentWeight"]').click();
+ assert.equal(await page.locator('[data-coachstats][aria-pressed="true"]').getAttribute('data-coachstats'),'balance');
+ assert.match(await page.locator('.coach-student-heading').innerText(),/Alumno B/);
  assert.deepEqual(errors,[]);evidence.push({engine,width,passed:true,ownUserScope:true,staleResultRejected:true});await context.close();
  }}finally{await browser.close();}
 }}finally{server.close();}

@@ -29,3 +29,5 @@ html.ncc-lime-theme #app .ncc-macro-stats{padding:16px 0 0!important;overflow:hi
 .ncc-chart-tabs button{flex:1;min-height:44px;border:1px solid #626c4e;border-radius:12px;background:#171d13;color:#f0f1e7;font:inherit}
 .ncc-chart-tabs button[aria-pressed=true]{background:#a6b96c;color:#11170c;font-weight:700}
 [data-chartpanel][hidden],[data-progresspanel][hidden]{display:none!important}
+
+[data-coachstatspanel][hidden]{display:none!important}

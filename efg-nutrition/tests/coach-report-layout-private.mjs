@@ -3,7 +3,8 @@ export async function assertCoachReportLayout(page){
  const quickColors=await page.locator('.ncc-coach-actions button').evaluateAll(els=>els.map(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color})));
  assert.equal(quickColors.length,3);
  assert.ok(quickColors.every(x=>x.image==='linear-gradient(rgb(161, 225, 68), rgb(131, 206, 48))'?x.color==='rgb(16, 22, 9)':['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)&&['rgb(21, 26, 19)','rgb(25, 34, 16)','rgb(37, 44, 36)'].includes(x.bg)),'Quick actions must stay readable on dark surfaces: '+JSON.stringify(quickColors));
- await page.locator('[data-coachsection="coachStudentNutrition"]').click();
+ await page.locator('[data-coachsection="coachStudentWeight"]').click();
+ await page.locator('[data-coachstats="nutrition"]').click();
  const geometry=await page.locator('.coach-student-profile').evaluate(profile=>{
   const header=profile.querySelector('.efg-progress-header'),title=header.querySelector('h2');
   const nav=profile.querySelector('.coach-profile-tabs'),tab=nav.querySelector('[data-coachsection="coachStudentGoals"]');
@@ -18,10 +19,12 @@ export async function assertCoachReportLayout(page){
  assert.ok(geometry.title>=Math.min(240,geometry.header)-2,'Report title compressed inside its card');
  assert.equal(geometry.wordFragments,1,'A report title word split vertically');
  assert.equal(geometry.tabInside,true,'Objectives tab clipped within navigation');
+ await page.locator('[data-progresschart="meals"]').click();
  const fragmentation=await page.locator('.coach-student-profile').evaluate(profile=>{
   const selectors='.efg-progress-panel h3,.efg-consistency-head strong,.efg-meal-legend span,.efg-meal-legend b';
   const nodes=[...profile.querySelectorAll(selectors)];let checked=0;const broken=[];
   for(const el of nodes){
+   if(!el.getClientRects().length)continue;
    const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
    while(walker.nextNode()){
     const node=walker.currentNode;

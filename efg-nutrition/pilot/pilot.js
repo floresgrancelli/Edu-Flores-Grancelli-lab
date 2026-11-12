@@ -38,7 +38,7 @@ import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilo
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-b13c52657593.js?v=ncc-focus-boot-r2-20261111";
+import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-3770ec2f7790.js?v=ncc-color-system-r1-20261112";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";

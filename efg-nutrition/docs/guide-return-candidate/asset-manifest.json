@@ -159,7 +159,8 @@
     "efg-nutrition/pilot/report-macro-gaps-view.js": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/period-report-pdf-v4.js": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/coach-report-flow.js": "ncc-report-flow-r1-20261112",
-    "efg-nutrition/pilot/workspace-tabs.js": "ncc-workspace-tabs-r1-20261112"
+    "efg-nutrition/pilot/workspace-tabs.js": "ncc-workspace-tabs-r1-20261112",
+    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "ncc-color-system-r1-20261112"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "1bfbcbb53246a00904046a69a71169403956fdf5dd0353f99accf4a9c641a766",
@@ -254,7 +255,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "94bc4a02d7142b6825f90e81838c747f0b03c0adb9d4442c69b0b25fd1123766",
+    "efg-nutrition/pilot/pilot.js": "a516db0e710beb48d4ef4c28337a9b56efb5a4ebac449e9250d28c3c79f5f9c2",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "9b22fbde84f5f3d52b00251fb54c322559a1db44c6011bf619a7801f68baa278",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "7e1f1d97b780a242671998fc3fb67f3ee4c5b208f22aedb66e179882a15b2841",
@@ -288,7 +289,7 @@
     "efg-nutrition/pilot/science-welcome.js": "0232ea2220ccc3b3314bd1fb0eea5f7823878c6290eed5652fe6ab6550d7f48d",
     "efg-nutrition/pilot/science-wellbeing.js": "b98f2fc11f70c173ab17ce5a30fc81df688ba8f658465594f68a238d4921b8ee",
     "efg-nutrition/pilot/server-compatibility-client.js": "34b6ad8ae63c6efce1c89c60671cc44582d255750b97cccb036f2ecd181365c8",
-    "efg-nutrition/pilot/student-day-presentation.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
+    "efg-nutrition/pilot/student-day-presentation.js": "b13c5265759379842b487d343ec9ada9919b78d02b29dbe88831e1f199aedb12",
     "efg-nutrition/pilot/student-food-restrictions.js": "75dfa90413aca002630b6d82bd832a168540f3015de352109d86f90bafc5d954",
     "efg-nutrition/pilot/student-restriction-declaration.js": "022cec256f001c645c6f39b179fa206409aac36d9b45503421dfc8dd0a45dd0b",
     "efg-nutrition/pilot/user-photo-labels.js": "7a7aff351af7b1799205fd9203afee70e45db6e8a05e4783fbfa68a8cc7ed67b",
@@ -332,7 +333,8 @@
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
     "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
-    "efg-nutrition/pilot/color-system.css": "7b351648ca01357b69a966e8eb46d085ee9888bfb61a2f30ba468634a96c2d7b"
+    "efg-nutrition/pilot/color-system.css": "c56d905e1c6f80e46745ee6fec56e15089febd8db614152725ce9bf66dc6e24a",
+    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0"
   },
   "stylesheets": [
     {
@@ -502,7 +504,7 @@
     },
     {
       "path": "efg-nutrition/pilot/color-system.css",
-      "sha256": "7b351648ca01357b69a966e8eb46d085ee9888bfb61a2f30ba468634a96c2d7b",
+      "sha256": "c56d905e1c6f80e46745ee6fec56e15089febd8db614152725ce9bf66dc6e24a",
       "url": "./color-system.css?v=ncc-color-system-r1-20261112"
     }
   ],

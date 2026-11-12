@@ -57,7 +57,7 @@ import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-week
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {progressDashboard} from "./progress-charts.js?v=ncc-color-system-r1-20261112";
+import {recordedProgress,progressDashboard} from "./progress-charts.js?v=ncc-progress-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -2672,10 +2672,13 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div>';
  const owner=state.session?.user?.id||'';
  const selected=state.progressSection?.owner===owner?state.progressSection.section:'summary';
- const sections=[['summary','Balance',personalMacroStatsPanel()],['nutrition','Nutrición',nutritionProgressPanel(false,'nutrition')],['consistency','Constancia',nutritionProgressPanel(false,'consistency')],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
- return rootText('Mi progreso','Elegí qué querés consultar o registrar.')+
- '<nav class="ncc-progress-tabs" aria-label="Secciones de Avance">'+sections.map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
- sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+html+'</section>').join('');
+ const facts=recordedProgress(state.progressLogs,30,today());
+ const summary='<section class="card ncc-progress-overview"><span class="eyebrow">ÚLTIMOS 30 DÍAS</span><h2>Tu avance, de un vistazo</h2><div class="ncc-progress-overview-grid"><div><small>Último peso</small><strong>'+(last?num(last.kg,1)+' kg':'Sin pesajes')+'</strong><span>'+(last?escapeHTML(weightDateLabel(last)):'Podés registrar tu primer control')+'</span></div><div><small>Constancia de registro</small><strong>'+facts.recordedDays+' de 30 días</strong><span>'+facts.meals+' comidas registradas</span></div></div><p class="pilot-hint">La constancia describe tus registros; no califica tu alimentación.</p><div class="ncc-progress-shortcuts"><button type="button" class="btn" data-progresssection="weight">Registrar peso</button><button type="button" class="btn light" data-progresssection="activity">Mi actividad</button><button type="button" class="btn light" data-progresssection="balance">Mi balance</button></div></section><details class="card ncc-progress-weight-preview"><summary>Evolución de mi peso</summary>'+weightTrendChart(state.weights)+'</details>';
+ const reports=state.profile?.role==='student'?weeklyStudentPanel():'<section class="card"><h2>Mis informes</h2><p>Los informes recibidos del coach aparecen en el espacio del alumno.</p></section>';
+ const sections=[['summary','Resumen',summary+'<details class="card"><summary>Ver mi constancia en detalle</summary>'+nutritionProgressPanel(false,'consistency')+'</details>'],['nutrition','Gráficos',nutritionProgressPanel(false,'nutrition')],['reports','Informes',reports],['weight','Peso',weightPanel],['activity','Actividad',activityPanel],['balance','Balance',personalMacroStatsPanel()]];
+ return rootText('Mi avance','Tu evolución, tus registros y los informes de tu coach.')+
+ '<nav class="ncc-progress-tabs ncc-progress-main-tabs" aria-label="Secciones de Avance">'+sections.slice(0,3).map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
+ sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+( ['weight','activity','balance'].includes(key)?'<button type="button" class="btn light" data-progresssection="summary">Volver al resumen</button>':'')+html+'</section>').join('');
 }
 
 function macroEstimate(age,height,weight,activity,sex,goal,model="mifflin",proteinPerKg=null,fatPerKg=.9,recompMode="deficit05"){
@@ -4880,7 +4883,7 @@ async function mainClick(event){
   return;
  }
  if(el.dataset.progresssection){
-  const section=el.dataset.progresssection;if(!['summary','nutrition','consistency','weight','activity'].includes(section))return;
+  const section=el.dataset.progresssection;if(!['summary','nutrition','consistency','reports','weight','activity','balance'].includes(section))return;
   state.progressSection={owner:state.session?.user?.id||'',section};
   for(const panel of root.querySelectorAll('[data-progresspanel]'))panel.hidden=panel.dataset.progresspanel!==section;
   for(const button of root.querySelectorAll('[data-progresssection]'))button.setAttribute('aria-pressed',String(button.dataset.progresssection===section));
@@ -4890,7 +4893,7 @@ async function mainClick(event){
   const id=state.session?.user?.id;if(!id)return;
   const show=el.dataset.progressHighlights==='show';state.progressHighlightsPreference={id,show};
   try{localStorage.setItem('ncc-progress-highlights-'+id,show?'on':'off');}catch{}
-  await render();document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
+  await render();const highlightsDetails=document.querySelector('.ncc-progress-highlights')?.closest('details');if(highlightsDetails)highlightsDetails.open=true;document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
   document.querySelector('[data-progress-highlights]')?.focus({preventScroll:true});return;
  }
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector("[data-progresspanel]:not([hidden]) .efg-progress-dashboard, .coach-student-profile .efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}

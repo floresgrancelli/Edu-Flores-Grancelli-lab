@@ -47,3 +47,16 @@ html.ncc-lime-theme #app .efg-coach-relaunch [data-intakepanel]>h3{font-size:21p
 .ncc-intake-data dd{margin:0;overflow-wrap:anywhere;color:#edf0e6;font-weight:600}
 .coach-intake-shared .ncc-intake-received{color:#cadc9f}
 html.ncc-lime-theme #app .coach-intake-shared [data-act="prepareCoachPlanFromIntake"]{background:#adbf72!important;color:#12190c!important;border-color:#adbf72!important;box-shadow:none!important}
+
+@layer ncc-palette {
+html.ncc-lime-theme #app .ncc-progress-main-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ncc-progress-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.ncc-progress-overview-grid>div{background:#172826;border:1px solid #415047;border-radius:14px;padding:14px;min-width:0}
+.ncc-progress-overview-grid>div:nth-child(2){background:#25212c}
+.ncc-progress-overview-grid :is(small,strong,span){display:block;overflow-wrap:anywhere}
+.ncc-progress-overview-grid strong{font-size:23px;color:#b1c579;margin:8px 0}
+.ncc-progress-overview-grid :is(small,span){font-size:12px;color:#d1d9ce}
+.ncc-progress-shortcuts{display:flex;gap:8px;flex-wrap:wrap}
+.ncc-progress-shortcuts button{flex:1;min-width:100px}
+.ncc-progress-weight-preview>summary{cursor:pointer;font-weight:700;padding:8px 0}
+}

@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-notifications-r1-20261112",
+  "assetVersion": "ncc-progress-r1-20261112",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -97,7 +97,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-notifications-r1-20261112",
+    "efg-nutrition/pilot/pilot.js": "ncc-progress-r1-20261112",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-color-system-r1-20261112",
@@ -116,7 +116,7 @@
     "efg-nutrition/pilot/professional-workspace-release-config.mjs": "ncc-dual-role-release-r5-20261107",
     "efg-nutrition/pilot/professional-workspace-release-frame.mjs": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/professional-workspace-release-panel.mjs": "ncc-color-system-r1-20261112",
-    "efg-nutrition/pilot/progress-charts.js": "ncc-color-system-r1-20261112",
+    "efg-nutrition/pilot/progress-charts.js": "ncc-progress-r1-20261112",
     "efg-nutrition/pilot/pull-refresh.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/qa-reviewed-sources.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/recipe-catalog-bridge.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
@@ -227,7 +227,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "485e2aff3e463998350e12c16e62255c950ae4fb3983d5349946581aa976d35e",
+    "efg-nutrition/pilot/index.html": "ecd3b39933e20f914c0762de0deb89b3173818ab789e4f364474cd99c73d429f",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -255,7 +255,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "2a3ffc24716246bb35a0467383d431a1e9f7cd4818ed32baf8a221bf7a459fdd",
+    "efg-nutrition/pilot/pilot.js": "70beb2e2de2f3f7af174daea7d639b41b59729e3178c73278d9f8d321e1d1100",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "9b22fbde84f5f3d52b00251fb54c322559a1db44c6011bf619a7801f68baa278",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "7e1f1d97b780a242671998fc3fb67f3ee4c5b208f22aedb66e179882a15b2841",
@@ -274,7 +274,7 @@
     "efg-nutrition/pilot/professional-workspace-release-config.mjs": "e44aad267b49bb759b3ff63b8a1d68947233d7e7ea3ab689a222d0a70be7ebcc",
     "efg-nutrition/pilot/professional-workspace-release-frame.mjs": "7785acfd9401a3f1439038d62f33a17a2fb3880da97ef8c7b02f915b20bea77c",
     "efg-nutrition/pilot/professional-workspace-release-panel.mjs": "455409acf9686d061cf472050b8c61ed2029cb74da59b7efd0a3e3891165bf13",
-    "efg-nutrition/pilot/progress-charts.js": "f4a03610cc01b824b008e00973778b523e08c1d8da491676cc18072d87acb148",
+    "efg-nutrition/pilot/progress-charts.js": "d789a732bae60cf1791cc6639c804662c236679df420bf50a6c4f87fabbe93ca",
     "efg-nutrition/pilot/pull-refresh.js": "e7342b7197852a74058b16e8c7ae6f80ce72ed59e5a0e0fc078e82b5fd74f29c",
     "efg-nutrition/pilot/qa-reviewed-sources.js": "2a52b7e4c61a4939994f45e1dfaacb77ac6816e9ef7ab87b45b15ce1d889da4a",
     "efg-nutrition/pilot/recipe-catalog-bridge.js": "eaf6c8106000232ac994cf81dec61eb86297491439da200bc5064387e34da5b1",
@@ -332,7 +332,7 @@
     "efg-nutrition/pilot/report-macro-gaps.css": "fab6a1e18080d5b14ea664cbc16b7f9d02de361d499e83e810e5e26f39791eb6",
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
-    "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
+    "efg-nutrition/pilot/workspace-tabs.css": "58deb2a39599a39b9571001cd11451f271069fc7102b4853bfb060b1741f7336",
     "efg-nutrition/pilot/color-system.css": "2e88d78aacdc59f84e0513daec63009e5019eea9103fa5401e5fcef7103c9fda",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
     "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5"
@@ -500,8 +500,8 @@
     },
     {
       "path": "efg-nutrition/pilot/workspace-tabs.css",
-      "sha256": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
-      "url": "./workspace-tabs.css?v=ncc-workspace-tabs-r1-20261112"
+      "sha256": "58deb2a39599a39b9571001cd11451f271069fc7102b4853bfb060b1741f7336",
+      "url": "./workspace-tabs.css?v=ncc-progress-r1-20261112"
     },
     {
       "path": "efg-nutrition/pilot/color-system.css",

@@ -1,0 +1,108 @@
+/* Approved colour study, 12 Nov 2026. Presentation only.
+   Important declarations in this named layer take precedence over the legacy
+   unlayered theme overrides. This keeps the palette in one place without
+   changing geometry, data, handlers or printable report documents. */
+@layer ncc-palette {
+ html.ncc-lime-theme,html.ncc-lime-theme #app .pilot-layout {
+  --ncc-bg:#0d1412!important;--ncc-surface:#1b2422!important;--ncc-panel:#22302c!important;
+  --ncc-input:#101a19!important;--ncc-line:#4d605b!important;--ncc-text:#f0f1e7!important;
+  --ncc-muted:#bec8c3!important;--ncc-lime:#b1c579!important;--ncc-action-ink:#142018!important;
+  --ncc-petrol:#172826!important;--ncc-petrol-line:#496b64!important;
+  --ncc-plum:#25212c!important;--ncc-plum-line:#665b77!important;
+  --ncc-blue:#8cb9d0!important;--ncc-amber:#d3ae75!important;--ncc-lavender:#b6a4ce!important;
+  --ncc-selected:#2d3827!important;--ncc-control:#232c29!important;
+  --efg-bg:var(--ncc-bg)!important;--efg-ink:var(--ncc-text)!important;--efg-subtle:var(--ncc-muted)!important;
+  --efg-line:var(--ncc-line)!important;--efg-green:var(--ncc-lime)!important;
+ }
+ html.ncc-lime-theme,html.ncc-lime-theme body,
+ html.ncc-lime-theme #app :is(.pilot-layout,.pilot-login,.pilot-loader,.efg-onboard,.ns-welcome-shell){background:var(--ncc-bg)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app :is(.card,.pilot-record,.efg-content-card,.coach-student-profile,.coach-intake-group,.coach-intake-shared,.efg-coach-relaunch,.coach-inbox-item,.efg-student-intake-card,.efg-legal-entry,.efg-legal-document,.efg-legal-readable,.efg-seats-panel,.efg-license-summary,.efg-payment-inbox,.efg-payment-channel,.efg-payment-transfer,.efg-payment-target,.efg-habitual-preview,.efg-habitual-picker,.efg-self-shell,.efg-self-foods,.efg-self-metric,.efg-self-meal,.efg-walk-card,.efg-walk-details,.efg-walk-history,.efg-progress-panel,.efg-chart-empty,.planner-panel,.planner-item,.food-library-tools,.coach-food-group,.nutrition-trend,.weight-summary>div,.nutrition-supplements,.ns-library-panel,.ns-faq details,.ns-meal,.ns-protein-benefits article,.ns-movement,.ns-disclaimer,.ns-welcome-slide,.pilot-login-form,.pilot-login-card,.efg-onboard-sheet,.ncc-plan-notes,.ncc-own-recipe,.efg-fit-card){background:var(--ncc-surface)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(h1,h2,h3,h4,h5,h6,.pilot-title,p,li,label,summary,dt,dd,th,td,strong,b,a,span):not(:where(.lux-report *)){color:#f0f1e7!important}
+ html.ncc-lime-theme #app :is(small,.pilot-hint,.pilot-lead,.eyebrow,.pilot-bottom,.efg-chat-count,.efg-chat-empty,.efg-chat-privacy,.efg-chart-footnote,.ncc-gap-note,.ncc-gap-report footer):not(:where(.lux-report *)){color:var(--ncc-muted)!important}
+ html.ncc-lime-theme #app :is(input,select,textarea){background:var(--ncc-input)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(input,textarea)::placeholder{color:var(--ncc-muted)!important}
+ html.ncc-lime-theme #app :is(input[type=checkbox],input[type=radio],progress){accent-color:var(--ncc-lime)}
+ html.ncc-lime-theme #app :is(button,a,input,select,textarea,summary):focus-visible{outline-color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app :is(.efg-mobile-header,.pilot-nav,.efg-self-head,.ns-welcome-header){background:#111b19f5!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app button:where(:not(.navitem)){background:var(--ncc-control)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important;box-shadow:none!important}
+ html.ncc-lime-theme #app :is(.btn:not(.light):not(.ghost),.ns-next,.efg-onboard-cta,.ncc-plan-primary,.ncc-recipe-primary,.ncc-own-heading button,.ncc-meal-save button:not(.light):not(.ghost),.efg-message-compose button){background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important;border-color:var(--ncc-lime)!important;--ncc-text:var(--ncc-action-ink)!important}
+ html.ncc-lime-theme #app :is(.btn.light,.btn.ghost){--ncc-text:#f0f1e7!important;background:var(--ncc-control)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(button,.btn) :is(strong,b,small,span,svg){color:inherit!important}
+ html.ncc-lime-theme #app :is(button[aria-pressed=true],button[aria-selected=true],button[aria-current=step],.efg-guidance-tab.selected,.efg-chat-tabs button.active,.coach-profile-tabs a.active){background:var(--ncc-selected)!important;color:#f0f1e7!important;border-color:var(--ncc-lime)!important;--ncc-text:#f0f1e7!important}
+ html.ncc-lime-theme #app .pilot-nav button.navitem{background:transparent!important;color:var(--ncc-muted)!important}
+ html.ncc-lime-theme #app .pilot-nav button.navitem.active{background:transparent!important;color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app .pilot-nav button.navitem.active::before{background:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app :is(.avatar,.efg-mobile-avatar,.coach-profile-avatar,.coach-roster-avatar,.efg-chat-avatar,.pilot-pill,.pilot-role-badge,.pilot-tag,.efg-fit-tag){background:var(--ncc-selected)!important;color:var(--ncc-lime)!important;border-color:#60724c!important}
+ html.ncc-lime-theme #app :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile){background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile):nth-child(3n+2){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}
+ html.ncc-lime-theme #app :is(.efg-menu-card,.efg-coach-tile,.coach-hub-tile,.admin-command-tile):nth-child(3n+3){background:#2b2921!important;border-color:#72654e!important}
+ html.ncc-lime-theme #app :is(.efg-menu-arrow,.efg-lux-menu-icon,.coach-hub-icon,.efg-menu-emoji){background:transparent!important;color:var(--ncc-lime)!important;stroke:currentColor!important}
+ html.ncc-lime-theme #app .efg-menu-card:first-child :is(strong,span,.efg-lux-menu-icon){color:inherit!important;stroke:currentColor!important}
+ html.ncc-lime-theme #app :is(.pilot-hero,.efg-coach-banner,.efg-admin-banner){background:#172826d9!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{opacity:.62!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-plan]::before{opacity:.38!important}
+ html.ncc-lime-theme #app .ncc-plan-target>[data-ncc-macro],html.ncc-lime-theme #app .ncc-plan-target>[data-ncc-macro]>b{color:var(--ncc-macro)!important}
+ /* Mi Día: the approved arrangement and existing zero/filled widths are intact. */
+ html.ncc-lime-theme #app .ncc-day-welcome{background:transparent!important;border-color:transparent!important}
+ html.ncc-lime-theme #app .ncc-focus-summary{background:linear-gradient(125deg,#172826e8,#101a19e8)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app .ncc-focus-energy>div+div strong{color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app .ncc-focus-meter{background:#394441!important}
+ html.ncc-lime-theme #app [data-ncc-macro=p]{--ncc-macro:var(--ncc-blue)}
+ html.ncc-lime-theme #app [data-ncc-macro=c]{--ncc-macro:var(--ncc-amber)}
+ html.ncc-lime-theme #app [data-ncc-macro=f]{--ncc-macro:var(--ncc-lavender)}
+ html.ncc-lime-theme #app [data-ncc-macro] :is(.ncc-focus-meter>span,.efg-goal-track>span){background:var(--ncc-macro)!important}
+ html.ncc-lime-theme #app [data-ncc-macro] :is(.ncc-focus-macro>div>strong,.efg-goal-caption>strong,.ncc-gap-symbol,.ncc-gap-card h3){color:var(--ncc-macro)!important}
+ html.ncc-lime-theme #app .ncc-gap-card[data-ncc-macro]{border-left-color:var(--ncc-macro)!important}
+ html.ncc-lime-theme #app .ncc-gap-day [data-ncc-macro]>th{color:var(--ncc-macro)!important}
+ html.ncc-lime-theme #app #studentMeals{background:transparent!important}
+ html.ncc-lime-theme #app :is(.ncc-day-meal-tabs,.ncc-plan-tabs) button{background:linear-gradient(130deg,#26312e,#1b2422)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-day-meal-tabs,.ncc-plan-tabs) button[aria-pressed=true]{background:var(--ncc-selected)!important;border-color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.ncc-plan-meal,.ncc-guide-meal){background:linear-gradient(130deg,#1c302d,#14221f)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-day-meal-panel>.student-meal-heading,.ncc-plan-meal h3){background:#29403a!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app :is(.meal-food-line,.ncc-guide-meal .efg-guide-food){background:transparent!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-food-actions button,.ncc-day-meal-panel [data-setmeal]){background:transparent!important;color:var(--ncc-lime)!important;border-color:transparent!important}
+ html.ncc-lime-theme #app :is(.ncc-day-tools,.ncc-plan-notes:nth-of-type(2),.ncc-balance-details,.ncc-guide-nutrients,#nccGuideSections-notes){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}
+ html.ncc-lime-theme #app #nccDayTools>summary>span{color:var(--ncc-lavender)!important}
+ html.ncc-lime-theme #app :is(.ncc-day-tool,.ncc-day-tools-list>button){background:transparent!important;border-color:var(--ncc-plum-line)!important}
+ /* Registration sheets, chats, entry and received forms use the same surfaces. */
+ html.ncc-lime-theme #app :is(.meal-popup,.ncc-plan-overlay,.ncc-plan-sheet,.ncc-entry-footer,.ncc-recipe-overlay,.ncc-recipe-sheet,.weekly-pdf-dialog){background:var(--ncc-bg)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-meal-save,.efg-message-compose,.efg-chat-thread-top){background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-quantity-card,.ncc-meal-selected,.ncc-plan-entry,.ncc-recipe-quantity,.efg-habitual-preview-macros,.efg-meal-search-results){background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.efg-chat-layout,.efg-chat-list,.efg-chat-thread){background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app .efg-chat-contact:is(:hover,.is-selected){background:var(--ncc-petrol)!important}
+ html.ncc-lime-theme #app .efg-message-bubble{background:#233c36!important;border-color:var(--ncc-petrol-line)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app .efg-message-bubble.self{background:#342d40!important;border-color:var(--ncc-plum-line)!important}
+ html.ncc-lime-theme #app :is(.efg-chat-unread,.efg-notify-count){background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+ html.ncc-lime-theme #app :is(.ncc-coach-next,.ncc-intake-received,.ncc-plan-target,.efg-seats-grid>div,.efg-coach-stat-grid>div,.ncc-progress-highlights,.efg-pastel-stat){background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app :is(#nccCoachHomeFollowup,.efg-seats-grid>div:nth-child(2),.efg-coach-stat-grid>div:nth-child(2),.ncc-progress-facts>div:nth-child(2)){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}
+ html.ncc-lime-theme #app .ncc-progress-facts>div{background:var(--ncc-petrol)!important}
+ html.ncc-lime-theme #app .efg-coach-relaunch:has([data-intakewizard]){background:linear-gradient(150deg,#1c302d,#141e1b)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-intake-data [data-intake-detail],.ncc-plan-food,.ncc-recipe-count){border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.ncc-workspace-tabs button,.ncc-progress-tabs button,.ncc-chart-tabs button,.ncc-recipe-tabs button,.ncc-report-steps button){background:var(--ncc-control)!important;border-color:var(--ncc-line)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app :is(.ncc-workspace-tabs button,.ncc-progress-tabs button,.ncc-chart-tabs button,.ncc-recipe-tabs button,.ncc-report-steps button):is([aria-pressed=true],[aria-selected=true],[aria-current=step]){background:var(--ncc-selected)!important;border-color:var(--ncc-lime)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app .ncc-report-steps{background:var(--ncc-bg)!important}
+ html.ncc-lime-theme #app :is(.ncc-gap-report,.ncc-macro-stats){background:var(--ncc-bg)!important;border-color:var(--ncc-line)!important;--gap-line:var(--ncc-line);--gap-accent:var(--ncc-lime)}
+ html.ncc-lime-theme #app .ncc-gap-card{background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app .ncc-gap-card[data-ncc-macro=f]{background:var(--ncc-plum)!important}
+ html.ncc-lime-theme #app .ncc-gap-symbol{background:#0d141259!important}
+ html.ncc-lime-theme #app .ncc-gap-day{background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app .ncc-gap-day h3{background:#29403a!important}
+ html.ncc-lime-theme #app .ncc-gap-radio:checked+label{background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+ html.ncc-lime-theme #app .ncc-gap-difference{background:#303a34!important}
+ html.ncc-lime-theme #app :is(.ncc-gap-report aside,.ns-takeaway,.ns-conclusions,.ns-wellbeing){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}
+ html.ncc-lime-theme #app :is(.ns-hero,.ns-protein-focus,.ns-meals,.ns-energy,.efg-payment-new,.efg-payment-summary>div){background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app :is(.efg-consistency-column,.efg-goal-track){background:#394441!important}
+ html.ncc-lime-theme #app .efg-consistency-column>i{background:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app .pilot-main svg text{fill:var(--ncc-muted)!important}
+ html.ncc-lime-theme .efg-notifications :is(.efg-notify-popup,.efg-notify-title,.efg-notify-item){background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme .efg-notifications :is(.efg-notify-bell,.efg-notify-count){background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+ html.ncc-lime-theme #pilot-toast{background:var(--ncc-petrol)!important;color:var(--ncc-text)!important;border-color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #pilot-toast>button{background:var(--ncc-lime)!important;color:var(--ncc-action-ink)!important}
+ /* Safety/status colours keep their explicit labels and established meanings. */
+ html.ncc-lime-theme #app .efg-compat-green{background:#193b2b!important;color:#a5edbd!important;border-color:#4c8d65!important}
+ html.ncc-lime-theme #app .efg-compat-yellow{background:#3d3215!important;color:#ffe09a!important;border-color:#ad8b3e!important}
+ html.ncc-lime-theme #app .efg-compat-red{background:#442323!important;color:#ffb7b2!important;border-color:#a85b58!important}
+ html.ncc-lime-theme #app :is(.warning,#diaryFoodError){color:#ffb7b2!important}
+ @media print {html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{display:none!important}}
+ @media(forced-colors:active){html.ncc-lime-theme #app :is(button,input,select,textarea){forced-color-adjust:auto}}
+}

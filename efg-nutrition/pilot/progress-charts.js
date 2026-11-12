@@ -1,7 +1,7 @@
 // EFG Nutrition Premium 3.3 — visualization-only helpers. No network, no writes.
 // Historical averages exclude days with no records; blank periods are not zero kcal.
 const slots=[["desayuno","Desayuno","#5abda3"],["media_manana","Media mañana","#83a3e5"],["almuerzo","Almuerzo","#e8b66d"],["media_tarde","Media tarde","#b7a0e5"],["merienda","Merienda","#e99fa3"],["cena","Cena","#638e9b"]];
-const nutrients=[["p","Proteínas","#37a984",4],["c","Hidratos","#748fe2",4],["f","Grasas","#e5a65d",9]];
+const nutrients=[["p","Proteínas","#8cb9d0",4],["c","Hidratos","#d3ae75",4],["f","Grasas","#b6a4ce",9]];
 const safe=(v)=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const n=(v,d=0)=>Number(v||0).toLocaleString("es-AR",{maximumFractionDigits:d});
 const dateUTC=(s)=>new Date(s+"T12:00:00Z");
@@ -63,8 +63,8 @@ function goalBars(window,goalForDate){
  const targets=[["k","Energía","kcal",goal.kcal],["p","Proteínas","g",goal.protein_g],["c","Hidratos","g",goal.carb_g],["f","Grasas","g",goal.fat_g],["fi","Fibra","g",goal.fiber_g]];
  return '<p class="efg-chart-subdate">Último día registrado: '+last.date.split("-").reverse().join("/")+'</p><div class="efg-goal-bars">'+targets.map(([key,label,unit,target],i)=>{
   const actual=last.totals[key],pct=target>0?actual/target*100:0;
-  const color=["#218b7b","#37a984","#748fe2","#e5a65d","#b7a0e5"][i];
-  return '<div class="efg-goal-row"><div class="efg-goal-caption"><strong>'+label+'</strong><span>'+n(actual,1)+' / '+n(target,1)+' '+unit+' · '+(target>0?n(pct)+'%':'Sin meta')+'</span></div><div class="efg-goal-track"><span style="width:'+Math.min(100,Math.max(0,pct))+'%;background:'+color+'"></span></div></div>';
+  const color=["#218b7b","#8cb9d0","#d3ae75","#b6a4ce","#b7a0e5"][i];
+  return '<div class="efg-goal-row" data-ncc-macro="'+key+'"><div class="efg-goal-caption"><strong>'+label+'</strong><span>'+n(actual,1)+' / '+n(target,1)+' '+unit+' · '+(target>0?n(pct)+'%':'Sin meta')+'</span></div><div class="efg-goal-track"><span style="width:'+Math.min(100,Math.max(0,pct))+'%;background:'+color+'"></span></div></div>';
  }).join("")+'</div><p class="efg-chart-footnote">Los objetivos son referencias del coach, no límites máximos ni calificaciones.</p>';
 }
 function consistency(window){

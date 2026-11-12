@@ -1,5 +1,5 @@
 import {withMacroGaps,validMacroGaps} from './report-macro-gaps.js?v=ncc-report-gaps-r1-20261112';
-import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-report-gaps-r1-20261112';
+import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 // New authored presentation only. Missing version always means unchanged historical HTML.
 import * as weeklyLegacy from './weekly-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import * as periodLegacy from './period-luxury-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';

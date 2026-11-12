@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 export async function assertCoachReportLayout(page){
  const quickColors=await page.locator('.ncc-coach-actions button').evaluateAll(els=>els.map(el=>({bg:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color})));
  assert.equal(quickColors.length,3);
- assert.ok(quickColors.every(x=>x.image==='linear-gradient(rgb(161, 225, 68), rgb(131, 206, 48))'?x.color==='rgb(16, 22, 9)':['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)&&['rgb(21, 26, 19)','rgb(25, 34, 16)','rgb(37, 44, 36)'].includes(x.bg)),'Quick actions must stay readable on dark surfaces: '+JSON.stringify(quickColors));
+ assert.ok(quickColors.every(x=>x.bg==='rgb(177, 197, 121)'?x.color==='rgb(20, 32, 24)':x.color==='rgb(240, 241, 231)'&&['rgb(35, 44, 41)','rgb(45, 56, 39)'].includes(x.bg)),'Quick actions must stay readable in the approved palette: '+JSON.stringify(quickColors));
  await page.locator('[data-coachsection="coachStudentWeight"]').click();
  await page.locator('[data-coachstats="nutrition"]').click();
  const geometry=await page.locator('.coach-student-profile').evaluate(profile=>{

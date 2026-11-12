@@ -4,8 +4,8 @@ export async function assertCompactProgress(page,screenshot){
  assert.equal(await panels.count(),5);
  assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
  assert.equal(await page.locator('[data-progresspanel]:visible').getAttribute('data-progresspanel'),'summary');
- await page.waitForFunction(()=>getComputedStyle(document.querySelector('.ncc-progress-tabs [aria-pressed=true]')).backgroundColor==='rgb(25, 34, 16)');
- assert.equal(await page.locator('.ncc-progress-tabs [aria-pressed=true]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(25, 34, 16)');
+ await page.waitForFunction(()=>getComputedStyle(document.querySelector('.ncc-progress-tabs [aria-pressed=true]')).backgroundColor==='rgb(45, 56, 39)');
+ assert.equal(await page.locator('.ncc-progress-tabs [aria-pressed=true]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(45, 56, 39)');
  const initial=await page.evaluate(()=>JSON.stringify([window.__EFG_VISUAL_QA__.state.weights,window.__EFG_VISUAL_QA__.state.activities]));
  await page.locator('[data-progresssection="weight"]').click();
  const oldWeight=await page.locator('#weightKg').inputValue();

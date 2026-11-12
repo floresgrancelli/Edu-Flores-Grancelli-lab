@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-meal-context-r2-20261111",
+  "assetVersion": "ncc-day-tools-r1-20261111",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -221,7 +221,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "8c81f3d2182b9a38f26d16f58367c99386b96c31262b30f9ee3ce61756d6bfb7",
+    "efg-nutrition/pilot/index.html": "2d007853faa757ae7207e6e9166c9575fc49208429ae68156cb3e98fc88e6675",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -249,7 +249,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "4d0aa2a9b31e46752786c2f8a1e9c0d06e62668c354426c76158e231ad4c1332",
+    "efg-nutrition/pilot/pilot.js": "a9aa7755bd7c4dba7ea7e10192a4888c05242fff3861ab4c759e63ea26e7e90e",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -316,7 +316,8 @@
     "efg-nutrition/pilot/student-day-presentation-b13c52657593.js": "b13c5265759379842b487d343ec9ada9919b78d02b29dbe88831e1f199aedb12",
     "efg-nutrition/pilot/assets/food-families-r1.webp": "40172904605d6f80f7b164e6a018c0e49a2e552141ae1e70302fb95880b486e2",
     "efg-nutrition/pilot/assets/cream-cheese-r1.webp": "09641938994e733b10ca742e367e2e790ed8bdb56255b3d1fd1aff1d0b20c9e6",
-    "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a"
+    "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
+    "efg-nutrition/pilot/day-tools-r1.css": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1"
   },
   "stylesheets": [
     {
@@ -470,9 +471,9 @@
       "url": "./section-backgrounds.css?v=ncc-focus-photos-r1-20261111"
     },
     {
-      "path": "efg-nutrition/pilot/meal-entry-context-r2.css",
-      "sha256": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
-      "url": "./meal-entry-context-r2.css?v=ncc-meal-context-r2-20261111"
+      "path": "efg-nutrition/pilot/day-tools-r1.css",
+      "sha256": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1",
+      "url": "./day-tools-r1.css?v=ncc-day-tools-r1-20261111"
     }
   ],
   "moduleResources": [

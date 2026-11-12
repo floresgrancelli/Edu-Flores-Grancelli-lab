@@ -41,6 +41,7 @@ jobs:
           node efg-nutrition/tests/pdf-page-text.mjs
           node efg-nutrition/tests/period-report-access.mjs
           node efg-nutrition/tests/period-report-history.mjs
+          node efg-nutrition/tests/report-macro-gaps.mjs
           node efg-nutrition/tests/period-report-ui.mjs
           node efg-nutrition/tests/period-report.mjs
           node efg-nutrition/tests/period-report-pdf.mjs

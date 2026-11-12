@@ -14,7 +14,7 @@ const elements={};
 function el(id,value='') { return elements[id]={id,value,disabled:false,checked:false,textContent:'',innerHTML:'',addEventListener(name,fn){this[name]=fn;}}; }
 const host=el('periodReportResult');host.isConnected=true;
 for(const [id,value] of Object.entries({periodReportFrom:from,periodReportTo:to,periodReportConclusion:report.conclusion,periodReportFlexible:report.flexibleNote,periodReportReviewed:'',periodPublishButton:'',periodPublishStatus:'',periodLuxuryPreview:''}))el(id,value);
-const VERSION='ncc-luxury-period-pdf-v3';
+const VERSION='ncc-luxury-period-pdf-v4';
 let current={userId:'coach',studentId:'student',epoch:1,allowed:true,canPublish:true,role:'coach'},calls=0,pdfCalls=0,failPdf=false,failSend=false,deferred,pdfDeferred;
 const generatedSnapshots=[];const blobs=new Map(),revoked=[];let nextUrl=0;
 function fakeDialog(){

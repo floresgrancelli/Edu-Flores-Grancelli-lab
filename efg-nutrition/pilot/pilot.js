@@ -1,14 +1,15 @@
+import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-report-gaps-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-report-gaps-r1-20261112';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-professional-reconciliation-r1-20261107';
-import {reportCoachName} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
+import {reportCoachName} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -16,12 +17,12 @@ import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-g
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
 import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
-import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-share-return-r12-20261106";
+import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-gaps-r1-20261112";
 async function buildPeriodReportPdf(model){
- const pdf=await import("./period-report-pdf.js?v=ncc-report-share-return-r12-20261106");
+ const pdf=await import("./period-report-pdf.js?v=ncc-report-gaps-r1-20261112");
  return pdf.buildPeriodReportPdf(model);
 }
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -49,12 +50,12 @@ import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-rep
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
 import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-weekly-preview-r11-20261106";
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {progressDashboard} from "./progress-charts.js?v=ncc-progress-polish-r1-20261111";
+import {progressDashboard} from "./progress-charts.js?v=ncc-report-gaps-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -2619,10 +2620,16 @@ function progressHighlightsVisible(){
  if(state.progressHighlightsPreference?.id===id)return state.progressHighlightsPreference.show;
  try{return localStorage.getItem('ncc-progress-highlights-'+id)!=='off';}catch{return true;}
 }
-function nutritionProgressPanel(isCoach=false){
+function nutritionProgressPanel(isCoach=false,section="all"){
  const logs=isCoach?state.coachProgressLogs:state.progressLogs;
  const goals=isCoach?state.coachGoals:state.goals;
- return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible()});
+ return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible(),section,chart:state.progressChart||"energy"});
+}
+function personalMacroStatsPanel(){
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ const saved=state.macroStats?.owner===owner&&state.macroStats?.epoch===epoch?state.macroStats:null;
+ const end=new Date(today()+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-1);const to=saved?.to||end.toISOString().slice(0,10);end.setUTCDate(end.getUTCDate()-6);const from=saved?.from||end.toISOString().slice(0,10);
+ return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
 }
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
@@ -2644,7 +2651,7 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div>';
  const owner=state.session?.user?.id||'';
  const selected=state.progressSection?.owner===owner?state.progressSection.section:'summary';
- const sections=[['summary','Resumen',nutritionProgressPanel()],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
+ const sections=[['summary','Balance',personalMacroStatsPanel()],['nutrition','Nutrición',nutritionProgressPanel(false,'nutrition')],['consistency','Constancia',nutritionProgressPanel(false,'consistency')],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
  return rootText('Mi progreso','Elegí qué querés consultar o registrar.')+
  '<nav class="ncc-progress-tabs" aria-label="Secciones de Avance">'+sections.map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
  sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+html+'</section>').join('');
@@ -3777,6 +3784,14 @@ function coachStudentQuickSummary(p){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  return '<aside class="ncc-coach-quick"><h3>Para revisar</h3><div class="ncc-coach-status"><span>'+ (intake?.shared_at?'Ficha compartida':'Sin ficha compartida disponible')+'</span><span>'+ (state.coachGoals.length?'Objetivo disponible':'Objetivo pendiente')+'</span><span>'+report.daysRecorded+' días con registros disponibles</span></div><div class="ncc-coach-actions"><button type="button" data-coachquick="coachStudentNutrition">Ver registros</button><button type="button" data-coachquick="coachStudentGoals">Revisar plan</button><button type="button" data-coachquick="coachStudentReports">Preparar informe</button></div></aside>';
 }
+function coachStatisticsPanel(p){
+ const selected=state.coachStatsSelection?.studentId===p.user_id?state.coachStatsSelection.section:'balance';
+ const balance=renderMacroGaps({...buildCurrentLuxuryModel(),macroGapVersion:1},{personal:true}).replace('Mis estadísticas','Balance del alumno');
+ const weight=weightTrendChart(state.coachWeights)+'<h4>Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(''):'<p>Sin pesajes aún.</p>');
+ const activity='<h3>Actividad registrada</h3>'+(state.coachActivities.length?state.coachActivities.map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+num(a.steps||0)+' pasos · '+num(a.exercise_minutes||0)+' min de otro ejercicio</small>'+renderWalkingActivityHistory(a)+'</div>').join(''):'<p>Sin actividad compartida disponible.</p>');
+ const sections=[['balance','Balance',balance],['nutrition','Nutrición',nutritionProgressPanel(true,'nutrition')],['consistency','Constancia',nutritionProgressPanel(true,'consistency')],['weight','Peso',weight],['activity','Actividad',activity]];
+ return '<section id="coachStudentWeight" data-coachpanel hidden aria-label="Estadísticas del alumno"><nav class="ncc-progress-tabs" aria-label="Estadísticas de '+escapeHTML(p.nickname)+'">'+sections.map(([key,label])=>'<button type="button" data-coachstats="'+key+'" aria-controls="coachStats-'+key+'" aria-pressed="'+(selected===key)+'">'+label+'</button>').join('')+'</nav>'+sections.map(([key,label,html])=>'<section id="coachStats-'+key+'" data-coachstatspanel="'+key+'" '+(selected===key?'':'hidden')+'>'+html+'</section>').join('')+'</section>';
+}
 function studentDetailView(p,consent){
  if(!consent?.accepted)return '<section class="card"><h2>'+escapeHTML(p.nickname)+'</h2><div class="pilot-alert" style="margin-top:13px">El alumno todavía no autorizó compartir su información nutricional. No es posible consultar sus registros ni asignar objetivos hasta que consienta.</div></section>';
  const latest=state.coachGoals[0];
@@ -3787,11 +3802,9 @@ function studentDetailView(p,consent){
  (intakeDraft.preferredFoods?'<p><strong>Preferencias:</strong> '+escapeHTML(intakeDraft.preferredFoods)+'</p>':"")+
  (intakeDraft.dislikedFoods?'<p><strong>Evita por gusto:</strong> '+escapeHTML(intakeDraft.dislikedFoods)+'</p>':"")+
  (intakeDraft.mealRoutine?'<p><strong>Horarios:</strong> '+escapeHTML(intakeDraft.mealRoutine)+'</p>':"")+'</div>':"";
- return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div>'+coachStudentQuickSummary(p)+'<nav class="coach-profile-tabs" aria-label="Secciones del alumno">'+[['coachStudentIntake','Ficha'],['coachStudentNutrition','Alimentación'],['coachStudentWeight','Evolución'],['coachStudentGoals','Plan'],['coachStudentReports','Informes']].map(([id,label])=>'<button type="button" data-coachsection="'+id+'" aria-controls="'+id+'" aria-pressed="false">'+label+'</button>').join('')+'</nav><section id="coachStudentIntake" data-coachpanel hidden aria-label="Ficha del alumno">'+(coachIntakeFlow.details(p.user_id)||'<p class="pilot-hint">Todavía no hay una ficha compartida. Solo se muestran datos que el alumno autorizó compartir.</p>')+'</section><section id="coachStudentNutrition" data-coachpanel aria-label="Alimentación del alumno">'+coachDailyReport(p)+nutritionProgressPanel(true)+
+ return '<section class="card coach-student-profile"><div class="coach-student-heading"><div><h2>'+escapeHTML(p.nickname)+'</h2><span class="pilot-pill">Consentimiento activo</span></div><span class="coach-profile-avatar">'+escapeHTML(p.nickname.slice(0,2).toUpperCase())+'</span></div>'+coachStudentQuickSummary(p)+'<nav class="coach-profile-tabs" aria-label="Secciones del alumno">'+[['coachStudentIntake','Ficha'],['coachStudentNutrition','Alimentación'],['coachStudentWeight','Estadísticas'],['coachStudentGoals','Plan'],['coachStudentReports','Informes']].map(([id,label])=>'<button type="button" data-coachsection="'+id+'" aria-controls="'+id+'" aria-pressed="false">'+label+'</button>').join('')+'</nav><section id="coachStudentIntake" data-coachpanel hidden aria-label="Ficha del alumno">'+(coachIntakeFlow.details(p.user_id)||'<p class="pilot-hint">Todavía no hay una ficha compartida. Solo se muestran datos que el alumno autorizó compartir.</p>')+'</section><section id="coachStudentNutrition" data-coachpanel aria-label="Alimentación del alumno">'+coachDailyReport(p)+
  coachRewardPanel()+'</section>'+
- '<details class="coach-profile-accordion" id="coachStudentWeight" data-coachpanel hidden><summary>⚖️ Evolución del peso corporal</summary>'+weightTrendChart(state.coachWeights)+
- '<h4 style="margin:15px 0 8px">Pesajes recientes</h4>'+(state.coachWeights.length?state.coachWeights.slice(0,5).map(w=>'<div class="pilot-macro"><span>'+escapeHTML(weightDateLabel(w))+'</span><b>'+num(w.kg,1)+' kg</b></div>').join(""):'<p class="pilot-hint">Sin pesajes aún.</p>')+
- '</details><details class="coach-profile-accordion" id="coachStudentGoals" data-coachpanel hidden><summary>🎯 Preparar objetivos y Dieta Guía</summary><details class="ncc-plan-history"><summary>Plan actual e historial</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
+ coachStatisticsPanel(p)+'<details class="coach-profile-accordion" id="coachStudentGoals" data-coachpanel hidden><summary>🎯 Preparar objetivos y Dieta Guía</summary><details class="ncc-plan-history"><summary>Plan actual e historial</summary><h3>Historial de objetivos aprobados</h3>'+(state.coachGoals.length?state.coachGoals.map(g=>'<div class="pilot-macro"><span>'+escapeHTML(String(g.start_on||g.approved_at||"Sin fecha").slice(0,10))+' · '+escapeHTML(g.goal_type||"Objetivo")+'</span><b>'+num(g.kcal)+' kcal · P '+num(g.protein_g)+' g</b></div>').join(""):'<p class="pilot-hint">Sin objetivos anteriores.</p>')+'<div class="divider"></div><h3>Plan nutricional</h3>'+(latest?'<div class="pilot-notice" style="margin-top:10px"><strong>'+num(latest.kcal)+' kcal/día</strong><small>P '+latest.protein_g+' g · HC '+latest.carb_g+' g · G '+latest.fat_g+' g · Fibra '+latest.fiber_g+' g</small></div>':'<p class="pilot-hint">Sin plan aprobado.</p>')+
  baselinePreview()+goalRevisionSection(latest)+'</details><div class="divider"></div><p class="pilot-hint">El alumno tiene acceso automático a todo el catálogo. No hace falta autorizar alimentos uno por uno.</p>'+'<div id="coachPlanObjectives" class="ncc-plan-step" data-planflow-panel><h3>Paso 1 · Calculadora de objetivos</h3><p class="pilot-hint">Estimación para adultos con Mifflin–St Jeor (general) o Ten Haaf (deportistas entrenados). Revisar el gasto real y la evolución del alumno.</p>'+
  intakeWarnings+(goalWriteBlocked&&!COACH_ATOMIC_PLAN_UI_ENABLED?'<div class="pilot-alert" role="status">Preparar y revisar la propuesta está disponible. Guardar un objetivo nuevo queda bloqueado hasta incorporar borradores y publicación transaccional en staging: el objetivo vigente del alumno no se modifica.</div>':'')+'<div class="pilot-form"><div class="field-row"><div class="field"><label>Sexo de ecuación</label><select id="targetSex"><option value="">Seleccioná hombre o mujer</option><option value="male">Hombre</option><option value="female">Mujer</option></select></div><div class="field"><label>Objetivo</label><select id="targetGoal"><option value="">Confirmá el objetivo</option><option value="fat_loss" '+(intakeValue("targetGoal")==="fat_loss"?"selected":"") +'>Pérdida de grasa</option><option value="recomp" '+(intakeValue("targetGoal")==="recomp"?"selected":"") +'>Recomposición</option><option value="muscle_gain" '+(intakeValue("targetGoal")==="muscle_gain"?"selected":"") +'>Ganancia muscular</option></select></div></div><div class="field-row"><div class="field"><label>Edad</label><input type="number" min="18" max="90" value="'+intakeValue("targetAge","30")+'" id="targetAge"></div><div class="field"><label>Altura (cm)</label><input type="number" min="120" max="220" value="'+intakeValue("targetHeight","170")+'" id="targetHeight"></div></div><div class="field-row"><div class="field"><label>Peso (kg)</label><input type="number" min="35" max="300" value="'+intakeValue("targetWeight",state.coachWeights[0]?.kg||75)+'" id="targetWeight"></div><div class="field"><label>Actividad estimada</label><select id="targetActivity"><option value="">Confirmá la actividad</option>'+activityOptions(intakeDraft?(intakeDraft.fields.targetActivity??null):null)+'</select></div></div><div class="field-row"><div class="field"><label>Ecuación de gasto en reposo</label><select id="targetModel">'+equationOptions()+'</select></div>'+
  '<div class="field"><label>Proteínas</label><select id="targetProtein">'+proteinOptions()+'</select></div>'+
@@ -4828,8 +4841,22 @@ async function mainClick(event){
  else window.prompt("Copiá el alias:",alias);
  return;
 }
+ if(el.dataset.coachstats){
+  const section=el.dataset.coachstats;if(!['balance','nutrition','consistency','weight','activity'].includes(section))return;
+  state.coachStatsSelection={studentId:state.selectedStudent,section};
+  for(const panel of root.querySelectorAll('[data-coachstatspanel]'))panel.hidden=panel.dataset.coachstatspanel!==section;
+  for(const button of root.querySelectorAll('[data-coachstats]'))button.setAttribute('aria-pressed',String(button.dataset.coachstats===section));
+  return;
+ }
+ if(el.dataset.progresschart){
+  const chart=el.dataset.progresschart;if(!['energy','goals','meals'].includes(chart))return;
+  state.progressChart=chart;
+  for(const panel of root.querySelectorAll('[data-chartpanel]'))panel.hidden=panel.dataset.chartpanel!==chart;
+  for(const button of root.querySelectorAll('[data-progresschart]'))button.setAttribute('aria-pressed',String(button.dataset.progresschart===chart));
+  return;
+ }
  if(el.dataset.progresssection){
-  const section=el.dataset.progresssection;if(!['summary','weight','activity'].includes(section))return;
+  const section=el.dataset.progresssection;if(!['summary','nutrition','consistency','weight','activity'].includes(section))return;
   state.progressSection={owner:state.session?.user?.id||'',section};
   for(const panel of root.querySelectorAll('[data-progresspanel]'))panel.hidden=panel.dataset.progresspanel!==section;
   for(const button of root.querySelectorAll('[data-progresssection]'))button.setAttribute('aria-pressed',String(button.dataset.progresssection===section));
@@ -4842,7 +4869,7 @@ async function mainClick(event){
   await render();document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
   document.querySelector('[data-progress-highlights]')?.focus({preventScroll:true});return;
  }
- if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector(".efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
+ if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector("[data-progresspanel]:not([hidden]) .efg-progress-dashboard, .coach-student-profile .efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}
  if(el.dataset.studentDayGuide){
   if(state.profile?.role!=="student"||state.tab!=="home"||!state.foodPlan?.guided_plan||!state.goals.some(x=>x.id===state.foodPlan.guided_goal_id))return;
   const guide=document.getElementById("nccStudentDayGuide");
@@ -5277,6 +5304,24 @@ if(el.dataset.foodbulk){
   notify("Informe actualizado con los consumos registrados.");
   return;
  }
+ if(action==='loadMacroStats'){
+  const userId=state.session?.user?.id,epoch=state.authContextEpoch,session=state.session,host=document.getElementById('macroStatsResult');
+  if(!userId||!host||host.loading)return;
+  const from=document.getElementById('macroStatsFrom').value,to=document.getElementById('macroStatsTo').value;
+  validateReportPeriod(from,to,today());
+  const ticket=Symbol();host.ticket=ticket;host.loading=true;host.textContent='Consultando tus registros…';
+  const current=()=>state.session===session&&state.session?.user?.id===userId&&state.authContextEpoch===epoch&&host.isConnected&&host.ticket===ticket&&document.getElementById('macroStatsFrom')?.value===from&&document.getElementById('macroStatsTo')?.value===to;
+  try{
+   const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',userId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
+   if(!current())return;if(error)throw error;
+   const goals=normalizeReportTrendGoals(await loadPeriodReportGoals(sb,userId,from,to,()=>{if(!current())throw Error('Cambió el contexto.');}));if(!current())return;
+   const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
+   const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+   const model=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:state.profile?.nickname,coachName:'Tu coach',days,logs:data,goals});
+   if(!current())return;state.macroStats={owner:userId,epoch,from,to,model};host.innerHTML=renderMacroGaps(model,{personal:true});
+  }catch(error){if(current())host.textContent='No se pudieron consultar las estadísticas. Volvé a intentarlo.';}finally{host.loading=false;}
+  return;
+ }
  if(action==="generatePeriodReport"){
   const c=periodReportContext(),studentId=c.studentId,session=state.session;
   if(!c.canPublish||!c.allowed)throw Error('Acceso no autorizado.');
@@ -5300,7 +5345,7 @@ if(el.dataset.foodbulk){
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
    const report=withReportTrendGoals(withReportFoodFrequency(buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:reportCoachName(state),days,logs:data,goals:periodGoals}),data),periodGoals);
    host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=c;host.periodRequestId=null;host.periodPreviewText=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
-   host.innerHTML='<label class="period-report-field">Mi devolución · revisá y editá antes de enviar<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
+   host.innerHTML='<label class="period-report-field">Mi devolución · revisá y editá antes de enviar<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><div id="periodLuxuryPreview"></div>';
    syncPeriodReportPreview();
   }catch(error){if(current()){host.textContent='No se pudo generar el informe. Volvé a intentarlo.';throw error;}}
   finally{host.periodLoading=false;}
@@ -5820,6 +5865,11 @@ root.addEventListener("compositionend",event=>{
 function foodSearchReadyForInput(event){
  return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
 }
+root.addEventListener('input',function onMacroStatsDates(e){
+ if(!['macroStatsFrom','macroStatsTo'].includes(e.target.id))return;
+ const host=document.getElementById('macroStatsResult');if(host){host.ticket=null;host.textContent='Las fechas cambiaron. Consultá el período para actualizar.';}
+ state.macroStats={owner:state.session?.user?.id,epoch:state.authContextEpoch,from:document.getElementById('macroStatsFrom')?.value,to:document.getElementById('macroStatsTo')?.value,model:null};
+});
 root.addEventListener('input',e=>{
  if(['periodReportFrom','periodReportTo'].includes(e.target.id))invalidatePeriodReport();
  if(['periodReportConclusion','periodReportFlexible'].includes(e.target.id))syncPeriodReportPreview();
@@ -5977,6 +6027,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ state.macroStats=null;
  recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
  studentGuideSheet=null;studentGuideDrafts.clear();state.studentGuideSlots={};
  dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;

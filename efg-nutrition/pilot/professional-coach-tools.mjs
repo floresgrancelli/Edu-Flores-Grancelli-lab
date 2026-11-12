@@ -8,11 +8,11 @@ import {applyCoachCatalog} from './coach-catalog-guide.js?v=ncc-pilot-3a40474052
 import {readVerifiedCoachRestrictionScope} from './coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {buildNutritionReport} from './daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {validateReportPeriod} from './period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {buildLuxuryPeriodReport,periodReportAsStoredText,parseLuxuryPeriodReport} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
+import {buildLuxuryPeriodReport,periodReportAsStoredText,parseLuxuryPeriodReport} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
 import {withReportTrendGoals,normalizeReportTrendGoals} from './report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106';
 import {loadReportTrendGoals} from './report-trend-goals.js?v=ncc-weekly-preview-r11-20261106';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
-import {PERIOD_PDF_RENDERER_VERSION} from './period-report-pdf-version.js?v=ncc-report-share-return-r12-20261106';
+import {PERIOD_PDF_RENDERER_VERSION} from './period-report-pdf-version.js?v=ncc-report-gaps-r1-20261112';
 export const PROFESSIONAL_COACH_TOOLS_ENABLED=false;
 const fail=code=>{throw Object.assign(new Error(code),{code});};
 const clone=x=>structuredClone(x);

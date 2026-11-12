@@ -2629,7 +2629,7 @@ function personalMacroStatsPanel(){
  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
  const saved=state.macroStats?.owner===owner&&state.macroStats?.epoch===epoch?state.macroStats:null;
  const end=new Date(today()+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-1);const to=saved?.to||end.toISOString().slice(0,10);end.setUTCDate(end.getUTCDate()-6);const from=saved?.from||end.toISOString().slice(0,10);
- return '<section class="card"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
+ return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
 }
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();

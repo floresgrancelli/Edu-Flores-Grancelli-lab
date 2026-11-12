@@ -23,7 +23,7 @@ const evidence=[];
 try{for(const engine of ['chromium','webkit']){
  const browser=await engines[engine].launch({headless:true});
  try{for(const width of [390,320]){
- const context=await browser.newContext({viewport:{width,height:1050},serviceWorkers:'block',isMobile:true,hasTouch:true});
+ const context=await browser.newContext({viewport:{width,height:1600},serviceWorkers:'block',isMobile:true,hasTouch:true});
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.clock.install({time:new Date('2026-11-12T12:00:00Z')});
@@ -34,13 +34,13 @@ try{for(const engine of ['chromium','webkit']){
  const owner=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.session.user.id);
  assert.ok(await page.evaluate(id=>window.__NCC_MACRO_FIXTURE__.reads.every(r=>r.id===id),owner));
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
- await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-student-summary.png')});
+ await page.evaluate(()=>window.scrollTo(0,0));await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-student-summary.png')});
  await page.locator('.ncc-gap-switch label').filter({hasText:'Por día'}).click();assert.match(await page.locator('.ncc-gap-daily').innerText(),/Sin registros/);assert.equal(await page.locator('.ncc-gap-summary').isVisible(),false);
  assert.equal(await page.locator('.ncc-gap-day').evaluateAll(es=>es.every(e=>e.scrollWidth<=e.clientWidth)),true);
- await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-student-daily.png')});
+ await page.evaluate(()=>window.scrollTo(0,0));await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-student-daily.png')});
  await page.evaluate(async()=>{const model=window.__NCC_R4_FULLAPP__.state.macroStats.model;const {renderLuxuryPeriodReport}=await import('/efg-nutrition/pilot/coach-report-models.js');document.getElementById('macroStatsResult').innerHTML=renderLuxuryPeriodReport(model);});
- await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-coach-summary.png')});
- await page.locator('.ncc-gap-switch label').filter({hasText:'Por día'}).click();await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-coach-daily.png')});
+ await page.evaluate(()=>window.scrollTo(0,0));await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-coach-summary.png')});
+ await page.locator('.ncc-gap-switch label').filter({hasText:'Por día'}).click();await page.evaluate(()=>window.scrollTo(0,0));await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-coach-daily.png')});
  await page.locator('.ncc-gap-switch label').filter({hasText:'Devolución'}).click();assert.equal(await page.locator('.ncc-gap-feedback').isVisible(),true);
  await page.locator('#macroStatsTo').fill('2026-11-10');assert.equal(await page.locator('.ncc-gap-report').count(),0);
  await page.evaluate(()=>{window.__NCC_MACRO_FIXTURE__.hold=true;});await page.locator('[data-act="loadMacroStats"]').click();await page.waitForFunction(()=>!!window.__NCC_MACRO_FIXTURE__.release);

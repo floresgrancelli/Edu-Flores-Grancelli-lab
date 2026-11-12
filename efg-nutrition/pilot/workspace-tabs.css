@@ -123,3 +123,14 @@ html.ncc-lime-theme #app .ncc-objective-help>.pilot-hint{padding:0 12px;font-siz
  html.ncc-lime-theme #app #coachPlanObjectives [data-act=calculateGoal]{min-height:48px!important;scroll-margin-block:96px 112px}
 }
 }
+
+/* Existing status, one readable label: shape and text accompany the palette. */
+@layer ncc-palette {
+ html.ncc-lime-theme #app .ncc-state-tag{display:inline-flex!important;align-items:center;gap:6px;max-width:100%;width:fit-content;margin-top:5px;padding:5px 9px;border:1px solid #526052;border-radius:10px;background:#172826;color:#f0f1e7!important;font-size:12px!important;line-height:1.45;white-space:normal;overflow-wrap:anywhere}
+ html.ncc-lime-theme #app .ncc-state-tag>span:first-child{flex:none;font-weight:700}
+ html.ncc-lime-theme #app .ncc-state-tag[data-state-tone=complete]{border-color:#b1c579;background:#253123;color:#d8e7b5!important}
+ html.ncc-lime-theme #app .ncc-state-tag[data-state-tone=pending]{border-color:#d3ae75;background:#30291e;color:#ead0a8!important}
+ html.ncc-lime-theme #app .ncc-state-tag[data-state-tone=attention]{border-color:#b6a4ce;background:#25212c;color:#d8c8ed!important}
+ html.ncc-lime-theme #app .ncc-state-guidance{margin:8px 0 0;font-size:12px!important;line-height:1.5;color:#d1d9ce!important}
+ html.ncc-lime-theme #app .efg-payment-item>.between{flex-wrap:wrap;gap:8px;align-items:flex-start}
+}

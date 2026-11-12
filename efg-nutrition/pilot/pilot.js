@@ -2879,10 +2879,20 @@ function coachRosterActions(p,next){
   [['coachStudentIntake','Ficha'],['coachStudentGoals','Plan'],['coachStudentNutrition','Seguimiento']].map(([section,label])=>section===next.section?primary:
    '<button type="button" class="btn small ghost" data-student="'+escapeHTML(p.user_id)+'" data-studentsection="'+section+'" aria-label="'+label+' de '+escapeHTML(coachDisplayName(p))+'">'+label+'</button>').join('')+'</div>';
 }
+// Presentation only: callers keep the existing authoritative status decisions.
+function clearStatusTag(label,tone){
+ const symbols={complete:'✓',attention:'!',pending:'…',neutral:'—'};
+ const kind=Object.hasOwn(symbols,tone)?tone:'neutral';
+ return '<span class="ncc-state-tag" data-state-tone="'+kind+'"><span aria-hidden="true">'+symbols[kind]+'</span><span>'+escapeHTML(label)+'</span></span>';
+}
+function coachRosterStatus(next){
+ const tone=next.stage==='follow'&&next.label==='Plan publicado'?'complete':next.stage==='consent'?'attention':['draft','intake','plan'].includes(next.stage)?'pending':'neutral';
+ return clearStatusTag(next.label,tone);
+}
 function coachRosterCard(p){
  const next=coachRosterNext(p);
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
- '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small><small class="pilot-pill">'+next.label+'</small></div></div>'+
+ '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small>'+coachRosterStatus(next)+'</div></div>'+
  coachRosterActions(p,next)+
  '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></details></div>';
 }
@@ -3907,8 +3917,10 @@ function paymentCard(p){
  const isRecipient=p.recipient_id===state.session.user.id;
  const pupil=(state.roster||[]).find(x=>x.user_id===p.payer_id);
  const sender=pupil?coachDisplayName(pupil):p.payment_kind==="student_coach"?"Alumno":"Entrenador";
- const status={pending:"Pendiente de verificar",approved:"Aprobado",rejected:"Rechazado"}[p.status]||p.status;
- return '<div data-payment-status="'+escapeHTML(p.status)+'" class="pilot-record efg-payment-item '+(isRecipient&&p.status==="pending"?"efg-payment-new":"")+'"><div class="between"><div><strong>'+num(p.amount_ars,2)+' ARS · '+escapeHTML(p.period_label)+'</strong><small>'+escapeHTML(isRecipient?"Recibido de "+sender:"Enviado al destinatario")+' · '+formatTime(p.created_at)+'</small></div><span class="pilot-pill '+(p.status==="pending"?"pending":p.status==="rejected"?"no":"")+'">'+escapeHTML(status)+'</span></div><div class="pilot-toolbar" style="margin-top:9px"><button class="btn small ghost" data-proof="'+escapeHTML(p.receipt_path)+'">Ver comprobante</button>'+(isRecipient&&p.status==="pending"?'<button class="btn small light" data-approve="'+p.id+'">Aprobar transferencia</button><button class="btn small ghost" data-reject="'+p.id+'">Rechazar</button>':'')+'</div></div>';
+ const status={pending:"Pendiente de verificar",approved:"Comprobante aprobado",rejected:"Comprobante rechazado"}[p.status]||"Estado sin confirmar";
+ const tone={pending:'pending',approved:'complete',rejected:'attention'}[p.status]||'neutral';
+ const guidance=p.status==='pending'?(isRecipient?'Revisá la acreditación antes de aprobar.':'El destinatario todavía debe verificarlo.'):p.status==='approved'?'La aprobación del comprobante no activa ni renueva una licencia.':p.status==='rejected'?'El destinatario rechazó este comprobante.':'No se recibió un estado reconocido para este comprobante.';
+ return '<div data-payment-status="'+escapeHTML(p.status)+'" class="pilot-record efg-payment-item '+(isRecipient&&p.status==="pending"?"efg-payment-new":"")+'"><div class="between"><div><strong>'+num(p.amount_ars,2)+' ARS · '+escapeHTML(p.period_label)+'</strong><small>'+escapeHTML(isRecipient?"Recibido de "+sender:"Enviado al destinatario")+' · '+formatTime(p.created_at)+'</small></div>'+clearStatusTag(status,tone)+'</div><p class="ncc-state-guidance">'+escapeHTML(guidance)+'</p><div class="pilot-toolbar" style="margin-top:9px"><button class="btn small ghost" data-proof="'+escapeHTML(p.receipt_path)+'">Ver comprobante</button>'+(isRecipient&&p.status==="pending"?'<button class="btn small light" data-approve="'+p.id+'">Aprobar transferencia</button><button class="btn small ghost" data-reject="'+p.id+'">Rechazar</button>':'')+'</div></div>';
 }
 function paymentsView(){
  const role=state.profile.role,org=state.org;

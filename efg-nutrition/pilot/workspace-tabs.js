@@ -21,7 +21,7 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
  }
  const main=root.querySelector('.pilot-main');if(!main)return;
  const shared=main.querySelector('.coach-intake-shared');
- if(shared){const data=shared.querySelector('.ncc-intake-data');if(data){group(data,'nccReceivedIntakeSections',[['basic','Datos y objetivo',[...data.querySelectorAll('[data-intake-detail=basic]')]],['food','Comidas y rutina',[...data.querySelectorAll('[data-intake-detail=food]')]]);}}
+ if(shared){const data=shared.querySelector('.ncc-intake-data');if(data){group(data,'nccReceivedIntakeSections',[['basic','Datos y objetivo',[...data.querySelectorAll('[data-intake-detail=basic]')]],['food','Comidas y rutina',[...data.querySelectorAll('[data-intake-detail=food]')]]]);}}
  if(tab==='planner'&&role==='student'){
   const plan=main.querySelector('.ncc-plan');if(!plan)return;
   const notes=[...plan.querySelectorAll(':scope > .ncc-plan-notes')].map(n=>{const section=document.createElement('section');section.className=n.className;const summary=n.querySelector(':scope > summary');if(summary){const h=document.createElement('h2');h.textContent=summary.textContent;summary.replaceWith(h);}n.replaceWith(section);section.append(...n.childNodes);return section;});

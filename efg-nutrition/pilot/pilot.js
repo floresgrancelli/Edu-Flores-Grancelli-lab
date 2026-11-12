@@ -1855,10 +1855,10 @@ const cons=state.consent,showConsent=state.profile.role==="student";
   const studentDay=state.profile.role==="student";
   const toolPanel=(id,label,content)=>content?'<details class="ncc-day-tool" id="'+id+'"><summary>'+label+'</summary><div class="ncc-day-tool-body">'+content+'</div></details>':'';
  const balance=(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">Todavía no hay metas configuradas.</div>')+'<p class="pilot-hint">Los registros son autodeclarados. No reemplazan la consulta con un profesional matriculado.</p>';
- const dayMessage='<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>'+
- (state.profile.role==="student"?nutritionTipCardHTML({
-  allowExplore:!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending"
- }):"");
+ const dayMessage='<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>';
+ const dailyTip=nutritionTipCardHTML({
+  allowExplore:state.profile.role!=="student"||(!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending")
+ });
  const tools='<details class="ncc-day-tools" id="nccDayTools"><summary><span aria-hidden="true">⚒</span> Herramientas del día</summary><div class="ncc-day-tools-list">'+
  toolPanel('nccDayBalance','Balance restante',balance)+
  '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
@@ -1870,7 +1870,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+
  '<div class="student-daily-layout"><div id="studentMeals"><h2 class="ncc-meals-heading">Mis comidas</h2>'+mealTabs+meals+'</div></div>'+
  (closePanel?'<details class="efg-optional-panel"><summary>✍️ Comentario para mi coach</summary>'+closePanel+'</details>':'')+
- tools+'<div id="mealDialogContainer"></div></div>';
+ dailyTip+tools+'<div id="mealDialogContainer"></div></div>';
 
 }
 

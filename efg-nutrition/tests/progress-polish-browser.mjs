@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 export async function assertProgressPolish(page,screenshot){
- await page.locator('[data-progresssection="consistency"]').click();
+ await page.locator('.ncc-progress-main-tabs [data-progresssection=summary]').click();
+ await page.getByText('Ver mi constancia en detalle',{exact:true}).click();
  const facts=page.locator('.ncc-progress-facts');
  assert.equal(await facts.count(),1);
  await page.locator('[data-progress-highlights="hide"]').click();
@@ -10,6 +11,7 @@ export async function assertProgressPolish(page,screenshot){
  assert.equal(await page.evaluate(async()=>{const v=window.__EFG_VISUAL_QA__;delete v.state.progressHighlightsPreference;await v.render();return v.progressHighlightsVisible();}),false);
  const otherAccount=await page.evaluate(()=>{const v=window.__EFG_VISUAL_QA__,id=v.state.session.user.id;v.state.session.user.id='other-synthetic-user';const show=v.progressHighlightsVisible();v.state.session.user.id=id;return show;});
  assert.equal(otherAccount,true,'Recognition preference must not leak between accounts');
+ await page.getByText('Ver mi constancia en detalle',{exact:true}).click();
  await page.locator('[data-progress-highlights="show"]').click();
  assert.equal(await facts.count(),1);
  const geometry=await facts.evaluate(el=>{const box=el.getBoundingClientRect();return {width:box.width,scroll:el.scrollWidth,colors:[...el.querySelectorAll('strong')].map(x=>getComputedStyle(x).color)};});

@@ -4893,7 +4893,7 @@ async function mainClick(event){
   const id=state.session?.user?.id;if(!id)return;
   const show=el.dataset.progressHighlights==='show';state.progressHighlightsPreference={id,show};
   try{localStorage.setItem('ncc-progress-highlights-'+id,show?'on':'off');}catch{}
-  await render();document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
+  await render();const highlightsDetails=document.querySelector('.ncc-progress-highlights')?.closest('details');if(highlightsDetails)highlightsDetails.open=true;document.querySelector('.ncc-progress-highlights')?.scrollIntoView({block:'nearest'});
   document.querySelector('[data-progress-highlights]')?.focus({preventScroll:true});return;
  }
  if(el.dataset.progressRange){const next=Number(el.dataset.progressRange);if([7,30,90].includes(next)){state.progressRange=next;await render();document.querySelector("[data-progresspanel]:not([hidden]) .efg-progress-dashboard, .coach-student-profile .efg-progress-dashboard")?.scrollIntoView({block:"start"});}return;}

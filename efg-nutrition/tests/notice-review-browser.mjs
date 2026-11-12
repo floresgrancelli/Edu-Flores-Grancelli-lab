@@ -44,7 +44,7 @@ try{for(const engine of ['chromium','webkit']){
    await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
    await page.evaluate(async role=>{const a=window.__NCC_R4_FULLAPP__;if(role!=='student'){a.state.profile.role=role;a.state.foodPlan=null;a.state.personalTargets={kcal:2200,protein_g:160,carb_g:230,fat_g:70,fiber_g:30};await a.render();}document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
   };
-  const prepare=async()=>{await page.locator('[data-daymeal=desayuno]').click();await page.locator('[data-setmeal=desayuno]').first().click();await page.locator('#mealFoodSearch').fill('huevo');await page.locator('[data-mealsuggestion=egg]').first().click();await page.locator('#mealEditorQty').fill('2');};
+  const prepare=async()=>{await page.locator('[data-daymeal=desayuno]').click();await page.locator('.student-meal-card [data-setmeal=desayuno]').first().click();await page.locator('#mealFoodSearch').fill('huevo');await page.locator('[data-mealsuggestion=egg]').first().click();await page.locator('#mealEditorQty').fill('2');};
   const shot=async name=>{await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png')});};
   if(baseline){await load();await prepare();await page.locator('[data-act=saveSelectedMeal]').click();await page.locator('.meal-popup').waitFor({state:'detached'});await page.locator('[data-daymealpanel=desayuno]').scrollIntoViewIfNeeded();await shot('before');baseline=false;}
   await load();await prepare();
@@ -73,7 +73,7 @@ try{for(const engine of ['chromium','webkit']){
   // An unclassified notice requiring attention never gets an inferred timeout.
   await page.evaluate(()=>window.__NCC_NOTICE_REVIEW__('Revisá el dato antes de continuar.'));await page.clock.fastForward(60000);assert.equal(await toast.isVisible(),true);await toast.locator('button').click();
   await page.evaluate(()=>{const a=window.__NCC_R4_FULLAPP__,uid=a.state.session.user.id;localStorage.setItem('efg-nutrition-habitual-v2:'+uid+':desayuno',JSON.stringify([{name:'Desayuno habitual',items:structuredClone(a.state.diary.meals.desayuno)}]));});
-  await page.locator('[data-setmeal=desayuno]').first().click();await page.locator('[data-mealsource=habitual]').click();
+  await page.locator('.student-meal-card [data-setmeal=desayuno]').first().click();await page.locator('[data-mealsource=habitual]').click();
   page.once('dialog',dialog=>dialog.accept());await page.locator('.meal-popup [data-habitualapply=desayuno]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
   assert.equal(await toast.getAttribute('data-notice-kind'),'success');assert.match(await toast.innerText(),/Habitual/);await toast.evaluate(e=>e.scrollIntoView({block:'center'}));await shot('habitual-confirmed');
   const afterRetry=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));await page.locator('[data-daymeal=desayuno]').focus();await page.mouse.move(0,0);await page.clock.fastForward(5000);assert.equal(await toast.isVisible(),false);

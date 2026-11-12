@@ -318,7 +318,7 @@
     "efg-nutrition/pilot/assets/cream-cheese-r1.webp": "09641938994e733b10ca742e367e2e790ed8bdb56255b3d1fd1aff1d0b20c9e6",
     "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
     "efg-nutrition/pilot/day-tools-r1.css": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1",
-    "efg-nutrition/pilot/recipes-library-r1.css": "376363a9370f2bb40e1a55c2913e87ae8f9426bbd0fa6804e8ec7ea7ec576e23"
+    "efg-nutrition/pilot/recipes-library-r1.css": "d135feab32b70e91421c4973afc0ecd859bc53882c052649e67eaaf7e9145bf0"
   },
   "stylesheets": [
     {
@@ -478,7 +478,7 @@
     },
     {
       "path": "efg-nutrition/pilot/recipes-library-r1.css",
-      "sha256": "376363a9370f2bb40e1a55c2913e87ae8f9426bbd0fa6804e8ec7ea7ec576e23",
+      "sha256": "d135feab32b70e91421c4973afc0ecd859bc53882c052649e67eaaf7e9145bf0",
       "url": "./recipes-library-r1.css?v=ncc-recipes-r1-20261111"
     }
   ],

@@ -19,6 +19,7 @@ function between(start,end){
 }
 function sourceLine(start){const lines=app.split('\n').filter(line=>line.startsWith(start));assert.equal(lines.length,1,start);return lines[0];}
 const fixture=`
+import {mountCoachReportFlow} from '/efg-nutrition/pilot/coach-report-flow.js';
 import {reportCoachName} from '/efg-nutrition/pilot/coach-report-models.js';
 import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from '/efg-nutrition/pilot/coach-report-models.js';
 import {buildPeriodReportPdf as renderPdf,PERIOD_PDF_RENDERER_VERSION} from '/efg-nutrition/pilot/period-report-pdf.js';
@@ -64,7 +65,7 @@ window.qa={state,trace,run,version:PERIOD_PDF_RENDERER_VERSION,
  view:()=>activePeriodPdfView&&({url:activePeriodPdfView.url,ready:activePeriodPdfView.ready,snapshot:activePeriodPdfView.snapshot,serialized:activePeriodPdfView.serialized,page:activePeriodPdfView.page,pages:activePeriodPdfView.pdf?.numPages,seen:activePeriodPdfView.seen.size,error:activePeriodPdfView.error&&({name:activePeriodPdfView.error.name,message:activePeriodPdfView.error.message,stack:activePeriodPdfView.error.stack})}),
  holdPdf(){pdfGate=new Promise(r=>releasePdf=r);},releasePdf(){releasePdf();pdfGate=null;},
  holdInsert(){insertGate=new Promise(r=>releaseInsert=r);},releaseInsert(){releaseInsert();insertGate=null;},
- coach(){closePeriodPdfView(true);state.profile.role='coach';state.session={user:{id:coach}};state.selectedStudent=student;state.consent.accepted=true;root.innerHTML=coachPeriodReportPanel();document.getElementById('periodReportFrom').value='2026-10-22';document.getElementById('periodReportTo').value='2026-10-31';},
+ coach(){closePeriodPdfView(true);state.profile.role='coach';state.session={user:{id:coach}};state.selectedStudent=student;state.consent.accepted=true;root.innerHTML=coachPeriodReportPanel();mountCoachReportFlow(root);document.getElementById('periodReportFrom').value='2026-10-22';document.getElementById('periodReportTo').value='2026-10-31';},
  student(){closePeriodPdfView(true);state.profile.role='student';state.session={user:{id:student}};state.authContextEpoch++;root.innerHTML=periodHistoryPanel();},
  snapshot:()=>document.getElementById('periodReportResult')?.periodPdfSnapshot,
  approved:()=>!!document.getElementById('periodReportResult')?.periodReviewed
@@ -117,8 +118,8 @@ try{
   page=await ctx.newPage();page.on('pageerror',e=>pageErrors.push(e.message));
   await page.goto(origin);await page.waitForFunction(()=>window.qa);
   const screenshot=label=>page.screenshot({path:resolve(out,`${engine}-${width}-${label}.png`),fullPage:true});
-  const generate=async()=>{await page.getByRole('button',{name:'Generar informe del período',exact:true}).click();await page.locator('[data-act="printPeriodLuxury"]').waitFor();};
-  const open=async()=>{await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready||qa.view()?.error);assert.equal(await page.evaluate(()=>qa.view()?.error||null),null,'Real PDF decode/render must succeed; the saved error stack identifies compatibility failures');};
+  const generate=async()=>{await page.locator('[data-report-stage="prepare"]').click();await page.getByRole('button',{name:'Generar informe del período',exact:true}).click();await page.locator('[data-act="printPeriodLuxury"]').waitFor({state:'attached'});};
+  const open=async()=>{await page.locator('[data-report-stage="send"]').click();await page.getByRole('button',{name:'Revisar PDF y enviar',exact:true}).click();await page.waitForFunction(()=>qa.view()?.ready||qa.view()?.error);assert.equal(await page.evaluate(()=>qa.view()?.error||null),null,'Real PDF decode/render must succeed; the saved error stack identifies compatibility failures');};
   const close=async()=>{await page.locator('[data-pdf-close]').click();await page.locator('.period-pdf-dialog').waitFor({state:'detached'});};
   const download=async label=>{
    const pending=page.waitForEvent('download');await page.locator('[data-pdf-download]').click();const d=await pending;
@@ -156,6 +157,7 @@ try{
   await page.locator('#periodReportReviewed').check();assert.equal(await page.locator('#periodPublishButton').isDisabled(),false);
   await close();await urlRevoked(pdf.url);assert.equal(await page.evaluate(()=>qa.approved()),false);assert.equal(await page.evaluate(()=>qa.snapshot()),null);
   assert.equal(await page.evaluate(()=>document.activeElement?.dataset.act),'printPeriodLuxury','Close restores focus to opener');
+  await page.locator('[data-report-stage="review"]').click();await page.locator('[data-report-review-tab="edit"]').click();
   await page.locator('#periodReportConclusion').fill('¡Hola, María José! Conclusión EDITADA de prueba.\n\nElegí una acción pequeña y sostenible, sin presión ni compensaciones.');
   await open();assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);
   const edited=await download('coach-edited');assert.notEqual(edited.details.sha256,preview.details.sha256);

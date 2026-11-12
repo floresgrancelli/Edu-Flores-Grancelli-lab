@@ -87,6 +87,25 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('[data-coachsection="coachStudentWeight"]').click();
  assert.equal(await page.locator('[data-coachstats][aria-pressed="true"]').getAttribute('data-coachstats'),'balance');
  assert.match(await page.locator('.coach-student-heading').innerText(),/Alumno B/);
+ // Real report workflow: presentation tabs never replace the draft or send data.
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='reports';await v.render();});
+ const captureReport=async name=>{await page.locator('.ncc-report-steps').evaluate(e=>{e.scrollIntoView({block:'start',behavior:'instant'});window.scrollBy({top:-80,behavior:'instant'});});await page.screenshot({path:resolve(out,engine+'-'+width+'-report-'+name+'.png'),fullPage:false});};
+ await page.locator('#periodReportFrom').fill('2026-11-09');await page.locator('#periodReportTo').fill('2026-11-11');await captureReport('prepare');
+ await page.locator('[data-act="generatePeriodReport"]').click();await page.locator('[data-report-review-tab="edit"]').waitFor();
+ assert.equal(await page.locator('[data-report-stage="review"]').getAttribute('aria-pressed'),'true');
+ await captureReport('review');
+ await page.locator('[data-report-review-tab="edit"]').click();await page.locator('#periodReportConclusion').fill('Devolución de prueba que debe conservarse al navegar.');
+ await page.evaluate(()=>document.getElementById('periodReportResult').dataset.preservedDraft='same-node');
+ for(const key of ['prepare','send','review'])await page.locator('[data-report-stage="'+key+'"]').click();
+ assert.equal(await page.locator('#periodReportConclusion').inputValue(),'Devolución de prueba que debe conservarse al navegar.');
+ assert.equal(await page.locator('#periodReportResult').getAttribute('data-preserved-draft'),'same-node');
+ assert.equal(await page.locator('#periodReportFrom').inputValue(),'2026-11-09');
+ await page.locator('[data-report-stage="send"]').click();await captureReport('send');
+ await page.locator('[data-report-kind="weekly"]').click();await page.locator('[data-report-kind="period"]').click();
+ assert.equal(await page.locator('#periodReportConclusion').inputValue(),'Devolución de prueba que debe conservarse al navegar.');
+ await page.locator('[data-report-stage="prepare"]').click();await page.locator('#periodReportTo').fill('2026-11-10');
+ await page.waitForFunction(()=>document.querySelector('[data-report-stage="review"]').disabled);
+ assert.equal(await page.locator('[data-act="printPeriodLuxury"]').count(),0,'Date changes invalidate the reviewed snapshot');
  assert.deepEqual(errors,[]);evidence.push({engine,width,passed:true,ownUserScope:true,staleResultRejected:true});await context.close();
  }}finally{await browser.close();}
 }}finally{server.close();}

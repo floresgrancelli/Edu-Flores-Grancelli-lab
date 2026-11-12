@@ -48,7 +48,7 @@ try{for(const engine of ['chromium','webkit']){
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='planner';await v.render();});
  const nav=page.locator('#nccPlannerSections');await nav.waitFor();
- const qty=page.locator('[id^=planQty_]').first();await qty.fill('123');
+ const qty=page.locator('[id="planQty_cena|protein"]');await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();await qty.fill('123');
  const foodNav=page.locator('#nccPlannerFood-cena');
  await foodNav.locator('[data-workspace-tab=carbs]').click();assert.equal(await page.locator('[data-planselect="cena|carbs"]').isVisible(),true);
  await foodNav.locator('[data-workspace-tab=extras]').click();assert.equal(await page.locator('[data-plannerextras=cena]').isVisible(),true);

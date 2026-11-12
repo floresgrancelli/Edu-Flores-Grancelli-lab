@@ -1629,7 +1629,7 @@ function studentSupplementsView(){
  '<section class="card efg-content-card">'+supplementsPanel(activeDiary())+'</section>';
 }
 function notificationsView(){
- return rootText("🔔 Mis notificaciones","Todos tus avisos en un solo lugar. La campanita también está disponible en cualquier pantalla.")+
+ return rootText("Mis notificaciones","Mensajes, fichas e informes. Abrí cada aviso para ver su contenido.")+
   '<section class="card efg-inbox-full" id="efgInboxFull"><p class="pilot-hint">Consultando tus avisos…</p></section>';
 }
 function messagesView(){

@@ -41,7 +41,7 @@ try{for(const engine of ['chromium','webkit']){
  await nav.locator('[data-workspace-tab=planning]').click();assert.equal(await page.locator('#planSuggestionCard').isVisible(),true);
  await page.locator('[data-planmode=both]').click();await page.locator('#nccPlannerSections [data-workspace-tab=choose]').click();
  assert.equal(await page.locator('[data-suggestionpanel=merienda]').count(),1);assert.equal(await page.locator('[data-suggestionpanel=cena]').count(),1);
- const qty=page.locator('[id="planQty_cena|protein"]');await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();await qty.fill('123');
+ await page.locator('[data-plannerslot=cena]').click();const qty=page.locator('[id="planQty_cena|protein"]');await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();await qty.fill('123');
  await page.locator('#nccPlanDestinationSections [data-workspace-tab=guide]').click();await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').click();assert.equal(await qty.inputValue(),'123');await shot('planning-both');
  await page.locator('[data-planmode=dinner]').click();assert.equal(await page.locator('#planSuggestionCard').isVisible(),true);assert.equal(await page.locator('[data-suggestionpanel=merienda]').count(),0);await shot('planning-dinner');
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

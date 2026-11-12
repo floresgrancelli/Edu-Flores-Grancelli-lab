@@ -111,3 +111,15 @@ html.ncc-lime-theme #app .ncc-roster-actions .btn{width:100%!important;min-width
 html.ncc-lime-theme #app .ncc-roster-actions .btn.ghost{background:#172826!important;color:#f0f1e7!important;border:1px solid #526052!important;box-shadow:none!important}
 html.ncc-lime-theme #app .ncc-roster-actions .ncc-roster-primary{background:#b1c579!important;color:#142018!important;border:1px solid #b1c579!important;box-shadow:none!important}
 }
+
+/* Objectives: controls first; original explanations remain available in details. */
+@layer ncc-palette {
+html.ncc-lime-theme #app .ncc-objective-help{margin:0;border:1px solid #526052;border-radius:12px;background:#172826;color:#f0f1e7}
+html.ncc-lime-theme #app .ncc-objective-help>summary{padding:12px;min-height:44px;cursor:pointer;font-size:13px;font-weight:600;line-height:1.4}
+html.ncc-lime-theme #app .ncc-objective-help>.pilot-hint{padding:0 12px;font-size:13px!important;line-height:1.6!important;color:#d1d9ce!important}
+@media(max-width:720px){
+ html.ncc-lime-theme #app #coachPlanObjectives>.ncc-plan-step-actions{position:static!important;bottom:auto!important}
+ html.ncc-lime-theme #app #coachPlanObjectives .pilot-form :is(input,select){min-height:48px!important;font-size:16px!important;scroll-margin-block:96px 112px}
+ html.ncc-lime-theme #app #coachPlanObjectives [data-act=calculateGoal]{min-height:48px!important;scroll-margin-block:96px 112px}
+}
+}

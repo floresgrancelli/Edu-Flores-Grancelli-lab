@@ -1754,6 +1754,10 @@ async function saveStudentGuideSelection(){
  }finally{sheet.busy=false;pendingMealRegistrations.delete(sheet.slot,lease);controls.forEach(c=>{if(c.isConnected)c.disabled=false;});}
 }
 
+function showPlannerPreparation(){
+ root.querySelector('#nccPlanDestinationSections [data-workspace-tab="planning"]')?.click();
+ root.querySelector('#nccPlannerSections [data-workspace-tab="choose"]')?.click();
+}
 function studentPlannerView(){
  if(currentStudentGuide())return '<div class="ncc-plan-workspace">'+studentGuideView()+'<section class="ncc-plan-planning">'+plannerCard()+'</section></div>';
  return '<div class="ncc-plan-workspace" data-no-guide="true"><section class="ncc-plan-guide-empty card"><h1>Mi Dieta Guía</h1><p>Acá verás tu Dieta Guía cuando esté disponible.</p></section><section class="ncc-plan-planning">'+rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
@@ -1896,7 +1900,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
  toolPanel('nccDayWeekly','Resumen semanal',weeklyPanel)+toolPanel('nccDayMessage','Mensaje del día',dayMessage)+toolPanel('nccDayGoals','Mis objetivos personales',goalForm)+'</div></details>';
   return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+
- ''+
+ '<button type="button" class="btn small light ncc-day-plan-shortcut" data-tab="planner" data-plan-direct="true" style="width:100%;margin:0 0 12px">Planificar merienda / cena <span aria-hidden="true">→</span></button>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi Dieta Guía</summary>'+studentGuidedSection()+'</details>':'')+
  (state.profile.role==="student"&&!state.consent?.accepted?'<div class="efg-consent-reminder"><span>🔒 Tu coach todavía no tiene autorización para seguir tus registros.</span><button class="btn small light" data-tab="privacy">Revisar permiso</button></div>':'')+
@@ -4837,7 +4841,7 @@ async function mainClick(event){
   // El primer toque de navegación o de abrir una comida NO se descarta.
   // No continuar acciones que pudieran confirmar formularios antiguos.
   if(el.dataset.setmeal){if(studentPlanPending()){state.tab="intake";await render();return;}openMealDialog(el.dataset.setmeal);return;}
-  if(el.dataset.tab){state.tab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;await render();window.scrollTo(0,0);return;}
+  if(el.dataset.tab){state.tab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;await render();if(el.dataset.planDirect)showPlannerPreparation();window.scrollTo(0,0);return;}
   return;
  }
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
@@ -4939,6 +4943,7 @@ async function mainClick(event){
    if(student)await loadStudentDetail(student.user_id);
   }
   await render();
+  if(el.dataset.planDirect)showPlannerPreparation();
   window.scrollTo(0,0);
   return;
 }

@@ -34,7 +34,11 @@ try{for(const engine of ['chromium','webkit']){
  const page=await context.newPage();await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async role=>{const a=window.__NCC_R4_FULLAPP__;if(role!=='student'){a.state.profile.role=role;a.state.foodPlan=null;a.state.personalTargets={kcal:2200,protein_g:160,carb_g:230,fat_g:70,fiber_g:30};await a.render();}document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
- await page.locator('.pilot-nav [data-tab=planner]').click();
+ await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-day-shortcut.png')});
+ await page.locator('.ncc-day-plan-shortcut').click();
+ assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#nccPlannerSections [data-workspace-tab=choose]').getAttribute('aria-pressed'),'true');
+ await page.locator('.pilot-nav [data-tab=home]').click();await page.locator('.pilot-nav [data-tab=planner]').click();
  const nav=page.locator('#nccPlanDestinationSections');await nav.waitFor();
  const shot=async name=>{await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png')});};
  await nav.locator('[data-workspace-tab=guide]').click();assert.equal(await page.locator('#nccPlanDestinationSections-guide').isVisible(),true);await shot('guide');
@@ -45,7 +49,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('#nccPlanDestinationSections [data-workspace-tab=guide]').click();await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').click();assert.equal(await qty.inputValue(),'123');await shot('planning-both');
  await page.locator('[data-planmode=dinner]').click();assert.equal(await page.locator('#planSuggestionCard').isVisible(),true);assert.equal(await page.locator('[data-suggestionpanel=merienda]').count(),0);await shot('planning-dinner');
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
- evidence.push({engine,width,role,realNavWorks:true,bothModes:true,draftPreserved:true,noDiaryMutation:true,noOverflow:true});await context.close();
+ evidence.push({engine,width,role,dayShortcutDirect:true,realNavWorks:true,bothModes:true,draftPreserved:true,noDiaryMutation:true,noOverflow:true});await context.close();
  }}finally{await browser.close();}
 }writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log('PASS Plan destinations',evidence.length);
 }finally{server.close();}

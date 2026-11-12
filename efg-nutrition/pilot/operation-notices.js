@@ -45,7 +45,14 @@ export function createOperationNotices({element,context}){
 
 // Button presentation follows the existing awaited operation; no timer, queue,
 // persistence or claim of success. The caller settles only after its real await.
-export function showSavingFeedback(button,{retryLabel='Reintentar guardado'}={}){
+export function showSavingFeedback(button,{retryLabel='Reintentar guardado',plannerKey=null,mealSlot=null}={}){
+ const doc=globalThis.document;
+ if(!button&&plannerKey)button=[...(doc?.querySelectorAll?.('[data-planadd]')||[])].find(node=>node.dataset.planadd===plannerKey);
+ if(!button&&mealSlot){
+  const active=doc?.activeElement;
+  button=active?.matches?.('[data-habitualapply]')&&active.dataset.habitualapply===mealSlot?active:
+   doc?.querySelector?.('.meal-popup [data-habitualapply="'+mealSlot+'"]')||doc?.querySelector?.('[data-daymealpanel="'+mealSlot+'"] [data-habitualapply]');
+ }
  if(!button)return ()=>{};
  const label=button.textContent,disabled=button.disabled;
  button.textContent='Guardando…';button.disabled=true;button.setAttribute('aria-busy','true');

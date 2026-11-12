@@ -1,3 +1,4 @@
+import './diary-feedback-headless-context.mjs';
 // Direct handler harness has no rendered DOM; button-state assertions run in food-entry-browser.mjs.
 globalThis.document={querySelectorAll:()=>[]};
 import assert from "node:assert/strict";

@@ -1,3 +1,4 @@
+import './diary-feedback-headless-context.mjs';
 import {createWeeklyPdfReview} from '../pilot/weekly-pdf-review.js';
 // Regression on the REAL PWA source. Synthetic REST promises; no hosted writes.
 // Session A pending save -> logout -> session B save -> late A response.

@@ -952,9 +952,7 @@ async function applyChosenHabitual(slot){
  const previousEdited=state.lastEditedMeal;
  d.meals[slot]=structuredClone(fav.items);
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
- const button=document.activeElement?.matches('[data-habitualapply]')?document.activeElement:
-  document.querySelector('.meal-popup [data-habitualapply="'+slot+'"]')||document.querySelector('[data-daymealpanel="'+slot+'"] [data-habitualapply]');
- const feedback=showSavingFeedback(button);let failed=false;
+ const feedback=showSavingFeedback(null,{mealSlot:slot});let failed=false;
  try{await saveDiary();}
  catch(error){
   failed=true;
@@ -2248,7 +2246,7 @@ async function addPlannedFood(key){
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
- feedback=showSavingFeedback([...root.querySelectorAll('[data-planadd]')].find(button=>button.dataset.planadd===key));
+ feedback=showSavingFeedback(null,{plannerKey:key});
  try{await saveDiary();}
  catch(error){
   failed=true;

@@ -257,7 +257,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "c5baa91ea6b27b058c0a0efb1482eaf425a44543ad5b0f691e0ca0b6be8c17c6",
+    "efg-nutrition/pilot/pilot.js": "254f9d406ea071b35aa65d7536e3f442971b646bc09463fc1baebb1d10daee6d",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "9b22fbde84f5f3d52b00251fb54c322559a1db44c6011bf619a7801f68baa278",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "7e1f1d97b780a242671998fc3fb67f3ee4c5b208f22aedb66e179882a15b2841",
@@ -351,7 +351,7 @@
     "efg-nutrition/pilot/assets/food-specific/basics-r1.webp": "0bc6bcf57cf718d3de3585cd9c9657404ddc279b8e9fd4e6b81b5734063e642a",
     "efg-nutrition/pilot/assets/food-specific/pantry-r1.webp": "c332db6bde3fe35708a9a46df3707727d20b1d7e2bbf783747d8448c7e954a09",
     "efg-nutrition/pilot/food-photo-map-r2.json": "d3948d6790679deb047ba7fb065884f061639f3fec1b6192accf4d553bf14063",
-    "efg-nutrition/pilot/operation-notices.js": "6f6870fdb2abe96f244dfc90889d1bff90b5c43560ee2d02758c7ce163f09eea"
+    "efg-nutrition/pilot/operation-notices.js": "84f18cdfa61715524bb05c9a911da997f0bb696312c53e6d06b1b697891c2e64"
   },
   "stylesheets": [
     {

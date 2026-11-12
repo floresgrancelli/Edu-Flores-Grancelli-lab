@@ -1,3 +1,4 @@
+import './diary-feedback-headless-context.mjs';
 import {resizeDiaryFood} from '../pilot/diary-food-edit.js';
 // Student UX regression: execute REAL handlers from pilot.js against isolated
 // session/REST fixtures. No hosted credentials, production data or device UAT.
@@ -100,7 +101,7 @@ for(const kind of ['remove','edit','clear']){
     foodSaveBody+';return saveDiaryFoodDialog;')(
     dialogs,locks,state,()=>a,today,()=> 'home',resizeDiaryFood,()=>hold.promise,()=>{throw Error('Must not navigate B');},
     {querySelector:()=>{throw Error('Must not focus B');}},m=>alerts.push(m));
-   task=handler({closest:()=>dialog});
+   task=handler({closest:()=>dialog,isConnected:true,disabled:false,textContent:'Guardar',setAttribute(){},removeAttribute(){}});
   }
   switchAccount(state,b);
   if(fails){hold.reject(new Error('offline'));if(kind==='clear')await assert.rejects(task,/offline/);else await task;

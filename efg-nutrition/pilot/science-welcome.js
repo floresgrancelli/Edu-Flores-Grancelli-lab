@@ -50,12 +50,30 @@ export function sciencePanels(){
   section(page,"ns-myth"),meals,conclusions,renderScienceWellbeingPanel()
  ];
 }
+const libraryTopics=[
+ ["Energía y calorías","Entendé lo básico","guide/oats-r1.webp"],
+ ["Los tres macronutrientes","Cada uno tiene su función","guide/eggs-r1.webp"],
+ ["Proteína y entrenamiento","Músculo, recuperación y movimiento","guide/chicken-r1.webp"],
+ ["Cómo equilibrar los macros","Gramos y calorías no son lo mismo","guide/yogurt-r1.webp"],
+ ["El mito de los hidratos","Aprendé sin prohibir alimentos","guide/rice-r1.webp"],
+ ["La ciencia en tu plato","Ideas para las comidas del día","guide/apple-r1.webp"],
+ ["Lo esencial para recordar","Las ideas que te acompañan","guide/oats-r1.webp"],
+ ["Nutrición y bienestar","Nuestra filosofía","serotonina-acuarela.avif"],
+ ["Preguntas frecuentes","Respuestas cortas y claras","guide/eggs-r1.webp"],
+ ["Fuentes científicas","Consultá la evidencia original","serotonina-acuarela.avif"]
+];
 export function renderScienceVerticalView(){
- const page=renderNutritionScienceView();
- return '<div class="ns-science ns-science-library" aria-label="Nutrición Con-Ciencia · página vertical">'+
- sciencePanels().map((p,i)=>'<div class="ns-library-panel" data-science-step="'+(i+1)+'">'+p+'</div>').join("")+
- section(page,"ns-faq")+section(page,"ns-sources")+'</div>';
+ const page=renderNutritionScienceView(),panels=sciencePanels();
+ const contents=panels.slice(1).concat([section(page,"ns-faq"),section(page,"ns-sources")]);
+ return '<div class="ns-science ns-science-library" aria-label="Nutrición Con-Ciencia · biblioteca por temas">'+
+ '<div class="ns-library-panel ns-library-heading" data-science-step="1"><span class="ns-eyebrow">CONOCIMIENTO PARA TU DÍA</span><h1>Ciencia, a tu ritmo.</h1><p>Elegí un tema y desplegalo para leer. Pequeñas ideas para entender tu alimentación.</p><span class="ns-library-count">10 temas · Siempre a mano</span></div>'+
+ '<div class="ns-topic-list">'+contents.map((content,i)=>{
+ const [title,subtitle,asset]=libraryTopics[i];
+ return '<details class="ns-topic" name="ncc-science-topic"><summary><img src="./assets/'+asset+'" alt="" width="64" height="64" decoding="async"><span class="ns-topic-label"><strong>'+title+'</strong><small>'+subtitle+'</small></span><span class="ns-topic-toggle" aria-hidden="true"><span class="ns-topic-read">Leer</span><span class="ns-topic-close">Cerrar</span><b>⌄</b></span></summary><div class="ns-topic-content">'+
+ (i<8?'<div class="ns-library-panel" data-science-step="'+(i+2)+'">'+content+'</div>':content)+'</div></details>';
+ }).join("")+'</div></div>';
 }
+
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ownerReferenceTitles=SCIENCE_STEPS.slice(0,8);
 const ownerReferenceDescriptions=Object.freeze([

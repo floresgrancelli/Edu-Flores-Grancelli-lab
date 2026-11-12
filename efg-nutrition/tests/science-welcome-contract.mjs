@@ -63,7 +63,7 @@ assert.match(errorHtml,/No &lt;b&gt; permitido/);
 assert.doesNotMatch(errorHtml,/No <b>/);
 assert.match(errorHtml,/aria-busy="true"/);
 const vertical=renderScienceVerticalView();
-assert.equal((vertical.match(/class="ns-library-panel"/g)||[]).length,9);
+assert.equal((vertical.match(/class="ns-library-panel(?: |")/g)||[]).length,9);
 assert.equal((vertical.match(/data-science-step="/g)||[]).length,9);
 assert.match(vertical,/Preguntas que aparecen siempre/);
 assert.match(vertical,/¿De dónde sale esta información/);
@@ -169,3 +169,7 @@ assert.match(pilot,/if\(state\.coachPilotEntry\.route!=="ready"\)return render\(
 assert.match(pilot,/if\(state\.welcomePending\)return welcomeView\(\);/);
 console.log("PASS P26M: eight illustrated topics, Conclusions #8 and watercolor serotonin closing #9; nine shared panels, receipts and safe navigation. OFFLINE ONLY.");
 
+
+assert.equal((vertical.match(/class="ns-topic"/g)||[]).length,10);
+assert.doesNotMatch(vertical,/<details[^>]* open/);
+for(const panel of panels.slice(1))assert.ok(vertical.includes(panel),"Original scientific panel retained verbatim");

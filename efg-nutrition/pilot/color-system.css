@@ -104,6 +104,7 @@
  html.ncc-lime-theme #app .efg-compat-yellow{background:#3d3215!important;color:#ffe09a!important;border-color:#ad8b3e!important}
  html.ncc-lime-theme #app .efg-compat-red{background:#442323!important;color:#ffb7b2!important;border-color:#a85b58!important}
  html.ncc-lime-theme #app :is(.warning,#diaryFoodError){color:#ffb7b2!important}
+ @media(max-width:700px){html.ncc-lime-theme #app #nccAdminSections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
  @media print {html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{display:none!important}}
  @media(forced-colors:active){html.ncc-lime-theme #app :is(button,input,select,textarea){forced-color-adjust:auto}}
 }

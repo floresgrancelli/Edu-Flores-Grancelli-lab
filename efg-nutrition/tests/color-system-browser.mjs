@@ -36,7 +36,9 @@ try{for(const engine of ['chromium','webkit']){
  const snap=async name=>{
  await page.waitForTimeout(120);
  await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo({top:0,left:0,behavior:'instant'});for(const e of document.querySelectorAll('#app,.pilot-layout,.pilot-main'))e.scrollTo({top:0,left:0,behavior:'instant'});});
+ if(name==='coach-intake'){await page.locator('.coach-profile-tabs').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await page.evaluate(()=>window.scrollBy({top:-80,behavior:'instant'}));}
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name+' overflow');
+ const tabFit=await page.locator('.ncc-workspace-tabs button:visible').evaluateAll(els=>els.every(e=>e.scrollWidth<=e.clientWidth+1));assert.equal(tabFit,true,name+' complete tab labels');
  const palette=await page.evaluate(()=>{
   const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number),lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
   const buttons=[...document.querySelectorAll('#app button')].filter(e=>e.getClientRects().length&&!e.disabled&&getComputedStyle(e).visibility!=='hidden');
@@ -92,7 +94,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('#nccAdminSections [data-workspace-tab=payments]').click();assert.equal(await page.locator('#nccAdminPayments').isVisible(),true);
  await page.locator('#nccAdminSections [data-workspace-tab=new]').click();assert.equal(await page.locator('#newCoachName').inputValue(),'Borrador sin enviar');
  await page.locator('#nccAdminSections [data-workspace-tab=settings]').click();assert.equal(await page.locator('#platformAlias').inputValue(),'CAMBIO.SIN.GUARDAR');
- assert.equal(await page.locator('[data-workspace-panel=nccAdminSections]:visible').count(),1);for(const tab of ['admin','adminMore','adminManage','payments']){await page.evaluate(async tab=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab=tab;await v.render();},tab);await snap('admin-'+tab);}
+ assert.equal(await page.locator('[data-workspace-panel=nccAdminSections]:visible').count(),1);for(const tab of ['admin','adminMore','adminManage','payments']){await page.evaluate(async tab=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab=tab;await v.render();},tab);if(tab==='adminManage')await page.locator('#nccAdminSections [data-workspace-tab=coaches]').click();await snap('admin-'+tab);}
  assert.deepEqual(errors,[]);evidence.push({engine,width,passed:true});await context.close();
  }}finally{await browser.close();}
 }writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));

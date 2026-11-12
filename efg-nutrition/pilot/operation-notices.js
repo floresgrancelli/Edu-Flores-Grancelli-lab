@@ -42,3 +42,15 @@ export function createOperationNotices({element,context}){
  document.addEventListener('visibilitychange',()=>document.hidden?pause():resume());
  notify.clear=hide;notify.mount=mount;return notify;
 }
+
+// Button presentation follows the existing awaited operation; no timer, queue,
+// persistence or claim of success. The caller settles only after its real await.
+export function showSavingFeedback(button,{retryLabel='Reintentar guardado'}={}){
+ if(!button)return ()=>{};
+ const label=button.textContent,disabled=button.disabled;
+ button.textContent='Guardando…';button.disabled=true;button.setAttribute('aria-busy','true');
+ return ({failed=false}={})=>{
+  if(!button.isConnected)return;
+  button.disabled=disabled;button.removeAttribute('aria-busy');button.textContent=failed?retryLabel:label;
+ };
+}

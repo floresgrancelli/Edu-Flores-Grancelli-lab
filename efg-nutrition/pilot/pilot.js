@@ -1527,19 +1527,33 @@ function fitRecipeDetails(recipe){
  const data=recipeTotals(recipe,foods);
  return '<details class="efg-fit-detail"><summary>Ingredientes y preparación</summary><div class="efg-fit-inner"><strong>Ingredientes para '+recipe.portions+' porciones</strong><ul>'+data.details.map(x=>'<li>'+num(x.grams)+' g · '+escapeHTML(x.name)+'</li>').join("")+'</ul>'+(recipe.extras?'<p>'+escapeHTML(recipe.extras)+'</p>':'')+'<strong>Preparación</strong><ol>'+recipe.steps.map(step=>'<li>'+escapeHTML(step)+'</li>').join("")+'</ol><small>Valores orientativos calculados a partir del catálogo. El rendimiento, las marcas y la cocción pueden modificarlos.</small></div></details>';
 }
+function recipeSearchText(recipe){
+ return [recipe.name,...(recipe.ingredients||[]).map(i=>foods.find(f=>f.id===(Array.isArray(i)?i[0]:i.foodId))?.name||'')].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+function recipeSearchValue(){return state.recipeSearch?.owner===state.session?.user?.id&&state.recipeSearch.epoch===state.authContextEpoch?state.recipeSearch.value:'';}
+function filterRecipeCards(){
+ const query=recipeSearchValue().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().split(/\s+/).filter(Boolean);
+ for(const panel of root.querySelectorAll('#nccRecipes-library,#nccRecipes-own')){
+  const cards=[...panel.querySelectorAll('[data-recipe-search]')];let count=0;
+  for(const card of cards){card.hidden=!query.every(term=>card.dataset.recipeSearch.includes(term));if(!card.hidden)count++;}
+  const empty=panel.querySelector('.ncc-recipe-search-empty');if(empty)empty.hidden=!query.length||count>0;
+  const status=panel.querySelector('.ncc-recipe-search-status');if(status)status.textContent=query.length?count+' recetas encontradas':'';
+ }
+}
 function fitRecipeCard(recipe){
  const p=recipeTotals(recipe,foods).perPortion;
- return '<article class="efg-fit-card"><button type="button" class="ncc-recipe-choice" data-fitrecipe="'+recipe.id+'" aria-label="Ver y registrar '+escapeHTML(recipe.name)+'"><span class="ncc-recipe-photo">'+recipePhoto(recipe)+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(recipe.name)+'</strong><span>'+num(p.k)+' kcal por porción</span><small>'+recipe.time+' min · Rinde '+recipe.portions+' '+(recipe.portions===1?'porción':'porciones')+'</small></span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button></article>';
+ return '<article class="efg-fit-card" data-recipe-search="'+escapeHTML(recipeSearchText(recipe))+'"><button type="button" class="ncc-recipe-choice" data-fitrecipe="'+recipe.id+'" aria-label="Ver y registrar '+escapeHTML(recipe.name)+'"><span class="ncc-recipe-photo">'+recipePhoto(recipe)+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(recipe.name)+'</strong><span>'+num(p.k)+' kcal por porción</span><small>'+recipe.time+' min · Rinde '+recipe.portions+' '+(recipe.portions===1?'porción':'porciones')+'</small></span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button></article>';
 }
 function studentRecipesView(){
  const rs=myRecipes(),section=state.recipeLibrary?.owner===state.session?.user?.id?state.recipeLibrary.section:'library';
  const featured=['budin-whey','pancakes','chicken-bowl'];
  const recipes=[...featured.map(id=>FIT_RECIPES.find(r=>r.id===id)),...FIT_RECIPES.filter(r=>!featured.includes(r.id))].filter(r=>!state.fitFilter||state.fitFilter==='all'||r.category===state.fitFilter);
  return '<section class="ncc-recipes"><header class="ncc-recipes-heading"><button type="button" class="ncc-recipes-back" data-tab="'+(state.profile.role==='admin'?'adminMore':'studentMore')+'" aria-label="Volver a Más">‹</button><div><h1>Recetas</h1><p>Elegí, ajustá y registrá</p></div></header>'+
+ '<label class="ncc-recipe-search-label" for="nccRecipeSearch">Buscar receta o ingrediente</label><div class="ncc-recipe-search-row"><input id="nccRecipeSearch" type="search" placeholder="Ej.: budín, pollo, avena" value="'+escapeHTML(recipeSearchValue())+'"><button type="button" data-act="clearRecipeSearch" aria-label="Limpiar búsqueda de recetas">Limpiar</button></div>'+
  '<div class="ncc-recipe-tabs" role="tablist" aria-label="Recetarios">'+[['library','Biblioteca'],['own','Mis recetas']].map(([id,label])=>'<button type="button" role="tab" id="nccRecipeTab-'+id+'" data-recipessection="'+id+'" aria-controls="nccRecipes-'+id+'" aria-selected="'+(section===id)+'">'+label+'</button>').join('')+'</div>'+
- '<section id="nccRecipes-library" class="efg-fit-library" role="tabpanel" aria-labelledby="nccRecipeTab-library" '+(section!=='library'?'hidden':'')+'><label class="ncc-recipe-category"><span class="ncc-sr-only">Categoría de recetas</span><select id="nccRecipeCategory" data-fitfilter>'+[['all','Todas las categorías'],['Desayunos y meriendas','Desayunos y meriendas'],['Almuerzos y cenas','Almuerzos y cenas']].map(([v,label])=>'<option value="'+v+'" '+((state.fitFilter||'all')===v?'selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="efg-fit-grid" tabindex="0" aria-label="Recetas disponibles. Desplazá para ver más">'+recipes.map(fitRecipeCard).join('')+'</div><p class="ncc-recipe-count">'+recipes.length+' recetas '+(state.fitFilter&&state.fitFilter!=='all'?'en esta categoría':'en la biblioteca')+'</p><small class="ncc-recipe-note">Fotos ilustrativas</small></section>'+
+ '<section id="nccRecipes-library" class="efg-fit-library" role="tabpanel" aria-labelledby="nccRecipeTab-library" '+(section!=='library'?'hidden':'')+'><label class="ncc-recipe-category"><span class="ncc-sr-only">Categoría de recetas</span><select id="nccRecipeCategory" data-fitfilter>'+[['all','Todas las categorías'],['Desayunos y meriendas','Desayunos y meriendas'],['Almuerzos y cenas','Almuerzos y cenas']].map(([v,label])=>'<option value="'+v+'" '+((state.fitFilter||'all')===v?'selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="efg-fit-grid" tabindex="0" aria-label="Recetas disponibles. Desplazá para ver más">'+recipes.map(fitRecipeCard).join('')+'</div><p class="ncc-recipe-count">'+recipes.length+' recetas '+(state.fitFilter&&state.fitFilter!=='all'?'en esta categoría':'en la biblioteca')+'</p><p class="ncc-recipe-search-status" role="status"></p><p class="ncc-recipe-search-empty" hidden>No hay coincidencias. Probá otro nombre, ingrediente o categoría.</p><small class="ncc-recipe-note">Fotos ilustrativas</small></section>'+
  '<section id="nccRecipes-own" class="efg-own-recipes" role="tabpanel" aria-labelledby="nccRecipeTab-own" '+(section!=='own'?'hidden':'')+'><div class="ncc-own-heading"><h2>Mis preparaciones</h2><button type="button" class="btn" data-act="createPersonalRecipe">+ Crear receta</button></div><p class="pilot-hint">Tus recetas personales son privadas. Elegí una para registrar sus porciones.</p>'+
- (rs.length?rs.map(r=>'<article class="ncc-own-recipe"><button type="button" class="ncc-recipe-choice" data-ownrecipe="'+escapeHTML(r.id)+'"><span class="ncc-own-icon" aria-hidden="true">'+efgMenuIcon('recipes')+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(r.name)+'</strong><span>'+num(r.totals.k/r.portions)+' kcal por porción</span>'+(r.pendingLocal?'<small>Pendiente de sincronizar</small>':'')+'</span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button><details><summary>Más opciones</summary><button type="button" class="btn ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar receta</button></details></article>').join(''):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas de la Biblioteca.</div>')+'</section><div id="nccRecipeSheetHost"></div></section>';
+ (rs.length?rs.map(r=>'<article class="ncc-own-recipe" data-recipe-search="'+escapeHTML(recipeSearchText(r))+'"><button type="button" class="ncc-recipe-choice" data-ownrecipe="'+escapeHTML(r.id)+'"><span class="ncc-own-icon" aria-hidden="true">'+efgMenuIcon('recipes')+'</span><span class="ncc-recipe-copy"><strong>'+escapeHTML(r.name)+'</strong><span>'+num(r.totals.k/r.portions)+' kcal por porción</span>'+(r.pendingLocal?'<small>Pendiente de sincronizar</small>':'')+'</span><span class="ncc-recipe-chevron" aria-hidden="true">›</span></button><details><summary>Más opciones</summary><button type="button" class="btn ghost" data-recipedelete="'+escapeHTML(r.id)+'">Eliminar receta</button></details></article>').join(''):'<div class="empty">Todavía no guardaste recetas propias. Podés usar las 12 recetas de la Biblioteca.</div>')+'<p class="ncc-recipe-search-status" role="status"></p><p class="ncc-recipe-search-empty" hidden>No hay coincidencias entre tus recetas. Probá otro nombre o ingrediente.</p></section><div id="nccRecipeSheetHost"></div></section>';
 }
 let recipeSheet=null;
 const recipeSheetDrafts=new Map();
@@ -4125,6 +4139,7 @@ async function render(){
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
  restoreCoachSection();
  mountCoachReportFlow(root);
+ filterRecipeCards();
  mountWorkspaceTabs(root,{key:[state.session?.user?.id,state.authContextEpoch||0,state.profile?.role,state.tab].join("|"),tab:state.tab,role:state.profile?.role});
  const rosterSearch=document.getElementById('coachRosterSearch');
  if(rosterSearch){
@@ -4845,6 +4860,7 @@ async function mainClick(event){
  if(el.dataset.act==="openWeeklyReward"){state.rewardOpened=!state.rewardOpened;await render();document.getElementById("efgRewardReveal")?.scrollIntoView({block:"nearest"});return;}
  if(el.dataset.rewardApproval){await updateSundayPermission(el.dataset.rewardApproval==="yes");return;}
  if(el.dataset.fitfilter){state.fitFilter=el.dataset.fitfilter;await render();document.querySelector(".efg-fit-library")?.scrollIntoView({block:"start"});return;}
+ if(el.dataset.act==='clearRecipeSearch'){state.recipeSearch={owner:state.session?.user?.id,epoch:state.authContextEpoch,value:''};const input=document.getElementById('nccRecipeSearch');if(input){input.value='';input.focus();}filterRecipeCards();return;}
  if(el.dataset.fitrecipe){openLibraryRecipe('fit',el.dataset.fitrecipe);return;}
  if(el.dataset.ownrecipe){openLibraryRecipe('own',el.dataset.ownrecipe);return;}
  if(el.dataset.recipessection){
@@ -5906,6 +5922,7 @@ root.addEventListener('change',e=>{
  if(e.target.id==='periodReportReviewed')syncPeriodReportPreview();
 });
 root.addEventListener("input",e=>{
+ if(e.target.id==='nccRecipeSearch'){state.recipeSearch={owner:state.session?.user?.id,epoch:state.authContextEpoch,value:e.target.value};filterRecipeCards();return;}
  if(e.target.id==="efgRecipeRegisterQty"&&recipeSheet)updateLibraryRecipeSummary();
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);
  if(["weeklyCoachConclusion","weeklyCoachFlexibleNote"].includes(e.target.id)){

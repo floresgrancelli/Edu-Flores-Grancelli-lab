@@ -331,7 +331,7 @@
     "efg-nutrition/pilot/report-macro-gaps.css": "fab6a1e18080d5b14ea664cbc16b7f9d02de361d499e83e810e5e26f39791eb6",
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
-    "efg-nutrition/pilot/workspace-tabs.css": "f2b6b8f149b96f86e3069b25f99deea182fa0f99b71a77423009a398ba5f389d"
+    "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5"
   },
   "stylesheets": [
     {
@@ -496,7 +496,7 @@
     },
     {
       "path": "efg-nutrition/pilot/workspace-tabs.css",
-      "sha256": "f2b6b8f149b96f86e3069b25f99deea182fa0f99b71a77423009a398ba5f389d",
+      "sha256": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
       "url": "./workspace-tabs.css?v=ncc-workspace-tabs-r1-20261112"
     }
   ],

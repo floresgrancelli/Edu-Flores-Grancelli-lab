@@ -46,3 +46,4 @@ html.ncc-lime-theme #app .efg-coach-relaunch [data-intakepanel]>h3{font-size:21p
 .ncc-intake-data dt{color:#bec7b1;font-size:14px}
 .ncc-intake-data dd{margin:0;overflow-wrap:anywhere;color:#edf0e6;font-weight:600}
 .coach-intake-shared .ncc-intake-received{color:#cadc9f}
+html.ncc-lime-theme #app .coach-intake-shared [data-act="prepareCoachPlanFromIntake"]{background:#adbf72!important;color:#12190c!important;border-color:#adbf72!important;box-shadow:none!important}

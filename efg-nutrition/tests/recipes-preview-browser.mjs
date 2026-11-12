@@ -15,6 +15,8 @@ writeFileSync(pilot,readFileSync(pilot,'utf8').replaceAll('../tests/student-day-
 copyFileSync(resolve(root,'efg-nutrition/tests/food-entry-sdk.mjs'),resolve(preview,'dist/efg-nutrition/tests/food-entry-sdk.mjs'));
 // Preserve the real editorial photo URLs; the browser route serves exact saved copies.
 copyFileSync(resolve(root,'efg-nutrition/pilot/fit-recipe-photos.js'),resolve(preview,'dist/efg-nutrition/pilot/fit-recipe-photos.js'));
+// Keep CSS data-URL SVG namespaces intact; no remote resources are loaded here.
+copyFileSync(resolve(root,'efg-nutrition/pilot/recipes-library-r1.css'),resolve(preview,'dist/efg-nutrition/pilot/recipes-library-r1.css'));
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));

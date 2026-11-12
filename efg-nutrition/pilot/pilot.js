@@ -2321,6 +2321,7 @@ async function saveDiaryFoodDialog(button){
 }
 function closeMealDialog(){
  if(document.querySelector('.ncc-food-edit [data-savefood]:disabled'))return;
+ const closing=document.querySelector('.meal-popup');if(closing)closing.dataset.nccClosed='true';
  const container=document.getElementById("mealDialogContainer");if(container)container.innerHTML="";
  state.activeMeal=null;
  const returnTarget=mealDialogReturnFocus?.isConnected&&!mealDialogReturnFocus.closest('[hidden]')
@@ -2363,9 +2364,9 @@ function openMealDialog(slot,initialGroup="protein"){
  '<details class="ncc-quantity-options"><summary>Unidad y estado del alimento</summary><div class="field" id="mealWeightStateWrap"><label for="mealWeightState">Estado del peso</label><select id="mealWeightState"><option value="cooked">Cocido / preparado (recomendado)</option><option value="raw">Crudo / seco</option></select><small id="mealWeightStateHint" class="pilot-hint">Utilizá la ficha nutricional correspondiente al estado de tu alimento.</small></div><div class="field" id="mealEntryModeWrap"><label for="mealEntryMode">¿Cómo querés registrarlo?</label><select id="mealEntryMode"><option value="weight">Peso (g o ml)</option><option value="units">Por unidades</option></select></div></details>'+
  '<div id="mealRecipeDetail"></div><div id="mealBeverageDetail"></div><div class="note" id="mealEditorHint"></div></section><div id="mealCompatibilityStatus" class="efg-compat-status" role="status" aria-live="polite"></div>'+
  '<details class="ncc-meal-catalog"><summary>Ver catálogo por categorías</summary><div class="field"><label for="mealEditorFood">Alimento</label><select id="mealEditorFood" required><option value="" selected disabled>Elegí un alimento de la lista</option>'+groupedFoodOptions(displayedWithSignals,slot)+'</select></div></details>'+
-(guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'<div class="ncc-meal-save"><button class="btn light" data-act="saveSelectedMealContinue">Agregar y seguir eligiendo</button></div></details>':'')+'</div><div class="ncc-entry-footer">'+
+(guided?'<details class="ncc-meal-guidance-details"><summary>Organizar por grupos de alimentos</summary>'+guidedPanel+'</details>':'')+'</div><div class="ncc-entry-footer">'+
 '<p class="ncc-entry-destination">Se agregará a <strong id="mealEntryDestination">'+escapeHTML(meal[1])+'</strong></p>'+
- '<div class="ncc-meal-save"><button class="btn block" data-act="saveSelectedMeal">Agregar alimento</button></div>'+
+ '<div class="ncc-meal-save ncc-entry-save-options"><button class="btn block" data-act="saveSelectedMeal">Agregar alimento</button><button type="button" class="btn light" data-act="saveSelectedMealContinue" aria-label="Agregar y seguir eligiendo alimentos">Agregar y seguir</button></div>'+
 '<button type="button" class="btn ghost ncc-entry-cancel" data-act="closeMeal">Cancelar</button>'+'</div></div></div></div>';
  updateMealEntryMode(true);
  renderMealEntryShortcuts();
@@ -2526,10 +2527,13 @@ async function saveSelectedMeal(continueGuided=false){
  if(slot&&pendingMealRegistrations.has(slot))return;
  const {f,qty,grams,useUnits,portion}=measureMealEntry();
  if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
+ const originTab=state.tab,originEpoch=state.authContextEpoch||0,originDialog=document.querySelectorAll('.meal-popup')[0]||null;
  const slotLease=pendingMealRegistrations.add(slot);
  const saveButtons=[...document.querySelectorAll('.ncc-meal-save button')];
  const feedback=saveButtons.map(b=>showSavingFeedback(b,{retryLabel:b.dataset.act==='saveSelectedMealContinue'?'Reintentar y seguir':'Reintentar guardado'}));
  let failed=false;
+ const frozenControls=[...(originDialog?.querySelectorAll?.('input,select,button:not([data-act="closeMeal"])')||[])].filter(control=>!saveButtons.includes(control)).map(control=>({control,disabled:control.disabled}));
+ frozenControls.forEach(({control})=>{control.disabled=true;});
  try{
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -2557,13 +2561,14 @@ async function saveSelectedMeal(continueGuided=false){
   }
   throw error;
  }
- if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
-  if(continueGuided&&isGuidedMealSlot(slot))openMealDialog(slot,activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
+ if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)&&(state.authContextEpoch||0)===originEpoch&&state.tab===originTab&&originDialog?.dataset?.nccClosed!=='true'){
+  if(continueGuided)openMealDialog(slot,isGuidedMealSlot(slot)&&activeGuidedMealGroup==="protein"?"carb":activeGuidedMealGroup);
   notify("Alimento agregado · balance actualizado.",{kind:"success",slot});
  }
  }finally{
   pendingMealRegistrations.delete(slot,slotLease);
   feedback.forEach(settle=>settle({failed}));
+  frozenControls.forEach(({control,disabled})=>{if(control.isConnected)control.disabled=disabled;});
  }
 }
 function coachFoodChoices(p,consent){

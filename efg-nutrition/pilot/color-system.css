@@ -96,7 +96,8 @@
  html.ncc-lime-theme #app .efg-consistency-column>i{background:var(--ncc-lime)!important}
  html.ncc-lime-theme #app .pilot-main svg text{fill:var(--ncc-muted)!important}
  html.ncc-lime-theme .efg-notifications :is(.efg-notify-popup,.efg-notify-title,.efg-notify-item){background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important;color:var(--ncc-text)!important}
- html.ncc-lime-theme .efg-notifications :is(.efg-notify-bell,.efg-notify-count){background:var(--ncc-lime)!important;color:#142018!important}
+ html.ncc-lime-theme .efg-notifications .efg-notify-bell{background:transparent!important;color:var(--ncc-lime)!important}
+ html.ncc-lime-theme .efg-notifications .efg-notify-count{background:var(--ncc-lime)!important;color:#142018!important}
  html.ncc-lime-theme #pilot-toast{background:var(--ncc-petrol)!important;color:var(--ncc-text)!important;border-color:var(--ncc-lime)!important}
  html.ncc-lime-theme #pilot-toast>button{background:var(--ncc-lime)!important;color:#142018!important}
  /* Safety/status colours keep their explicit labels and established meanings. */

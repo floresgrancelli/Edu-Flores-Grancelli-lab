@@ -571,7 +571,12 @@ try{
      const diaryBeforeTabs=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary));
      const plannerTabs=page.locator('[data-plannerslot]');
      if(await plannerTabs.count()===2){
+       // Follow the visible stages: prior planner choices are intentionally retained.
+       await page.locator('#nccPlannerSections [data-workspace-tab=choose]').click();
+       await page.locator('[data-plannerslot="merienda"]').click();
+       await page.locator('#nccPlannerFood-merienda [data-workspace-tab=protein]').click();
        const field=page.locator('[id="planQty_merienda|protein"]');
+       assert.equal(await field.isVisible(),true,'Selected meal/protein field is reachable');
        const previous=await field.inputValue();await field.fill('123');
        await page.locator('[data-plannerslot="cena"]').click();
        assert.equal(await page.locator('[data-suggestionpanel]:visible').count(),1);

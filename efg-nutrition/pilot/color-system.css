@@ -3,7 +3,7 @@
    unlayered theme overrides. This keeps the palette in one place without
    changing geometry, data, handlers or printable report documents. */
 @layer ncc-palette {
- html.ncc-lime-theme,html.ncc-lime-theme #app .pilot-layout {
+ html.ncc-lime-theme,html.ncc-lime-theme #app :is(.pilot-layout,#studentMeals,.meal-popup,.ncc-guide-meal,#coachGuidePreview,#planSuggestionCard,.efg-coach-relaunch,.efg-menu-card,.ncc-coach-next,.ncc-progress-highlights,.ncc-progress-facts>div) {
   --ncc-bg:#0d1412!important;--ncc-surface:#1b2422!important;--ncc-panel:#22302c!important;
   --ncc-input:#101a19!important;--ncc-line:#4d605b!important;--ncc-text:#f0f1e7!important;
   --ncc-muted:#bec8c3!important;--ncc-lime:#b1c579!important;--ncc-action-ink:#142018!important;
@@ -60,7 +60,7 @@
  html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.ncc-plan-meal,.ncc-guide-meal){background:linear-gradient(130deg,#1c302d,#14221f)!important;border-color:var(--ncc-petrol-line)!important}
  html.ncc-lime-theme #app .ncc-plan-meal h3{background:#29403a!important;color:var(--ncc-text)!important}
  html.ncc-lime-theme #app .ncc-day-meal-panel>.student-meal-heading{background:transparent!important;color:var(--ncc-text)!important}
- html.ncc-lime-theme #app :is(.meal-food-line,.ncc-guide-meal .efg-guide-food){background:transparent!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app :is(.student-meal-details,.meal-food-line,.ncc-guide-meal .efg-guide-food){background:transparent!important;border-color:var(--ncc-line)!important}
  html.ncc-lime-theme #app :is(.ncc-food-actions button,.ncc-day-meal-panel [data-setmeal]){background:transparent!important;color:var(--ncc-lime)!important;border-color:transparent!important}
  html.ncc-lime-theme #app :is(.ncc-day-tools,.ncc-plan-notes:nth-of-type(2),.ncc-balance-details,.ncc-guide-nutrients,#nccGuideSections-notes){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}
  html.ncc-lime-theme #app #nccDayTools>summary>span{color:var(--ncc-lavender)!important}
@@ -104,7 +104,9 @@
  html.ncc-lime-theme #app .efg-compat-yellow{background:#3d3215!important;color:#ffe09a!important;border-color:#ad8b3e!important}
  html.ncc-lime-theme #app .efg-compat-red{background:#442323!important;color:#ffb7b2!important;border-color:#a85b58!important}
  html.ncc-lime-theme #app :is(.warning,#diaryFoodError){color:#ffb7b2!important}
- @media(max-width:700px){html.ncc-lime-theme #app #nccAdminSections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+ html.ncc-lime-theme #app .ncc-workspace-tabs button{text-transform:none!important;letter-spacing:normal!important}
+ @media(max-width:360px){html.ncc-lime-theme #app .ncc-workspace-tabs button{font-size:13px!important;padding-inline:6px!important}}
+ @media(max-width:700px){html.ncc-lime-theme #app #nccAdminSections{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}}
  @media print {html.ncc-lime-theme #app .pilot-layout[data-ncc-background]::before{display:none!important}}
  @media(forced-colors:active){html.ncc-lime-theme #app :is(button,input,select,textarea){forced-color-adjust:auto}}
 }

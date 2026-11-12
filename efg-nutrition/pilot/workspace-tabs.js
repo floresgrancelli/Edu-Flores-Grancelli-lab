@@ -42,14 +42,34 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
  if(tab==='planner'){
   const host=main.querySelector('#planSuggestionCard');
   if(host&&host.querySelector('.planner-balance-compare')){
+   host.classList.add('ncc-planner-compact');
+   const help=document.createElement('details');help.className='ncc-planner-help';
+   const summary=document.createElement('summary');summary.textContent='Cómo funciona y aclaraciones';help.append(summary);
+   const steps=document.createElement('p');steps.className='ncc-planner-path';steps.textContent='1. Elegí alimentos → 2. Revisá la cantidad → 3. Registrá lo que comiste';help.append(steps);
+   // Move explanations, never clone controls or rebuild form fields.
+   const intro=host.closest('.ncc-plan-planning')?.querySelector(':scope > .pilot-top');
+   if(intro){const lead=intro.querySelector('.pilot-lead');if(lead)help.append(lead);intro.remove();}
+   for(const note of host.querySelectorAll(':scope > .pilot-hint,:scope > .ncc-suggestion-safety')){
+    // The final simulation notice belongs to Revisar balance.
+    if(!note.previousElementSibling?.matches('.planner-balance-compare'))help.append(note);
+   }
+   const remaining=host.querySelector(':scope > .planner-remaining');
+   const remainingNote=remaining?.querySelector('small');if(remainingNote)help.append(remainingNote);
+   // Keep personal preferences visible, next to the food choice.
+   const preferences=host.querySelector(':scope > .ncc-suggestion-preferences');
+   if(preferences){const detail=document.createElement('details');detail.className='ncc-planner-preferences';detail.innerHTML='<summary>Tus preferencias al elegir</summary>';preferences.replaceWith(detail);detail.append(preferences);}
+   const slotTabs=host.querySelector(':scope > .ncc-suggestion-tabs');if(slotTabs)slotTabs.before(help);
    for(const meal of host.querySelectorAll('[data-suggestionpanel]')){
     const rows=[...meal.querySelectorAll(':scope > .planner-item')];
     group(meal,'nccPlannerFood-'+meal.dataset.suggestionpanel,[['protein','Proteína',[rows[0]]],['carbs','Hidratos',[rows[1]]],['extras','Extras',[meal.querySelector(':scope > .ncc-planner-extras')]]]);
+    // Choose the food first; the existing live energy summary follows the fields.
+    const energy=meal.querySelector(':scope > .planner-energy-summary'),split=meal.querySelector(':scope > .planner-split-target');
+    if(energy)meal.append(energy);if(split)meal.append(split);
    }
    const balance=host.querySelector('.planner-balance-compare'),last=balance.nextElementSibling;
    const nodes=[...host.children].filter(n=>n!==balance&&n!==last&& !n.matches('.eyebrow,h2'));
    group(host,'nccPlannerSections',[['choose','Preparar comida',nodes],['balance','Revisar balance',[balance,last]]]);
-   const steps=document.createElement('p');steps.className='ncc-planner-path';steps.textContent='1. Elegí alimentos → 2. Revisá la cantidad → 3. Registrá lo que comiste';host.querySelector('#nccPlannerSections').before(steps);
+
   }
  }
  const payments=main.querySelector('.ncc-payments-workspace');

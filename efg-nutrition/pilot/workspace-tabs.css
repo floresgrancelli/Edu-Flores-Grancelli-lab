@@ -82,3 +82,24 @@ html.ncc-lime-theme #app .ncc-personal-menu .efg-menu-card{min-height:100px!impo
 #nccPersonalSections button{min-width:0;font-size:13px}
 .ncc-personal-menu [hidden],#supplementsToday [data-workspace-panel][hidden],#planSuggestionCard [data-workspace-panel][hidden]{display:none!important}
 }
+
+/* Compact planner: original inputs, notices and live calculations, reordered only. */
+@layer ncc-palette {
+html.ncc-lime-theme #app #planSuggestionCard.ncc-planner-compact{padding:14px!important}
+#planSuggestionCard.ncc-planner-compact>h2{margin:4px 0 10px!important;font-size:21px!important}
+#planSuggestionCard.ncc-planner-compact .ncc-workspace-tabs{margin:10px 0!important}
+#planSuggestionCard.ncc-planner-compact .planner-mode{margin:10px 0!important;padding:3px!important}
+#planSuggestionCard.ncc-planner-compact .planner-remaining{padding:10px 12px!important;gap:4px!important;margin-bottom:8px!important;background:var(--ncc-petrol)!important;border-color:var(--ncc-petrol-line)!important}
+#planSuggestionCard.ncc-planner-compact :is(.ncc-planner-help,.ncc-planner-preferences){margin:8px 0;border:1px solid var(--ncc-line);border-radius:12px;background:var(--ncc-petrol);font-size:13px}
+#planSuggestionCard.ncc-planner-compact :is(.ncc-planner-help,.ncc-planner-preferences)>summary{padding:12px;min-height:44px;cursor:pointer;box-sizing:border-box;font-weight:600}
+#planSuggestionCard.ncc-planner-compact .ncc-planner-help>:not(summary){margin:10px 12px;line-height:1.6}
+#planSuggestionCard.ncc-planner-compact .ncc-planner-help>small{display:block}
+#planSuggestionCard.ncc-planner-compact .ncc-planner-path{padding:0;border:0;background:transparent}
+#planSuggestionCard.ncc-planner-compact .ncc-suggestion-tabs{margin:10px 0!important}
+#planSuggestionCard.ncc-planner-compact .efg-planner-stage-head{padding:10px 12px!important;min-height:44px!important}
+#planSuggestionCard.ncc-planner-compact .efg-planner-stage-head small{display:none}
+#planSuggestionCard.ncc-planner-compact .planner-meal>.ncc-workspace-tabs{margin:6px 10px 10px!important}
+#planSuggestionCard.ncc-planner-compact .planner-meal>.ncc-workspace-panel{margin:0 10px}
+#planSuggestionCard.ncc-planner-compact .planner-item{margin:0!important;padding:12px!important}
+#planSuggestionCard.ncc-planner-compact .planner-meal>.planner-energy-summary{margin:12px 10px!important}
+}

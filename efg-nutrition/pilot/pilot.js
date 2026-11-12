@@ -2413,6 +2413,8 @@ function renderMealEntryShortcuts(){
  const matches=value=>words.every(word=>normalize(value).includes(word));
  if(mealEntrySource==="habitual"){
   host.innerHTML=habitualPickerHTML(state.activeMeal).replaceAll('habitualChoice_'+state.activeMeal,'mealEntryHabitualChoice_'+state.activeMeal).replaceAll('habitualPreview_'+state.activeMeal,'mealEntryHabitualPreview_'+state.activeMeal);
+  const controls=host.querySelector('.efg-habitual-controls'),preview=host.querySelector('.efg-habitual-preview-host');
+  if(controls&&preview)preview.before(controls);
   const selector=host.querySelector('select');
   if(selector){
    const list=getHabitualList(state.activeMeal);
@@ -2519,7 +2521,7 @@ function updateMealEntryMode(foodChanged=false){
   const choices=[...document.querySelectorAll('#mealEntryShortcuts [data-mealsuggestion]')];
   for(const choice of choices){const active=choice.dataset.mealsuggestion===f?.id;choice.setAttribute('aria-pressed',String(active));if(active)choice.parentElement.append(quantityCard);}
  }
- for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f||pendingMealRegistrations.has(state.activeMeal)||state.diaryWritePending;
+ for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f||mealEntrySource==="habitual"||pendingMealRegistrations.has(state.activeMeal)||state.diaryWritePending;
  updateMealRecipe();
  updateMealDialogHint();
 }

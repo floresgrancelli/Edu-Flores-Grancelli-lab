@@ -2869,11 +2869,21 @@ function coachRosterFilters(roster){
  return [['all','Todos'],['pending','Pendientes'],['intake','Fichas recibidas'],['plan','Planes pendientes'],['active','Activos'],['inactive','Inactivos'],['consent','Sin autorización']]
   .map(([filter,label])=>'<button type="button" class="btn small '+(filter==='all'?'light':'ghost')+'" data-rosterfilter="'+filter+'">'+label+' · '+stages.filter(stage=>coachRosterMatches(stage,filter)).length+'</button>').join('');
 }
+function coachRosterActions(p,next){
+ if(!p.active)return '';
+ const primary='<button type="button" class="btn ncc-roster-primary" data-student="'+escapeHTML(p.user_id)+'" data-rostersection="'+next.section+'">'+next.action+'</button>';
+ if(coachRosterConsent[p.user_id]!==true)return primary;
+ // One destination per button: retain the existing next action, add only the
+ // other sections. Signed roster refresh and detail loading remain authoritative.
+ return '<div class="ncc-roster-actions" role="group" aria-label="Acciones de '+escapeHTML(coachDisplayName(p))+'">'+
+  [['coachStudentIntake','Ficha'],['coachStudentGoals','Plan'],['coachStudentNutrition','Seguimiento']].map(([section,label])=>section===next.section?primary:
+   '<button type="button" class="btn small ghost" data-student="'+escapeHTML(p.user_id)+'" data-studentsection="'+section+'" aria-label="'+label+' de '+escapeHTML(coachDisplayName(p))+'">'+label+'</button>').join('')+'</div>';
+}
 function coachRosterCard(p){
  const next=coachRosterNext(p);
  return '<div class="pilot-record ncc-roster-person" data-rosterstage="'+next.stage+'" data-rosteractive="'+(p.active?'yes':'no')+'" data-rosterconsent="'+(coachRosterConsent[p.user_id]===true?'yes':'no')+'" data-rostername="'+escapeHTML([coachDisplayName(p),p.nickname,p.email||''].join(' ').toLocaleLowerCase('es-AR'))+'">'+
  '<div class="coach-roster-person"><span class="coach-roster-avatar" aria-hidden="true">'+escapeHTML(coachAvatarLetters(p))+'</span><div><strong>'+escapeHTML(coachDisplayName(p))+'</strong><small>'+safePhoneEmail(p.email)+'</small><small class="pilot-pill">'+next.label+'</small></div></div>'+
- (p.active?'<button type="button" class="btn ncc-roster-primary" data-student="'+p.user_id+'" data-rostersection="'+next.section+'">'+next.action+'</button>':'')+
+ coachRosterActions(p,next)+
  '<details class="ncc-roster-options"><summary>Más opciones<span class="sr-only"> de '+escapeHTML(coachDisplayName(p))+'</span></summary><div class="pilot-toolbar"><button class="btn small ghost" data-coachname="'+p.user_id+'">Nombre preferido</button><button class="btn small ghost" data-studentstatus="'+p.user_id+'">'+(p.active?'Dar de baja':'Reactivar')+'</button></div></details></div>';
 }
 function coachView(){
@@ -5018,6 +5028,7 @@ if(el.dataset.reportstudent){
 if(el.dataset.coachname){const id=el.dataset.coachname;const pupil=(state.roster||[]).find(p=>p.user_id===id);if(!pupil)return;const current=coachPreferredNames()[id]||"";const value=prompt("Nombre preferido (vacío para usar el original)",current);if(value===null)return;const clean=value.trim().slice(0,35);const names=coachPreferredNames();if(clean)names[id]=clean;else delete names[id];localStorage.setItem("efg-coach-names-"+(state.session?.user?.id||"local"),JSON.stringify(names));await render();notify("Nombre de visualización guardado en este dispositivo.");return;}
 if(el.dataset.student){
  const studentId=el.dataset.student,sameEditor=state.selectedStudent===studentId&&state.consent?.accepted===true;
+ const requestedSection=['coachStudentIntake','coachStudentGoals','coachStudentNutrition'].includes(el.dataset.studentsection)?el.dataset.studentsection:null;
  await refreshCoachRosterForView();
  if(state.tab==="coach"||state.tab==="testCoach"||state.tab==="coachIntake")state.tab="coachStudents";
  state.reportDate=null;
@@ -5025,11 +5036,12 @@ if(el.dataset.student){
   await loadStudentDetail(studentId);
  // If still same signed Coach + student + consent, leave local unsaved guide untouched.
  await render();
- if(el.dataset.rostersection&&state.consent?.accepted===true){
+ if((el.dataset.rostersection||requestedSection)&&state.consent?.accepted===true&&state.selectedStudent===studentId){
   // The list may have changed during the signed refresh: use the current next action.
   const person=state.roster.find(p=>p.user_id===studentId),next=person&&coachRosterNext(person);
-  if(next?.section)selectCoachSection(next.section);
-  if(next?.stage==='draft'&&state.selectedStudent===studentId&&state.coachGuidedDraft)
+  const section=requestedSection||next?.section;
+  if(section)selectCoachSection(section);
+  if(section==='coachStudentGoals'&&next?.stage==='draft'&&state.selectedStudent===studentId&&state.coachGuidedDraft)
    document.querySelector('[data-planflow-step="1"]')?.click();
  }
  document.getElementById("studentFollowPanel")?.scrollIntoView?.({behavior:"smooth",block:"start"});

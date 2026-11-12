@@ -103,3 +103,11 @@ html.ncc-lime-theme #app #planSuggestionCard.ncc-planner-compact{padding:14px!im
 #planSuggestionCard.ncc-planner-compact .planner-item{margin:0!important;padding:12px!important}
 #planSuggestionCard.ncc-planner-compact .planner-meal>.planner-energy-summary{margin:12px 10px!important}
 }
+
+/* Coach roster: existing next action plus the other destinations, once each. */
+@layer ncc-palette {
+html.ncc-lime-theme #app .ncc-roster-actions{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,.8fr) minmax(0,1.4fr);gap:6px;margin:12px 0 4px}
+html.ncc-lime-theme #app .ncc-roster-actions .btn{width:100%!important;min-width:0!important;min-height:56px!important;margin:0!important;padding:8px 3px!important;font-size:12px!important;line-height:1.2!important;text-transform:none!important;letter-spacing:normal!important;border-radius:12px!important}
+html.ncc-lime-theme #app .ncc-roster-actions .btn.ghost{background:#172826!important;color:#f0f1e7!important;border:1px solid #526052!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-roster-actions .ncc-roster-primary{background:#b1c579!important;color:#142018!important;border:1px solid #b1c579!important;box-shadow:none!important}
+}

@@ -131,7 +131,7 @@ try{
   };
   await page.evaluate(()=>document.addEventListener('click',e=>{if(e.target.closest('[data-act="printPeriodLuxury"]'))window.__returnOriginY=scrollY;},true));
   await generate();
-  await page.getByText('Versión HTML accesible del borrador (no es el PDF)',{exact:true}).click();
+  assert.equal(await page.locator('#periodLuxuryPreview .ncc-gap-summary').isVisible(),true,'Accessible draft is immediately visible');
   assert.match(await page.locator('#periodLuxuryPreview').innerText(),/María José Núñez/);await screenshot('accessible-html');
   await open();assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);
   assert.match(await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')).then(()=>'',e=>e.message)),/confirmación/,'Handler also refuses unreviewed send');

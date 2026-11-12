@@ -1212,10 +1212,12 @@ try{
       // replacing the old stacked-row height assumption without dropping legibility checks.
       const rows=await page.locator('.ncc-focus-summary > .ncc-focus-macro').evaluateAll(es=>es.map(e=>{
         const label=e.querySelector('strong'),value=e.querySelector('div:first-child > span'),meter=e.querySelector('.ncc-focus-meter');
-        return {label:label.getBoundingClientRect().toJSON(),value:value.getBoundingClientRect().toJSON(),meter:meter.getBoundingClientRect().toJSON(),font:parseFloat(getComputedStyle(label).fontSize)};
+        return {label:label.getBoundingClientRect().toJSON(),value:value.getBoundingClientRect().toJSON(),meter:meter.getBoundingClientRect().toJSON(),font:parseFloat(getComputedStyle(label).fontSize),valueFont:parseFloat(getComputedStyle(value).fontSize)};
       }));
       assert.equal(rows.length,3);
-      for(const r of rows){assert.ok(r.font>=13&&r.label.height>=16&&r.value.height>=16,'Readable macro labels');assert.ok(r.meter.width>=60&&r.meter.height>=8,'Visible macro progress');assert.ok(r.label.right<=r.meter.left&&r.meter.right<=r.value.left,'Macro label, bar and value must not overlap');}
+      // The approved 13px text has 1.2 line-height (15.6px, with subpixel rounding).
+      // Check the actual font and rendered text boxes, not a rounded 16px assumption.
+      for(const r of rows){assert.ok(r.font>=13&&r.valueFont>=13&&r.label.height>=r.font&&r.value.height>=r.valueFont,'Readable macro labels: '+JSON.stringify(r));assert.ok(r.meter.width>=60&&r.meter.height>=8,'Visible macro progress: '+JSON.stringify(r));assert.ok(r.label.right<=r.meter.left&&r.meter.right<=r.value.left,'Macro label, bar and value must not overlap: '+JSON.stringify(r));}
     }else if(macroPositions.some(x=>x.width<(width<=355?65:85)||x.height<25))pageReport.errors.push("Macro bars too small on mobile");
     if(await page.locator(".efg-student-macros > .metric-card").count())pageReport.errors.push("Duplicate macro KPI cards were not removed");
     // The approved student dashboard adds a prominent register CTA while

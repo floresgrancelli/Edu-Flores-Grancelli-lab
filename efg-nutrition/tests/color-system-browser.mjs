@@ -41,12 +41,13 @@ try{for(const engine of ['chromium','webkit']){
   const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number),lum=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
   const buttons=[...document.querySelectorAll('#app button')].filter(e=>e.getClientRects().length&&!e.disabled&&getComputedStyle(e).visibility!=='hidden');
   const bad=buttons.flatMap(e=>{const s=getComputedStyle(e),bg=rgb(s.backgroundColor),fg=rgb(s.color);if(bg.length<3||(bg[3]??1)<.99)return [];const a=lum(bg),b=lum(fg),ratio=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);return ratio<4.5?[{text:e.textContent.slice(0,45),classes:e.className,bg:s.backgroundColor,fg:s.color,ratio}]:[];});
-  return {body:getComputedStyle(document.body).backgroundColor,bad,macros:[...document.querySelectorAll('.ncc-focus-macro')].map(e=>({key:e.dataset.nccMacro,label:getComputedStyle(e.querySelector('strong')).color,bar:getComputedStyle(e.querySelector('.ncc-focus-meter>span')).backgroundColor}))};
+  return {body:getComputedStyle(document.body).backgroundColor,summary:document.querySelector('.ncc-focus-summary')?getComputedStyle(document.querySelector('.ncc-focus-summary')).backgroundColor:null,bad,macros:[...document.querySelectorAll('.ncc-focus-macro')].map(e=>({key:e.dataset.nccMacro,label:getComputedStyle(e.querySelector('strong')).color,bar:getComputedStyle(e.querySelector('.ncc-focus-meter>span')).backgroundColor}))};
  });
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png')});
  assert.equal(await page.locator('[data-ncc-dual-panel]').count(),0,'No independent staged candidate in published-layout review');
  assert.equal(palette.body,'rgb(13, 20, 18)',name+' canvas');assert.deepEqual(palette.bad,[],name+' button contrast');
  const colors={p:'rgb(140, 185, 208)',c:'rgb(211, 174, 117)',f:'rgb(182, 164, 206)'};
+ if(palette.summary)assert.equal(palette.summary,'rgba(0, 0, 0, 0)',name+' transparent summary matches approved reference');
  for(const m of palette.macros){assert.equal(m.label,colors[m.key],name+' macro label');assert.equal(m.bar,colors[m.key],name+' macro fill');}
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png')});
  };

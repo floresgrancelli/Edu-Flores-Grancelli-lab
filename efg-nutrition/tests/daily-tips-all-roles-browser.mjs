@@ -39,7 +39,12 @@ try{for(const engine of (process.env.NCC_TIP_ENGINES||'chromium,webkit').split('
  assert.equal(await tip.count(),1);
  assert.equal(await tip.evaluate(e=>!!e.closest('details')),false,'Tip must be directly discoverable, outside collapsed tools');
  assert.equal(await page.locator('#nccDayTools').getAttribute('open'),null);
- assert.equal(await page.locator('.efg-daily-tip [data-tab="recipes"]').count(),role==='student'?0:1,'Personal roles use their recipe library; student plan gate retained');
+ assert.equal(await page.locator('.efg-daily-tip [data-tab="recipes"]').count(),1,'Personal roles and the student fixture with an assigned guide can explore recipes');
+ if(role==='student'){
+ await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.foodPlan=null;await v.render();});
+ assert.equal(await page.locator('.efg-daily-tip [data-tab=recipes]').count(),0,'Student without guide keeps existing recipe-link gate');
+ assert.equal(await tip.isVisible(),true,'Student without guide still receives educational tips');
+ }
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
  await page.locator('[data-daymeal="almuerzo"]').click();await page.locator('#nccDayTools > summary').click();await page.locator('#nccDayTools > summary').click();
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);

@@ -1,3 +1,4 @@
+const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
@@ -1314,8 +1315,8 @@ function frame(content){
  const primaryTabs=menu.map(m=>m[0]);
  const activeTab=role==="student"?(primaryTabs.includes(state.tab)?state.tab:"studentMore"):role==="coach"&&state.tab==="coachTools"?"coach":role==="coach"&&["recipes","supplements","sport","weight","planner"].includes(state.tab)?"studentMore":role==="admin"&&["coachStudents","coachTools"].includes(state.tab)?"testCoach":(role==="admin"&&["reports","weight","sport","planner","recipes","supplements","payments","adminManage"].includes(state.tab))?"adminMore":state.tab;
  const backgroundKey=state.tab==="home"?"day":state.tab==="planner"?"plan":state.tab==="weight"?"progress":state.tab==="nutritionScience"?"science":["coach","coachStudents","coachIntake","coachTools","testCoach"].includes(state.tab)?"coach":["admin","adminMore","adminManage"].includes(state.tab)?"admin":"start";
- root.innerHTML='<div '+(state.tab==='recipes'?'data-ncc-recipes="true" ':'')+'data-ncc-background="'+backgroundKey+'" class="pilot-layout efg-role-'+role+(role==="student"&&state.tab==="home"?' ncc-student-day':'')+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
- visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+(['home','recipes'].includes(state.tab)?dayNavigationIcon(m[0]):efgNavIcon(m[0]))+'</span><span class="nav-label">'+(m[0]==='nutritionScience'?'Ciencia':m[2])+'</span></button>').join("")+
+ root.innerHTML='<div '+(state.tab==='recipes'?'data-ncc-recipes="true" ':'')+(state.tab==='planner'&&currentStudentGuide()?'data-ncc-plan="true" ':'')+'data-ncc-background="'+backgroundKey+'" class="pilot-layout efg-role-'+role+(role==="student"&&state.tab==="home"?' ncc-student-day':'')+'"><aside class="pilot-nav" aria-label="Navegación principal"><div class="pilot-logo"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="64" height="37" alt="" aria-hidden="true" decoding="async"><span>Nutrición Con-Ciencia <small style="display:block;color:#96b1a9;font-size:9px;letter-spacing:1px">PRO · PRIVADO</small></span></div>'+
+ visibleMenu.map(m=>'<button type="button" class="navitem '+(activeTab===m[0]?'active':'')+'" data-tab="'+m[0]+'" aria-label="'+escapeHTML(m[0]==="planner"?"Planificar":m[0]==="weight"?"Progreso":m[0]==="nutritionScience"?"Nutrición Con-Ciencia":m[2])+'" '+(activeTab===m[0]?'aria-current="page"':'')+'><span class="nav-icon">'+(['home','recipes'].includes(state.tab)||(state.tab==='planner'&&currentStudentGuide())?dayNavigationIcon(m[0]):efgNavIcon(m[0]))+'</span><span class="nav-label">'+(m[0]==='nutritionScience'?'Ciencia':m[2])+'</span></button>').join("")+
  '<div class="pilot-avatar"><span class="avatar">'+escapeHTML(state.profile.nickname.slice(0,2).toUpperCase())+'</span><div><strong>'+escapeHTML(state.profile.nickname)+'</strong><small>'+roleLabel()+'</small></div></div><button class="pilot-logout" data-act="logout">Salir de mi cuenta</button></aside>'+
  '<header class="efg-mobile-header"><div class="efg-mobile-brand"><img class="efg-serotonin-symbol" src="./assets/serotonina-acuarela.avif" width="56" height="32" alt="" aria-hidden="true" decoding="async"><span class="efg-mobile-brand-text"><strong>Nutrición Con-Ciencia</strong><small>PRO · TU ESPACIO</small></span></div><div class="efg-mobile-person"><span class="efg-mobile-user">'+escapeHTML(state.profile.nickname)+'</span><span class="efg-mobile-avatar" aria-hidden="true">'+escapeHTML(efgAvatarLetters(state.profile.nickname))+'</span><button type="button" class="efg-mobile-logout" data-act="logout" aria-label="Cerrar sesión de Nutrición Con-Ciencia">Salir</button></div></header><main class="pilot-main">'+professionalReleaseFrame.wrap(dualWorkspaceFrame.wrap(content))+'<div class="pilot-bottom">Nutrición Con-Ciencia · Información de uso personal · Los cálculos son orientativos y requieren revisión profesional cuando corresponda.</div></main></div>';
  dualWorkspaceFrame.mountFrame(root);
@@ -1632,7 +1633,94 @@ function studentPrivacyView(){
  (state.profile.role==="student"&&(state.planAccessSupported||state.coachPilotIntake)?
  '<section class="card efg-content-card"><h2>Ficha inicial y permiso para compartir</h2><p class="pilot-hint">Es un permiso separado del seguimiento nutricional. Podés revisar tus datos, corregirlos y dejar de compartir esta ficha aun cuando tu plan ya esté publicado.</p><button type="button" class="btn light" data-tab="intake">Revisar mi ficha y su permiso</button></section>':'');
 }
+// Student Plan only. The embedded Mi Día guide and coach editor retain their UI.
+function currentStudentGuide(){
+ if(state.profile?.role!=='student'||!state.foodPlan?.guided_plan)return null;
+ const goal=state.goals.find(g=>g.id===state.foodPlan.guided_goal_id);
+ return goal?{plan:state.foodPlan.guided_plan,goal}:null;
+}
+function studentGuideBrand(){return '<div class="ncc-plan-brand"><img src="./assets/serotonina-acuarela.avif" alt="" width="38" height="30"><strong>NUTRICIÓN<br>CON-CIENCIA</strong></div>';}
+function studentGuideKey(){return [state.session?.user?.id,state.authContextEpoch||0,state.foodPlan?.guided_goal_id].join('|');}
+function studentGuideView(){
+ const {plan,goal}=currentStudentGuide(),key=studentGuideKey();
+ const slot=plan.meals.some(m=>m.slot===state.studentGuideSlots?.[key])?state.studentGuideSlots[key]:plan.meals[0]?.slot;
+ const meal=plan.meals.find(m=>m.slot===slot),stale=state.goals[0]?.id!==goal.id;
+ const totals=guideTotals(plan),mt=totals.perMeal.find(m=>m.slot===slot)?.totals;
+ return '<section class="ncc-plan"><h1>Mi Dieta Guía</h1><p class="ncc-plan-subtitle">'+(stale?'Guía anterior · Tu objetivo cambió':'Plan vigente · Preparado por tu coach')+'</p>'+
+ '<div class="ncc-plan-target"><div><b>Objetivo diario</b><strong>'+num(goal.kcal)+' kcal</strong></div><span>P<b>'+num(goal.protein_g)+' g</b></span><span>HC<b>'+num(goal.carb_g)+' g</b></span><span>G<b>'+num(goal.fat_g)+' g</b></span></div>'+
+ (stale?'<p role="status">Pedile al coach una guía actualizada. Conservamos este ejemplo como referencia.</p>':'')+
+ '<h2>Tus comidas</h2><nav class="ncc-plan-tabs" aria-label="Horarios de mi Dieta Guía">'+plan.meals.map(m=>'<button type="button" data-studentguideslot="'+escapeHTML(m.slot)+'" aria-pressed="'+(m.slot===slot)+'" aria-controls="nccPlanMeal">'+dayMealIcon(m.slot)+'<span>'+escapeHTML(m.label)+'</span>'+(m.slot===slot?'<i aria-hidden="true">✓</i>':'')+'</button>').join('')+'</nav>'+
+ (meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>')+
+ '<details class="ncc-plan-notes"><summary>Indicaciones del coach</summary><p>'+escapeHTML(plan.supplementNote||'No hay indicaciones de suplementos en esta guía.')+'</p>'+(plan.profileReviewNotes||[]).map(n=>'<p>'+escapeHTML(n)+'</p>').join('')+'<p>Guía orientativa, no ingesta registrada. Las imágenes son ilustrativas; las cantidades corresponden al plan.</p><details><summary>Ver explicación y resumen del plan</summary>'+guidedDayContents(plan,goal)+'</details></details>'+
+ '<details class="ncc-plan-notes"><summary>Resolver lo que me falta hoy</summary>'+plannerCard()+'</details><div id="mealDialogContainer"></div></section>';
+}
+let studentGuideSheet=null;
+const studentGuideDrafts=new Map();
+function studentGuideSheetCurrent(sheet){return !!sheet&&sheet.owner===state.session?.user?.id&&sheet.epoch===(state.authContextEpoch||0)&&sheet.day===today()&&sheet.view===activeViewKey()&&state.tab==='planner'&&!!currentStudentGuide();}
+function studentGuideSnapshot(){return JSON.stringify(currentStudentGuide());}
+function rememberStudentGuideDraft(){
+ const sheet=studentGuideSheet;if(!studentGuideSheetCurrent(sheet)||sheet.busy)return;
+ sheet.entries=sheet.entries.map((row,i)=>({...row,qty:document.querySelector('[data-guideentryqty="'+i+'"]')?.value??row.qty,checked:document.querySelector('[data-guideentrycheck="'+i+'"]')?.checked??row.checked}));
+ studentGuideDrafts.set(sheet.key,structuredClone(sheet.entries));
+}
+function closeStudentGuideSheet(){
+ const sheet=studentGuideSheet;if(sheet?.busy)return;
+ rememberStudentGuideDraft();document.getElementById('nccPlanOverlay')?.remove();studentGuideSheet=null;
+ if(studentGuideSheetCurrent(sheet))document.querySelector('[data-studentguideregister="'+CSS.escape(sheet.slot)+'"]')?.focus({preventScroll:true});
+}
+function openStudentGuideSheet(slot){
+ if(studentGuideSheet?.busy||studentPlanPending())return;
+ const current=currentStudentGuide(),meal=current?.plan.meals.find(m=>m.slot===slot);
+ if(!meal||!mealSlots.some(([s])=>s===slot))return;
+ const snapshot=studentGuideSnapshot(),key=[studentGuideKey(),today(),slot,snapshot].join('|');
+ const entries=structuredClone(studentGuideDrafts.get(key)||meal.items.map(f=>({qty:String(f.qty),checked:true})));
+ studentGuideSheet={slot,label:meal.label,items:structuredClone(meal.items),entries,key,snapshot,owner:state.session?.user?.id,epoch:state.authContextEpoch||0,day:today(),view:activeViewKey(),busy:false};
+ document.getElementById('nccPlanOverlay')?.remove();
+ root.insertAdjacentHTML('beforeend','<div id="nccPlanOverlay" class="ncc-plan-overlay"><section class="ncc-plan-sheet" role="dialog" aria-modal="true" aria-labelledby="nccPlanSheetTitle" tabindex="-1">'+studentGuideBrand()+'<div class="ncc-plan-sheet-title"><h2 id="nccPlanSheetTitle">Registrar '+escapeHTML(meal.label.toLocaleLowerCase('es'))+'</h2><button type="button" data-guideclose="1" aria-label="Cerrar revisión">×</button></div><p>Se agregará a Mi Día · Hoy</p><div class="ncc-plan-entry-list">'+meal.items.map((f,i)=>'<div class="ncc-plan-entry"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><strong>'+escapeHTML(f.name)+'</strong><label><span class="sr-only">Cantidad de '+escapeHTML(f.name)+'</span><input type="text" inputmode="decimal" data-guideentryqty="'+i+'" value="'+escapeHTML(entries[i].qty)+'" autocomplete="off"> '+escapeHTML(f.unit)+'</label><label class="ncc-plan-checkbox"><span class="sr-only">Incluir '+escapeHTML(f.name)+'</span><input type="checkbox" data-guideentrycheck="'+i+'" '+(entries[i].checked?'checked':'')+'></label></div>').join('')+'</div><div id="nccPlanSelectedTotals" class="ncc-plan-selected" aria-live="polite"></div><p class="ncc-plan-existing">Revisá lo que ya registraste hoy: '+(activeDiary().meals?.[slot]?.length||0)+' alimento(s) en '+escapeHTML(meal.label)+'.</p><p>Podés ajustar las cantidades antes de confirmar.</p><p id="nccPlanError" role="alert"></p><button type="button" class="ncc-plan-primary" data-guidesave="1">Agregar a '+escapeHTML(meal.label.toLocaleLowerCase('es'))+'</button><button type="button" class="ncc-plan-cancel" data-guideclose="1">Cancelar</button></section></div>');
+ updateStudentGuideSummary();document.querySelector('.ncc-plan-sheet').focus({preventScroll:true});
+}
+function studentGuideSelected(sheet){
+ return sheet.items.flatMap((item,i)=>{
+  const row=sheet.entries[i];if(!row.checked)return [];
+  const qty=Number(String(row.qty).replace(',','.'));
+  if(!Number.isFinite(qty)||qty<=0||qty>10000)throw Error('Revisá las cantidades seleccionadas. Usá un valor mayor a cero y hasta 10.000.');
+  return [{...item,qty}];
+ });
+}
+function updateStudentGuideSummary(){
+ rememberStudentGuideDraft();const sheet=studentGuideSheet;if(!studentGuideSheetCurrent(sheet))return;
+ const node=document.getElementById('nccPlanSelectedTotals');if(!node)return;
+ try{const items=studentGuideSelected(sheet),t=guideTotals({meals:[{items}]}).totals;node.innerHTML='<span>Total seleccionado</span><strong>'+num(t.k)+' kcal</strong><small>P '+num(t.p,1)+' g · HC '+num(t.c,1)+' g · G '+num(t.f,1)+' g</small>';}
+ catch(e){node.textContent=e.message;}
+}
+async function saveStudentGuideSelection(){
+ const sheet=studentGuideSheet;if(!studentGuideSheetCurrent(sheet)||sheet.busy)return;
+ const notice=document.getElementById('nccPlanError');notice.textContent='';
+ rememberStudentGuideDraft();
+ let items;
+ try{
+  if(studentPlanPending())throw Error('Tu plan todavía no está habilitado para registrar.');
+  if(studentGuideSnapshot()!==sheet.snapshot)throw Error('La guía cambió. Cerrá esta revisión y volvé a abrirla.');
+  if(state.diaryWritePending||pendingMealRegistrations.has(sheet.slot))throw Error('Esperá a que termine el registro en curso.');
+  items=studentGuideSelected(sheet);if(!items.length)throw Error('Seleccioná al menos un alimento.');
+ }catch(e){notice.textContent=e.message;return;}
+ const controls=[...document.querySelectorAll('.ncc-plan-sheet button,.ncc-plan-sheet input')];
+ sheet.busy=true;controls.forEach(c=>c.disabled=true);
+ const lease=pendingMealRegistrations.add(sheet.slot),d=activeDiary(),before=structuredClone({meals:d.meals,skipped:d.skipped}),beforeDiary=state.diary;
+ try{
+  d.meals[sheet.slot]=[...(d.meals[sheet.slot]||[]),...items.map(f=>normItem(f,f.qty,sheet.slot))];
+  d.skipped={...d.skipped,[sheet.slot]:false};
+  await saveDiary();
+  studentGuideDrafts.delete(sheet.key);
+  if(studentGuideSheetCurrent(sheet)&&studentGuideSheet===sheet){studentGuideSheet=null;document.getElementById('nccPlanOverlay')?.remove();notify('Comida registrada. Conservamos los alimentos que ya tenías.');document.querySelector('[data-studentguideregister="'+CSS.escape(sheet.slot)+'"]')?.focus({preventScroll:true});}
+ }catch(e){
+  d.meals=before.meals;d.skipped=before.skipped;
+  if(studentGuideSheetCurrent(sheet)){state.diary=beforeDiary;if(notice.isConnected)notice.textContent=e.message||'No pudimos guardar. Volvé a intentar.';}
+ }finally{sheet.busy=false;pendingMealRegistrations.delete(sheet.slot,lease);controls.forEach(c=>{if(c.isConnected)c.disabled=false;});}
+}
+
 function studentPlannerView(){
+ if(currentStudentGuide())return studentGuideView();
  return rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
  plannerCard()+'<div id="mealDialogContainer"></div>';
 }
@@ -4765,6 +4853,13 @@ async function mainClick(event){
   selectDayMeal(slot);
   return;
  }
+ if(el.dataset.studentguideslot){
+  const current=currentStudentGuide(),slot=el.dataset.studentguideslot;if(!current?.plan.meals.some(m=>m.slot===slot))return;
+  state.studentGuideSlots={...state.studentGuideSlots,[studentGuideKey()]:slot};await render();document.querySelector('[data-studentguideslot="'+CSS.escape(slot)+'"]')?.focus({preventScroll:true});return;
+ }
+ if(el.dataset.studentguideregister){openStudentGuideSheet(el.dataset.studentguideregister);return;}
+ if(el.dataset.guideclose){closeStudentGuideSheet();return;}
+ if(el.dataset.guidesave){await saveStudentGuideSelection();return;}
  if(el.dataset.guidejump||el.dataset.guideall){
   const view=el.closest('[data-guideview]');if(!view)return;
   const cards=[...view.querySelectorAll('[data-guidecard]')],prior=state.guideSections?.[view.dataset.guideview]||{};
@@ -5777,7 +5872,26 @@ root.addEventListener("change",e=>{
   syncPilotParticipationContinueButton(document);return;
  }
  if(e.target.id==="mealWeightState"){const select=document.getElementById("mealEditorFood");if(!select)return;const pair=Object.values(FOOD_STATE_PAIRS).find(ids=>ids.includes(select.value));if(!pair)return;const target=e.target.value==="raw"?pair[1]:pair[0];if(![...select.options].some(o=>o.value===target)){notify("La ficha de ese estado no está habilitada por tu coach.");updateMealEntryMode(false);return;}select.value=target;updateMealEntryMode(false);}});
+root.addEventListener('input',e=>{if(e.target.matches('[data-guideentryqty],[data-guideentrycheck]'))updateStudentGuideSummary();});
 document.addEventListener("keydown",event=>{
+ const planTab=event.target.closest?.('[data-studentguideslot]');
+ if(planTab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
+  const tabs=[...document.querySelectorAll('[data-studentguideslot]')],i=tabs.indexOf(planTab);
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  event.preventDefault();tabs[next].click();return;
+ }
+ const planDialog=document.querySelector('.ncc-plan-sheet');
+ if(planDialog){
+  if(event.isComposing)return;
+  if(event.key==='Escape'){event.preventDefault();closeStudentGuideSheet();return;}
+  if(event.key==='Tab'){
+   const controls=[...planDialog.querySelectorAll('button:not([disabled]),input:not([disabled])')],first=controls[0],last=controls.at(-1);
+   if(!first){event.preventDefault();return;}
+   if(event.shiftKey&&(document.activeElement===first||!controls.includes(document.activeElement))){event.preventDefault();last.focus();}
+   else if(!event.shiftKey&&(document.activeElement===last||!controls.includes(document.activeElement))){event.preventDefault();first.focus();}
+  }return;
+ }
+
  const recipeTab=event.target.closest?.('[data-recipessection]');
  if(recipeTab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
   const tabs=[...document.querySelectorAll('[data-recipessection]')],index=tabs.indexOf(recipeTab);
@@ -5863,6 +5977,7 @@ root.addEventListener("submit",e=>{
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
  recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
+ studentGuideSheet=null;studentGuideDrafts.clear();state.studentGuideSlots={};
  dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;
  dualWorkspaceFrame.invalidate();
  professionalReleaseFrame.invalidate();

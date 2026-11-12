@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const code=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+const block=code.slice(code.indexOf('function currentStudentGuide(){'),code.indexOf('function studentPlannerView(){'));
+const state={session:{user:{id:'a'}},authContextEpoch:1,profile:{role:'student'},tab:'planner',goals:[{id:'g'}],foodPlan:{guided_goal_id:'g',guided_plan:{meals:[]}}};
+const context=vm.createContext({state,Map,JSON,Number,String,structuredClone,today:()=> '2026-11-12',activeViewKey:()=> 'personal'});vm.runInContext(block,context);
+assert.ok(context.currentStudentGuide());state.profile.role='coach';assert.equal(context.currentStudentGuide(),null);state.profile.role='admin';assert.equal(context.currentStudentGuide(),null);state.profile.role='student';
+const sheet={owner:'a',epoch:1,day:'2026-11-12',view:'personal',items:[{id:'chicken',qty:150,k:1.65},{id:'rice',qty:180,k:1.3}],entries:[{qty:'125,5',checked:true},{qty:'bad',checked:false}]};
+assert.equal(context.studentGuideSelected(sheet)[0].qty,125.5);assert.equal(sheet.items[0].qty,150);
+for(const qty of ['0','-1','NaN','Infinity','10001','']){sheet.entries[0].qty=qty;assert.throws(()=>context.studentGuideSelected(sheet));}sheet.entries[0].qty='150';
+assert.equal(context.studentGuideSheetCurrent(sheet),true);
+for(const patch of [{owner:'b'},{epoch:2},{day:'2026-11-13'},{view:'coach'}])assert.equal(context.studentGuideSheetCurrent({...sheet,...patch}),false);
+state.tab='home';assert.equal(context.studentGuideSheetCurrent(sheet),false);
+assert.match(code,/items.map\(f=>normItem\(f,f.qty,sheet.slot\)\)/);assert.match(code,/await saveDiary\(\)/);
+console.log('Student plan contracts: role, scope, account/epoch/day, selected quantities, unchanged plan and existing persistence path passed.');

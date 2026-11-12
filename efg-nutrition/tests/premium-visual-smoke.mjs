@@ -637,6 +637,8 @@ try{
    const unifiedTheme=await page.locator('html.ncc-lime-theme').count()===1;
    if(!unifiedTheme)pageReport.errors.push('Unified charcoal/lime theme missing: '+role+'/'+dest);
    const recipesTheme=dest==='recipes';
+   const planTheme=role==='student'&&dest==='planner'&&await page.locator('.ncc-plan').count()===1;
+   if((await page.locator('[data-ncc-plan]').count())!==(planTheme?1:0))pageReport.errors.push('Student Plan theme missing or leaked');
    if((await page.locator('.pilot-layout[data-ncc-recipes]').count())!==(recipesTheme?1:0))pageReport.errors.push('Approved recipes theme missing or leaked outside recipes');
    if(unifiedTheme){
     const colors=await page.evaluate(()=>{
@@ -645,11 +647,11 @@ try{
       nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview,#planSuggestionCard'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
     // Exact values from the real recipes screens approved by Edu; all other screens retain their baseline.
-    const expectedCanvas=recipesTheme?'rgb(11, 18, 12)':'rgb(9, 13, 10)';
+    const expectedCanvas=(recipesTheme||planTheme)?'rgb(11, 18, 12)':'rgb(9, 13, 10)';
     const expectedFields=recipesTheme?['rgb(22, 29, 19)']:['rgb(21, 26, 19)','rgb(14, 21, 15)'];
     if(colors.canvas!==expectedCanvas||colors.body!=='rgb(9, 13, 10)')pageReport.errors.push('Approved charcoal canvas missing on '+dest+': '+JSON.stringify(colors));
     if(colors.field&&!expectedFields.includes(colors.field))pageReport.errors.push('Approved input field missing on '+dest+': '+JSON.stringify(colors));
-    if(recipesTheme&&colors.nav!==(width<=760?'rgba(12, 19, 11, 0.96)':'rgba(16, 24, 17, 0.96)'))pageReport.errors.push('Approved recipes navigation surface missing: '+JSON.stringify(colors));
+    if((recipesTheme||planTheme)&&colors.nav!==(width<=760?'rgba(12, 19, 11, 0.96)':'rgba(16, 24, 17, 0.96)'))pageReport.errors.push('Approved recipes navigation surface missing: '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
@@ -707,7 +709,7 @@ try{
        button:styleOf(".pilot-layout button"),nav:styleOf(".pilot-layout .nav-label"),stats};
    });
    for(const [kind,sample] of Object.entries({heading:typography.heading,button:typography.button,nav:typography.nav})){
-     const expected=unifiedTheme&&(kind==="heading"||(dest==="home"&&width<=760)||(recipesTheme&&kind==="nav"&&width<=760))?"none":"uppercase";
+     const expected=unifiedTheme&&(kind==="heading"||(dest==="home"&&width<=760)||((recipesTheme||planTheme)&&kind==="nav"&&width<=760))?"none":"uppercase";
      if(sample&&sample.transform!==expected)pageReport.errors.push(kind+" typography does not match its approved role/theme: "+sample.text+" ("+sample.transform+")");
    }
    if(role!=="student"&&["coach","admin"].includes(dest)&&typography.stats.some(x=>x.includes("255, 255, 255")))

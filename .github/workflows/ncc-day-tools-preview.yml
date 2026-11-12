@@ -23,7 +23,15 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - name: Fetch reviewed visual comparison baselines
-        run: git -c safe.directory="$GITHUB_WORKSPACE" fetch --no-tags --depth=1 origin f4260c2266178d6d90a9a1305788f552f521a561 6f36413ad1d790c86b80e80bcbbdcf01d528ae42 0f353af985a85b14cc87229c676ff30eed430315 4150b4f68ea02627b5b361f70320af6a561fdd9c b019913f7c9135451993c6a7368409eff91d3973 aa90d3c8e6bec2fc01b0ead38f207578fc454dd6
+        run: git -c safe.directory="$GITHUB_WORKSPACE" fetch --no-tags --depth=1 origin f4260c2266178d6d90a9a1305788f552f521a561 6f36413ad1d790c86b80e80bcbbdcf01d528ae42 0f353af985a85b14cc87229c676ff30eed430315 4150b4f68ea02627b5b361f70320af6a561fdd9c b019913f7c9135451993c6a7368409eff91d3973 aa90d3c8e6bec2fc01b0ead38f207578fc454dd6 e4aa8ad6eb1f11917fddba7cacfc26ca9a64d9db
+      - run: node efg-nutrition/tests/mobile-forms-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-forms-review
+          path: artifacts/mobile-forms-review/
+          if-no-files-found: error
+          retention-days: 7
       - run: node efg-nutrition/tests/coach-student-actions-review-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()

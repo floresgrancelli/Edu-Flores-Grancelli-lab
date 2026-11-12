@@ -1,0 +1,93 @@
+/* Recipes only. Approved visual reference: docs/recipes-preview/approved-reference.png. */
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes]{background:#0b120c!important;color:#f0f1e5!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes]::before{display:none!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-main{max-width:760px;margin-inline:auto!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] :is(.ncc-recipes,.ncc-recipe-sheet),html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] :is(.ncc-recipes,.ncc-recipe-sheet) :is(h1,h2,h3,p,strong,span,small,b,button,input,select,label,summary){font-family:Arial,Helvetica,sans-serif!important;letter-spacing:normal!important;text-transform:none!important}
+.ncc-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+html.ncc-lime-theme #app .ncc-recipes [hidden]{display:none!important}
+html.ncc-lime-theme #app .ncc-recipes-heading{display:flex;align-items:flex-start;gap:10px;margin:12px 0 26px}
+html.ncc-lime-theme #app .ncc-recipes-heading h1{font-size:27px!important;line-height:1.15;margin:0!important;color:#f0f1e5!important}
+html.ncc-lime-theme #app .ncc-recipes-heading p{font-size:16px;margin:7px 0 0;color:#f0f1e5}
+html.ncc-lime-theme #app .ncc-recipes-back{background:transparent;border:0;padding:0;width:32px;min-height:44px;flex:none;font-size:44px;line-height:30px;color:#f0f1e5}
+html.ncc-lime-theme #app .ncc-recipe-tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid #8c9d60;border-radius:9px;overflow:hidden;margin:0 0 20px}
+html.ncc-lime-theme #app .ncc-recipe-tabs button{border:0!important;background:transparent!important;color:#f0f1e5!important;min-height:46px!important;padding:10px 8px!important;font-size:16px!important;border-radius:8px!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-recipe-tabs button[aria-selected=true]{background:#a5be69!important;color:#10170d!important;font-weight:700!important}
+html.ncc-lime-theme #app .ncc-recipes :is(button,select,input):focus-visible,html.ncc-lime-theme #app .ncc-recipe-sheet :is(button,select,input,summary,a):focus-visible{outline:3px solid #c8d997!important;outline-offset:3px}
+html.ncc-lime-theme #app .ncc-recipe-category{display:block;margin-bottom:24px}
+html.ncc-lime-theme #app .ncc-recipe-category select,html.ncc-lime-theme #app .ncc-recipe-slot select{box-sizing:border-box;width:100%;min-height:46px!important;border:1px solid #929985!important;border-radius:8px!important;background:#161d13!important;color:#f0f1e5!important;font-size:16px!important;padding:9px 12px!important}
+html.ncc-lime-theme #app .ncc-recipes .efg-fit-library{border:0!important;background:transparent!important;padding:0!important;margin:0!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-recipes .efg-fit-grid{display:flex!important;flex-direction:column;gap:10px;max-height:420px;overflow:auto;overscroll-behavior:contain;padding:2px 3px 2px 0;margin:0!important;scrollbar-width:thin;scrollbar-color:#78855c #151e12}
+html.ncc-lime-theme #app .ncc-recipes .efg-fit-card,html.ncc-lime-theme #app .ncc-own-recipe{flex:none;border:1px solid #707c60!important;border-radius:14px!important;background:#172012!important;margin:0!important;overflow:hidden;box-shadow:none!important;padding:0!important}
+html.ncc-lime-theme #app .ncc-recipes .efg-fit-card:has(button:focus-visible){border-color:#b3c87b!important}
+html.ncc-lime-theme #app .ncc-recipe-choice{box-sizing:border-box;display:grid!important;grid-template-columns:104px minmax(0,1fr) 12px;gap:14px;align-items:center;width:100%;padding:10px!important;min-height:132px;text-align:left;border:0!important;border-radius:0!important;background:transparent!important;color:#f0f1e5!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-recipe-photo{display:block;width:104px;height:112px;overflow:hidden;border-radius:12px;background:#303a24}
+html.ncc-lime-theme #app .ncc-recipe-photo .efg-fit-photo{position:static!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:0!important;aspect-ratio:auto!important;display:block}
+html.ncc-lime-theme #app .ncc-recipe-photo .efg-fit-photo-fallback{font-size:12px;padding:8px;overflow-wrap:anywhere}
+html.ncc-lime-theme #app .ncc-recipe-copy{display:flex;flex-direction:column;gap:7px;min-width:0}
+html.ncc-lime-theme #app .ncc-recipe-copy strong{font-size:16px!important;line-height:1.18!important;color:#f0f1e5!important;overflow-wrap:break-word}
+html.ncc-lime-theme #app .ncc-recipe-copy :is(span,small){font-size:14px!important;line-height:1.25!important;color:#e6e9dc!important}
+html.ncc-lime-theme #app .ncc-recipe-chevron{font-size:29px;color:#f0f1e5}
+html.ncc-lime-theme #app .ncc-recipe-count{border-top:1px solid #626d54;margin:16px 0!important;padding-top:10px;text-align:center;font-size:13px}
+html.ncc-lime-theme #app .ncc-recipe-note{display:block;font-size:12px;font-style:italic;margin:16px 0}
+html.ncc-lime-theme #app .ncc-recipes .efg-own-recipes{padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-own-heading{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:8px 0}
+html.ncc-lime-theme #app .ncc-own-heading h2{font-size:18px!important;margin:0!important}
+html.ncc-lime-theme #app .ncc-own-heading button{background:#a5be69!important;color:#10170d!important;min-height:44px;font-size:14px!important;border:0!important}
+html.ncc-lime-theme #app .ncc-own-recipe{margin-top:12px!important}
+html.ncc-lime-theme #app .ncc-own-recipe .ncc-recipe-choice{grid-template-columns:42px minmax(0,1fr) 12px;min-height:90px}
+.ncc-own-icon svg{width:32px;height:32px}
+html.ncc-lime-theme #app .ncc-own-recipe summary{min-height:44px;box-sizing:border-box;padding:12px 16px;font-size:13px;border-top:1px solid #535c49;cursor:pointer}
+html.ncc-lime-theme #app .ncc-own-recipe details button{min-height:44px;margin:8px;background:transparent!important;color:#f0f1e5!important}
+body:has(.ncc-recipe-overlay){overflow:hidden}
+body:has(.ncc-recipe-overlay) :is(.pilot-nav,.efg-notifications){visibility:hidden!important}
+html.ncc-lime-theme #app .ncc-recipe-overlay{position:fixed!important;inset:0!important;z-index:30000!important;background:#0b120cf5!important;display:block!important;overflow-y:auto!important;overscroll-behavior:contain;padding:0!important;box-sizing:border-box}
+html.ncc-lime-theme #app .ncc-recipe-sheet{box-sizing:border-box;position:relative!important;max-height:none!important;min-height:100dvh;max-width:440px!important;width:100%!important;margin:0 auto!important;border:0!important;border-radius:0!important;background:#0b120c!important;color:#f0f1e5!important;padding:24px 18px calc(20px + env(safe-area-inset-bottom))!important;overflow:visible!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-recipe-sheet-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 18px}
+html.ncc-lime-theme #app .ncc-recipe-sheet-heading h2{font-size:26px!important;line-height:1.2!important;margin:0!important}
+html.ncc-lime-theme #app .ncc-recipe-sheet-heading button{min-height:44px;min-width:44px;border:0;background:transparent;color:#f0f1e5;font-size:35px;padding:0}
+html.ncc-lime-theme #app .ncc-recipe-hero{height:145px;border-radius:12px;overflow:hidden;background:#303a24}
+html.ncc-lime-theme #app .ncc-recipe-hero .efg-fit-photo{position:static!important;display:block;width:100%!important;height:100%!important;object-fit:cover!important;aspect-ratio:auto!important}
+html.ncc-lime-theme #app .ncc-recipe-sheet .efg-fit-photo-credit{position:static!important;display:block;background:none!important;color:#d9decf!important;padding:5px 0!important;font-size:11px!important;text-decoration:none}
+html.ncc-lime-theme #app .ncc-recipe-sheet h3{font-size:21px!important;line-height:1.17!important;margin:8px 0!important;color:#f0f1e5!important}
+html.ncc-lime-theme #app .ncc-recipe-yield{font-size:14px;margin:0 0 14px}
+html.ncc-lime-theme #app .ncc-portions-label{display:block;font-size:16px;font-weight:700;margin:0 0 6px}
+html.ncc-lime-theme #app .ncc-recipe-quantity{display:grid;grid-template-columns:52px 120px 52px;justify-content:center;gap:10px}
+html.ncc-lime-theme #app .ncc-recipe-quantity :is(button,input){box-sizing:border-box;height:44px!important;min-height:44px!important;padding:5px!important;border:1px solid #8a9477!important;border-radius:8px!important;background:#192213!important;color:#f0f1e5!important;text-align:center;font-size:24px!important}
+html.ncc-lime-theme #app #nccRecipePortionHint{display:block;font-size:12px;text-align:center;margin:6px 0 14px}
+html.ncc-lime-theme #app .ncc-recipe-nutrients{border:1px solid #6d795e;background:#1c2715;border-radius:12px;padding:9px;text-align:center;margin:0 0 12px;display:flex;flex-direction:column;gap:3px}
+html.ncc-lime-theme #app .ncc-recipe-nutrients strong{font-size:24px!important}
+html.ncc-lime-theme #app .ncc-recipe-nutrients span{font-size:14px!important}
+html.ncc-lime-theme #app .ncc-recipe-slot{display:block;font-size:16px;font-weight:700;margin-bottom:14px}
+html.ncc-lime-theme #app .ncc-recipe-slot select{display:block;margin-top:6px;font-weight:400}
+html.ncc-lime-theme #app .ncc-recipe-sheet .efg-fit-detail{padding:0!important;margin:0!important;background:#151e12!important;border:1px solid #6d795e!important;border-radius:8px!important}
+html.ncc-lime-theme #app .ncc-recipe-sheet .efg-fit-detail summary{box-sizing:border-box;min-height:44px;padding:12px 14px!important;font-size:16px!important;cursor:pointer}
+html.ncc-lime-theme #app .ncc-recipe-sheet .efg-fit-inner{padding:12px!important;font-size:14px!important}
+html.ncc-lime-theme #app .ncc-recipe-sheet .efg-fit-inner :is(p,li,small){font-size:14px!important;line-height:1.4!important}
+html.ncc-lime-theme #app #nccRecipeDestination{text-align:center;font-size:15px;font-style:italic;margin:20px 0 16px}
+html.ncc-lime-theme #app #nccRecipeError:empty{display:none}
+html.ncc-lime-theme #app #nccRecipeError{font-size:14px;color:#ffd8cf;margin:10px 0}
+html.ncc-lime-theme #app .ncc-recipe-footer .btn{box-sizing:border-box;display:block;width:100%;min-height:48px!important;padding:10px!important;font-size:18px!important;border-radius:10px!important;box-shadow:none!important}
+html.ncc-lime-theme #app .ncc-recipe-footer .ncc-recipe-confirm{background:#a5be69!important;color:#10170d!important;--ncc-text:#10170d;border:0!important;font-weight:700!important;margin:0 0 10px}
+html.ncc-lime-theme #app .ncc-recipe-footer .ncc-recipe-cancel{background:transparent!important;color:#f0f1e5!important;border:1px solid #bdc899!important}
+@media(max-width:760px){
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-main{padding:0 18px calc(84px + env(safe-area-inset-bottom))!important;width:100%!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-header{position:relative!important;top:auto!important;padding:14px 18px!important;min-height:64px!important;height:64px!important;border:0!important;background:transparent!important;box-shadow:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-brand{gap:9px!important;max-width:235px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-brand img{width:38px!important;height:30px!important;flex:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-brand-text strong{font-size:15px!important;line-height:1.05!important;max-width:180px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] :is(.efg-mobile-brand-text small,.efg-mobile-user,.efg-mobile-avatar){display:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-logout{min-width:44px!important;min-height:44px!important;padding:5px!important;font-size:11px!important;border:0!important;background:transparent!important;margin-right:40px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-nav{height:calc(65px + env(safe-area-inset-bottom))!important;min-height:65px!important;padding:4px 7px calc(4px + env(safe-area-inset-bottom))!important;border-radius:0!important;background:#0c130bf5!important;border-top:1px solid #414b35!important;gap:0!important;box-shadow:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-nav .navitem{min-height:54px!important;height:54px!important;padding:3px!important;border-radius:0!important;border:0!important;background:transparent!important;gap:4px!important;box-shadow:none!important;position:relative}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-nav .navitem.active{color:#b4cb72!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .navitem:before{display:none!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .navitem.active:after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:2px;background:#b4cb72}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .nav-icon,html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .nav-icon svg{width:23px!important;height:23px!important;min-height:0!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .nav-label{font-size:10px!important;line-height:1.1!important;text-transform:none!important;letter-spacing:0!important;white-space:nowrap}
+ body:has([data-ncc-recipes]) .efg-notifications{top:15px!important;right:14px!important}
+ body:has([data-ncc-recipes]) .efg-notify-bell{width:44px!important;height:44px!important;padding:5px!important}
+ body:has([data-ncc-recipes]) .efg-notify-bell svg{width:24px!important;height:24px!important}
+ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .pilot-bottom{font-size:10px;margin-top:10px}
+}
+@media(max-width:350px){html.ncc-lime-theme #app .ncc-recipe-choice{grid-template-columns:78px minmax(0,1fr) 10px;gap:9px;min-height:128px}html.ncc-lime-theme #app .ncc-recipe-photo{width:78px;height:106px}html.ncc-lime-theme #app .ncc-recipe-copy strong{font-size:15px!important}html.ncc-lime-theme #app .ncc-recipe-copy :is(span,small){font-size:13px!important}}
+@media(prefers-reduced-motion:reduce){.ncc-recipes *,.ncc-recipe-sheet *{scroll-behavior:auto!important}}

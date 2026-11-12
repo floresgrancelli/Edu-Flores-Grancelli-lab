@@ -1160,9 +1160,9 @@ try{
    if(role==="student"&&dest==="recipes"){
      if((await page.locator(".efg-fit-card").count())!==12)pageReport.errors.push("Fit recipe library should show 12 cards");
      if(!(await page.getByText("Budín de avena y manzana de Edu",{exact:true}).count()))pageReport.errors.push("Edu budin missing");
-     await page.locator('[data-fitfilter="Almuerzos y cenas"]').click();
+     await page.locator('#nccRecipeCategory').selectOption('Almuerzos y cenas');
      if((await page.locator(".efg-fit-card").count())!==6)pageReport.errors.push("Fit category filter did not narrow to six meals");
-     await page.locator('[data-fitfilter="all"]').click();
+     await page.locator('#nccRecipeCategory').selectOption('all');
    }
    if((role==="coach"||role==="admin")&&dest==="payments"){
      if(!(await page.locator("#coachAlias").count()))pageReport.errors.push("Coach alias editor missing in payments");

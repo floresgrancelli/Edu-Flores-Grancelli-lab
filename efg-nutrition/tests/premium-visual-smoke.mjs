@@ -437,7 +437,15 @@ try{
      if(dest==="home"&&(!content.includes("MIS LOGROS DE LA SEMANA")||!content.includes("MIS COMIDAS")&&!content.includes("Mis comidas")))pageReport.errors.push("Coach MI DÍA missing meal diary or vivid weekly bars");
      if(groupedWeek){await page.locator('#nccDayWeekly > summary').click();await page.locator('#nccDayTools > summary').click();}
      if(dest==="studentMore"&&(!content.toLocaleUpperCase("es-AR").includes("MI PLANIFICADOR")||!content.toLocaleUpperCase("es-AR").includes("MIS SUPLEMENTOS")))pageReport.errors.push("Coach MI ESPACIO incomplete: "+content.slice(0,320));
-     if(dest==="payments"&&(!content.toLocaleUpperCase("es-AR").includes("COBRAR A MIS ALUMNOS")||!content.toLocaleUpperCase("es-AR").includes("PAGAR MI LICENCIA A EFG")||!content.includes("EFG.ALIAS.DEMO")))pageReport.errors.push("Coach split payments or official alias missing: "+content.slice(0,470));
+     if(dest==="payments"){
+       const tabs=page.locator('#nccPaymentSections');
+       if(await tabs.count())await tabs.locator('[data-workspace-tab=received]').click();
+       const collections=await page.locator('.pilot-main').innerText();
+       if(await tabs.count())await tabs.locator('[data-workspace-tab=license]').click();
+       const license=await page.locator('.pilot-main').innerText();
+       if(!collections.toLocaleUpperCase('es-AR').includes('COBRAR A MIS ALUMNOS')||!license.toLocaleUpperCase('es-AR').includes('PAGAR MI LICENCIA A EFG')||!license.includes('EFG.ALIAS.DEMO'))pageReport.errors.push('Coach split payments or official alias missing: '+collections.slice(0,235)+' / '+license.slice(0,235));
+       if(await tabs.count())await tabs.locator('[data-workspace-tab=received]').click();
+     }
    }
    if((role==="admin"||role==="student")&&width===390&&dest==="home"){
      // Reproduce six meal slots, remote persisted favourites and first iPhone food selection

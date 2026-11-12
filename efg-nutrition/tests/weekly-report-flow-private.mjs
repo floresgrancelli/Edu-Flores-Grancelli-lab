@@ -29,6 +29,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
    s.coachGuidedDraft={syntheticSentinel:'preserve-unrelated-plan'};
    await v.render();
   });
+  await page.locator('[data-report-kind="weekly"]').click();
   const section=page.locator('#coachReportWeek');
   await section.getByText('Mi devolución para vos',{exact:true}).waitFor();
   assert.equal(await page.locator('#weeklyLuxuryPublishButton').count(),0);
@@ -151,6 +152,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
    v.setConsentMap({'demo-student-a':true,'demo-student-b':true});
    s.selectedStudent='demo-student-b';s.consent={accepted:true};s.coachHistory=[];s.tab='reports';await v.render();
   });
+  await page.locator('[data-report-kind="weekly"]').click();
   await page.locator('#coachReportWeek [data-act="previewLuxuryReport"]').tap();await reviewPdf();
   await page.evaluate(()=>{
    const v=window.__EFG_VISUAL_QA__,c=window.__WEEKLY_RAM__.controls;
@@ -178,8 +180,9 @@ export async function runWeeklyReportFlow(page,width,outDir){
   await page.locator('#periodReportFrom').waitFor();
   const dates=await page.evaluate(()=>window.__EFG_VISUAL_QA__.weeklyReportWindow());
   await page.locator('#periodReportFrom').fill(dates.from);await page.locator('#periodReportTo').fill(dates.to);
-  await page.locator('[data-act="generatePeriodReport"]').tap();await page.locator('#periodReportConclusion').waitFor();
+  await page.locator('[data-act="generatePeriodReport"]').tap();await page.locator('#periodReportConclusion').waitFor({state:'attached'});
   assert.equal(await page.evaluate(()=>window.__EFG_VISUAL_QA__.state.profile.role),'admin');
+  await page.locator('[data-report-stage="send"]').click();
   await page.locator('[data-act="printPeriodLuxury"]').tap();await page.locator('[data-pdf-download]').waitFor({state:'visible'});
   assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);
   await page.locator('.period-pdf-dialog canvas').waitFor();

@@ -1,3 +1,4 @@
+import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-report-gaps-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
@@ -3057,17 +3058,18 @@ function coachReportsView(){
  const report=buildNutritionReport(state.coachLogs,mealSlots,dailyTotals,today(),state.coachGoals[0]||null);
  const prev=report.days.find(d=>d.date===yesterday());
  const status=!prev||!prev.hasData?'Sin registros':prev.closed?'Cerrado':'Parcial';
- out+='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
+ let daily='<section class="card"><h2>Informe de ayer · '+yesterday().split("-").reverse().join("/")+'</h2><div class="pilot-notice"><strong>'+escapeHTML(status)+'</strong><small>'+(prev?.hasData?num(prev.k)+' kcal · Proteínas '+num(prev.p,1)+' g · HC '+num(prev.c,1)+' g · Grasas '+num(prev.f,1)+' g':'Sin consumos registrados; no se considera cero calorías')+'</small></div>'+
  (prev?.comment?'<div class="coach-comment-detail"><strong>📝 Comentario del alumno de ayer</strong><p>'+escapeHTML(prev.comment)+'</p></div>':'')+
  '<p class="pilot-hint">El informe utiliza lo guardado hasta este momento. Un día puede quedar parcial si el alumno no lo cerró.</p></section>';
- out+=weeklyAdherenceSummary();
- out+=weeklyCoachDraft();
- out+=coachPeriodReportPanel();
- out+=coachLuxuryHistoryPanel();
- out+='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
- out+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
- out+='<section class="card">'+coachDailyReport(p)+'</section>';
- return out;
+ let weekly=weeklyAdherenceSummary();
+ weekly+=weeklyCoachDraft();
+ const period=coachPeriodReportPanel();
+ weekly+=coachLuxuryHistoryPanel();
+ let evolution='<section class="card"><h2>📈 Evolución nutricional</h2><p class="pilot-hint">Últimos 14 días disponibles, sin completar con ceros los días faltantes.</p><div class="nutrition-trend-grid">'+coachTrendChart(report.days,"k","Calorías","kcal",state.coachGoals[0]?.kcal)+coachTrendChart(report.days,"p","Proteínas","g",state.coachGoals[0]?.protein_g)+coachTrendChart(report.days,"c","Carbohidratos","g",state.coachGoals[0]?.carb_g)+coachTrendChart(report.days,"f","Grasas","g",state.coachGoals[0]?.fat_g)+'</div></section>';
+ evolution+='<section class="card"><h2>⚖️ Evolución del peso corporal</h2><p class="pilot-hint">Cada registro incluye su fecha y hora. Para comparar, se recomienda un pesaje semanal en condiciones similares.</p>'+weightTrendChart(state.coachWeights)+'</section>';
+ daily+='<section class="card">'+coachDailyReport(p)+'</section>';
+ const sections=[['period','Por período',period],['weekly','Semanal',weekly],['daily','Diario',daily],['evolution','Evolución',evolution]];
+ return out+'<nav class="ncc-chart-tabs" aria-label="Tipos de informe">'+sections.map(([key,label])=>'<button type="button" data-report-kind="'+key+'" aria-pressed="'+(key==='period')+'" aria-controls="reportKind-'+key+'">'+label+'</button>').join('')+'</nav>'+sections.map(([key,label,html])=>'<section id="reportKind-'+key+'" data-report-kind-panel="'+key+'" '+(key==='period'?'':'hidden')+'>'+html+'</section>').join('');
 }
 function coachDailyReport(p){
  const latest=state.coachGoals[0]||null;
@@ -4099,6 +4101,7 @@ async function render(){
  lastRenderedViewKey=activeViewKey();
  if(lastRenderedViewKey===viewKey)restoreViewContinuity(snapshot);
  restoreCoachSection();
+ mountCoachReportFlow(root);
  const rosterSearch=document.getElementById('coachRosterSearch');
  if(rosterSearch){
   if(!snapshot)root.dataset.rosterFilter='all';

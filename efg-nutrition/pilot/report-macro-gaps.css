@@ -31,3 +31,12 @@ html.ncc-lime-theme #app .ncc-macro-stats{padding:16px 0 0!important;overflow:hi
 [data-chartpanel][hidden],[data-progresspanel][hidden]{display:none!important}
 
 [data-coachstatspanel][hidden]{display:none!important}
+
+.ncc-report-flow [hidden]{display:none!important}
+.ncc-report-steps{position:sticky;top:76px;z-index:2;background:#10160e;padding:6px 0}
+.ncc-report-steps button{font-size:14px;line-height:1.2;padding:10px 6px}
+.ncc-report-steps button:disabled{opacity:.5;cursor:default}
+#nccReportHistory>.card{margin:12px 0 0;padding:12px}
+#nccReportPrepare{display:grid;gap:12px}
+
+[data-report-kind-panel][hidden]{display:none!important}

@@ -196,7 +196,7 @@ try{
    const photos=page.locator('[data-daymealpanel="desayuno"] .ncc-food-thumb .ncc-family-photo');
    assert.equal(await photos.count(),5,'Every reported breakfast entry gets a photo');
    const atlas=await page.locator('.ncc-family-atlas').first().evaluate(e=>getComputedStyle(e).backgroundImage.slice(5,-2));
-   assert.ok(atlas.includes('food-families-r1.webp'));
+   assert.ok(/food-specific\/.*-r1\.webp|food-families-r1\.webp/.test(atlas),'Mapped food atlas must load');
    await page.evaluate(async url=>{const image=new Image();image.src=url;await image.decode();if(image.naturalWidth<1000)throw Error('Atlas did not load');},atlas);
    await page.locator('[data-daymealpanel="desayuno"]').scrollIntoViewIfNeeded();
    await page.screenshot({path:resolve(out,engine+'-'+width+'-family-breakfast.png')});

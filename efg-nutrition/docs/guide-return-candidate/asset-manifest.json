@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-personal-space-r1-20261112",
+  "assetVersion": "ncc-food-specific-r1-20261112",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -97,7 +97,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-personal-space-r1-20261112",
+    "efg-nutrition/pilot/pilot.js": "ncc-food-specific-r1-20261112",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-color-system-r1-20261112",
@@ -160,7 +160,8 @@
     "efg-nutrition/pilot/period-report-pdf-v4.js": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/coach-report-flow.js": "ncc-report-flow-r1-20261112",
     "efg-nutrition/pilot/workspace-tabs.js": "ncc-personal-space-r1-20261112",
-    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "ncc-color-system-r1-20261112"
+    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "ncc-color-system-r1-20261112",
+    "efg-nutrition/pilot/food-visuals-r2.js": "ncc-food-specific-r1-20261112"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "1bfbcbb53246a00904046a69a71169403956fdf5dd0353f99accf4a9c641a766",
@@ -227,7 +228,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "164b6cbc26c2743db4adeb556f2e611cbb6bf82ace6e2fc4b3eaa8c9b10822a5",
+    "efg-nutrition/pilot/index.html": "db24945c31d7a5141141895ce94c3cf0a09db13dc1c56e63267129dedc702423",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -255,7 +256,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "c79c49c04443febfc3cc316abd8491ffc214b8beb46effd3aeef368d8bd24963",
+    "efg-nutrition/pilot/pilot.js": "9ab8172d3ae568306f9386b7099b1da9fc4485b0f71d2060fd1bbb86b8bbf65b",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "9b22fbde84f5f3d52b00251fb54c322559a1db44c6011bf619a7801f68baa278",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "7e1f1d97b780a242671998fc3fb67f3ee4c5b208f22aedb66e179882a15b2841",
@@ -335,7 +336,20 @@
     "efg-nutrition/pilot/workspace-tabs.css": "33e7866e167a8e2a6c759ff385363d6a16d1766ed61e9628557756a969bebfdc",
     "efg-nutrition/pilot/color-system.css": "2e88d78aacdc59f84e0513daec63009e5019eea9103fa5401e5fcef7103c9fda",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
-    "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5"
+    "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5",
+    "efg-nutrition/pilot/food-visuals-r2.js": "4303a22678d16704c306ac5624d910d6e004e544c641b21b740abf2e6321cfd8",
+    "efg-nutrition/pilot/assets/food-specific/produce-extra-r1.webp": "3dd528a71f71b3de3609b4ceb44336086e24e3c7ae32b9cd5f6dfeeddf50c9df",
+    "efg-nutrition/pilot/assets/food-specific/dishes-r1.webp": "bbf96f3e4b587747a63b5c1d368682b0aada13c8024ee9316bdbf9b1bf0b141d",
+    "efg-nutrition/pilot/assets/food-specific/prepared-r1.webp": "aed464d5f956256cb961929d19946021fce5c600bd5b5ef624225a6af9886722",
+    "efg-nutrition/pilot/assets/food-specific/finishing-r1.webp": "8130568ce54ac668876e50cfa1356539d887260662e0230a178711267c2427ae",
+    "efg-nutrition/pilot/assets/food-specific/specialties-r1.webp": "95abed6bd00b0d9fd55c5f099aa4360cd355066b523685a1aa14c3aa45b8c785",
+    "efg-nutrition/pilot/assets/food-specific/produce-r1.webp": "eba23a55af9e483fc3398891c10749178c1f89d9f5a73ba10460d0a086a759af",
+    "efg-nutrition/pilot/assets/food-specific/desserts-r1.webp": "73f530788eb9be26f7937b621aca94c811206430d9e453a123d2bc30ded1bfa3",
+    "efg-nutrition/pilot/assets/food-specific/staples-r1.webp": "e596d524c40f5e739ee2f01ca4d7ae92c96952ba79803809739c988c0bc95301",
+    "efg-nutrition/pilot/assets/food-specific/meals-extra-r1.webp": "01863ff603b5afaa4a69154e4ac92f67c61bbc00b3d4dd9b14f66614bb838bf5",
+    "efg-nutrition/pilot/assets/food-specific/basics-r1.webp": "0bc6bcf57cf718d3de3585cd9c9657404ddc279b8e9fd4e6b81b5734063e642a",
+    "efg-nutrition/pilot/assets/food-specific/pantry-r1.webp": "c332db6bde3fe35708a9a46df3707727d20b1d7e2bbf783747d8448c7e954a09",
+    "efg-nutrition/pilot/food-photo-map-r2.json": "d3948d6790679deb047ba7fb065884f061639f3fec1b6192accf4d553bf14063"
   },
   "stylesheets": [
     {
@@ -552,5 +566,27 @@
     "fallback": "generic mixed meal for unknown historical or private recipes",
     "nutritionalIdentityChanged": false,
     "creamCheese": "Separate generic spreadable cream cheese photo, per owner clarification; solid cheeses retain atlas cell 0."
+  },
+  "foodSpecificPhotos": {
+    "catalogFoods": 560,
+    "mapping": "efg-nutrition/pilot/food-photo-map-r2.json",
+    "resolver": "efg-nutrition/pilot/food-visuals-r2.js",
+    "atlasAssets": [
+      "efg-nutrition/pilot/assets/food-specific/basics-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/desserts-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/dishes-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/finishing-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/meals-extra-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/pantry-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/prepared-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/produce-extra-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/produce-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/specialties-r1.webp",
+      "efg-nutrition/pilot/assets/food-specific/staples-r1.webp"
+    ],
+    "type": "generated illustrative food and preparation photos",
+    "status": "CANDIDATE_PENDING_VISUAL_APPROVAL",
+    "fallback": "neutral plate for unknown identities; never ingredient keyword substitution",
+    "nutritionalIdentityChanged": false
   }
 }

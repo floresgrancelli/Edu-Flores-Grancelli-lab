@@ -1,19 +1,34 @@
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-const src=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
-const code=src.slice(src.indexOf('function foodFamilyVisual('),src.indexOf('// Exact ingredient IDs only:'));
-const {visual,html}=new Function('escapeHTML',code+';return {visual:foodFamilyVisual,html:foodFamilyPhoto};')(v=>String(v).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;'));
+import {FOOD_PHOTO_MAP,resolveFoodVisual as visual,foodPhotoHTML} from '../pilot/food-visuals-r2.js';
+const escapeHTML=v=>String(v).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;');
+const html=f=>foodPhotoHTML(f,escapeHTML);
 const catalog=Object.values(JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url))).foods);
 assert.ok(catalog.length>=560);
-for(const f of catalog){const before=JSON.stringify(f),v=visual(f);assert.ok(v.src||Number.isInteger(v.cell)&&v.cell>=0&&v.cell<30,f.id);assert.match(html(f),/ncc-family-photo/);assert.equal(JSON.stringify(f),before);if(v.src)assert.ok(existsSync(new URL('../pilot/'+v.src,import.meta.url)));}
-for(const name of ['Port Salut Light','Mozzarella','Ricota magra','Queso rallado'])assert.equal(visual({name}).cell,0,name);
-assert.equal(visual({id:'custom-drink-42',name:'Café con leche · 300 ml leche protein descremada'}).cell,2);
-assert.equal(visual({name:'Tostadas integrales'}).cell,1);
-assert.equal(visual({name:'Dulce de membrillo'}).cell,4);
-assert.equal(visual({name:'Mi receta propia',privateRecipe:true}).cell,29);
-assert.equal(visual({name:'Alimento histórico desconocido'}).cell,29);
-assert.ok(readFileSync(new URL('../pilot/assets/food-families-r1.webp',import.meta.url)).length>10000);
-console.log('PASS generic food family photos: '+catalog.length+' catalog foods, custom drinks, cheese variants and unknown historical entries; no mutations.');
-
-for(const name of ['Queso crema','Queso untable light','Casancrem','Philadelphia'])assert.equal(visual({name}).src,'./assets/cream-cheese-r1.webp',name);
-assert.equal(visual({id:'cream_cheese_regular'}).src,'./assets/cream-cheese-r1.webp');
+assert.deepEqual(Object.keys(FOOD_PHOTO_MAP).sort(),catalog.map(f=>f.id).sort());
+const assets=new Set();
+for(const f of catalog){
+ const before=JSON.stringify(f),v=visual(f);
+ assert.ok(!v.placeholder,f.id);assert.match(html(f),/ncc-family-photo/);assert.equal(JSON.stringify(f),before);
+ assert.deepEqual(visual({name:f.name}),v,'Historical exact name: '+f.id);
+ if(!v.src){const rows=v.rows||(v.atlas==='prepared'?4:6);assert.ok(Number.isInteger(v.cell)&&v.cell>=0&&v.cell<v.columns*rows,f.id);}
+ const asset=v.src||(v.atlas==='legacy'?'./assets/food-families-r1.webp':'./assets/food-specific/'+v.atlas+'-r1.webp');
+ assert.ok(existsSync(new URL('../pilot/'+asset,import.meta.url)),asset);assets.add(asset);
+}
+for(const [id,cell] of Object.entries({ensalada_verduras:0,fruit_salad_basic:1,pure_potato:2,milanesa_chicken_baked:3})){
+ assert.equal(visual({id}).atlas,'prepared');assert.equal(visual({id}).cell,cell);
+ assert.equal(visual({id,name:'histórico sin azúcar ni aceite con leche'}),FOOD_PHOTO_MAP[id]);
+}
+assert.notDeepEqual(visual({id:'fruit_salad_basic'}),visual({id:'quince'}));
+assert.notDeepEqual(visual({id:'ensalada_verduras'}),visual({id:'oil'}));
+assert.notDeepEqual(visual({id:'pure_potato'}),visual({id:'milk'}));
+assert.notDeepEqual(visual({id:'milanesa_chicken_baked'}),visual({id:'chicken'}));
+for(const name of ['Mi receta propia','Alimento histórico desconocido','Ensalada propia con aceite','Tarta casera de pollo'])assert.equal(visual({name,privateRecipe:true}).placeholder,true);
+assert.equal(visual({id:'custom-coffee',name:'Café con leche · 300 ml leche protein descremada'}),FOOD_PHOTO_MAP.coffee_milk);
+for(const name of ['Queso crema','Queso untable light','Casancrem','Philadelphia'])assert.equal(visual({name}).src,'./assets/cream-cheese-r1.webp');
+assert.equal(visual({name:'Dulce de membrillo'}),FOOD_PHOTO_MAP.quince);
+assert.equal(visual({name:'Tostadas integrales'}),FOOD_PHOTO_MAP.toast_whole);
+assert.ok(assets.size>=12);
+const source=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+assert.match(source,/function foodFamilyPhoto\(food\)\{return foodPhotoHTML\(food,escapeHTML\);\}/);
+console.log('PASS exact food photos: '+catalog.length+' identities, '+assets.size+' local assets, prepared-food regressions, historical names, neutral unknowns; no mutations.');

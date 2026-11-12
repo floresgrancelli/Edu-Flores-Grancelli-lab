@@ -1,3 +1,4 @@
+import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-personal-space-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
@@ -3213,44 +3214,9 @@ function coachGuidePickerFoods(){
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }
-// Generic family thumbnails are presentation only; never food identity or portions.
-function foodFamilyVisual(food){
- const text=(String(food?.id||'')+' '+String(food?.name||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- if(/queso.?crema|queso.*untable|cream.cheese|casancrem|philadelphia/.test(text))return {src:'./assets/cream-cheese-r1.webp',label:'Queso crema o untable'};
- const rules=[
-  [/pizza/,16,'Pizza'],[/empanada/,17,'Empanadas'],[/sandwich|hamburgues|choripan|pancho|wrap|rapidita/,26,'Sándwich'],
-  [/cafe|coffee|capuch|cappucc|latte/,2,'Café'],[/mate|yerba/,27,'Mate'],
-  [/whey|proteina.*polvo|protein.*powder|suplement/,28,'Proteína en polvo'],
-  [/budin|cake|torta|muffin|panqueque|pancake|bizcochuelo|croissant|medialuna|factura|dona|donut|alfajor/,18,'Pastelería'],
-  [/gallet|cookie|cracker/,19,'Galletitas'],[/chocol|cacao/,20,'Chocolate'],[/gomita|caramel|candy|marshmallow/,21,'Golosinas'],[/helado|ice.?cream/,22,'Helado'],
-  [/membrillo|quince|mermelada|dulce|miel|jalea|sugar|azucar/,4,'Dulces'],
-  [/queso|cheese|port.?salut|mozzarella|ricot|parmes|cottage|provol|reggian|cremoso|roquefort/,0,'Queso'],
-  [/yogur|yogurt|kefir/,null,'Yogur','yogurt'],[/leche|milk|bebida.*(soja|almendra|avena)|cream|crema/,3,'Leche'],
-  [/huevo|egg|omelett|clara/,null,'Huevo','eggs'],[/pollo|chicken|pavo|turkey/,null,'Pollo','chicken'],
-  [/pescad|fish|merluza|salmon|atun|tuna|sardina|caballa|bacalao|marisco|langost|camaron|calamar|raba|pulpo|mejillon|abadejo|pejerrey|trucha|cazon/,6,'Pescado'],
-  [/jamon|ham_|salame|salchich|mortadela|fiambre|chorizo|panceta|bacon/,8,'Fiambres'],[/cerdo|pork|bondiola/,7,'Cerdo'],
-  [/carne|beef|bife|vaca|vacun|ternera|lomo|cuadril|asado|cordero|higado|milanesa/,5,'Carne'],
-  [/tofu|tempeh|seitan|texturiz|soja|vegan|vegetal.*queso/,24,'Alternativa vegetal'],
-  [/lenteja|lentil|garbanzo|chickpea|poroto|bean|legumbr|arveja|hummus/,9,'Legumbres'],
-  [/avena|oat|granola|cereal|copos/,null,'Cereales','oats'],[/arroz|rice|quinoa|cuscus|couscous|bulgur|polenta/,null,'Cereales cocidos','rice'],
-  [/fideo|pasta|raviol|noqui|gnocchi|tallarin|lasana|canelon|spaghett|sorrentino/,14,'Pastas'],
-  [/papa|potato|batata|mandioca/,15,'Tubérculos'],[/pan\b|bread|toast|tostada|baguette|pita|bagel/,1,'Pan'],
-  [/nuez|nueces|almendra|mani|castana|pistacho|avellana|semilla|chia|lino|sesamo|nut|peanut/,12,'Frutos secos y semillas'],
-  [/aceite|oil|manteca|mantequilla|margarin|mayonesa|palta|avocado|aceituna|oliva/,13,'Grasas'],
-  [/manzana|apple|banana|mandarina|naranja|fruta|fruit|pera\b|durazno|frutilla|fresa|kiwi|melon|sandia|uva|ciruela|mango|anana|limon|arandano|pomelo|cereza|coco|damasco|higo|datil/,11,'Frutas'],
-  [/verdura|vegetable|calabaza|pumpkin|zapallo|rucula|rocket|tomate|zanahoria|lechuga|espinaca|acelga|brocoli|coliflor|repollo|pepino|berenjena|zucchini|cebolla|ajo\b|morron|champi|hongo|remolacha|choclo|esparrago|chaucha|apio|puerro/,10,'Verduras'],
-  [/sopa|soup|caldo/,25,'Sopa'],[/agua|water|te\b|tea\b|infusion|gaseosa|jugo|bebida|cerveza|vino|soda|zero|cero/,23,'Bebidas']
- ];
- for(const [pattern,cell,label,asset] of rules)if(pattern.test(text))return asset?{src:'./assets/guide/'+asset+'-r1.webp',label}:{cell,label};
- const cell={protein:5,dairy:3,carb:1,legumes:9,fruit:11,vegetable:10,fat:12,recipe:29,plant:24,prepared:29,bakery:1,candy:21,dessert:18,drink:23,extra:29}[food?.category];
- return {cell:cell??29,label:'Alimento · imagen genérica'};
-}
-function foodFamilyPhoto(food){
- const photo=foodFamilyVisual(food),label=escapeHTML(photo.label+' · imagen genérica ilustrativa');
- if(photo.src)return '<img class="ncc-family-photo" src="'+photo.src+'" alt="'+label+'" width="64" height="64" loading="lazy" decoding="async">';
- const x=(photo.cell%6)*20,y=Math.floor(photo.cell/6)*25;
- return '<span class="ncc-family-photo ncc-family-atlas" role="img" aria-label="'+label+'" title="'+label+'" style="background-position:'+x+'% '+y+'%"></span>';
-}
+// Thumbnail lookup is shared by diary, search, habitual meals and guide rows.
+function foodFamilyVisual(food){return resolveFoodVisual(food);}
+function foodFamilyPhoto(food){return foodPhotoHTML(food,escapeHTML);}
 
 // Exact ingredient IDs only: a reference photo never asserts a serving or dietary suitability.
 function guideIngredientVisual(meal){

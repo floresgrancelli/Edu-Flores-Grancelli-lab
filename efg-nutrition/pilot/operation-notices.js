@@ -32,7 +32,8 @@ export function createOperationNotices({element,context}){
   close.onclick=()=>{const previous=returnFocus;hide();if(previous?.isConnected)previous.focus({preventScroll:true});};
   e.replaceChildren(text,close);e.hidden=false;e.style.display='flex';mount();resume();
  }
- e.onfocusin=pause;e.onfocusout=()=>queueMicrotask(resume);e.onmouseenter=pause;e.onmouseleave=resume;
+ e.addEventListener('focusin',pause);e.addEventListener('focusout',()=>queueMicrotask(resume));
+ e.addEventListener('mouseenter',pause);e.addEventListener('mouseleave',resume);
  document.addEventListener('visibilitychange',()=>document.hidden?pause():resume());
  notify.clear=hide;notify.mount=mount;return notify;
 }

@@ -60,7 +60,7 @@ try{for(const engine of ['chromium','webkit']){
   const confirmed=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
   await page.clock.install();
   await toast.locator('button').focus();await page.clock.fastForward(5000);assert.equal(await toast.isVisible(),true,'Focused confirmation remains readable');
-  await page.locator('[data-daymeal=desayuno]').focus();await page.clock.fastForward(5000);assert.equal(await toast.isVisible(),false,'Confirmed success closes automatically after focus leaves');
+  await page.locator('[data-daymeal=desayuno]').focus();await page.clock.fastForward(5000);assert.equal(await toast.isVisible(),false,'Confirmed success closes automatically after focus leaves: '+JSON.stringify(await toast.evaluate(e=>({active:document.activeElement?.outerHTML,hover:e.matches(':hover'),hidden:document.hidden,timer:window.__NCC_NOTICE_REVIEW__.timer}))));
   // Real rejection of a second write keeps the editor and error available.
   await prepare();await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.fail=true);await page.locator('[data-act=saveSelectedMeal]').click();
   await page.waitForFunction(()=>document.querySelector('#pilot-toast')?.dataset.noticeKind==='error');

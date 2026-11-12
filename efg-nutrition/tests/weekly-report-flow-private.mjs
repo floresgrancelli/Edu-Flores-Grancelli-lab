@@ -10,7 +10,7 @@ export async function runWeeklyReportFlow(page,width,outDir){
  const reviewPdf=async()=>{await waitPdf();let numbers=(await page.locator('[data-weekly-counter]').innerText()).match(/\d+/g).map(Number);while(numbers[0]<numbers[1]){await page.locator('[data-weekly-next]').tap();const expected=numbers[0]+1;await page.waitForFunction(n=>document.querySelector('[data-weekly-counter]')?.textContent.startsWith('Página '+n+' de '),expected);numbers=(await page.locator('[data-weekly-counter]').innerText()).match(/\d+/g).map(Number);}await page.locator('#weeklyPdfReviewed').check();};
  const pdfBytes=async()=>Buffer.from(await page.evaluate(async()=>Array.from(new Uint8Array(await(await fetch(document.querySelector('[data-weekly-download]').href)).arrayBuffer()))));
  let coachPdf;
- const capture=async name=>{await page.locator('#pilot-toast').waitFor({state:'hidden',timeout:7000});const path=join(outDir,'weekly-flow-'+width+'-'+name+'.png');await page.screenshot({path,fullPage:true});screenshots.push(path);};
+ const capture=async name=>{const notice=page.locator('#pilot-toast');if(await notice.isVisible())await notice.getByRole('button',{name:'Cerrar aviso'}).click();await notice.waitFor({state:'hidden',timeout:7000});const path=join(outDir,'weekly-flow-'+width+'-'+name+'.png');await page.screenshot({path,fullPage:true});screenshots.push(path);};
  page.on('dialog',dialog=>dialog.accept());
  try{
   await page.evaluate(async()=>{

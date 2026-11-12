@@ -2012,7 +2012,7 @@ function plannerCard(){
     const qty=row.grams,portion=plannerSushiPortion(row.food),shownQty=plannerShownQty(row.food,qty);
     const nutrientLabel=row.targetNutrient==="p"?"proteínas":row.targetNutrient==="c"?"hidratos":"calorías";
     const targetExplanation=row.capped?' <small>'+(meal.split==="snack-third"?"Se sugiere una porción moderada de merienda. Lo que falte pasará a la cena.":"Para cubrir el objetivo solo con este alimento harían falta aproximadamente "+num(row.neededGrams)+" "+escapeHTML(row.unit)+". Se recomienda una porción limitada; el resto quedará indicado abajo.")+'</small>':"";
-    out+=guideIngredientPhoto({items:[{id:row.food.id,qty}]})+'<p class="ncc-suggestion-why">'+(qty>0?'Para acercarte al saldo de '+nutrientLabel+' de esta comida. Aporta aproximadamente '+num(row.food.k*qty)+' kcal · P '+num(row.food.p*qty,1)+' g · HC '+num(row.food.c*qty,1)+' g · G '+num(row.food.f*qty,1)+' g.':'Este objetivo ya está cubierto o requiere otra elección.')+'</p><div class="planner-qty"><div class="planner-recommendation">'+
+    out+=guideIngredientPhoto({items:[{id:row.food.id,qty}]})+'<p class="ncc-suggestion-why">'+(qty>0?'Para acercarte al saldo de '+nutrientLabel+' de esta comida. La cantidad sugerida aporta aproximadamente '+num(row.food.k*qty)+' kcal · P '+num(row.food.p*qty,1)+' g · HC '+num(row.food.c*qty,1)+' g · G '+num(row.food.f*qty,1)+' g.':'Este objetivo ya está cubierto o requiere otra elección.')+'</p><div class="planner-qty"><div class="planner-recommendation">'+
       (unsupported?'Bebida con leche: personalizá sus ingredientes al registrar.':qty>0?'Cantidad sugerida para '+nutrientLabel+': <b>'+num(shownQty)+' '+escapeHTML(portion?"piezas":row.unit)+'</b>'+(portion?' <small>(≈ '+num(shownQty*portion.grams)+' g estimados)</small>':'')+targetExplanation:'<span>'+escapeHTML(row.reason||"No es necesario añadir este alimento para el objetivo prioritario.")+'</span>')+
       (row.food.id==="milanesa_soy_gobinda"&&qty>0?' <small>(≈ '+num(qty/125,2)+' milanesas de 125 g)</small>':"")+
       (["egg","egg_boiled","huevo_frito","huevo_frito_fritolim"].includes(row.food.id)&&qty>0?' <small>(≈ '+num(qty/50)+' huevos de 50 g)</small>':"")+
@@ -2030,7 +2030,7 @@ function plannerCard(){
    out+='</div></div>';
   }
   out+='</details>';
-  out+='<p class="pilot-hint">Estos alimentos aportan aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
+  out+='<p class="pilot-hint">La sugerencia inicial aporta aprox. P '+num(meal.estimate.p,1)+' g · HC '+num(meal.estimate.c,1)+' g · G '+num(meal.estimate.f,1)+' g. Todas las cantidades son orientativas.</p></details>';
  }
  out+='<section class="planner-balance-compare" id="plannerPendingNotice" aria-live="polite" aria-label="Saldo real y balance simulado">'+
  '<div class="planner-real-balance"><b>Saldo REAL · solo lo registrado</b>'+
@@ -2136,6 +2136,8 @@ function updatePlannerPreview(){
   const leftEl=section.querySelector("[data-plan-energy-left]");
   if(targetEl)targetEl.innerHTML=fmt(entry.target);
   if(selectedEl)selectedEl.innerHTML=fmt(entry.selected);
+  const mealHeading=section.closest?.("[data-suggestionpanel]")?.querySelector(":scope > summary .pilot-pill");
+  if(mealHeading)mealHeading.textContent=num(entry.selected)+" kcal";
   if(leftEl)leftEl.innerHTML=fmt(entry.remaining);
   const status=section.querySelector("[data-plan-energy-message]");
   if(status){

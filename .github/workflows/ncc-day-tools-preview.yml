@@ -20,6 +20,14 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/plan-tabs-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: plan-tabs-review
+          path: artifacts/plan-tabs-review/
+          if-no-files-found: error
+          retention-days: 7
       - run: node efg-nutrition/tests/food-family-photos.mjs
       - run: node efg-nutrition/tests/food-photo-review-browser.mjs
       - uses: actions/upload-artifact@v4

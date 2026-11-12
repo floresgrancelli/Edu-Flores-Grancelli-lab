@@ -65,6 +65,15 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
    });
   }
  }
+ if(tab==='planner'){
+  const host=main.querySelector('.ncc-plan-workspace');
+  if(host){
+   const id='nccPlanDestinationSections';
+   if(host.dataset.noGuide==='true'&&!selections.has(key+'|'+id))selections.set(key+'|'+id,'planning');
+   group(host,id,[['guide','Dieta Guía',[host.querySelector(':scope > .ncc-plan,:scope > .ncc-plan-guide-empty')]],['planning','Planificar',[host.querySelector(':scope > .ncc-plan-planning')]]]);
+   const nav=host.querySelector('#'+id);if(nav)nav.setAttribute('aria-label','Dieta Guía y planificación');
+  }
+ }
  if(tab==='planner'&&role==='student'){
   const plan=main.querySelector('.ncc-plan');if(!plan)return;
   const notes=[...plan.querySelectorAll(':scope > .ncc-plan-notes')].map(n=>{const section=document.createElement('section');section.className=n.className;const summary=n.querySelector(':scope > summary');if(summary){const h=document.createElement('h2');h.textContent=summary.textContent;summary.replaceWith(h);}n.replaceWith(section);section.append(...n.childNodes);return section;});

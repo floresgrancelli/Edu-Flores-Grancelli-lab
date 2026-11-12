@@ -566,6 +566,7 @@ try{
    if(role==="student"&&width===390&&dest==="planner"){
      // Repro de captura real: buscar Sandía en "extra opcional 1".
      // El buscador debe mostrar la acción SIN cerrar el teclado Safari.
+     await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').click();
      await page.locator('[data-planmode="both"]').click(); // fixture defaults to Solo cena; screenshot uses Merienda + cena
      const diaryBeforeTabs=await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary));
      const plannerTabs=page.locator('[data-plannerslot]');

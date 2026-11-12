@@ -68,3 +68,17 @@ html.ncc-lime-theme #app .ncc-payment-filters button[aria-pressed=true]{backgrou
 .ncc-payments-workspace [data-payment-status]>.between{flex-wrap:wrap;gap:8px}
 .ncc-payments-workspace .efg-payment-target{overflow-wrap:anywhere}
 .ncc-payment-filter-empty{padding:16px;background:#25212c;border-radius:12px}
+
+@layer ncc-palette {
+.ncc-personal-menu .efg-menu-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+html.ncc-lime-theme #app .ncc-personal-menu .efg-menu-card{min-height:100px!important;padding:14px!important;gap:8px!important}
+.ncc-personal-menu .efg-menu-card strong{font-size:14px!important;overflow-wrap:anywhere}
+.ncc-personal-menu .efg-menu-emoji{width:30px!important;height:30px!important}
+.ncc-space-goals{margin-top:14px!important;background:#25212c!important}
+.ncc-space-goals h2{font-size:19px!important}
+.ncc-planner-path{padding:12px;border:1px solid #526052;border-radius:12px;background:#172826;color:#f0f1e7;font-size:13px;line-height:1.6}
+#nccSupplementSections,#nccPlannerSections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#nccPersonalSections{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+#nccPersonalSections button{min-width:0;font-size:13px}
+.ncc-personal-menu [hidden],#supplementsToday [data-workspace-panel][hidden],#planSuggestionCard [data-workspace-panel][hidden]{display:none!important}
+}

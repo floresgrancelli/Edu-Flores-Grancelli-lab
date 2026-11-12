@@ -22,6 +22,36 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
  const main=root.querySelector('.pilot-main');if(!main)return;
  const shared=main.querySelector('.coach-intake-shared');
  if(shared){const data=shared.querySelector('.ncc-intake-data');if(data){group(data,'nccReceivedIntakeSections',[['basic','Datos y objetivo',[...data.querySelectorAll('[data-intake-detail=basic]')]],['food','Comidas y rutina',[...data.querySelectorAll('[data-intake-detail=food]')]]]);}}
+ const personal=main.querySelector('.ncc-personal-menu');
+ if(personal){
+  const cards=[...personal.children], tools=['home','planner','recipes','supplements','sport'];
+  const tracking=['weight','summaries','reports','nutritionScience'];
+  const take=ids=>cards.filter(n=>ids.includes(n.dataset.tab));
+  const sections=[['tools','Herramientas',take(tools)],['tracking','Seguimiento',take(tracking)],['account','Cuenta',cards.filter(n=>!tools.concat(tracking).includes(n.dataset.tab))]];
+  for(const item of sections){if(!item[2].length)continue;const grid=document.createElement('div');grid.className='efg-menu-grid';item[2].forEach(n=>grid.append(n));personal.append(grid);item[2]=[grid];}
+  const goals=main.querySelector('.ncc-space-goals');if(goals)sections[0][2].push(goals);
+  personal.classList.remove('efg-menu-grid');group(personal,'nccPersonalSections',sections);
+ }
+ if(tab==='supplements'){
+  const host=main.querySelector('#supplementsToday');
+  if(host){
+   const entries=host.querySelector('.supplement-entries,.meal-food-empty'),form=host.querySelector('.pilot-form');
+   group(host,'nccSupplementSections',[['register','Registrar',[form]],['today','Consumidos hoy',[entries]]]);
+  }
+ }
+ if(tab==='planner'){
+  const host=main.querySelector('#planSuggestionCard');
+  if(host&&host.querySelector('.planner-balance-compare')){
+   for(const meal of host.querySelectorAll('[data-suggestionpanel]')){
+    const rows=[...meal.querySelectorAll(':scope > .planner-item')];
+    group(meal,'nccPlannerFood-'+meal.dataset.suggestionpanel,[['protein','Proteína',[rows[0]]],['carbs','Hidratos',[rows[1]]],['extras','Extras',[meal.querySelector(':scope > .ncc-planner-extras')]]]);
+   }
+   const balance=host.querySelector('.planner-balance-compare'),last=balance.nextElementSibling;
+   const nodes=[...host.children].filter(n=>n!==balance&&n!==last&& !n.matches('.eyebrow,h2'));
+   group(host,'nccPlannerSections',[['choose','Preparar comida',nodes],['balance','Revisar balance',[balance,last]]]);
+   const steps=document.createElement('p');steps.className='ncc-planner-path';steps.textContent='1. Elegí alimentos → 2. Revisá la cantidad → 3. Registrá lo que comiste';host.querySelector('#nccPlannerSections').before(steps);
+  }
+ }
  const payments=main.querySelector('.ncc-payments-workspace');
  if(payments){
   group(payments,'nccPaymentSections',[...payments.querySelectorAll(':scope > [data-payment-section]')].map(p=>[p.dataset.paymentSection,p.dataset.paymentLabel,[p]]));

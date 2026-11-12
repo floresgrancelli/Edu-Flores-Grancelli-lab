@@ -578,6 +578,8 @@ try{
        assert.equal(await field.inputValue(),'123');await field.fill(previous);
        assert.equal(await page.evaluate(()=>JSON.stringify(window.__EFG_VISUAL_QA__.state.diary)),diaryBeforeTabs);
      }
+     const foodTabs=page.locator('#nccPlannerFood-merienda');
+     if(await foodTabs.count())await foodTabs.locator('[data-workspace-tab=extras]').click();
      const extras=page.locator('[data-plannerextras="merienda"]');
      assert.equal(await extras.getAttribute('open'),null,'Unused extras start folded');
      await extras.locator('summary').first().click();

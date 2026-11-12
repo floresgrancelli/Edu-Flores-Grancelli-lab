@@ -44,7 +44,7 @@
  html.ncc-lime-theme #app .ncc-plan-target>[data-ncc-macro],html.ncc-lime-theme #app .ncc-plan-target>[data-ncc-macro]>b{color:var(--ncc-macro)!important}
  /* Mi Día: the approved arrangement and existing zero/filled widths are intact. */
  html.ncc-lime-theme #app .ncc-day-welcome{background:transparent!important;border-color:transparent!important}
- html.ncc-lime-theme #app .ncc-focus-summary{background:linear-gradient(125deg,#172826e8,#101a19e8)!important;border-color:var(--ncc-petrol-line)!important}
+ html.ncc-lime-theme #app .ncc-focus-summary{background:transparent!important;border-color:var(--ncc-petrol-line)!important}
  html.ncc-lime-theme #app .ncc-focus-energy>div+div strong{color:var(--ncc-lime)!important}
  html.ncc-lime-theme #app .ncc-focus-meter{background:#394441!important}
  html.ncc-lime-theme #app [data-ncc-macro=p]{--ncc-macro:var(--ncc-blue)}
@@ -58,7 +58,8 @@
  html.ncc-lime-theme #app :is(.ncc-day-meal-tabs,.ncc-plan-tabs) button{background:linear-gradient(130deg,#26312e,#1b2422)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
  html.ncc-lime-theme #app :is(.ncc-day-meal-tabs,.ncc-plan-tabs) button[aria-pressed=true]{background:var(--ncc-selected)!important;border-color:var(--ncc-lime)!important}
  html.ncc-lime-theme #app :is(.ncc-day-meal-panel,.ncc-plan-meal,.ncc-guide-meal){background:linear-gradient(130deg,#1c302d,#14221f)!important;border-color:var(--ncc-petrol-line)!important}
- html.ncc-lime-theme #app :is(.ncc-day-meal-panel>.student-meal-heading,.ncc-plan-meal h3){background:#29403a!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app .ncc-plan-meal h3{background:#29403a!important;color:var(--ncc-text)!important}
+ html.ncc-lime-theme #app .ncc-day-meal-panel>.student-meal-heading{background:transparent!important;color:var(--ncc-text)!important}
  html.ncc-lime-theme #app :is(.meal-food-line,.ncc-guide-meal .efg-guide-food){background:transparent!important;border-color:var(--ncc-line)!important}
  html.ncc-lime-theme #app :is(.ncc-food-actions button,.ncc-day-meal-panel [data-setmeal]){background:transparent!important;color:var(--ncc-lime)!important;border-color:transparent!important}
  html.ncc-lime-theme #app :is(.ncc-day-tools,.ncc-plan-notes:nth-of-type(2),.ncc-balance-details,.ncc-guide-nutrients,#nccGuideSections-notes){background:var(--ncc-plum)!important;border-color:var(--ncc-plum-line)!important}

@@ -77,7 +77,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='messages';await v.render();});await page.locator('[data-chat-contact="pupil-a"]').waitFor();
  await page.evaluate(()=>window.scrollTo(0,0));await snap('messages');
  await page.locator('[data-chat-contact="pupil-a"]').click();await page.locator('#efgMessageText').fill('Quería revisar las alternativas.');
- await page.locator('[data-chat-back]').click();await page.locator('[data-chat-filter=drafts]').click();assert.equal(await page.locator('.efg-chat-contact').count(),1);
+ if(width<700)await page.locator('[data-chat-back]').click();await page.locator('[data-chat-filter=drafts]').click();assert.equal(await page.locator('.efg-chat-contact').count(),1);
  await page.locator('[data-chat-contact="pupil-a"]').click();assert.equal(await page.locator('#efgMessageText').inputValue(),'Quería revisar las alternativas.');
  assert.equal(await page.evaluate(()=>window.__NCC_WORKSPACE_FIXTURE__.writes.length),0);await snap('conversation');
  for(const tab of ['coach','coachStudents','coachIntake','reports','payments','coachTools']){

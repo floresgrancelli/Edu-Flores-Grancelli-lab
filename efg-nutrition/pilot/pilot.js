@@ -1,4 +1,4 @@
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-payments-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-personal-space-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
@@ -1502,8 +1502,13 @@ function efgMenuIcon(kind){
 function premiumMenuView(title,description,entries){
  return rootText(title,description)+'<section class="efg-menu-grid">'+entries.map(x=>'<button type="button" class="efg-menu-card efg-menu-'+x[3]+'" data-tab="'+x[0]+'"><span class="efg-menu-emoji" aria-hidden="true">'+efgMenuIcon(x[0])+'</span><strong>'+x[2]+'</strong><span class="efg-menu-arrow" aria-hidden="true">↗</span></button>').join("")+'</section>'+versionCheckCard();
 }
+function personalSpaceMenuView(title,description,entries){
+ const goal=activeGoal();
+ const summary='<section class="card ncc-space-goals"><h2>Mis objetivos</h2>'+(goal?'<p><strong>'+num(goal.k)+' kcal</strong> · P '+num(goal.p)+' g · HC '+num(goal.c)+' g · G '+num(goal.f)+' g</p>':'<p>Todavía no hay objetivos definidos.</p>')+'<p class="pilot-hint">'+(state.profile.role==='student'?'Objetivos informados por tu coach.':'Objetivos de tu cuenta personal.')+'</p>'+(state.profile.role!=='student'?'<button type="button" class="btn small light" data-act="openPersonalGoals">Ver mis objetivos personales</button>':'')+'</section>';
+ return premiumMenuView(title,description,entries).replace('<section class="efg-menu-grid">','<section class="efg-menu-grid ncc-personal-menu">')+(studentRestrictedNavigation()&&state.profile.role==='student'?'':summary);
+}
 function coachPersonalMoreView(){
- return premiumMenuView("MI ESPACIO","Tus herramientas nutricionales personales. Los registros son exclusivamente tuyos y no pertenecen a los alumnos.",[
+ return personalSpaceMenuView("MI ESPACIO","Tus herramientas nutricionales personales. Los registros son exclusivamente tuyos y no pertenecen a los alumnos.",[
  ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
@@ -1512,7 +1517,7 @@ function coachPersonalMoreView(){
  ]);
 }
 function studentMoreView(){
- return premiumMenuView("Mi espacio","Tus opciones y permisos, en un solo lugar.",studentSecondaryNavigation());
+ return personalSpaceMenuView("Mi espacio","Tus opciones y permisos, en un solo lugar.",(studentRestrictedNavigation()?[]:[["planner","","Mi planificador","cream"]]).concat(studentSecondaryNavigation()));
 }
 
 function recipePhoto(recipe){
@@ -1754,7 +1759,7 @@ function studentPlannerView(){
  plannerCard()+'<div id="mealDialogContainer"></div>';
 }
 function adminMoreView(){
- return premiumMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
+ return personalSpaceMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
  ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"]]);
 }
 /* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
@@ -5030,6 +5035,7 @@ if(el.dataset.foodbulk){
  group.querySelectorAll('input[data-coachfood]').forEach(x=>x.checked=checked);
  updateCoachFoodCount();return;
 }
+ if(el.dataset.act==="openPersonalGoals"&&state.profile.role!=="student"){state.tab="home";await render();for(const id of ["nccDayTools","nccDayGoals"]){const node=document.getElementById(id);if(node)node.open=true;}document.getElementById("nccDayGoals")?.scrollIntoView({block:"start"});return;}
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.act==="replyWeeklyReport"){
   if(state.profile?.role!=="student")throw Error("Solo el alumno puede responder un informe desde su cuenta.");

@@ -55,7 +55,7 @@ import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-week
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {progressDashboard} from "./progress-charts.js?v=ncc-progress-polish-r1-20261111";
+import {progressDashboard} from "./progress-charts.js?v=ncc-report-gaps-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -2620,10 +2620,10 @@ function progressHighlightsVisible(){
  if(state.progressHighlightsPreference?.id===id)return state.progressHighlightsPreference.show;
  try{return localStorage.getItem('ncc-progress-highlights-'+id)!=='off';}catch{return true;}
 }
-function nutritionProgressPanel(isCoach=false){
+function nutritionProgressPanel(isCoach=false,section="all"){
  const logs=isCoach?state.coachProgressLogs:state.progressLogs;
  const goals=isCoach?state.coachGoals:state.goals;
- return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible()});
+ return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible(),section,chart:state.progressChart||"energy"});
 }
 function personalMacroStatsPanel(){
  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
@@ -2651,7 +2651,7 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div>';
  const owner=state.session?.user?.id||'';
  const selected=state.progressSection?.owner===owner?state.progressSection.section:'summary';
- const sections=[['summary','Resumen',personalMacroStatsPanel()+nutritionProgressPanel()],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
+ const sections=[['summary','Balance',personalMacroStatsPanel()],['nutrition','Nutrición',nutritionProgressPanel(false,'nutrition')],['consistency','Constancia',nutritionProgressPanel(false,'consistency')],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
  return rootText('Mi progreso','Elegí qué querés consultar o registrar.')+
  '<nav class="ncc-progress-tabs" aria-label="Secciones de Avance">'+sections.map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
  sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+html+'</section>').join('');
@@ -4835,8 +4835,15 @@ async function mainClick(event){
  else window.prompt("Copiá el alias:",alias);
  return;
 }
+ if(el.dataset.progresschart){
+  const chart=el.dataset.progresschart;if(!['energy','goals','meals'].includes(chart))return;
+  state.progressChart=chart;
+  for(const panel of root.querySelectorAll('[data-chartpanel]'))panel.hidden=panel.dataset.chartpanel!==chart;
+  for(const button of root.querySelectorAll('[data-progresschart]'))button.setAttribute('aria-pressed',String(button.dataset.progresschart===chart));
+  return;
+ }
  if(el.dataset.progresssection){
-  const section=el.dataset.progresssection;if(!['summary','weight','activity'].includes(section))return;
+  const section=el.dataset.progresssection;if(!['summary','nutrition','consistency','weight','activity'].includes(section))return;
   state.progressSection={owner:state.session?.user?.id||'',section};
   for(const panel of root.querySelectorAll('[data-progresspanel]'))panel.hidden=panel.dataset.progresspanel!==section;
   for(const button of root.querySelectorAll('[data-progresssection]'))button.setAttribute('aria-pressed',String(button.dataset.progresssection===section));

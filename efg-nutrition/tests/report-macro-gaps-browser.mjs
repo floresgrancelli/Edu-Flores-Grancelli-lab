@@ -31,6 +31,23 @@ try{for(const engine of ['chromium','webkit']){
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='weight';await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;window.__NCC_MACRO_FIXTURE__.enabled=true;});
  await page.locator('#macroStatsFrom').fill('2026-11-09');await page.locator('#macroStatsTo').fill('2026-11-11');await page.locator('[data-act="loadMacroStats"]').click();
  await page.locator('.ncc-gap-report').waitFor();assert.match(await page.locator('.ncc-gap-summary').innerText(),/30 g faltantes/);
+ // Tabs keep dates, query results and unfinished weight input while showing one panel.
+ await page.locator('[data-progresssection="weight"]').click();
+ await page.locator('#weightKg').fill('78.5');
+ await page.locator('[data-progresssection="nutrition"]').click();
+ await page.locator('[data-progresschart="meals"]').click();
+ assert.equal(await page.locator('[data-chartpanel]:visible').count(),1);
+ await page.setViewportSize({width,height:width===390?844:740});
+ await page.locator('.ncc-progress-tabs').evaluate(e=>{e.scrollIntoView({block:'start',behavior:'instant'});window.scrollBy({top:-80,behavior:'instant'});});
+ await page.screenshot({path:resolve(out,engine+'-'+width+'-statistics-tabs.png'),fullPage:false});
+ await page.locator('[data-progresssection="consistency"]').click();
+ assert.equal(await page.locator('[data-progresspanel]:visible').count(),1);
+ await page.locator('[data-progresssection="weight"]').click();
+ assert.equal(await page.locator('#weightKg').inputValue(),'78.5');
+ await page.locator('[data-progresssection="summary"]').click();
+ assert.equal(await page.locator('#macroStatsFrom').inputValue(),'2026-11-09');
+ assert.match(await page.locator('.ncc-gap-summary').innerText(),/30 g faltantes/);
+ await page.setViewportSize({width,height:1600});
  const owner=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.session.user.id);
  assert.ok(await page.evaluate(id=>window.__NCC_MACRO_FIXTURE__.reads.every(r=>r.id===id),owner));
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

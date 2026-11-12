@@ -66,7 +66,7 @@ import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {renderWalkingActivityCard,readWalkingActivityForm,refreshWalkingActivityPreview,renderWalkingActivityHistory} from "./walking-activity-ui.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {nutritionTipCardHTML} from "./nutrition-daily-tip.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {nutritionTipDisclosureHTML} from "./nutrition-daily-tip.js?v=ncc-daily-tips-compact-r2-20261112";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1856,7 +1856,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
   const toolPanel=(id,label,content)=>content?'<details class="ncc-day-tool" id="'+id+'"><summary>'+label+'</summary><div class="ncc-day-tool-body">'+content+'</div></details>':'';
  const balance=(goal?["p","c","f","fi"].map(k=>'<div class="pilot-macro"><span>'+({p:"Proteínas",c:"Hidratos",f:"Grasas",fi:"Fibra"}[k])+'</span><b>'+num(Math.max(0,goal[k]-tot[k]),1)+' g</b></div>').join(""):'<div class="pilot-plan-empty">Todavía no hay metas configuradas.</div>')+'<p class="pilot-hint">Los registros son autodeclarados. No reemplazan la consulta con un profesional matriculado.</p>';
  const dayMessage='<section class="pilot-hero efg-pastel-motivation"><div class="eyebrow">MENSAJE DEL DÍA · '+today().split("-").reverse().join("/")+'</div><h2>'+escapeHTML(motivation.title)+'</h2><p>'+escapeHTML(motivation.subtitle)+'</p><button class="btn small light" data-tab="planner">✨ Resolver lo que me falta</button></section>';
- const dailyTip=nutritionTipCardHTML({
+ const dailyTip=nutritionTipDisclosureHTML({
   allowExplore:state.profile.role!=="student"||(!!goal&&!!state.foodPlan?.guided_plan&&state.coachRelaunchEntry?.route!=="pending")
  });
  const tools='<details class="ncc-day-tools" id="nccDayTools"><summary><span aria-hidden="true">⚒</span> Herramientas del día</summary><div class="ncc-day-tools-list">'+

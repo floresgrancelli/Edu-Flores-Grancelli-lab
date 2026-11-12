@@ -89,8 +89,8 @@ assert.doesNotMatch(unlocked,/\b(?:kcal|proteína por 100g|calorías exactas)\b/
 const app=readFileSync(new URL("../pilot/pilot.js",import.meta.url),"utf8");
 const index=readFileSync(new URL("../pilot/index.html",import.meta.url),"utf8");
 const style=readFileSync(new URL("../pilot/nutrition-daily-tip.css",import.meta.url),"utf8");
-assert.match(app,/import \{nutritionTipCardHTML\} from "\.\/nutrition-daily-tip\.js/);
-assert.match(app,/const dailyTip=nutritionTipCardHTML/);
+assert.match(app,/import \{nutritionTipDisclosureHTML\} from "\.\/nutrition-daily-tip\.js/);
+assert.match(app,/const dailyTip=nutritionTipDisclosureHTML/);
 assert.doesNotMatch(app,/state\.profile\.role==="student"\?nutritionTipCardHTML/);
 assert.match(app,/allowExplore:state\.profile\.role!=="student"\|\|\(!!goal&&!!state\.foodPlan\?\.guided_plan/);
 assert.match(index,/nutrition-daily-tip\.css/);

@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-daily-tips-all-roles-r1-20261112",
+  "assetVersion": "ncc-daily-tips-compact-r2-20261112",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -77,7 +77,7 @@
     "efg-nutrition/pilot/major-release-reauth-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/messages-ui.js": "ncc-workspace-tabs-r1-20261112",
     "efg-nutrition/pilot/notifications-ui.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/nutrition-daily-tip.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
+    "efg-nutrition/pilot/nutrition-daily-tip.js": "ncc-daily-tips-compact-r2-20261112",
     "efg-nutrition/pilot/nutrition-science.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pastel-day.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pdf-page-text.js": "ncc-weekly-preview-r11-20261106",
@@ -97,7 +97,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-daily-tips-all-roles-r1-20261112",
+    "efg-nutrition/pilot/pilot.js": "ncc-daily-tips-compact-r2-20261112",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-color-system-r1-20261112",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-color-system-r1-20261112",
@@ -227,7 +227,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "067431cf82cb27ffd14ba2d05e1238c0e85873a88ae7b38299c2b82634859269",
+    "efg-nutrition/pilot/index.html": "149695c88a1a76741575fe8e7a96b60d55ec4bebb922e8a16370226aecc2b249",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -235,7 +235,7 @@
     "efg-nutrition/pilot/major-release-reauth-client.js": "3a3c99049afd3803bac5b236cba764e6b6252f452bc0b9b47e118a68991efcc2",
     "efg-nutrition/pilot/messages-ui.js": "5aee6dde70900e6116b17ee64bbf14c6a9f2ca848b9a5838e6244ea18a176989",
     "efg-nutrition/pilot/notifications-ui.js": "70ec51c9756d73d4f039d8d4ee7d4843f1f65f6379ea7484a42890f215daa0a1",
-    "efg-nutrition/pilot/nutrition-daily-tip.js": "dcc2ccc6a9e61864958468a8aad62da416bbe64a4bd06f6965174863ad140e65",
+    "efg-nutrition/pilot/nutrition-daily-tip.js": "886b0e0ccaef173f45ee180ca7cfe656e237596b9a6b424401a6352165cd15e4",
     "efg-nutrition/pilot/nutrition-science.js": "d7d73d0c5e7ff8bbcff40bf092d1bb73df49c9e547f62afaf4d86f0e73f85a56",
     "efg-nutrition/pilot/pastel-day.js": "038408099c2cd86348edf639467573f851a582f96cfb950e257d9af464aaf8bd",
     "efg-nutrition/pilot/pdf-page-text.js": "8de101748362d0c452d2df7a66c998d576b6f80a8e1a8321622d992432dcda2b",
@@ -255,7 +255,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "2e9dbd4f3e9d7f9b49b4124821ff89d9c6350c952087f0c99076c0cd5c9deebd",
+    "efg-nutrition/pilot/pilot.js": "e6603c00fc0f159de36c638b501a2710a1bb49a35ac7444df6d6208ff6210a12",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "9b22fbde84f5f3d52b00251fb54c322559a1db44c6011bf619a7801f68baa278",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "7e1f1d97b780a242671998fc3fb67f3ee4c5b208f22aedb66e179882a15b2841",
@@ -334,7 +334,8 @@
     "efg-nutrition/pilot/workspace-tabs.js": "7e6fd80d0fd3c4097d8d2ca2a9ee13cef2c1bc58cd662f2fa3961cf3c5eeaf80",
     "efg-nutrition/pilot/workspace-tabs.css": "3d257c8a9917e6da2d8cf25afacce4688adc215c06cc92ec055bfcd12700d8f5",
     "efg-nutrition/pilot/color-system.css": "2e88d78aacdc59f84e0513daec63009e5019eea9103fa5401e5fcef7103c9fda",
-    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0"
+    "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
+    "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5"
   },
   "stylesheets": [
     {
@@ -439,8 +440,8 @@
     },
     {
       "path": "efg-nutrition/pilot/nutrition-daily-tip.css",
-      "sha256": "f6f9a08c18c8b8e946335d67116f00d1eec012d8557688ffadb7ee6ca78a3a9e",
-      "url": "./nutrition-daily-tip.css?v=ncc-pilot-3a40474052be"
+      "sha256": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5",
+      "url": "./nutrition-daily-tip.css?v=ncc-daily-tips-compact-r2-20261112"
     },
     {
       "path": "efg-nutrition/pilot/science-welcome.css",

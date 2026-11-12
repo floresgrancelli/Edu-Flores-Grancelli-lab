@@ -64,7 +64,7 @@ try{for(const engine of ['chromium','webkit']){
   // Real rejection of a second write keeps the editor and error available.
   await prepare();await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.fail=true);await page.locator('[data-act=saveSelectedMeal]').click();
   await page.waitForFunction(()=>document.querySelector('#pilot-toast')?.dataset.noticeKind==='error');
-  await page.clock.fastForward(60000);assert.equal(await toast.isVisible(),true);assert.equal(await toast.getAttribute('role'),'alert');assert.equal(await page.locator('.meal-popup').isVisible(),true);assert.equal(await page.locator('#mealEditorQty').inputValue(),'2');
+  await page.clock.fastForward(60000);assert.equal(await toast.isVisible(),true);assert.equal(await toast.getAttribute('role'),'alert');assert.equal(await toast.evaluate(e=>getComputedStyle(e).position),'static','Persistent editor error must not overlay retry/save');assert.equal(await page.locator('.meal-popup').isVisible(),true);assert.equal(await page.locator('#mealEditorQty').inputValue(),'2');
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),confirmed,'Rejected write does not change confirmed diary');await shot('persistent-error');
   // Resolve by retrying the existing writer; exactly one new entry is committed.
   await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.fail=false);await page.locator('[data-act=saveSelectedMeal]').click();await page.locator('.meal-popup').waitFor({state:'detached'});assert.equal(await toast.getAttribute('data-notice-kind'),'success');

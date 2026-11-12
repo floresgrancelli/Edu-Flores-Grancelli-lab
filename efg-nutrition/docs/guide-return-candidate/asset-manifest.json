@@ -335,7 +335,7 @@
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "b18d9f726d1d9bf1429b5b3f3c823d356f53cc9eb22da0c0e72254330c7f28dd",
     "efg-nutrition/pilot/workspace-tabs.css": "9005dc702a156d6c968f21cf8d9e816e2c03f10fff5527c70f61629b63304c83",
-    "efg-nutrition/pilot/color-system.css": "ead0fb2b5ff727deb782d706faf09c43f214d0d989cfc39e8326c68b17507acb",
+    "efg-nutrition/pilot/color-system.css": "d4f7c666b83007db39759de2f9bb881c174bf918c401c943a07b15dade9d95eb",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
     "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5",
     "efg-nutrition/pilot/food-visuals-r2.js": "4303a22678d16704c306ac5624d910d6e004e544c641b21b740abf2e6321cfd8",
@@ -351,7 +351,7 @@
     "efg-nutrition/pilot/assets/food-specific/basics-r1.webp": "0bc6bcf57cf718d3de3585cd9c9657404ddc279b8e9fd4e6b81b5734063e642a",
     "efg-nutrition/pilot/assets/food-specific/pantry-r1.webp": "c332db6bde3fe35708a9a46df3707727d20b1d7e2bbf783747d8448c7e954a09",
     "efg-nutrition/pilot/food-photo-map-r2.json": "d3948d6790679deb047ba7fb065884f061639f3fec1b6192accf4d553bf14063",
-    "efg-nutrition/pilot/operation-notices.js": "24dcb35bc3fb7b5ad3c25e7a04160c782f5e8d28687a5cd9f13e7ad695a5399b"
+    "efg-nutrition/pilot/operation-notices.js": "bf76751f0abc268c8c52474c25678e91e534713c53a8bb36a7a331bca2acce20"
   },
   "stylesheets": [
     {
@@ -521,7 +521,7 @@
     },
     {
       "path": "efg-nutrition/pilot/color-system.css",
-      "sha256": "ead0fb2b5ff727deb782d706faf09c43f214d0d989cfc39e8326c68b17507acb",
+      "sha256": "d4f7c666b83007db39759de2f9bb881c174bf918c401c943a07b15dade9d95eb",
       "url": "./color-system.css?v=ncc-compact-notices-r1-20261112"
     }
   ],

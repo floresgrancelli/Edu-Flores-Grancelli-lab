@@ -12,12 +12,16 @@ export function createOperationNotices({element,context}){
   if(!current)return;
   const now=context();
   if(!now.owner||now.owner!==current.owner||(current.kind==='success'&&now.view!==current.view)){hide();return;}
-  if(current.kind==='success'){
-   // The shared status element occupies its own line in the existing content.
-   // No overlay, duplicated toast, extra button row or change to diary data.
-   const dialog=document.querySelector('.meal-popup');
-   const anchor=dialog?.querySelector('h2')||
-    (current.slot&&document.querySelector('[data-daymealpanel="'+current.slot+'"] .student-meal-heading'))||
+  const dialog=document.querySelector('.meal-popup');
+  const inline=current.kind==='success'||!!dialog;e.classList.toggle('ncc-inline-notice',inline);
+  e.querySelector('button').textContent=inline?'×':'Cerrar';
+  // An error stays available in its editor, on a separate line before actions.
+  // Both persistent messages and confirmed successes leave retry/save reachable.
+  if(dialog){
+   const actions=dialog.querySelector('.ncc-meal-save');
+   if(actions)actions.before(e);else (dialog.querySelector('h2')||dialog.firstElementChild)?.after(e);
+  }else if(current.kind==='success'){
+   const anchor=(current.slot&&document.querySelector('[data-daymealpanel="'+current.slot+'"] .student-meal-heading'))||
     document.querySelector('[data-suggestionpanel]:not([hidden]) > summary')||
     document.querySelector('.pilot-main > :first-child');
    if(anchor)anchor.after(e);else document.body.append(e);

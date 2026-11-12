@@ -53,7 +53,7 @@ try{
    const open=async(slot='desayuno')=>{await page.locator('[data-daymeal="'+slot+'"]').click();const add=page.locator('.student-meal-card [data-setmeal="'+slot+'"]').first();if(!await add.isVisible())await add.locator('xpath=ancestor::details[1]/summary').click();await add.click();await page.locator('.meal-popup').waitFor();};
    const search=async(term,id)=>{await page.locator('#mealFoodSearch').fill(term);await page.locator('[data-mealsuggestion="'+id+'"]').first().click();};
    const snapshot=()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('ncc-student-day-synthetic-record')));
-   await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(25, 34, 16)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
+   await open();assert.equal(await page.locator('[data-mealsource="all"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(45, 56, 39)');assert.equal(await page.locator('.ncc-meal-guidance-details').getAttribute('open'),null);
    assert.equal(await page.locator('[data-act="saveSelectedMeal"]').isDisabled(),true);
    assert.equal(await page.locator('#mealQuantityCard').isVisible(),false,'Quantity only appears after selection');
    if(width===390)assert.equal(await page.locator('.pilot-nav').isVisible(),false,'Bottom menu yields to registration');
@@ -157,8 +157,8 @@ try{
    await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="sushi_maki_salmon"]').count(),1);
    await page.locator('[data-mealsource="habitual"]').click();
    await page.locator('#mealEntryHabitualChoice_cena').selectOption('local-1');
-   const habitualColors=await page.locator('.meal-popup [data-habitualapply="cena"]').evaluate(el=>({bg:getComputedStyle(el).backgroundImage,fg:getComputedStyle(el).color}));
-   assert.deepEqual(habitualColors,{bg:'linear-gradient(rgb(161, 225, 68), rgb(131, 206, 48))',fg:'rgb(16, 22, 9)'},'Habitual primary action stays readable');
+   const habitualColors=await page.locator('.meal-popup [data-habitualapply="cena"]').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,fg:getComputedStyle(el).color}));
+   assert.deepEqual(habitualColors,{bg:'rgb(177, 197, 121)',fg:'rgb(20, 32, 24)'},'Habitual primary action stays readable');
    await page.locator('.meal-popup [data-habitualapply="cena"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
    assert.equal((await snapshot()).meals.cena[0].id,'egg','Popup favorite choice must win over the daily selector behind it');
    await open('cena');await page.locator('[data-mealsource="recent"]').click();
@@ -183,7 +183,7 @@ try{
     await open('almuerzo');await page.locator('[data-mealsource="recent"]').click();
     const choice=page.locator('#mealEntryShortcuts [data-mealsuggestion]').first();
     if(await choice.count()){await choice.click();await page.locator('#mealEditorQty').fill('180');await page.getByRole('button',{name:'Aumentar cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'181');await page.getByRole('button',{name:'Disminuir cantidad',exact:true}).click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'180');}
-    if(width===390){const footer=await page.locator('.ncc-entry-footer').boundingBox();assert.ok(footer.y+footer.height<=844,role+' entry actions must stay inside the viewport');assert.equal(await page.locator('[data-act=saveSelectedMeal]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(165, 190, 105)','Use the approved muted olive action');}
+    if(width===390){const footer=await page.locator('.ncc-entry-footer').boundingBox();assert.ok(footer.y+footer.height<=844,role+' entry actions must stay inside the viewport');assert.equal(await page.locator('[data-act=saveSelectedMeal]').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(177, 197, 121)','Use the approved muted olive action');}
     await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-reference-entry.png')});
     await page.locator('[data-act="closeMeal"]').first().click();
    }

@@ -1,17 +1,17 @@
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-workspace-tabs-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
-import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-report-gaps-r1-20261112';
+import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-report-gaps-r1-20261112';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-color-system-r1-20261112';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-professional-reconciliation-r1-20261107';
-import {reportCoachName} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
+import {reportCoachName} from './coach-report-models.js?v=ncc-color-system-r1-20261112';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -21,10 +21,10 @@ import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goal
 import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
 import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-gaps-r1-20261112";
 async function buildPeriodReportPdf(model){
- const pdf=await import("./period-report-pdf.js?v=ncc-report-gaps-r1-20261112");
+ const pdf=await import("./period-report-pdf.js?v=ncc-color-system-r1-20261112");
  return pdf.buildPeriodReportPdf(model);
 }
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-color-system-r1-20261112";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -38,7 +38,7 @@ import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-pilo
 import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
-import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-b13c52657593.js?v=ncc-focus-boot-r2-20261111";
+import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-3770ec2f7790.js?v=ncc-color-system-r1-20261112";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -52,12 +52,12 @@ import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-rep
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-color-system-r1-20261112";
 import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-weekly-preview-r11-20261106";
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
 import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {progressDashboard} from "./progress-charts.js?v=ncc-report-gaps-r1-20261112";
+import {progressDashboard} from "./progress-charts.js?v=ncc-color-system-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -1650,7 +1650,7 @@ function studentGuideView(){
  const meal=plan.meals.find(m=>m.slot===slot),stale=state.goals[0]?.id!==goal.id;
  const totals=guideTotals(plan),mt=totals.perMeal.find(m=>m.slot===slot)?.totals;
  return '<section class="ncc-plan"><h1>Mi Dieta Guía</h1><p class="ncc-plan-subtitle">'+(stale?'Guía anterior · Tu objetivo cambió':'Plan vigente · Preparado por tu coach')+'</p>'+
- '<div class="ncc-plan-target"><div><b>Objetivo diario</b><strong>'+num(goal.kcal)+' kcal</strong></div><span>P<b>'+num(goal.protein_g)+' g</b></span><span>HC<b>'+num(goal.carb_g)+' g</b></span><span>G<b>'+num(goal.fat_g)+' g</b></span></div>'+
+ '<div class="ncc-plan-target"><div><b>Objetivo diario</b><strong>'+num(goal.kcal)+' kcal</strong></div><span data-ncc-macro="p">P<b>'+num(goal.protein_g)+' g</b></span><span data-ncc-macro="c">HC<b>'+num(goal.carb_g)+' g</b></span><span data-ncc-macro="f">G<b>'+num(goal.fat_g)+' g</b></span></div>'+
  (stale?'<p role="status">Pedile al coach una guía actualizada. Conservamos este ejemplo como referencia.</p>':'')+
  '<h2>Tus comidas</h2><nav class="ncc-plan-tabs" aria-label="Horarios de mi Dieta Guía">'+plan.meals.map(m=>'<button type="button" data-studentguideslot="'+escapeHTML(m.slot)+'" aria-pressed="'+(m.slot===slot)+'" aria-controls="nccPlanMeal">'+dayMealIcon(m.slot)+'<span>'+escapeHTML(m.label)+'</span>'+(m.slot===slot?'<i aria-hidden="true">✓</i>':'')+'</button>').join('')+'</nav>'+
  (meal?'<article id="nccPlanMeal" class="ncc-plan-meal"><h3>'+escapeHTML(meal.label)+' · '+num(mt.k)+' kcal</h3>'+meal.items.map(f=>'<div class="ncc-plan-food"><span class="ncc-plan-photo" aria-hidden="true">'+foodFamilyPhoto(f)+'</span><div><strong>'+escapeHTML(f.name)+'</strong><span>'+num(f.qty,2)+' '+escapeHTML(f.unit)+(guidePortion(f)?' · '+escapeHTML(guideQuantityLabel(f)):'')+'</span></div></div>').join('')+'<p class="ncc-plan-macros">P '+num(mt.p,1)+' g · HC '+num(mt.c,1)+' g · G '+num(mt.f,1)+' g</p></article><button type="button" class="ncc-plan-primary" data-studentguideregister="'+escapeHTML(slot)+'" '+(!meal.items.length?'disabled':'')+'>Revisar y registrar</button>':'<p>No hay comidas en esta guía.</p>')+
@@ -1799,8 +1799,15 @@ async function updateSundayPermission(approve){
 }
 
 function dayMealIcon(slot){
- const paths={desayuno:'<path d="M3 12h18c0 6-4 9-9 9s-9-3-9-9ZM8 8c-3-3 3-3 0-6m5 6c-3-3 3-3 0-6m5 6c-3-3 3-3 0-6"/>',media_manana:'<path d="M12 7c-8-5-12 9-4 14 2 1 3-1 4-1s3 2 5 0c7-6 3-18-5-13Zm0 0c-1-4 1-6 4-6"/>',almuerzo:'<path d="M3 12h18l-3 9H6Zm3 0c-3-4 2-7 4-4 0-6 7-6 7 0 4-2 6 3 2 4"/>',media_tarde:'<path d="M4 5h13v13c0 4-13 4-13 0ZM17 7h3c5 0 3 9-3 9M7 2h7"/>',merienda:'<path d="M3 18 12 3c4-4 12 3 8 7L8 22c-3 3-8-1-5-4Zm7-6 5 4m-8-1 5 4M13 8l5 4"/>',cena:'<path d="M3 2v8c0 4 6 4 6 0V2M6 2v20M20 2c-5 0-7 11-2 11h2m0-11v20"/>'};
- return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[slot]+'</svg>';
+ const paths={
+  desayuno:'<path data-icon-part="body" d="M3 12h18c0 6-4 9-9 9s-9-3-9-9Z"/><path data-icon-part="detail" d="M8 8c-3-3 3-3 0-6m5 6c-3-3 3-3 0-6m5 6c-3-3 3-3 0-6"/>',
+  media_manana:'<path data-icon-part="body" d="M12 7c-8-5-12 9-4 14 2 1 3-1 4-1s3 2 5 0c7-6 3-18-5-13Z"/><path data-icon-part="accent" d="M12 7c-1-4 1-6 4-6"/>',
+  almuerzo:'<path data-icon-part="body" d="M3 12h18l-3 9H6Z"/><path data-icon-part="accent" d="M6 12c-3-4 2-7 4-4 0-6 7-6 7 0 4-2 6 3 2 4"/>',
+  media_tarde:'<path data-icon-part="body" d="M4 5h13v13c0 4-13 4-13 0Z"/><path data-icon-part="detail" d="M17 7h3c5 0 3 9-3 9M7 2h7"/>',
+  merienda:'<path data-icon-part="body" d="M3 18 12 3c4-4 12 3 8 7L8 22c-3 3-8-1-5-4Z"/><path data-icon-part="detail" d="M10 12l5 4m-8-1 5 4M13 8l5 4"/>',
+  cena:'<path data-icon-part="detail" d="M3 2v8c0 4 6 4 6 0V2M6 2v20M20 2c-5 0-7 11-2 11h2m0-11v20"/>'
+ };
+ return '<svg class="ncc-meal-icon" data-meal-icon="'+escapeHTML(slot)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[slot]+'</svg>';
 }
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();

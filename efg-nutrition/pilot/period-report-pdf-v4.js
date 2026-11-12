@@ -2,7 +2,7 @@ import {macroGaps,GAP_MACROS} from './report-macro-gaps.js?v=ncc-report-gaps-r1-
 import {buildReportTrendCharts,drawReportTrendChart} from './report-trend-charts.js?v=ncc-weekly-preview-r11-20261106';
 import * as jsPdfModule from './vendor/jspdf-4.2.1.umd.min.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {regular,bold,supportedCodePoints} from './vendor/dejavu-sans-2.37.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {parseLuxuryPeriodReport} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
+import {parseLuxuryPeriodReport} from './coach-report-models.js?v=ncc-color-system-r1-20261112';
 
 // Bind the bundled UMD constructor once; later globals must not alter v1 bytes.
 const JsPDF=jsPdfModule.jsPDF||jsPdfModule.default?.jsPDF||globalThis.jspdf?.jsPDF;

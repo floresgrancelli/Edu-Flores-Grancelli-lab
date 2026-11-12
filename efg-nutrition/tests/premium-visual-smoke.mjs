@@ -647,15 +647,15 @@ try{
       nav:style('.pilot-nav')?.backgroundColor,lightField:!!document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.closest('#studentMeals,.ncc-guide-meal,.meal-popup,#coachGuidePreview,#planSuggestionCard'),field:style('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.backgroundColor,fieldIdentity:document.querySelector('.pilot-main input:not([type=checkbox]):not([type=radio]),.pilot-main select,.pilot-main textarea')?.outerHTML.slice(0,220)};
     });
     // Exact values from the real recipes screens approved by Edu; all other screens retain their baseline.
-    const expectedCanvas=(recipesTheme||planTheme)?'rgb(11, 18, 12)':'rgb(9, 13, 10)';
-    const expectedFields=recipesTheme?['rgb(22, 29, 19)']:dest==='messages'?['rgb(12, 19, 12)','rgb(21, 26, 19)','rgb(14, 21, 15)']:['rgb(21, 26, 19)','rgb(14, 21, 15)'];
-    if(colors.canvas!==expectedCanvas||colors.body!=='rgb(9, 13, 10)')pageReport.errors.push('Approved charcoal canvas missing on '+dest+': '+JSON.stringify(colors));
+    const expectedCanvas='rgb(13, 20, 18)';
+    const expectedFields=['rgb(16, 26, 25)'];
+    if(colors.canvas!==expectedCanvas||colors.body!=='rgb(13, 20, 18)')pageReport.errors.push('Approved charcoal canvas missing on '+dest+': '+JSON.stringify(colors));
     if(colors.field&&!expectedFields.includes(colors.field))pageReport.errors.push('Approved input field missing on '+dest+': '+JSON.stringify(colors));
-    if((recipesTheme||planTheme)&&colors.nav!==(width<=760?'rgba(12, 19, 11, 0.96)':'rgba(16, 24, 17, 0.96)'))pageReport.errors.push('Approved recipes navigation surface missing: '+JSON.stringify(colors));
+    if((recipesTheme||planTheme)&&colors.nav!=='rgba(17, 27, 25, 0.96)')pageReport.errors.push('Approved recipes navigation surface missing: '+JSON.stringify(colors));
    }
    if(studentDayTheme){
     const canvas=await page.locator(".ncc-student-day").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(canvas!=="rgb(9, 13, 10)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
+    if(canvas!=="rgb(13, 20, 18)")pageReport.errors.push("Approved charcoal student canvas missing: "+canvas);
    }
    if(unifiedTheme){
     const light=await page.evaluate(()=>[...document.querySelectorAll('.pilot-main :is(section,article,div,details,summary,form)')]
@@ -679,11 +679,7 @@ try{
    }
    if(unifiedTheme){
     const primary=await page.locator('.pilot-main .btn:not(.light):not(.ghost),.ncc-day-primary').evaluateAll(els=>els.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('.lux-report')).map(e=>({text:(e.textContent||'').trim().slice(0,28),bg:getComputedStyle(e).backgroundColor,image:getComputedStyle(e).backgroundImage,color:getComputedStyle(e).color,onLimeRegister:!!e.closest('.ncc-day-register-row'),onSuggestion:!!e.closest('#planSuggestionCard'),intakeAction:e.matches('.coach-intake-shared [data-act=prepareCoachPlanFromIntake]'),surface:e.closest('.ncc-day-register-row')?getComputedStyle(e.closest('.ncc-day-register-row')).backgroundImage:''})));
-    if(primary.some(x=>x.intakeAction
-      ? x.bg!=='rgb(173, 191, 114)'||x.color!=='rgb(18, 25, 12)'
-      : (x.image.includes('161, 225, 68')||x.bg==='rgb(145, 191, 80)')
-      ? x.color!=='rgb(16, 22, 9)'
-      : !['rgb(25, 34, 16)','rgb(21, 26, 19)','rgb(37, 44, 36)'].includes(x.bg)||!['rgb(237, 242, 230)','rgb(245, 243, 235)'].includes(x.color)))pageReport.errors.push('Primary actions require dark ink on green gradient or light ink on dark surfaces: '+JSON.stringify(primary));
+    if(primary.some(x=>x.bg!=='rgb(177, 197, 121)'||x.color!=='rgb(20, 32, 24)'))pageReport.errors.push('Primary actions must use approved muted sage with dark ink: '+JSON.stringify(primary));
    }
    if(dest==='home'){
     const geometry=await page.locator('.ncc-focus-energy').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.split(' ').length,width:el.scrollWidth,box:el.clientWidth}));
@@ -753,8 +749,8 @@ try{
      if(menuColors.length!==6)pageReport.errors.push("Expected 6 luxury-material coach/admin menu tiles");
      if(unifiedTheme){
       const surfaces=await page.locator(menuSelector).evaluateAll(els=>els.filter(e=>e.getClientRects().length>0).slice(0,6).map(e=>({bg:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})));
-      const allowed=['rgb(25, 34, 16)','rgb(34, 52, 66)','rgb(48, 42, 67)','rgb(37, 44, 36)'];
-      if(!surfaces.length||surfaces[0].bg!=='rgb(25, 34, 16)'||surfaces[0].color!=='rgb(237, 242, 230)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include dark olive plus differentiated dark cards: '+JSON.stringify(surfaces));
+      const allowed=['rgb(23, 40, 38)','rgb(37, 33, 44)','rgb(43, 41, 33)'];
+      if(!surfaces.length||surfaces[0].bg!=='rgb(23, 40, 38)'||surfaces[0].color!=='rgb(240, 241, 231)'||surfaces.some(x=>!allowed.includes(x.bg)))pageReport.errors.push('Coach/admin action hierarchy must include dark olive plus differentiated dark cards: '+JSON.stringify(surfaces));
      }else if(new Set(menuColors).size!==6)pageReport.errors.push("Coach/admin menu tiles repeat a finish: "+menuColors.join(", "));
      if(role==='coach')await page.locator('#nccCoachHomeSections [data-workspace-tab=pending]').click();
    }
@@ -820,10 +816,10 @@ try{
        const track=el.parentElement,w=track.getBoundingClientRect().width;
        return {width:el.getBoundingClientRect().width,track:w,
         expected:Math.min(100,window.__EFG_VISUAL_QA__.dailyTotals(window.__EFG_VISUAL_QA__.state.diary)[["p","c","f"][index]]/window.__EFG_VISUAL_QA__.activeGoal()[["p","c","f"][index]]*100)*w/100,
-        color:getComputedStyle(el).backgroundColor,expectedColor:"rgb(163, 190, 97)"};
+        color:getComputedStyle(el).backgroundColor,expectedColor:['rgb(140, 185, 208)','rgb(211, 174, 117)','rgb(182, 164, 206)'][index]};
       }));
       if(bars.length!==3||bars.some(b=>b.track<50||!Number.isFinite(b.expected)||Math.abs(b.width-b.expected)>1.5||b.color!==b.expectedColor))
-       pageReport.errors.push("Student macro bars must show actual per-macro progress in reference olive: "+JSON.stringify(bars));
+       pageReport.errors.push("Student macro bars must show actual per-macro progress in the approved per-macro colours: "+JSON.stringify(bars));
      }else if(!unifiedTheme&&(macroRings.length!==3||macroRings.some(x=>x.w<52||!x.bg.includes("conic-gradient"))))
        pageReport.errors.push("3 real progress rings required, not flat macro icons");
    }
@@ -1244,7 +1240,7 @@ try{
    }
    if(await page.locator('.efg-seats-grid').count()){
     const seatColors=await page.locator('.efg-seats-grid strong,.efg-seats-grid span').evaluateAll(els=>els.map(e=>getComputedStyle(e).color));
-    assert.ok(seatColors.length>=6&&seatColors.every(c=>c==='rgb(237, 242, 230)'),'Seat counts and labels must remain readable');
+    assert.ok(seatColors.length>=6&&seatColors.every(c=>c==='rgb(240, 241, 231)'),'Seat counts and labels must remain readable');
    }
    if(role==="admin"&&dest==="admin"){
     const banner=await page.locator(".efg-admin-banner").evaluate(el=>({w:el.getBoundingClientRect().width,titleW:el.querySelector("h2").getBoundingClientRect().width,titleY:el.querySelector("h2").getBoundingClientRect().y,eyebrowY:el.querySelector(".eyebrow").getBoundingClientRect().y}));
@@ -1266,7 +1262,7 @@ try{
     if((await welcomeBrand.count())!==1||(await welcomeBrand.evaluate(el=>el.naturalWidth))<60)
       pageReport.errors.push("Watercolor serotonin mark missing in onboarding");
     const welcomeStyle=await page.locator(".efg-onboard-copy").evaluate(el=>getComputedStyle(el).backgroundColor);
-    if(welcomeStyle!=="rgb(20, 27, 21)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
+    if(welcomeStyle!=="rgb(27, 36, 34)")pageReport.errors.push("Onboarding lacks unified dark surface: "+welcomeStyle);
     await page.screenshot({path:join(outDir,captureEngine+"-student-390-onboarding.png"),fullPage:true,animations:"disabled"});
     await page.evaluate(async()=>{
       const x=window.__EFG_VISUAL_QA__;x.state.welcomePending=false;x.state.profile=null;await x.render();

@@ -34,6 +34,8 @@ try{for(const engine of ['chromium','webkit']){
  const page=await context.newPage();await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async role=>{const a=window.__NCC_R4_FULLAPP__;if(role!=='student'){a.state.profile.role=role;a.state.foodPlan=null;a.state.personalTargets={kcal:2200,protein_g:160,carb_g:230,fat_g:70,fiber_g:30};await a.render();}document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
+ const shortcut=page.locator('.ncc-day-plan-shortcut');assert.equal(await shortcut.locator('svg').count(),2);
+ const sizes=await shortcut.locator('svg').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().width));assert.ok(sizes.every(w=>w>0&&w<=20));
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-day-shortcut.png')});
  await page.locator('.ncc-day-plan-shortcut').click();
  assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'true');

@@ -107,3 +107,9 @@ html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-sheet .efg-
 html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-category select,html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-slot select{-webkit-appearance:none;appearance:none;background-color:#161d13!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='12' viewBox='0 0 16 12'%3E%3Cpath d='m3 4 5 5 5-5' stroke='%23f0f1e5' stroke-width='1.7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-position:right 12px center!important;background-size:16px 12px!important;background-repeat:no-repeat!important;padding-right:38px!important}
 
 html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .efg-mobile-brand-text strong{font-family:Arial,Helvetica,sans-serif!important;display:block!important;max-width:145px!important;white-space:normal!important}
+
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-search-label{display:block;font-size:14px;margin-bottom:8px;color:#f0f1e7!important}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-search-row{display:flex;gap:8px;margin-bottom:16px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-search-row input{min-width:0;flex:1;width:100%;min-height:44px;background:#172826!important;color:#f0f1e7!important;border:1px solid #526052!important;border-radius:12px;padding:10px}
+html.ncc-lime-theme #app .pilot-layout[data-ncc-recipes] .ncc-recipe-search-row button{min-height:44px;background:#25212c!important;color:#f0f1e7!important;border:1px solid #526052;border-radius:12px;padding:8px}
+.ncc-recipe-search-empty,.ncc-recipe-search-status{font-size:14px;line-height:1.5}

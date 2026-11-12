@@ -57,6 +57,20 @@ for(const engine of (process.env.NCC_BROWSER?[process.env.NCC_BROWSER]:['chromiu
   await page.screenshot({path:resolve(out,engine+'-'+width+'-library.png')});
   await page.locator('#nccRecipeCategory').selectOption('Almuerzos y cenas');await page.waitForFunction(()=>document.querySelectorAll('.efg-fit-card').length===6);
   await page.locator('#nccRecipeCategory').selectOption('all');await page.waitForFunction(()=>document.querySelectorAll('.efg-fit-card').length===12);
+  await page.locator('#nccRecipeSearch').fill('BUDIN');
+  assert.ok(await page.locator('.efg-fit-card:visible').count()>0);
+  assert.ok(await page.locator('.efg-fit-card:visible').count()<12);
+  await page.screenshot({path:resolve(out,engine+'-'+width+'-search.png')});
+  await page.locator('#nccRecipeCategory').selectOption('Almuerzos y cenas');
+  assert.equal(await page.locator('#nccRecipeSearch').inputValue(),'BUDIN');
+  assert.equal(await page.locator('.efg-fit-card:visible').count(),0);
+  assert.equal(await page.locator('#nccRecipes-library .ncc-recipe-search-empty').isVisible(),true);
+  await page.locator('[data-act=clearRecipeSearch]').click();
+  await page.locator('#nccRecipeCategory').selectOption('all');
+  await page.locator('#nccRecipeSearch').fill('pasas');
+  assert.ok(await page.locator('.efg-fit-card:visible').count()>0);
+  await page.locator('[data-act=clearRecipeSearch]').click();
+  assert.equal(await page.locator('.efg-fit-card:visible').count(),12);
   const open=async()=>{await page.locator('[data-fitrecipe="budin-whey"]').click();await page.locator('.ncc-recipe-sheet').waitFor();};
   const writes=()=>page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes);
   await open();assert.equal(await page.locator('#efgRecipeRegisterSlot').inputValue(),'merienda');
@@ -101,7 +115,11 @@ for(const engine of (process.env.NCC_BROWSER?[process.env.NCC_BROWSER]:['chromiu
   }
   // Existing local own recipes stay selectable, private and registered through the original saver.
   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;localStorage.setItem('efg-nutrition-custom-recipes:'+v.state.session.user.id,JSON.stringify([{name:'Mi receta de prueba',portions:2,ingredients:[{foodId:'egg',grams:100}],totals:{k:148,p:12.4,c:.96,f:9.96,fi:0}}]));await v.render();});
-  await page.locator('[data-recipessection="own"]').click();await page.locator('[data-ownrecipe]').first().click();
+  await page.locator('[data-recipessection="own"]').click();
+  await page.locator('#nccRecipeSearch').fill('huevo');assert.equal(await page.locator('.ncc-own-recipe:visible').count(),1);
+  await page.locator('#nccRecipeSearch').fill('sincoincidencias');assert.equal(await page.locator('.ncc-own-recipe:visible').count(),0);
+  assert.equal(await page.locator('#nccRecipes-own .ncc-recipe-search-empty').isVisible(),true);
+  await page.locator('[data-act=clearRecipeSearch]').click();await page.locator('[data-ownrecipe]').first().click();
   await page.locator('#efgRecipeRegisterQty').fill('0.5');await page.locator('#efgRecipeRegisterSlot').selectOption('media_tarde');
   await page.locator('[data-act="saveLibraryRecipe"]').click();await page.locator('.ncc-recipe-sheet').waitFor({state:'detached'});
   const own=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_tarde.at(-1));assert.equal(own.id,'custom-recipe');assert.equal(own.k,37);

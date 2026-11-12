@@ -1,11 +1,11 @@
 import {mountCoachPlanSteps} from './coach-plan-steps.mjs?v=ncc-coach-plan-steps-r1-20261110';
-import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-dual-role-release-r5-20261107';
+import {createProfessionalCoachTools,PROFESSIONAL_COACH_TOOLS_ENABLED} from './professional-coach-tools.mjs?v=ncc-report-gaps-r1-20261112';
 import {guidedCountablePortion} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {guideTotals} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {COACH_GUIDE_WINDOWS} from './coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
 import {createWeeklyPdfReview} from './weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106';
-import {buildPeriodReportPdf} from './period-report-pdf.js?v=ncc-report-share-return-r12-20261106';
-import {parseLuxuryPeriodReport,renderLuxuryPeriodReport} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
+import {buildPeriodReportPdf} from './period-report-pdf.js?v=ncc-report-gaps-r1-20261112';
+import {parseLuxuryPeriodReport,renderLuxuryPeriodReport} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 export function mountProfessionalCoachTools({root,reader,studentId,studentName,coachName,enabled=PROFESSIONAL_COACH_TOOLS_ENABLED,...options}={}){
  if(enabled!==true)return Object.freeze({ready:Promise.resolve({disabled:true}),dispose(){},assertCanLeave(){}});

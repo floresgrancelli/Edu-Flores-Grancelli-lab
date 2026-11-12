@@ -95,7 +95,7 @@ function inspectPdf(bytes){
  const text=bytes.toString('latin1');assert.ok(bytes.length>10000,'Embedded-font PDF has substantial bytes');
  assert.match(text,/^%PDF-1\.[3-7]/);assert.match(text,/%%EOF\s*$/);
  const offset=Number(text.match(/startxref\s+(\d+)\s+%%EOF\s*$/)?.[1]);assert.ok(Number.isInteger(offset)&&offset>0);assert.equal(text.slice(offset,offset+4),'xref');
- assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v3/);
+ assert.match(text,/\/Type \/Catalog\b/);assert.match(text,/\/FontFile2\b/);assert.match(text,/ncc-luxury-period-pdf-v4/);
  const pages=(text.match(/\/Type \/Page\b/g)||[]).length;assert.ok(pages>=2,'Real multipage report, not HTML print or a magic-byte stub');
  return {bytes:bytes.length,sha256:sha(bytes),pages,header:text.slice(0,8),xrefOffset:offset};
 }
@@ -136,7 +136,7 @@ try{
   await open();assert.equal(await page.locator('#periodPublishButton').isDisabled(),true);assert.equal(await page.locator('#periodReportReviewed').isChecked(),false);
   assert.match(await page.evaluate(()=>qa.run('publishPeriodLuxury',document.getElementById('periodPublishButton')).then(()=>'',e=>e.message)),/confirmación/,'Handler also refuses unreviewed send');
   const pdf=await page.evaluate(async()=>{const v=qa.view(),r=await fetch(v.url);return {url:v.url,type:r.headers.get('content-type'),size:(await r.arrayBuffer()).byteLength,snapshot:v.snapshot,serialized:v.serialized};});
-  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v3');assert.equal(pdf.snapshot.approvedByCoach,true);
+  assert.equal(pdf.type,'application/pdf');assert.equal(pdf.snapshot.pdfRendererVersion,'ncc-luxury-period-pdf-v4');assert.equal(pdf.snapshot.approvedByCoach,true);
   assert.equal(await page.locator('.period-pdf-dialog canvas').isVisible(),true);
   assert.equal(await page.locator('[data-pdf-download]').getAttribute('href'),pdf.url);
   const dialogBox=await page.locator('.period-pdf-dialog').boundingBox();assert.ok(dialogBox.x>=0&&dialogBox.x+dialogBox.width<=width+1);

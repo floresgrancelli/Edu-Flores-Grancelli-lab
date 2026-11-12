@@ -1,14 +1,15 @@
+import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-report-gaps-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-coach-plan-steps-r1-20261110';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-report-gaps-r1-20261112';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceBootstrap} from './dual-workspace-bootstrap.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-frame.mjs?v=ncc-professional-reconciliation-r1-20261107';
-import {reportCoachName} from './coach-report-models.js?v=ncc-report-share-return-r12-20261106';
+import {reportCoachName} from './coach-report-models.js?v=ncc-report-gaps-r1-20261112';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -16,12 +17,12 @@ import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-g
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
 import {normalizeReportTrendGoals,withReportTrendGoals} from "./report-trend-snapshot.js?v=ncc-weekly-preview-r11-20261106";
-import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-share-return-r12-20261106";
+import {PERIOD_PDF_RENDERER_VERSION} from "./period-report-pdf-version.js?v=ncc-report-gaps-r1-20261112";
 async function buildPeriodReportPdf(model){
- const pdf=await import("./period-report-pdf.js?v=ncc-report-share-return-r12-20261106");
+ const pdf=await import("./period-report-pdf.js?v=ncc-report-gaps-r1-20261112");
  return pdf.buildPeriodReportPdf(model);
 }
-import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
+import {buildLuxuryPeriodReport,renderLuxuryPeriodReport,parseLuxuryPeriodReport,periodReportAsStoredText} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
 import {buildPeriodReport,validateReportPeriod} from "./period-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sources.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -49,7 +50,7 @@ import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-rep
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {weeklyNumbers} from "./weekly-metrics.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-share-return-r12-20261106";
+import {buildLuxuryWeeklyReport,reportAsStoredText,parseLuxuryWeeklyReport,renderLuxuryWeeklyReport} from "./coach-report-models.js?v=ncc-report-gaps-r1-20261112";
 import {createWeeklyReportDelivery} from "./weekly-report-delivery.js?v=ncc-weekly-preview-r11-20261106";
 import {createWeeklyPdfReview} from "./weekly-pdf-review.js?v=ncc-report-share-return-r12-20261106";
 import {WEEKLY_PDF_RENDERER_VERSION} from "./weekly-report-pdf.js?v=ncc-report-share-return-r12-20261106";
@@ -2624,6 +2625,12 @@ function nutritionProgressPanel(isCoach=false){
  const goals=isCoach?state.coachGoals:state.goals;
  return progressDashboard(logs,goals,state.progressRange,today(),(date)=>goalForDate(goals,date),isCoach?"coach":"student",{showHighlights:progressHighlightsVisible()});
 }
+function personalMacroStatsPanel(){
+ const owner=state.session?.user?.id,epoch=state.authContextEpoch;
+ const saved=state.macroStats?.owner===owner&&state.macroStats?.epoch===epoch?state.macroStats:null;
+ const end=new Date(today()+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-1);const to=saved?.to||end.toISOString().slice(0,10);end.setUTCDate(end.getUTCDate()-6);const from=saved?.from||end.toISOString().slice(0,10);
+ return '<section class="card"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
+}
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
  const last=weights[0];
@@ -2644,7 +2651,7 @@ function progressView(){
  '<div class="card"><h2>Últimos registros</h2>'+(state.activities.length?state.activities.slice(0,5).map(a=>'<div class="pilot-record"><strong>'+escapeHTML(a.activity_day)+'</strong><small>'+(Number(a.steps)>0?num(a.steps)+' pasos · ':'')+num(a.exercise_minutes)+' min de otro ejercicio · '+escapeHTML(a.kind)+'</small>'+renderWalkingActivityHistory(a)+'</div>').join(""):'<div class="empty">Aún no hay actividad registrada.</div>')+'</div>';
  const owner=state.session?.user?.id||'';
  const selected=state.progressSection?.owner===owner?state.progressSection.section:'summary';
- const sections=[['summary','Resumen',nutritionProgressPanel()],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
+ const sections=[['summary','Resumen',personalMacroStatsPanel()+nutritionProgressPanel()],['weight','Peso',weightPanel],['activity','Actividad',activityPanel]];
  return rootText('Mi progreso','Elegí qué querés consultar o registrar.')+
  '<nav class="ncc-progress-tabs" aria-label="Secciones de Avance">'+sections.map(([key,label])=>'<button type="button" data-progresssection="'+key+'" aria-pressed="'+(selected===key)+'" aria-controls="nccProgress-'+key+'">'+label+'</button>').join('')+'</nav>'+
  sections.map(([key,label,html])=>'<section id="nccProgress-'+key+'" data-progresspanel="'+key+'" aria-label="'+label+'" '+(selected!==key?'hidden':'')+'>'+html+'</section>').join('');
@@ -5277,6 +5284,24 @@ if(el.dataset.foodbulk){
   notify("Informe actualizado con los consumos registrados.");
   return;
  }
+ if(action==='loadMacroStats'){
+  const userId=state.session?.user?.id,epoch=state.authContextEpoch,session=state.session,host=document.getElementById('macroStatsResult');
+  if(!userId||!host||host.loading)return;
+  const from=document.getElementById('macroStatsFrom').value,to=document.getElementById('macroStatsTo').value;
+  validateReportPeriod(from,to,today());
+  const ticket=Symbol();host.ticket=ticket;host.loading=true;host.textContent='Consultando tus registros…';
+  const current=()=>state.session===session&&state.session?.user?.id===userId&&state.authContextEpoch===epoch&&host.isConnected&&host.ticket===ticket&&document.getElementById('macroStatsFrom')?.value===from&&document.getElementById('macroStatsTo')?.value===to;
+  try{
+   const {data,error}=await sb.from('efg_daily_logs').select('log_day,meals,sports,skipped').eq('student_id',userId).gte('log_day',from).lte('log_day',to).order('log_day').limit(91);
+   if(!current())return;if(error)throw error;
+   const goals=normalizeReportTrendGoals(await loadPeriodReportGoals(sb,userId,from,to,()=>{if(!current())throw Error('Cambió el contexto.');}));if(!current())return;
+   const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
+   const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
+   const model=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:state.profile?.nickname,coachName:'Tu coach',days,logs:data,goals});
+   if(!current())return;state.macroStats={owner:userId,epoch,from,to,model};host.innerHTML=renderMacroGaps(model,{personal:true});
+  }catch(error){if(current())host.textContent='No se pudieron consultar las estadísticas. Volvé a intentarlo.';}finally{host.loading=false;}
+  return;
+ }
  if(action==="generatePeriodReport"){
   const c=periodReportContext(),studentId=c.studentId,session=state.session;
   if(!c.canPublish||!c.allowed)throw Error('Acceso no autorizado.');
@@ -5300,7 +5325,7 @@ if(el.dataset.foodbulk){
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
    const report=withReportTrendGoals(withReportFoodFrequency(buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:p.nickname,coachName:reportCoachName(state),days,logs:data,goals:periodGoals}),data),periodGoals);
    host.periodModel=report;host.periodFrom=from;host.periodTo=to;host.periodContext=c;host.periodRequestId=null;host.periodPreviewText=null;host.periodClient=createPeriodReportHistory({sb,context:periodReportContext});
-   host.innerHTML='<label class="period-report-field">Mi devolución · revisá y editá antes de enviar<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><details><summary>Versión HTML accesible del borrador (no es el PDF)</summary><div id="periodLuxuryPreview"></div></details>';
+   host.innerHTML='<label class="period-report-field">Mi devolución · revisá y editá antes de enviar<textarea id="periodReportConclusion" rows="6" maxlength="2200">'+escapeHTML(report.conclusion)+'</textarea></label><label class="period-report-field">Espacio para disfrutar<textarea id="periodReportFlexible" rows="3" maxlength="750">'+escapeHTML(report.flexibleNote)+'</textarea></label><p id="periodPublishStatus" role="status">Editá el texto y abrí el PDF para revisar cómo lo verá el alumno antes de enviarlo.</p><button type="button" class="btn" data-act="printPeriodLuxury">Revisar PDF y enviar</button><div id="periodLuxuryPreview"></div>';
    syncPeriodReportPreview();
   }catch(error){if(current()){host.textContent='No se pudo generar el informe. Volvé a intentarlo.';throw error;}}
   finally{host.periodLoading=false;}
@@ -5820,6 +5845,11 @@ root.addEventListener("compositionend",event=>{
 function foodSearchReadyForInput(event){
  return !event.isComposing&&!composingFoodSearchTargets.has(event.target);
 }
+root.addEventListener('input',function onMacroStatsDates(e){
+ if(!['macroStatsFrom','macroStatsTo'].includes(e.target.id))return;
+ const host=document.getElementById('macroStatsResult');if(host){host.ticket=null;host.textContent='Las fechas cambiaron. Consultá el período para actualizar.';}
+ state.macroStats={owner:state.session?.user?.id,epoch:state.authContextEpoch,from:document.getElementById('macroStatsFrom')?.value,to:document.getElementById('macroStatsTo')?.value,model:null};
+});
 root.addEventListener('input',e=>{
  if(['periodReportFrom','periodReportTo'].includes(e.target.id))invalidatePeriodReport();
  if(['periodReportConclusion','periodReportFlexible'].includes(e.target.id))syncPeriodReportPreview();
@@ -5977,6 +6007,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ state.macroStats=null;
  recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
  studentGuideSheet=null;studentGuideDrafts.clear();state.studentGuideSlots={};
  dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;

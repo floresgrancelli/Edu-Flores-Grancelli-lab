@@ -21,6 +21,12 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: node efg-nutrition/tests/personal-space-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: personal-space-review
+          path: artifacts/personal-space-review/
+          if-no-files-found: error
+          retention-days: 7
       - run: node efg-nutrition/tests/payments-review-browser.mjs
       - run: node efg-nutrition/tests/progress-review-browser.mjs
       - run: node efg-nutrition/tests/notification-destinations.mjs

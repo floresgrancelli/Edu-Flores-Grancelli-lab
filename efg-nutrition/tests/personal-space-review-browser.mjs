@@ -34,7 +34,7 @@ try{for(const engine of ['chromium','webkit']){
  const page=await context.newPage();await page.goto(origin+'/efg-nutrition/pilot/');
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
  await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;s.profile.role=role;s.tab=role==='admin'?'adminMore':'studentMore';s.personalTargets={kcal:2200,protein_g:150,carb_g:250,fat_g:65,fiber_g:30};s.goals=[{...s.personalTargets}];s.foodPlan=null;if(role!=='student')s.diary.sports=[{kind:'supplement',id:'creatine',name:'Creatina monohidratada',qty:3,unit:'g',k:0,p:0,c:0,f:0}];await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
- const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png'),fullPage:true});
+ const shot=async name=>{await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png'),fullPage:true});};
  await page.locator('#nccPersonalSections [data-workspace-tab=tools]').click();
  assert.equal(await page.locator('.ncc-personal-menu [data-tab=supplements]').isVisible(),true);
  assert.equal(await page.locator('.ncc-space-goals').isVisible(),true);await shot('space');

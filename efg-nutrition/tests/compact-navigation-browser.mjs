@@ -28,9 +28,13 @@ export async function assertCompactProgress(page,screenshot){
 }
 export async function assertCompactCoach(page){
  assert.equal(await page.locator('.ncc-coach-next').isVisible(),true);
+ await page.locator('#nccCoachHomeSections [data-workspace-tab=tools]').click();
+ assert.equal(await page.locator('[data-workspace-panel=nccCoachHomeSections]:visible').count(),1);
  const layout=await page.locator('.efg-coach-tiles').evaluate(el=>({columns:getComputedStyle(el).gridTemplateColumns.split(' ').length,height:el.getBoundingClientRect().height,buttons:[...el.querySelectorAll('button')].map(b=>({height:b.getBoundingClientRect().height,width:b.getBoundingClientRect().width,scroll:b.scrollWidth}))}));
  assert.equal(layout.columns,2);assert.ok(layout.height<550);
  assert.equal(layout.buttons.length,7);assert.ok(layout.buttons.every(b=>b.height>=44&&b.scroll<=b.width+1));
+ await page.locator('#nccCoachHomeSections [data-workspace-tab=pending]').click();
+ assert.equal(await page.locator('.ncc-coach-next').isVisible(),true);
  const states=await page.evaluate(async()=>{
   const v=window.__EFG_VISUAL_QA__,s=v.state;
   const keys=['coachIntakeVerified','coachIntakeForms','coachIntakeGoals','coachIntakeAccess'];

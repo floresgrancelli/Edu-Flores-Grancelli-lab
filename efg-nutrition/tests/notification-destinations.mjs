@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {notificationDestination as route} from '../pilot/notifications-ui.js';
+const c={role:'coach',userId:'coach',roster:[{user_id:'a',active:true},{user_id:'inactive',active:false}],consented:{a:true,inactive:true}};
+assert.deepEqual(route({target_tab:'coachIntake',target_student:'a'},c),{tab:'coachStudents',student:'a',section:'coachStudentIntake',week:null});
+for(const tab of ['reports','coachStudents','coachIntake','messages'])for(const student of [null,'foreign','inactive'])assert.throws(()=>route({target_tab:tab,target_student:student},c));
+for(const tab of ['reports','coachStudents','coachIntake'])assert.throws(()=>route({target_tab:tab},{role:'student',userId:'s'}));
+assert.throws(()=>route({target_tab:'messages',target_student:'a'},{...c,consented:{}}));
+assert.throws(()=>route({target_tab:'javascript:alert(1)'},c));
+assert.equal(route({target_tab:'messages'},{role:'student',userId:'s'}).student,'s');
+assert.equal(route({target_tab:'home',kind:'guide'},{role:'student'}).tab,'planner');
+assert.equal(route({target_tab:'summaries',kind:'weekly_report',event_key:'weekly:2026-11-06:2026-11-07T12:00:00Z'},{role:'student'}).week,'2026-11-06');
+assert.equal(route({target_tab:'summaries',kind:'weekly_report',event_key:'malformed'},{role:'student'}).week,null);
+assert.equal(route({target_tab:'coachIntake',target_student:'a'},{...c,role:'admin',testCoach:true}).student,'a');
+assert.throws(()=>route({target_tab:'coachIntake',target_student:'a'},{...c,role:'admin'}));
+console.log('PASS notification routes: role, active student, consent, exact report week and safe fallback');

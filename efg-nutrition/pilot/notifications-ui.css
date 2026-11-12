@@ -65,3 +65,29 @@
 .efg-inbox-warning{margin:8px 10px;padding:10px 12px;border:1px solid #ae9769;border-radius:12px;background:#f5edda;color:#4a3b26;font-size:12px;line-height:1.5}
 .efg-inbox-warning button{display:inline-block;min-height:40px;margin-left:6px;padding:4px 12px;border-radius:12px;border:1px solid #a18453;background:#e6d1ac;color:#2b3c4d;font-weight:700;cursor:pointer}
 .efg-inbox-warning button:focus-visible{outline:2px solid #a18453;outline-offset:2px}
+
+/* Shared approved palette, explicit read state and compact destination actions. */
+@layer ncc-palette {
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:10px 0}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-filters button{min-height:44px;border:1px solid #415047!important;border-radius:12px;background:#172826!important;color:#f0f1e7!important;font:inherit;font-size:12px;cursor:pointer;padding:7px 4px}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-filters button[aria-pressed=true]{background:#b1c579!important;color:#142018!important;border-color:#b1c579!important;font-weight:700}
+.ncc-notify-filters button span{display:block;font-size:11px;margin-top:2px}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item{margin:8px 0;padding:14px;border:1px solid #415047!important;border-radius:14px;background:#1b2422!important;color:#f0f1e7!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item.unread{background:#172826!important;box-shadow:inset 3px 0 #b1c579}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item.read{background:#25212c!important;box-shadow:none}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item>span{color:#c3cec6!important;font-size:13px;line-height:1.5}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item-top{gap:8px;flex-wrap:wrap}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item-top b{color:#f0f1e7!important;font-size:14px}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item small{color:#c3cec6!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-item>.ncc-notify-footer{display:flex!important;justify-content:space-between!important;align-items:center;gap:12px!important;margin-top:12px;flex-wrap:wrap}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-footer strong{font-size:12px;color:#b1c579!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-notify-empty{color:#c3cec6!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .efg-inbox-warning{background:#25212c!important;color:#f0f1e7!important;border-color:#b6a4ce!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) button:focus-visible{outline:2px solid #b1c579;outline-offset:2px}
+.efg-inbox-full-meta{font-size:12px;padding:6px 0;color:#c3cec6}
+}
+
+@layer ncc-palette {
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) :is(.efg-notify-item,.ncc-notify-filters button){text-transform:none!important;letter-spacing:normal!important}
+html.ncc-lime-theme :is(#app #efgInboxFull,#efgNotifications) .ncc-notify-footer small{border:1px solid #526052;border-radius:7px;padding:2px 6px;font-size:10px!important;white-space:nowrap}
+}

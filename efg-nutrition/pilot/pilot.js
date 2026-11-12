@@ -73,9 +73,9 @@ import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validat
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createNotificationInbox} from "./notifications-ui.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notifications-r1-20261112";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createMessagesCenter} from "./messages-ui.js?v=ncc-workspace-tabs-r1-20261112";
+import {createMessagesCenter} from "./messages-ui.js?v=ncc-notifications-r1-20261112";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-workspace-tabs-r1-20261112";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -443,17 +443,21 @@ async function saveDayComment(){
 }
 let coachRosterConsent={};
 let myWeeklyReports=[];
-async function loadMyWeeklyReports(){
+async function loadMyWeeklyReports(week=null){
  const contextEpoch=state.authContextEpoch||0;
  const contextRead=async promise=>{const value=await promise;if((state.authContextEpoch||0)!==contextEpoch)throw Object.assign(new Error("STALE_AUTH_CONTEXT"),{code:"STALE_AUTH_CONTEXT"});return value;};
  if(state.profile?.role!=="student"){myWeeklyReports=[];return;}
- const {data,error}=await contextRead(sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id).order("week_ending",{ascending:false}).limit(12));
- if(error)throw error;myWeeklyReports=data||[];
+ let query=sb.from("efg_weekly_reports").select("id,week_ending,report_text,created_at").eq("student_id",state.session.user.id);
+ if(week)query=query.eq("week_ending",week);
+ const {data,error}=await contextRead(query.order("week_ending",{ascending:false}).limit(12));
+ if(error)throw error;
+ if(week){if(!data?.length)throw Error("El informe de este aviso ya no está disponible.");myWeeklyReports=[...data,...myWeeklyReports.filter(r=>r.week_ending!==week)];}
+ else myWeeklyReports=data||[];
 }
 function weeklyStudentPanel(){
  if(state.profile?.role!=="student")return "";
  const items=myWeeklyReports.map((r,i)=>{const luxury=parseLuxuryWeeklyReport(r.report_text);
-  return '<details class="pilot-record"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
+  return '<details class="pilot-record" data-notification-week="'+escapeHTML(r.week_ending)+'"><summary>Semana hasta '+escapeHTML(r.week_ending)+(luxury?' · Luxury Pro':'')+'</summary>'+
    (luxury?renderLuxuryWeeklyReport(luxury)+'<div class="lux-report-toolbar"><button type="button" class="btn small" data-act="replyWeeklyReport" data-week="'+escapeHTML(r.week_ending)+'">💬 Responder informe al coach</button><button type="button" class="btn small light" data-act="printLuxuryReport" data-reportindex="'+i+'">Abrir PDF</button></div>':
    '<p style="white-space:pre-wrap">'+escapeHTML(r.report_text)+'</p>')+'</details>';}).join("");
  return '<section class="card"><h2>Mis resúmenes semanales</h2><p class="pilot-hint">Informes revisados por tu entrenador.</p>'+(items||'<p class="pilot-hint">Todavía no hay informes compartidos.</p>')+'</section>'+periodHistoryPanel();
@@ -572,25 +576,33 @@ state.foodRestrictionReader=createStudentFoodRestrictionReader({sb,
    state.coachPilotIntake?.completed_version===COACH_RELEASE_INTAKE_VERSION&&
    Number.isSafeInteger(state.coachPilotIntake?.revision)&&state.coachPilotIntake.revision>0})
 });
+function resolveInboxDestination(n){return notificationDestination(n,{role:state.profile?.role,testCoach:!!state.org?.is_test,userId:state.session?.user?.id,roster:state.roster,consented:coachRosterConsent});}
 const inbox=createNotificationInbox({sb,
  getUserId:()=>state.profile?state.session?.user?.id:null,
+ validate:n=>{if(state.tab!=="messages"&&userHasUnconfirmedEdits&&root.querySelector(".pilot-main form"))throw Error("Guardá o cerrá el formulario antes de abrir el aviso. Tu aviso seguirá disponible.");return resolveInboxDestination(n);},
  navigate:async n=>{
-  const coachMode=state.profile?.role==="coach"||(state.profile?.role==="admin"&&state.org?.is_test);
-  const targets=new Set(["home","reports","coachStudents","coachIntake","summaries","payments","messages"]);
-  let target=targets.has(n.target_tab)?n.target_tab:"notifications";
-  if(!coachMode&&["reports","coachStudents"].includes(target))target="home";
-  if(coachMode&&n.target_student&&["reports","coachStudents","coachIntake","messages"].includes(target)){
-   const p=(state.roster||[]).find(p=>p.user_id===n.target_student&&p.active);
-   if(p&&target!=="messages"&&target!=="coachIntake")await loadStudentDetail(p.user_id);
-   if(p&&target==="messages")messages.selectStudent(p.user_id);
+  const user=state.session?.user?.id,route=resolveInboxDestination(n);
+  if(route.student&&route.tab!=="messages"){
+   if(state.selectedStudent!==route.student||state.consent?.accepted!==true)await loadStudentDetail(route.student);
   }
-  state.tab=target;
-  await render();
-  if(target==="reports")document.getElementById("coachReportWeek")?.scrollIntoView({block:"start"});
-  if(target==="coachStudents")document.getElementById("studentFollowPanel")?.scrollIntoView({block:"start"});
-  if(target==="home")document.querySelector(".efg-guide-student")?.scrollIntoView({block:"start"});
+  if(route.week)await loadMyWeeklyReports(route.week);
+  if(state.session?.user?.id!==user)return;
+  resolveInboxDestination(n);
+  state.tab=route.tab;await render();
+  if(route.tab==="messages"){
+   if(!await messages.openNotification(route.student))throw Error("La conversación de este aviso ya no está disponible.");
+  }
+  if(route.section){selectCoachSection(route.section);document.getElementById(route.section)?.scrollIntoView({block:"start"});}
+  else if(route.tab==="coachStudents")document.getElementById("studentFollowPanel")?.scrollIntoView({block:"start"});
+  if(route.tab==="reports")document.getElementById("coachReportWeek")?.scrollIntoView({block:"start"});
+  if(route.week){
+   const item=[...document.querySelectorAll('[data-notification-week]')].find(e=>e.dataset.notificationWeek===route.week);
+   if(!item)throw Error("El informe de este aviso ya no está disponible.");
+   item.open=true;item.scrollIntoView({block:"start"});
+  }
  }
 });
+
 const messages=createMessagesCenter({sb,
  context:()=>({
   userId:state.profile?state.session?.user?.id:null,role:state.profile?.role,
@@ -1617,7 +1629,7 @@ function studentSupplementsView(){
  '<section class="card efg-content-card">'+supplementsPanel(activeDiary())+'</section>';
 }
 function notificationsView(){
- return rootText("🔔 Mis notificaciones","Todos tus avisos en un solo lugar. La campanita también está disponible en cualquier pantalla.")+
+ return rootText("Mis notificaciones","Mensajes, fichas e informes. Abrí cada aviso para ver su contenido.")+
   '<section class="card efg-inbox-full" id="efgInboxFull"><p class="pilot-hint">Consultando tus avisos…</p></section>';
 }
 function messagesView(){

@@ -42,6 +42,10 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
  if(tab==='planner'){
   const host=main.querySelector('#planSuggestionCard');
   if(host&&host.querySelector('.planner-balance-compare')){
+   for(const meal of host.querySelectorAll('[data-suggestionpanel]')){
+    const rows=[...meal.querySelectorAll(':scope > .planner-item')];
+    group(meal,'nccPlannerFood-'+meal.dataset.suggestionpanel,[['protein','Proteína',[rows[0]]],['carbs','Hidratos',[rows[1]]],['extras','Extras',[meal.querySelector(':scope > .ncc-planner-extras')]]]);
+   }
    const balance=host.querySelector('.planner-balance-compare'),last=balance.nextElementSibling;
    const nodes=[...host.children].filter(n=>n!==balance&&n!==last&& !n.matches('.eyebrow,h2'));
    group(host,'nccPlannerSections',[['choose','Preparar comida',nodes],['balance','Revisar balance',[balance,last]]]);

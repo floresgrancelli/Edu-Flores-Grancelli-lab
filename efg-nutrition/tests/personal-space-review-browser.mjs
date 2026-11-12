@@ -33,7 +33,7 @@ try{for(const engine of ['chromium','webkit']){
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
  const page=await context.newPage();await page.goto(origin+'/efg-nutrition/pilot/');
  await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
- await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;s.profile.role=role;s.tab=role==='admin'?'adminMore':'studentMore';s.personalTargets={kcal:2200,protein_g:150,carb_g:250,fat_g:65,fiber_g:30};s.goals=[{...s.personalTargets}];s.foodPlan=null;await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
+ await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;s.profile.role=role;s.tab=role==='admin'?'adminMore':'studentMore';s.personalTargets={kcal:2200,protein_g:150,carb_g:250,fat_g:65,fiber_g:30};s.goals=[{...s.personalTargets}];s.foodPlan=null;if(role!=='student')s.diary.sports=[{kind:'supplement',id:'creatine',name:'Creatina monohidratada',qty:3,unit:'g',k:0,p:0,c:0,f:0}];await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;},role);
  const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png'),fullPage:true});
  await page.locator('#nccPersonalSections [data-workspace-tab=tools]').click();
  assert.equal(await page.locator('.ncc-personal-menu [data-tab=supplements]').isVisible(),true);
@@ -42,13 +42,17 @@ try{for(const engine of ['chromium','webkit']){
  await page.locator('#supplementItem').selectOption('creatine');await page.locator('#supplementQty').fill('3');
  const before=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
  await page.locator('#nccSupplementSections [data-workspace-tab=today]').click();
- assert.equal(await page.locator('.meal-food-empty').isVisible(),true);await shot('consumed');
+ assert.equal(await page.locator(role==='student'?'.meal-food-empty':'.supplement-entries').isVisible(),true);await shot('consumed');
  await page.locator('#nccSupplementSections [data-workspace-tab=register]').click();
  assert.equal(await page.locator('#supplementQty').inputValue(),'3');assert.equal(await page.locator('#supplementItem').inputValue(),'creatine');await shot('supplements');
  assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='planner';await v.render();});
  const nav=page.locator('#nccPlannerSections');await nav.waitFor();
- const qty=page.locator('[id^=planQty_]').first();await qty.fill('123');await shot('planner');
+ const qty=page.locator('[id^=planQty_]').first();await qty.fill('123');
+ const foodNav=page.locator('#nccPlannerFood-cena');
+ await foodNav.locator('[data-workspace-tab=carbs]').click();assert.equal(await page.locator('[data-planselect="cena|carbs"]').isVisible(),true);
+ await foodNav.locator('[data-workspace-tab=extras]').click();assert.equal(await page.locator('[data-plannerextras=cena]').isVisible(),true);
+ await foodNav.locator('[data-workspace-tab=protein]').click();assert.equal(await qty.inputValue(),'123');await shot('planner');
  await nav.locator('[data-workspace-tab=balance]').click();assert.equal(await page.locator('#plannerPendingNotice').isVisible(),true);await shot('balance');
  await nav.locator('[data-workspace-tab=choose]').click();assert.equal(await qty.inputValue(),'123');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

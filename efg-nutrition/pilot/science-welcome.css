@@ -143,3 +143,8 @@
 .ns-topic-content>.ns-library-panel>section,.ns-topic-content>section{margin-bottom:0}
 @media(max-width:700px){.ns-topic-list{grid-template-columns:1fr;gap:10px}.ns-topic>summary{gap:10px;padding:10px}.ns-topic>summary img{width:56px;height:56px}.ns-topic-label strong{font-size:14px}.ns-topic-label small{font-size:11px}.ns-topic-content{padding:0 8px 8px}}
 }
+
+@layer ncc-palette {
+html.ncc-lime-theme #app .ns-science-library .ns-library-heading{max-width:none;background:linear-gradient(115deg,#172826e8,#25212cd9)!important;border:1px solid #415047!important;border-radius:20px;padding:20px;margin:0 0 16px}
+html.ncc-lime-theme #app .ns-library-heading .ns-eyebrow{background:transparent!important;color:#b1c579!important;font-size:11px;letter-spacing:.1em}
+}

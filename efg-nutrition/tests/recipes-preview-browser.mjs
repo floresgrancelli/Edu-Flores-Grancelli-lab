@@ -50,7 +50,10 @@ for(const engine of (process.env.NCC_BROWSER?[process.env.NCC_BROWSER]:['chromiu
   assert.equal(await page.locator('.efg-fit-card').count(),12);
   assert.equal(await page.locator('#nccRecipes-own').isVisible(),false);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-  await page.locator('.efg-fit-card').first().locator('img').evaluate(img=>img.decode());
+  // WebKit decodes lazy photos independently: await all three visible cards, not just the first.
+  await page.locator('.efg-fit-card img').evaluateAll(async imgs=>{
+   for(const img of imgs.slice(0,3)){await img.decode();if(!img.naturalWidth)throw Error('Visible recipe photo did not load');}
+  });
   await page.screenshot({path:resolve(out,engine+'-'+width+'-library.png')});
   await page.locator('#nccRecipeCategory').selectOption('Almuerzos y cenas');await page.waitForFunction(()=>document.querySelectorAll('.efg-fit-card').length===6);
   await page.locator('#nccRecipeCategory').selectOption('all');await page.waitForFunction(()=>document.querySelectorAll('.efg-fit-card').length===12);
@@ -104,7 +107,7 @@ for(const engine of (process.env.NCC_BROWSER?[process.env.NCC_BROWSER]:['chromiu
   const own=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_tarde.at(-1));assert.equal(own.id,'custom-recipe');assert.equal(own.k,37);
   await page.screenshot({path:resolve(out,engine+'-'+width+'-own.png')});
   assert.deepEqual(errors,[]);
-  evidence.push({engine,width,library:12,categories:6,drafts:true,fractional:true,singleWrite:true,rejectedWriteRollback:true,permissionsUnchanged:true,professionalPersonalDiary:true,ownRecipe:true,noOverflow:true,shortViewport:true,physicalDevice:false});
+  evidence.push({engine,width,library:12,categories:6,visiblePhotos:3,drafts:true,fractional:true,singleWrite:true,rejectedWriteRollback:true,permissionsUnchanged:true,professionalPersonalDiary:true,ownRecipe:true,noOverflow:true,shortViewport:true,physicalDevice:false});
   await context.close();
  }}finally{await browser.close();}
 }

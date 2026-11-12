@@ -11,3 +11,13 @@ html.ncc-lime-theme #app .ncc-macro-stats{padding:16px 0 0!important;overflow:hi
 .ncc-macro-stats .ncc-gap-report{border:0;border-radius:0;margin-bottom:0;width:100%}
 .ncc-gap-card>div{min-width:0}.ncc-gap-card p{font-size:14px;line-height:1.35}
 .ncc-gap-day th:first-child{width:25%}.ncc-gap-day th:nth-child(2){width:21%}.ncc-gap-day th:nth-child(3){width:23%}.ncc-gap-day th:nth-child(4){width:31%}
+/* Compact summary, shared by coach and student; touch targets stay unchanged. */
+.ncc-gap-summary .ncc-gap-card{padding:10px 12px;margin:8px 0;gap:12px}
+.ncc-gap-summary .ncc-gap-card h3{font-size:16px;margin:0 0 2px;line-height:1.2}
+.ncc-gap-summary .ncc-gap-card strong{font-size:22px;line-height:1.2}
+.ncc-gap-summary .ncc-gap-card p{font-size:13px;margin:3px 0 0;line-height:1.3}
+.ncc-gap-summary .ncc-gap-symbol{width:34px;height:34px;border-radius:9px;font-size:12px}
+.ncc-gap-summary aside{padding:10px 12px;margin:10px 0}
+.ncc-gap-summary aside h3{font-size:16px;margin:0 0 3px}
+.ncc-gap-summary aside p{font-size:13px;margin:0;line-height:1.35}
+.ncc-gap-summary>h2{font-size:20px;margin:10px 0}

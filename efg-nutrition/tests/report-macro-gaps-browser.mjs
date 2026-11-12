@@ -34,6 +34,15 @@ try{for(const engine of ['chromium','webkit']){
  const owner=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.session.user.id);
  assert.ok(await page.evaluate(id=>window.__NCC_MACRO_FIXTURE__.reads.every(r=>r.id===id),owner));
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ // Capture an actual phone-sized viewport, without hiding header or bottom navigation.
+ await page.setViewportSize({width,height:width===390?844:740});
+ await page.evaluate(()=>{const report=document.querySelector('.ncc-gap-report'),header=document.querySelector('.efg-mobile-header');window.scrollBy(0,report.getBoundingClientRect().top-(header?.getBoundingClientRect().bottom||0)-8);});
+ const compact=await page.locator('.ncc-gap-card').evaluateAll(cards=>cards.map(e=>({height:e.getBoundingClientRect().height,font:parseFloat(getComputedStyle(e.querySelector('strong')).fontSize)})));
+ assert.ok(compact.every(c=>c.height<105&&c.font>=20&&c.font<=22),'Compact readable summary cards');
+ assert.equal(await page.locator('.pilot-nav').isVisible(),true);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({path:resolve(out,engine+'-'+width+'-student-summary-phone.png'),fullPage:false});
+ await page.setViewportSize({width,height:1600});
  await page.evaluate(()=>window.scrollTo(0,0));await page.locator('.ncc-gap-report').screenshot({path:resolve(out,engine+'-'+width+'-student-summary.png')});
  await page.locator('.ncc-gap-switch label').filter({hasText:'Por día'}).click();assert.match(await page.locator('.ncc-gap-daily').innerText(),/Sin registros/);assert.equal(await page.locator('.ncc-gap-summary').isVisible(),false);
  assert.equal(await page.locator('.ncc-gap-day').evaluateAll(es=>es.every(e=>e.scrollWidth<=e.clientWidth)),true);

@@ -25,7 +25,9 @@ assert.throws(()=>assertPwaBuildIdentity(liveHtml,Buffer.from("{}")));
 const regular=liveHtml.replaceAll(entry,build);
 assert.deepEqual(assertPwaBuildIdentity(regular),{build,assetVersion:build});
 assert.match(build,/ncc-pilot-3a40474052be/,"Gran Actualización must version walking steps and preserve older reviewed food signals");
-assert.match(appJs,/science-welcome\.js\?v=ncc-pilot-3a40474052be/,"Load approved closing slide as a fresh module");
+const scienceVersion=JSON.parse(hotfixBytes).moduleVersions["efg-nutrition/pilot/science-welcome.js"];
+assert.ok(scienceVersion,"Reviewed science module version must be present");
+assert.ok(appJs.includes('./science-welcome.js?v='+scienceVersion+'"'),"Load approved science module at the exact pinned version");
 
 
 function el(tag){

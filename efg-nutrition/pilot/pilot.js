@@ -47,7 +47,7 @@ import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {educationalGuideSections} from "./guide-meal-education.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {SCIENCE_WELCOME_ENABLED,SCIENCE_STEPS,readScienceWelcomeStatus,acknowledgeScienceWelcome,renderScienceVerticalView,renderScienceWelcomeStep} from "./science-welcome.js?v=ncc-science-library-r1-20261112";
 import {applyRecipeModels} from "./recipe-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {applyRegionalCompositeModels} from "./regional-composite-models.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {buildNutritionReport,nutritionReportText} from "./daily-report.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";

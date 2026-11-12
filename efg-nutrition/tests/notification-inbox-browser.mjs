@@ -72,7 +72,7 @@ try{for(const engine of ['chromium','webkit']){
  await inbox.locator('[data-efg-id]').first().click();await page.getByRole('alert').first().waitFor();
  assert.equal(await page.evaluate(()=>window.__NOTICE_WRITES__.length),0,'Draft blocks navigation before read receipt');
  await page.evaluate(()=>{window.__NCC_NOTIFICATION_QA__.setDirty(false);document.getElementById("notification-draft-fixture").remove();});
- await page.locator('#efgNotifications [data-efg-action=toggle]').click();
+ await page.locator('#efgNotifications .efg-notify-bell').click();
  if(role==='student'){
  await inbox.locator('[data-efg-id=report]').click();
  await page.locator('[data-notification-week="2026-11-06"][open]').waitFor();
@@ -89,7 +89,7 @@ try{for(const engine of ['chromium','webkit']){
  await inbox.locator('[data-efg-id=message]').click();
  await page.locator('.efg-chat-layout.show-thread').waitFor({state:'visible'});
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.tab='notifications';await v.render();});
- await page.locator('#efgNotifications [data-efg-action=toggle]').click();
+ await page.locator('#efgNotifications .efg-notify-bell').click();
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-bell.png')});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  evidence.push({engine,width,role,filters:true,draftPreserved:true,exactDestination:true,scopedRead:true,noOverflow:true});await context.close();

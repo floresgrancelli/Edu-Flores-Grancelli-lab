@@ -195,7 +195,7 @@ assert.match(diaryNotices.at(-1),/registro se guardó/,'UI error gives honest re
 // PostgREST write rejects. Test the actual toggle handler, including a
 // concurrent write on the same meal and a later successful retry.
 const skipStart=source.indexOf('async function saveSkippedMealChoice(slot,checked,checkbox){');
-const skipEnd=source.indexOf('root.addEventListener("change",e=>{invalidateCoachDraft(e);',skipStart);
+const skipEnd=source.indexOf('root.addEventListener("change",e=>{',skipStart);
 assert.ok(skipStart>=0&&skipEnd>skipStart,'Real skipped-meal persist handler exists');
 const skipDiary={student_id:'skip-user',log_day:'2026-10-31',skipped:{desayuno:false,_closed:false},meals:{desayuno:[]},totals:{k:0}};
 const skipState={session:{user:{id:'skip-user'}},diary:skipDiary},skipLock=new Set();
@@ -224,7 +224,7 @@ assert.equal(skipLock.size,0,'Successful write releases slot');
 
 // Real Fit recipe and private recipe handlers must not leave phantom food when
 // offline. They also use the common meal-slot gate and retry safely.
-const fitStart=source.indexOf('async function registerFitRecipe(id){');
+const fitStart=source.indexOf('async function registerFitRecipe(id,selection){');
 const fitEnd=source.indexOf('function studentSupplementsView(){',fitStart);
 const recipeStart=source.indexOf('async function confirmRecipeRegistration(){');
 const recipeEnd=source.indexOf('function rootText(title,sub){',recipeStart);
@@ -241,11 +241,11 @@ const fitRun=new Function('state','FIT_RECIPES','prompt','mealSlots','recipeTota
  recipeState,[fitRecipe],()=>'1',[['cena','Cena']],()=>({perPortion:{k:120,p:8,c:10,f:4,fi:1}}),
  [],()=>recipeDiary,writeRecipe,msg=>recipeAlerts.push(msg),String,recipeLocks,()=>{});
 const beforeFit=structuredClone(recipeDiary);
-await assert.rejects(fitRun('fit001'),/network offline/);
+await assert.rejects(fitRun('fit001',{slot:'cena',qty:1}),/network offline/);
 assert.deepEqual(recipeDiary,beforeFit,'Rejected Fit recipe restores foods and skipped flags');
 assert.equal(recipeLocks.size,0,'Rejected Fit recipe releases meal-slot lock');
 recipeFailure=false;
-await fitRun('fit001');
+await fitRun('fit001',{slot:'cena',qty:1});
 assert.equal(recipeDiary.meals.cena.length,2,'Successful Fit recipe retry adds exactly one item');
 assert.equal(recipeDiary.meals.cena[1].k,120,'Fit recipe macros are retained');
 recipeFailure=true;
@@ -899,13 +899,13 @@ console.log("PASS UX-04-05: delayed sports/supplements and comments cannot resto
     operation=handler("cena|protein");
    }else if(kind==="fit"){
     const prompts=["1","1"],recipe={id:"fit-case",name:"Budín Fit"};
-    const handler=extract("async function registerFitRecipe(id){","function studentSupplementsView(){","registerFitRecipe",{
+    const handler=extract("async function registerFitRecipe(id,selection){","function studentSupplementsView(){","registerFitRecipe",{
      state,FIT_RECIPES:[recipe],prompt:()=>prompts.shift(),mealSlots:[["cena","Cena"]],
      pendingMealRegistrations,recipeTotals:()=>({perPortion:{k:120,p:8,c:10,f:4,fi:2}}),
      foods:[],activeDiary:()=>state.diary,saveDiary,notify,num:x=>String(x),today,
      validateRecipeIngredientAccess:()=>{}
     });
-    operation=handler("fit-case");
+    operation=handler("fit-case",{slot:"cena",qty:1});
    }else if(kind==="personal"){
     const recipe={id:"rec1",name:"Mi budín",portions:2,totals:{k:400,p:20,c:40,f:12,fi:4}};
     const handler=extract("async function confirmRecipeRegistration(){","function rootText(","confirmRecipeRegistration",{

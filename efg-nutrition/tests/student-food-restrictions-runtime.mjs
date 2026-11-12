@@ -78,7 +78,7 @@ function assertPrivateCleanup(source){
  const calls=[],state={session:{user:{id:user}},profile:{role:'student'},org:{id:org},
   foodRestrictionReader:{invalidate:()=>calls.push('restrictions')},privateHealthDeclaration:{invalidate:()=>calls.push('health')},
   foodCompatEvidence:[{private:true}],coachReportGoals:{private:true},coachHistory:[{private:true}]};
- const context={state,
+ const context={recipeSheet:{owner:'OLD'},recipeSheetDrafts:new Map([['OLD',{qty:'2'}]]),recipeRegistrationBusy:true,state,
   dualWorkspaceBootstrap:{invalidate:()=>calls.push('dual-bootstrap')},dualWorkspaceFrame:{invalidate:()=>calls.push('dual-frame')},
   professionalReleaseFrame:{invalidate:()=>calls.push('professional-release-frame')},
   weeklyPdfReview:{close:force=>calls.push(['weekly-close',force])},
@@ -87,6 +87,7 @@ function assertPrivateCleanup(source){
   pilotGuideLifecycle:{invalidate:()=>calls.push('guide')},coachAdaptedWorkspace:{close:()=>calls.push('workspace')},
   pendingMealRegistrations:new Set(['pending']),pendingHabitualSlots:new Set(['pending'])};
  vm.runInNewContext(source+';resetPrivateSession();',context);
+ assert.equal(context.recipeSheet,null);assert.equal(context.recipeSheetDrafts.size,0);assert.equal(context.recipeRegistrationBusy,false);
  for(const call of [['weekly-close',true],['period-close',true]])assert.equal(calls.filter(x=>JSON.stringify(x)===JSON.stringify(call)).length,1,JSON.stringify(call));
  for(const call of ['restrictions','health','weekly-editor','weekly-delivery','guide','workspace','dual-bootstrap','dual-frame','professional-release-frame'])assert.equal(calls.filter(x=>x===call).length,1,call);
  const restrictionIndex=calls.indexOf('restrictions');

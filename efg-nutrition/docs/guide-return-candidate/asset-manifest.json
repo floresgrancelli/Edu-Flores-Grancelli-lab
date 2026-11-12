@@ -334,7 +334,7 @@
     "efg-nutrition/pilot/report-macro-gaps.css": "fab6a1e18080d5b14ea664cbc16b7f9d02de361d499e83e810e5e26f39791eb6",
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "b18d9f726d1d9bf1429b5b3f3c823d356f53cc9eb22da0c0e72254330c7f28dd",
-    "efg-nutrition/pilot/workspace-tabs.css": "5bd29c4de0a5aa526d937c4ca788def5c433bb66f8fb1ec84e7eeeeed58a088b",
+    "efg-nutrition/pilot/workspace-tabs.css": "8548ce0de583188ed2b772eca8a7e6356177e5b501b0f7447a535a60b764ffdb",
     "efg-nutrition/pilot/color-system.css": "d4f7c666b83007db39759de2f9bb881c174bf918c401c943a07b15dade9d95eb",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
     "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5",
@@ -516,7 +516,7 @@
     },
     {
       "path": "efg-nutrition/pilot/workspace-tabs.css",
-      "sha256": "5bd29c4de0a5aa526d937c4ca788def5c433bb66f8fb1ec84e7eeeeed58a088b",
+      "sha256": "8548ce0de583188ed2b772eca8a7e6356177e5b501b0f7447a535a60b764ffdb",
       "url": "./workspace-tabs.css?v=ncc-coach-student-actions-r1-20261112"
     },
     {

@@ -249,7 +249,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ba989dcd1f6aaf9871e0a79bab52c56749673272f619f3a31a3091663c2c7d84",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "e62b47c8f054d24c6492fb3d2f39826de816efc24e41d7e156e6086a1b31130f",
+    "efg-nutrition/pilot/pilot.js": "329fcd64358123af49df9851c577cf6791dd965713621f32399a1fe5f45241b6",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "6ab6d23243f3276d7d433c6d62927a1a23f0f2b5e7c60f26c26f4b084e8c4e02",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "6bf801ea9311a31b2d194f8d5576d461a739ee1117c3530dce58c8a92a4b24f7",
@@ -318,7 +318,7 @@
     "efg-nutrition/pilot/assets/cream-cheese-r1.webp": "09641938994e733b10ca742e367e2e790ed8bdb56255b3d1fd1aff1d0b20c9e6",
     "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
     "efg-nutrition/pilot/day-tools-r1.css": "8696e844ab39102a97387867bee6a452b6eb69caa07af93616e9ac35d6cfe4a1",
-    "efg-nutrition/pilot/recipes-library-r1.css": "8ddab7f84a143477c54a979dc2467b4fa8d379fc629a0d0aa9c928034b9cd1c9"
+    "efg-nutrition/pilot/recipes-library-r1.css": "376363a9370f2bb40e1a55c2913e87ae8f9426bbd0fa6804e8ec7ea7ec576e23"
   },
   "stylesheets": [
     {
@@ -478,7 +478,7 @@
     },
     {
       "path": "efg-nutrition/pilot/recipes-library-r1.css",
-      "sha256": "8ddab7f84a143477c54a979dc2467b4fa8d379fc629a0d0aa9c928034b9cd1c9",
+      "sha256": "376363a9370f2bb40e1a55c2913e87ae8f9426bbd0fa6804e8ec7ea7ec576e23",
       "url": "./recipes-library-r1.css?v=ncc-recipes-r1-20261111"
     }
   ],

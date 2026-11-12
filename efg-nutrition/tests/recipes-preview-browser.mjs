@@ -87,9 +87,9 @@ for(const engine of (process.env.NCC_BROWSER?[process.env.NCC_BROWSER]:['chromiu
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),before);
   await page.evaluate(()=>{window.__NCC_FOOD_ENTRY_FIXTURE__.fail=false;});await page.locator('[data-act="saveLibraryRecipe"]').click();await page.locator('.ncc-recipe-sheet').waitFor({state:'detached'});
   assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.cena.length),1);
-  // A published ingredient list still gates students, while professionals keep their own diary.
+  // Preserve the released shared catalog: a guide is not a student diary whitelist.
   await page.evaluate(()=>{window.__NCC_R4_FULLAPP__.state.foodPlan.approved_food_ids=['egg'];});
-  await open();const count=await writes();await page.locator('[data-act="saveLibraryRecipe"]').click();await page.waitForFunction(()=>document.getElementById('nccRecipeError').textContent.includes('catálogo aprobado'));assert.equal(await writes(),count);await page.keyboard.press('Escape');
+  await open();const count=await writes();await page.locator('[data-act="saveLibraryRecipe"]').click();await page.locator('.ncc-recipe-sheet').waitFor({state:'detached'});assert.equal(await writes(),count+1);
   for(const role of ['coach','admin']){
    await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.tab='recipes';await v.render();},role);
    await open();await page.locator('[data-act="saveLibraryRecipe"]').click();await page.locator('.ncc-recipe-sheet').waitFor({state:'detached'});

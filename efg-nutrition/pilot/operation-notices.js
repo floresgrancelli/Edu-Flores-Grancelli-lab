@@ -18,7 +18,8 @@ export function createOperationNotices({element,context}){
   // An error stays available in its editor, on a separate line before actions.
   // Both persistent messages and confirmed successes leave retry/save reachable.
   if(dialog){
-   const actions=dialog.querySelector('.ncc-meal-save');
+   const actions=dialog.querySelector('[data-act=saveSelectedMeal],[data-savefood]')?.closest('.ncc-meal-save')||
+    [...dialog.querySelectorAll('.ncc-meal-save')].find(node=>node.getClientRects().length);
    if(actions)actions.before(e);else (dialog.querySelector('h2')||dialog.firstElementChild)?.after(e);
   }else if(current.kind==='success'){
    const anchor=(current.slot&&document.querySelector('[data-daymealpanel="'+current.slot+'"] .student-meal-heading'))||

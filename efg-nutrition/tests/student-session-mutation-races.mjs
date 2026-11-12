@@ -75,7 +75,7 @@ const resetPrivateSession=new Function(
  'state','pendingMealRegistrations','pendingHabitualSlots','dualWorkspaceFrame','dualWorkspaceBootstrap','professionalReleaseFrame',
  'pilotGuideLifecycle','coachAdaptedWorkspace','closePeriodPdfView','weeklyPdfReview','luxuryWeeklyEditor','weeklyReportDelivery',
  'let myWeeklyReports=[],cloudRecipes=[],cloudHabituales=[],coachRosterConsent={};'+
- 'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false,recipeSheet=null;const recipeSheetDrafts=new Map();'+
+ 'let userHasUnconfirmedEdits=false,lastRenderedViewKey=null,recipeRegistrationBusy=false,recipeSheet=null;const recipeSheetDrafts=new Map();let studentGuideSheet=null;const studentGuideDrafts=new Map();'+
  section('function resetPrivateSession(){','function handleAuthStateChange(')+
  ';return resetPrivateSession;')(
  state,mealLocks,favoriteLocks,{invalidate(){}},{invalidate(){}},{invalidate(){releaseFrameResets++;}},{invalidate(){}},{close(){}},pdfView.close,weeklyPdfReview,{reset(){editorResets++;}},{clear(){deliveryClears++;}});

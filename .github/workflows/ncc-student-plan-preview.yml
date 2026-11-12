@@ -1,0 +1,31 @@
+name: NCC student-plan real-app preview
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/**'
+      - '.github/workflows/ncc-student-plan-preview.yml'
+permissions:
+  contents: read
+jobs:
+  student-plan:
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/student-plan-contracts.mjs
+      - run: node efg-nutrition/tests/student-plan-preview-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: student-plan-real-app-preview
+          path: artifacts/student-plan-preview/
+          if-no-files-found: error
+          retention-days: 7

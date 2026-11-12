@@ -1,3 +1,4 @@
+import './diary-feedback-headless-context.mjs';
 // UX-HABITUAL-REAL-01: execute the REAL habitual subsystem extracted from pilot.js
 // against an in-memory Supabase-like adapter, preserving the original source code.
 // No real users or hosted credentials; validates save -> readback -> reload -> dropdown.
@@ -128,7 +129,7 @@ assert.equal(diaryWrites,prevWrites+3,
 // Both picker paths must restore the previous diary if the remote write fails.
 assert.match(subsystem,/async function applyChosenHabitual\(slot\)/);
 assert.match(subsystem,/const previousItems=structuredClone\(d\.meals\[slot\]\)/);
-assert.equal((subsystem.match(/catch\(error\)\{\s*d\.meals\[slot\]=previousItems/g)||[]).length,2,
+assert.equal((subsystem.match(/catch\(error\)\{\s*(?:failed=true;\s*)?d\.meals\[slot\]=previousItems/g)||[]).length,2,
  'Both the selected habitual and legacy action must roll back in-memory meals');
 // UX-04-03: upgrading an account with BOTH v2 favorites and v1 older meal
 // must import both, not erase the still-unmigrated v1 meal when v2 is present.

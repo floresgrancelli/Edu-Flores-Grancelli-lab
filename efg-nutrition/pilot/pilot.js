@@ -1,4 +1,4 @@
-import {createOperationNotices} from './operation-notices.js?v=ncc-compact-notices-r1-20261112';
+import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-planner-compact-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
@@ -952,13 +952,15 @@ async function applyChosenHabitual(slot){
  const previousEdited=state.lastEditedMeal;
  d.meals[slot]=structuredClone(fav.items);
  d.skipped[slot]=false;d.skipped._closed=false;state.lastEditedMeal=slot;
+ const feedback=showSavingFeedback(null,{mealSlot:slot});let failed=false;
  try{await saveDiary();}
  catch(error){
+  failed=true;
   d.meals[slot]=previousItems;d.skipped[slot]=previousSkipped;
   d.skipped._closed=previousClosed;
   if(state.session?.user?.id===ownerId&&today()===ownerDay)state.lastEditedMeal=previousEdited;
   throw error;
- }
+ }finally{feedback({failed});}
  // An A-account write must not toast or mutate B after an account/day switch.
  if(state.session?.user?.id===ownerId&&today()===ownerDay)
   notify('Habitual «'+fav.name+'» registrado.',{kind:'success',slot});
@@ -2219,7 +2221,7 @@ async function addPlannedFood(key){
  const pair=parsePlannerKey(key);if(!pair)throw new Error("Opción no válida.");
  const [slot,category]=pair,shownQty=Number(document.getElementById("planQty_"+key)?.value);
  if(pendingMealRegistrations.has(slot))return; // Ignore repeated taps, not the first.
- const slotLease=pendingMealRegistrations.add(slot);
+ const slotLease=pendingMealRegistrations.add(slot);let feedback=null,failed=false;
  try{
  if(!Number.isFinite(shownQty)||shownQty<=0)throw new Error("Ingresá una cantidad válida.");
  const plan=makePlan({foods:plannerSuggestionFoods(),approved:allowedFoods(),diary:activeDiary(),goals:activeGoal(),totals:dailyTotals(activeDiary()),dinnerOnly:state.plannerMode==="dinner",selections:state.plannerSelections});
@@ -2244,8 +2246,10 @@ async function addPlannedFood(key){
  // Mantener la comida actual, pero no volver a sugerir el componente recién registrado.
  state.plannerSelections[key]="none";
  state.plannerDraftGrams={};
+ feedback=showSavingFeedback(null,{plannerKey:key});
  try{await saveDiary();}
  catch(error){
+  failed=true;
   d.meals[slot]=previousItems;d.skipped=previousSkipped;
   // Preserve the local rollback, but never overwrite the next account's planner.
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
@@ -2255,7 +2259,7 @@ async function addPlannedFood(key){
   throw error;
  }
  if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay))notify("Registraste "+(row.food.unit==="porción"?num(shownQty,1)+" porción(es)":plannerSushiPortion(row.food)?num(shownQty)+" piezas":num(grams)+" g")+" de "+row.food.name+". Recalculamos lo que falta.",{kind:"success",slot});
- }finally{pendingMealRegistrations.delete(slot,slotLease);}
+ }finally{pendingMealRegistrations.delete(slot,slotLease);feedback?.({failed});}
 }
 let mealDialogReturnFocus=null;
 let mealEntrySource="all";
@@ -2297,6 +2301,7 @@ async function saveDiaryFoodDialog(button){
  try{if(!remove)replacement=resizeDiaryFood(d.meals[slot][index],dialog.querySelector('input').value);}
  catch(error){errorBox.textContent=error.message;return;}
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{}),previousDiary=state.diary;
+ const feedback=showSavingFeedback(button);let failed=false;
  const lease=pendingMealRegistrations.add(slot),controls=[...dialog.querySelectorAll('button,input')];controls.forEach(c=>c.disabled=true);
  try{
   if(remove)d.meals[slot].splice(index,1);else d.meals[slot][index]=replacement;
@@ -2309,9 +2314,10 @@ async function saveDiaryFoodDialog(button){
    notify(remove?'Alimento eliminado · balance actualizado.':'Cantidad actualizada · balance actualizado.',{kind:'success',slot});
   }
  }catch(error){
+  failed=true;
   d.meals[slot]=previousItems;d.skipped=previousSkipped;
   if(currentOwner()){state.diary=previousDiary;if(current()&&dialog.isConnected)errorBox.textContent=error.message;}
- }finally{pendingMealRegistrations.delete(slot,lease);controls.forEach(c=>{if(c.isConnected)c.disabled=false;});}
+ }finally{pendingMealRegistrations.delete(slot,lease);controls.forEach(c=>{if(c.isConnected)c.disabled=false;});feedback({failed});}
 }
 function closeMealDialog(){
  if(document.querySelector('.ncc-food-edit [data-savefood]:disabled'))return;
@@ -2485,7 +2491,7 @@ function updateMealEntryMode(foodChanged=false){
   const choices=[...document.querySelectorAll('#mealEntryShortcuts [data-mealsuggestion]')];
   for(const choice of choices){const active=choice.dataset.mealsuggestion===f?.id;choice.setAttribute('aria-pressed',String(active));if(active)choice.parentElement.append(quantityCard);}
  }
- for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f;
+ for(const button of document.querySelectorAll('.ncc-meal-save button'))button.disabled=!f||pendingMealRegistrations.has(state.activeMeal)||state.diaryWritePending;
  updateMealRecipe();
  updateMealDialogHint();
 }
@@ -2522,8 +2528,8 @@ async function saveSelectedMeal(continueGuided=false){
  if(!slot||!f||(f.unit==='porción'&&grams>20)||!foodAllowedForMeal(f,slot)||!(allowedFoods().includes(f.id)||Object.values(FOOD_STATE_PAIRS).some(([cooked,raw])=>raw===f.id&&allowedFoods().includes(cooked)))||!Number.isFinite(grams)||grams<=0||grams>5000||(useUnits&&(!Number.isInteger(qty)||qty>100)))throw new Error("Verificá el alimento y su cantidad.");
  const slotLease=pendingMealRegistrations.add(slot);
  const saveButtons=[...document.querySelectorAll('.ncc-meal-save button')];
- const buttonLabels=saveButtons.map(b=>b.textContent);
- saveButtons.forEach(b=>{b.disabled=true;b.textContent="Guardando…";});
+ const feedback=saveButtons.map(b=>showSavingFeedback(b,{retryLabel:b.dataset.act==='saveSelectedMealContinue'?'Reintentar y seguir':'Reintentar guardado'}));
+ let failed=false;
  try{
  const d=activeDiary(),ownerId=state.session?.user?.id,ownerDay=d.log_day;d.meals[slot] ||= [];
  const previousItems=structuredClone(d.meals[slot]),previousSkipped=structuredClone(d.skipped||{});
@@ -2542,6 +2548,7 @@ async function saveSelectedMeal(continueGuided=false){
  state.activeMeal=null;
  try{await saveDiary();}
  catch(error){
+  failed=true;
   d.meals[slot]=previousItems;d.skipped=previousSkipped;
   // A delayed failure must not restore A's diary/editor into account B.
   if(state.session?.user?.id===ownerId&&(!ownerDay||today()===ownerDay)){
@@ -2556,7 +2563,7 @@ async function saveSelectedMeal(continueGuided=false){
  }
  }finally{
   pendingMealRegistrations.delete(slot,slotLease);
-  saveButtons.forEach((b,i)=>{if(b.isConnected){b.disabled=false;b.textContent=buttonLabels[i];}});
+  feedback.forEach(settle=>settle({failed}));
  }
 }
 function coachFoodChoices(p,consent){

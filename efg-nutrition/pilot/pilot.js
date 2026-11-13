@@ -1,6 +1,6 @@
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-specific-r1-20261112';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-planner-compact-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-navigation-continuity-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
@@ -3997,6 +3997,30 @@ function restoreViewContinuity(snapshot){
  // iOS Safari may settle scroll dimensions after the newly rendered content lays out.
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
+// Browsing continuity only, in RAM. Form drafts keep their existing owners.
+const navigationViews=new Map();
+let navigationOwner='';
+function navigationScope(){
+ const owner=[state.session?.user?.id,state.authContextEpoch||0,state.profile?.role,state.org?.id,state.profile?.organization_id,today()].join('|');
+ if(owner!==navigationOwner){navigationViews.clear();navigationOwner=owner;}
+ return owner;
+}
+function navigationViewId(){return [state.tab,state.tab==='coachStudents'?state.selectedStudent||'':''].join('|');}
+function rememberedNavigation(){navigationScope();return navigationViews.get(navigationViewId());}
+function rememberNavigation(){
+ navigationScope();
+ if(!['coachStudents','planner','recipes','studentMore','adminMore'].includes(state.tab)||lastRenderedViewKey!==activeViewKey())return;
+ navigationViews.set(navigationViewId(),{x:window.scrollX,y:window.scrollY,
+  search:document.getElementById('coachRosterSearch')?.value||'',filter:root.dataset.rosterFilter||'all'});
+ // There are few eligible views; bound per-student positions as well.
+ if(navigationViews.size>20)navigationViews.delete(navigationViews.keys().next().value);
+}
+function restoreNavigation(){
+ const saved=rememberedNavigation();if(!saved)return false;
+ const owner=navigationOwner,key=activeViewKey();
+ const restore=()=>{if(navigationScope()===owner&&activeViewKey()===key)window.scrollTo(saved.x,saved.y);};
+ restore();requestAnimationFrame(restore);return true;
+}
 // Separate, opt-in health flow. Entire client is OFF until hosted consent,
 // server grants and the signed Coach onboarding release are authorized.
 async function renderPrivateHealthDeclaration(){
@@ -4184,10 +4208,10 @@ async function render(){
  restoreCoachSection();
  mountCoachReportFlow(root);
  filterRecipeCards();
- mountWorkspaceTabs(root,{key:[state.session?.user?.id,state.authContextEpoch||0,state.profile?.role,state.tab].join("|"),tab:state.tab,role:state.profile?.role});
+ mountWorkspaceTabs(root,{key:[state.session?.user?.id,state.authContextEpoch||0,state.profile?.role,state.org?.id||"",state.tab].join("|"),tab:state.tab,role:state.profile?.role});
  const rosterSearch=document.getElementById('coachRosterSearch');
  if(rosterSearch){
-  if(!snapshot)root.dataset.rosterFilter='all';
+  if(!snapshot){const saved=rememberedNavigation();root.dataset.rosterFilter=saved?.filter||'all';rosterSearch.value=saved?.search||'';}
   const filter=root.dataset.rosterFilter||'all';
   for(const button of root.querySelectorAll('[data-rosterfilter]')){
    const active=button.dataset.rosterfilter===filter;
@@ -4992,6 +5016,7 @@ async function mainClick(event){
  if(el.dataset.scrollto){const target=document.getElementById(el.dataset.scrollto);if(target){target.setAttribute("tabindex","-1");target.focus({preventScroll:true});target.scrollIntoView({behavior:el.classList.contains("ncc-day-primary")||window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});}return;}
  if(el.dataset.tab){
   const nextTab=studentPlanPending()&&!studentPendingTabAllowed(el.dataset.tab)?"intake":el.dataset.tab;
+  rememberNavigation();
   if(["coachIntake","coachStudents"].includes(nextTab))await refreshCoachRosterForView();
   state.tab=nextTab;
   if(state.tab==="payments")await loadOrgAndPayments();
@@ -5000,8 +5025,8 @@ async function mainClick(event){
    if(student)await loadStudentDetail(student.user_id);
   }
   await render();
-  if(el.dataset.planDirect)showPlannerPreparation();
-  window.scrollTo(0,0);
+  if(el.dataset.planDirect){showPlannerPreparation();window.scrollTo(0,0);}
+  else if(!restoreNavigation())window.scrollTo(0,0);
   return;
 }
  if(el.dataset.intakeMessage){
@@ -6167,7 +6192,7 @@ function resetPrivateSession(){
  state.scienceWelcomeStep=0;state.scienceWelcomeError="";
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
- userHasUnconfirmedEdits=false;lastRenderedViewKey=null;
+ userHasUnconfirmedEdits=false;lastRenderedViewKey=null;navigationViews.clear();navigationOwner="";
 }
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){

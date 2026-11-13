@@ -114,3 +114,29 @@ Faltan persistencia productiva/seguridad, integración con invitaciones y roles
 actuales, Google API/Billing/RTDN y confirmación de compras, endpoints y panel.
 El contrato marca estos bloqueos; no presentar el módulo como cobros ya operativos.
 No se creó ningún código real ni se cambiaron permisos de usuarios existentes.
+
+## Transferencias alumno–coach — decisión de simplificación
+Edu autoriza retirar el circuito de transferencias alumno–coach para la versión
+Android de Google Play, conservando la comunicación interna y el seguimiento.
+Los acuerdos profesionales se gestionan entre ellos fuera del circuito de cobro
+de la plataforma. No convertir la mensajería en un flujo alternativo para vender
+funciones digitales; esta decisión no declara exentos todos los servicios del coach.
+
+Alcance de implementación revisado en pilot/pilot.js:
+- Retirar «Pagar a mi coach», alias/copiar alias, importe/período, carga y envío de
+  comprobantes, estados/aprobación/rechazo y el acceso «Mis pagos» del alumno.
+- Retirar del coach configuración de alias de alumnos y bandeja de comprobantes.
+- Bloquear también manejadores de acciones y rutas alternativas de la interfaz,
+  no solo esconder formularios con CSS. No cargar datos de cobro innecesarios.
+- Conservar mensajes, archivos propios de comunicación permitidos, invitaciones,
+  fichas, planes e informes. No borrar registros financieros ni recibos históricos.
+- Activación y paquetes de nuestra plataforma conservan el circuito Google Play.
+  Tampoco se ofrecerá transferencia a EFG como alternativa en la distribución Play.
+- No modificar por esta decisión la web publicada para iPhone ni los datos
+  existentes. Preparar la separación de distribución y verificar su recorrido.
+- Mostrar captura real antes de publicar cualquier cambio visual.
+
+Revisión de fuentes realizada; todavía no se aplicó el retiro en pilot.js.
+La variante TWA actual apunta al piloto web compartido: no basta detectar Android
+por user-agent ni un parámetro de URL para afirmar que ya está aislado el canal.
+Falta implementar esa separación junto con la integración de Billing.

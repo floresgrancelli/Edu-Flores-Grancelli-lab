@@ -3353,5 +3353,221 @@
     "cell": 33,
     "columns": 6,
     "label": "Tostadas sin gluten genéricas"
+  },
+  "spinach_raw": {
+    "src": "./assets/food-specific/identity-r3/spinach_raw-r1.webp",
+    "label": "Espinaca cruda para ensalada"
+  },
+  "chard_raw": {
+    "src": "./assets/food-specific/identity-r3/chard_raw-r1.webp",
+    "label": "Acelga cruda"
+  },
+  "radicchio_raw": {
+    "src": "./assets/food-specific/identity-r3/radicchio_raw-r1.webp",
+    "label": "Radicchio o achicoria roja cruda"
+  },
+  "fennel_bulb_raw": {
+    "src": "./assets/food-specific/identity-r3/fennel_bulb_raw-r1.webp",
+    "label": "Hinojo crudo, bulbo"
+  },
+  "asparagus_raw": {
+    "src": "./assets/food-specific/identity-r3/asparagus_raw-r1.webp",
+    "label": "Espárragos crudos"
+  },
+  "nectarine_raw": {
+    "src": "./assets/food-specific/identity-r3/nectarine_raw-r1.webp",
+    "label": "Pelón o nectarina fresca"
+  },
+  "blackberries_raw": {
+    "src": "./assets/food-specific/identity-r3/blackberries_raw-r1.webp",
+    "label": "Moras frescas"
+  },
+  "raspberries_raw": {
+    "src": "./assets/food-specific/identity-r3/raspberries_raw-r1.webp",
+    "label": "Frambuesas frescas"
+  },
+  "chickpeas_dry": {
+    "src": "./assets/food-specific/identity-r3/chickpeas_dry-r1.webp",
+    "label": "Garbanzos secos, sin cocinar"
+  },
+  "chickpeas_canned_drained": {
+    "atlas": "staples",
+    "cell": 19,
+    "columns": 6,
+    "label": "Garbanzos en conserva, escurridos"
+  },
+  "red_lentils_dry": {
+    "src": "./assets/food-specific/identity-r3/red_lentils_dry-r1.webp",
+    "label": "Lentejas rojas secas, sin cocinar"
+  },
+  "barley_pearled_dry": {
+    "src": "./assets/food-specific/identity-r3/barley_pearled_dry-r1.webp",
+    "label": "Cebada perlada seca, sin cocinar"
+  },
+  "bulgur_dry": {
+    "src": "./assets/food-specific/identity-r3/bulgur_dry-r1.webp",
+    "label": "Trigo burgol o bulgur seco"
+  },
+  "millet_dry": {
+    "src": "./assets/food-specific/identity-r3/millet_dry-r1.webp",
+    "label": "Mijo seco, sin cocinar"
+  },
+  "turkey_breast_raw": {
+    "src": "./assets/food-specific/identity-r3/turkey_breast_raw-r1.webp",
+    "label": "Pechuga de pavo cruda, sin piel"
+  },
+  "rabbit_roasted": {
+    "src": "./assets/food-specific/identity-r3/rabbit_roasted-r1.webp",
+    "label": "Conejo doméstico asado, mezcla de cortes"
+  },
+  "rainbow_trout_raw": {
+    "src": "./assets/food-specific/identity-r3/rainbow_trout_raw-r1.webp",
+    "label": "Trucha arcoíris de criadero, cruda"
+  },
+  "sardines_oil_drained": {
+    "src": "./assets/food-specific/identity-r3/sardines_oil_drained-r1.webp",
+    "label": "Sardinas en aceite, escurridas, con espinas comestibles"
+  },
+  "milk_powder_skim_instant": {
+    "src": "./assets/food-specific/identity-r3/milk_powder_skim_instant-r1.webp",
+    "label": "Leche descremada en polvo instantánea, sin reconstituir"
+  },
+  "milk_evaporated_skim": {
+    "src": "./assets/food-specific/identity-r3/milk_evaporated_skim-r1.webp",
+    "label": "Leche evaporada descremada, sin diluir"
+  },
+  "pita_wholewheat": {
+    "src": "./assets/food-specific/identity-r3/pita_wholewheat-r1.webp",
+    "label": "Pan pita integral de trigo"
+  },
+  "corn_tortilla_ready": {
+    "src": "./assets/food-specific/identity-r3/corn_tortilla_ready-r1.webp",
+    "label": "Tortilla de maíz comercial, lista para cocinar"
+  },
+  "potato_salad_home": {
+    "src": "./assets/food-specific/identity-r3/potato_salad_home-r1.webp",
+    "label": "Ensalada de papa, preparación casera de referencia"
+  },
+  "minestrone_canned_ready": {
+    "src": "./assets/food-specific/identity-r3/minestrone_canned_ready-r1.webp",
+    "label": "Sopa minestrone en conserva, lista para consumir"
+  },
+  "tomato_juice_unsalted_weight": {
+    "src": "./assets/food-specific/identity-r3/tomato_juice_unsalted_weight-r1.webp",
+    "label": "Jugo de tomate en conserva, sin sal añadida"
+  },
+  "escarole_boiled_unsalted": {
+    "src": "./assets/food-specific/identity-r3/escarole_boiled_unsalted-r1.webp",
+    "label": "Escarola hervida, escurrida, sin sal"
+  },
+  "red_cabbage_raw": {
+    "atlas": "produce",
+    "cell": 29,
+    "columns": 6,
+    "label": "Repollo colorado crudo"
+  },
+  "green_beans_raw": {
+    "src": "./assets/food-specific/identity-r3/green_beans_raw-r1.webp",
+    "label": "Chauchas crudas"
+  },
+  "lime_raw": {
+    "src": "./assets/food-specific/identity-r3/lime_raw-r1.webp",
+    "label": "Lima fresca, parte comestible"
+  },
+  "guava_raw": {
+    "src": "./assets/food-specific/identity-r3/guava_raw-r1.webp",
+    "label": "Guayaba fresca"
+  },
+  "apricots_dried_sulfured": {
+    "src": "./assets/food-specific/identity-r3/apricots_dried_sulfured-r1.webp",
+    "label": "Damascos deshidratados tratados con sulfitos"
+  },
+  "peaches_syrup_drained": {
+    "src": "./assets/food-specific/identity-r3/peaches_syrup_drained-r1.webp",
+    "label": "Duraznos en almíbar concentrado, escurridos"
+  },
+  "fava_beans_cooked": {
+    "src": "./assets/food-specific/identity-r3/fava_beans_cooked-r1.webp",
+    "label": "Habas secas maduras, hervidas sin sal"
+  },
+  "peas_canned_unsalted_drained": {
+    "src": "./assets/food-specific/identity-r3/peas_canned_unsalted_drained-r1.webp",
+    "label": "Arvejas en conserva sin sal añadida, escurridas"
+  },
+  "semolina_dry_unenriched": {
+    "src": "./assets/food-specific/identity-r3/semolina_dry_unenriched-r1.webp",
+    "label": "Sémola de trigo seca, sin enriquecer"
+  },
+  "couscous_dry": {
+    "src": "./assets/food-specific/identity-r3/couscous_dry-r1.webp",
+    "label": "Cuscús seco, sin cocinar"
+  },
+  "buckwheat_roasted_dry": {
+    "src": "./assets/food-specific/identity-r3/buckwheat_roasted_dry-r1.webp",
+    "label": "Trigo sarraceno tostado en grano, seco"
+  },
+  "amaranth_cooked": {
+    "src": "./assets/food-specific/identity-r3/amaranth_cooked-r1.webp",
+    "label": "Amaranto en grano cocido"
+  },
+  "oat_bran_raw": {
+    "src": "./assets/food-specific/identity-r3/oat_bran_raw-r1.webp",
+    "label": "Salvado de avena crudo"
+  },
+  "ground_beef_90_10_raw": {
+    "src": "./assets/food-specific/identity-r3/ground_beef_90_10_raw-r1.webp",
+    "label": "Carne vacuna picada cruda, 90% magra y 10% grasa"
+  },
+  "pork_tenderloin_lean_raw": {
+    "src": "./assets/food-specific/identity-r3/pork_tenderloin_lean_raw-r1.webp",
+    "label": "Solomillo de cerdo crudo, solo parte magra"
+  },
+  "squid_raw": {
+    "src": "./assets/food-specific/identity-r3/squid_raw-r1.webp",
+    "label": "Calamar crudo, parte comestible"
+  },
+  "tuna_oil_drained": {
+    "src": "./assets/food-specific/identity-r3/tuna_oil_drained-r1.webp",
+    "label": "Atún claro en aceite, escurrido"
+  },
+  "milk_condensed_sweetened": {
+    "src": "./assets/food-specific/identity-r3/milk_condensed_sweetened-r1.webp",
+    "label": "Leche condensada azucarada"
+  },
+  "milk_powder_whole": {
+    "src": "./assets/food-specific/identity-r3/milk_powder_whole-r1.webp",
+    "label": "Leche entera en polvo, sin reconstituir"
+  },
+  "bagel_plain_generic": {
+    "src": "./assets/food-specific/identity-r3/bagel_plain_generic-r1.webp",
+    "label": "Bagel común sin relleno, genérico de referencia"
+  },
+  "pita_white_unenriched": {
+    "src": "./assets/food-specific/identity-r3/pita_white_unenriched-r1.webp",
+    "label": "Pan pita blanco de trigo, sin enriquecer"
+  },
+  "pancake_complete_mix_prepared": {
+    "src": "./assets/food-specific/identity-r3/pancake_complete_mix_prepared-r1.webp",
+    "label": "Pancakes de premezcla completa, ya preparados"
+  },
+  "chicken_noodle_soup_diluted": {
+    "src": "./assets/food-specific/identity-r3/chicken_noodle_soup_diluted-r1.webp",
+    "label": "Sopa de pollo con fideos en conserva, preparada con igual volumen de agua"
+  },
+  "orange_juice_raw_weight": {
+    "src": "./assets/food-specific/identity-r3/orange_juice_raw_weight-r1.webp",
+    "label": "Jugo de naranja exprimido, sin azúcar añadida"
+  },
+  "lemon_juice_raw_weight": {
+    "src": "./assets/food-specific/identity-r3/lemon_juice_raw_weight-r1.webp",
+    "label": "Jugo de limón exprimido, sin azúcar añadida"
+  },
+  "sesame_oil": {
+    "src": "./assets/food-specific/identity-r3/sesame_oil-r1.webp",
+    "label": "Aceite de sésamo para ensalada o cocina"
+  },
+  "tahini_roasted": {
+    "src": "./assets/food-specific/identity-r3/tahini_roasted-r1.webp",
+    "label": "Tahini de semillas de sésamo tostadas"
   }
 }

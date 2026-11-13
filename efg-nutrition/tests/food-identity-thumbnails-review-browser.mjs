@@ -29,7 +29,7 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 
 
 const base='9dad4de8e376d164e1c2d2eca5f9cbde1e8f372c';
-const baselinePhotos=execFileSync('git',['show',base+':efg-nutrition/pilot/food-visuals-r2.js'],{cwd:root,encoding:'utf8'});
+const baselinePhotos=execFileSync('git',['-c','safe.directory='+resolve(root),'show',base+':efg-nutrition/pilot/food-visuals-r2.js'],{cwd:root,encoding:'utf8'});
 const batch=JSON.parse(readFileSync(resolve(root,'efg-nutrition/docs/food-thumbnails-20261113/generation-prompts.json'))).records;
 const catalog=JSON.parse(readFileSync(resolve(root,'efg-nutrition/catalog/guide-catalog.json'))).foods;
 const evidence=[];

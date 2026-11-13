@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync,statSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {FOOD_PHOTO_MAP,resolveFoodVisual} from '../pilot/food-visuals-r2.js';
 const root=new URL('../../',import.meta.url),base='9dad4de8e376d164e1c2d2eca5f9cbde1e8f372c';
@@ -17,7 +18,7 @@ for(const x of spec.records){
  else assert.deepEqual(photo,{...old[x.sourceFoodId],label:x.name});
 }
 assert.equal(hashes.size,51);assert.equal(paths.size,51);assert.ok(bytes<1536000);
-const prior=p=>execFileSync('git',['show',base+':'+p],{cwd:root,encoding:'utf8'});
+const prior=p=>execFileSync('git',['-c','safe.directory='+fileURLToPath(root).replace(/\/$/,''),'show',base+':'+p],{cwd:root,encoding:'utf8'});
 for(const p of ['efg-nutrition/catalog/guide-catalog.json','efg-nutrition/pilot/food-catalog.js','efg-nutrition/pilot/food-catalog-batch-20261113.js','efg-nutrition/pilot/food-catalog-batch-two-20261113.js'])assert.equal(read(p).toString(),prior(p),'Nutritional bytes unchanged: '+p);
 const resolver=s=>s.slice(s.indexOf(');\nconst normalize'));
 assert.equal(resolver(read('efg-nutrition/pilot/food-visuals-r2.js').toString()),resolver(prior('efg-nutrition/pilot/food-visuals-r2.js')),'Exact resolver implementation unchanged');

@@ -10,7 +10,7 @@ const file=process.argv[2]||path.join(root,'docs/play-store/Autogestion_Prueba_I
 const browser=await chromium.launch({headless:true,...(process.env.NCC_CHROMIUM?{executablePath:process.env.NCC_CHROMIUM}:{}),args:['--no-sandbox']});
 try{
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
- const errors=[],network=[];page.on('pageerror',e=>errors.push(e.message));
+ const errors=[],network=[];page.on('pageerror',e=>{errors.push(e.message);console.log('PAGE_ERROR',e.message);});
  page.on('request',r=>{if(/^https?:/.test(r.url()))network.push(r.url())});
  await page.goto('file://'+file);
  await page.locator('#disliked option').first().waitFor({state:'attached'});
@@ -19,7 +19,10 @@ try{
  assert.equal(await page.locator('[name=consent]').isChecked(),false);
  assert.equal(await page.locator('[name=scope]').isChecked(),false);
  await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
- await page.locator('#generate').click();await page.locator('#result').waitFor({state:'visible',timeout:60000});
+ assert.equal(await page.locator('#intake').evaluate(form=>form.checkValidity()),true);
+ await page.locator('#generate').click();
+ await page.waitForFunction(()=>document.querySelector('#result').hidden===false || document.querySelector('#status').classList.contains('alert'),{},{timeout:20000});
+ assert.equal(await page.locator('#result').isVisible(),true,await page.locator('#status').textContent());
  assert.equal(await page.locator('[role=tab]').count(),6);
  assert.equal(await page.locator('[role=tabpanel]:visible').count(),1);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

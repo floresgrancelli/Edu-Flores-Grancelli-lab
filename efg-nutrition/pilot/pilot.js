@@ -727,7 +727,7 @@ async function ensureCurrentDay(){
 }
 function ownSelfManagement(){const own=state.selfManagementOwn;return ["admin","coach"].includes(state.profile?.role)&&own?.owner===state.session?.user?.id&&own?.epoch===(state.authContextEpoch||0)?own:null;}
 function ownMicronutrientProfile(){const fields=ownSelfManagement()?.fields;if(!fields||fields.pregnantOrBreastfeeding!==false||fields.clinicalCareRequired!==false||fields.eatingDisorderHistory!==false||fields.restrictionDeclaration!=="none_declared"||!Array.isArray(fields.health_flags)||fields.health_flags.length)return null;return {age:fields.age_years,referenceSex:fields.sex_for_equation,lifeStage:"adult",clinicalAdaptation:false,dietaryPattern:fields.dietary_pattern};}
-const activeGoal=()=>{ const p=state.profile; const auto=ownSelfManagement(); const own=auto?.goal||state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(auto?.error||auto?.pending?null:(own||legacyPilot)); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
+const activeGoal=()=>{ const p=state.profile; const auto=ownSelfManagement(); const own=auto?.goal||state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return auto?.error||auto?.pending?null:source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
@@ -4413,7 +4413,7 @@ async function loadPersonalData(){
  if(error)throw error;
  state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
  const ownRole=state.profile?.role;
- const selfPlan=await contextRead(readOwnSelfManagedPlan(sb,{userId:id,role:ownRole,epoch:contextEpoch,current:()=>state.session?.user?.id===id&&state.profile?.role===ownRole&&(state.authContextEpoch||0)===contextEpoch&&state.personalDataLoadToken===loadToken}));
+ const selfPlan=["admin","coach"].includes(ownRole)?await contextRead(readOwnSelfManagedPlan(sb,{userId:id,role:ownRole,epoch:contextEpoch,current:()=>state.session?.user?.id===id&&state.profile?.role===ownRole&&(state.authContextEpoch||0)===contextEpoch&&state.personalDataLoadToken===loadToken})):null;
  if(state.session?.user?.id===id&&state.profile?.role===ownRole&&(state.authContextEpoch||0)===contextEpoch&&state.personalDataLoadToken===loadToken)state.selfManagementOwn=selfPlan;
 }
 async function loadStudentMessagingOrganization(){

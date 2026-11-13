@@ -14,13 +14,17 @@ def screenshot(name):
         subprocess.run(['adb','exec-out','screencap','-p'],stdout=file,check=True,timeout=25)
 matched=False
 diagnostics=[]
+logfile=(out/'live-startup-logcat.txt').open('w')
+logger=None
 try:
     diagnostics.append(adb('install','-r','app/build/outputs/apk/debug/app-debug.apk'))
     adb('logcat','-c')
+    logger=subprocess.Popen(['adb','logcat','-b','all','-v','threadtime'],stdout=logfile,stderr=subprocess.STDOUT)
     diagnostics.append(adb('shell','am','start','-W','-a','android.intent.action.MAIN',
         '-c','android.intent.category.LAUNCHER','-f','0x10000000',
         '-n','ar.com.nutricionconciencia.app/com.google.androidbrowserhelper.trusted.LauncherActivity'))
     screenshot('initial.png')
+    (out/'immediate-logcat.txt').write_text(adb('logcat','-d','-b','all'))
     for attempt in range(12):
         time.sleep(3)
         try:
@@ -47,9 +51,13 @@ try:
 finally:
     screenshot('launch.png')
     (out/'activity.txt').write_text(adb('shell','dumpsys','activity','activities'))
-    (out/'startup-logcat.txt').write_text(adb('logcat','-d','-v','brief','-t','1000',
-        'AndroidRuntime:E','LauncherActivity:D','TwaLauncher:D','ActivityTaskManager:I','chromium:E','*:S'))
+    (out/'crash-logcat.txt').write_text(adb('logcat','-d','-b','crash'))
     (out/'diagnostics.txt').write_text('\n'.join(diagnostics))
+    if logger:
+        logger.terminate()
+        try: logger.wait(timeout=10)
+        except subprocess.TimeoutExpired: logger.kill()
+    logfile.close()
 if not matched:
     raise SystemExit('No real sign-in form detected. Inspect screenshot and UI dump; no functional login claim.')
 print('Installed APK opened the production sign-in form. Authenticated flows remain untested.')

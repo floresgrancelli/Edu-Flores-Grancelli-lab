@@ -23,6 +23,7 @@ const code=moduleSources[name].replace(/\\bfrom\\s+(['"])([^'"]+)\\1/g,(_,q,ref)
 const url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));moduleUrls.set(name,url);return url;}
 await import(link('self-management-preview.js'));`;
 let html=readFileSync(path.join(pilot,'autogestion-prueba.html'),'utf8');
+if(/<\/[a-z]+\s+[a-z]+\s*=/i.test(html))throw Error('Malformed HTML closing tag');
 html=html.replace('<script type="module" src="./self-management-preview.js"></script>',
   ()=>'<script type="module">'+script+'</script>');
 const out=process.argv[2]||path.join(root,'docs/play-store/Autogestion_Prueba_Interactiva.html');

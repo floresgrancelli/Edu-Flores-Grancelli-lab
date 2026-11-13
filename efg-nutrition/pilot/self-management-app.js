@@ -6,6 +6,15 @@ const sb=createClient(SELF_SUPABASE_URL,SELF_PUBLISHABLE_KEY,{auth:{persistSessi
 const form=document.getElementById('intake'),status=document.getElementById('status'),result=document.getElementById('result');
 const accountStatus=document.getElementById('accountStatus'),button=document.getElementById('generate');
 const entry=document.getElementById('selfEntry');
+const login=document.getElementById('selfLogin'),nav=document.getElementById('selfNav');
+let hasPlan=false,loginEmail=null,loginBusy=false;
+function showTab(tab){
+ form.hidden=tab!=='intake';result.hidden=tab!=='guide'||!hasPlan;
+ document.getElementById('showGuide').setAttribute('aria-pressed',String(tab==='guide'));
+ document.getElementById('showIntake').setAttribute('aria-pressed',String(tab==='intake'));
+}
+document.getElementById('showGuide').onclick=()=>showTab('guide');
+document.getElementById('showIntake').onclick=()=>showTab('intake');
 const errors={auth_required:'Ingresá nuevamente desde la app.',access_required:'Tu acceso al piloto de autogestión todavía no está habilitado.',
  mode_mismatch:'Tu cuenta conserva el circuito con coach. Volvé a Mi Día para continuar.',legal_required:'Revisá y aceptá las condiciones vigentes.',
  conflict:'La ficha cambió en otro dispositivo. Recargá antes de continuar.',rate_limited:'Hiciste varias solicitudes seguidas. Esperá un minuto y reintentá.',
@@ -26,15 +35,20 @@ async function transport(body,t=epoch){
  if(!response.ok)throw Object.assign(Error(errors[value.error]||'No pudimos completar la solicitud. Revisá la ficha e intentá nuevamente.'),{code:value.error});
  if(value.userId!==owner)throw Error('La respuesta no corresponde a tu cuenta.');return value;
 }
-function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';}
+function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;hasPlan=false;nav.hidden=true;login.hidden=true;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';document.getElementById('prefillStatus').textContent='';loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();document.getElementById('loginStatus').textContent='';}
 function showPlan(saved){
  if(saved?.userId!==owner||saved.intakeRevision!==revision||!saved.result?.guide)return;
- showSelfManagedResult(result,saved.result,{onEdit:()=>{result.hidden=true;form.scrollIntoView({behavior:'smooth'});}});
+ hasPlan=true;document.getElementById('showGuide').disabled=false;
+ showSelfManagedResult(result,saved.result,{onEdit:()=>showTab('intake')});showTab('guide');
 }
 async function boot(){
  clearPrivate();const t=epoch;accountStatus.textContent='Verificando tu cuenta…';
  try{
-  const id=await identity();if(t!==epoch)return;owner=id;
+  const id=await identity();if(t!==epoch)return;owner=id;loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();
+  document.getElementById('mainAppLink').hidden=true;
+  const profile=await sb.from('efg_profiles').select('role,active').eq('user_id',id).maybeSingle();
+  if(!current(t))return;
+  if(!profile.error&&profile.data?.active&&['admin','coach','student'].includes(profile.data.role))document.getElementById('mainAppLink').hidden=false;
   const state=await transport({action:'status'},t);legal=state.legal;
   let context=null;
   if(legal?.accepted){try{context=await transport({action:'context'},t);}catch(e){if(e.code!=='mode_mismatch')throw e;}}
@@ -54,11 +68,12 @@ async function boot(){
    showPlan(context.latestPlan);
   }
   form.elements.scope.checked=false;form.elements.consent.checked=false;
-  form.hidden=false;accountStatus.textContent='Autogestión · acceso privado';
- }catch(e){if(t!==epoch)return;clearPrivate();accountStatus.textContent=e.message;}
+  nav.hidden=false;document.getElementById('showGuide').disabled=!hasPlan;showTab(hasPlan?'guide':'intake');accountStatus.textContent='Autogestión · acceso privado';
+ }catch(e){if(t!==epoch)return;clearPrivate();accountStatus.textContent=e.message;if(e.code==='auth_required'){login.hidden=false;document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}}
 }
-form.addEventListener('input',()=>{editVersion++;result.hidden=true;});
-form.addEventListener('change',()=>{editVersion++;result.hidden=true;});
+function edited(){editVersion++;hasPlan=false;result.hidden=true;document.getElementById('showGuide').disabled=true;status.textContent='Regenerá la guía para aplicar los cambios en tu ficha.';}
+form.addEventListener('input',edited);
+form.addEventListener('change',edited);
 form.addEventListener('submit',async event=>{
  event.preventDefault();if(button.disabled||!form.reportValidity())return;
  const t=epoch,id=owner,edit=editVersion,values=Object.fromEntries(new FormData(form));button.disabled=true;form.inert=true;
@@ -82,6 +97,7 @@ form.addEventListener('submit',async event=>{
  finally{button.disabled=false;form.inert=false;}
 });
 document.getElementById('clear').onclick=()=>boot();
+document.getElementById('retryAccess').onclick=()=>boot();
 document.getElementById('openSelfIntake').onclick=async()=>{
  if(!document.getElementById('selfEntryConsent').checked){status.textContent='Marcá tu autorización para continuar.';return;}
  const t=epoch;entry.inert=true;
@@ -92,8 +108,30 @@ document.getElementById('openSelfIntake').onclick=async()=>{
  finally{entry.inert=false;}
 };
 document.getElementById('logout').onclick=async()=>{clearPrivate();await sb.auth.signOut();location.href='./';};
+async function requestCode(){
+ if(loginBusy)return;loginBusy=true;login.inert=true;
+ const message=document.getElementById('loginStatus');
+ try{
+  const email=document.getElementById('selfEmail').value.trim().toLowerCase();
+  if(!document.getElementById('selfEmailForm').reportValidity())return;
+  const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:'https://efg-nutrition.onrender.com/pilot/'}});
+  if(error)throw error;
+  loginEmail=email;document.getElementById('selfEmailForm').hidden=true;document.getElementById('selfCodeForm').hidden=false;
+  message.textContent='Revisá tu correo e ingresá el código. Verificar tu correo no habilita el piloto automáticamente.';
+ }catch{message.textContent='No pudimos solicitar el código. Revisá tu conexión y reintentá.';}
+ finally{loginBusy=false;login.inert=false;}
+}
+document.getElementById('selfEmailForm').onsubmit=e=>{e.preventDefault();requestCode();};
+document.getElementById('resendCode').onclick=requestCode;
+document.getElementById('changeEmail').onclick=()=>{loginEmail=null;document.getElementById('selfCodeForm').reset();document.getElementById('selfCodeForm').hidden=true;document.getElementById('selfEmailForm').hidden=false;document.getElementById('loginStatus').textContent='';};
+document.getElementById('selfCodeForm').onsubmit=async e=>{
+ e.preventDefault();if(loginBusy||!loginEmail)return;loginBusy=true;login.inert=true;
+ try{const {error}=await sb.auth.verifyOtp({email:loginEmail,token:document.getElementById('selfCode').value.trim(),type:'email'});if(error)throw error;await boot();}
+ catch{document.getElementById('loginStatus').textContent='El código no se pudo verificar. Revisalo o pedí uno nuevo.';}
+ finally{loginBusy=false;login.inert=false;}
+};
 sb.auth.onAuthStateChange((event,session)=>{
- if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada. Volvé a ingresar desde la app.';}
- else if(owner&&session?.user?.id&&session.user.id!==owner){clearPrivate();accountStatus.textContent='La cuenta cambió. Verificando el acceso…';setTimeout(()=>boot(),0);}
+ if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada.';login.hidden=false;}
+ else if(session?.user?.id&&((owner&&session.user.id!==owner)||(!owner&&event==='SIGNED_IN'&&!loginBusy))){clearPrivate();accountStatus.textContent='La cuenta cambió. Verificando el acceso…';setTimeout(()=>boot(),0);}
 });
 await boot();

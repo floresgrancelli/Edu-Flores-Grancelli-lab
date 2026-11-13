@@ -25,7 +25,7 @@ const server=createServer(async(req,res)=>{try{
  if(req.method==='GET'){
   const pathname=new URL(req.url,'http://localhost').pathname;
   if(pathname==='/__qa-sdk.js'){
-   res.setHeader('Content-Type','text/javascript');res.end(`export function createClient(){return {auth:{async getUser(){const s=globalThis.__QA_SELF_SESSION__;if(!s)return {data:{user:null},error:{message:'signed out'}};const r=await fetch(${JSON.stringify(url+'/auth/v1/user')},{headers:{apikey:${JSON.stringify(env.ANON_KEY)},Authorization:'Bearer '+s.token}});return r.ok?{data:{user:await r.json()},error:null}:{data:{user:null},error:{message:'invalid'}}},async getSession(){const s=globalThis.__QA_SELF_SESSION__;return {data:{session:s?{user:{id:s.id},access_token:s.token}:null},error:null}},onAuthStateChange(){return {}},async signOut(){globalThis.__QA_SELF_SESSION__=null}}}}`);return;
+   res.setHeader('Content-Type','text/javascript');res.end(`export function createClient(){return {from(){const q={select(){return q},eq(){return q},async maybeSingle(){return {data:null,error:null}}};return q},auth:{async getUser(){const s=globalThis.__QA_SELF_SESSION__;if(!s)return {data:{user:null},error:{message:'signed out'}};const r=await fetch(${JSON.stringify(url+'/auth/v1/user')},{headers:{apikey:${JSON.stringify(env.ANON_KEY)},Authorization:'Bearer '+s.token}});return r.ok?{data:{user:await r.json()},error:null}:{data:{user:null},error:{message:'invalid'}}},async getSession(){const s=globalThis.__QA_SELF_SESSION__;return {data:{session:s?{user:{id:s.id},access_token:s.token}:null},error:null}},onAuthStateChange(){return {}},async signOut(){globalThis.__QA_SELF_SESSION__=null}}}}`);return;
   }
   const path=resolve(root,'.'+decodeURIComponent(pathname));if(!path.startsWith(root)||!statSync(path).isFile())throw Error('path');
   let body=readFileSync(path);const type=extname(path);res.setHeader('Content-Type',{'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.css':'text/css'}[type]||'application/octet-stream');
@@ -40,6 +40,13 @@ async function call(u,body,expected=200){const r=await fetch(origin,{method:'POS
 const fields={age_years:35,height_cm:175,weight_kg:80,sex_for_equation:'male',activity_level:'light',objective:'fat_loss',dietary_pattern:'omnivore',eating_window:'regular',processingConsent:true,pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[],disliked_food_ids:[]};
 try{
  assert.equal((await call(a,{action:'status'})).legal.accepted,false);
+ assert.equal((await call(a,{action:'admin_status'})).authorized,true);
+ await call(b,{action:'admin_status'},403);
+ await call(a,{action:'admin_grant',email:student.email,days:7},403);
+ const enabled=await call(a,{action:'admin_grant',email:b.email,days:7});assert.equal(enabled.access.active,true);
+ await call(a,{action:'admin_revoke',email:b.email});await call(b,{action:'status'},403);
+ await call(a,{action:'admin_grant',email:b.email,days:7});
+ assert.equal((await admin.from('efg_profiles').select('*').eq('user_id',b.id)).data.length,0);
  await call(a,{action:'register',explicitChoice:true},403);
  await call(a,{action:'accept_terms',accepted:true,version:SELF_LEGAL_VERSION});
  await call(a,{action:'register',explicitChoice:true});
@@ -84,7 +91,7 @@ try{
    await context.addInitScript(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:a.id,token:a.token});
    await context.route('**/*',route=>{if(['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname))return route.continue();external.push(route.request().url());return route.abort();});
    const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
-   await page.goto(origin+'/efg-nutrition/pilot/autogestion.html');await page.locator('#intake').waitFor({state:'visible'});
+   await page.goto(origin+'/efg-nutrition/pilot/autogestion.html');await page.locator('#result').waitFor({state:'visible'});await page.locator('#showIntake').click();await page.locator('#intake').waitFor({state:'visible'});
    assert.ok([81,82].includes(Number(await page.locator('[name=weight_kg]').inputValue())));
    await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
    await page.screenshot({path:resolve(out,width+'-ficha.png'),fullPage:true});
@@ -93,7 +100,7 @@ try{
    for(const tab of await page.locator('[data-meal]').all()){await tab.click();assert.equal(await tab.getAttribute('aria-selected'),'true');}
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await page.screenshot({path:resolve(out,width+'-guia.png'),fullPage:true});
-   await page.reload();await page.locator('#result').waitFor({state:'visible'});assert.equal(await page.locator('[name=consent]').isChecked(),false);
+   await page.reload();await page.locator('#result').waitFor({state:'visible'});assert.equal(await page.locator('[name=consent]').isChecked(),false);await page.locator('#showIntake').click();
    await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
    await page.evaluate(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:b.id,token:b.token});
    await page.locator('#generate').click();await page.getByText('Cambió la sesión. Ingresá nuevamente.',{exact:true}).waitFor();

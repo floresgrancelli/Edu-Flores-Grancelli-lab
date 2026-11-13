@@ -1,6 +1,7 @@
+import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-identity-photos-r1-20261113';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-navigation-continuity-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-self-entry-r1-20261113';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
@@ -1398,7 +1399,7 @@ function loginView(message=""){
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><img class="efg-login-brandmark" src="./assets/serotonina-acuarela.avif" width="100" height="56" alt="" aria-hidden="true" decoding="async"><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A Nutrición Con-Ciencia</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
- form+'<p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
+ form+'<a class="btn block ghost" href="./autogestion.html" style="margin-top:16px">Ingresar sin coach · Autogestión</a><p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
 }
 async function requestOtp(email){
  if(state.loggingIn)return;
@@ -3914,6 +3915,7 @@ function adminView(){
  const orgs=state.orgs;
  return rootText("Organizaciones y licencias","Gestioná entrenadores, cupos y permisos sin acceder a la información nutricional privada.")+
  '<div class="efg-roster-summary"><span class="pilot-pill">'+orgs.length+' entrenadores registrados</span><button type="button" class="btn small light" data-tab="admin">Volver al inicio</button></div>'+
+ '<div class="card" id="nccAdminSelf"><h2>Autogestión · Piloto</h2><p class="pilot-hint">Habilitá o renová el acceso por correo, sin asignar coach ni cambiar roles.</p><a class="btn light" href="./autogestion-admin.html">Administrar accesos</a></div>'+
  '<div class="pilot-kpis" id="nccAdminMetrics"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&['active','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">LICENCIAS PENDIENTES</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&o.status==="trial").length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+(o.is_test?0:o.seat_limit),0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="nccAdminCoaches"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+(org.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes · ':'Sin precio mensual · ')+escapeHTML(org.is_test?'Piloto gratuito · sin facturación':org.status==='active'&&org.paid_through>=today()?'Activa hasta '+org.paid_through:'Pendiente de pago / suspendida')+' · '+(org.coach_id?'Ingreso registrado':'Pendiente de ingreso')+'</small></div><div class="pilot-toolbar">'+(org.is_test?'<span class="pilot-pill">'+num(org.seat_limit)+' cupos de prueba</span>':
   '<button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button>'+
@@ -4663,13 +4665,20 @@ async function refresh(){
   if(!currentSession.error&&currentSession.data?.session?.user?.id!==id)throw Error("AUTH_IDENTITY_MISMATCH");
   setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
   const bootstrap=await contextRead(dualWorkspaceBootstrap.resolve(result.data.user));
+  const openIndependent=async()=>{
+   if(await contextRead(resolveIndependentEntry(sb,{userId:id,current:()=>authHydration.current(ticket)}))){
+    state.profile=null;location.replace('./autogestion.html');return true;
+   }
+   return false;
+  };
   if(!bootstrap.skipLegacyClaim){
    let claim=await contextRead(sb.rpc("efg_claim_invitation"));
-   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
+   if(claim.error){if(await openIndependent())return;state.profile=null;return unauthorized(claim.error.message);}
   }
   let p=bootstrap.profile?{data:bootstrap.profile,error:null}:
-   await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
+   await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).maybeSingle());
   if(p.error)throw p.error;
+  if(!p.data){if(await openIndependent())return;state.profile=null;return unauthorized();}
   state.profile=p.data;
   state.dualCandidateCoach=bootstrap.mode==="candidate_coach";
   if(state.dualCandidateCoach){state.tab="home";return contextRead(render());}

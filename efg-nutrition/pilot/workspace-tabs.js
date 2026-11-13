@@ -117,6 +117,7 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
   if(metrics){const d=document.createElement('details');d.className='ncc-workspace-metrics';d.innerHTML='<summary>Resumen de licencias y cupos</summary>';metrics.before(d);d.append(metrics);}
   group(main,'nccAdminSections',[
    ['coaches','Coaches',[main.querySelector('.ncc-workspace-metrics'),main.querySelector('#nccAdminCoaches'),main.querySelector('#nccAdminInvites')]],
+   ['self','Autogestión',[main.querySelector('#nccAdminSelf')]],
    ['new','Altas',[main.querySelector('#nccAdminNew'),main.querySelector('.efg-pilot-coach-activation')]],
    ['payments','Pagos',[main.querySelector('#nccAdminPayments')]],
    ['settings','Configuración',[main.querySelector('#nccAdminAliases'),main.querySelector('#nccAdminPersonal')]]

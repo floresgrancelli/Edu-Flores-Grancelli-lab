@@ -5,7 +5,7 @@ const unavailable=()=>{throw Object.assign(new Error('La integración de autoges
 const validRequest=id=>typeof id==='string'&&/^[a-zA-Z0-9_-]{8,100}$/.test(id);
 export function createSelfManagementHandler({verifyBearer,repository,readCatalog,enabled=false,
  requireAccess=unavailable,requireLegalReceipt=unavailable,readLegalStatus=null,acceptLegal=null,consumeRate=null,
- allowedOrigins=['https://efg-nutrition.onrender.com']}={}){
+ managePilotAccess=null,allowedOrigins=['https://efg-nutrition.onrender.com']}={}){
  if(typeof verifyBearer!=='function'||!repository||typeof readCatalog!=='function')throw Error('Missing server adapters');
  return async request=>{
   const origin=request.headers.get('Origin');
@@ -32,8 +32,16 @@ export function createSelfManagementHandler({verifyBearer,repository,readCatalog
    if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'invalid_request'},400);
    // A target ID or credential is never accepted from the request body.
    const keys={status:['action'],accept_terms:['action','version','accepted'],context:['action'],register:['action','explicitChoice'],
-    save_intake:['action','fields','expectedRevision','requestId'],generate:['action','requestId']};
+    save_intake:['action','fields','expectedRevision','requestId'],generate:['action','requestId'],
+    admin_status:['action'],admin_lookup:['action','email'],admin_grant:['action','email','days'],admin_revoke:['action','email']};
    if(!Object.hasOwn(keys,body.action)||Object.keys(body).some(k=>!keys[body.action].includes(k)))return json({error:'invalid_request'},400);
+   if(body.action.startsWith('admin_')){
+    if(!managePilotAccess)return json({error:'backend_pending'},503);
+    if(consumeRate)await consumeRate(identity.id,body.action);
+    const managed=await managePilotAccess(identity.id,body);
+    if((await readIdentity()).id!==identity.id)return json({error:'session_changed'},409);
+    return json({userId:identity.id,...managed});
+   }
    await requireAccess(identity.id); // Pilot allowlist or verified entitlement; never body metadata.
    if(consumeRate)await consumeRate(identity.id,body.action);
    if(body.action==='status'){
@@ -75,7 +83,7 @@ export function createSelfManagementHandler({verifyBearer,repository,readCatalog
    return json(await service.generate({requestId:body.requestId}));
   }catch(error){
    const code=error?.code||'unavailable';
-   const status=code==='rate_limited'?429:code==='auth_required'?401:code==='mode_mismatch'||code==='ownership'||code==='access_required'||code==='legal_required'?403:
+   const status=code==='rate_limited'?429:code==='auth_required'?401:code==='admin_required'||code==='mode_mismatch'||code==='ownership'||code==='access_required'||code==='legal_required'?403:
     code==='conflict'||code==='session_changed'?409:code==='backend_pending'?503:400;
    // Do not expose SQL/provider exceptions or private data in HTTP errors.
    return json({error:code},status);

@@ -49,6 +49,8 @@ try{
   await page.locator('.efg-optional-panel > summary').click();
   await block.scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(out,width+'-mi-dia.png'),fullPage:true});
+  const clip=await page.evaluate(()=>{const a=document.querySelector('.ncc-focus-summary').getBoundingClientRect(),b=document.querySelector('.ncc-micronutrients').getBoundingClientRect();const y=Math.min(a.top,b.top)+scrollY;return {x:0,y:Math.max(0,y-8),width:innerWidth,height:Math.ceil(Math.max(a.bottom,b.bottom)+scrollY-y+16)};});
+  await page.screenshot({path:resolve(out,width+'-mi-dia-resumen.png'),clip});
   await block.screenshot({path:resolve(out,width+'-micronutrientes.png')});
   const compactHeight=await block.evaluate(e=>e.getBoundingClientRect().height);
   await block.locator('.ncc-micro-expand > summary').click();
@@ -58,6 +60,16 @@ try{
   const touch=await block.locator('summary').evaluateAll(es=>es.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height));assert.ok(touch.every(h=>h>=44));
   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.micronutrientReference=null;await v.render();});
   assert.ok((await page.locator('.ncc-micronutrients').first().textContent()).includes('Referencia pendiente'));
+  await page.evaluate(async()=>{
+   const {micronutrientPeriod}=await import('./micronutrient-engine.js?v=ncc-micro-r1-20261113');
+   const {renderMicronutrientPeriod}=await import('./micronutrient-view.js?v=ncc-micro-r1-20261113');
+   const {MICRONUTRIENT_CATALOG:catalog}=await import('./micronutrient-catalog.js?v=ncc-micro-r1-20261113');
+   const d=structuredClone(window.__NCC_R4_FULLAPP__.state.diary);
+   const model=micronutrientPeriod({logs:[d],catalog,profile:{age:41,referenceSex:'male',lifeStage:'adult'},from:d.log_day,to:d.log_day});
+   const host=document.createElement('section');host.id='micro-period-preview';host.style.cssText='margin:16px;padding:16px;background:#111b12;color:#eeeee1;border-radius:16px';host.innerHTML='<p>VISTA PREVIA · DATOS FICTICIOS</p>'+renderMicronutrientPeriod(model);document.body.append(host);
+  });
+  await page.locator('#micro-period-preview').screenshot({path:resolve(out,width+'-por-fecha.png')});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.deepEqual(errors,[]);
   evidence.push({width,noOverflow:true,readOnly:true,draftPreserved:true,missingProfileSafe:true,compactHeight,pageErrors:errors});
   await context.close();

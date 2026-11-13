@@ -24,7 +24,7 @@ try{
   const browser=await engine.launch({headless:true,...(name==='chromium'?{...(process.env.NCC_CHROMIUM_PATH?{executablePath:process.env.NCC_CHROMIUM_PATH}:{}),args:['--no-sandbox']}:{})});
   try{for(const width of [390,320]){
    const context=await browser.newContext({viewport:{width,height:844}});
-   await context.addInitScript(()=>{window.__test={user:null,role:null,allowed:true,accepted:false,registered:false,intake:null,saved:null};});
+   await context.addInitScript(()=>{window.__test=JSON.parse(sessionStorage.getItem('__testInit')||'null')||{user:null,role:null,allowed:true,accepted:false,registered:false,intake:null,saved:null};});
    await context.route('https://esm.sh/**',route=>route.fulfill({contentType:'text/javascript',body:sdk}));
    await context.route('**/functions/v1/ncc-self-management',async route=>{
     const body=route.request().postDataJSON();const state=await route.frame().evaluate(()=>window.__test);let value={userId:state.user},status=200;
@@ -64,10 +64,10 @@ try{
    await page.waitForFunction(()=>document.getElementById('accountStatus').textContent.includes('no está habilitado'));assert.equal(await page.locator('#result').textContent(),'');assert.equal(await page.locator('#intake').isVisible(),false);
    await page.evaluate(()=>{window.__test.user='student';window.__test.allowed=true;window.__test.role='student';window.__test.listener('SIGNED_IN',{user:{id:'student'}});});
    await page.waitForFunction(()=>document.getElementById('accountStatus').textContent.includes('circuito con coach'));assert.equal(await page.locator('#mainAppLink').isVisible(),true);
-   await page.goto(origin+'/efg-nutrition/pilot/autogestion-admin.html');await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('administradora'));assert.equal(await page.locator('#adminControls').isVisible(),false);
+   await page.evaluate(()=>sessionStorage.setItem('__testInit',JSON.stringify({user:'student',role:'student'})));await page.goto(origin+'/efg-nutrition/pilot/autogestion-admin.html');await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('administradora'));assert.equal(await page.locator('#adminControls').isVisible(),false);
    await page.evaluate(()=>{window.__test.user='admin';window.__test.role='admin';});
    // Reload would reset init fixtures, so navigate with a new init identity.
-   await page.addInitScript(()=>{window.__test={user:'admin',role:'admin'};});await page.reload();await page.locator('#adminControls').waitFor({state:'visible'});
+   await page.evaluate(()=>sessionStorage.setItem('__testInit',JSON.stringify({user:'admin',role:'admin'})));await page.reload();await page.locator('#adminControls').waitFor({state:'visible'});
    await page.locator('#accessEmail').fill('person@example.invalid');await page.locator('#accessLookup button').click();await page.locator('#accessDetail').waitFor({state:'visible'});await page.locator('#grantAccess').click();await page.waitForFunction(()=>document.getElementById('adminStatus').textContent==='Acceso al piloto guardado.');
    await page.screenshot({path:resolve(out,`${name}-${width}-administracion.png`),fullPage:true});
    await page.locator('#revokeAccess').click();await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('revocado'));

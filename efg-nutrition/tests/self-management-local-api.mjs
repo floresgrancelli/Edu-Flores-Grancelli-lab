@@ -91,7 +91,7 @@ try{
    await context.addInitScript(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:a.id,token:a.token});
    await context.route('**/*',route=>{if(['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname))return route.continue();external.push(route.request().url());return route.abort();});
    const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
-   await page.goto(origin+'/efg-nutrition/pilot/autogestion.html');await page.locator('#result').waitFor({state:'visible'});await page.locator('#showIntake').click();await page.locator('#intake').waitFor({state:'visible'});
+   await page.goto(origin+'/efg-nutrition/pilot/autogestion.html');await page.locator('#selfNav').waitFor({state:'visible'});await page.locator('#showIntake').click();await page.locator('#intake').waitFor({state:'visible'});
    assert.ok([81,82].includes(Number(await page.locator('[name=weight_kg]').inputValue())));
    await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
    await page.screenshot({path:resolve(out,width+'-ficha.png'),fullPage:true});

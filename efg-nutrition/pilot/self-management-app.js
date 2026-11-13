@@ -35,7 +35,7 @@ async function transport(body,t=epoch){
  if(!response.ok)throw Object.assign(Error(errors[value.error]||'No pudimos completar la solicitud. Revisá la ficha e intentá nuevamente.'),{code:value.error});
  if(value.userId!==owner)throw Error('La respuesta no corresponde a tu cuenta.');return value;
 }
-function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;hasPlan=false;nav.hidden=true;login.hidden=true;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';document.getElementById('prefillStatus').textContent='';loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();document.getElementById('loginStatus').textContent='';}
+function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;hasPlan=false;nav.hidden=true;login.hidden=true;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';document.getElementById('prefillStatus').textContent='';loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();document.getElementById('loginStatus').textContent='';document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}
 function showPlan(saved){
  if(saved?.userId!==owner||saved.intakeRevision!==revision||!saved.result?.guide)return;
  hasPlan=true;document.getElementById('showGuide').disabled=false;
@@ -107,7 +107,7 @@ document.getElementById('openSelfIntake').onclick=async()=>{
  }catch(e){if(current(t))status.textContent=e.message;}
  finally{entry.inert=false;}
 };
-document.getElementById('logout').onclick=async()=>{clearPrivate();await sb.auth.signOut();location.href='./';};
+document.getElementById('logout').onclick=async()=>{clearPrivate();const {error}=await sb.auth.signOut();if(error){accountStatus.textContent='No pudimos cerrar la sesión. Reintentá.';return;}location.href='./';};
 async function requestCode(){
  if(loginBusy)return;loginBusy=true;login.inert=true;
  const message=document.getElementById('loginStatus');
@@ -123,7 +123,7 @@ async function requestCode(){
 }
 document.getElementById('selfEmailForm').onsubmit=e=>{e.preventDefault();requestCode();};
 document.getElementById('resendCode').onclick=requestCode;
-document.getElementById('changeEmail').onclick=()=>{loginEmail=null;document.getElementById('selfCodeForm').reset();document.getElementById('selfCodeForm').hidden=true;document.getElementById('selfEmailForm').hidden=false;document.getElementById('loginStatus').textContent='';};
+document.getElementById('changeEmail').onclick=()=>{loginEmail=null;document.getElementById('selfCodeForm').reset();document.getElementById('selfCodeForm').hidden=true;document.getElementById('selfEmailForm').hidden=false;document.getElementById('loginStatus').textContent='';document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;};
 document.getElementById('selfCodeForm').onsubmit=async e=>{
  e.preventDefault();if(loginBusy||!loginEmail)return;loginBusy=true;login.inert=true;
  try{const {error}=await sb.auth.verifyOtp({email:loginEmail,token:document.getElementById('selfCode').value.trim(),type:'email'});if(error)throw error;await boot();}

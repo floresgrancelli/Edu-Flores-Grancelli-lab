@@ -14,13 +14,13 @@ test('no entitlement or coach-bound account stays in its current entry circuit',
  for(const error of ['access_required','mode_mismatch'])assert.equal(await resolveIndependentEntry(sb,{userId:'own',current:()=>true,fetcher:async()=>Response.json({error},{status:403})}),false);
  await assert.rejects(resolveIndependentEntry(sb,{userId:'own',current:()=>true,fetcher:async()=>Response.json({error:'unavailable'},{status:503})}));
 });
-function fixture({role='admin',active=true,targetRole=null,confirmed=true}={}){
+function fixture({role='admin',active=true,targetRole=null,confirmed=true,ownerEmail}={}){
  const writes=[],tables={efg_profiles:{own:{role,active},...(targetRole?{target:{role:targetRole,active:true}}:{})},ncc_self_pilot_access:{}};
  const client={auth:{admin:{listUsers:async()=>({data:{users:[{id:'target',email:'person@example.invalid',email_confirmed_at:confirmed?'2026-11-13':null}]}})}},from(table){
   let id=null,write=null;
   const q={select(){return q;},eq(k,v){id=v;return q;},upsert(v){write=v;id=v.user_id;return q;},update(v){write=v;return q;},async maybeSingle(){return {data:tables[table][id]||null,error:null};},then(resolve){if(write){writes.push({table,id,write});tables[table][id]={...tables[table][id],...write};}return Promise.resolve({error:null}).then(resolve);}};return q;
  }};
- return {manage:createPilotAccessManager(client,{now:()=>1000000}),writes,tables};
+ return {manage:createPilotAccessManager(client,{now:()=>1000000,...(ownerEmail?{ownerEmail}:{})}),writes,tables};
 }
 test('only an active admin can consult or modify pilot access',async()=>{
  for(const options of [{role:'coach'},{role:'student'},{active:false}]){
@@ -37,4 +37,10 @@ test('unverified users, students and invalid expiry cannot be granted',async()=>
  for(const [options,days,code] of [[{confirmed:false},30,'account_not_ready'],[{targetRole:'student'},30,'mode_mismatch'],[{},0,'invalid_request'],[{},91,'invalid_request']]){
   const f=fixture(options);await assert.rejects(f.manage('own',{action:'admin_grant',email:'person@example.invalid',days}),{code});assert.equal(f.writes.length,0);
  }
+});
+
+test('owner pilot access cannot be falsely revoked through the allowlist control',async()=>{
+ const f=fixture({targetRole:'admin',ownerEmail:'person@example.invalid'});
+ const data=await f.manage('own',{action:'admin_lookup',email:'person@example.invalid'});assert.equal(data.ownerAccess,true);assert.equal(data.eligible,false);
+ await assert.rejects(f.manage('own',{action:'admin_revoke',email:'person@example.invalid'}),{code:'owner_access_fixed'});assert.equal(f.writes.length,0);
 });

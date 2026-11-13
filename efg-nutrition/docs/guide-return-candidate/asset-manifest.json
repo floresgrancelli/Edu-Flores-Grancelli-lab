@@ -194,7 +194,7 @@
     "efg-nutrition/pilot/coach-plan-draft-client.js": "cdec0bfb72ee7b2884279eb6c4b7825e42f390a46f34366a4af36d39036dfeb1",
     "efg-nutrition/pilot/coach-plan-steps.mjs": "53a8f6d274e53ff02492e8a86f40ffab3769c638f15b6508d8945317cf584ae5",
     "efg-nutrition/pilot/coach-private-history.js": "cee32841e78583ae7cb042e746a7aac031c74305373c92aa39aaafb4da002cdb",
-    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "9e8c01f7ec49880517b81b818b4fb37fdd7b4720e90656afec2e6d22169b6809",
+    "efg-nutrition/pilot/coach-relaunch-entry-client.js": "b71f55f1ce9d5544668c2b2880f9192f2c94520c1055d16b8583fd5a34b7c328",
     "efg-nutrition/pilot/coach-relaunch-onboarding.js": "36bf5d6b2f62029a800e3c5dfbb9b472924f359c3592df0bcd0d8ea318e7e7c6",
     "efg-nutrition/pilot/coach-release-plan-gate.js": "0bca14f344336cb65fc51c29cc12b344a58d6cb019001c565a38cf60f965b654",
     "efg-nutrition/pilot/coach-report-models.js": "f2be911dfef0ca75c472fa2b791ab4bde83df99fd3c47366438bb69e3bfb80ca",
@@ -334,7 +334,7 @@
     "efg-nutrition/pilot/report-macro-gaps.css": "fab6a1e18080d5b14ea664cbc16b7f9d02de361d499e83e810e5e26f39791eb6",
     "efg-nutrition/pilot/coach-report-flow.js": "337237bcc28303a2acfefad8e8cdf25aff47fb9d0085c108be9e4f583446d86b",
     "efg-nutrition/pilot/workspace-tabs.js": "101f961473d32bd00fd553e41ec5f8ed58d15050a4ae5d9b164a580f72d26bd0",
-    "efg-nutrition/pilot/workspace-tabs.css": "3d8e167bb4b76b3bf1206959ce6dbe62fbe2f73924a35036a0d027910ce4b5ab",
+    "efg-nutrition/pilot/workspace-tabs.css": "b1584051dfdc3fb821dc75281bda73247cda1e12d3f6299d36652e609891ba86",
     "efg-nutrition/pilot/color-system.css": "d4f7c666b83007db39759de2f9bb881c174bf918c401c943a07b15dade9d95eb",
     "efg-nutrition/pilot/student-day-presentation-3770ec2f7790.js": "3770ec2f7790db95424b5831e301b9b2914a7b4ffeb4e740eb9d485f59b173e0",
     "efg-nutrition/pilot/nutrition-daily-tip.css": "92937fb61b26026bd82ad7ad6012db660e82f0d8a48cc56b4c2f0a21c518dee5",
@@ -516,7 +516,7 @@
     },
     {
       "path": "efg-nutrition/pilot/workspace-tabs.css",
-      "sha256": "3d8e167bb4b76b3bf1206959ce6dbe62fbe2f73924a35036a0d027910ce4b5ab",
+      "sha256": "b1584051dfdc3fb821dc75281bda73247cda1e12d3f6299d36652e609891ba86",
       "url": "./workspace-tabs.css?v=ncc-intake-routine-help-r1-20261113"
     },
     {

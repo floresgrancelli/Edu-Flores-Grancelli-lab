@@ -158,9 +158,12 @@ html.ncc-lime-theme #app .ncc-objective-help>.pilot-hint{padding:0 12px;font-siz
 }
 
 /* Optional writing aids use the existing free-text answer, never a new field. */
-.ncc-intake-routine-help{margin:18px 0 12px;padding:14px;border:1px solid;border-radius:14px}
-.ncc-intake-routine-help h4{margin:0 0 7px;font-size:16px}
+.ncc-intake-routine-help{margin:12px 0;padding:4px 14px;border:1px solid;border-radius:14px}
+.ncc-intake-routine-help summary{cursor:pointer;font-size:15px;font-weight:700;min-height:48px;align-content:center}
+.ncc-intake-routine-help[open] summary{margin-bottom:10px}
+.ncc-intake-routine-help summary small{font-size:12px;font-weight:400}
 .ncc-intake-routine-help p{margin:0 0 12px}
+.ncc-intake-routine-help[open]{padding-bottom:14px}
 .ncc-intake-prompts{display:flex;flex-wrap:wrap;gap:8px}
 .ncc-intake-prompts button{min-height:48px;max-width:100%;text-align:left;white-space:normal;line-height:1.4;padding:10px 12px;font-size:14px}
 .ncc-intake-prompt-status:empty{display:none}

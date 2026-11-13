@@ -1,0 +1,49 @@
+name: NCC student erasure isolated QA
+on:
+  pull_request:
+    paths:
+      - 'efg-nutrition/privacy/backend/**'
+      - 'efg-nutrition/privacy/tests/erase-student.test.mjs'
+      - '.github/workflows/ncc-erasure-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  erasure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: local-erasure-qa-only
+          POSTGRES_DB: ncc_erasure_qa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: local-erasure-qa-only
+      PGDATABASE: ncc_erasure_qa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test server-side orchestration
+        run: node --test efg-nutrition/privacy/tests/erase-student.test.mjs
+      - name: Regenerate candidate and synthetic structural fixture
+        run: |
+          python3 efg-nutrition/privacy/backend/generate-erasure-fixture.py
+          git diff --exit-code -- efg-nutrition/privacy/backend/student-erasure.candidate.sql efg-nutrition/privacy/backend/erasure-fixture.sql efg-nutrition/privacy/backend/erasure-scenarios.sql
+      - name: Verify SQL against PostgreSQL 17 with synthetic accounts
+        run: |
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/android/backend/account-deletion-schema.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/student-erasure.candidate.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-scenarios.sql

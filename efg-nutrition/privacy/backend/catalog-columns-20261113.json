@@ -1,0 +1,1703 @@
+[
+  {
+    "table_name": "efg_activities",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "activity_day",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "steps",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "exercise_minutes",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "kind",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_pace",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_height_cm",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_weight_kg",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_distance_km",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_duration_minutes",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_activities",
+    "column_name": "walking_avg_heart_rate_bpm",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_billing_settings",
+    "column_name": "id",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_billing_settings",
+    "column_name": "alias",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_billing_settings",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_billing_settings",
+    "column_name": "additional_aliases",
+    "data_type": "ARRAY",
+    "udt_name": "_text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "source_intake_updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "source_intake_revision",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "goal_proposal",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "guide_proposal",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "draft_revision",
+    "data_type": "bigint",
+    "udt_name": "int8",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_drafts",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "request_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "draft_revision",
+    "data_type": "bigint",
+    "udt_name": "int8",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "goal_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_plan_publish_receipts",
+    "column_name": "published_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "completed_version",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "revision",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "objective",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "age_years",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "height_cm",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "weight_kg",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "activity_level",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "dietary_pattern",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "eating_window",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "preferred_foods",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "disliked_foods",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "meal_routine",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "notes",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "shared_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "completed_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_coach_relaunch_intakes",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_consents",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_consents",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_consents",
+    "column_name": "accepted",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_consents",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_consents",
+    "column_name": "email_report_opt_in",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "report_day",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "attempted_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "sent_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_daily_email_deliveries",
+    "column_name": "error_message",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "log_day",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "meals",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "sports",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "skipped",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "totals",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_daily_logs",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "food_id",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "rule",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "catalog_review_id",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "catalog_version",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "source_kind",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "source_url",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "ingredient_classes",
+    "data_type": "ARRAY",
+    "udt_name": "_text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "complete_ingredients",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "reviewed_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "expires_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_compatibility_evidence",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "approved_food_ids",
+    "data_type": "ARRAY",
+    "udt_name": "_text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "guided_plan",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "guided_goal_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_food_plans",
+    "column_name": "guided_plan_approved_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "approved_by",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "goal_type",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "kcal",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "protein_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "carb_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "fat_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "fiber_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "start_on",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "approved_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "estimation_method",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "activity_factor",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "protein_per_kg",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_goals",
+    "column_name": "fat_per_kg",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "meal_slot",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "name",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "items",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_habitual_meals",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "email",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "nickname",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "role",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "invited_by",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "claimed_by",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_invitations",
+    "column_name": "revoked_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_legal_acceptances",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_acceptances",
+    "column_name": "document_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_acceptances",
+    "column_name": "accepted_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_acceptances",
+    "column_name": "acceptance_method",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "kind",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "version",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "body",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "sha256",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "is_current",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "published_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_legal_documents",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "sender_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "body",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_messages",
+    "column_name": "read_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "recipient_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "actor_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "kind",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "event_key",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "title",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "body",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "target_tab",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "target_student",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "is_read",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "read_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_notifications",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "name",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "seat_limit",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "payment_alias",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "is_test",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "license_fee_ars",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "paid_through",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_organizations",
+    "column_name": "plan_updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "payer_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "recipient_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "payment_kind",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "amount_ars",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "period_label",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "alias_snapshot",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "receipt_path",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "reviewed_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_payments",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "period_from",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "period_to",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "report_text",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_period_reports",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "name",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "ingredients",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "portions",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "totals",
+    "data_type": "jsonb",
+    "udt_name": "jsonb",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_recipes",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "kcal",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "protein_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "carb_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "fat_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "fiber_g",
+    "data_type": "integer",
+    "udt_name": "int4",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_personal_targets",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "version",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "participation_accepted",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "sharing_accepted",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "acceptance_method",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "accepted_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "revoked_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_pilot_participation_receipts",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "email",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "nickname",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "role",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "active",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_profiles",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_science_intro_receipts",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_science_intro_receipts",
+    "column_name": "version",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_science_intro_receipts",
+    "column_name": "seen_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_science_intro_receipts",
+    "column_name": "action",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_onboarding",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_onboarding",
+    "column_name": "seen_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "organization_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "status",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "published_goal_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "published_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "published_by",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_student_plan_access",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "week_monday",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "approved",
+    "data_type": "boolean",
+    "udt_name": "bool",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "approved_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "efg_sunday_rewards",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "coach_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "week_ending",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "report_text",
+    "data_type": "text",
+    "udt_name": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weekly_reports",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weights",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weights",
+    "column_name": "measured_on",
+    "data_type": "date",
+    "udt_name": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weights",
+    "column_name": "kg",
+    "data_type": "numeric",
+    "udt_name": "numeric",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weights",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "udt_name": "timestamptz",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "efg_weights",
+    "column_name": "measured_time",
+    "data_type": "time without time zone",
+    "udt_name": "time",
+    "is_nullable": "YES"
+  }
+]

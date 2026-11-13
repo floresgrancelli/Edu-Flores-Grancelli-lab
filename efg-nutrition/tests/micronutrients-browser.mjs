@@ -64,7 +64,7 @@ try{
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),diary);
   const touch=await block.locator('summary').evaluateAll(es=>es.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height));assert.ok(touch.every(h=>h>=44));
   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.micronutrientReference=null;await v.render();});
-  assert.ok((await page.locator('.ncc-micronutrients').first().textContent()).includes('Referencia pendiente'));
+  assert.ok((await page.locator('.ncc-micronutrients').first().textContent()).includes('Completá los datos de referencia en tu ficha.'));
   await page.evaluate(async()=>{
    const {micronutrientPeriod}=await import('./micronutrient-engine.js?v=ncc-micro-r1-20261113');
    const {renderMicronutrientPeriod}=await import('./micronutrient-view.js?v=ncc-micro-r1-20261113');

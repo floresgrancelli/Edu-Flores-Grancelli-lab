@@ -47,12 +47,13 @@ que solicitar sea equivalente a haber eliminado todos los datos.
 
 ## Última prueba de arranque Android
 
-El APK se instala correctamente en el emulador Android 16, pero el primer intento
-de apertura regresó al launcher sin mostrar el formulario. Se conservan capturas
-y se ajustó la prueba para usar la acción MAIN/CATEGORY_LAUNCHER/NEW_TASK que usa
-un acceso desde el icono. La siguiente ejecución guarda también logcat para
-distinguir fallo de arranque real de una invocación incorrecta de la prueba.
-No dar por aprobada la apertura solo porque compiló o se instaló.
+El APK se instaló correctamente, pero el primer arranque volvió al launcher.
+El logcat completo identificó la causa exacta:
+`IllegalArgumentException: Component class com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity does not exist`.
+La biblioteca intenta registrar el acceso a configuración al abrir; ese componente
+no estaba declarado en el manifiesto mínimo. Se agregaron ManageDataLauncherActivity
+y FocusActivity conforme al ejemplo oficial. El workflow verifica de nuevo la
+apertura real. No darla por aprobada solo porque compiló o se instaló.
 
 Historial/evidencias: PR #123 y workflow NCC Android build. Consultar la ejecución
 del commit que modifica emulator-smoke.py para su resultado, no una prueba anterior.

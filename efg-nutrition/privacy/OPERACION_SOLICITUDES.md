@@ -57,15 +57,17 @@ su backend. La vía de correo no depende de esa tabla ni de acceso a la app.
   coaches, proveedores, derechos y eliminación; marcado como no vigente.
 - El generador rechaza publicar como vigente una política con puntos pendientes.
 
-Esto NO acredita aún la eliminación real de Auth, Storage y todas las tablas.
-Esa prueba debe realizarse con cuentas sintéticas antes de activar el circuito
-de borrado y antes de presentar la app como lista para Google Play.
+La prueba con Auth, PostgREST y Storage locales reales ya pasó para alumnos
+elegibles: ver docs/play-store/BORRADO_ALUMNOS_QA_20261113.md. El candidato sigue
+sin activarse en el proyecto alojado. Faltan los casos profesionales/financieros,
+la paridad de configuración completa y respaldos/restauración; no se presenta
+la app como lista para Google Play por aprobar únicamente ese circuito.
 
 ## Datos y configuración pendientes
 
 - Plazos efectivos de registros técnicos y respaldos y tratamiento de restauraciones.
 - Verificación final de proveedores/transferencias y conservación comercial.
-- Prueba completa de eliminación sintética y atención operativa del correo.
+- Ampliación de la prueba sintética a los casos pendientes y atención operativa del correo.
 
 Fuentes oficiales:
 https://www.argentina.gob.ar/aaip/datospersonales/derechos

@@ -13,6 +13,8 @@ se creará al final por decisión de Edu. El usuario no necesita abrirla para es
 - Browser QA móvil/escritorio aprobada con cuentas ficticias: OTP, confirmación,
   constancia persistida, fallo de servidor y cierre de sesión. Sin desbordamiento horizontal.
 - Captura real de la pantalla de eliminación preparada para revisión visual.
+- Responsable, correo y domicilio públicos confirmados por Edu e incorporados al borrador.
+- Borrado de un alumno ficticio aprobado con Auth, PostgREST y Storage locales reales: ver BORRADO_ALUMNOS_QA_20261113.md.
 
 ## Lectura específica de la configuración actual (sin datos de alumnos)
 
@@ -31,7 +33,7 @@ alteraron aceptaciones existentes.
 El exportador público ya preparado debe usarse sobre la futura versión completa.
 No convierte un aviso de piloto en una política suficiente para distribución pública.
 
-## Por qué falta verificar el borrado real
+## Borrado: avance y alcance pendiente
 
 Hay referencias a auth.users sin ON DELETE CASCADE en mensajes, informes por
 período, pagos, organizaciones, invitaciones, aprobaciones de objetivos, planes
@@ -39,9 +41,11 @@ y accesos publicados. Por tanto, borrar solamente Auth puede fallar o dejar sin
 resolver información asociada. Hay además archivos de Storage que no desaparecen
 por borrar una fila de usuario.
 
-Se debe diferenciar la información personal del titular de los datos de alumnos
-vinculados a un coach. Primero hace falta definir tratamiento/retención y probar
-el procedimiento completo con cuentas sintéticas. No se borró ninguna cuenta real.
+Se implementó y probó el procedimiento para alumnos elegibles con cuentas
+sintéticas y servicios locales reales. No se borró ninguna cuenta real ni se
+aplicó el candidato al proyecto alojado. Los casos con pagos o responsabilidades
+profesionales se detienen para resolución manual; falta completar su tratamiento
+y las pruebas de paridad con toda la configuración alojada.
 La página nueva recibe pedidos pendientes y lo indica expresamente; no afirma
 que solicitar sea equivalente a haber eliminado todos los datos.
 
@@ -73,8 +77,8 @@ del commit que modifica emulator-smoke.py para su resultado, no una prueba anter
 
 ## Próximas puertas
 
-1. Resolver y verificar apertura en Android; después, pruebas autenticadas por rol.
-2. Definir e implementar la tramitación y eliminación completa con prueba sintética.
-3. Completar/publicar privacidad y contacto, revisar pagos y ficha de tienda.
+1. Completar pruebas autenticadas por rol en Android; la apertura ya está verificada.
+2. Extender la tramitación a coaches/doble rol y pagos; validar paridad de configuración y restauración. El circuito básico de alumnos ya pasó la prueba local completa.
+3. Cerrar conservación/respaldos y transferencias de la política; resolver distribución de pagos en Android y ficha de tienda. Identidad/contacto del responsable ya completos.
 4. Aprobar icono/capturas; crear cuenta Play, configurar firma y asociación de dominio.
 5. Completar pruebas exigidas por la cuenta y solicitar revisión con GO final de Edu.

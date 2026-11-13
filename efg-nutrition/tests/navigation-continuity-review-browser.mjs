@@ -77,7 +77,12 @@ try{for(const engine of ['chromium','webkit']){
   await page.locator('.pilot-nav [data-tab=home]').click();
   await page.locator('.ncc-day-plan-shortcut').click();await page.locator('[data-planmode=both]').click();await page.locator('[data-plannerslot=cena]').click();await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();
   const qty=page.locator('[id="planQty_cena|protein"]');await qty.fill('123');const selected=await page.locator('[data-planselect="cena|protein"]').inputValue();
-  await page.evaluate(()=>window.scrollTo({top:300,behavior:'instant'}));const plannerY=await page.evaluate(()=>scrollY);await shot('planner-leaving');await science();
+  await page.evaluate(()=>window.scrollTo({top:300,behavior:'instant'}));await shot('planner-leaving');
+  // Playwright can scroll the page to reveal the bottom nav before dispatching a
+  // click. Compare the position at the actual navigation event, as the app does,
+  // rather than the earlier position preceding the automation's auto-scroll.
+  await page.locator('.pilot-nav [data-tab=nutritionScience]').evaluate(el=>el.addEventListener('click',()=>{window.__NCC_NAV_DEPART_Y__=scrollY;},{capture:true,once:true}));
+  await science();const plannerY=await page.evaluate(()=>window.__NCC_NAV_DEPART_Y__);assert.ok(Number.isFinite(plannerY));
   if(await page.locator('.pilot-nav [data-tab=planner]').count())await page.locator('.pilot-nav [data-tab=planner]').click();
   else{await page.locator('.pilot-nav [data-tab='+ (role==='admin'?'adminMore':'studentMore')+']').click();await page.locator('[data-tab=planner]:visible').first().click();}
   await qty.waitFor();await page.waitForTimeout(100);assert.equal(await qty.inputValue(),'123');assert.equal(await page.locator('[data-planselect="cena|protein"]').inputValue(),selected);assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'true');await shot('planner-returned');const returnedY=await page.evaluate(()=>scrollY);assert.ok(Math.abs(returnedY-plannerY)<=3,'Planner position '+JSON.stringify({expected:plannerY,actual:returnedY,engine,width,role}));

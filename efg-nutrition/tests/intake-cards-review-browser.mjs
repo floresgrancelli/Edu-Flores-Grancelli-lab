@@ -21,8 +21,8 @@ const origin='http://127.0.0.1:'+server.address().port;
 const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 
 const base='a3fe6b53efcabf844f532b55170b9ac934ce1830';
-const prior=execFileSync('git',['show',base+':efg-nutrition/pilot/coach-relaunch-entry-client.js'],{cwd:root,encoding:'utf8'});
-const priorCss=execFileSync('git',['show',base+':efg-nutrition/pilot/workspace-tabs.css'],{cwd:root,encoding:'utf8'});
+const prior=execFileSync('git',['-c','safe.directory='+resolve(root),'show',base+':efg-nutrition/pilot/coach-relaunch-entry-client.js'],{cwd:root,encoding:'utf8'});
+const priorCss=execFileSync('git',['-c','safe.directory='+resolve(root),'show',base+':efg-nutrition/pilot/workspace-tabs.css'],{cwd:root,encoding:'utf8'});
 const evidence=[];
 try{for(const engine of (process.env.NCC_ENGINES||'chromium,webkit').split(',')){
  const browser=await engines[engine].launch({headless:true,...(process.env.NCC_CHROMIUM_PATH&&engine==='chromium'?{executablePath:process.env.NCC_CHROMIUM_PATH}:{})});

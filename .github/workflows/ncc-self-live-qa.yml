@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 25
     env:
       NCC_SELF_LOCAL_ONLY: '1'
+      NCC_SELF_BROWSER: '1'
       PGHOST: 127.0.0.1
       PGPORT: '54322'
       PGUSER: postgres
@@ -58,10 +59,16 @@ jobs:
       - name: Install pinned server SDK only in disposable runner directory
         run: |
           sdk="$RUNNER_TEMP/ncc-self-sdk"
-          npm install --prefix "$sdk" --save-exact @supabase/supabase-js@2.118.0
+          npm install --prefix "$sdk" --save-exact @supabase/supabase-js@2.118.0 playwright@1.62.1
           echo "NCC_SELF_SDK_PACKAGE=$sdk/package.json" >> "$GITHUB_ENV"
+          node "$sdk/node_modules/playwright/cli.js" install --with-deps chromium
       - name: Real JWTs, HTTP flow, REST/RLS, reload and concurrency
         run: node efg-nutrition/tests/self-management-local-api.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: self-management-live
+          path: artifacts/self-management-live/
       - name: Remove disposable stack
         if: always()
         run: |

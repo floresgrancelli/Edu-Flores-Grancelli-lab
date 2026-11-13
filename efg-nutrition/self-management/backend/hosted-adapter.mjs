@@ -19,7 +19,7 @@ export function createHostedSelfHandler({client,catalog,ownerEmail='floresgrance
    if(p?.role==='admin'&&verified?.email_confirmed_at&&verified.email?.toLowerCase()===ownerEmail)return;
    const access=await client.from('ncc_self_pilot_access').select('user_id,active,expires_at').eq('user_id',id).maybeSingle();
    if(access.error)fail('unavailable');
-   if(access.data?.user_id!==id||access.data.active!==true||Date.parse(access.data.expires_at)<=Date.now())fail('access_required');
+   if(access.data?.user_id!==id||access.data.active!==true||!Number.isFinite(Date.parse(access.data.expires_at))||Date.parse(access.data.expires_at)<=Date.now())fail('access_required');
   };
   const readLegalStatus=async id=>{
    const {data,error}=await client.from('ncc_self_legal_receipts').select('user_id,version,revoked_at').eq('user_id',id).maybeSingle();

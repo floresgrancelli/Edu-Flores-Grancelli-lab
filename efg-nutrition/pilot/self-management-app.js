@@ -43,7 +43,7 @@ async function boot(){
   const select=document.getElementById('disliked');select.replaceChildren(...choices.map(f=>new Option(f.name,f.id)));
   if(context){
    const reused=reuseOwnSelfIntake({userId:owner,saved:context.intake,general:context.generalIntake});revision=reused.intakeRevision;
-   for(const [key,value] of Object.entries(reused.fields))if(form.elements[key]&&value!==null&&value!==undefined)form.elements[key].value=value;
+   for(const [key,value] of Object.entries(reused.fields))if(form.elements[key]&&value!==null&&value!==undefined){if(key==='eating_window'&&![...form.elements[key].options].some(o=>o.value===value))form.elements[key].add(new Option('Ventana previa · requiere revisión',value));form.elements[key].value=value;}
    for(const option of select.options)option.selected=(reused.fields.disliked_food_ids||[]).includes(option.value);
    preferencePending=reused.unresolvedPreferenceText.length>0;
    document.getElementById('preferenceReview').hidden=!preferencePending;
@@ -59,16 +59,15 @@ form.addEventListener('input',()=>{editVersion++;result.hidden=true;});
 form.addEventListener('change',()=>{editVersion++;result.hidden=true;});
 form.addEventListener('submit',async event=>{
  event.preventDefault();if(button.disabled||!form.reportValidity())return;
- const t=epoch,id=owner,edit=editVersion;button.disabled=true;
+ const t=epoch,id=owner,edit=editVersion,values=Object.fromEntries(new FormData(form));button.disabled=true;form.inert=true;
  try{
   if(preferencePending&&!document.getElementById('preferenceReviewed').checked)throw Error('Revisá y confirmá los gustos de tu ficha previa.');
   status.textContent='Guardando tu ficha y calculando la guía…';
   if(!legal?.accepted){await transport({action:'accept_terms',version:legal.version,accepted:true},t);legal.accepted=true;}
   await transport({action:'register',explicitChoice:true},t);
-  const values=Object.fromEntries(new FormData(form));
   const fields={age_years:Number(values.age_years),height_cm:Number(values.height_cm),weight_kg:Number(values.weight_kg),
    objective:values.objective,sex_for_equation:values.sex_for_equation,activity_level:values.activity_level,dietary_pattern:values.dietary_pattern,
-   eating_window:'regular',processingConsent:true,pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,
+   eating_window:values.eating_window,processingConsent:true,pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,
    restrictionDeclaration:'none_declared',health_flags:[],disliked_food_ids:[...document.getElementById('disliked').selectedOptions].map(o=>o.value)};
   const saved=await transport({action:'save_intake',fields,expectedRevision:revision,requestId:crypto.randomUUID()},t);
   revision=saved.intake.revision;
@@ -78,7 +77,7 @@ form.addEventListener('submit',async event=>{
   showPlan(generated);status.textContent='Guía guardada en tu cuenta. Podés volver a abrirla cuando quieras.';
   result.scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){if(current(t))status.textContent=e.message;}
- finally{button.disabled=false;}
+ finally{button.disabled=false;form.inert=false;}
 });
 document.getElementById('clear').onclick=()=>boot();
 document.getElementById('logout').onclick=async()=>{clearPrivate();await sb.auth.signOut();location.href='./';};

@@ -3,9 +3,9 @@ import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-i
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-navigation-continuity-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
-const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-student-plan-r1-20261112';document.head.append(studentGuideStyles);
-const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css';document.head.append(mealEntryStyles);
-const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-r1-20261111';document.head.append(recipeLibraryStyles);
+const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
+const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
+const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
 import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-catalog-batch-two-r1-20261113';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
@@ -5416,7 +5416,15 @@ if(el.dataset.foodbulk){
     requiredIntakeVersion:COACH_VERSIONED_INTAKE_ENABLED?COACH_RELEASE_INTAKE_VERSION:null
   });
   state.coachIntakeGuidePreview=null;
+  const intakePrefill=state.coachIntakePrefill;
   state.tab="coachStudents";await render();
+  if(state.tab!=="coachStudents"||state.selectedStudent!==studentId||state.coachIntakePrefill!==intakePrefill)return;
+  // Explicitly applying this intake replaces only its mapped fields, after
+  // ordinary same-view draft restoration. Other unsaved controls stay intact.
+  for(const [id,value] of Object.entries(intakePrefill.fields)){
+   const control=root.querySelector("#coachPlanObjectives #"+id);
+   if(control)control.value=value;
+  }
   selectCoachSection("coachStudentGoals");
   const panel=document.getElementById("coachStudentGoals");
   if(panel){panel.open=true;panel.scrollIntoView?.({behavior:"smooth",block:"start"});}

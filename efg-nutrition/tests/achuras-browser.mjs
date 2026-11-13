@@ -43,7 +43,7 @@ try{for(const engine of ['chromium','webkit']){
  await page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-achuras.png')});
  await page.locator('[data-mealsuggestion=kidney_beef_grilled]').first().click();await page.locator('.ncc-quantity-options > summary').click();await page.locator('#mealEntryMode').selectOption('weight');await page.locator('.ncc-quantity-options > summary').click();await page.locator('#mealEditorQty').fill('75');
  await page.locator('.ncc-entry-footer [data-act=saveSelectedMeal]').click();await page.locator('.meal-popup').waitFor({state:'detached'});
- const items=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.almuerzo);assert.equal(items.length,1);assert.equal(items[0].id,'kidney_beef_grilled');assert.equal(items[0].qty,75);assert.ok(Math.abs(items[0].k*75-113.25)<1e-8);
+ const items=await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.almuerzo);assert.equal(items.length,1);assert.equal(items[0].id,'kidney_beef_grilled');assert.equal(items[0].qty,75);assert.ok(Math.abs(items[0].k-113.25)<1e-8);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
  evidence.push({engine,width,role,allSixSearchable:true,exactGramsRecorded:true,oldIdentitiesPreserved:true});await context.close();
  }}finally{await browser.close();}

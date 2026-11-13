@@ -29,6 +29,7 @@ jobs:
           NCC_PLAYWRIGHT_MODULE: /tmp/ncc-entry-sdk/node_modules/playwright/index.mjs
         run: node efg-nutrition/tests/achuras-browser.mjs
       - name: Seven colored micronutrient bars in the mounted app
+        if: always()
         env:
           NCC_PLAYWRIGHT_MODULE: /tmp/ncc-entry-sdk/node_modules/playwright/index.mjs
         run: node efg-nutrition/tests/micronutrients-bars-browser.mjs

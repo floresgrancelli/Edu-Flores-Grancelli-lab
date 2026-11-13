@@ -2,7 +2,7 @@
 const selections=new Map();
 let ownerKey='';
 export function mountWorkspaceTabs(root,{key,tab,role}){
- const owner=key.split('|').slice(0,3).join('|');
+ const owner=key.split('|').slice(0,4).join('|');
  if(owner!==ownerKey){selections.clear();ownerKey=owner;}
  function group(host,id,items){
   if(!host||host.querySelector('#'+id))return;
@@ -77,12 +77,15 @@ export function mountWorkspaceTabs(root,{key,tab,role}){
   group(payments,'nccPaymentSections',[...payments.querySelectorAll(':scope > [data-payment-section]')].map(p=>[p.dataset.paymentSection,p.dataset.paymentLabel,[p]]));
   for(const scope of payments.querySelectorAll('[data-payment-section]')){
    const buttons=[...scope.querySelectorAll('[data-payment-filter]')];
-   for(const button of buttons)button.addEventListener('click',()=>{
-    const filter=button.dataset.paymentFilter;let visible=0;
+   const filterKey=key+'|payment-filter|'+scope.dataset.paymentSection;
+   function apply(filter){
+    selections.set(filterKey,filter);let visible=0;
     for(const card of scope.querySelectorAll('[data-payment-status]')){card.hidden=filter!=='all'&&card.dataset.paymentStatus!==filter;if(!card.hidden)visible++;}
-    buttons.forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+    buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.paymentFilter===filter)));
     const empty=scope.querySelector('.ncc-payment-filter-empty');if(empty)empty.hidden=visible>0||filter==='all';
-   });
+   }
+   for(const button of buttons)button.addEventListener('click',()=>apply(button.dataset.paymentFilter));
+   const saved=selections.get(filterKey);apply(buttons.some(b=>b.dataset.paymentFilter===saved)?saved:'all');
   }
  }
  if(tab==='planner'){

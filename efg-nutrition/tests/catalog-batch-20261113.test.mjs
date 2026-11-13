@@ -1,3 +1,4 @@
+import {normalizeApprovedPrefillDelta} from './approved-prefill-delta.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
@@ -30,6 +31,6 @@ for(const [term,id] of [['espinaca cruda','spinach_raw'],['pelon','nectarine_raw
 // Changed integration modules may only receive versioned import URLs; no formulas or publication semantics drift.
 const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--name-only','e2dc451f75d0b4d31fa9af3b39a83c62626c13c8','--','efg-nutrition/pilot'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
 for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
- const prior=execFileSync('git',['-c','safe.directory='+root,'show','e2dc451f75d0b4d31fa9af3b39a83c62626c13c8:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>s.replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
+ const prior=execFileSync('git',['-c','safe.directory='+root,'show','e2dc451f75d0b4d31fa9af3b39a83c62626c13c8:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>normalizeApprovedPrefillDelta(s).replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
 }
 console.log('PASS additive catalog: 25 exact source rows, 560 unchanged foods, at least585 identities, quantities, guide draft compatibility, conservative restrictions and explicit identity thumbnails');

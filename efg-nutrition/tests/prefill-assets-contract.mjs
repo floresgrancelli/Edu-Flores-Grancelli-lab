@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {normalizeApprovedPrefillDelta,NEW_PREFILL_ACTION} from './approved-prefill-delta.mjs';
+const root=fileURLToPath(new URL('../../',import.meta.url)).replace(/\/$/,'');
+const prior=execFileSync('git',['-c','safe.directory='+root,'show','cccc1c09fc4c7ad444c99a0fd7e3838b8a28063d:efg-nutrition/pilot/pilot.js'],{cwd:root,encoding:'utf8'});
+const current=readFileSync(new URL('../pilot/pilot.js',import.meta.url),'utf8');
+assert.equal(current.split(NEW_PREFILL_ACTION).length,2);
+const strip=s=>normalizeApprovedPrefillDelta(s).replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');
+assert.equal(strip(current),strip(prior),'Only scoped explicit prefill application, stylesheet URL alignment and module identities may change');
+for(const name of ['guide-catalog.json'])assert.equal(readFileSync(new URL('../catalog/'+name,import.meta.url),'utf8'),execFileSync('git',['-c','safe.directory='+root,'show','cccc1c09fc4c7ad444c99a0fd7e3838b8a28063d:efg-nutrition/catalog/'+name],{cwd:root,encoding:'utf8'}));
+console.log('PASS narrowly scoped prefill/CSS delta; all other pilot semantics and nutritional bytes unchanged.');

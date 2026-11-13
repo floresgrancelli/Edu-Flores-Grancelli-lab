@@ -3,9 +3,12 @@ const fmt=(n,d=0)=>n===null?'—':n.toLocaleString('es-AR',{maximumFractionDigit
 const digits=id=>id==='ala'?2:['iron','zinc','b12'].includes(id)?1:0;
 const amount=(n,number)=>fmt(number,digits(n.id))+' '+n.unit;
 function bar(n){
- const known=n.percent!==null,fill=known?Math.min(100,n.percent):0;
+ const known=Number.isFinite(n.percent),fill=known?Math.max(0,Math.min(100,n.percent)):0;
  const food=known&&n.total>0?fill*n.food/n.total:0,supp=fill-food;
- return '<div class="ncc-micro-track '+(known?'':'is-unknown')+'" aria-hidden="true">'+
+ // A missing personal reference has no numerical scale. Use a distinct tinted
+ // pattern rather than inventing a denominator or displaying a false 0%.
+ if(!known)return '<div class="ncc-micro-track is-unscaled'+(n.total>0?' has-contribution':'')+'" data-scale="unscaled" role="img" aria-label="'+esc(n.name+': sin referencia de cobertura; '+(n.total===null?'sin datos de composición':amount(n,n.total)+' conocidos'))+'"></div>';
+ return '<div class="ncc-micro-track'+(n.partial?' is-partial':'')+'" data-scale="reference" role="img" aria-label="'+esc(n.name+': '+(n.partial?'al menos ':'')+fmt(n.percent,1)+'% de la referencia')+'">'+
   '<span class="ncc-micro-food" style="width:'+food.toFixed(2)+'%"></span><span class="ncc-micro-supplement" style="width:'+supp.toFixed(2)+'%"></span></div>';
 }
 function dailyRows(model){
@@ -22,12 +25,14 @@ function dailyRows(model){
 }
 export function renderMicronutrients(model,{expanded=false}={}){
  if(!model?.nutrients)return '';
- const preview=model.nutrients.slice(0,3);
- const summary='<div class="ncc-micro-rows">'+preview.map(n=>'<div class="ncc-micro-row" data-micronutrient="'+n.id+'" title="'+esc(n.name+(n.partial?' · estimación parcial':''))+'"><span class="ncc-micro-label">'+esc(n.id==='ala'?'Omega-3 ALA':n.name)+'</span>'+bar(n)+'<span class="ncc-micro-value">'+
+ const order=['magnesium','calcium','iron','zinc','b12','ala','epa_dha'];
+ const preview=order.map(id=>model.nutrients.find(n=>n.id===id)).filter(Boolean);
+ const summary='<div class="ncc-micro-rows">'+preview.map(n=>'<div class="ncc-micro-row" data-micronutrient="'+n.id+'" title="'+esc(n.name+(n.partial?' · estimación parcial':''))+'"><span class="ncc-micro-label">'+esc(n.id==='ala'?'Omega-3 ALA':n.id==='epa_dha'?'EPA + DHA':n.name)+'</span>'+bar(n)+'<span class="ncc-micro-value">'+
   (n.total===null?'Sin datos':(n.partial?'≥ ':'')+fmt(n.total,digits(n.id))+(n.reference.value!==null?' / '+fmt(n.reference.value,digits(n.id)):'')+' '+n.unit)+'</span></div>').join('')+'</div>';
  const detail=dailyRows(model);
  const referenceLabel=model.nutrients.some(n=>n.reference.value!==null)?'Estimados':'Estimados · sin referencia';
  return '<section class="ncc-micronutrients" aria-label="Micronutrientes estimados"><header><h2>Micronutrientes</h2><span class="ncc-micro-badge">'+referenceLabel+'</span></header>'+summary+
+  '<p class="ncc-micro-scale-note">Rayado: sin referencia. ≥: datos parciales.</p>'+
   (expanded?'<div class="ncc-micro-details">'+detail+'</div>':'<details class="ncc-micro-expand"><summary>Detalle y fuentes <span aria-hidden="true">⌄</span></summary><div class="ncc-micro-details">'+detail+'</div></details>')+
   '<div class="ncc-micro-note">≥ indica aporte conocido cuando faltan datos. '+esc(model.referenceNote)+' Una barra baja de un día no indica que necesites un suplemento.</div></section>';
 }

@@ -20,3 +20,24 @@
 
 /* Owner-approved option 2: exact reduced-card preview, 2026-11-13. */
 .ncc-micronutrients{border:1px solid #424e38;border-radius:14px;background:linear-gradient(125deg,#1d281ad9,#111b12ed);padding:10px 12px 0!important}.ncc-micro-rows{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ncc-micro-row{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}.ncc-micro-label{grid-row:1;font-size:11px}.ncc-micro-value{grid-row:2;text-align:left;font-size:11px}.ncc-micro-row .ncc-micro-track{grid-row:3;height:5px}.ncc-micro-expand>summary{min-height:44px}
+
+/* All seven nutrients stay visible in the approved three-column card. */
+.ncc-micro-row,.ncc-micro-detail{--micro-color:#8eb9c5}
+[data-micronutrient=magnesium],[data-micro-detail=magnesium]{--micro-color:#8eb9c5}
+[data-micronutrient=calcium],[data-micro-detail=calcium]{--micro-color:#d5b57b}
+[data-micronutrient=iron],[data-micro-detail=iron]{--micro-color:#df9d8d}
+[data-micronutrient=zinc],[data-micro-detail=zinc]{--micro-color:#94bd9a}
+[data-micronutrient=b12],[data-micro-detail=b12]{--micro-color:#b7a2ce}
+[data-micronutrient=ala],[data-micro-detail=ala]{--micro-color:#81b9ad}
+[data-micronutrient=epa_dha],[data-micro-detail=epa_dha]{--micro-color:#9faed0}
+.ncc-micro-row{min-width:0;color:var(--micro-color)!important}
+.ncc-micro-label{white-space:normal;line-height:15px;min-height:15px}
+.ncc-micro-value{white-space:normal;font-size:10px;line-height:15px}
+.ncc-micro-row .ncc-micro-track{height:6px;border-radius:8px}
+.ncc-micronutrients .ncc-micro-food{background:var(--micro-color)!important;transition:width .25s ease}
+.ncc-micronutrients .ncc-micro-supplement{background:var(--micro-color)!important;filter:brightness(1.3);transition:width .25s ease}
+.ncc-micro-track.is-unscaled{position:relative;background:repeating-linear-gradient(120deg,color-mix(in srgb,var(--micro-color) 32%,#162018) 0 4px,color-mix(in srgb,var(--micro-color) 13%,#162018) 4px 8px)!important}
+.ncc-micro-track.is-unscaled.has-contribution:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--micro-color);border-radius:4px}
+.ncc-micro-track.is-partial:not(.is-unscaled){background:repeating-linear-gradient(120deg,#384340 0 4px,#2b3530 4px 8px)}
+.ncc-micro-scale-note{font-size:9px!important;line-height:14px!important;color:#b8c4ae;margin:8px 0 0!important}
+@media(prefers-reduced-motion:reduce){.ncc-micro-track>span{transition:none!important}}

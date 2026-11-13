@@ -111,8 +111,8 @@ import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-p
 import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
 import {MICRONUTRIENT_CATALOG} from "./micronutrient-catalog.js?v=ncc-self-live-r1-20261113";
 import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-self-live-r1-20261113";
-import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-micros-mi-dia-r1-20261113";
-if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-self-live-r1-20261113";document.head.append(link);}
+import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-microbars-r1-20261113";
+if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-microbars-r1-20261113";document.head.append(link);}
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});

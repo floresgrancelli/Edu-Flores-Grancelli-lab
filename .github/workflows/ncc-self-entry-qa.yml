@@ -13,7 +13,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test efg-nutrition/tests/self-management-entry.test.mjs efg-nutrition/tests/self-management-api.test.mjs efg-nutrition/tests/achuras.test.mjs
+      - run: node --test efg-nutrition/tests/self-management-entry.test.mjs efg-nutrition/tests/self-management-api.test.mjs efg-nutrition/tests/achuras.test.mjs efg-nutrition/tests/micronutrients.test.mjs
+      - run: sudo install -d -m 0777 /workspace
       - name: Install isolated browser tools
         run: |
           mkdir -p /tmp/ncc-entry-sdk
@@ -27,6 +28,10 @@ jobs:
         env:
           NCC_PLAYWRIGHT_MODULE: /tmp/ncc-entry-sdk/node_modules/playwright/index.mjs
         run: node efg-nutrition/tests/achuras-browser.mjs
+      - name: Seven colored micronutrient bars in the mounted app
+        env:
+          NCC_PLAYWRIGHT_MODULE: /tmp/ncc-entry-sdk/node_modules/playwright/index.mjs
+        run: node efg-nutrition/tests/micronutrients-bars-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -37,6 +42,11 @@ jobs:
         with:
           name: ncc-achuras-preview
           path: artifacts/achuras-review/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-micronutrients-bars-preview
+          path: artifacts/micronutrients-bars-preview/
   achuras-postgres:
     runs-on: ubuntu-latest
     timeout-minutes: 8

@@ -1,7 +1,7 @@
 // NCC GU-06 · expand recipe portions into canonical food ingredients.
 // No persistence, RLS bypass, diary write or claim of nutrition approval.
 // Each ingredient remains subject to source review in COACH119.
-import {rebalanceGuidedDay} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {rebalanceGuidedDay} from './guided-day.js?v=ncc-catalog-batch-r1-20261113';
 const UUID=/^[0-9a-f]{8}-[0-9a-f-]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,100}$/.test(x);
 const nutrients=['k','p','c','f','fi'];

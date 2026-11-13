@@ -1,7 +1,7 @@
 name: NCC micronutrients preview
 on:
   push:
-    branches: [work/ncc-self-release-20261113]
+    branches: [work/ncc-self-release-20261113, work/ncc-micros-mi-dia-20261113]
     paths:
       - 'efg-nutrition/pilot/micronutrient*'
       - 'efg-nutrition/pilot/pilot.js'

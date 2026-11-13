@@ -1,0 +1,39 @@
+name: NCC Android build
+on:
+  pull_request:
+    paths:
+      - 'efg-nutrition/android/**'
+      - '.github/workflows/ncc-android-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Validate association generator
+        run: python3 -m unittest discover -s efg-nutrition/android/tests
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Build test APK and unsigned AAB
+        working-directory: efg-nutrition/android
+        run: gradle --no-daemon :app:assembleDebug :app:bundleRelease :app:lintDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ncc-android-test-not-for-production
+          path: |
+            efg-nutrition/android/app/build/outputs/apk/debug/*.apk
+            efg-nutrition/android/app/build/outputs/bundle/release/*.aab
+            efg-nutrition/android/app/build/reports/lint-results-debug.html
+          if-no-files-found: error
+          retention-days: 14

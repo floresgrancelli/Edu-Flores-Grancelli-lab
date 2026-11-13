@@ -17,6 +17,7 @@ try{
  await page.screenshot({path:path.join(output,'Ficha_Android.png'),fullPage:true});
  await page.locator('#demo').click();
  assert.equal(await page.locator('[name=objective]').inputValue(),'');
+ console.log('OBJECTIVE_OPTIONS',await page.locator('[name=objective]').evaluate(el=>el.outerHTML));
  await page.locator('[name=objective]').selectOption('fat_loss');
  assert.equal(await page.locator('[name=consent]').isChecked(),false);
  assert.equal(await page.locator('[name=scope]').isChecked(),false);

@@ -4001,26 +4001,24 @@ function restoreViewContinuity(snapshot){
  requestAnimationFrame(()=>{if(lastRenderedViewKey===activeViewKey())window.scrollTo(snapshot.scrollX,snapshot.scrollY);});
 }
 // Browsing continuity only, in RAM. Form drafts keep their existing owners.
-const navigationViews=new Map();
-let navigationOwner='';
 function navigationScope(){
  const owner=[state.session?.user?.id,state.authContextEpoch||0,state.profile?.role,state.org?.id,state.profile?.organization_id,today()].join('|');
- if(owner!==navigationOwner){navigationViews.clear();navigationOwner=owner;}
+ if(state.navigationBrowse?.owner!==owner)state.navigationBrowse={owner,views:new Map()};
  return owner;
 }
 function navigationViewId(){return [state.tab,state.tab==='coachStudents'?state.selectedStudent||'':''].join('|');}
-function rememberedNavigation(){navigationScope();return navigationViews.get(navigationViewId());}
+function rememberedNavigation(){navigationScope();return state.navigationBrowse.views.get(navigationViewId());}
 function rememberNavigation(){
  navigationScope();
  if(!['coachStudents','planner','recipes','studentMore','adminMore'].includes(state.tab)||lastRenderedViewKey!==activeViewKey())return;
- navigationViews.set(navigationViewId(),{x:window.scrollX,y:window.scrollY,
+ state.navigationBrowse.views.set(navigationViewId(),{x:window.scrollX,y:window.scrollY,
   search:document.getElementById('coachRosterSearch')?.value||'',filter:root.dataset.rosterFilter||'all'});
  // There are few eligible views; bound per-student positions as well.
- if(navigationViews.size>20)navigationViews.delete(navigationViews.keys().next().value);
+ if(state.navigationBrowse.views.size>20)state.navigationBrowse.views.delete(state.navigationBrowse.views.keys().next().value);
 }
 function restoreNavigation(){
  const saved=rememberedNavigation();if(!saved)return false;
- const owner=navigationOwner,key=activeViewKey();
+ const owner=state.navigationBrowse.owner,key=activeViewKey();
  const restore=()=>{if(navigationScope()===owner&&activeViewKey()===key)window.scrollTo({left:saved.x,top:saved.y,behavior:"instant"});};
  restore();requestAnimationFrame(restore);return true;
 }
@@ -6195,7 +6193,7 @@ function resetPrivateSession(){
  state.scienceWelcomeStep=0;state.scienceWelcomeError="";
  state.rewardApproval=null;state.rewardFeatureReady=false;
  state.rewardOpened=false;state.plannerSelections={};state.plannerDraftGrams={};
- userHasUnconfirmedEdits=false;lastRenderedViewKey=null;navigationViews.clear();navigationOwner="";
+ userHasUnconfirmedEdits=false;lastRenderedViewKey=null;state.navigationBrowse=null;
 }
 function handleAuthStateChange(event,session){
  if(event==="SIGNED_IN"){

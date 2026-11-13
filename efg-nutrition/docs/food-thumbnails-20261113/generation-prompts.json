@@ -1,0 +1,486 @@
+{
+  "baselineCommit": "9dad4de8e376d164e1c2d2eca5f9cbde1e8f372c",
+  "catalogVersion": "ncc-catalog-9fe5f297cd40a823",
+  "targetIdentities": 53,
+  "newImages": 51,
+  "reviewedReuses": 2,
+  "records": [
+    {
+      "id": "spinach_raw",
+      "name": "Espinaca cruda para ensalada",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/spinach_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: Fresh RAW spinach salad leaves, smooth oval pointed blades and slender stems. Crisp, unwilted. Only spinach, no dressing. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "chard_raw",
+      "name": "Acelga cruda",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/chard_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW Swiss chard leaves with broad white ribs, white stems and dark glossy green gently crinkled blades. Some short rib sections visible. Fresh uncooked, not spinach, not kale. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "radicchio_raw",
+      "name": "Radicchio o achicoria roja cruda",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/radicchio_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW radicchio: one small half-head and several loose firm burgundy-red leaves with thick branching ivory white veins. Red chicory, not purple cabbage. No dressing. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "fennel_bulb_raw",
+      "name": "Hinojo crudo, bulbo",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/fennel_bulb_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW fennel bulb: one compact ivory-white layered bulb cut lengthwise in half, a little short green stalk and fine feathery fronds attached. Uncooked and undressed. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "asparagus_raw",
+      "name": "Espárragos crudos",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/asparagus_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW asparagus: a small neat bunch of firm bright natural-green asparagus spears with tight purple-green tips. No browning, no grill marks, no sauce or oil. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "nectarine_raw",
+      "name": "Pelón o nectarina fresca",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/nectarine_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: A ripe fresh nectarine with perfectly smooth glossy red-and-yellow skin, one whole and one half showing yellow flesh and a central brown stone. No fuzzy peach skin. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "blackberries_raw",
+      "name": "Moras frescas",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/blackberries_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: Fresh BLACKBERRIES only: plump deep purple-black berries formed of glossy rounded drupelets, a few different angles. Not raspberries or blueberries. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "raspberries_raw",
+      "name": "Frambuesas frescas",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/raspberries_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: Fresh red RASPBERRIES only: delicate red hollow conical berries, small fine textured drupelets and visible hollow centers in a few berries. Not strawberries or blackberries. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "chickpeas_dry",
+      "name": "Garbanzos secos, sin cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/chickpeas_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED chickpeas: small matte pale beige chickpeas, angular beaked shape and naturally wrinkled dry surface. No moisture or oil, not plump cooked chickpeas. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "chickpeas_canned_drained",
+      "name": "Garbanzos en conserva, escurridos",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "reuse_approved_identity_photo",
+      "sourceFoodId": "chickpeas_cooked",
+      "reason": "Existing staples atlas cell19 shows whole hydrated cooked chickpeas drained without sauce; matches the depicted edible preparation. Canning and salt are not inferred from a photo."
+    },
+    {
+      "id": "red_lentils_dry",
+      "name": "Lentejas rojas secas, sin cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/red_lentils_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED split red lentils only: small flat coral-orange lentil discs, dry matte texture, distinct thin halves. No liquid, no sprouts, no cooked mush. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "barley_pearled_dry",
+      "name": "Cebada perlada seca, sin cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/barley_pearled_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED pearled barley grains only: small polished ivory oval kernels with a visible longitudinal crease, dry loose individual grains. Not rolled oats, not rice, not cooked. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "bulgur_dry",
+      "name": "Trigo burgol o bulgur seco",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/bulgur_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED bulgur cracked wheat only: irregular small angular golden-tan wheat fragments with brown bran flecks and a dry crunchy texture. Not fluffy cooked grain or couscous. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "millet_dry",
+      "name": "Mijo seco, sin cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/millet_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED hulled millet only: very small round pale yellow spherical grains, loose and matte, no moisture. Not cooked millet, not coarse cracked wheat. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "turkey_breast_raw",
+      "name": "Pechuga de pavo cruda, sin piel",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/turkey_breast_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: A single boneless skinless RAW TURKEY BREAST fillet, broad elongated thick pale pink-peach meat, naturally smooth fresh moist surface, fully trimmed. Normal clean butchered food, no blood pools, no cooking or garnish. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "rabbit_roasted",
+      "name": "Conejo doméstico asado, mezcla de cortes",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/rabbit_roasted-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: ROASTED RABBIT portions: a browned lean rabbit saddle section and one slender long rabbit hind leg, small fine bones, golden-brown exterior, pale cooked meat at a clean cut. Clearly rabbit portions, no head, no organs, not a chicken breast. No garnish, no added sauce. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "rainbow_trout_raw",
+      "name": "Trucha arcoíris de criadero, cruda",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/rainbow_trout_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW rainbow trout fillet: fresh moist pink-orange uncooked flesh and a partly turned silver skin edge with small dark trout speckles. Long narrow fillet shape, no browning, no grill marks, no garnish. Clean edible fish portion. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "sardines_oil_drained",
+      "name": "Sardinas en aceite, escurridas, con espinas comestibles",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/sardines_oil_drained-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: CANNED SARDINES IN OIL, DRAINED: several small tender whole sardines laid side by side, silver-brown skin, one slightly opened showing delicate pale edible central backbone. Subtle oil sheen but no puddle. No can, no lemon, no sauce. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "milk_powder_skim_instant",
+      "name": "Leche descremada en polvo instantánea, sin reconstituir",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/milk_powder_skim_instant-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: INSTANT SKIM MILK POWDER, DRY: a mound of fine bright creamy-white slightly granular milk powder only, small soft clumps, no water or prepared milk, no scoop or label. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "milk_evaporated_skim",
+      "name": "Leche evaporada descremada, sin diluir",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/milk_evaporated_skim-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: UNDILUTED EVAPORATED SKIM MILK: a small clear tumbler filled with opaque creamy ivory-white pourable milk, lightly concentrated but fluid, smooth surface. Not thick condensed milk, no foam, no coffee, no label. Vessel: clean unlabelled transparent glassware. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "pita_wholewheat",
+      "name": "Pan pita integral de trigo",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/pita_wholewheat-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: WHOLE-WHEAT PITA BREAD only: two small tan-brown round flat pocket breads with visible wholegrain bran flecks, one half opened just enough to reveal the hollow pocket. Plain, no seeds sprinkled, no filling. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "corn_tortilla_ready",
+      "name": "Tortilla de maíz comercial, lista para cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/corn_tortilla_ready-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: PLAIN CORN TORTILLAS ready to heat or cook: a small flat stack of thin pale yellow round maize tortillas with a fine slightly grainy surface. Soft flat discs, no char marks, no tacos or filling, not wheat wraps. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "potato_salad_home",
+      "name": "Ensalada de papa, preparación casera de referencia",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/potato_salad_home-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: HOME-STYLE POTATO SALAD: cooked potato cubes lightly bound in a pale creamy mayonnaise-style dressing, a few tiny celery pieces. No egg halves, no lettuce, no garnish; coherent creamy potato salad, not plain boiled potatoes or mash. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "minestrone_canned_ready",
+      "name": "Sopa minestrone en conserva, lista para consumir",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/minestrone_canned_ready-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: READY-TO-EAT MINESTRONE SOUP: red tomato vegetable broth with visible small cooked beans, diced carrot, zucchini and short small pasta pieces. A soup with liquid broth, not a dry salad or puree. No cream, no cheese garnish. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "tomato_juice_unsalted_weight",
+      "name": "Jugo de tomate en conserva, sin sal añadida",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/tomato_juice_unsalted_weight-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: PLAIN TOMATO JUICE without added salt: one clear tumbler with smooth opaque deep natural tomato-red juice. No ice, no stalk, no alcohol, no rim garnish, no tomato pieces. Vessel: clean unlabelled transparent glassware. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "escarole_boiled_unsalted",
+      "name": "Escarola hervida, escurrida, sin sal",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/escarole_boiled_unsalted-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: BOILED DRAINED ESCAROLE only: soft wilted medium-to-dark green curly endive leaves with tender pale ivory rib pieces, moist but drained. No oil, no salt crystals, no broth. Not raw salad, not smooth spinach. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "red_cabbage_raw",
+      "name": "Repollo colorado crudo",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "reuse_approved_identity_photo",
+      "sourceFoodId": "cabbage",
+      "reason": "Existing produce atlas cell29 visibly shows shredded raw purple cabbage; exact raw red-cabbage identity reviewed."
+    },
+    {
+      "id": "green_beans_raw",
+      "name": "Chauchas crudas",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/green_beans_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW GREEN BEANS: a small bundle of whole firm fresh green string-bean pods, smooth natural green skin, tapered tips and a few short stems. Uncooked, no browning, no cut cooked pieces, no oil or garnish. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "lime_raw",
+      "name": "Lima fresca, parte comestible",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/lime_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: FRESH LIME: one whole natural green lime and one clean half showing pale yellow-green citrus flesh, thin green rind and radial segments. Not a yellow lemon. No drink, no garnish. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "guava_raw",
+      "name": "Guayaba fresca",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/guava_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: FRESH GUAVA: one whole pale green-yellow guava and one halved guava with vivid soft pink flesh and a central cluster of small cream-colored seeds. Real guava shape, not avocado or papaya. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "apricots_dried_sulfured",
+      "name": "Damascos deshidratados tratados con sulfitos",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/apricots_dried_sulfured-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRIED SULFURED APRICOT halves only: plump flattened bright orange dried apricot discs, softly wrinkled leathery dry surfaces and no stones. Not fresh apricots, no syrup, no raisins or nuts. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "peaches_syrup_drained",
+      "name": "Duraznos en almíbar concentrado, escurridos",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/peaches_syrup_drained-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: CANNED PEACH HALVES from syrup, DRAINED: three peeled golden-yellow smooth peach halves with shallow stone cavities and a light glossy surface, very little residual moisture, no pooling syrup. Not fresh unpeeled peach, no cream. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "fava_beans_cooked",
+      "name": "Habas secas maduras, hervidas sin sal",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/fava_beans_cooked-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: COOKED MATURE DRIED FAVA BEANS, drained: large flattened oval tan-brown broad beans with their cooked skins and recognizable dark seed scar, a few opened showing pale beige interior. Not immature bright green favas, not white lima beans or chickpeas. No broth or oil. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "peas_canned_unsalted_drained",
+      "name": "Arvejas en conserva sin sal añadida, escurridas",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/peas_canned_unsalted_drained-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: CANNED GREEN PEAS, DRAINED: small soft round muted olive-green peas with lightly wrinkled hydrated skins and gentle moisture. No liquid, no oil. Not bright frozen raw peas, no carrots or garnish. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "semolina_dry_unenriched",
+      "name": "Sémola de trigo seca, sin enriquecer",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/semolina_dry_unenriched-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY WHEAT SEMOLINA: a mound of fine pale golden-yellow gritty granules, visibly coarser than white flour but finer than couscous. Dry loose grains only, not cooked porridge or pasta. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "couscous_dry",
+      "name": "Cuscús seco, sin cocinar",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/couscous_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY UNCOOKED COUSCOUS: very small uniform pale beige round semolina granules, hard dry individual particles. Not large pearl couscous, not fluffy cooked grain, no vegetables or liquid. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "buckwheat_roasted_dry",
+      "name": "Trigo sarraceno tostado en grano, seco",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/buckwheat_roasted_dry-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY ROASTED BUCKWHEAT GROATS (KASHA): individual angular triangular pyramid-shaped toasted brown kernels, loose dry grains, clearly triangular buckwheat not round millet, not cooked porridge. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "amaranth_cooked",
+      "name": "Amaranto en grano cocido",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/amaranth_cooked-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: COOKED AMARANTH GRAIN: tiny cream-beige seed grains in a softly moist slightly gelatinous cohesive cooked texture, a simple grain porridge without milk. Very small seeds, not large quinoa or rice. No fruit, no garnish. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "oat_bran_raw",
+      "name": "Salvado de avena crudo",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/oat_bran_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW DRY OAT BRAN: fine light tan flaky bran meal with irregular tiny thin flakes and a soft dry mound, not whole rolled oat flakes and not white flour. No milk, no fruit, no scoop. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "ground_beef_90_10_raw",
+      "name": "Carne vacuna picada cruda, 90% magra y 10% grasa",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/ground_beef_90_10_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW GROUND BEEF 90 percent lean / 10 percent fat: a clean mound of fresh deep red finely minced beef with sparse tiny white fat flecks, natural visible ground strands. No cooked brown crumbles, no formed burger, no packaging, no blood pools. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "pork_tenderloin_lean_raw",
+      "name": "Solomillo de cerdo crudo, solo parte magra",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/pork_tenderloin_lean_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW LEAN PORK TENDERLOIN: a single clean trimmed slender tapered tenderloin, pale rosy-pink lean meat, a small clean cross-section visible at one end, almost no exterior fat. No skin, no bones, no cooking or sauce, no blood pools. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "squid_raw",
+      "name": "Calamar crudo, parte comestible",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/squid_raw-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: RAW CLEANED SQUID, edible parts: two fresh translucent ivory-white squid tubes and a small neat cluster of pale curled tentacles, subtle pink-purple skin flecks. Normal prepared seafood, no eyes or organs, no batter, no frying or grill marks. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "tuna_oil_drained",
+      "name": "Atún claro en aceite, escurrido",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/tuna_oil_drained-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: CANNED LIGHT TUNA IN OIL, DRAINED: irregular tender cream-pink tuna flakes with a clear gentle golden oil sheen, no pooling oil or liquid, a few chunkier flakes. Not raw red tuna, no mayonnaise, no salad ingredients, no can or label. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "milk_condensed_sweetened",
+      "name": "Leche condensada azucarada",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/milk_condensed_sweetened-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: SWEETENED CONDENSED MILK: a small bowl of thick glossy pale ivory condensed milk with a gentle folded ribbon on the surface showing its viscous texture. Not caramel or dulce de leche, not plain fluid milk. No spoon, no label, no toppings. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "milk_powder_whole",
+      "name": "Leche entera en polvo, sin reconstituir",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/milk_powder_whole-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: DRY WHOLE MILK POWDER: a mound of pale warm ivory fine milk powder with small soft clumps, dry creamy powder only. Not liquid milk, no scoop, no brand, no whey shake or garnish. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "bagel_plain_generic",
+      "name": "Bagel común sin relleno, genérico de referencia",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/bagel_plain_generic-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: PLAIN UNFILLED BAGEL: one golden-brown round bread ring with a small central hole, smooth slightly shiny boiled-and-baked crust, a clean cut half alongside revealing a dense white crumb. No seeds, no fillings, no cream cheese. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "pita_white_unenriched",
+      "name": "Pan pita blanco de trigo, sin enriquecer",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/pita_white_unenriched-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: WHITE WHEAT PITA BREAD: two small pale ivory-beige thin round pocket breads with light brown baked spots, one half opened to show the hollow pocket. Not whole-wheat brown bread, no filling, no tortilla toppings. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "pancake_complete_mix_prepared",
+      "name": "Pancakes de premezcla completa, ya preparados",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/pancake_complete_mix_prepared-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: PLAIN PREPARED AMERICAN-STYLE PANCAKES from complete mix: a small stack of three modest round thick pancakes with evenly golden-brown tops and pale soft edges. No syrup, no butter, no fruit, no filling, not thin crepes. Vessel: a plain matte ivory ceramic plate. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "chicken_noodle_soup_diluted",
+      "name": "Sopa de pollo con fideos en conserva, preparada con igual volumen de agua",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/chicken_noodle_soup_diluted-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: PREPARED CHICKEN NOODLE SOUP: a clear light golden broth with small tender chicken shreds, short thin egg noodles and a few tiny carrot and celery pieces. Ready-to-eat soup with plenty of broth, no cream, no cheese, not condensed paste or dry mix. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "orange_juice_raw_weight",
+      "name": "Jugo de naranja exprimido, sin azúcar añadida",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/orange_juice_raw_weight-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: FRESHLY SQUEEZED ORANGE JUICE only: one clear tumbler filled with naturally bright orange opaque juice, slight suspended pulp, no foam cap, no added sugar crystals, no ice, no orange slice garnish. Vessel: clean unlabelled transparent glassware. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "lemon_juice_raw_weight",
+      "name": "Jugo de limón exprimido, sin azúcar añadida",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/lemon_juice_raw_weight-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: FRESHLY SQUEEZED LEMON JUICE only: one small clear tumbler with a modest amount of cloudy pale yellow lemon juice, natural slight pulp and no added water or sugar. Not lemonade, not orange juice, no ice, no garnish. Vessel: clean unlabelled transparent glassware. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "sesame_oil",
+      "name": "Aceite de sésamo para ensalada o cocina",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/sesame_oil-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: SESAME OIL for cooking or salad: a small clear unlabelled glass cruet filled with transparent golden-amber oil, with a tiny clear glass dish of the same oil beside it. No seeds in the oil, no salad, no brand label, no text. Vessel: clean unlabelled transparent glassware. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    },
+    {
+      "id": "tahini_roasted",
+      "name": "Tahini de semillas de sésamo tostadas",
+      "assetPath": "efg-nutrition/pilot/assets/food-specific/identity-r3/tahini_roasted-r1.webp",
+      "nutritionalIdentityChanged": false,
+      "reviewStatus": "pending_visual_review",
+      "kind": "generated_illustrative_photo",
+      "prompt": "Use case: product-mockup. Asset type: one square photorealistic illustrative food thumbnail for Nutrición Con-Ciencia, matching a premium food catalog. Subject: TAHINI from ROASTED SESAME SEEDS: smooth thick pale toasted beige sesame paste with a simple spiral swirl and subtle natural oil gloss. No chickpeas, no paprika, no whole nuts, no olive-oil puddle, no hummus garnish. Vessel: a small matte ivory ceramic bowl. Composition: a single centered serving vessel fully inside the square with breathing room, food occupying approximately80 percent of image, top-down view, clearly recognizable when reduced to64px. Flat very dark muted petroleum/olive green background near #172826. Soft clean studio daylight, natural food colors, realistic crisp textures, gentle soft shadow. No text, no label, no watermark, no hands, no utensils, no collage, no grid, no multiple panels. No unrequested ingredients or garnish. This depicts food identity and preparation, never an exact measured portion or nutritional suitability."
+    }
+  ]
+}

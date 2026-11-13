@@ -61,6 +61,13 @@ export function createSelfManagementRepository(client){
    return row?{userId:row.user_id,requestId:row.request_id,intakeRevision:row.intake_revision,
     revision:row.revision,result:row.result}:null;
   },
+  async readLatest(userId){
+   owner(userId);
+   const row=result(await client.from('ncc_self_results').select('user_id,request_id,revision,intake_revision,result')
+    .eq('user_id',userId).order('revision',{ascending:false}).limit(1).maybeSingle());
+   if(row&&row.user_id!==userId)fail('ownership','El plan no corresponde a tu sesión.');
+   return row?{userId:row.user_id,requestId:row.request_id,intakeRevision:row.intake_revision,revision:row.revision,result:row.result}:null;
+  },
  };
  return repository;
 }

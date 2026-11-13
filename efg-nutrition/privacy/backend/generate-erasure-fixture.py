@@ -155,6 +155,8 @@ scenario.append(f"do $$begin if exists(select 1 from public.ncc_account_deletion
 scenario.append("set local role authenticated;select set_config('request.jwt.claim.sub',"+lit(A)+",true);")
 expect(f"insert into storage.objects(bucket_id,name,owner_id) values ('efg-receipts','after-auth.webp',{lit(A)})",'ACCOUNT_NO_LONGER_AVAILABLE')
 expect(f'insert into public.efg_daily_logs(student_id) values ({lit(A)})','ACCOUNT_NO_LONGER_AVAILABLE')
+scenario.append("reset role;insert into auth.users values ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','fresh@example.test');set local role authenticated;select set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);")
+scenario.append("update public.efg_invitations set revoked_at=now() where email='student-2@example.test'; -- Valid Auth identity without a profile is not treated as deleted.")
 scenario.append('reset role;create table public.efg_unreviewed_data(user_id uuid references auth.users(id));grant all on public.efg_unreviewed_data to service_role;set local role service_role;')
 expect(f'select public.ncc_prepare_student_erasure({lit(requests[E])})','SCHEMA_REVIEW_REQUIRED')
 scenario.append('reset role;drop table public.efg_unreviewed_data;')

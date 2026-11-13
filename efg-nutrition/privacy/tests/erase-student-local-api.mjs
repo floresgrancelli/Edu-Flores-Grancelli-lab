@@ -73,6 +73,8 @@ yes(await call('/storage/v1/bucket',{method:'POST',body:{id:'ncc-erasure-test',n
 async function upload(user,name='sample.txt'){
  return call('/storage/v1/object/ncc-erasure-test/'+user.id+'/'+name,{method:'POST',token:user.token,raw:new TextEncoder().encode('fictional local erasure file')});
 }
+const fresh=await identity('bootstrap');
+yes(await upload(fresh,'bootstrap.txt'),'Valid new Auth identity without an app profile retains existing upload behavior');
 yes(await upload(a),'Upload target file through real Storage API');yes(await upload(b),'Upload control file through real Storage API');
 assert.equal(sql('select count(*) from storage.objects where owner_id='+q(a.id)),'1');
 assert.equal((await call('/rest/v1/ncc_account_deletion_requests',{method:'POST',token:b.token,body:{user_id:a.id,source:'privacy_web'}})).ok,false,'B must not request deletion of A');

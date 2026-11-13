@@ -63,6 +63,19 @@ begin
 end;
 $fn$;
 
+-- The sole definer helper checks only the caller's signed identity, takes no
+-- user ID argument, and lives outside exposed API schemas. It allows legitimate
+-- onboarding before a profile exists while denying JWTs of deleted Auth users.
+create schema ncc_erasure_private;
+revoke all on schema ncc_erasure_private from public,anon;
+grant usage on schema ncc_erasure_private to authenticated,service_role;
+create function ncc_erasure_private.current_auth_user_exists() returns boolean
+language sql stable security definer set search_path='' as $fn$
+ select auth.uid() is not null and exists(select 1 from auth.users where id=(select auth.uid()));
+$fn$;
+revoke all on function ncc_erasure_private.current_auth_user_exists() from public,anon;
+grant execute on function ncc_erasure_private.current_auth_user_exists() to authenticated,service_role;
+
 create function public.ncc_freeze_erasure_writes() returns trigger
 language plpgsql security invoker set search_path=pg_catalog,public as $fn$
 declare uid uuid:=auth.uid();
@@ -72,13 +85,9 @@ begin
    if exists(select 1 from public.ncc_account_deletion_requests where user_id=uid and status='processing') then
      raise exception 'ACCOUNT_DELETION_IN_PROGRESS';
    end if;
-   -- Old signed JWTs can outlive Auth deletion. Keep them from recreating files
-   -- or app rows without retaining a permanent personal-data tombstone.
-   -- Initial profile creation is still subject to existing ACL/RLS and its Auth FK.
-   if not exists(select 1 from public.efg_profiles where user_id=uid) then
-     if not (tg_table_schema='public' and tg_table_name='efg_profiles' and tg_op='INSERT') then
-       raise exception 'ACCOUNT_NO_LONGER_AVAILABLE';
-     end if;
+   -- Old signed JWTs can outlive Auth deletion. No permanent tombstone is needed.
+   if ncc_erasure_private.current_auth_user_exists() is distinct from true then
+     raise exception 'ACCOUNT_NO_LONGER_AVAILABLE';
    end if;
  end if;
  if tg_op='DELETE' then return old;end if;return new;

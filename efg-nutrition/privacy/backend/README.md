@@ -10,6 +10,11 @@ de solicitud existente. Nunca recibe un ID de usuario elegido por el navegador.
 Las funciones SQL solo tienen EXECUTE para service_role. No hay endpoint público,
 credenciales incrustadas ni importación del módulo desde el piloto.
 
+La única excepción de privilegios es un helper SECURITY DEFINER en un esquema
+privado no expuesto: sin parámetros, comprueba solo si existe la identidad firmada
+del llamador en Auth. No devuelve otros usuarios ni usa user_metadata. Evita que
+un JWT antiguo recree archivos sin bloquear el ingreso válido previo a crear un perfil.
+
 1. El servidor obtiene el titular de la solicitud y verifica rol, referencias y
    coincidencia del esquema con metadatos revisados. No lee user_metadata para autorizar.
 2. Se detiene para coach/admin, pagos relacionados o vínculos profesionales con

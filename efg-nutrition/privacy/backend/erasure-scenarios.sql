@@ -101,6 +101,8 @@ do $$begin if exists(select 1 from public.ncc_account_deletion_requests where us
 set local role authenticated;select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 select qa.expect_error('insert into storage.objects(bucket_id,name,owner_id) values (''efg-receipts'',''after-auth.webp'',''11111111-1111-4111-8111-111111111111'')','ACCOUNT_NO_LONGER_AVAILABLE');
 select qa.expect_error('insert into public.efg_daily_logs(student_id) values (''11111111-1111-4111-8111-111111111111'')','ACCOUNT_NO_LONGER_AVAILABLE');
+reset role;insert into auth.users values ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','fresh@example.test');set local role authenticated;select set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);
+update public.efg_invitations set revoked_at=now() where email='student-2@example.test'; -- Valid Auth identity without a profile is not treated as deleted.
 reset role;create table public.efg_unreviewed_data(user_id uuid references auth.users(id));grant all on public.efg_unreviewed_data to service_role;set local role service_role;
 select qa.expect_error('select public.ncc_prepare_student_erasure(''aaaaaaaa-aaaa-4aaa-8aaa-000000000005'')','SCHEMA_REVIEW_REQUIRED');
 reset role;drop table public.efg_unreviewed_data;

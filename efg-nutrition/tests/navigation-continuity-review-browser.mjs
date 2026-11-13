@@ -51,7 +51,7 @@ try{for(const engine of ['chromium','webkit']){
   },role);};
   const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png')});
   const science=()=>page.locator('.pilot-nav [data-tab=nutritionScience]').click();
-  const roster=async()=>{if(role==='admin'){await page.locator('.pilot-nav [data-tab=testCoach]').click();await page.locator('[data-tab=coachStudents]:visible').first().click();}else await page.locator('.pilot-nav [data-tab=coachStudents]').click();await page.locator('#coachRosterSearch').waitFor();};
+  const roster=async()=>{if(role==='admin'){await page.locator('.pilot-nav [data-tab=testCoach]').click();await page.locator('#nccCoachHomeSections [data-workspace-tab=students]').click();await page.locator('[data-tab=coachStudents]:visible').first().click();}else await page.locator('.pilot-nav [data-tab=coachStudents]').click();await page.locator('#coachRosterSearch').waitFor();};
   const browse=async prefix=>{
    await page.locator('[data-rosterfilter=plan]').click();await page.locator('#coachRosterSearch').fill('Fabio');await page.evaluate(()=>window.scrollTo({top:480,behavior:'instant'}));const y=await page.evaluate(()=>scrollY);assert.ok(y>100);await shot(prefix+'-leaving');
    await science();await roster();await page.waitForTimeout(100);const result=await page.evaluate(()=>({search:document.getElementById('coachRosterSearch').value,filter:document.getElementById('app').dataset.rosterFilter,y:scrollY}));await shot(prefix+'-returned');return {y,...result,leavingY:y};

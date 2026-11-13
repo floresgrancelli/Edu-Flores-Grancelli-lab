@@ -16,7 +16,10 @@ matched=False
 diagnostics=[]
 try:
     diagnostics.append(adb('install','-r','app/build/outputs/apk/debug/app-debug.apk'))
-    diagnostics.append(adb('shell','am','start','-W','-n','ar.com.nutricionconciencia.app/com.google.androidbrowserhelper.trusted.LauncherActivity'))
+    adb('logcat','-c')
+    diagnostics.append(adb('shell','am','start','-W','-a','android.intent.action.MAIN',
+        '-c','android.intent.category.LAUNCHER','-f','0x10000000',
+        '-n','ar.com.nutricionconciencia.app/com.google.androidbrowserhelper.trusted.LauncherActivity'))
     screenshot('initial.png')
     for attempt in range(12):
         time.sleep(3)
@@ -44,6 +47,8 @@ try:
 finally:
     screenshot('launch.png')
     (out/'activity.txt').write_text(adb('shell','dumpsys','activity','activities'))
+    (out/'startup-logcat.txt').write_text(adb('logcat','-d','-v','brief','-t','1000',
+        'AndroidRuntime:E','LauncherActivity:D','TwaLauncher:D','ActivityTaskManager:I','chromium:E','*:S'))
     (out/'diagnostics.txt').write_text('\n'.join(diagnostics))
 if not matched:
     raise SystemExit('No real sign-in form detected. Inspect screenshot and UI dump; no functional login claim.')

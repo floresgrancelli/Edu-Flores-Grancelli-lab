@@ -35,7 +35,7 @@ async function transport(body,t=epoch){
  if(!response.ok)throw Object.assign(Error(errors[value.error]||'No pudimos completar la solicitud. Revisá la ficha e intentá nuevamente.'),{code:value.error});
  if(value.userId!==owner)throw Error('La respuesta no corresponde a tu cuenta.');return value;
 }
-function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;hasPlan=false;nav.hidden=true;login.hidden=true;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';document.getElementById('prefillStatus').textContent='';loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();document.getElementById('loginStatus').textContent='';document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}
+function clearPrivate(){document.body.classList.remove('self-ready');document.getElementById('logout').hidden=false;document.getElementById('retryAccess').hidden=false;epoch++;owner=null;revision=0;legal=null;preferencePending=false;hasPlan=false;nav.hidden=true;login.hidden=true;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';document.getElementById('prefillStatus').textContent='';loginEmail=null;document.getElementById('selfEmailForm').reset();document.getElementById('selfCodeForm').reset();document.getElementById('loginStatus').textContent='';document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}
 function showPlan(saved){
  if(saved?.userId!==owner||saved.intakeRevision!==revision||!saved.result?.guide)return;
  hasPlan=true;document.getElementById('showGuide').disabled=false;
@@ -68,8 +68,8 @@ async function boot(){
    showPlan(context.latestPlan);
   }
   form.elements.scope.checked=false;form.elements.consent.checked=false;
-  nav.hidden=false;document.getElementById('showGuide').disabled=!hasPlan;showTab(hasPlan?'guide':'intake');accountStatus.textContent='Autogestión · acceso privado';
- }catch(e){if(t!==epoch)return;clearPrivate();accountStatus.textContent=e.message;if(e.code==='auth_required'){login.hidden=false;document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}}
+  document.body.classList.add('self-ready');nav.hidden=false;document.getElementById('showGuide').disabled=!hasPlan;showTab(hasPlan?'guide':'intake');accountStatus.textContent='Autogestión · acceso privado';
+ }catch(e){if(t!==epoch)return;clearPrivate();accountStatus.textContent=e.message;if(e.code==='auth_required'){document.getElementById('logout').hidden=true;document.getElementById('retryAccess').hidden=true;login.hidden=false;document.getElementById('selfEmailForm').hidden=false;document.getElementById('selfCodeForm').hidden=true;}}
 }
 function edited(){editVersion++;hasPlan=false;result.hidden=true;document.getElementById('showGuide').disabled=true;status.textContent='Regenerá la guía para aplicar los cambios en tu ficha.';}
 form.addEventListener('input',edited);
@@ -131,7 +131,7 @@ document.getElementById('selfCodeForm').onsubmit=async e=>{
  finally{loginBusy=false;login.inert=false;}
 };
 sb.auth.onAuthStateChange((event,session)=>{
- if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada.';login.hidden=false;}
+ if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada.';document.getElementById('logout').hidden=true;document.getElementById('retryAccess').hidden=true;login.hidden=false;}
  else if(session?.user?.id&&((owner&&session.user.id!==owner)||(!owner&&event==='SIGNED_IN'&&!loginBusy))){clearPrivate();accountStatus.textContent='La cuenta cambió. Verificando el acceso…';setTimeout(()=>boot(),0);}
 });
 await boot();

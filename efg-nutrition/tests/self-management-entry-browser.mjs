@@ -55,7 +55,7 @@ try{
    await page.locator('[name=age_years]').fill('');await page.locator('#generate').click();assert.equal((await page.evaluate(()=>window.__test.intake)),null);
    await page.locator('[name=age_years]').fill('35');await page.locator('[name=sex_for_equation]').selectOption('male');await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();await page.locator('#generate').click();await page.locator('#result').waitFor({state:'visible'}).catch(async error=>{await page.screenshot({path:resolve(out,`${name}-${width}-error.png`),fullPage:true});console.error(await page.locator('#status').textContent());throw error;});
    assert.equal(await page.locator('#intake').isVisible(),false);assert.equal(await page.locator('.meal-tabs button').count(),6);
-   await page.locator('.meal-tabs button').nth(3).click();assert.equal(await page.locator('.meal-panel:visible').count(),1);
+   for(const tab of await page.locator('.meal-tabs button').all()){await tab.click();assert.equal(await page.locator('.meal-panel:visible').count(),1);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Guide must not overflow at '+width+'px');}await page.locator('.meal-tabs button').nth(3).click();
    await page.screenshot({path:resolve(out,`${name}-${width}-guia.png`),fullPage:true});
    await page.locator('#retryAccess').click();await page.locator('#result').waitFor({state:'visible'});
    await page.locator('#showIntake').click();await page.locator('[name=weight_kg]').fill('79');assert.equal(await page.locator('#showGuide').isDisabled(),true);

@@ -26,13 +26,14 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 const base='8a97235aa8bdfad8bfcb6781b3e45538f13d0434';
 const gitRead=file=>execFileSync('git',['-c','safe.directory='+resolve(root),'show',base+':efg-nutrition/pilot/'+file],{cwd:root,encoding:'utf8'});
 const baselinePilot=syntheticResponse('/efg-nutrition/pilot/pilot.js',gitRead('pilot.js'),{enabled:true}).replaceAll('../tests/dual-workspace-fullapp-sdk.mjs','../tests/coach-actions-sdk.mjs')+'\nglobalThis.__NCC_WORKSPACE_HOOKS__={messages,setConsent(values){Object.assign(coachRosterConsent,values);}};\n';
+const baselineNavHook='\nglobalThis.__NCC_NAV_TEST__={get rendered(){return lastRenderedViewKey;},get active(){return activeViewKey();},get memory(){return [...(state.navigationBrowse?.views||[])];}};\n';
 const baselineTabs=gitRead('workspace-tabs.js'),evidence=[];
 try{for(const engine of ['chromium','webkit']){
  const browser=await engines[engine].launch({headless:true});
  try{for(const width of [390,320,1280])for(const role of ['coach','admin','student']){
   const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block'});let baseline=false;
   await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
-  await context.route('**/pilot.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselinePilot}):r.continue());
+  await context.route('**/pilot.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselinePilot+baselineNavHook}):r.continue());
   await context.route('**/workspace-tabs.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselineTabs}):r.continue());
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   const setup=async()=>{await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();await page.evaluate(async role=>{

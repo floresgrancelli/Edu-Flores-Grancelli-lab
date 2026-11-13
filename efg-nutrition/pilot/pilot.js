@@ -106,6 +106,12 @@ import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,rend
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
+import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-plan.js?v=ncc-self-live-r1-20261113";
+import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
+import {MICRONUTRIENT_CATALOG} from "./micronutrient-catalog.js?v=ncc-self-live-r1-20261113";
+import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-self-live-r1-20261113";
+import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-self-live-r1-20261113";
+if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-self-live-r1-20261113";document.head.append(link);}
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
@@ -719,7 +725,9 @@ async function ensureCurrentDay(){
   }
  }
 }
-const activeGoal=()=>{ const p=state.profile; const own=state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(own||legacyPilot); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
+function ownSelfManagement(){const own=state.selfManagementOwn;return ["admin","coach"].includes(state.profile?.role)&&own?.owner===state.session?.user?.id&&own?.epoch===(state.authContextEpoch||0)?own:null;}
+function ownMicronutrientProfile(){const fields=ownSelfManagement()?.fields;if(!fields||fields.pregnantOrBreastfeeding!==false||fields.clinicalCareRequired!==false||fields.eatingDisorderHistory!==false||fields.restrictionDeclaration!=="none_declared"||!Array.isArray(fields.health_flags)||fields.health_flags.length)return null;return {age:fields.age_years,referenceSex:fields.sex_for_equation,lifeStage:"adult",clinicalAdaptation:false,dietaryPattern:fields.dietary_pattern};}
+const activeGoal=()=>{ const p=state.profile; const auto=ownSelfManagement(); const own=auto?.goal||state.personalTargets; const historical=state.goals?.[0]; const legacyPilot=p?.role==="coach"&&state.org?.is_test&&!own&&historical; const source=p?.role==="student"?historical:(auto?.error||auto?.pending?null:(own||legacyPilot)); return source?{k:source.kcal,p:source.protein_g,c:source.carb_g,f:source.fat_g,fi:source.fiber_g}:null; };
 function formatTime(d){return new Date(d).toLocaleString("es-AR",{dateStyle:"short",timeStyle:"short"});}
 function safePhoneEmail(email){return escapeHTML(email);}
 function normItem(p,qty,when){let result={id:p.id,name:p.name,qty:Number(qty),unit:p.unit,source:p.source,sourceType:p.sourceType,sourceId:p.sourceId||null,validationStatus:p.validationStatus,when};for(const k of ["k","p","c","f","fi"])result[k]=Math.round((p[k]||0)*qty*100)/100;return result;}
@@ -1458,7 +1466,7 @@ function unauthorized(_msg){
  '<div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">ACCESO PRIVADO · NUTRICIÓN CON-CIENCIA</div><h2>Necesitamos verificar tu habilitación</h2>'+
  '<p>Por ahora no podemos abrir un espacio de Nutrition Coach en esta sesión. No se muestran datos de ninguna otra persona.</p>'+
  '<div class="pilot-alert" role="status" style="margin:20px 0">Si recibiste una invitación, consultá con quien te la envió antes de intentar ingresar de nuevo.</div>'+
- '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions" aria-expanded="false">Cómo solicitar acceso</button>'+
+ '<button type="button" class="btn block light" data-act="showAccessInstructions" aria-controls="efgAccessInstructions" aria-expanded="false">Cómo solicitar acceso</button><a class="btn block ghost" href="./autogestion.html">Autogestión sin coach · acceso habilitado</a>'+
  '<div id="efgAccessInstructions" class="pilot-hint" hidden><p>Pedile a tu entrenador que verifique la invitación y el cupo de tu cuenta. Si sos coach, contactá al administrador de EFG a través del canal habitual con el que te invitaron. No compartas códigos de ingreso ni contraseñas.</p><p>La aplicación no envía una solicitud automáticamente desde este botón.</p></div>'+
  '<button class="btn block ghost" data-act="logout" style="margin-top:12px">Salir e ingresar con otro correo</button></div></div></div>';
 }
@@ -1506,7 +1514,7 @@ function personalSpaceMenuView(title,description,entries){
  return premiumMenuView(title,description,entries).replace('<section class="efg-menu-grid">','<section class="efg-menu-grid ncc-personal-menu">')+(studentRestrictedNavigation()&&state.profile.role==='student'?'':summary);
 }
 function coachPersonalMoreView(){
- return personalSpaceMenuView("MI ESPACIO","Tus herramientas nutricionales personales. Los registros son exclusivamente tuyos y no pertenecen a los alumnos.",[
+ return selfManagementLink()+personalSpaceMenuView("MI ESPACIO","Tus herramientas nutricionales personales. Los registros son exclusivamente tuyos y no pertenecen a los alumnos.",[
  ["home","⌂","MI DÍA","blue"],["planner","✧","Mi planificador","cream"],
  ["weight","↗","Mi progreso","mint"],["recipes","🍲","Mis recetas","peach"],
  ["supplements","💊","Mis suplementos","lilac"],["sport","🏃","Mi actividad","blue"],
@@ -1756,12 +1764,13 @@ function showPlannerPreparation(){
  root.querySelector('#nccPlannerSections [data-workspace-tab="choose"]')?.click();
 }
 function studentPlannerView(){
+ if(ownSelfManagement())return '<section class="card"><h1>Mi Dieta Guía · Autogestión</h1><p>Revisá tu guía automática y actualizá tu ficha.</p>'+selfManagementLink()+'</section>'+plannerCard();
  if(currentStudentGuide())return '<div class="ncc-plan-workspace">'+studentGuideView()+'<section class="ncc-plan-planning">'+plannerCard()+'</section></div>';
  return '<div class="ncc-plan-workspace" data-no-guide="true"><section class="ncc-plan-guide-empty card"><h1>Mi Dieta Guía</h1><p>Acá verás tu Dieta Guía cuando esté disponible.</p></section><section class="ncc-plan-planning">'+rootText("Mi planificador",state.profile.role==="student"?"Elegí alimentos y calculá porciones orientativas según el objetivo aprobado por tu coach.":"Calculá tus porciones con tus objetivos personales, sin modificar los planes de ningún alumno.")+
  plannerCard()+'</section><div id="mealDialogContainer"></div></div>';
 }
 function adminMoreView(){
- return personalSpaceMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
+ return selfManagementLink()+personalSpaceMenuView("Todas mis herramientas","Como administrador conservás tus accesos personales y de gestión.",[
  ["adminManage","⚙️","Organizaciones","lilac"],["notifications","🔔","Notificaciones","peach"],["messages","💬","Mensajería interna","mint"],["reports","📈","Informes","blue"],["weight","⚖️","Mi progreso","mint"],["sport","🏃","Mi actividad","peach"],["planner","✨","Mi planificador","cream"],["recipes","🍲","Mis recetas","mint"],["supplements","💊","Mis suplementos","lilac"],["nutritionScience","🧠","Nutrición Con-Ciencia","mint"],["payments","💳","Pagos y licencias","blue"]]);
 }
 /* PRO-37: premio separado de la ingesta. La autorización viene exclusivamente
@@ -1896,7 +1905,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  toolPanel('nccDayBalance','Balance restante',balance)+
  '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
  toolPanel('nccDayWeekly','Resumen semanal',weeklyPanel)+toolPanel('nccDayMessage','Mensaje del día',dayMessage)+toolPanel('nccDayGoals','Mis objetivos personales',goalForm)+'</div></details>';
-  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+
+  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+(MICRONUTRIENTS_ENABLED&&ownSelfManagement()?.goal?renderMicronutrients(estimateDailyMicronutrients({diary:d,profile:ownMicronutrientProfile(),catalog:MICRONUTRIENT_CATALOG})):"")+(ownSelfManagement()?'<section class="ncc-self-day-link">'+(ownSelfManagement().error?'<p role="status">No pudimos verificar tu guía automática. Reintentá antes de usar sus metas.</p>':ownSelfManagement().pending?'<p role="status">Tu ficha cambió. Generá una guía actualizada.</p>':'')+selfManagementLink()+'</section>':'')+
  '<button type="button" class="btn small light ncc-day-plan-shortcut" data-tab="planner" data-plan-direct="true" style="width:100%;margin:0 0 12px;display:flex;align-items:center;justify-content:center;gap:8px"><span aria-hidden="true" style="display:inline-flex;gap:2px;flex:none">'+['merienda','almuerzo'].map(slot=>dayMealIcon(slot).replace('<svg ','<svg width="18" height="18" style="width:18px;height:18px;flex:none" ')).join('')+'</span><span>Planificar merienda / cena <span aria-hidden="true">→</span></span></button>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi Dieta Guía</summary>'+studentGuidedSection()+'</details>':'')+
@@ -2713,7 +2722,7 @@ function personalMacroStatsPanel(){
  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
  const saved=state.macroStats?.owner===owner&&state.macroStats?.epoch===epoch?state.macroStats:null;
  const end=new Date(today()+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-1);const to=saved?.to||end.toISOString().slice(0,10);end.setUTCDate(end.getUTCDate()-6);const from=saved?.from||end.toISOString().slice(0,10);
- return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
+ return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true})+(ownSelfManagement()?.goal&&saved.micronutrients?renderMicronutrientPeriod(saved.micronutrients):""):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
 }
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
@@ -4403,6 +4412,9 @@ async function loadPersonalData(){
    (state.diaryWritePending&&state.diaryWriteOwner===id))return;
  if(error)throw error;
  state.diary=results[0].data||null;state.pendingDiaryDraft=null;state.renderedDay=requestedDay;state.progressLogs=results[1].data||[];state.weights=results[2].data||[];state.activities=results[3].data||[];state.goals=results[4].data||[];state.personalTargets=results[5].data||null;state.foodPlan=results[6].data||null;
+ const ownRole=state.profile?.role;
+ const selfPlan=await contextRead(readOwnSelfManagedPlan(sb,{userId:id,role:ownRole,epoch:contextEpoch,current:()=>state.session?.user?.id===id&&state.profile?.role===ownRole&&(state.authContextEpoch||0)===contextEpoch&&state.personalDataLoadToken===loadToken}));
+ if(state.session?.user?.id===id&&state.profile?.role===ownRole&&(state.authContextEpoch||0)===contextEpoch&&state.personalDataLoadToken===loadToken)state.selfManagementOwn=selfPlan;
 }
 async function loadStudentMessagingOrganization(){
  const id=state.session?.user?.id,orgId=state.profile?.organization_id;
@@ -5458,7 +5470,8 @@ if(el.dataset.foodbulk){
    const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
    const model=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:state.profile?.nickname,coachName:'Tu coach',days,logs:data,goals});
-   if(!current())return;state.macroStats={owner:userId,epoch,from,to,model};host.innerHTML=renderMacroGaps(model,{personal:true});
+   if(!current())return;const micronutrients=MICRONUTRIENTS_ENABLED&&ownSelfManagement()?.goal?micronutrientPeriod({logs:data,profile:ownMicronutrientProfile(),catalog:MICRONUTRIENT_CATALOG,from,to}):null;
+   state.macroStats={owner:userId,epoch,from,to,model,micronutrients};host.innerHTML=renderMacroGaps(model,{personal:true})+(micronutrients?renderMicronutrientPeriod(micronutrients):"");
   }catch(error){if(current())host.textContent='No se pudieron consultar las estadísticas. Volvé a intentarlo.';}finally{host.loading=false;}
   return;
  }
@@ -6169,6 +6182,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
+ state.selfManagementOwn=null;state.macroStats=null;
  state.macroStats=null;
  recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
  studentGuideSheet=null;studentGuideDrafts.clear();state.studentGuideSlots={};
@@ -6294,5 +6308,6 @@ const pullRefresh=createPullToRefresh({
  if(error)fail(error);
  if(data?.session)await refresh();else if(error)sessionConnectionRetry();else loginView();
 })();
+
 
 

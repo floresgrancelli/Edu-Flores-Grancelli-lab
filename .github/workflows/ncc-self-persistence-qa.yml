@@ -1,0 +1,55 @@
+name: NCC independent private persistence QA
+on:
+  push:
+    branches: [work/ncc-self-release-20261113]
+    paths:
+      - 'efg-nutrition/self-management/backend/**'
+      - 'efg-nutrition/pilot/self-management-intake.js'
+      - 'efg-nutrition/tests/self-management-*.test.mjs'
+      - '.github/workflows/ncc-self-persistence-qa.yml'
+  pull_request:
+    paths:
+      - 'efg-nutrition/self-management/backend/**'
+      - 'efg-nutrition/pilot/self-management-intake.js'
+      - 'efg-nutrition/tests/self-management-*.test.mjs'
+      - '.github/workflows/ncc-self-persistence-qa.yml'
+permissions:
+  contents: read
+jobs:
+  private-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ncc_self_qa
+          POSTGRES_PASSWORD: local-self-qa-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: local-self-qa-only
+      PGDATABASE: ncc_self_qa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test owner intake and authenticated API contracts
+        run: node --test efg-nutrition/tests/self-management-intake.test.mjs efg-nutrition/tests/self-management-api.test.mjs
+      - name: Generate a fictional six-meal result using the existing engine
+        run: node efg-nutrition/self-management/backend/build-qa-result.mjs
+      - name: Verify real PostgreSQL transactions, ownership and immutable revisions
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/schema.candidate.sql
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/scenarios.sql
+      - name: Race two device writes through separate database connections
+        run: python3 efg-nutrition/self-management/backend/concurrency-test.py

@@ -1,0 +1,78 @@
+name: NCC independent real Auth integration
+on:
+  push:
+    branches: [work/ncc-self-release-20261113]
+    paths:
+      - 'efg-nutrition/self-management/**'
+      - 'efg-nutrition/pilot/self-management-*'
+      - 'efg-nutrition/pilot/autogestion.html'
+      - 'efg-nutrition/tests/self-management-local-api.mjs'
+      - '.github/workflows/ncc-self-live-qa.yml'
+permissions:
+  contents: read
+jobs:
+  real-local-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NCC_SELF_LOCAL_ONLY: '1'
+      NCC_SELF_BROWSER: '1'
+      PGHOST: 127.0.0.1
+      PGPORT: '54322'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test efg-nutrition/tests/self-management.test.mjs efg-nutrition/tests/self-management-api.test.mjs efg-nutrition/tests/self-management-intake.test.mjs efg-nutrition/tests/self-management-own-plan.test.mjs
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Fresh LOCAL stack without hosted credentials
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          stack="$RUNNER_TEMP/ncc-self-local-$GITHUB_RUN_ID"
+          mkdir -p "$stack"
+          echo "NCC_SELF_STACK=$stack" >> "$GITHUB_ENV"
+          echo "NCC_SELF_LOCAL_STATUS=$stack/status.env" >> "$GITHUB_ENV"
+          cd "$stack"
+          supabase --help >/dev/null
+          supabase init --yes
+          supabase start --help >/dev/null
+          if ! supabase start --exclude studio,imgproxy,edge-runtime,logflare,vector,supavisor > "$stack/start-private.log" 2>&1; then
+            docker ps --format '{{.Names}} {{.Status}}'
+            exit 1
+          fi
+          supabase status -o env > "$stack/status.env"
+      - name: Synthetic app tables, own schema and release controls
+        run: |
+          test "$(psql -Atqc 'select count(*) from auth.users')" = '0'
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/local-app-fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/schema.candidate.sql
+          psql -X -v ON_ERROR_STOP=1 -f efg-nutrition/self-management/backend/release-controls.sql
+          psql -X -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: Install pinned server SDK only in disposable runner directory
+        run: |
+          sdk="$RUNNER_TEMP/ncc-self-sdk"
+          npm install --prefix "$sdk" --save-exact @supabase/supabase-js@2.118.0 playwright@1.62.1
+          echo "NCC_SELF_SDK_PACKAGE=$sdk/package.json" >> "$GITHUB_ENV"
+          node "$sdk/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Real JWTs, HTTP flow, REST/RLS, reload and concurrency
+        run: node efg-nutrition/tests/self-management-local-api.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: self-management-live
+          path: artifacts/self-management-live/
+      - name: Remove disposable stack
+        if: always()
+        run: |
+          if [ -n "${NCC_SELF_STACK:-}" ] && [ -d "$NCC_SELF_STACK/supabase" ]; then
+            cd "$NCC_SELF_STACK"
+            supabase stop --no-backup >/dev/null 2>&1 || true
+          fi

@@ -84,9 +84,12 @@ try{for(const engine of ['chromium','webkit']){
   // Explicit shortcut remains an explicit destination even after a remembered balance tab.
   await page.locator('#nccPlannerSections [data-workspace-tab=balance]').click();await page.locator('.pilot-nav [data-tab=home]').click();await page.locator('.ncc-day-plan-shortcut').click();assert.equal(await page.locator('#nccPlannerSections [data-workspace-tab=choose]').getAttribute('aria-pressed'),'true');assert.equal(await qty.inputValue(),'123');await shot('direct-shortcut');
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),diary);assert.equal(await page.evaluate(()=>window.__NCC_COACH_ACTIONS_FIXTURE__.writes.length),0);
-  // Real synthetic auth transition calls the production private-session reset.
+  // Set non-default selections, then exercise the real private-session reset.
+  await page.locator('#nccPlannerSections [data-workspace-tab=balance]').click();
+  await page.locator('#nccPlanDestinationSections [data-workspace-tab=guide]').click();
   await page.evaluate(async()=>{const a=window.__NCC_R4_FULLAPP__;await a.fixture.loginAs('learner');a.state.tab='planner';await a.render();});
-  assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'false','New auth epoch never inherits the former selection');
+  assert.equal(await page.locator('#nccPlannerSections [data-workspace-tab=choose]').getAttribute('aria-pressed'),'true','New auth epoch never inherits the former balance selection');
+  assert.deepEqual(await page.evaluate(()=>({selections:window.__NCC_R4_FULLAPP__.state.plannerSelections,grams:window.__NCC_R4_FULLAPP__.state.plannerDraftGrams})),{selections:{},grams:{}},'Previous account quantities and food selections are cleared');
   assert.equal(await page.locator('.pilot-nav [data-tab=coachStudents]').count(),0,'Student navigation never receives coach controls');assert.deepEqual(errors,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   evidence.push({engine,width,role,rosterSearchFilterAndPositionPreserved:role!=='student',paymentFilterPreserved:role!=='admin',existingPlannerDraftPreserved:true,explicitShortcutPreserved:true,authEpochIsolated:true,noWrites:true,noOverflow:true});await context.close();
  }}finally{await browser.close();}

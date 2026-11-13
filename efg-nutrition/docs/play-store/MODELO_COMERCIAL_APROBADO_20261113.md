@@ -94,3 +94,23 @@ https://developer.android.com/google/play/billing/security
 
 Referencia comercial consultada el 13/11/2026:
 https://everfit.io/pricing/ (facturación mensual: 10 US$29, 20 US$49, 50 US$95).
+
+## Códigos y cupos — preparación autorizada posterior
+Edu pidió preparar prueba gratuita de siete días para coach y un alumno vinculado,
+y cortesías para conocidos que también puedan incluir cupos gratuitos del coach.
+La prueba no cobra activaciones ni suscripción; al finalizar se requiere compra
+expresa en Google Play para continuar. No genera cobro automático por canjear código.
+
+La candidata incorpora commerce/access-service.mjs, su contrato de integración y
+14 pruebas Node aprobadas localmente (compras simuladas, sin Google ni base real).
+Incluye códigos aleatorios de un uso, vencimiento, destinatario opcional,
+siete días compartidos, cortesía temporal/permanente y cupos por transacción.
+El paquete verificado de 20 asigna 20 cupos automáticamente, sin intervención del
+administrador; una repetición no suma otros 20. Solo administrador puede emitir
+cortesías. Paquetes y cortesías son capacidades alternativas, no acumulables.
+Se conservan registros al expirar o archivar.
+
+Faltan persistencia productiva/seguridad, integración con invitaciones y roles
+actuales, Google API/Billing/RTDN y confirmación de compras, endpoints y panel.
+El contrato marca estos bloqueos; no presentar el módulo como cobros ya operativos.
+No se creó ningún código real ni se cambiaron permisos de usuarios existentes.

@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const here=dirname(fileURLToPath(import.meta.url));
+assert.ok(existsSync(resolve(here,'www/index.html')),'Run npm run prepare:web first');
+const command=existsSync(resolve(here,'android'))?'sync':'add';
+const r=spawnSync(resolve(here,'node_modules/.bin/cap'),[command,'android'],{cwd:here,encoding:'utf8'});assert.equal(r.status,0,r.stdout+'\n'+r.stderr);
+const path=resolve(here,'android/app/src/main/AndroidManifest.xml');
+let xml=readFileSync(path,'utf8');xml=xml.replace(/\s*<uses-permission android:name="android.permission.INTERNET"\s*\/>/g,'');
+assert.ok(!xml.includes('android.permission.INTERNET'));writeFileSync(path,xml);
+console.log('Prototype Android project generated; INTERNET permission removed.');

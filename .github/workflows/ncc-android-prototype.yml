@@ -1,0 +1,78 @@
+name: NCC isolated Android prototype
+on:
+  push:
+    branches: [work/ncc-store-readiness-20261113]
+    paths: ['mobile/android-prototype/**', '.github/workflows/ncc-android-prototype.yml']
+permissions:
+  contents: read
+jobs:
+  packaged-web:
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      options: --init --ipc=host
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: mobile/android-prototype
+      - run: npm run prepare:web
+        working-directory: mobile/android-prototype
+      - run: npm run android:create
+        working-directory: mobile/android-prototype
+      - run: npm run check
+        working-directory: mobile/android-prototype
+      - run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+        working-directory: mobile/android-prototype
+      - run: node browser-check.mjs
+        working-directory: mobile/android-prototype
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-packaged-web-review
+          path: mobile/android-prototype/artifacts/
+          if-no-files-found: warn
+          retention-days: 7
+  debug-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: mobile/android-prototype
+      - run: npm run prepare:web
+        working-directory: mobile/android-prototype
+      - run: npm run android:create
+        working-directory: mobile/android-prototype
+      - run: npm run check
+        working-directory: mobile/android-prototype
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - run: ./gradlew --no-daemon assembleDebug
+        working-directory: mobile/android-prototype/android
+      - name: Inspect actual APK permissions and identity
+        run: |
+          mkdir -p artifacts
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump permissions android/app/build/outputs/apk/debug/app-debug.apk > artifacts/apk-permissions.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging android/app/build/outputs/apk/debug/app-debug.apk > artifacts/apk-badging.txt
+          if grep -q android.permission.INTERNET artifacts/apk-permissions.txt; then exit 1; fi
+          grep -q "package: name='com.nutricionconciencia.prototype'" artifacts/apk-badging.txt
+          sha256sum android/app/build/outputs/apk/debug/app-debug.apk > artifacts/apk-sha256.txt
+        working-directory: mobile/android-prototype
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-fictional-debug-apk
+          path: |
+            mobile/android-prototype/android/app/build/outputs/apk/debug/app-debug.apk
+            mobile/android-prototype/artifacts/
+          if-no-files-found: error
+          retention-days: 7

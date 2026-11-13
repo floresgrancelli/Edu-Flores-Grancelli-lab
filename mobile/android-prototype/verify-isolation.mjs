@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync,existsSync,readdirSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const here=dirname(fileURLToPath(import.meta.url)),root=resolve(here,'../..');
+const expected=JSON.parse(readFileSync(resolve(root,'store-preparation/baseline.json')));
+assert.equal(execFileSync('git',['rev-parse','HEAD:efg-nutrition'],{cwd:root,encoding:'utf8'}).trim(),expected.productionSubtree,'Production source tree must remain exact');
+const config=JSON.parse(readFileSync(resolve(here,'capacitor.config.json')));assert.equal(config.appId,'com.nutricionconciencia.prototype');assert.ok(!config.server,'No remote server URL');
+assert.ok(readFileSync(resolve(here,'www/efg-nutrition/pilot/index.html'),'utf8').includes("connect-src 'none'"));
+const pilot=readFileSync(resolve(here,'www/efg-nutrition/pilot/pilot.js'),'utf8');assert.ok(pilot.includes('../tests/student-day-visual-sdk.mjs'));assert.ok(pilot.includes('synthetic-only-no-auth'));
+assert.ok(!pilot.includes('cyjvddhimbsfipjfctsl.supabase.co'));
+assert.equal(JSON.parse(readFileSync(resolve(here,'www/prototype-ready.json'))).mode,'fictional-only');
+function scan(dir){for(const e of readdirSync(dir,{withFileTypes:true})){const p=resolve(dir,e.name);if(e.isDirectory())scan(p);else if(/\.(js|mjs|html|css)$/.test(p))assert.ok(!/cyjvddhimbsfipjfctsl\.supabase\.co|esm\.sh\/@supabase|efg-nutrition\.onrender\.com/.test(readFileSync(p,'utf8')),'Hosted endpoint: '+p);}}scan(resolve(here,'www'));
+const manifest=resolve(here,'android/app/src/main/AndroidManifest.xml');if(existsSync(manifest))assert.ok(!readFileSync(manifest,'utf8').includes('android.permission.INTERNET'));
+console.log('PASS Android fictional transport, CSP, package identity and exact production subtree.');

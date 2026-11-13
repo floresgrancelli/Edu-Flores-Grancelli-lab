@@ -4021,7 +4021,7 @@ function rememberNavigation(){
 function restoreNavigation(){
  const saved=rememberedNavigation();if(!saved)return false;
  const owner=navigationOwner,key=activeViewKey();
- const restore=()=>{if(navigationScope()===owner&&activeViewKey()===key)window.scrollTo(saved.x,saved.y);};
+ const restore=()=>{if(navigationScope()===owner&&activeViewKey()===key)window.scrollTo({left:saved.x,top:saved.y,behavior:"instant"});};
  restore();requestAnimationFrame(restore);return true;
 }
 // Separate, opt-in health flow. Entire client is OFF until hosted consent,

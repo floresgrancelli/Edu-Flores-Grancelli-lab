@@ -17,3 +17,6 @@
 .ncc-micro-row[data-micronutrient=ala]{--micro-accent:#b49bc9;--micro-gold:#b49bc9;color:#b49bc9}
 .ncc-micro-expand>summary{border-top:0;font-size:11px;color:#aeb9a3}
 @media(max-width:350px){.ncc-micronutrients{padding:0}.ncc-micro-row{font-size:12px;gap:8px}}
+
+/* Owner-approved option 2: exact reduced-card preview, 2026-11-13. */
+.ncc-micronutrients{border:1px solid #424e38;border-radius:14px;background:linear-gradient(125deg,#1d281ad9,#111b12ed);padding:10px 12px 0!important}.ncc-micro-rows{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ncc-micro-row{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}.ncc-micro-label{grid-row:1;font-size:11px}.ncc-micro-value{grid-row:2;text-align:left;font-size:11px}.ncc-micro-row .ncc-micro-track{grid-row:3;height:5px}.ncc-micro-expand>summary{min-height:44px}

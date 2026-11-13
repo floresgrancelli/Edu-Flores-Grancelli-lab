@@ -53,10 +53,6 @@ try{
   await page.evaluate(()=>scrollTo(0,0));
   await page.screenshot({path:resolve(out,width+'-mi-dia-resumen.png')});
   await block.screenshot({path:resolve(out,width+'-micronutrientes.png')});
-  // Owner comparison only: smaller version of the original card, not an app setting.
-  const alternative=await page.addStyleTag({content:'.ncc-micronutrients{border:1px solid #424e38;border-radius:14px;background:linear-gradient(125deg,#1d281ad9,#111b12ed);padding:10px 12px 0!important}.ncc-micro-rows{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ncc-micro-row{display:grid;grid-template-columns:minmax(0,1fr);gap:4px}.ncc-micro-label{grid-row:1;font-size:11px}.ncc-micro-value{grid-row:2;text-align:left;font-size:11px}.ncc-micro-row .ncc-micro-track{grid-row:3;height:5px}.ncc-micro-expand>summary{min-height:44px}'});
-  await block.screenshot({path:resolve(out,width+'-tarjeta-reducida.png')});
-  await alternative.evaluate(e=>e.remove());
   const compactHeight=await block.evaluate(e=>e.getBoundingClientRect().height);
   await block.locator('.ncc-micro-expand > summary').click();
   await block.screenshot({path:resolve(out,width+'-detalle.png')});

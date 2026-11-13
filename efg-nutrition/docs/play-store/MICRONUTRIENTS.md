@@ -1,5 +1,7 @@
 # Micronutrientes: candidata para revisión visual
 
+Diseño elegido por Edu el 13/11/2026: opción 2, tarjeta original reducida, con tres columnas y barras de colores. La elección aprueba la visual, sin activar la función ni autorizar publicación global. Se promueve exactamente el CSS mostrado en esa alternativa al estilo de la candidata.
+
 Se incorpora un bloque compacto «Micronutrientes» inmediatamente después del resumen de macros de Mi Día. Magnesio, calcio y omega-3 ALA quedan visibles; el detalle agrega hierro, zinc, B12 y EPA+DHA, aportes de alimentos/suplementos y referencias NIH/ODS. El historial conserva fechas y separa días completos, parciales y sin registros.
 
 ## Procedencia y límites

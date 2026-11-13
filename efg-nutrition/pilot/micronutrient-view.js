@@ -22,15 +22,13 @@ function dailyRows(model){
 }
 export function renderMicronutrients(model,{expanded=false}={}){
  if(!model?.nutrients)return '';
- const partial=model.nutrients.some(n=>n.status!=='estimated'),preview=model.nutrients.slice(0,3);
- const summary='<div class="ncc-micro-mini-grid">'+preview.map(n=>'<div class="ncc-micro-mini" data-micronutrient="'+n.id+'"><span>'+esc(n.name)+'</span><strong>'+
-  (n.total===null?'—':(n.partial?'≥ ':'')+amount(n,n.total))+'</strong><small>'+(n.reference.value!==null?'de '+amount(n,n.reference.value):'Referencia pendiente')+'</small>'+bar(n)+
-  '<small class="ncc-micro-status">'+(n.status==='unknown'?'Sin datos':n.percent!==null?(n.partial?'≥ ':'')+fmt(n.percent)+'%'+(n.partial?' · parcial':''):'Estimación disponible')+'</small></div>').join('')+'</div>';
+ const preview=model.nutrients.slice(0,3);
+ const summary='<div class="ncc-micro-rows">'+preview.map(n=>'<div class="ncc-micro-row" data-micronutrient="'+n.id+'" title="'+esc(n.name+(n.partial?' · estimación parcial':''))+'"><span class="ncc-micro-label">'+esc(n.id==='ala'?'Omega-3 ALA':n.name)+'</span>'+bar(n)+'<span class="ncc-micro-value">'+
+  (n.total===null?'Sin datos':(n.partial?'≥ ':'')+fmt(n.total,digits(n.id))+(n.reference.value!==null?' / '+fmt(n.reference.value,digits(n.id)):'')+' '+n.unit)+'</span></div>').join('')+'</div>';
  const detail=dailyRows(model);
- return '<section class="ncc-micronutrients" aria-label="Micronutrientes estimados"><header><div><h2>Micronutrientes</h2><p>Vitaminas, minerales y grasas esenciales</p></div><span class="ncc-micro-badge">Estimados</span></header>'+summary+
-  '<p class="ncc-micro-coverage">'+(!model.hasEntries?'Todavía no hay consumos registrados.':partial?'Datos parciales: ≥ indica el aporte conocido.':'Según las cantidades que registraste.')+'</p>'+
-  (expanded?'<div class="ncc-micro-details">'+detail+'</div>':'<details class="ncc-micro-expand"><summary>Ver detalle y fuentes <span aria-hidden="true">⌄</span></summary><div class="ncc-micro-details">'+detail+'</div></details>')+
-  '<div class="ncc-micro-note">'+esc(model.referenceNote)+' Una barra baja de un día no indica que necesites un suplemento.</div></section>';
+ return '<section class="ncc-micronutrients" aria-label="Micronutrientes estimados"><header><h2>Micronutrientes</h2><span class="ncc-micro-badge">Estimados</span></header>'+summary+
+  (expanded?'<div class="ncc-micro-details">'+detail+'</div>':'<details class="ncc-micro-expand"><summary>Detalle y fuentes <span aria-hidden="true">⌄</span></summary><div class="ncc-micro-details">'+detail+'</div></details>')+
+  '<div class="ncc-micro-note">≥ indica aporte conocido cuando faltan datos. '+esc(model.referenceNote)+' Una barra baja de un día no indica que necesites un suplemento.</div></section>';
 }
 export function renderMicronutrientPeriod(model){
  return '<section class="ncc-micronutrient-period"><h2>Micronutrientes por fecha</h2><p>'+esc(model.from)+' al '+esc(model.to)+' · '+model.daysWithoutRecords+' día(s) sin registros</p>'+

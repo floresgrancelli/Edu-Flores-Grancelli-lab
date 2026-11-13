@@ -1,4 +1,4 @@
-import {revealIntakeField} from './intake-step-browser.mjs';
+import {revealIntakeField,selectIntakeChoice} from './intake-step-browser.mjs';
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFileSync,mkdirSync,writeFileSync} from 'node:fs';
@@ -83,8 +83,8 @@ export async function runSdkEntryBrowser({users,orgs,official,enableLocalPublica
   phase='student-legal';await legalAndIntro(page,'student');await page.locator('#efgPilotParticipate').waitFor();
   await page.locator('#efgPilotParticipate').check();await page.locator('#efgPilotShare').check();await page.locator('#efgPilotContinue').click();
   await page.locator('#efgCoachRelaunchForm').waitFor();
-  await revealIntakeField(page,'objective');await page.locator('#coachRelaunch_objective').selectOption('fat_loss');
-  await revealIntakeField(page,'activity_level');await page.locator('#coachRelaunch_activity_level').selectOption('moderate');
+  await revealIntakeField(page,'objective');await selectIntakeChoice(page,'objective','fat_loss');
+  await revealIntakeField(page,'activity_level');await selectIntakeChoice(page,'activity_level','moderate');
   await revealIntakeField(page,'dietary_pattern');await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');
   await revealIntakeField(page,'age_years');await page.locator('#coachRelaunch_age_years').fill('40');await revealIntakeField(page,'height_cm');await page.locator('#coachRelaunch_height_cm').fill('175');await revealIntakeField(page,'weight_kg');await page.locator('#coachRelaunch_weight_kg').fill('86.4');
   await revealIntakeField(page,'preferred_foods');await page.locator('#coachRelaunch_preferred_foods').fill('banana');await revealIntakeField(page,'disliked_foods');await page.locator('#coachRelaunch_disliked_foods').fill('apple');await revealIntakeField(page,'share');await page.locator('#coachRelaunch_share').uncheck();

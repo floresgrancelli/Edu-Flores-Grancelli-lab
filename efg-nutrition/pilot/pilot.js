@@ -102,7 +102,7 @@ import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilot
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-workspace-tabs-r1-20261112";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-cards-r1-20261113";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 

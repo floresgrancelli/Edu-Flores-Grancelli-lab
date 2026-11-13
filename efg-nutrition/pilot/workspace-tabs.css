@@ -134,3 +134,23 @@ html.ncc-lime-theme #app .ncc-objective-help>.pilot-hint{padding:0 12px;font-siz
  html.ncc-lime-theme #app .ncc-state-guidance{margin:8px 0 0;font-size:12px!important;line-height:1.5;color:#d1d9ce!important}
  html.ncc-lime-theme #app .efg-payment-item>.between{flex-wrap:wrap;gap:8px;align-items:flex-start}
 }
+
+/* Intake choices: same four steps, original values and native radio behaviour. */
+.ncc-intake-choices{border:0;padding:0;margin:0 0 24px;min-width:0}
+.ncc-intake-choices legend{font-weight:700;font-size:16px;padding:0}
+.ncc-intake-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ncc-intake-choice{display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid;border-radius:14px;cursor:pointer;min-width:0;min-height:48px;margin:0}
+.ncc-intake-choice input[type=radio]{flex:0 0 20px;width:20px!important;height:20px!important;min-height:20px!important;margin:2px 0 0;padding:0}
+.ncc-intake-choice-copy{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ncc-intake-choice-copy strong{font-size:15px;line-height:1.35}
+.ncc-intake-choice-copy small{font-size:13px;line-height:1.45}
+.ncc-intake-choice-state{font-size:12px;font-weight:700;visibility:hidden}
+.ncc-intake-choice:has(input:checked) .ncc-intake-choice-state{visibility:visible}
+.ncc-intake-choice:has(input:focus-visible){outline:2px solid;outline-offset:3px}
+@media(max-width:600px){.ncc-intake-choice-grid{grid-template-columns:minmax(0,1fr)}.ncc-intake-choice{padding:12px}.ncc-intake-choice-copy{gap:4px}}
+@layer ncc-palette {
+ html.ncc-lime-theme #app .ncc-intake-choice{background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important}
+ html.ncc-lime-theme #app .ncc-intake-choice:has(input:checked){background:var(--ncc-selected)!important;border-color:var(--ncc-lime)!important;box-shadow:inset 3px 0 var(--ncc-lime)!important}
+ html.ncc-lime-theme #app .ncc-intake-choice:has(input:focus-visible){outline-color:var(--ncc-lime)!important}
+ html.ncc-lime-theme #app .ncc-intake-choice .ncc-intake-choice-state{color:var(--ncc-lime)!important}
+}

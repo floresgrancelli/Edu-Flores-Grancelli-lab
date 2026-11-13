@@ -72,6 +72,14 @@ begin
    if exists(select 1 from public.ncc_account_deletion_requests where user_id=uid and status='processing') then
      raise exception 'ACCOUNT_DELETION_IN_PROGRESS';
    end if;
+   -- Old signed JWTs can outlive Auth deletion. Keep them from recreating files
+   -- or app rows without retaining a permanent personal-data tombstone.
+   -- Initial profile creation is still subject to existing ACL/RLS and its Auth FK.
+   if not exists(select 1 from public.efg_profiles where user_id=uid) then
+     if not (tg_table_schema='public' and tg_table_name='efg_profiles' and tg_op='INSERT') then
+       raise exception 'ACCOUNT_NO_LONGER_AVAILABLE';
+     end if;
+   end if;
  end if;
  if tg_op='DELETE' then return old;end if;return new;
 end;

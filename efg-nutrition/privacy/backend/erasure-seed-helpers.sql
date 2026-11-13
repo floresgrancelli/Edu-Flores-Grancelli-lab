@@ -1,0 +1,1 @@
+create function qa.seed(tbl text,attrs jsonb) returns void language plpgsql as $$declare cols text; vals text;begin select string_agg(format('%I',key),',' order by key),string_agg(format('%L',value #>> '{}'),',' order by key) into cols,vals from jsonb_each(attrs);execute format('insert into public.%I (%s) values (%s)',tbl,cols,vals);end$$;

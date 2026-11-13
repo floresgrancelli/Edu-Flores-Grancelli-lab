@@ -98,6 +98,9 @@ select public.ncc_prepare_student_erasure('aaaaaaaa-aaaa-4aaa-8aaa-000000000001'
 select public.ncc_purge_student_data('aaaaaaaa-aaaa-4aaa-8aaa-000000000001'); -- Idempotent retry.
 delete from auth.users where id='11111111-1111-4111-8111-111111111111'; -- Simulated Auth API hard delete in QA only.
 do $$begin if exists(select 1 from public.ncc_account_deletion_requests where user_id='11111111-1111-4111-8111-111111111111') then raise exception 'Request PII was not removed';end if;if (select count(*) from auth.users)<>4 then raise exception 'Other accounts affected';end if;end$$;
+set local role authenticated;select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select qa.expect_error('insert into storage.objects(bucket_id,name,owner_id) values (''efg-receipts'',''after-auth.webp'',''11111111-1111-4111-8111-111111111111'')','ACCOUNT_NO_LONGER_AVAILABLE');
+select qa.expect_error('insert into public.efg_daily_logs(student_id) values (''11111111-1111-4111-8111-111111111111'')','ACCOUNT_NO_LONGER_AVAILABLE');
 reset role;create table public.efg_unreviewed_data(user_id uuid references auth.users(id));grant all on public.efg_unreviewed_data to service_role;set local role service_role;
 select qa.expect_error('select public.ncc_prepare_student_erasure(''aaaaaaaa-aaaa-4aaa-8aaa-000000000005'')','SCHEMA_REVIEW_REQUIRED');
 reset role;drop table public.efg_unreviewed_data;

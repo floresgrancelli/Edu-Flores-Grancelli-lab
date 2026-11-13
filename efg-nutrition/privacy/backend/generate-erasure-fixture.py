@@ -73,6 +73,21 @@ fixture.extend([
  'grant select,insert,update,delete on storage.objects to authenticated;',
 ])
 (ROOT/'erasure-fixture.sql').write_text('\n'.join(fixture)+'\n')
+local_fixture=['-- DISPOSABLE LOCAL SUPABASE ONLY. Auth/Storage are real local services.', 'create schema qa;']
+local_fixture += [line for line in fixture if line.startswith('create table public.') or line.startswith('alter table public.')]
+local_fixture += [
+ 'revoke all on all tables in schema public from anon,authenticated;',
+ 'grant all on all tables in schema public to service_role;',
+ 'grant select on public.efg_profiles to authenticated;',
+ 'alter table public.efg_profiles enable row level security;',
+ 'create policy qa_own_profile on public.efg_profiles for select to authenticated using(user_id=(select auth.uid()));',
+ 'grant select,insert,update,delete on public.efg_daily_logs to authenticated;',
+ 'alter table public.efg_daily_logs enable row level security;',
+ 'create policy qa_own_diary on public.efg_daily_logs for all to authenticated using(student_id=(select auth.uid())) with check(student_id=(select auth.uid()));',
+ "create policy qa_own_files_insert on storage.objects for insert to authenticated with check(bucket_id='ncc-erasure-test' and (storage.foldername(name))[1]=(select auth.uid())::text);",
+ "create policy qa_own_files_select on storage.objects for select to authenticated using(bucket_id='ncc-erasure-test' and owner_id=(select auth.uid())::text);"
+]
+(ROOT/'erasure-local-app-fixture.sql').write_text('\n'.join(local_fixture)+'\n')
 
 A='11111111-1111-4111-8111-111111111111';B='22222222-2222-4222-8222-222222222222'
 C='33333333-3333-4333-8333-333333333333';D='44444444-4444-4444-8444-444444444444';E='55555555-5555-4555-8555-555555555555'
@@ -137,9 +152,13 @@ scenario.append(f'select public.ncc_prepare_student_erasure({lit(requests[A])});
 scenario.append(f'select public.ncc_purge_student_data({lit(requests[A])}); -- Idempotent retry.')
 scenario.append(f'delete from auth.users where id={lit(A)}; -- Simulated Auth API hard delete in QA only.')
 scenario.append(f"do $$begin if exists(select 1 from public.ncc_account_deletion_requests where user_id={lit(A)}) then raise exception 'Request PII was not removed';end if;if (select count(*) from auth.users)<>4 then raise exception 'Other accounts affected';end if;end$$;")
+scenario.append("set local role authenticated;select set_config('request.jwt.claim.sub',"+lit(A)+",true);")
+expect(f"insert into storage.objects(bucket_id,name,owner_id) values ('efg-receipts','after-auth.webp',{lit(A)})",'ACCOUNT_NO_LONGER_AVAILABLE')
+expect(f'insert into public.efg_daily_logs(student_id) values ({lit(A)})','ACCOUNT_NO_LONGER_AVAILABLE')
 scenario.append('reset role;create table public.efg_unreviewed_data(user_id uuid references auth.users(id));grant all on public.efg_unreviewed_data to service_role;set local role service_role;')
 expect(f'select public.ncc_prepare_student_erasure({lit(requests[E])})','SCHEMA_REVIEW_REQUIRED')
 scenario.append('reset role;drop table public.efg_unreviewed_data;')
 scenario.append("rollback;\n\\echo 'Student deletion synthetic SQL tests passed'")
 (ROOT/'erasure-scenarios.sql').write_text('\n'.join(scenario)+'\n')
+(ROOT/'erasure-seed-helpers.sql').write_text('\n'.join(line for line in scenario if line.startswith('create function qa.seed'))+'\n')
 print('Generated SQL candidate and isolated schema fixture from metadata only.')

@@ -40,6 +40,10 @@ El pedido y sus datos de tramitación desaparecen por cascada al borrarse Auth.
   y confirmación independiente de Auth. Auth y Storage son dobles de prueba.
 - Los efectos de esas APIs se simulan por SQL SOLO dentro de la base efímera de QA.
   No equivale aún a una prueba alojada de Supabase Auth y Storage reales.
+- La nueva prueba `erase-student-local-api.mjs` utiliza APIs GoTrue, PostgREST y
+  Storage reales de un stack Supabase local desechable, con JWT firmados y archivos
+  de texto ficticios. Verifica el bloqueo después del borrado incluso si el token
+  anterior sigue firmado. No tiene acceso a proyectos alojados ni envía correos.
 
 Antes de producción faltan: prueba alojada en un entorno aislado con Auth/Storage
 reales y cuentas sintéticas, revisión de triggers/permisos existentes, pruebas de

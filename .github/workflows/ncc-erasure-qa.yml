@@ -40,10 +40,70 @@ jobs:
       - name: Regenerate candidate and synthetic structural fixture
         run: |
           python3 efg-nutrition/privacy/backend/generate-erasure-fixture.py
-          git diff --exit-code -- efg-nutrition/privacy/backend/student-erasure.candidate.sql efg-nutrition/privacy/backend/erasure-fixture.sql efg-nutrition/privacy/backend/erasure-scenarios.sql
+          git diff --exit-code -- efg-nutrition/privacy/backend/student-erasure.candidate.sql efg-nutrition/privacy/backend/erasure-fixture.sql efg-nutrition/privacy/backend/erasure-scenarios.sql efg-nutrition/privacy/backend/erasure-local-app-fixture.sql efg-nutrition/privacy/backend/erasure-seed-helpers.sql
       - name: Verify SQL against PostgreSQL 17 with synthetic accounts
         run: |
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-fixture.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/android/backend/account-deletion-schema.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/student-erasure.candidate.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-scenarios.sql
+
+  real-local-apis:
+    needs: erasure
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NCC_ERASURE_LOCAL_ONLY: '1'
+      PGHOST: 127.0.0.1
+      PGPORT: '54322'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Start fresh LOCAL Auth, Storage, PostgREST and PostgreSQL
+        run: |
+          set -euo pipefail
+          test -z "${SUPABASE_ACCESS_TOKEN:-}"
+          test -z "${SUPABASE_DB_PASSWORD:-}"
+          stack="$RUNNER_TEMP/ncc-erasure-local-$GITHUB_RUN_ID"
+          mkdir -p "$stack"
+          echo "NCC_ERASURE_STACK=$stack" >> "$GITHUB_ENV"
+          echo "NCC_ERASURE_LOCAL_STATUS=$stack/status.env" >> "$GITHUB_ENV"
+          cd "$stack"
+          supabase --help > /dev/null
+          supabase init --yes
+          supabase start --help > /dev/null
+          if ! supabase start --exclude studio,imgproxy,edge-runtime,logflare,vector,supavisor > "$stack/start-private.log" 2>&1; then
+            docker ps --format '{{.Names}} {{.Status}}'
+            echo "Local stack failed to start; no hosted configuration was used."
+            exit 1
+          fi
+          supabase status -o env > "$stack/status.env"
+          echo "Disposable LOCAL stack ready; ephemeral credentials are not printed."
+      - name: Load only the synthetic app schema into the local stack
+        run: |
+          set -euo pipefail
+          command -v psql >/dev/null
+          test "$(psql -Atqc 'select count(*) from auth.users')" = '0'
+          test "$(psql -Atqc \"select count(*) from information_schema.tables where table_schema='public' and left(table_name,4)='efg_'\")" = '0'
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-local-app-fixture.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/android/backend/account-deletion-schema.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/student-erasure.candidate.sql
+          psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-seed-helpers.sql
+          psql -v ON_ERROR_STOP=1 -c "NOTIFY pgrst, 'reload schema';"
+      - name: Real LOCAL APIs, signed JWTs and physical file deletion
+        run: node efg-nutrition/privacy/tests/erase-student-local-api.mjs
+      - name: Remove disposable stack without backups
+        if: always()
+        run: |
+          if [ -n "${NCC_ERASURE_STACK:-}" ] && [ -d "$NCC_ERASURE_STACK/supabase" ]; then
+            cd "$NCC_ERASURE_STACK"
+            supabase stop --no-backup > /dev/null 2>&1 || true
+          fi

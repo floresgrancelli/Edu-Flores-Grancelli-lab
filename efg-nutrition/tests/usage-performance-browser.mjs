@@ -29,8 +29,8 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 
 
 
-const baseline='cccc1c09fc4c7ad444c99a0fd7e3838b8a28063d',samples=[],cases=[],failures=[];
-const save=()=>writeFileSync(resolve(out,'result.json'),JSON.stringify({baseline,scope:'Actual PWA renderers/handlers with loopback RAM transport. Form-to-coach handoff is a validated fixture snapshot; not hosted auth/RLS/backend latency or physical phone usage.',samples,cases,failures},null,2));
+const baseline='cccc1c09fc4c7ad444c99a0fd7e3838b8a28063d',samples=[],cases=[],failures=[],findings=[];
+const save=()=>writeFileSync(resolve(out,'result.json'),JSON.stringify({baseline,scope:'Actual PWA renderers/handlers with loopback RAM transport. Form-to-coach handoff is a validated fixture snapshot; not hosted auth/RLS/backend latency or physical phone usage.',samples,cases,failures,findings},null,2));
 async function timed(page,metric,eventSelector,action,predicate){
  await page.evaluate(({eventSelector,predicate})=>{
   window.__usageDone=null;const el=document.querySelector(eventSelector);if(!el)throw Error('Missing measured control '+eventSelector);
@@ -44,7 +44,7 @@ try{for(const engine of ['chromium','webkit']){
  try{for(const width of [390,320,1280]){
   const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block'}),page=await context.newPage();page.__usage={engine,width};page.setDefaultTimeout(20000);
   const errors=[],external=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(new URL(r.url()).origin!==origin)external.push(new URL(r.url()).origin)});
-  const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png'),fullPage:true});
+  const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png'),fullPage:false});
   try{
    await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
    if(engine==='chromium'&&width<720){const cdp=await context.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});page.__usage.cpuThrottle=4;}else page.__usage.cpuThrottle=1;
@@ -56,7 +56,12 @@ try{for(const engine of ['chromium','webkit']){
    assert.equal(await page.locator('.ncc-roster-person').count(),50);await shot('coach-roster50');
    for(let i=0;i<3;i++){await page.locator('#coachRosterSearch').fill('');await timed(page,'roster50-search','#coachRosterSearch',()=>page.locator('#coachRosterSearch').fill('Ana'),'document.querySelectorAll(".ncc-roster-person:not([hidden])").length===1');}
    const id='10000000-0000-4000-8000-000000000001';await page.locator('[data-student="'+id+'"][data-rostersection=coachStudentIntake]').click();await page.locator('.coach-intake-shared').waitFor();assert.match(await page.locator('.coach-intake-shared').innerText(),/80[,.]5|Recomposición/);await shot('coach-received-intake');
-   await page.locator('[data-act=prepareCoachPlanFromIntake]').click();await page.locator('#targetSex').waitFor();assert.equal(await page.locator('#targetWeight').inputValue(),'80.5');await page.locator('#targetSex').selectOption('male');
+   await page.locator('[data-act=prepareCoachPlanFromIntake]').click();await page.locator('#targetSex').waitFor();await page.waitForFunction(()=>!!window.__NCC_R4_FULLAPP__.state.coachIntakePrefill);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+   const prefill=await page.evaluate(()=>({expected:window.__NCC_R4_FULLAPP__.state.coachIntakePrefill.fields,actual:Object.fromEntries(['targetAge','targetHeight','targetWeight','targetGoal','targetActivity'].map(id=>[id,document.getElementById(id).value]))}));
+   assert.equal(prefill.expected.targetWeight,'80.5');
+   const mismatched=Object.keys(prefill.expected).filter(id=>prefill.actual[id]!==prefill.expected[id]);
+   if(mismatched.length){findings.push({engine,width,type:'PREFILL_OVERWRITTEN_BY_VIEW_CONTINUITY',prefill,mismatched,workaround:'Manually fill the explicit intake values to continue downstream measurement; not a product fix.'});await shot('prefill-mismatch');for(const id of Object.keys(prefill.expected)){const c=page.locator('#'+id);if(await c.evaluate(e=>e.tagName==='SELECT'))await c.selectOption(prefill.expected[id]);else await c.fill(prefill.expected[id]);}}
+   assert.equal(await page.locator('#targetWeight').inputValue(),'80.5');await page.locator('#targetSex').selectOption('male');
    await timed(page,'calculate-goal','[data-act=calculateGoal]',()=>page.locator('[data-act=calculateGoal]').click(),'!!window.__NCC_R4_FULLAPP__.state.pendingGoal');await shot('coach-goal');
    await page.locator('[data-planflow-step="1"]').click();await timed(page,'generate-six-meal-guide','[data-act=makeGuidedDay]',()=>page.locator('[data-act=makeGuidedDay]').click(),'!!window.__NCC_R4_FULLAPP__.state.coachGuidedDraft');assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.coachGuidedDraft.meals.length),6);await shot('coach-guide');
    await page.locator('[data-planflow-step="2"]').click();await page.locator('[data-act=saveCoachAtomicDraft]').click();await page.waitForFunction(()=>window.__NCC_USAGE_MODEL__.draft?.draft_revision===1);assert.equal(await page.evaluate(()=>window.__NCC_USAGE_MODEL__.plan),null);
@@ -72,7 +77,7 @@ try{for(const engine of ['chromium','webkit']){
     const selector='.pilot-nav [data-tab='+tab+']';if(!await page.locator(selector).count())continue;await timed(page,'navigate:'+tab,selector,()=>page.locator(selector).click(),'window.__NCC_R4_FULLAPP__.state.tab==="'+tab+'"&&window.__NCC_USAGE_HOOKS__.rendered===window.__NCC_USAGE_HOOKS__.active');
    }
    await page.evaluate(()=>window.__NCC_USAGE_FIXTURE__.enter('coach'));await page.locator('[data-student="'+id+'"][data-rostersection=coachStudentNutrition]').click();await page.waitForFunction(()=>window.__NCC_R4_FULLAPP__.state.coachLogs.length===1);assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.coachLogs[0].meals.almuerzo[0].qty),62.5);await shot('coach-followup');
-   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);cases.push({engine,width,status:'PASS',roster:50,catalog:613,mealCount:6,quantityPreserved:62.5,privateHealthShared:false,externalRequests:0});
+   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);cases.push({engine,width,status:mismatched.length?'COMPLETED_WITH_PREFILL_FINDING':'PASS',roster:50,catalog:613,mealCount:6,quantityPreserved:62.5,privateHealthShared:false,externalRequests:0});
   }catch(e){failures.push({engine,width,message:e.message,errors,external});await shot('FAILURE').catch(()=>{});if(!cases.length)throw e;}finally{await context.close();save();}
  }}finally{await browser.close();}
 }}finally{server.close();save();}

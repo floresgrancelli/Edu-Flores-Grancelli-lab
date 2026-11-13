@@ -19,7 +19,9 @@ try{
  assert.equal(await page.locator('[name=consent]').isChecked(),false);
  assert.equal(await page.locator('[name=scope]').isChecked(),false);
  await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
- assert.equal(await page.locator('#intake').evaluate(form=>form.checkValidity()),true);
+ const invalidFields=await page.locator('#intake').evaluate(form=>[...form.elements]
+  .filter(el=>el.willValidate&&!el.validity.valid).map(el=>({name:el.name,value:el.value,reason:el.validationMessage})));
+ assert.deepEqual(invalidFields,[]);
  await page.locator('#generate').click();
  await page.waitForFunction(()=>document.querySelector('#result').hidden===false || document.querySelector('#status').classList.contains('alert'),{},{timeout:20000});
  assert.equal(await page.locator('#result').isVisible(),true,await page.locator('#status').textContent());

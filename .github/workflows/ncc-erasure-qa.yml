@@ -91,8 +91,15 @@ jobs:
         run: |
           set -euo pipefail
           command -v psql >/dev/null
-          test "$(psql -Atqc 'select count(*) from auth.users')" = '0'
-          test "$(psql -Atqc \"select count(*) from information_schema.tables where table_schema='public' and left(table_name,4)='efg_'\")" = '0'
+          python3 - <<'PY'
+          import subprocess
+          queries = [
+              'select count(*) from auth.users',
+              "select count(*) from information_schema.tables where table_schema='public' and left(table_name,4)='efg_'"
+          ]
+          for query in queries:
+              assert subprocess.check_output(['psql', '-Atqc', query], text=True).strip() == '0', 'Disposable stack must be empty'
+          PY
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/erasure-local-app-fixture.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/android/backend/account-deletion-schema.sql
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/privacy/backend/student-erasure.candidate.sql

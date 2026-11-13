@@ -62,7 +62,7 @@ try{for(const engine of (process.env.NCC_ENGINES||'chromium,webkit').split(','))
  assert.match(await page.locator('[data-intake-choice=objective]').ariaSnapshot(),/group "Mi objetivo \(obligatorio\)"/);
  await page.locator('[name=coachRelaunch_activity_level][value=moderate]').check();
  await page.locator('#coachRelaunch_age_years').fill('41');await page.locator('#coachRelaunch_height_cm').fill('174');await page.locator('#coachRelaunch_weight_kg').fill('80.5');
- const payload=await read();await position('[data-intakepanel="0"] h3');await shot('candidate-objective');await position('[data-intake-choice=activity_level]');await shot('candidate-activity');
+ const payload=await read();await page.locator('[data-intakepanel="0"] h3').focus();await position('[data-intakepanel="0"] h3');await shot('candidate-objective');await position('[data-intake-choice=activity_level]');await shot('candidate-activity');
  assert.equal(await page.locator('[data-intake-choice=objective] input:checked').count(),1);
  const colors=await page.locator('[name=coachRelaunch_objective]:checked').evaluate(el=>({bg:getComputedStyle(el.closest('label')).backgroundColor,border:getComputedStyle(el.closest('label')).borderColor}));
  assert.equal(colors.border,'rgb(177, 197, 121)');

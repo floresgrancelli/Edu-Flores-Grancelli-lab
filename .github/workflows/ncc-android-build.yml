@@ -71,7 +71,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test deletion client
-        run: node --test efg-nutrition/android/tests/test-deletion-client.mjs
+        run: node --test efg-nutrition/android/tests/test-deletion-client.mjs efg-nutrition/android/tests/test-privacy-export.mjs
       - name: Test isolated request database and RLS
         run: |
           psql -v ON_ERROR_STOP=1 -f efg-nutrition/android/tests/deletion-bootstrap.sql

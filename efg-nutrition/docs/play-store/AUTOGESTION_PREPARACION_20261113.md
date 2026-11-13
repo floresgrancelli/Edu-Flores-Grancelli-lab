@@ -55,8 +55,12 @@ Nueve pruebas Node aprobadas localmente: cálculo/guía con catálogo actual,
 inmutabilidad, restricciones de alcance, exclusiones, formato, identidad,
 separación respecto a coach y confirmación de persistencia. La persistencia en
 estos tests es simulada; no se verificó todavía con usuarios o base productiva.
-El navegador local no arrancó por restricción de sockets del ejecutor; se prepara
-QA en GitHub Actions con Chromium, artefacto HTML y capturas reales.
+El recorrido real pasó en Chromium: ficha → cálculo → generación → seis solapas,
+edición/borrado, sin desbordamiento a 360/390/768/1280 px, sin errores de página ni
+llamadas externas del HTML autónomo. Evidencia y capturas:
+https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/43496303328
+Código verificado: 79f5c69d912e3ddaac5cdd6a0365613c02701c27.
+Esta evidencia es navegador con emulación de ancho, no Android nativo ni Safari.
 
 ## Pendientes para probar dentro de la app actual
 
@@ -84,3 +88,10 @@ iPhone cuando se publique la ruta de prueba autorizada.
 Fuentes:
 https://pubmed.ncbi.nlm.nih.gov/2305711/
 https://www.niddk.nih.gov/health-information/weight-management/body-weight-planner
+
+## Reutilización de ficha confirmada por Edu
+El peso, altura, edad, actividad, objetivo y parámetro fisiológico deben leerse
+de la ficha propia vigente. No pedir nuevamente una ficha que ya existe; completar
+solo lo que falte y no inferir sexo, actividad ni ausencia de restricciones. Si
+cambia una variable, generar una nueva revisión de metas+guía. La prueba actual
+usa el formulario de la pantalla; la lectura de la ficha alojada sigue pendiente.

@@ -52,8 +52,21 @@ El logcat completo identificó la causa exacta:
 `IllegalArgumentException: Component class com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity does not exist`.
 La biblioteca intenta registrar el acceso a configuración al abrir; ese componente
 no estaba declarado en el manifiesto mínimo. Se agregaron ManageDataLauncherActivity
-y FocusActivity conforme al ejemplo oficial. El workflow verifica de nuevo la
-apertura real. No darla por aprobada solo porque compiló o se instaló.
+y FocusActivity conforme al ejemplo oficial.
+
+Verificación posterior APROBADA:
+https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/43476247904
+Los cuatro jobs pasaron: compilación/lint, PostgreSQL/RLS, browser de privacidad
+y arranque en emulador Android 16 hasta el formulario real de acceso.
+
+La captura muestra una Custom Tab con barra del navegador, que es el fallback
+esperado mientras no se publique Digital Asset Links con la firma real. No
+se declara validada la experiencia final sin barra. No se inició sesión ni
+se probaron aún los flujos autenticados de alumnos, coaches y administrador.
+
+APK debug de prueba 0.1.0 generado y disponible para Edu:
+SHA-256: bce8921c98fed49615bf976e82bf4b3c0dfadb964153d420229e03d5f8c78de4.
+El AAB permanece sin firmar y no puede enviarse todavía a Google Play.
 
 Historial/evidencias: PR #123 y workflow NCC Android build. Consultar la ejecución
 del commit que modifica emulator-smoke.py para su resultado, no una prueba anterior.

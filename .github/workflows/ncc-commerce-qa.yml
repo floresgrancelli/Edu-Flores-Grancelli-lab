@@ -1,0 +1,21 @@
+name: NCC commerce rules QA
+on:
+  push:
+    branches: [work/ncc-android-play-prep-20261113]
+    paths:
+      - 'efg-nutrition/commerce/**'
+      - '.github/workflows/ncc-commerce-qa.yml'
+  pull_request:
+    paths:
+      - 'efg-nutrition/commerce/**'
+      - '.github/workflows/ncc-commerce-qa.yml'
+permissions:
+  contents: read
+jobs:
+  domain-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify isolated server rules without payments or secrets
+        run: node --test efg-nutrition/commerce/tests/*.test.mjs

@@ -1,0 +1,413 @@
+{
+  "checked_at": "2026-11-13",
+  "scope": "read-only metadata and legal document version information; no user records",
+  "foreign_keys": [
+    {
+      "source_table": "efg_activities",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_coach_plan_drafts",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_coach_plan_drafts",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_coach_plan_drafts",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_coach_plan_publish_receipts",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "source_table": "efg_coach_plan_publish_receipts",
+      "target_table": "efg_goals",
+      "definition": "FOREIGN KEY (goal_id) REFERENCES efg_goals(id)"
+    },
+    {
+      "source_table": "efg_coach_plan_publish_receipts",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_coach_plan_publish_receipts",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_coach_relaunch_intakes",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_coach_relaunch_intakes",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_consents",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_consents",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_daily_email_deliveries",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_daily_logs",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_food_plans",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_food_plans",
+      "target_table": "efg_goals",
+      "definition": "FOREIGN KEY (guided_goal_id) REFERENCES efg_goals(id)"
+    },
+    {
+      "source_table": "efg_food_plans",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_goals",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (approved_by) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_goals",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_habitual_meals",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (student_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_invitations",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (invited_by) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_invitations",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (claimed_by) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_invitations",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_legal_acceptances",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_legal_acceptances",
+      "target_table": "efg_legal_documents",
+      "definition": "FOREIGN KEY (document_id) REFERENCES efg_legal_documents(id)"
+    },
+    {
+      "source_table": "efg_messages",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (student_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_messages",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (sender_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_messages",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_notifications",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (recipient_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_organizations",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_payments",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (recipient_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_payments",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (payer_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_payments",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_period_reports",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_period_reports",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (student_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_personal_recipes",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (student_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_personal_targets",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (user_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_pilot_participation_receipts",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_pilot_participation_receipts",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_profiles",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_profiles",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_science_intro_receipts",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_student_onboarding",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (user_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_student_plan_access",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_student_plan_access",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (published_by) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_student_plan_access",
+      "target_table": "efg_goals",
+      "definition": "FOREIGN KEY (published_goal_id) REFERENCES efg_goals(id)"
+    },
+    {
+      "source_table": "efg_student_plan_access",
+      "target_table": "efg_organizations",
+      "definition": "FOREIGN KEY (organization_id) REFERENCES efg_organizations(id)"
+    },
+    {
+      "source_table": "efg_student_plan_access",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_sunday_rewards",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_sunday_rewards",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_weekly_reports",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (student_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "source_table": "efg_weekly_reports",
+      "target_table": "auth.users",
+      "definition": "FOREIGN KEY (coach_id) REFERENCES auth.users(id)"
+    },
+    {
+      "source_table": "efg_weights",
+      "target_table": "efg_profiles",
+      "definition": "FOREIGN KEY (student_id) REFERENCES efg_profiles(user_id) ON DELETE CASCADE"
+    }
+  ],
+  "relevant_columns": [
+    {
+      "table_name": "efg_coach_plan_drafts",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_coach_plan_drafts",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_food_plans",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_food_plans",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_goals",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_goals",
+      "column_name": "approved_by",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_invitations",
+      "column_name": "invited_by",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "efg_invitations",
+      "column_name": "claimed_by",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "efg_messages",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_messages",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_messages",
+      "column_name": "sender_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_organizations",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_name": "efg_payments",
+      "column_name": "payer_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_payments",
+      "column_name": "recipient_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_period_reports",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_period_reports",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_student_plan_access",
+      "column_name": "student_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_student_plan_access",
+      "column_name": "coach_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_name": "efg_student_plan_access",
+      "column_name": "published_by",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    }
+  ],
+  "legal_versions": [
+    {
+      "kind": "privacy",
+      "version": "pilot_20261102_v1",
+      "published_at": "2026-11-03 08:01:26.729622+00",
+      "sha256": "a66e85435f9e8aaa5469785b85ba61e2b3790bb34d8b978f04d1dfe27289adb6"
+    },
+    {
+      "kind": "professional_privacy",
+      "version": "professional_pilot_20261107_v1",
+      "published_at": "2026-11-07 17:06:20.314272+00",
+      "sha256": "f2c7d582818a41c0ee1d746a935281c57b8b70bbab70d49621c5525019e87b02"
+    },
+    {
+      "kind": "professional_terms",
+      "version": "professional_pilot_20261107_v1",
+      "published_at": "2026-11-07 17:06:20.313575+00",
+      "sha256": "9ab08f9320f32b0456ad3c559c06b1a7cc713bef1bfd78d7b6d9c26919c643c2"
+    },
+    {
+      "kind": "terms",
+      "version": "pilot_20261102_v1",
+      "published_at": "2026-11-03 08:01:26.7282+00",
+      "sha256": "54c4d8ecd5662e90d20be1b4156249e9a567fd31666265c97138f048e1893af3"
+    }
+  ]
+}

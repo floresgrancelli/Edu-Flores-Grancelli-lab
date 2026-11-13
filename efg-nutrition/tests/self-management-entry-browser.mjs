@@ -27,22 +27,22 @@ try{
    await context.addInitScript(()=>{window.__test=JSON.parse(sessionStorage.getItem('__testInit')||'null')||{user:null,role:null,allowed:true,accepted:false,registered:false,intake:null,saved:null};});
    await context.route('https://esm.sh/**',route=>route.fulfill({contentType:'text/javascript',body:sdk}));
    await context.route('**/functions/v1/ncc-self-management',async route=>{
-    const body=route.request().postDataJSON();const state=await route.frame().evaluate(()=>window.__test);let value={userId:state.user},status=200;
+    const body=route.request().postDataJSON();const state=await route.request().frame().evaluate(()=>window.__test);let value={userId:state.user},status=200;
     if(body.action.startsWith('admin_')){
      if(state.role!=='admin'){value={error:'admin_required'};status=403;}
      else if(body.action!=='admin_status'){value={...value,email:body.email,eligible:true,access:{active:body.action!=='admin_revoke',expires_at:'2026-12-13T00:00:00Z'}};}
     }else if(!state.allowed){value={error:'access_required'};status=403;}
     else if(state.role==='student'){value={error:'mode_mismatch'};status=403;}
     else if(body.action==='status')value.legal={version:'ncc-self-legal-20261113',accepted:state.accepted};
-    else if(body.action==='accept_terms')await route.frame().evaluate(()=>window.__test.accepted=true);
-    else if(body.action==='register')await route.frame().evaluate(()=>window.__test.registered=true);
+    else if(body.action==='accept_terms')await route.request().frame().evaluate(()=>window.__test.accepted=true);
+    else if(body.action==='register')await route.request().frame().evaluate(()=>window.__test.registered=true);
     else if(body.action==='context'){
      if(!state.registered){status=403;value={error:'mode_mismatch'};}
      else value={...value,intake:state.intake,generalIntake:{student_id:state.user,...fields},latestPlan:state.saved};
     }else if(body.action==='save_intake'){
-     const intake={user_id:state.user,revision:(state.intake?.revision||0)+1,data:body.fields};await route.frame().evaluate(intake=>window.__test.intake=intake,intake);value.intake=intake;
+     const intake={user_id:state.user,revision:(state.intake?.revision||0)+1,data:body.fields};await route.request().frame().evaluate(intake=>window.__test.intake=intake,intake);value.intake=intake;
     }else if(body.action==='generate'){
-     value={...value,intakeRevision:state.intake.revision,result:plan};await route.frame().evaluate(saved=>window.__test.saved=saved,value);
+     value={...value,intakeRevision:state.intake.revision,result:plan};await route.request().frame().evaluate(saved=>window.__test.saved=saved,value);
     }
     await route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
    });

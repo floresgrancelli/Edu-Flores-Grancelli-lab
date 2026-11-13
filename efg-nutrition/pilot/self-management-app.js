@@ -15,7 +15,7 @@ function showTab(tab){
 }
 document.getElementById('showGuide').onclick=()=>showTab('guide');
 document.getElementById('showIntake').onclick=()=>showTab('intake');
-const errors={auth_required:'Ingresá nuevamente desde la app.',access_required:'Tu acceso al piloto de autogestión todavía no está habilitado.',
+const errors={auth_required:'Ingresá con tu correo para abrir tu espacio.',access_required:'Tu acceso al piloto de autogestión todavía no está habilitado.',
  mode_mismatch:'Tu cuenta conserva el circuito con coach. Volvé a Mi Día para continuar.',legal_required:'Revisá y aceptá las condiciones vigentes.',
  conflict:'La ficha cambió en otro dispositivo. Recargá antes de continuar.',rate_limited:'Hiciste varias solicitudes seguidas. Esperá un minuto y reintentá.',
  outside_scope:'Esta guía general no cubre tu situación. Consultá con un profesional.',

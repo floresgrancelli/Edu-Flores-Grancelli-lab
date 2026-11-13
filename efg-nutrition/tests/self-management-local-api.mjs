@@ -108,7 +108,7 @@ try{
    // A real deleted/absent session clears every private field on reload.
    await page.evaluate(()=>{globalThis.__QA_SELF_SESSION__=null;});
    await page.route('**/__qa-sdk.js',async route=>{const r=await route.fetch();await route.fulfill({response:r,body:(await r.text()).replace('export function createClient(){','globalThis.__QA_SELF_SESSION__=null;export function createClient(){')});});
-   await page.reload();await page.getByText('Ingresá nuevamente desde la app.',{exact:true}).waitFor();
+   await page.reload();await page.getByText('Ingresá con tu correo para abrir tu espacio.',{exact:true}).waitFor();
    assert.equal(await page.locator('#result').isVisible(),false);assert.equal(await page.locator('#intake').isVisible(),false);
    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);await context.close();
   }}finally{await browser.close();}

@@ -1,5 +1,5 @@
 const fail=code=>{throw Object.assign(Error(code),{code});};
-export function createPilotAccessManager(client,{now=()=>Date.now()}={}){
+export function createPilotAccessManager(client,{now=()=>Date.now(),ownerEmail='floresgrancelli@gmail.com'}={}){
  return async(actor,body)=>{
   const {data:profile,error}=await client.from('efg_profiles').select('role,active').eq('user_id',actor).maybeSingle();
   if(error)fail('unavailable');
@@ -19,6 +19,8 @@ export function createPilotAccessManager(client,{now=()=>Date.now()}={}){
   if(!user||!user.email_confirmed_at||user.is_anonymous)fail('account_not_ready');
   const target=await client.from('efg_profiles').select('role,active').eq('user_id',user.id).maybeSingle();
   if(target.error)fail('unavailable');
+  const ownerAccess=target.data?.role==='admin'&&target.data.active===true&&email===ownerEmail.toLowerCase();
+  if(ownerAccess&&['admin_grant','admin_revoke'].includes(body.action))fail('owner_access_fixed');
   if(body.action==='admin_grant'&&target.data&&(!target.data.active||!['admin','coach'].includes(target.data.role)))fail('mode_mismatch');
   if(body.action==='admin_grant'){
    if(!Number.isInteger(body.days)||body.days<1||body.days>90)fail('invalid_request');
@@ -30,6 +32,6 @@ export function createPilotAccessManager(client,{now=()=>Date.now()}={}){
   }
   const access=await client.from('ncc_self_pilot_access').select('active,expires_at').eq('user_id',user.id).maybeSingle();
   if(access.error)fail('unavailable');
-  return {email,access:access.data,eligible:!target.data||target.data.active&&['admin','coach'].includes(target.data.role)};
+  return {email,access:access.data,ownerAccess,eligible:!ownerAccess&&(!target.data||target.data.active&&['admin','coach'].includes(target.data.role))};
  };
 }

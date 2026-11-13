@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import assert from 'node:assert/strict';
 import {generateSelfManagedPlan} from '../pilot/self-management-engine.js';
-const root=fileURLToPath(new URL('../../',import.meta.url));
+const root=resolve(fileURLToPath(new URL('../../',import.meta.url)));
 const {chromium,webkit}=createRequire(process.env.NCC_PLAYWRIGHT_PACKAGE||'/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json')('playwright');
 const catalog=JSON.parse(readFileSync(resolve(root,'efg-nutrition/catalog/guide-catalog.json')));
 const fields={age_years:35,height_cm:175,weight_kg:80,sex_for_equation:'male',activity_level:'light',objective:'fat_loss',dietary_pattern:'omnivore',eating_window:'regular',processingConsent:true,pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[],disliked_food_ids:[]};
@@ -46,7 +46,7 @@ try{
     }
     await route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
    });
-   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+   const page=await context.newPage(),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE ERROR',e.message);});
    await page.goto(origin+'/efg-nutrition/pilot/autogestion.html');await page.locator('#selfLogin').waitFor({state:'visible'});
    await page.screenshot({path:resolve(out,`${name}-${width}-ingreso.png`),fullPage:true});
    await page.locator('#selfEmail').fill('person@example.invalid');await page.locator('#selfEmailForm button').click();await page.locator('#selfCode').fill('123456');await page.locator('#selfCodeForm button[type=submit]').click();

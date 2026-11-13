@@ -5,6 +5,7 @@ import {showSelfManagedResult} from './self-management-presenter.js?v=ncc-self-l
 const sb=createClient(SELF_SUPABASE_URL,SELF_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const form=document.getElementById('intake'),status=document.getElementById('status'),result=document.getElementById('result');
 const accountStatus=document.getElementById('accountStatus'),button=document.getElementById('generate');
+const entry=document.getElementById('selfEntry');
 const errors={auth_required:'Ingresá nuevamente desde la app.',access_required:'Tu acceso al piloto de autogestión todavía no está habilitado.',
  mode_mismatch:'Tu cuenta conserva el circuito con coach. Volvé a Mi Día para continuar.',legal_required:'Revisá y aceptá las condiciones vigentes.',
  conflict:'La ficha cambió en otro dispositivo. Recargá antes de continuar.',rate_limited:'Hiciste varias solicitudes seguidas. Esperá un minuto y reintentá.',
@@ -25,7 +26,7 @@ async function transport(body,t=epoch){
  if(!response.ok)throw Object.assign(Error(errors[value.error]||'No pudimos completar la solicitud. Revisá la ficha e intentá nuevamente.'),{code:value.error});
  if(value.userId!==owner)throw Error('La respuesta no corresponde a tu cuenta.');return value;
 }
-function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;form.reset();form.hidden=true;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';}
+function clearPrivate(){epoch++;owner=null;revision=0;legal=null;preferencePending=false;form.reset();form.hidden=true;entry.hidden=true;document.getElementById('selfEntryConsent').checked=false;result.hidden=true;result.replaceChildren();status.textContent='';document.getElementById('preferenceText').textContent='';}
 function showPlan(saved){
  if(saved?.userId!==owner||saved.intakeRevision!==revision||!saved.result?.guide)return;
  showSelfManagedResult(result,saved.result,{onEdit:()=>{result.hidden=true;form.scrollIntoView({behavior:'smooth'});}});
@@ -37,6 +38,7 @@ async function boot(){
   const state=await transport({action:'status'},t);legal=state.legal;
   let context=null;
   if(legal?.accepted){try{context=await transport({action:'context'},t);}catch(e){if(e.code!=='mode_mismatch')throw e;}}
+  if(!context){entry.hidden=false;accountStatus.textContent='Elegí autogestión para recuperar tu ficha privada.';return;}
   const snapshot=await fetch('../catalog/guide-catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('No pudimos cargar los alimentos.');return r.json();});
   if(!current(t))return;
   const choices=Object.values(snapshot.foods).filter(f=>['g','ml'].includes(f.unit)).sort((a,b)=>a.name.localeCompare(b.name,'es'));
@@ -80,6 +82,15 @@ form.addEventListener('submit',async event=>{
  finally{button.disabled=false;form.inert=false;}
 });
 document.getElementById('clear').onclick=()=>boot();
+document.getElementById('openSelfIntake').onclick=async()=>{
+ if(!document.getElementById('selfEntryConsent').checked){status.textContent='Marcá tu autorización para continuar.';return;}
+ const t=epoch;entry.inert=true;
+ try{
+  if(!legal?.accepted)await transport({action:'accept_terms',version:legal.version,accepted:true},t);
+  await transport({action:'register',explicitChoice:true},t);await boot();
+ }catch(e){if(current(t))status.textContent=e.message;}
+ finally{entry.inert=false;}
+};
 document.getElementById('logout').onclick=async()=>{clearPrivate();await sb.auth.signOut();location.href='./';};
 sb.auth.onAuthStateChange((event,session)=>{
  if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada. Volvé a ingresar desde la app.';}

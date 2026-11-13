@@ -65,7 +65,21 @@ try{
  if(process.env.NCC_SELF_BROWSER==='1'){
   const {chromium}=createRequire(process.env.NCC_SELF_SDK_PACKAGE)('playwright'),browser=await chromium.launch({headless:true});
   const out=resolve(root,'artifacts/self-management-live');mkdirSync(out,{recursive:true});
-  try{for(const width of [390,320]){
+  try{
+   // First entry must recover an existing own form after explicit consent,
+   // without asking the person to retype their weight, height and age.
+   assert.equal((await admin.from('ncc_self_accounts').delete().eq('user_id',b.id)).error,null);
+   assert.equal((await admin.from('ncc_self_legal_receipts').delete().eq('user_id',b.id)).error,null);
+   assert.equal((await admin.from('efg_coach_relaunch_intakes').insert({student_id:b.id,revision:1,age_years:44,height_cm:170,weight_kg:74,activity_level:'light',objective:'maintenance',dietary_pattern:'omnivore',eating_window:'regular'})).error,null);
+   const first=await browser.newContext({viewport:{width:390,height:950},serviceWorkers:'block'});
+   await first.addInitScript(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:b.id,token:b.token});
+   const firstPage=await first.newPage();await firstPage.goto(origin+'/efg-nutrition/pilot/autogestion.html');await firstPage.locator('#selfEntry').waitFor({state:'visible'});
+   assert.equal(await firstPage.locator('#intake').isVisible(),false);
+   await firstPage.locator('#selfEntryConsent').check();await firstPage.locator('#openSelfIntake').click();await firstPage.locator('#intake').waitFor({state:'visible'});
+   assert.equal(await firstPage.locator('[name=weight_kg]').inputValue(),'74');assert.equal(await firstPage.locator('[name=height_cm]').inputValue(),'170');assert.equal(await firstPage.locator('[name=age_years]').inputValue(),'44');
+   assert.equal(await firstPage.locator('[name=scope]').isChecked(),false);assert.equal(await firstPage.locator('[name=consent]').isChecked(),false);
+   await first.close();
+   for(const width of [390,320]){
    const context=await browser.newContext({viewport:{width,height:950},serviceWorkers:'block'}),external=[],errors=[];
    await context.addInitScript(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:a.id,token:a.token});
    await context.route('**/*',route=>{if(['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname))return route.continue();external.push(route.request().url());return route.abort();});

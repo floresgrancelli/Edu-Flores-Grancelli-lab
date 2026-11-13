@@ -10,7 +10,9 @@ export async function readOwnSelfManagedPlan(sb,{userId,role,epoch,current,fetch
   if(!current()||session.error||session.data?.session?.user?.id!==userId)throw Error('session');
   const response=await fetcher(SELF_MANAGEMENT_URL,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.data.session.access_token,apikey:SELF_PUBLISHABLE_KEY},body:JSON.stringify({action:'context'})});
   const context=await response.json();if(!current())return null;
-  if(!response.ok||context.userId!==userId||context.intake?.user_id!==userId)throw Error('unverified');
+  if(!response.ok||context.userId!==userId)throw Error('unverified');
+  if(!context.intake)return {owner:userId,epoch,pending:true};
+  if(context.intake.user_id!==userId)throw Error('unverified');
   const saved=context.latestPlan;
   if(!saved||saved.userId!==userId||saved.intakeRevision!==context.intake.revision)return {owner:userId,epoch,pending:true};
   if(saved.result?.guide?.createdFrom!=='self_managed_estimate'||saved.result.guide.coachReviewed!==false)throw Error('guide');

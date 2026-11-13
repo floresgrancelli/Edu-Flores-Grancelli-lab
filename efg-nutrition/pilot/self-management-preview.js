@@ -22,12 +22,13 @@ form.addEventListener('change', resetResult);
 document.getElementById('demo').addEventListener('click', () => {
   resetResult();
   for (const [key,value] of Object.entries({ age_years:35, height_cm:175, weight_kg:80,
-    objective:'fat_loss', sex_for_equation:'male', activity_level:'light', dietary_pattern:'omnivore' }))
+    sex_for_equation:'male', activity_level:'light', dietary_pattern:'omnivore' }))
     form.elements[key].value = value;
+  form.querySelector('[name="objective"]').value = '';
   // Consent is NEVER pre-selected by an example or a saved preference.
   form.elements.scope.checked = false; form.elements.consent.checked = false;
   for (const option of document.getElementById('disliked').options) option.selected = false;
-  status.textContent = 'Ejemplo ficticio cargado. Revisá la ficha y las dos confirmaciones antes de generar.';
+  status.textContent = 'Ejemplo ficticio cargado. Elegí tu objetivo y revisá las dos confirmaciones antes de generar.';
 });
 document.getElementById('clear').addEventListener('click', () => { form.reset(); resetResult(); });
 

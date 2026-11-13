@@ -2178,6 +2178,14 @@ function updatePlannerPreview(){
   (hasUnsupported?"Para bebidas con leche, completá sus ingredientes antes de contabilizarlas. ":"")+
   "El saldo real solo cambia cuando registrás efectivamente lo consumido.";
 }
+function restorePlannerQuantities(scope=document){
+ for(const [key,record] of Object.entries(state.plannerDraftGrams||{})){
+  const selected=[...scope.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
+  const field=document.getElementById("planQty_"+key);
+  if(!selected||!field||selected.value!==record.foodId){delete state.plannerDraftGrams[key];continue;}
+  field.value=String(record.grams);
+ }
+}
 function refreshPlannerCard(focusKey=null){
  const section=document.getElementById("planSuggestionCard");
  if(!section)return render();
@@ -2186,12 +2194,7 @@ function refreshPlannerCard(focusKey=null){
  // No restaurar la cantidad vieja (causaba, por ejemplo, 340 g vs 20 g sugeridos).
  section.outerHTML=plannerCard();
  const newer=document.getElementById("planSuggestionCard");
- for(const [key,record] of Object.entries(state.plannerDraftGrams||{})){
-  const selected=[...newer.querySelectorAll("[data-planselect]")].find(el=>el.dataset.planselect===key);
-  const field=document.getElementById("planQty_"+key);
-  if(!selected||!field||selected.value!==record.foodId){delete state.plannerDraftGrams[key];continue;}
-  field.value=String(record.grams);
- }
+ restorePlannerQuantities(newer);
  for(const [key,value] of queries){
   if(key===focusKey)continue;
   const field=[...newer.querySelectorAll("[data-plansearch]")].find(el=>el.dataset.plansearch===key);
@@ -4221,7 +4224,7 @@ async function render(){
  }
  if(state.tab==="notifications")inbox.repaint();
  if(state.tab==="messages")messages.mount();
- if(state.tab==="planner")updatePlannerPreview();
+ if(state.tab==="planner"){restorePlannerQuantities();updatePlannerPreview();}
  if(state.tab==="sport")updateSportHint();
  }finally{if(state.profile?.active)professionalReleaseFrame.mountUnframedRoot?.(root);notify.mount();}
 }

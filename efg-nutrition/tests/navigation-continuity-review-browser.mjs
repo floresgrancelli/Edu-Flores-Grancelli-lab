@@ -65,7 +65,8 @@ try{for(const engine of ['chromium','webkit']){
    const result=await page.locator('[data-payment-filter=rejected]:visible').getAttribute('aria-pressed');await page.locator('[data-payment-filter=rejected]:visible').scrollIntoViewIfNeeded();await shot(prefix+'-payment-returned');return result;
   };
   if(engine==='chromium'&&width===390&&role==='coach'){
-   baseline=true;await setup();const prior=await browse('before');assert.equal(prior.search,'');assert.equal(prior.filter,'all');assert.equal(await paymentFilter('before'),'false');baseline=false;
+   baseline=true;await setup();const prior=await browse('before');assert.equal(prior.search,'');assert.equal(prior.filter,'all');assert.equal(await paymentFilter('before'),'false');
+   await page.locator('.pilot-nav [data-tab=home]').click();await page.locator('.ncc-day-plan-shortcut').click();await page.locator('[data-planmode=both]').click();await page.locator('[data-plannerslot=cena]').click();await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();await page.locator('[id="planQty_cena|protein"]').fill('123');await shot('before-planner-leaving');await science();await page.locator('.pilot-nav [data-tab=studentMore]').click();await page.locator('[data-tab=planner]:visible').first().click();assert.notEqual(await page.locator('[id="planQty_cena|protein"]').inputValue(),'123');await shot('before-planner-returned');baseline=false;
   }
   await setup();const diary=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
   if(role!=='student'){

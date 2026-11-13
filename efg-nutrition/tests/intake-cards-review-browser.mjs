@@ -69,6 +69,7 @@ try{for(const engine of (process.env.NCC_ENGINES||'chromium,webkit').split(','))
  await page.locator('[data-intakenext="1"]').click();await page.locator('#coachRelaunch_dietary_pattern').selectOption('omnivore');await page.locator('#coachRelaunch_preferred_foods').fill('Arroz, pollo y verduras');
  await page.locator('[data-intakenext="2"]').click();await page.locator('#coachRelaunch_notes').fill('Poco tiempo para cocinar');await page.locator('[data-intakenext="3"]').click();
  const review=page.locator('[data-intakereview]');assert.match(await review.innerText(),/Recomposición/);assert.match(await review.innerText(),/Moderada/);assert.doesNotMatch(await review.innerText(),/Seleccionado|fat_loss|activity_level/);
+ const consentStyle=await page.locator('.efg-intake-share-label').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,text:getComputedStyle(el).color}));assert.deepEqual(consentStyle,{bg:'rgb(16, 26, 25)',text:'rgb(240, 241, 231)'});
  assert.equal(await review.locator('dt').count(),11,'One answer per original field');await position('[data-intakepanel="3"] h3');await shot('candidate-review');
  assert.equal(await page.locator('#coachRelaunch_share').isChecked(),false,'Sharing remains voluntary');
  await page.locator('.ncc-intake-steps [data-intakestep="0"]').click();assert.equal((await read()).payload.objective,payload.payload.objective);assert.equal((await read()).payload.activity_level,payload.payload.activity_level);assert.equal((await read()).payload.weight_kg,80.5);

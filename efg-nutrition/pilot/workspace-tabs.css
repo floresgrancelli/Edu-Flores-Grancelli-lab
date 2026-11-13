@@ -150,6 +150,7 @@ html.ncc-lime-theme #app .ncc-objective-help>.pilot-hint{padding:0 12px;font-siz
 .ncc-intake-choice:has(input:focus-visible){outline:2px solid;outline-offset:3px}
 @media(max-width:600px){.ncc-intake-choice-grid{grid-template-columns:minmax(0,1fr)}.ncc-intake-choice{padding:12px}.ncc-intake-choice-copy{gap:4px}}
 @layer ncc-palette {
+ html.ncc-lime-theme #app .efg-coach-relaunch .efg-intake-share-label{background:var(--ncc-input)!important;color:var(--ncc-text)!important;border-color:var(--ncc-line)!important}
  html.ncc-lime-theme #app .ncc-intake-choice{background:var(--ncc-surface)!important;border-color:var(--ncc-line)!important}
  html.ncc-lime-theme #app .ncc-intake-choice:has(input:checked){background:var(--ncc-selected)!important;border-color:var(--ncc-lime)!important;box-shadow:inset 3px 0 var(--ncc-lime)!important}
  html.ncc-lime-theme #app .ncc-intake-choice:has(input:focus-visible){outline-color:var(--ncc-lime)!important}

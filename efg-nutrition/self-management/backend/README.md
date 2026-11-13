@@ -64,10 +64,15 @@ No desplegar solo el SQL con un endpoint que reciba un menú arbitrario.
 
 ## Estado
 
-Doce pruebas de contrato pasan localmente para ficha y handler; el test real de
-PostgreSQL y concurrencia se ejecuta en `.github/workflows/ncc-self-persistence-qa.yml`.
+Doce pruebas de contrato pasan para ficha y handler. PostgreSQL 17 y dos conexiones
+concurrentes también pasaron: guardado conjunto, idempotencia, cambios de ficha,
+propiedad/RLS, roles, rechazo de alumnos vinculados, cascada tras eliminar Auth,
+conservación de campos anteriores y conflicto de escritura entre dispositivos.
+Evidencia: https://github.com/floresgrancelli/Edu-Flores-Grancelli-lab/actions/runs/43499095332
+Código verificado: 13e6c62b3a8f90022d46828b9a732dc57e69df32.
 La fixture imita privilegios relevantes del proyecto: service_role puede consultar
-perfiles pero NO auth.users. No equivale a una prueba integral del stack alojado.
+perfiles pero NO auth.users. Identidades/claims son ficticios; no se usó Auth alojado
+ni se probaron todavía JWT reales y API REST integral de esta nueva modalidad.
 
 Pendiente: completar entrada/verificación de Auth de servidor y adaptadores de
 habilitación/recibos actuales, límites de abuso, validación de preferencias de

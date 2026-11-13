@@ -20,9 +20,11 @@ export function createClient(url){
   return q;
  };
  sdk.rpc=async(name,args)=>{
+  if(name==='efg_coach_shared_student_recipes')return {data:[],error:null};
   if(name==='efg_get_coach_health_intake')return {data:null,error:null};
   if(name==='efg_coach_guide_catalog')return {data:{version:model.catalog.version,foods:args.p_food_ids.map(id=>model.catalog.foods[id])},error:null};
   if(name==='efg_save_coach_plan_draft'){
+   if((model.draft?.draft_revision??null)!==args.p_expected_revision)return {data:null,error:{code:'PT409'}};
    model.draft={student_id:ids.student,organization_id:ids.org,coach_id:ids.coach,source_intake_updated_at:args.p_intake_updated_at,source_intake_revision:args.p_intake_revision,goal_proposal:structuredClone(args.p_goal),guide_proposal:structuredClone(args.p_guide),draft_revision:(model.draft?.draft_revision||0)+1,status:'draft',updated_at:new Date().toISOString()};model.writes.push({rpc:name});return {data:model.draft.draft_revision,error:null};
   }
   if(name==='efg_publish_coach_plan_draft_atomic'){

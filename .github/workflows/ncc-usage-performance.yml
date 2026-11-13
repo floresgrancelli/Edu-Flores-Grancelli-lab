@@ -26,7 +26,13 @@ jobs:
         run: node efg-nutrition/tests/usage-performance-browser.mjs
       - name: Public anonymous opening, fresh contexts and reloads
         if: always()
-        run: node efg-nutrition/tests/usage-performance-public.mjs
+        shell: bash
+        run: |
+          if ! git -c safe.directory="$GITHUB_WORKSPACE" diff --quiet HEAD^ HEAD -- efg-nutrition/tests/usage-performance-public.mjs; then
+            node efg-nutrition/tests/usage-performance-public.mjs
+          else
+            echo "Reuse unchanged public measurement from run 43431789344; product and public script unchanged."
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

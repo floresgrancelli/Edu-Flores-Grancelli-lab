@@ -102,7 +102,7 @@ import {renderPilotParticipationNotice,readPilotParticipationSelection,syncPilot
 import {acceptPilotParticipation} from "./pilot-participation-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGACY_PLAN_ACTIONS,COACH_RELAUNCH_VERSIONED_PLAN_BACKEND_VERIFIED,assertCoachReleasePlanWriteAllowed} from "./coach-release-plan-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {COACH_RELAUNCH_LEGAL_BRIDGE_ENABLED,loadCoachLegalOnboarding,renderCoachLegalOnboarding,acceptCoachLegalOnboarding} from "./coach-legal-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-cards-r1-20261113";
+import {showCoachIntakeStep,validateCoachIntakeSteps,loadCoachRelaunchEntry,renderCoachRelaunchEntry,readCoachRelaunchForm,submitCoachRelaunchEntry,revokeCoachRelaunchSharing,clearCoachRelaunchData} from "./coach-relaunch-entry-client.js?v=ncc-intake-routine-help-r1-20261113";
 import {PRIVATE_HEALTH_DECLARATION_UI_ENABLED,createStudentRestrictionDeclaration} from "./student-restriction-declaration.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
@@ -5111,6 +5111,21 @@ if(el.dataset.foodbulk){
   openWeeklyPdfView(Number(el.dataset.reportindex),el);return;
  }
  if(el.dataset.act==="publishWeeklyReport"){await publishWeeklyReport();return;}
+ // Optional writing aids only amend the existing notes input after a click.
+ if(el.dataset.intakeprompt!==undefined){
+  const form=el.closest('form[data-intakewizard]'),notes=form?.querySelector('#coachRelaunch_notes');
+  const status=form?.querySelector('[data-intakepromptstatus]'),text=el.dataset.intakeprompt;
+  if(!notes||!status||!['Me falta tiempo','Me cuesta organizarme','Me cuesta mantener la constancia'].includes(text))return;
+  if(notes.value.split(/\r?\n/).some(line=>line.trim()===text)){
+   status.textContent='Ese ejemplo ya está en tu texto. Podés editarlo o borrarlo.';notes.focus();return;
+  }
+  const next=notes.value+(notes.value&&!notes.value.endsWith('\n')?'\n':'')+text;
+  if(next.length>notes.maxLength){
+   status.textContent='No hay espacio para sumar el ejemplo completo. Podés editar tu respuesta; no se borró nada.';notes.focus();return;
+  }
+  notes.value=next;notes.dispatchEvent(new Event('input',{bubbles:true}));
+  status.textContent='Ejemplo sumado a tu texto. Podés editarlo o borrarlo.';notes.focus();return;
+ }
  if(el.dataset.intakestep!==undefined||el.dataset.intakenext!==undefined){
   showCoachIntakeStep(el.closest('form'),el.dataset.intakenext??el.dataset.intakestep,{validate:el.dataset.intakenext!==undefined});return;
  }
@@ -5996,6 +6011,7 @@ root.addEventListener('change',e=>{
  if(e.target.id==='periodReportReviewed')syncPeriodReportPreview();
 });
 root.addEventListener("input",e=>{
+ if(e.target.id==='coachRelaunch_notes'){const status=e.target.closest('form')?.querySelector('[data-intakepromptstatus]');if(status)status.textContent='';}
  if(e.target.id==='nccRecipeSearch'){state.recipeSearch={owner:state.session?.user?.id,epoch:state.authContextEpoch,value:e.target.value};filterRecipeCards();return;}
  if(e.target.id==="efgRecipeRegisterQty"&&recipeSheet)updateLibraryRecipeSummary();
  if(["activitySteps","activityPace","activityHeightCm","activityWeightKg","activityDistanceKm","activityWalkingMinutes","activityHeartRateBpm"].includes(e.target.id))refreshWalkingActivityPreview(document);

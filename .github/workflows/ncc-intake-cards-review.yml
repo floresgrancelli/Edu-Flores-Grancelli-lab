@@ -23,6 +23,14 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: node efg-nutrition/tests/intake-cards-review-browser.mjs
+      - run: node efg-nutrition/tests/intake-routine-review-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intake-routine-review
+          path: artifacts/intake-routine-review/
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:

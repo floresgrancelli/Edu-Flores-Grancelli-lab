@@ -36,7 +36,7 @@
     {
       "title": "Proveedores y recursos externos",
       "paragraphs": [
-        "La plataforma utiliza Supabase para autenticación, base de datos y archivos, y Render para servir la aplicación web. El proyecto de base de datos consultado está configurado en la región sa-east-1. Esto no significa que todos los servicios, respaldos, soporte o registros se procesen exclusivamente en esa ubicación.",
+        "La plataforma utiliza Supabase para autenticación, base de datos y archivos, y Render para servir la aplicación web. La base de datos está configurada en Brasil, en la región de São Paulo. Esto no significa que todos los servicios, respaldos, soporte o registros se procesen exclusivamente en esa ubicación.",
         "Algunas funciones cargan módulos desde esm.sh y fotografías públicas desde Unsplash o Pexels. Al solicitar esos recursos, el navegador puede comunicar al proveedor datos técnicos de conexión y origen según su configuración. Los enlaces a fuentes científicas y alimentarias abren recursos externos con sus propias políticas.",
         "Antes del lanzamiento se completará la revisión de proveedores, regiones efectivas, transferencias internacionales, respaldos y acuerdos aplicables. No se afirma que toda la información permanezca en Argentina."
       ]

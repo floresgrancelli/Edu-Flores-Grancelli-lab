@@ -1,0 +1,45 @@
+name: NCC privacy readiness
+on:
+  pull_request:
+    paths:
+      - 'efg-nutrition/privacy/**'
+      - 'efg-nutrition/pilot/eliminar-cuenta.html'
+      - 'efg-nutrition/pilot/account-deletion*'
+      - '.github/workflows/ncc-privacy-readiness.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test contact, policy and deletion request contract
+        run: node --test efg-nutrition/privacy/tests/contact-policy.test.mjs efg-nutrition/android/tests/test-deletion-client.mjs efg-nutrition/android/tests/test-privacy-export.mjs
+      - name: Verify generated policy preview
+        run: |
+          node efg-nutrition/privacy/render-policy.mjs
+          git diff --exit-code -- efg-nutrition/privacy/preview/privacidad.html
+      - name: Install pinned browser tools
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Test both request paths and policy without login
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/ncc-privacy-http.log 2>&1 &
+          node efg-nutrition/android/tests/privacy-browser.mjs
+          node efg-nutrition/privacy/tests/policy-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-public-policy-review
+          path: |
+            efg-nutrition/privacy/evidence
+            efg-nutrition/privacy/preview/privacidad.html
+            efg-nutrition/android/evidence
+          if-no-files-found: error
+          retention-days: 14

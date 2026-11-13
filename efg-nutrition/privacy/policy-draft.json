@@ -1,0 +1,81 @@
+{
+  "version": "play_20261113_review1",
+  "status": "draft",
+  "sections": [
+    {
+      "title": "Responsable y contacto",
+      "paragraphs": [
+        "El responsable de Nutrición Con-Ciencia es Eduardo Flores Grancelli. Podés escribir a floresgrancelli@gmail.com para consultas de privacidad y soporte, y para solicitar acceso, rectificación, actualización o eliminación de tu cuenta y sus datos.",
+        "Esta propuesta todavía no está vigente. El domicilio de contacto del responsable y los detalles pendientes de conservación y proveedores se confirmarán antes de su publicación definitiva."
+      ]
+    },
+    {
+      "title": "Qué información utiliza la aplicación",
+      "paragraphs": [
+        "Información de cuenta: correo de acceso, identificador, nombre o apodo, rol, invitaciones y vínculos entre alumnos y coaches.",
+        "Información que registrás o recibís: comidas, cantidades, recetas, preferencias, objetivos, planes, peso, actividad, fichas, informes y mensajes. También pueden tratarse fotos, archivos y comprobantes que decidas adjuntar, y los estados de revisión de pagos y licencias.",
+        "Datos técnicos necesarios para operar y proteger el servicio: sesión, navegador, dispositivo, fechas de acceso y eventos de seguridad. Los proveedores de infraestructura pueden tratar direcciones IP y otros datos de conexión en sus registros técnicos.",
+        "Alergias, diagnósticos, restricciones médicas y otros datos de salud tienen protección especial. Aceptar una política general o entrar con un código no equivale a autorizar su tratamiento o su acceso por un coach. Deben explicarse finalidad y destinatarios y obtenerse los permisos específicos que correspondan."
+      ]
+    },
+    {
+      "title": "Para qué se utiliza",
+      "paragraphs": [
+        "Para verificar el acceso, conservar tu registro personal, mostrar objetivos y evolución, organizar planes y permitir el seguimiento que autorices. También para entregar informes, facilitar mensajes, administrar invitaciones y cupos, revisar comprobantes, registrar decisiones de privacidad, atender solicitudes y proteger el servicio.",
+        "Los cálculos y herramientas son orientativos. No se presentan como un medio para diagnosticar enfermedades ni reemplazan una evaluación profesional. No usamos los registros para publicidad personalizada ni los vendemos a anunciantes."
+      ]
+    },
+    {
+      "title": "Quién puede acceder",
+      "paragraphs": [
+        "Podés consultar la información de tu propia cuenta. El coach vinculado accede al seguimiento y a las fichas únicamente dentro de los permisos vigentes. La autorización de seguimiento, el permiso de compartir una ficha y los permisos sobre datos sensibles son decisiones separadas y revocables.",
+        "Una persona con doble rol conserva separados su registro personal y el espacio donde acompaña a sus alumnos. Ser coach o administrador no implica acceso automático a todos los registros privados.",
+        "El responsable y los prestadores técnicos pueden intervenir de manera limitada para operar el servicio, resolver incidencias y cumplir obligaciones aplicables. Un coach puede tener obligaciones propias sobre la información que recibió para su servicio profesional; una eliminación debe coordinar ese tratamiento sin borrar cuentas de otras personas."
+      ]
+    },
+    {
+      "title": "Proveedores y recursos externos",
+      "paragraphs": [
+        "La plataforma utiliza Supabase para autenticación, base de datos y archivos, y Render para servir la aplicación web. El proyecto de base de datos consultado está configurado en la región sa-east-1. Esto no significa que todos los servicios, respaldos, soporte o registros se procesen exclusivamente en esa ubicación.",
+        "Algunas funciones cargan módulos desde esm.sh y fotografías públicas desde Unsplash o Pexels. Al solicitar esos recursos, el navegador puede comunicar al proveedor datos técnicos de conexión y origen según su configuración. Los enlaces a fuentes científicas y alimentarias abren recursos externos con sus propias políticas.",
+        "Antes del lanzamiento se completará la revisión de proveedores, regiones efectivas, transferencias internacionales, respaldos y acuerdos aplicables. No se afirma que toda la información permanezca en Argentina."
+      ]
+    },
+    {
+      "title": "Conservación y eliminación",
+      "paragraphs": [
+        "Los registros de una cuenta activa se conservan para permitir la continuidad de su seguimiento. Revocar el acceso del coach limita las consultas futuras autorizadas, pero no elimina por sí mismo el historial personal.",
+        "Podés solicitar la eliminación de tu cuenta y de los datos asociados desde la aplicación, desde su página web de eliminación sin instalarla, o escribiendo a floresgrancelli@gmail.com. Si no podés ingresar, el correo permite iniciar la solicitud y coordinar una verificación razonable de identidad.",
+        "La solicitud debe tramitar la información de la cuenta, los registros relacionados y los archivos; congelar el acceso no sustituye la eliminación. Los datos que deban conservarse por una obligación legal o por derechos legítimos de terceros se limitarán a lo necesario y se explicarán con su motivo y plazo.",
+        "Antes de activar la versión pública se documentarán los períodos efectivos de registros técnicos y copias de seguridad, y el procedimiento para que una restauración no vuelva a poner en uso datos cuya eliminación ya se hubiera tramitado. No se promete un borrado instantáneo de todas las copias."
+      ]
+    },
+    {
+      "title": "Cómo ejercer tus derechos",
+      "paragraphs": [
+        "Escribí a floresgrancelli@gmail.com e indicá el correo de tu cuenta y si solicitás acceso, corrección, actualización o eliminación. Para iniciar el pedido no hace falta adjuntar diagnósticos, fotos de salud ni documentos de identidad. Si se necesita una verificación adicional, se coordinará el medio proporcional al caso.",
+        "Según la Ley 25.326, el acceso debe responderse en diez días corridos desde la recepción fehaciente. La rectificación, actualización o supresión, cuando corresponda, debe realizarse en un máximo de cinco días hábiles. Las excepciones legales a la supresión no autorizan a conservar indiscriminadamente todos los datos.",
+        "Podés reclamar ante la Agencia de Acceso a la Información Pública si la respuesta es insuficiente o no llega dentro del plazo aplicable. La guía oficial está disponible en https://www.argentina.gob.ar/aaip/datospersonales/derechos."
+      ]
+    },
+    {
+      "title": "Seguridad y cambios de versión",
+      "paragraphs": [
+        "La plataforma emplea autenticación y controles de acceso. Los secretos administrativos no deben incorporarse a la aplicación del usuario. La configuración y los permisos se revisan antes de activar funciones; ninguna tecnología elimina por completo los riesgos.",
+        "La versión definitiva indicará su fecha de vigencia. Los cambios que requieran nuevas decisiones de consentimiento se presentarán por separado, sin modificar silenciosamente las constancias históricas. Esta versión en revisión no reemplaza los avisos actualmente vigentes del piloto."
+      ]
+    }
+  ],
+  "releaseBlockers": [
+    "Domicilio de contacto del responsable pendiente de confirmación por Edu.",
+    "Confirmar plazos efectivos de registros técnicos y respaldos, procedimiento de restauración y eliminación completa.",
+    "Completar revisión de proveedores, transferencias y acuerdos de tratamiento.",
+    "Comprobar el circuito de eliminación antes de presentar esta política como vigente."
+  ],
+  "officialSources": [
+    "https://www.argentina.gob.ar/normativa/nacional/64790/actualizacion",
+    "https://www.argentina.gob.ar/aaip/datospersonales/derechos",
+    "https://support.google.com/googleplay/android-developer/answer/13327111",
+    "https://support.google.com/googleplay/android-developer/answer/16679511"
+  ]
+}

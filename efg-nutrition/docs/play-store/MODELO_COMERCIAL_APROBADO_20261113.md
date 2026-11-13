@@ -1,5 +1,5 @@
 # Modelo comercial aprobado — Google Play
-Fecha: 13/11/2026. Confirmado por Edu: «Exacto».
+Fecha: 13/11/2026. Confirmado por Edu: «Exacto». Periodicidad de paquetes: «Por mes».
 
 ## Decisión vigente
 Una sola aplicación, con descarga gratuita. El alumno no paga por descargar,
@@ -12,10 +12,12 @@ y verificable/restaurable; no se cobra nuevamente por reinstalar. Precio de
 referencia en USD, sujeto a configuración territorial, moneda e impuestos de Play.
 No equivale a US$10 netos para el desarrollador.
 
-El coach compra paquetes de capacidad para alumnos mediante Google Play.
+El coach contrata paquetes mensuales de capacidad para alumnos mediante Google Play.
+La capacidad es por alumnos activos, no un cobro por cada nueva invitación.
 Los tamaños 10/20/50 son propuestas, no precios ni catálogo aprobados.
-Quedan pendientes: precio de cada paquete, duración (compra permanente o
-suscripción), cupos incluidos en la activación y reglas de cambio de paquete.
+Quedan pendientes: precio de cada paquete, cupos incluidos en la activación,
+renovación y reglas de cambio/cancelación de paquete. La periodicidad mensual
+queda aprobada; las condiciones de renovación se mostrarán antes de contratar.
 No crear productos facturables hasta definir esas condiciones.
 La activación única no implica que los paquetes sean gratuitos o permanentes.
 

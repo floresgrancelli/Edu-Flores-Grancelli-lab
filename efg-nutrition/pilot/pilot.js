@@ -1,4 +1,10 @@
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
+import {MICRONUTRIENTS_ENABLED} from './micronutrients-config.js?v=ncc-micro-r1-20261113';
+import {MICRONUTRIENT_CATALOG} from './micronutrient-catalog.js?v=ncc-micro-r1-20261113';
+import {estimateDailyMicronutrients,micronutrientPeriod} from './micronutrient-engine.js?v=ncc-micro-r1-20261113';
+import {renderMicronutrients,renderMicronutrientPeriod} from './micronutrient-view.js?v=ncc-micro-r1-20261113';
+if(MICRONUTRIENTS_ENABLED){const style=document.createElement('link');style.rel='stylesheet';style.href='./micronutrients.css?v=ncc-micro-r1-20261113';document.head.append(style);}
+
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-identity-photos-r1-20261113';
 import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-navigation-continuity-r1-20261112';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
@@ -1843,8 +1849,16 @@ function dayMealIcon(slot){
  };
  return '<svg class="ncc-meal-icon" data-meal-icon="'+escapeHTML(slot)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[slot]+'</svg>';
 }
+// Presentation-only reference context. A future loader must verify its owner and
+// revision through the private API. Never reuse the selected pupil's intake.
+function ownMicronutrientProfile(){
+ const context=state.micronutrientReference;
+ return context&&typeof state.session?.user?.id==='string'&&context.userId===state.session.user.id&&context.epoch===state.authContextEpoch?context.profile:null;
+}
 function homeView(){
  let d=activeDiary(),tot=dailyTotals(d),goal=activeGoal();
+ const micros=MICRONUTRIENTS_ENABLED?renderMicronutrients(estimateDailyMicronutrients({diary:d,profile:ownMicronutrientProfile(),catalog:MICRONUTRIENT_CATALOG})):"";
+
  const motivation=motivationOfTheDay();
  // El coach/admin puede utilizar sus propios gráficos semanales con la meta
  // personal. Jamás se lee un alumno aquí ni se inventan metas históricas.
@@ -1897,7 +1911,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  toolPanel('nccDayBalance','Balance restante',balance)+
  '<button type="button" data-tab="supplements">Suplementos <span aria-hidden="true">›</span></button><button type="button" data-tab="recipes">Mis recetas <span aria-hidden="true">›</span></button><button type="button" data-tab="summaries">Informes <span aria-hidden="true">›</span></button>'+
  toolPanel('nccDayWeekly','Resumen semanal',weeklyPanel)+toolPanel('nccDayMessage','Mensaje del día',dayMessage)+toolPanel('nccDayGoals','Mis objetivos personales',goalForm)+'</div></details>';
-  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+
+  return '<div class="ncc-direct-day"><header class="ncc-day-welcome"><h1>Mi Día</h1><time datetime="'+today()+'">Hoy, '+new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(today()+'T12:00:00Z'))+'</time></header>'+compactDaySummary(tot,goal,d,mealSlots)+micros+
  '<button type="button" class="btn small light ncc-day-plan-shortcut" data-tab="planner" data-plan-direct="true" style="width:100%;margin:0 0 12px;display:flex;align-items:center;justify-content:center;gap:8px"><span aria-hidden="true" style="display:inline-flex;gap:2px;flex:none">'+['merienda','almuerzo'].map(slot=>dayMealIcon(slot).replace('<svg ','<svg width="18" height="18" style="width:18px;height:18px;flex:none" ')).join('')+'</span><span>Planificar merienda / cena <span aria-hidden="true">→</span></span></button>'+
  (!goal?'<div class="pilot-alert">Aún no hay un objetivo nutricional aprobado para esta cuenta. Los registros funcionan, pero no mostraremos metas inventadas.</div>':'')+
  (state.profile.role==="student"&&state.foodPlan?.guided_plan?'<details class="efg-pastel-guide" id="nccStudentDayGuide"><summary>📋 Ver mi Dieta Guía</summary>'+studentGuidedSection()+'</details>':'')+
@@ -2714,7 +2728,7 @@ function personalMacroStatsPanel(){
  const owner=state.session?.user?.id,epoch=state.authContextEpoch;
  const saved=state.macroStats?.owner===owner&&state.macroStats?.epoch===epoch?state.macroStats:null;
  const end=new Date(today()+'T12:00:00Z');end.setUTCDate(end.getUTCDate()-1);const to=saved?.to||end.toISOString().slice(0,10);end.setUTCDate(end.getUTCDate()-6);const from=saved?.from||end.toISOString().slice(0,10);
- return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true}):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
+ return '<section class="card ncc-macro-stats"><h2>Mis estadísticas nutricionales</h2><div class="ncc-gap-range"><label>Desde<input id="macroStatsFrom" type="date" value="'+from+'" max="'+today()+'"></label><label>Hasta<input id="macroStatsTo" type="date" value="'+to+'" max="'+today()+'"></label><button class="btn" data-act="loadMacroStats">Consultar período</button></div><div id="macroStatsResult" aria-live="polite">'+(saved?.model?renderMacroGaps(saved.model,{personal:true})+(MICRONUTRIENTS_ENABLED&&saved.micronutrients?renderMicronutrientPeriod(saved.micronutrients):''):'<p>Elegí hasta 90 días para comparar tus registros con tus objetivos.</p>')+'</div></section>';
 }
 function progressView(){
  const weights=normalizedWeights(state.weights).reverse();
@@ -5459,7 +5473,9 @@ if(el.dataset.foodbulk){
    const days=data.map(log=>buildNutritionReport([log],mealSlots,dailyTotals,today(),null).days[0]);
    const next=new Date(to+'T12:00:00Z');next.setUTCDate(next.getUTCDate()+1);
    const model=buildLuxuryPeriodReport({from,to,friday:next.toISOString().slice(0,10),studentName:state.profile?.nickname,coachName:'Tu coach',days,logs:data,goals});
-   if(!current())return;state.macroStats={owner:userId,epoch,from,to,model};host.innerHTML=renderMacroGaps(model,{personal:true});
+   if(!current())return;
+   const micronutrients=MICRONUTRIENTS_ENABLED?micronutrientPeriod({logs:data,profile:ownMicronutrientProfile(),catalog:MICRONUTRIENT_CATALOG,from,to}):null;
+   state.macroStats={owner:userId,epoch,from,to,model,micronutrients};host.innerHTML=renderMacroGaps(model,{personal:true})+(micronutrients?renderMicronutrientPeriod(micronutrients):'');
   }catch(error){if(current())host.textContent='No se pudieron consultar las estadísticas. Volvé a intentarlo.';}finally{host.loading=false;}
   return;
  }
@@ -6170,7 +6186,7 @@ root.addEventListener("submit",e=>{
 // Repeated SIGNED_IN events during a silent same-user session recovery must not redraw
 // the coach's screen or reset the pending nutrition-guide draft.
 function resetPrivateSession(){
- state.macroStats=null;
+ state.macroStats=null;state.micronutrientReference=null;
  recipeSheet=null;recipeSheetDrafts.clear();recipeRegistrationBusy=false;state.recipeLibrary=null;
  studentGuideSheet=null;studentGuideDrafts.clear();state.studentGuideSlots={};
  dualWorkspaceBootstrap.invalidate();state.dualCandidateCoach=false;

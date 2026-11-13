@@ -1,0 +1,45 @@
+name: NCC self management QA
+on:
+  push:
+    branches: [work/ncc-android-play-prep-20261113]
+    paths:
+      - 'efg-nutrition/pilot/self-management*'
+      - 'efg-nutrition/pilot/autogestion-prueba.html'
+      - 'efg-nutrition/tests/self-management*'
+      - 'efg-nutrition/tools/build-self-management-preview.mjs'
+      - '.github/workflows/ncc-self-management-qa.yml'
+  pull_request:
+    paths:
+      - 'efg-nutrition/pilot/self-management*'
+      - 'efg-nutrition/pilot/autogestion-prueba.html'
+      - 'efg-nutrition/tests/self-management*'
+      - 'efg-nutrition/tools/build-self-management-preview.mjs'
+      - '.github/workflows/ncc-self-management-qa.yml'
+permissions:
+  contents: read
+jobs:
+  self-management:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test shared engine and private orchestration contract
+        run: node --test efg-nutrition/tests/self-management.test.mjs
+      - name: Build standalone review
+        run: node efg-nutrition/tools/build-self-management-preview.mjs
+      - name: Install pinned browser test dependency
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Test actual interface and capture portrait screenshots
+        run: node efg-nutrition/tests/self-management-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-self-management-review
+          path: |
+            efg-nutrition/docs/play-store/Autogestion_Prueba_Interactiva.html
+            efg-nutrition/docs/play-store/self-management-evidence/

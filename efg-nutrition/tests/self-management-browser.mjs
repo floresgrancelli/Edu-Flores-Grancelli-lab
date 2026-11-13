@@ -16,6 +16,8 @@ try{
  await page.locator('#disliked option').first().waitFor({state:'attached'});
  await page.screenshot({path:path.join(output,'Ficha_Android.png'),fullPage:true});
  await page.locator('#demo').click();
+ assert.equal(await page.locator('[name=objective]').inputValue(),'');
+ await page.locator('[name=objective]').selectOption('fat_loss');
  assert.equal(await page.locator('[name=consent]').isChecked(),false);
  assert.equal(await page.locator('[name=scope]').isChecked(),false);
  await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();

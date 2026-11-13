@@ -1,3 +1,4 @@
+import {CATALOG_BATCH_TWO_FOODS} from '../pilot/food-catalog-batch-two-20261113.js';
 import assert from 'node:assert/strict';
 import {CATALOG_BATCH_FOODS} from '../pilot/food-catalog-batch-20261113.js';
 import {readFileSync,existsSync} from 'node:fs';
@@ -6,10 +7,10 @@ const escapeHTML=v=>String(v).replaceAll('&','&amp;').replaceAll('"','&quot;').r
 const html=f=>foodPhotoHTML(f,escapeHTML);
 const catalog=Object.values(JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url))).foods);
 assert.ok(catalog.length>=560);
-const pendingPhotoIds=new Set(CATALOG_BATCH_FOODS.map(f=>f.id));
-assert.equal(pendingPhotoIds.size,25);
+const pendingPhotoIds=new Set([...CATALOG_BATCH_FOODS,...CATALOG_BATCH_TWO_FOODS].map(f=>f.id));
+assert.equal(pendingPhotoIds.size,53);
 assert.deepEqual(Object.keys(FOOD_PHOTO_MAP).sort(),catalog.filter(f=>!pendingPhotoIds.has(f.id)).map(f=>f.id).sort());
-for(const food of CATALOG_BATCH_FOODS){assert.equal(visual(food).placeholder,true,food.id+' must not inherit a picture by keyword');assert.match(html(food),/Imagen no disponible/);}
+for(const food of [...CATALOG_BATCH_FOODS,...CATALOG_BATCH_TWO_FOODS]){assert.equal(visual(food).placeholder,true,food.id+' must not inherit a picture by keyword');assert.match(html(food),/Imagen no disponible/);}
 const assets=new Set();
 for(const f of catalog.filter(f=>!pendingPhotoIds.has(f.id))){
  const before=JSON.stringify(f),v=visual(f);

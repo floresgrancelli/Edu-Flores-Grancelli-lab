@@ -1,7 +1,7 @@
 // Private connection proposal. No RPC, listener, timer or UI created unless explicitly enabled.
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-catalog-batch-r1-20261113';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-catalog-batch-two-r1-20261113';
 import {createServerCompatibilityClient} from './server-compatibility-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js?v=ncc-catalog-batch-r1-20261113';
+import {createCoachAdaptedWorkspace} from './coach-adapted-workspace.js?v=ncc-catalog-batch-two-r1-20261113';
 export const CLINICAL_GUIDE_CONNECTION_ENABLED=false;
 export function createClinicalGuideConnection({enabled=false,client,readScope,template,clock={}}={}){
  if(!enabled)return {available:()=>false,open:async()=>{throw Error('CLINICAL_CONNECTION_OFF');},dispose(){}};

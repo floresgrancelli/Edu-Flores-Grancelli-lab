@@ -8,8 +8,8 @@ const snapshot=JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',i
 const goal={goal_type:'maintenance',kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
 const fixture=(ids=['chicken','pork'])=>({kind:'flexible_meal_guide',version:2,meals:ids.map((id,i)=>({slot:i?'cena':'almuerzo',items:[{...snapshot.foods[id],qty:123,locked:true,sourceApprovalId:'false-approval'}]})),supplementNote:'Nota del coach'});
 const rows=ids=>({version:snapshot.version,foods:ids.map(id=>snapshot.foods[id])});
-test('snapshot exactly matches 585 application foods and preserves the 560 published rows',()=>{
- assert.deepEqual(exportGuideCatalog(),snapshot);assert.equal(Object.keys(snapshot.foods).length,585);
+test('snapshot exactly matches 613 application foods and preserves the 560 published rows',()=>{
+ assert.deepEqual(exportGuideCatalog(),snapshot);assert.equal(Object.keys(snapshot.foods).length,613);
  const baseline=JSON.parse(readFileSync(new URL('../docs/catalog-batch-20261113/baseline-catalog.json',import.meta.url)));for(const [id,food] of Object.entries(baseline.foods))assert.deepEqual(snapshot.foods[id],food,'Published food remains exact: '+id);
  assert.ok(Object.values(snapshot.foods).filter(f=>f.dataQuality==='estimated').length>500);
 });

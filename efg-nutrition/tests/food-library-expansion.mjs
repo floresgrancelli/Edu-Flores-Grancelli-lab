@@ -46,7 +46,7 @@ assert.ok(search("gomitas").length>=2);
 assert.ok(search("zapallo").some(f=>f.id==="zapallo_anco_hervido"));
 assert.ok(search("calabaza").some(f=>f.id==="zapallo_anco_hervido"));
 assert.ok(search("pizza").length>=8);
-assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS,PLANT_BAKERY_FOODS,CATALOG_BATCH_FOODS\)/);
+assert.match(catalog,/\.concat\(BRANDED_FOODS,USDA_FDC_ADDITIONS,HOME_EGG_PREPARATIONS,FRUIT_SALAD_FOODS,SEAFOOD_MEDALLION_FOODS,EXPANDED_FOODS,ARGENTINE_LABEL_FOODS,USER_PHOTO_LABEL_FOODS,PLANT_BAKERY_FOODS,CATALOG_BATCH_FOODS,CATALOG_BATCH_TWO_FOODS\)/);
 assert.match(catalog,/Object\.assign\(FOOD_UNIT_PORTIONS,EXPANDED_PORTIONS\)/);
 assert.match(app,/foodSearchText\(f\)/,"Search must include regional synonyms");
 assert.match(html,/name="efg-build" content="ncc-pilot-3a40474052be"/,"Force iPhone Safari asset update");

@@ -12,7 +12,7 @@ import {validateCoachPlanProposal} from '../pilot/coach-plan-draft-client.js';
 import {assessDietarySignal} from '../pilot/dietary-traffic-light.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..'),folder=new URL('../docs/catalog-batch-20261113/',import.meta.url);
 const old=JSON.parse(readFileSync(new URL('baseline-catalog.json',folder))),review=JSON.parse(readFileSync(new URL('review.json',folder))),now=exportGuideCatalog();
-assert.equal(Object.keys(old.foods).length,560);assert.equal(Object.keys(now.foods).length,585);assert.equal(batch.length,25);
+assert.equal(Object.keys(old.foods).length,560);assert.ok(Object.keys(now.foods).length>=585);assert.equal(batch.length,25);
 for(const [id,row] of Object.entries(old.foods))assert.deepEqual(now.foods[id],row,id+' published row must remain exact');
 assert.equal(new Set(EXTRA_FOODS.map(x=>x.id)).size,EXTRA_FOODS.length);assert.equal(new Set(batch.map(x=>x.name)).size,25);
 const goal={goal_type:'maintenance',kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
@@ -29,7 +29,7 @@ for(const [term,id] of [['espinaca cruda','spinach_raw'],['pelon','nectarine_raw
 }
 // Changed integration modules may only receive versioned import URLs; no formulas or publication semantics drift.
 const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--name-only','e2dc451f75d0b4d31fa9af3b39a83c62626c13c8','--','efg-nutrition/pilot'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
-for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js'))){
+for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
  const prior=execFileSync('git',['-c','safe.directory='+root,'show','e2dc451f75d0b4d31fa9af3b39a83c62626c13c8:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>s.replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
 }
-console.log('PASS additive catalog: 25 exact source rows, 560 unchanged foods, 585 unique identities, quantities, guide draft compatibility, conservative restrictions and neutral new thumbnails');
+console.log('PASS additive catalog: 25 exact source rows, 560 unchanged foods, at least585 identities, quantities, guide draft compatibility, conservative restrictions and neutral new thumbnails');

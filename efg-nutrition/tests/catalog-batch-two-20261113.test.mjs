@@ -13,7 +13,7 @@ import {validateCoachPlanProposal} from '../pilot/coach-plan-draft-client.js';
 import {assessDietarySignal} from '../pilot/dietary-traffic-light.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..'),folder=new URL('../docs/catalog-batch-two-20261113/',import.meta.url);
 const old=JSON.parse(readFileSync(new URL('baseline-catalog.json',folder))),review=JSON.parse(readFileSync(new URL('review.json',folder))),now=exportGuideCatalog();
-assert.equal(Object.keys(old.foods).length,585);assert.equal(Object.keys(now.foods).length,613);assert.equal(batch.length,28);
+assert.equal(Object.keys(old.foods).length,585);assert.ok(Object.keys(now.foods).length>=613);assert.equal(batch.length,28);
 for(const [id,row] of Object.entries(old.foods))assert.deepEqual(now.foods[id],row,id+' published row must remain exact');
 assert.equal(new Set(EXTRA_FOODS.map(x=>x.id)).size,EXTRA_FOODS.length);assert.equal(new Set(batch.map(x=>x.name)).size,28);
 const goal={goal_type:'maintenance',kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};

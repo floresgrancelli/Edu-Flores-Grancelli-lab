@@ -7,7 +7,7 @@ assert.equal(env.GITHUB_ACTIONS,'true');assert.equal(env.PGHOST,'127.0.0.1');ass
 const dir=new URL('../docs/catalog-batch-two-20261113/',import.meta.url),read=n=>readFileSync(new URL(n,dir),'utf8');
 const sql=s=>execFileSync('psql',['-X','-qAt','-v','ON_ERROR_STOP=1'],{input:s,encoding:'utf8',env,maxBuffer:5e6}).trim();
 const literal=x=>"'"+JSON.stringify(x).replaceAll("'","''")+"'::jsonb";
-const old=JSON.parse(read('baseline-catalog.json')),now=JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url)));
+const old=JSON.parse(read('baseline-catalog.json')),now=JSON.parse(readFileSync(new URL('../docs/achuras-20261113/baseline-catalog.json',import.meta.url)));
 const goal={kcal:2100,protein_g:150,carb_g:225,fat_g:70,fiber_g:28};
 const guide=(catalog,id)=>({kind:'flexible_meal_guide',version:2,catalogVersion:catalog.version,meals:[{slot:'almuerzo',items:[{...catalog.foods[id],qty:37.5}]},{slot:'cena',items:[{...catalog.foods.chicken,qty:100}]}]});
 const canonical=g=>JSON.parse(sql('select efg_private.canonical_catalog_guide('+literal(g)+','+literal(goal)+');'));

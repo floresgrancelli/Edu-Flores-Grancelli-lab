@@ -1,6 +1,6 @@
 {
-  "version": "ncc-catalog-9fe5f297cd40a823",
-  "sha256": "9fe5f297cd40a82323e505ab3d3e2b208c99b3c110d659ba33b0ac96c25c8066",
+  "version": "ncc-catalog-e43dc1b7b374a584",
+  "sha256": "e43dc1b7b374a584c8e4a41a9976a7a092b183fa929f3502b569a4936d388713",
   "foods": {
     "abadejo_cocido": {
       "id": "abadejo_cocido",
@@ -1856,6 +1856,22 @@
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173756/nutrients",
       "validationStatus": "tabla_referenciada",
       "source": "USDA FoodData Central, SR Legacy (2018), FDC 173756. Chickpeas (garbanzo beans, bengal gram), mature seeds, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
+    "chinchulines_grilled": {
+      "id": "chinchulines_grilled",
+      "name": "Chinchulines a la parrilla · carne vacuna",
+      "unit": "g",
+      "k": 2.7,
+      "p": 0.138,
+      "c": 0,
+      "f": 0.239,
+      "fi": 0,
+      "sourceType": "sara2",
+      "sourceId": "SARA2-2022-table7A-p82",
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf",
+      "validationStatus": "tabla_referenciada",
+      "source": "Ministerio de Salud, SARA 2 (2022), tabla 7.A, página impresa 82. Valores por 100 g de parte comestible cocida a la parrilla/horno, sin aceite ni sal adicionales. Energía publicada; no se recalcula por 4-4-9. Chinchulines usa la referencia conjunta de chinchulines/tripa gorda.",
       "dataQuality": "referenced"
     },
     "chipa": {
@@ -4162,6 +4178,22 @@
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
     },
+    "kidney_beef_grilled": {
+      "id": "kidney_beef_grilled",
+      "name": "Riñón a la parrilla · carne vacuna",
+      "unit": "g",
+      "k": 1.51,
+      "p": 0.273,
+      "c": 0,
+      "f": 0.047,
+      "fi": 0,
+      "sourceType": "sara2",
+      "sourceId": "SARA2-2022-table7A-p88",
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf",
+      "validationStatus": "tabla_referenciada",
+      "source": "Ministerio de Salud, SARA 2 (2022), tabla 7.A, página impresa 88. Valores por 100 g de parte comestible cocida, sin aceite ni sal adicionales. Energía publicada; no se recalcula por 4-4-9.",
+      "dataQuality": "referenced"
+    },
     "kiwi": {
       "id": "kiwi",
       "name": "Kiwi",
@@ -5392,6 +5424,22 @@
       "sourceUrl": "",
       "validationStatus": "generico_pendiente",
       "source": "Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.",
+      "dataQuality": "estimated"
+    },
+    "morcilla_vasca_estimate": {
+      "id": "morcilla_vasca_estimate",
+      "name": "Morcilla vasca de cerdo con pasas y nueces (estimación)",
+      "unit": "g",
+      "k": 3.0463999999999998,
+      "p": 0.12960000000000002,
+      "c": 0.21350000000000002,
+      "f": 0.18599999999999997,
+      "fi": 0.007200000000000001,
+      "sourceType": "recipe_estimate",
+      "sourceId": "ncc-morcilla-vasca-model-85-10-5",
+      "sourceUrl": "https://www.lafrancisca.com/productos/morcilla-vasca-38",
+      "validationStatus": "receta_estimado",
+      "source": "Modelo orientativo por 100 g: 85 g de morcilla cocida, 10 g de pasas y 5 g de nueces, usando la composición genérica vigente del catálogo. Las proporciones son un modelo explícito, NO una receta verificada ni etiqueta de fabricante. La referencia enlazada confirma ingredientes habituales, no cantidades ni macros de este modelo. Ajustar al envase o receta real. Puede contener frutos secos y otros alérgenos; no acredita aptitud sin gluten. No completa micronutrientes ausentes.",
       "dataQuality": "estimated"
     },
     "mousse_chocolate": {
@@ -8465,6 +8513,22 @@
       "validationStatus": "receta_estimado",
       "source": "MODELO ORIENTATIVO SIN PESAJE NI ANÁLISIS. Ocho uramaki salmón y palta; sin mayonesa ni salsas. Ingredientes del EJEMPLO: Arroz blanco cocido sin aceite 160 g; Sashimi de salmón, sin arroz 48 g; Palta cruda (pulpa sin piel ni carozo) 48 g; Alga nori (estimación) 3 g; Azúcar de condimentación (estimación) 2 g; Vinagre de arroz (estimación) 3 g. Peso final SUPUESTO, no medido: 264 g; 8 unidades de 33 g. Los valores energéticos y macronutrientes proceden de la suma de ingredientes / peso final; la base de pizza y el aliño del sushi son PROXIES, no muestras analizadas. El sushi usa arroz ya cocido; no es arroz crudo. No hay factores de retención por cocción ni ajustes de humedad específicos. Las salsas y aderezos no están incluidos; registralos aparte. Si conocés tu preparación, pesá ingredientes y rendimiento real, y corregí los gramos consumidos.",
       "dataQuality": "estimated"
+    },
+    "sweetbreads_beef_grilled": {
+      "id": "sweetbreads_beef_grilled",
+      "name": "Molleja a la parrilla · carne vacuna",
+      "unit": "g",
+      "k": 3.12,
+      "p": 0.21899999999999997,
+      "c": 0,
+      "f": 0.25,
+      "fi": 0,
+      "sourceType": "sara2",
+      "sourceId": "SARA2-2022-table7A-p86",
+      "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf",
+      "validationStatus": "tabla_referenciada",
+      "source": "Ministerio de Salud, SARA 2 (2022), tabla 7.A, página impresa 86. Valores por 100 g de parte comestible cocida, sin aceite ni sal adicionales. Energía publicada; no se recalcula por 4-4-9.",
+      "dataQuality": "referenced"
     },
     "sweetpotato": {
       "id": "sweetpotato",

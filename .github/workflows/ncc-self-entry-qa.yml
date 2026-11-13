@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test efg-nutrition/tests/self-management-entry.test.mjs efg-nutrition/tests/self-management-api.test.mjs
+      - run: node --test efg-nutrition/tests/self-management-entry.test.mjs efg-nutrition/tests/self-management-api.test.mjs efg-nutrition/tests/achuras.test.mjs
       - name: Install isolated browser tools
         run: |
           mkdir -p /tmp/ncc-entry-sdk
@@ -23,8 +23,40 @@ jobs:
         env:
           NCC_PLAYWRIGHT_PACKAGE: /tmp/ncc-entry-sdk/package.json
         run: node efg-nutrition/tests/self-management-entry-browser.mjs
+      - name: Achuras in the mounted app, three roles and both engines
+        env:
+          NCC_PLAYWRIGHT_MODULE: /tmp/ncc-entry-sdk/node_modules/playwright/index.mjs
+        run: node efg-nutrition/tests/achuras-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ncc-self-entry-preview
           path: artifacts/ncc-self-entry/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-achuras-preview
+          path: artifacts/achuras-review/
+  achuras-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: local_qa_only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: local_qa_only
+      PGDATABASE: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node efg-nutrition/tests/achuras-postgres17.mjs

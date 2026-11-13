@@ -24,8 +24,9 @@ jobs:
         with:
           node-version: '22'
       - run: node --test efg-nutrition/tests/micronutrients.test.mjs
+      - run: cp efg-nutrition/pilot/micronutrient-catalog.js /tmp/micronutrient-catalog-before.js
       - run: python3 efg-nutrition/tools/build-micronutrient-catalog.py
-      - run: git diff --exit-code -- efg-nutrition/pilot/micronutrient-catalog.js
+      - run: cmp /tmp/micronutrient-catalog-before.js efg-nutrition/pilot/micronutrient-catalog.js
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: mkdir -p /workspace
       - run: node efg-nutrition/tests/micronutrients-browser.mjs

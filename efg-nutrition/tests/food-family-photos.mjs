@@ -7,12 +7,11 @@ const escapeHTML=v=>String(v).replaceAll('&','&amp;').replaceAll('"','&quot;').r
 const html=f=>foodPhotoHTML(f,escapeHTML);
 const catalog=Object.values(JSON.parse(readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url))).foods);
 assert.ok(catalog.length>=560);
-const pendingPhotoIds=new Set([...CATALOG_BATCH_FOODS,...CATALOG_BATCH_TWO_FOODS].map(f=>f.id));
-assert.equal(pendingPhotoIds.size,53);
-assert.deepEqual(Object.keys(FOOD_PHOTO_MAP).sort(),catalog.filter(f=>!pendingPhotoIds.has(f.id)).map(f=>f.id).sort());
-for(const food of [...CATALOG_BATCH_FOODS,...CATALOG_BATCH_TWO_FOODS]){assert.equal(visual(food).placeholder,true,food.id+' must not inherit a picture by keyword');assert.match(html(food),/Imagen no disponible/);}
+const baseline=JSON.parse(readFileSync(new URL('../docs/food-thumbnails-20261113/baseline-photo-map.json',import.meta.url)));
+assert.deepEqual(Object.keys(FOOD_PHOTO_MAP).sort(),catalog.map(f=>f.id).sort());
+for(const [id,photo] of Object.entries(baseline))assert.deepEqual(FOOD_PHOTO_MAP[id],photo,'Preserved approved photo: '+id);
 const assets=new Set();
-for(const f of catalog.filter(f=>!pendingPhotoIds.has(f.id))){
+for(const f of catalog){
  const before=JSON.stringify(f),v=visual(f);
  assert.ok(!v.placeholder,f.id);assert.match(html(f),/ncc-family-photo/);assert.equal(JSON.stringify(f),before);
  assert.deepEqual(visual({name:f.name}),v,'Historical exact name: '+f.id);

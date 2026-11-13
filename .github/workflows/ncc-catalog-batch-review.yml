@@ -11,7 +11,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
       options: --init --ipc=host
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,6 +30,8 @@ jobs:
           python efg-nutrition/tests/verify-catalog-batch-two-source.py --archive /tmp/usda-srlegacy.zip
       - run: node efg-nutrition/tests/catalog-batch-20261113.test.mjs
       - run: node efg-nutrition/tests/catalog-batch-two-20261113.test.mjs
+      - run: node efg-nutrition/tests/food-identity-thumbnails.mjs
+      - run: node efg-nutrition/tests/food-identity-thumbnails-review-browser.mjs
       - run: node efg-nutrition/tests/catalog-batch-review-browser.mjs
       - run: node efg-nutrition/tests/catalog-batch-two-review-browser.mjs
       - uses: actions/upload-artifact@v4
@@ -44,6 +46,13 @@ jobs:
         with:
           name: catalog-batch-two-review
           path: artifacts/catalog-batch-two-review/
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: food-identity-thumbnails-review
+          path: artifacts/food-identity-thumbnails-review/
           if-no-files-found: error
           retention-days: 7
   catalog-postgres17:

@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {CATALOG_BATCH_TWO_FOODS as batch,CATALOG_BATCH_TWO_PORTIONS as portions} from '../pilot/food-catalog-batch-two-20261113.js';
 import {EXTRA_FOODS,foodSearchText,FOOD_UNIT_PORTIONS} from '../pilot/food-catalog.js';
 import {exportGuideCatalog} from '../tools/export-guide-catalog.mjs';
-import {resolveFoodVisual} from '../pilot/food-visuals-r2.js';
+import {FOOD_PHOTO_MAP,resolveFoodVisual} from '../pilot/food-visuals-r2.js';
 import {applyCoachCatalog} from '../pilot/coach-catalog-guide.js';
 import {validateCoachPlanProposal} from '../pilot/coach-plan-draft-client.js';
 import {assessDietarySignal} from '../pilot/dietary-traffic-light.js';
@@ -19,7 +19,7 @@ const goal={goal_type:'maintenance',kcal:2100,protein_g:150,carb_g:225,fat_g:70,
 for(const food of batch){
  assert.ok(!old.foods[food.id]);assert.equal(food.unit,'g');const evidence=review.records.find(x=>x.id===food.id);assert.equal(String(evidence.fdcId),food.sourceId);
  for(const key of ['k','p','c','f','fi'])assert.equal(food[key],evidence.nutrientsPer100g[key]/100,food.id+' '+key);
- assert.deepEqual(FOOD_UNIT_PORTIONS[food.id],portions[food.id]);assert.match(portions[food.id].label,new RegExp(portions[food.id].grams+' g'));assert.equal(resolveFoodVisual(food).placeholder,true);
+ assert.deepEqual(FOOD_UNIT_PORTIONS[food.id],portions[food.id]);assert.match(portions[food.id].label,new RegExp(portions[food.id].grams+' g'));assert.ok(Object.hasOwn(FOOD_PHOTO_MAP,food.id));assert.equal(resolveFoodVisual(food),FOOD_PHOTO_MAP[food.id]);
  assert.equal(assessDietarySignal({foodId:food.id,restrictions:['celiac'],reviewedRows:[]}).color,'yellow','Nutrient references never certify clinical compatibility');
  const guide={kind:'flexible_meal_guide',version:2,meals:[{slot:'almuerzo',items:[{...food,qty:37.5,locked:true}]},{slot:'cena',items:[{...now.foods.chicken,qty:100,locked:true}]}]};
  const copy=structuredClone(guide),canonical=applyCoachCatalog(guide,{version:now.version,foods:[now.foods[food.id],now.foods.chicken]});assert.deepEqual(guide,copy);assert.equal(canonical.meals[0].items[0].qty,37.5);assert.doesNotThrow(()=>validateCoachPlanProposal(goal,canonical));
@@ -29,7 +29,7 @@ for(const [term,id] of [['repollo morado','red_cabbage_raw'],['orejones damasco'
 }
 // Changed integration modules may only receive versioned import URLs; no formulas or publication semantics drift.
 const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--name-only','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc','--','efg-nutrition/pilot'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
-for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
+for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
  const prior=execFileSync('git',['-c','safe.directory='+root,'show','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>s.replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
 }
-console.log('PASS additive catalog: 28 exact source rows, 585 unchanged foods, 613 identities, quantities, guide draft compatibility, conservative restrictions and neutral new thumbnails');
+console.log('PASS additive catalog: 28 exact source rows, 585 unchanged foods, 613 identities, quantities, guide draft compatibility, conservative restrictions and explicit identity thumbnails');

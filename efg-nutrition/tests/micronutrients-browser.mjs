@@ -58,6 +58,18 @@ try{
   const touch=await block.locator('summary').evaluateAll(es=>es.filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect().height));assert.ok(touch.every(h=>h>=44));
   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.selfManagementOwn.fields=null;await v.render();});
   assert.ok((await page.locator('.ncc-micronutrients').first().textContent()).includes('Completá los datos de referencia en tu ficha.'));
+  // Ordinary Mi Día never requires independent registration or a generated plan.
+  for(const role of ['admin','coach','student']){
+   await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.selfManagementOwn=null;v.state.diary.meals.desayuno[0].qty=250;await v.render();},role);
+   const card=page.locator('.ncc-micronutrients').first();await card.waitFor();
+   assert.ok((await card.locator('.ncc-micro-badge').textContent()).includes('sin referencia'));
+   const before=await card.locator('[data-micronutrient=magnesium] .ncc-micro-value').textContent();
+   await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.desayuno[0].qty=500;await v.render();});
+   const after=await page.locator('[data-micronutrient=magnesium] .ncc-micro-value').first().textContent();
+   assert.notEqual(after,before,'Changed food quantities must refresh the visible estimate for '+role);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  }
+  await page.screenshot({path:resolve(out,width+'-sin-autogestion.png')});
   await page.evaluate(async()=>{
    const {micronutrientPeriod}=await import('./micronutrient-engine.js?v=ncc-micro-r1-20261113');
    const {renderMicronutrientPeriod}=await import('./micronutrient-view.js?v=ncc-micro-r1-20261113');

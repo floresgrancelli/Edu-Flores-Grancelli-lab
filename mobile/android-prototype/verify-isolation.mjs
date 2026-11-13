@@ -5,7 +5,7 @@ import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const here=dirname(fileURLToPath(import.meta.url)),root=resolve(here,'../..');
 const expected=JSON.parse(readFileSync(resolve(root,'store-preparation/baseline.json')));
-assert.equal(execFileSync('git',['rev-parse','HEAD:efg-nutrition'],{cwd:root,encoding:'utf8'}).trim(),expected.productionSubtree,'Production source tree must remain exact');
+assert.equal(execFileSync('git',['-c','safe.directory='+root,'rev-parse','HEAD:efg-nutrition'],{cwd:root,encoding:'utf8'}).trim(),expected.productionSubtree,'Production source tree must remain exact');
 const config=JSON.parse(readFileSync(resolve(here,'capacitor.config.json')));assert.equal(config.appId,'com.nutricionconciencia.prototype');assert.ok(!config.server,'No remote server URL');
 assert.ok(readFileSync(resolve(here,'www/efg-nutrition/pilot/index.html'),'utf8').includes("connect-src 'none'"));
 const pilot=readFileSync(resolve(here,'www/efg-nutrition/pilot/pilot.js'),'utf8');assert.ok(pilot.includes('../tests/student-day-visual-sdk.mjs'));assert.ok(pilot.includes('synthetic-only-no-auth'));

@@ -47,10 +47,11 @@ try{
   await block.locator('.ncc-micro-expand > summary').click();await block.locator('.ncc-micro-expand > summary').click();
   assert.equal(await page.locator('#dayComment').inputValue(),'Borrador conservado');
   await page.locator('.efg-optional-panel > summary').click();
+  await page.addStyleTag({content:'[aria-label="Espacios de la cuenta · candidata"]{display:none!important}'});
   await block.scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(out,width+'-mi-dia.png'),fullPage:true});
-  const clip=await page.evaluate(()=>{const a=document.querySelector('.ncc-focus-summary').getBoundingClientRect(),b=document.querySelector('.ncc-micronutrients').getBoundingClientRect();const y=Math.min(a.top,b.top)+scrollY;return {x:0,y:Math.max(0,y-8),width:innerWidth,height:Math.ceil(Math.max(a.bottom,b.bottom)+scrollY-y+16)};});
-  await page.screenshot({path:resolve(out,width+'-mi-dia-resumen.png'),clip});
+  await page.evaluate(()=>scrollTo(0,0));
+  await page.screenshot({path:resolve(out,width+'-mi-dia-resumen.png')});
   await block.screenshot({path:resolve(out,width+'-micronutrientes.png')});
   const compactHeight=await block.evaluate(e=>e.getBoundingClientRect().height);
   await block.locator('.ncc-micro-expand > summary').click();

@@ -27,13 +27,23 @@ jobs:
         run: |
           curl --fail --location --retry 2 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip' -o /tmp/usda-srlegacy.zip
           python efg-nutrition/tests/verify-catalog-batch-source.py --archive /tmp/usda-srlegacy.zip
+          python efg-nutrition/tests/verify-catalog-batch-two-source.py --archive /tmp/usda-srlegacy.zip
       - run: node efg-nutrition/tests/catalog-batch-20261113.test.mjs
+      - run: node efg-nutrition/tests/catalog-batch-two-20261113.test.mjs
       - run: node efg-nutrition/tests/catalog-batch-review-browser.mjs
+      - run: node efg-nutrition/tests/catalog-batch-two-review-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: catalog-batch-review
           path: artifacts/catalog-batch-review/
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-batch-two-review
+          path: artifacts/catalog-batch-two-review/
           if-no-files-found: error
           retention-days: 7
   catalog-postgres17:
@@ -69,3 +79,6 @@ jobs:
             sudo apt-get install -y -qq postgresql-client
           fi
       - run: node efg-nutrition/tests/catalog-batch-postgres17.mjs
+      - name: Reset disposable test database between catalog histories
+        run: psql -v ON_ERROR_STOP=1 -c "drop schema efg_private cascade; drop role anon; drop role authenticated;"
+      - run: node efg-nutrition/tests/catalog-batch-two-postgres17.mjs

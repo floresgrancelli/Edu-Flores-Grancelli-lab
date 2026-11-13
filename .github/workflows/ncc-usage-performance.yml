@@ -22,7 +22,10 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
-      - name: Full app student and coach journey with 613 foods and 50 fictional pupils
+      - name: Complete WebKit mobile samples; retain four completed profiles from run 43434184360
+        env:
+          NCC_USAGE_ENGINES: webkit
+          NCC_USAGE_WIDTHS: '390,320'
         run: node efg-nutrition/tests/usage-performance-browser.mjs
       - name: Public anonymous opening, fresh contexts and reloads
         if: always()

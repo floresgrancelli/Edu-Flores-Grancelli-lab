@@ -35,13 +35,13 @@ async function timed(page,metric,eventSelector,action,predicate){
  await page.evaluate(({eventSelector,predicate})=>{
   window.__usageDone=null;const el=document.querySelector(eventSelector);if(!el)throw Error('Missing measured control '+eventSelector);
   const ready=new Function('return ('+predicate+')');
-  el.addEventListener(el.matches('input')?'input':'click',()=>{const start=performance.now();const poll=()=>{if(ready())requestAnimationFrame(()=>requestAnimationFrame(()=>window.__usageDone=performance.now()-start));else if(performance.now()-start<20000)requestAnimationFrame(poll);else window.__usageDone={timeout:true};};requestAnimationFrame(poll);},{once:true,capture:true});
+  const type=el.matches('input')?'input':'click';const begin=event=>{if(!event.target.closest?.(eventSelector))return;document.removeEventListener(type,begin,true);const start=performance.now();const poll=()=>{if(ready())requestAnimationFrame(()=>requestAnimationFrame(()=>window.__usageDone=performance.now()-start));else if(performance.now()-start<20000)requestAnimationFrame(poll);else window.__usageDone={timeout:true};};requestAnimationFrame(poll);};document.addEventListener(type,begin,{capture:true});
  },{eventSelector,predicate});
  await action();await page.waitForFunction(()=>window.__usageDone!==null);const ms=await page.evaluate(()=>window.__usageDone);assert.equal(typeof ms,'number',metric+' timed out');samples.push({...page.__usage,metric,ms});return ms;
 }
-try{for(const engine of ['chromium','webkit']){
+try{for(const engine of (process.env.NCC_USAGE_ENGINES||'chromium,webkit').split(',')){
  const browser=await engines[engine].launch({headless:true});
- try{for(const width of [390,320,1280]){
+ try{for(const width of (process.env.NCC_USAGE_WIDTHS||'390,320,1280').split(',').map(Number)){
   const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block'}),page=await context.newPage();page.__usage={engine,width};page.setDefaultTimeout(20000);
   const errors=[],external=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(new URL(r.url()).origin!==origin)external.push(new URL(r.url()).origin)});
   const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+name+'.png'),fullPage:false});

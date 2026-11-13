@@ -2,6 +2,7 @@
 
 Responsable confirmado: Eduardo Flores Grancelli.
 Correo público confirmado: floresgrancelli@gmail.com.
+Domicilio público confirmado: Murias 2274, 3F, Caseros, Buenos Aires, Argentina.
 
 ## Vías de recepción
 
@@ -62,7 +63,6 @@ de borrado y antes de presentar la app como lista para Google Play.
 
 ## Datos y configuración pendientes
 
-- Domicilio de contacto que el responsable autorice a publicar.
 - Plazos efectivos de registros técnicos y respaldos y tratamiento de restauraciones.
 - Verificación final de proveedores/transferencias y conservación comercial.
 - Prueba completa de eliminación sintética y atención operativa del correo.

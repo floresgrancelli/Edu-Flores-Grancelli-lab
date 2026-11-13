@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-13",
+  "branch": "work/ncc-store-readiness-20261113",
+  "sourceCommit": "bd6efa0d767436c6d06155eb83b89a9b37540287",
+  "sourceTree": "73e3300f204b068f9caa6c7777b1f13a8ecd803e",
+  "productionSubtree": "e4cd7f709956045ffe3ee0df044ae9e84bd49c14",
+  "assetVersion": "ncc-intake-prefill-assets-r1-20261113",
+  "serverIdentity": "ncc-pilot-3a40474052be",
+  "stage": "preparation-only",
+  "nativeBuildGenerated": false,
+  "backendCopied": false,
+  "paidServicesCreated": false,
+  "files": {
+    "efg-nutrition/pilot/index.html": "af14c10e2b4323db7fe541ced3a9258d58d205ce9e51e63a0d8c2f748b6f1cb4",
+    "efg-nutrition/pilot/pilot.js": "b725741d55319ef5df77d23a501b82c651e32e159bce9db3b5c24f9e53888d9a",
+    "efg-nutrition/docs/guide-return-candidate/asset-manifest.json": "5289fafe7d3dd93224caf722b6a91467a5e4311000c2344cd279038d479214d9",
+    "efg-nutrition/tests/approved-release-flags.mjs": "6f60fc2102f368f20853d415daeabe5d7cfe1477be705113c90cda279344e891",
+    "efg-nutrition/tools/pwa-build-identity.mjs": "a3c1751bf395517eeb6e4575b3e19c090efbb697fd69a0128b8b0cf88b000561",
+    "efg-nutrition/pilot/food-photo-map-r2.json": "597e4a2c27fe1dab6722dd9e2b0e335387e86e9b2efda574fa97ca7f32dc5bd0",
+    "efg-nutrition/catalog/guide-catalog.json": "cb7bff6d0843b6ed42e786c83316f47b0e68440c824bf36a5b22ead8af508f99"
+  }
+}

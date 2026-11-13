@@ -1,10 +1,13 @@
 # Modelo comercial aprobado — Google Play
-Fecha: 13/11/2026. Confirmado por Edu: «Exacto». Periodicidad de paquetes: «Por mes».
+Fecha: 13/11/2026. Última decisión: alumno con pago único y paquetes al precio mensual publicado por Everfit.
 
 ## Decisión vigente
-Una sola aplicación, con descarga gratuita. El alumno no paga por descargar,
-activar su cuenta ni vincularse con un coach. La autorización de cuentas y roles
-se conserva en el servidor; elegir una pantalla no concede permisos.
+Una sola aplicación, con descarga gratuita y compras dentro de Google Play.
+El alumno paga US$10 por única vez para activar su acceso; no paga mensualidad
+a la plataforma. El importe mantiene la referencia de pago único de esta conversación.
+La autorización de cuentas y roles se conserva en el servidor; elegir una pantalla
+no concede permisos. Un alumno necesita además vinculación/habilitación del coach;
+explicar este requisito antes de cobrar y evitar compras sin acceso utilizable.
 
 El coach autorizado compra una activación de US$10 por única vez mediante Google
 Play Billing. Es un producto no consumible, vinculado a la cuenta de la plataforma
@@ -14,10 +17,16 @@ No equivale a US$10 netos para el desarrollador.
 
 El coach contrata paquetes mensuales de capacidad para alumnos mediante Google Play.
 La capacidad es por alumnos activos, no un cobro por cada nueva invitación.
-Los tamaños 10/20/50 son propuestas, no precios ni catálogo aprobados.
-Quedan pendientes: precio de cada paquete, cupos incluidos en la activación,
-renovación y reglas de cambio/cancelación de paquete. La periodicidad mensual
-queda aprobada; las condiciones de renovación se mostrarán antes de contratar.
+Paquetes seleccionados, con referencia en los precios de Everfit consultados:
+| Alumnos activos máximos | USD/mes |
+|---|---:|
+| 10 | 29 |
+| 20 | 49 |
+| 50 | 95 |
+Son alternativas de capacidad total, no paquetes acumulables.
+Quedan pendientes: cupos incluidos en la activación, renovación y reglas de
+cambio/cancelación de paquete. Las condiciones se mostrarán antes de contratar.
+Los importes son referencias USD; no representan netos después de comisiones/impuestos.
 No crear productos facturables hasta definir esas condiciones.
 La activación única no implica que los paquetes sean gratuitos o permanentes.
 
@@ -26,7 +35,8 @@ habilitaciones y gestión. Los cobros de la plataforma al coach irán por Google
 Play; no usar mensajes, alias ni comprobantes para sustituir ese circuito.
 
 ## Sustituye propuestas anteriores
-Esta decisión reemplaza la descarga paga de US$10 para ambos roles y la propuesta
+Esta decisión reemplaza el acceso gratuito del alumno, los precios sugeridos
+US$15/25/45 mensuales, la descarga paga de US$10 para ambos roles y la propuesta
 de cobrar por fuera las licencias/cupos del coach. El análisis de excepciones
 y respaldos en PAGOS_Y_RESPALDOS_20261113.md conserva valor como antecedente,
 pero su propuesta de Android sin compras ya no es la opción seleccionada.
@@ -44,24 +54,30 @@ No exponer un puente WebView general a contenido remoto.
 - Guardar la asignación de compra/cuenta de forma idempotente, confirmar compras
   y gestionar restauración, reembolsos, revocaciones y notificaciones de Play.
 - No habilitar funciones por respuesta del cliente ni por compra PENDING.
-- Mantener acceso gratuito del alumno también en cuentas de doble rol; las compras
-  corresponden a la capacidad profesional y no bloquean su acceso como alumno.
+- Asociar la activación del alumno a su cuenta; restaurarla sin volver a cobrar.
+- Definir el tratamiento de doble rol y cuentas piloto existentes antes de cobrar.
+  No inferir que un pago de coach cubre alumno ni cobrar ambos automáticamente.
+  Separar permisos profesionales y de alumno para que una suscripción vencida
+  no revoque por sí sola una activación de alumno vigente.
 - Aplicar capacidad en servidor en altas/invitaciones/activación; impedir que una
   actualización de página o llamadas directas eludan el límite.
 - No borrar alumnos ni historiales por vencimiento o reducción de un paquete.
   Definir estados y comunicación antes de implementar esas reglas.
 - Revisar rutas existentes de licencia/alias/comprobantes en Android. No quitar
   cobros de la web ni modificar cuentas existentes por efecto de esta decisión.
-- Mostrar claramente en la ficha y pantallas: instalación/alumno gratuitos,
-  activación profesional paga y cargos adicionales por capacidad.
+- Mostrar claramente en la ficha y pantallas: descarga gratuita, activaciones
+  de alumno/coach de pago único y paquetes mensuales adicionales del coach.
 - Obtener aprobación visual de capturas reales antes de publicar cambios de UI.
 
 ## Criterios mínimos de aceptación
-Alumno accede sin abrir cobro. Coach sin autorización no obtiene rol al pagar.
+Alumno activado no recibe cargos mensuales ni vuelve a pagar por reinstalar.
+Alumno sin activación no accede a funciones pagas por modificar el cliente.
+Coach sin autorización no obtiene rol al pagar.
 Coach autorizado puede completar activación única y restaurarla sin nuevo cargo.
 Compra pendiente/rechazada no concede permisos; repetición no duplica cupos.
 Reembolso/revocación actualiza permisos profesionales sin borrar registros.
-Doble rol conserva acceso de alumno. Cupos concurrentes se validan en servidor.
+La política de doble rol y cuentas piloto se define antes de cobrar.
+Cupos concurrentes se validan en servidor.
 Pruebas con productos de prueba de Play antes del release; sin cobros reales en QA.
 
 ## Estado y límites
@@ -75,3 +91,6 @@ https://support.google.com/googleplay/android-developer/answer/1153481
 https://support.google.com/googleplay/android-developer/answer/6334373
 https://developer.android.com/google/play/billing/backend
 https://developer.android.com/google/play/billing/security
+
+Referencia comercial consultada el 13/11/2026:
+https://everfit.io/pricing/ (facturación mensual: 10 US$29, 20 US$49, 50 US$95).

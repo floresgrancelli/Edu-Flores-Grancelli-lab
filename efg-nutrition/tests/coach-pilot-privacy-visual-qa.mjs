@@ -1,4 +1,4 @@
-import {revealIntakeField} from './intake-step-browser.mjs';
+import {revealIntakeField,selectIntakeChoice} from './intake-step-browser.mjs';
 // Actual app/module graph; new journey enabled ONLY in an isolated HTTP fixture.
 // No real users, external requests, JWT assertions or hosted data.
 import {createServer} from 'node:http';
@@ -109,7 +109,7 @@ try{
   assert.equal(await page.evaluate(()=>window.__intakeTest.writes),0,'Incomplete required data never reaches backend');
 
   for(const [field,value] of Object.entries({objective:'recomp',activity_level:'moderate',dietary_pattern:'keto',eating_window:'14_10'}))
-   {await revealIntakeField(page,field);await page.locator('#coachRelaunch_'+field).selectOption(value);}
+   {await revealIntakeField(page,field);await selectIntakeChoice(page,field,value);}
   for(const [field,value] of Object.entries({age_years:'40',height_cm:'174',weight_kg:'80',preferred_foods:'Arroz ficticio',disliked_foods:'Ninguno',meal_routine:'12 y 20',notes:'Ensayo sintético'}))
    {await revealIntakeField(page,field);await page.locator('#coachRelaunch_'+field).fill(value);}
   await revealIntakeField(page,'share');

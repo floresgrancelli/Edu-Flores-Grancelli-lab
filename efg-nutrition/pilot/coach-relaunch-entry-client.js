@@ -58,6 +58,17 @@ const field=(id,label,val,step,min,max)=>
 const select=(id,label,value)=>'<div class="field"><label for="coachRelaunch_'+id+'">'+label+
  '</label><select id="coachRelaunch_'+id+'"'+(requiredGeneral(id)?' required':'')+'>'+known[id].map(([code,text])=>
  '<option value="'+esc(code)+'"'+(value===code?' selected':'')+'>'+esc(text)+'</option>').join("")+'</select></div>';
+// Native radio groups retain the existing codes and browser validation.
+const choiceHelp={
+ objective:{fat_loss:'Orientar el plan a reducir grasa corporal.',recomp:'Trabajar la composición corporal.',muscle_gain:'Orientar el plan a ganar músculo.',maintenance:'Sostener tu peso actual.',general:'Mejorar tu alimentación y tu rutina.'},
+ activity_level:{low:'Por ejemplo: trabajo sentado y pocos desplazamientos a pie.',light:'Por ejemplo: pasás bastante tiempo sentado y caminás en trayectos cortos.',moderate:'Por ejemplo: combinás tiempo sentado con caminatas y tareas en movimiento.',high:'Por ejemplo: trabajo físico o gran parte del día caminando y en movimiento.'}
+};
+const choiceCards=(id,label,value)=>'<fieldset class="ncc-intake-choices" data-intake-choice="'+id+'"><legend>'+label+' (obligatorio)</legend>'+
+ (id==='activity_level'?'<p class="pilot-hint">Pensá en tu día completo, además del entrenamiento. Los ejemplos son orientativos; elegí la opción que mejor describa tu rutina habitual.</p>':'<p class="pilot-hint">Elegí el objetivo que querés conversar con tu coach.</p>')+
+ '<div class="ncc-intake-choice-grid">'+known[id].filter(([code])=>code).map(([code,text],i)=>{
+ const inputId='coachRelaunch_'+id+(i?'_'+code:'');
+ return '<label class="ncc-intake-choice" for="'+inputId+'"><input id="'+inputId+'" required type="radio" name="coachRelaunch_'+id+'" value="'+code+'"'+(value===code?' checked':'')+' aria-describedby="'+inputId+'_help"><span class="ncc-intake-choice-copy"><strong>'+esc(text)+'</strong><small id="'+inputId+'_help">'+esc(choiceHelp[id][code])+'</small><span class="ncc-intake-choice-state" aria-hidden="true">✓ Seleccionado</span></span></label>';
+ }).join('')+'</div></fieldset>';
 const textarea=(id,label,value,max)=>
  '<div class="field"><label for="coachRelaunch_'+id+'">'+label+' (opcional)</label>'+
  '<textarea id="coachRelaunch_'+id+'" maxlength="'+max+'" rows="2">'+esc(value||"")+'</textarea></div>';
@@ -86,11 +97,11 @@ export function renderCoachRelaunchEntry(entry,{editing=false,privateHealthEnabl
  '<p class="pilot-hint">Los datos básicos señalados son necesarios para preparar la Dieta Guía. Compartir la ficha requiere tu autorización separada y revocable. No ingreses diagnósticos ni información médica sensible en textos libres; esa información necesita consentimiento y permisos específicos.</p>'+
  '<form id="'+(editing?'efgCoachRelaunchManageForm':'efgCoachRelaunchForm')+'" class="pilot-form"'+(guided?' novalidate data-intakewizard':'')+'>'+
  (guided?'<nav class="ncc-intake-steps" aria-label="Pasos de tu ficha">'+labels.map((label,n)=>'<button type="button" data-intakestep="'+n+'" aria-pressed="'+(n===0)+'">'+(n+1)+'. '+label+'</button>').join('')+'</nav><p data-intakeprogress role="status">Paso 1 de 4 · Tus datos</p>':'')+
- stage(0,'¿Qué querés lograr?')+select("objective","Mi objetivo",data.objective)+
+ stage(0,'¿Qué querés lograr?')+(guided?choiceCards:select)("objective","Mi objetivo",data.objective)+
  '<div class="field-row">'+field("age_years","Edad (años)",data.age_years,1,18,100)+
  field("height_cm","Altura (cm)",data.height_cm,.1,100,250)+
  field("weight_kg","Peso (kg)",data.weight_kg,.1,20,400)+'</div>'+
- select("activity_level","Actividad habitual",data.activity_level)+
+ (guided?choiceCards:select)("activity_level","Actividad habitual",data.activity_level)+
  endStage(0)+stage(1,"¿Qué te gusta comer?")+select("dietary_pattern","Patrón alimentario",data.dietary_pattern)+
  select("eating_window","Organización horaria / ayuno intermitente",data.eating_window||"regular")+
  '<p class="pilot-hint">El patrón y la ventana horaria son preferencias de planificación para conversar con tu coach. Keto y ayuno no se aplican automáticamente ni reducen por sí solos tus calorías.</p>'+
@@ -112,7 +123,8 @@ export function readCoachRelaunchForm(doc){
  if(!doc||typeof doc.getElementById!=="function")throw Error("Formulario no disponible.");
  const get=id=>doc.getElementById("coachRelaunch_"+id);
  const choice=field=>{
-  const x=get(field)?.value??"";
+  const control=get(field);
+  const x=control?.type==='radio'?(doc.querySelector('input[name="coachRelaunch_'+field+'"]:checked')?.value??""):(control?.value??"");
   if(typeof x!=="string"||!known[field].some(z=>z[0]===x))throw Error("Opción inválida: "+field);
   return x||null;
  };
@@ -219,10 +231,10 @@ export function showCoachIntakeStep(form,index,{validate=false}={}){
  if(Number(index)===3&&review){
   review.replaceChildren();
   for(const input of form.querySelectorAll('[data-intakepanel]:not([data-intakepanel="3"]) input,[data-intakepanel]:not([data-intakepanel="3"]) select,[data-intakepanel]:not([data-intakepanel="3"]) textarea')){
-   if(!input.id.startsWith('coachRelaunch_'))continue;
+   if(!input.id.startsWith('coachRelaunch_')||(input.type==='radio'&&!input.checked))continue;
    const dt=form.ownerDocument.createElement('dt'),dd=form.ownerDocument.createElement('dd');
-   dt.textContent=form.querySelector('label[for="'+input.id+'"]')?.textContent||input.id;
-   dd.textContent=input.value?(input.tagName==='SELECT'?input.selectedOptions[0]?.textContent:input.value):'No informado';
+   dt.textContent=input.type==='radio'?input.closest('fieldset').querySelector('legend').textContent:(form.querySelector('label[for="'+input.id+'"]')?.textContent||input.id);
+   dd.textContent=input.type==='radio'?input.closest('label').querySelector('strong').textContent:(input.value?(input.tagName==='SELECT'?input.selectedOptions[0]?.textContent:input.value):'No informado');
    review.append(dt,dd);
   }
  }

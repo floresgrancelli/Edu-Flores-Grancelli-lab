@@ -1,6 +1,6 @@
 {
-  "version": "ncc-catalog-25b60eacf6e38ba7",
-  "sha256": "25b60eacf6e38ba79e1db4a9a5bf7b6e6f8e083d62bee2ada2fa3a6227aef311",
+  "version": "ncc-catalog-c9bda657db7ca1f6",
+  "sha256": "c9bda657db7ca1f6f9a86c93d5b84036a88ca3ed46435dfe0b11942423ee45e2",
   "foods": {
     "abadejo_cocido": {
       "id": "abadejo_cocido",
@@ -402,6 +402,22 @@
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
     },
+    "asparagus_raw": {
+      "id": "asparagus_raw",
+      "name": "Espárragos crudos",
+      "unit": "g",
+      "k": 0.2,
+      "p": 0.022000000000000002,
+      "c": 0.0388,
+      "f": 0.0012,
+      "fi": 0.021,
+      "sourceType": "usda_fdc",
+      "sourceId": "168389",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/168389/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 168389. Asparagus, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "avocado": {
       "id": "avocado",
       "name": "Palta cruda (pulpa sin piel ni carozo)",
@@ -449,6 +465,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
+    },
+    "barley_pearled_dry": {
+      "id": "barley_pearled_dry",
+      "name": "Cebada perlada seca, sin cocinar",
+      "unit": "g",
+      "k": 3.52,
+      "p": 0.09910000000000001,
+      "c": 0.777,
+      "f": 0.0116,
+      "fi": 0.156,
+      "sourceType": "usda_fdc",
+      "sourceId": "170284",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/170284/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 170284. Barley, pearled, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "barrita_cereal": {
       "id": "barrita_cereal",
@@ -737,6 +769,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Estimación genérica por 100 g, NO representa una marca ni registro verificado en USDA/Argenfoods. El pan varía por formulación y humedad; comidas preparadas, pasta, tofu y legumbres varían por ingredientes, preparación, aceite, marca y peso antes/después de cocción. Verificar tabla o rótulo particular. No certifica ausencia de alérgenos ni aptitud para celiaquía.",
       "dataQuality": "estimated"
+    },
+    "blackberries_raw": {
+      "id": "blackberries_raw",
+      "name": "Moras frescas",
+      "unit": "g",
+      "k": 0.43,
+      "p": 0.0139,
+      "c": 0.09609999999999999,
+      "f": 0.0049,
+      "fi": 0.053,
+      "sourceType": "usda_fdc",
+      "sourceId": "173946",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/173946/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 173946. Blackberries, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "blueberry": {
       "id": "blueberry",
@@ -1058,6 +1106,22 @@
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
     },
+    "bulgur_dry": {
+      "id": "bulgur_dry",
+      "name": "Trigo burgol o bulgur seco",
+      "unit": "g",
+      "k": 3.42,
+      "p": 0.12300000000000001,
+      "c": 0.759,
+      "f": 0.013300000000000001,
+      "fi": 0.125,
+      "sourceType": "usda_fdc",
+      "sourceId": "170688",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/170688/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 170688. Bulgur, dry. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "burger_bread_cheese": {
       "id": "burger_bread_cheese",
       "name": "Hamburguesa con pan y queso",
@@ -1378,6 +1442,22 @@
       "source": "Infusión sin azúcar; café con leche y similares requieren personalizar cantidad y tipo de leche.",
       "dataQuality": "estimated"
     },
+    "chard_raw": {
+      "id": "chard_raw",
+      "name": "Acelga cruda",
+      "unit": "g",
+      "k": 0.19,
+      "p": 0.018000000000000002,
+      "c": 0.0374,
+      "f": 0.002,
+      "fi": 0.016,
+      "sourceType": "usda_fdc",
+      "sourceId": "169991",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/169991/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 169991. Chard, swiss, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "cheddar": {
       "id": "cheddar",
       "name": "Queso cheddar",
@@ -1650,6 +1730,22 @@
       "source": "Estimación genérica por 100 g, NO representa una marca ni registro verificado en USDA/Argenfoods. El pan varía por formulación y humedad; comidas preparadas, pasta, tofu y legumbres varían por ingredientes, preparación, aceite, marca y peso antes/después de cocción. Verificar tabla o rótulo particular. No certifica ausencia de alérgenos ni aptitud para celiaquía.",
       "dataQuality": "estimated"
     },
+    "chickpeas_canned_drained": {
+      "id": "chickpeas_canned_drained",
+      "name": "Garbanzos en conserva, escurridos",
+      "unit": "g",
+      "k": 1.39,
+      "p": 0.0705,
+      "c": 0.225,
+      "f": 0.0277,
+      "fi": 0.064,
+      "sourceType": "usda_fdc",
+      "sourceId": "173800",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/173800/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 173800. Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "chickpeas_cooked": {
       "id": "chickpeas_cooked",
       "name": "Garbanzos cocidos",
@@ -1665,6 +1761,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
+    },
+    "chickpeas_dry": {
+      "id": "chickpeas_dry",
+      "name": "Garbanzos secos, sin cocinar",
+      "unit": "g",
+      "k": 3.78,
+      "p": 0.205,
+      "c": 0.63,
+      "f": 0.0604,
+      "fi": 0.122,
+      "sourceType": "usda_fdc",
+      "sourceId": "173756",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/173756/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 173756. Chickpeas (garbanzo beans, bengal gram), mature seeds, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "chipa": {
       "id": "chipa",
@@ -2033,6 +2145,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
+    },
+    "corn_tortilla_ready": {
+      "id": "corn_tortilla_ready",
+      "name": "Tortilla de maíz comercial, lista para cocinar",
+      "unit": "g",
+      "k": 2.18,
+      "p": 0.057,
+      "c": 0.446,
+      "f": 0.0285,
+      "fi": 0.063,
+      "sourceType": "usda_fdc",
+      "sourceId": "175036",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/175036/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 175036. Tortillas, ready-to-bake or -fry, corn. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "corvina_cocida": {
       "id": "corvina_cocida",
@@ -2833,6 +2961,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
+    },
+    "fennel_bulb_raw": {
+      "id": "fennel_bulb_raw",
+      "name": "Hinojo crudo, bulbo",
+      "unit": "g",
+      "k": 0.31,
+      "p": 0.0124,
+      "c": 0.073,
+      "f": 0.002,
+      "fi": 0.031,
+      "sourceType": "usda_fdc",
+      "sourceId": "169385",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/169385/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 169385. Fennel, bulb, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "fig_fresh": {
       "id": "fig_fresh",
@@ -4786,6 +4930,22 @@
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
     },
+    "milk_evaporated_skim": {
+      "id": "milk_evaporated_skim",
+      "name": "Leche evaporada descremada, sin diluir",
+      "unit": "g",
+      "k": 0.78,
+      "p": 0.0755,
+      "c": 0.114,
+      "f": 0.002,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "170878",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/170878/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 170878. Milk, canned, evaporated, nonfat, with added vitamin A and vitamin D. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "milk_lactosefree": {
       "id": "milk_lactosefree",
       "name": "Leche descremada sin lactosa",
@@ -4817,6 +4977,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
+    },
+    "milk_powder_skim_instant": {
+      "id": "milk_powder_skim_instant",
+      "name": "Leche descremada en polvo instantánea, sin reconstituir",
+      "unit": "g",
+      "k": 3.58,
+      "p": 0.35100000000000003,
+      "c": 0.522,
+      "f": 0.0072,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "171272",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/171272/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 171272. Milk, dry, nonfat, instant, with added vitamin A and vitamin D. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "milk_skim": {
       "id": "milk_skim",
@@ -4881,6 +5057,38 @@
       "validationStatus": "generico_pendiente",
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
+    },
+    "millet_dry": {
+      "id": "millet_dry",
+      "name": "Mijo seco, sin cocinar",
+      "unit": "g",
+      "k": 3.78,
+      "p": 0.11,
+      "c": 0.728,
+      "f": 0.042199999999999994,
+      "fi": 0.085,
+      "sourceType": "usda_fdc",
+      "sourceId": "169702",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/169702/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 169702. Millet, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
+    "minestrone_canned_ready": {
+      "id": "minestrone_canned_ready",
+      "name": "Sopa minestrone en conserva, lista para consumir",
+      "unit": "g",
+      "k": 0.53,
+      "p": 0.0213,
+      "c": 0.0864,
+      "f": 0.011699999999999999,
+      "fi": 0.024,
+      "sourceType": "usda_fdc",
+      "sourceId": "171550",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/171550/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 171550. Soup, minestrone, canned, chunky, ready-to-serve. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "mint_tea": {
       "id": "mint_tea",
@@ -5073,6 +5281,22 @@
       "validationStatus": "generico_pendiente",
       "source": "FOTO DEL USUARIO (28/10/2026): rótulo manuscrito 'NARANJA AZUCARADA', precio $2.500 por paquete, PESO NO INDICADO y SIN TABLA NUTRICIONAL. Visualmente parecen tiras de cáscara de naranja confitada recubiertas de azúcar; descripción aproximada, NO ingredientes verificados. ESTIMACIÓN POR PRODUCTO SIMILAR, NO RÓTULO DEL ENVASE: referencia suiza FSVO V7.1 para 'candied orange peel' en https://datafood.ch/en/food/candied-orange-peel/ (100 g: 306 kcal; proteínas 0,4 g, hidratos 74,3 g, grasas 0,3 g, fibra 2,3 g). Puede diferir considerablemente por humedad y cantidad de azúcar incorporada. Porción 25 g sugerida editable, NO declarada. El precio $2.500 es del paquete, NO costo por 100 g al desconocerse el peso.",
       "dataQuality": "estimated"
+    },
+    "nectarine_raw": {
+      "id": "nectarine_raw",
+      "name": "Pelón o nectarina fresca",
+      "unit": "g",
+      "k": 0.44,
+      "p": 0.0106,
+      "c": 0.106,
+      "f": 0.0032,
+      "fi": 0.017,
+      "sourceType": "usda_fdc",
+      "sourceId": "169914",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/169914/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 169914. Nectarines, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "noodles_egg_cooked": {
       "id": "noodles_egg_cooked",
@@ -5858,6 +6082,22 @@
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
     },
+    "pita_wholewheat": {
+      "id": "pita_wholewheat",
+      "name": "Pan pita integral de trigo",
+      "unit": "g",
+      "k": 2.62,
+      "p": 0.098,
+      "c": 0.5589999999999999,
+      "f": 0.0171,
+      "fi": 0.061,
+      "sourceType": "usda_fdc",
+      "sourceId": "174916",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/174916/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 174916. Bread, pita, whole-wheat. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "pizza_calabresa": {
       "id": "pizza_calabresa",
       "name": "Pizza con calabresa y muzzarella",
@@ -6322,6 +6562,22 @@
       "source": "Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.",
       "dataQuality": "estimated"
     },
+    "potato_salad_home": {
+      "id": "potato_salad_home",
+      "name": "Ensalada de papa, preparación casera de referencia",
+      "unit": "g",
+      "k": 1.43,
+      "p": 0.0268,
+      "c": 0.11199999999999999,
+      "f": 0.08199999999999999,
+      "fi": 0.013000000000000001,
+      "sourceType": "usda_fdc",
+      "sourceId": "169269",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/169269/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 169269. Potato salad, home-prepared. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "protein_bar_generic": {
       "id": "protein_bar_generic",
       "name": "Barra proteica genérica",
@@ -6658,6 +6914,38 @@
       "source": "Composición aproximada de referencia por 100 g de parte comestible en la preparación indicada, SIN aceite extra (salvo rabas fritas). Es una estimación, no una etiqueta de producto comercial; según especie y cocción puede variar.",
       "dataQuality": "estimated"
     },
+    "rabbit_roasted": {
+      "id": "rabbit_roasted",
+      "name": "Conejo doméstico asado, mezcla de cortes",
+      "unit": "g",
+      "k": 1.97,
+      "p": 0.29100000000000004,
+      "c": 0,
+      "f": 0.0805,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "172522",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/172522/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 172522. Game meat, rabbit, domesticated, composite of cuts, cooked, roasted. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
+    "radicchio_raw": {
+      "id": "radicchio_raw",
+      "name": "Radicchio o achicoria roja cruda",
+      "unit": "g",
+      "k": 0.23,
+      "p": 0.0143,
+      "c": 0.044800000000000006,
+      "f": 0.0025,
+      "fi": 0.009000000000000001,
+      "sourceType": "usda_fdc",
+      "sourceId": "168564",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/168564/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 168564. Radicchio, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "radish": {
       "id": "radish",
       "name": "Rabanitos",
@@ -6674,6 +6962,22 @@
       "source": "Estimación genérica por 100 g o 100 ml de alimento según preparación indicada; verificar etiquetas, recetas y método de cocción.",
       "dataQuality": "estimated"
     },
+    "rainbow_trout_raw": {
+      "id": "rainbow_trout_raw",
+      "name": "Trucha arcoíris de criadero, cruda",
+      "unit": "g",
+      "k": 1.41,
+      "p": 0.19899999999999998,
+      "c": 0,
+      "f": 0.061799999999999994,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "173717",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/173717/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 173717. Fish, trout, rainbow, farmed, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "raisins": {
       "id": "raisins",
       "name": "Pasas de uva",
@@ -6689,6 +6993,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
+    },
+    "raspberries_raw": {
+      "id": "raspberries_raw",
+      "name": "Frambuesas frescas",
+      "unit": "g",
+      "k": 0.52,
+      "p": 0.012,
+      "c": 0.11900000000000001,
+      "f": 0.006500000000000001,
+      "fi": 0.065,
+      "sourceType": "usda_fdc",
+      "sourceId": "167755",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/167755/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 167755. Raspberries, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "ravioles_ricota": {
       "id": "ravioles_ricota",
@@ -6737,6 +7057,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.",
       "dataQuality": "estimated"
+    },
+    "red_lentils_dry": {
+      "id": "red_lentils_dry",
+      "name": "Lentejas rojas secas, sin cocinar",
+      "unit": "g",
+      "k": 3.58,
+      "p": 0.239,
+      "c": 0.631,
+      "f": 0.0217,
+      "fi": 0.10800000000000001,
+      "sourceType": "usda_fdc",
+      "sourceId": "174284",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/174284/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 174284. Lentils, pink or red, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "remolacha_hervida": {
       "id": "remolacha_hervida",
@@ -7090,6 +7426,22 @@
       "source": "Promedio por 100 g de preparación cocida. Valores orientativos: receta, empanado, aceite y agua pueden modificar la composición.",
       "dataQuality": "estimated"
     },
+    "sardines_oil_drained": {
+      "id": "sardines_oil_drained",
+      "name": "Sardinas en aceite, escurridas, con espinas comestibles",
+      "unit": "g",
+      "k": 2.08,
+      "p": 0.24600000000000002,
+      "c": 0,
+      "f": 0.114,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "175139",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/175139/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 175139. Fish, sardine, Atlantic, canned in oil, drained solids with bone. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
+    },
     "scallion": {
       "id": "scallion",
       "name": "Cebolla de verdeo",
@@ -7344,6 +7696,22 @@
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168463/nutrients",
       "validationStatus": "tabla_referenciada",
       "source": "USDA FoodData Central SR Legacy 04/2018, FDC 168463: espinaca cocida hervida y escurrida sin sal, 100 g cocidos: 23 kcal, 2,97 g proteínas, 3,75 g carbohidratos totales, 0,26 g grasas y 2,4 g fibra. Si añadís aceite, registrarlo aparte.",
+      "dataQuality": "referenced"
+    },
+    "spinach_raw": {
+      "id": "spinach_raw",
+      "name": "Espinaca cruda para ensalada",
+      "unit": "g",
+      "k": 0.23,
+      "p": 0.0286,
+      "c": 0.0363,
+      "f": 0.0039000000000000003,
+      "fi": 0.022000000000000002,
+      "sourceType": "usda_fdc",
+      "sourceId": "168462",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/168462/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 168462. Spinach, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
       "dataQuality": "referenced"
     },
     "squid_cooked": {
@@ -8274,6 +8642,22 @@
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
     },
+    "tomato_juice_unsalted_weight": {
+      "id": "tomato_juice_unsalted_weight",
+      "name": "Jugo de tomate en conserva, sin sal añadida",
+      "unit": "g",
+      "k": 0.17,
+      "p": 0.0085,
+      "c": 0.0353,
+      "f": 0.0029,
+      "fi": 0.004,
+      "sourceType": "usda_fdc",
+      "sourceId": "170545",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/170545/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 170545. Tomato juice, canned, without salt added. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial. Se registra en gramos: la fuente está expresada por masa y no se supone una equivalencia exacta entre ml y g.",
+      "dataQuality": "referenced"
+    },
     "torta_manzana": {
       "id": "torta_manzana",
       "name": "Torta de manzana casera",
@@ -8465,6 +8849,22 @@
       "validationStatus": "generico_pendiente",
       "source": "Composición genérica estimada por 100 g/ml; revisar preparación y etiqueta",
       "dataQuality": "estimated"
+    },
+    "turkey_breast_raw": {
+      "id": "turkey_breast_raw",
+      "name": "Pechuga de pavo cruda, sin piel",
+      "unit": "g",
+      "k": 1.14,
+      "p": 0.233,
+      "c": 0,
+      "f": 0.0233,
+      "fi": 0,
+      "sourceType": "usda_fdc",
+      "sourceId": "174515",
+      "sourceUrl": "https://fdc.nal.usda.gov/food-details/174515/nutrients",
+      "validationStatus": "tabla_referenciada",
+      "source": "USDA FoodData Central, SR Legacy (2018), FDC 174515. Turkey, retail parts, breast, meat only, raw. Valores por 100 g de parte comestible en la preparación indicada; no representan una marca ni una receta personal. Energía de la fuente, sin recalcular por 4-4-9. Porción sugerida definida por peso, no medición de una unidad comercial.",
+      "dataQuality": "referenced"
     },
     "turnip_cooked": {
       "id": "turnip_cooked",

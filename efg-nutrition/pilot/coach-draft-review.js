@@ -2,7 +2,7 @@ import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pi
 // EFG Nutrition Pro · Coach NUT-50 review contract (pure; no DB, no medical safety claims).
 // A persisted draft must match the exact currently edited goal and guide.
 // The RPC still revalidates identity, intake revision, evidence and legal consent.
-import {validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-catalog-batch-r1-20261113";
 import {COACH_RELEASE_INTAKE_VERSION} from "./coach-relaunch-onboarding.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 
 // COACH-RELEASE-REV-01: the intake revision is authoritative when the new

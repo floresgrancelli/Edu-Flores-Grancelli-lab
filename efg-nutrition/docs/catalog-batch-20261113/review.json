@@ -1,0 +1,512 @@
+{
+  "status": "CANDIDATE_NOT_APPLIED",
+  "sourceUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
+  "archiveSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef",
+  "retrievedAt": "2026-11-13T09:16:18.984680+00:00",
+  "foodCount": 7793,
+  "selectedCount": 25,
+  "baselineVersion": "ncc-catalog-25b60eacf6e38ba7",
+  "baselineCount": 560,
+  "records": [
+    {
+      "id": "spinach_raw",
+      "name": "Espinaca cruda para ensalada",
+      "category": "vegetable",
+      "fdcId": 168462,
+      "sourceDescription": "Spinach, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 23.0,
+        "p": 2.86,
+        "c": 3.63,
+        "f": 0.39,
+        "fi": 2.2
+      },
+      "servingGrams": 30,
+      "servingLabel": "porción de 30 g",
+      "sourceRecordSha256": "775459ae39ca933913354712b727eee1098de2398ec93b0e28e7b8dcbec0014e",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "chard_raw",
+      "name": "Acelga cruda",
+      "category": "vegetable",
+      "fdcId": 169991,
+      "sourceDescription": "Chard, swiss, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 19.0,
+        "p": 1.8,
+        "c": 3.74,
+        "f": 0.2,
+        "fi": 1.6
+      },
+      "servingGrams": 30,
+      "servingLabel": "porción de 30 g",
+      "sourceRecordSha256": "a18b325d1e09b47d4ea388a21722d6d38cd1c9e94f30c6a58b0dc0d2e49d5780",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "radicchio_raw",
+      "name": "Radicchio o achicoria roja cruda",
+      "category": "vegetable",
+      "fdcId": 168564,
+      "sourceDescription": "Radicchio, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 23.0,
+        "p": 1.43,
+        "c": 4.48,
+        "f": 0.25,
+        "fi": 0.9
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "072d0fdb5ee4549407e87eb12c3832fc4a712fdc11bbee2f5a41f902eca7c6cc",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "fennel_bulb_raw",
+      "name": "Hinojo crudo, bulbo",
+      "category": "vegetable",
+      "fdcId": 169385,
+      "sourceDescription": "Fennel, bulb, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 31.0,
+        "p": 1.24,
+        "c": 7.3,
+        "f": 0.2,
+        "fi": 3.1
+      },
+      "servingGrams": 100,
+      "servingLabel": "porción de 100 g",
+      "sourceRecordSha256": "36b11e2bbd651e8fd50b110da8447fdd9adcbce6c54999fd0229e506955a76b1",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "asparagus_raw",
+      "name": "Espárragos crudos",
+      "category": "vegetable",
+      "fdcId": 168389,
+      "sourceDescription": "Asparagus, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 20.0,
+        "p": 2.2,
+        "c": 3.88,
+        "f": 0.12,
+        "fi": 2.1
+      },
+      "servingGrams": 100,
+      "servingLabel": "porción de 100 g",
+      "sourceRecordSha256": "c170e42e0ca9c3f627c1a1e5f16e8ba1f3f789741b41e8e3a4668559a7790e54",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "nectarine_raw",
+      "name": "Pelón o nectarina fresca",
+      "category": "fruit",
+      "fdcId": 169914,
+      "sourceDescription": "Nectarines, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 44.0,
+        "p": 1.06,
+        "c": 10.6,
+        "f": 0.32,
+        "fi": 1.7
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "9c2aba9abebe379ad4568cb464f64ef79bb83d99d947f60afd1da46ecd92775e",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "blackberries_raw",
+      "name": "Moras frescas",
+      "category": "fruit",
+      "fdcId": 173946,
+      "sourceDescription": "Blackberries, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 43.0,
+        "p": 1.39,
+        "c": 9.61,
+        "f": 0.49,
+        "fi": 5.3
+      },
+      "servingGrams": 125,
+      "servingLabel": "porción de 125 g",
+      "sourceRecordSha256": "59a2138c69ff9a947caec9e696eb8e47763d25ff7aafffae5427f807a8c9d9c2",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "raspberries_raw",
+      "name": "Frambuesas frescas",
+      "category": "fruit",
+      "fdcId": 167755,
+      "sourceDescription": "Raspberries, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 52.0,
+        "p": 1.2,
+        "c": 11.9,
+        "f": 0.65,
+        "fi": 6.5
+      },
+      "servingGrams": 125,
+      "servingLabel": "porción de 125 g",
+      "sourceRecordSha256": "37f8dc2af9fabec2913868cdbb06603979dcc91fe5f5bd36ac14a180ca667f62",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "chickpeas_dry",
+      "name": "Garbanzos secos, sin cocinar",
+      "category": "legumes",
+      "fdcId": 173756,
+      "sourceDescription": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 378.0,
+        "p": 20.5,
+        "c": 63.0,
+        "f": 6.04,
+        "fi": 12.2
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "cbadac30e5a2115b87ae0062a8485af724e87654e55712638466d966fe83fd48",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "chickpeas_canned_drained",
+      "name": "Garbanzos en conserva, escurridos",
+      "category": "legumes",
+      "fdcId": 173800,
+      "sourceDescription": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 139.0,
+        "p": 7.05,
+        "c": 22.5,
+        "f": 2.77,
+        "fi": 6.4
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "cc7c5e0ec21734b0d632586a0a194baa43e8aac31fbe5d191f7ac3f2d0769e31",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "red_lentils_dry",
+      "name": "Lentejas rojas secas, sin cocinar",
+      "category": "legumes",
+      "fdcId": 174284,
+      "sourceDescription": "Lentils, pink or red, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 358.0,
+        "p": 23.9,
+        "c": 63.1,
+        "f": 2.17,
+        "fi": 10.8
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "814bd0a082c7d56b2810b1e4ee0e8d7be52d264fa221ede233fabb89f9dc1f0a",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "barley_pearled_dry",
+      "name": "Cebada perlada seca, sin cocinar",
+      "category": "carb",
+      "fdcId": 170284,
+      "sourceDescription": "Barley, pearled, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 352.0,
+        "p": 9.91,
+        "c": 77.7,
+        "f": 1.16,
+        "fi": 15.6
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "fd8453a3841a0162f596b83f3be14efef34d21b7ae23ad9b9a7f89155afecc11",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "bulgur_dry",
+      "name": "Trigo burgol o bulgur seco",
+      "category": "carb",
+      "fdcId": 170688,
+      "sourceDescription": "Bulgur, dry",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 342.0,
+        "p": 12.3,
+        "c": 75.9,
+        "f": 1.33,
+        "fi": 12.5
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "ef3d0f63651d630cc9a48c8dadf7076c7738ea0f6d6643b2527face4648fc777",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "millet_dry",
+      "name": "Mijo seco, sin cocinar",
+      "category": "carb",
+      "fdcId": 169702,
+      "sourceDescription": "Millet, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 378.0,
+        "p": 11.0,
+        "c": 72.8,
+        "f": 4.22,
+        "fi": 8.5
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "a37eb578c872df5ef34536fcb7a9924321b5d17e2813fe57f662a9b7c4c7dfda",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "turkey_breast_raw",
+      "name": "Pechuga de pavo cruda, sin piel",
+      "category": "protein",
+      "fdcId": 174515,
+      "sourceDescription": "Turkey, retail parts, breast, meat only, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 114.0,
+        "p": 23.3,
+        "c": 0.0,
+        "f": 2.33,
+        "fi": 0.0
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "f4384e74742e9ebf1330308e7178fa6e0c64c60f9e3c0c4815cec94df86724d4",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "rabbit_roasted",
+      "name": "Conejo doméstico asado, mezcla de cortes",
+      "category": "protein",
+      "fdcId": 172522,
+      "sourceDescription": "Game meat, rabbit, domesticated, composite of cuts, cooked, roasted",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 197.0,
+        "p": 29.1,
+        "c": 0.0,
+        "f": 8.05,
+        "fi": 0.0
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "15ab3dbf811825f82f8c1384291ba659085b099b549cb5caa14b8c4f788e65ae",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "rainbow_trout_raw",
+      "name": "Trucha arcoíris de criadero, cruda",
+      "category": "protein",
+      "fdcId": 173717,
+      "sourceDescription": "Fish, trout, rainbow, farmed, raw",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 141.0,
+        "p": 19.9,
+        "c": 0.0,
+        "f": 6.18,
+        "fi": 0.0
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "5507d44566f70affc66f3ca5ac6e777fae5126a9a164eda94e7c06382f9e3254",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "sardines_oil_drained",
+      "name": "Sardinas en aceite, escurridas, con espinas comestibles",
+      "category": "protein",
+      "fdcId": 175139,
+      "sourceDescription": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 208.0,
+        "p": 24.6,
+        "c": 0.0,
+        "f": 11.4,
+        "fi": 0.0
+      },
+      "servingGrams": 90,
+      "servingLabel": "porción de 90 g",
+      "sourceRecordSha256": "1f79ec4c7f5d11db51743af7672d6561ff462d6d0f2cfebfc5c09c2eaa1f81db",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "milk_powder_skim_instant",
+      "name": "Leche descremada en polvo instantánea, sin reconstituir",
+      "category": "dairy",
+      "fdcId": 171272,
+      "sourceDescription": "Milk, dry, nonfat, instant, with added vitamin A and vitamin D",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 358.0,
+        "p": 35.1,
+        "c": 52.2,
+        "f": 0.72,
+        "fi": 0.0
+      },
+      "servingGrams": 20,
+      "servingLabel": "porción de 20 g",
+      "sourceRecordSha256": "74fd767db89fb1f3bcb234923e7115681ae8073dc3ff2bbb295f2ee4f6bf24e7",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "milk_evaporated_skim",
+      "name": "Leche evaporada descremada, sin diluir",
+      "category": "dairy",
+      "fdcId": 170878,
+      "sourceDescription": "Milk, canned, evaporated, nonfat, with added vitamin A and vitamin D",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 78.0,
+        "p": 7.55,
+        "c": 11.4,
+        "f": 0.2,
+        "fi": 0.0
+      },
+      "servingGrams": 50,
+      "servingLabel": "porción de 50 g",
+      "sourceRecordSha256": "376171c9a275c22331c0f92452aba34dbf00128978f34a4d6e9a06af1c428ccf",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "pita_wholewheat",
+      "name": "Pan pita integral de trigo",
+      "category": "bakery",
+      "fdcId": 174916,
+      "sourceDescription": "Bread, pita, whole-wheat",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 262.0,
+        "p": 9.8,
+        "c": 55.9,
+        "f": 1.71,
+        "fi": 6.1
+      },
+      "servingGrams": 60,
+      "servingLabel": "porción de 60 g",
+      "sourceRecordSha256": "cdecb155aad4ff7a389897679b6c195cb74c373b023621790b4ea2d21c34d2bf",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "corn_tortilla_ready",
+      "name": "Tortilla de maíz comercial, lista para cocinar",
+      "category": "bakery",
+      "fdcId": 175036,
+      "sourceDescription": "Tortillas, ready-to-bake or -fry, corn",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 218.0,
+        "p": 5.7,
+        "c": 44.6,
+        "f": 2.85,
+        "fi": 6.3
+      },
+      "servingGrams": 25,
+      "servingLabel": "porción de 25 g",
+      "sourceRecordSha256": "386f8d205c6c2d5ba7f94d6ebbbe51df5bd4f66a54a3c9c949254b70fda7c68c",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "potato_salad_home",
+      "name": "Ensalada de papa, preparación casera de referencia",
+      "category": "prepared",
+      "fdcId": 169269,
+      "sourceDescription": "Potato salad, home-prepared",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 143.0,
+        "p": 2.68,
+        "c": 11.2,
+        "f": 8.2,
+        "fi": 1.3
+      },
+      "servingGrams": 150,
+      "servingLabel": "porción de 150 g",
+      "sourceRecordSha256": "ae15c2bbaa0ac1ccc91a1884eab797d340007b9f034effa229ec827f6c8325b9",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "minestrone_canned_ready",
+      "name": "Sopa minestrone en conserva, lista para consumir",
+      "category": "prepared",
+      "fdcId": 171550,
+      "sourceDescription": "Soup, minestrone, canned, chunky, ready-to-serve",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 53.0,
+        "p": 2.13,
+        "c": 8.64,
+        "f": 1.17,
+        "fi": 2.4
+      },
+      "servingGrams": 250,
+      "servingLabel": "porción de 250 g",
+      "sourceRecordSha256": "45766e1c24aa4b930675908118391932abc4ebdc146a984b3337a8a69e9d7d4a",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    },
+    {
+      "id": "tomato_juice_unsalted_weight",
+      "name": "Jugo de tomate en conserva, sin sal añadida",
+      "category": "drink",
+      "fdcId": 170545,
+      "sourceDescription": "Tomato juice, canned, without salt added",
+      "unit": "g",
+      "nutrientsPer100g": {
+        "k": 17.0,
+        "p": 0.85,
+        "c": 3.53,
+        "f": 0.29,
+        "fi": 0.4
+      },
+      "servingGrams": 200,
+      "servingLabel": "porción de 200 g",
+      "sourceRecordSha256": "e52477f16eaa285b3a82d242c154e6e4371510655163b8ea1c7cc532d80bcd3d",
+      "duplicateReview": "No existing identity or equivalent preparation found in 560-item production catalog",
+      "imageStatus": "neutral_placeholder_pending_identity_photo"
+    }
+  ]
+}

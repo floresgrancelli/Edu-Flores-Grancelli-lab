@@ -15,6 +15,7 @@ const pilot=resolve(preview,'dist/efg-nutrition/pilot/pilot.js');
 writeFileSync(pilot,readFileSync(pilot,'utf8').replaceAll('../tests/student-day-visual-sdk.mjs','../tests/coach-actions-sdk.mjs'));
 for(const file of ['workspace-tabs-sdk.mjs','coach-actions-sdk.mjs'])copyFileSync(resolve(root,'efg-nutrition/tests/'+file),resolve(preview,'dist/efg-nutrition/tests/'+file));
 writeFileSync(pilot,readFileSync(pilot,'utf8')+'\nglobalThis.__NCC_WORKSPACE_HOOKS__={messages,setConsent(values){Object.assign(coachRosterConsent,values);}};\n');
+writeFileSync(pilot,readFileSync(pilot,'utf8')+'\nglobalThis.__NCC_NAV_TEST__={get rendered(){return lastRenderedViewKey;},get active(){return activeViewKey();},get memory(){return [...(state.navigationBrowse?.views||[])];}};\n');
 const staged=resolve(preview,'dist/efg-nutrition/pilot/dual-workspace-candidate.mjs');writeFileSync(staged,readFileSync(staged,'utf8').replace('export const DUAL_WORKSPACE_RELEASE_ENABLED = true;','export const DUAL_WORKSPACE_RELEASE_ENABLED = false;'));
 const mime={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.avif':'image/avif','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml'};
 const server=createServer((req,res)=>{try{const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);let file=resolve(preview,'dist','.'+path+(path.endsWith('/')?'index.html':''));if(!file.startsWith(preview+'/dist/'))throw Error();res.setHeader('content-type',mime[extname(file)]||'application/octet-stream');res.end(readFileSync(file));}catch{res.writeHead(404);res.end();}});
@@ -25,13 +26,14 @@ const engines=await import(process.env.NCC_PLAYWRIGHT_MODULE||'playwright');
 const base='8a97235aa8bdfad8bfcb6781b3e45538f13d0434';
 const gitRead=file=>execFileSync('git',['-c','safe.directory='+resolve(root),'show',base+':efg-nutrition/pilot/'+file],{cwd:root,encoding:'utf8'});
 const baselinePilot=syntheticResponse('/efg-nutrition/pilot/pilot.js',gitRead('pilot.js'),{enabled:true}).replaceAll('../tests/dual-workspace-fullapp-sdk.mjs','../tests/coach-actions-sdk.mjs')+'\nglobalThis.__NCC_WORKSPACE_HOOKS__={messages,setConsent(values){Object.assign(coachRosterConsent,values);}};\n';
+const baselineNavHook='\nglobalThis.__NCC_NAV_TEST__={get rendered(){return lastRenderedViewKey;},get active(){return activeViewKey();},get memory(){return [...(state.navigationBrowse?.views||[])];}};\n';
 const baselineTabs=gitRead('workspace-tabs.js'),evidence=[];
 try{for(const engine of ['chromium','webkit']){
  const browser=await engines[engine].launch({headless:true});
  try{for(const width of [390,320,1280])for(const role of ['coach','admin','student']){
   const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block'});let baseline=false;
   await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
-  await context.route('**/pilot.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselinePilot}):r.continue());
+  await context.route('**/pilot.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselinePilot+baselineNavHook}):r.continue());
   await context.route('**/workspace-tabs.js*',r=>baseline?r.fulfill({contentType:'text/javascript',body:baselineTabs}):r.continue());
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   const setup=async()=>{await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();await page.evaluate(async role=>{
@@ -50,7 +52,7 @@ try{for(const engine of ['chromium','webkit']){
    s.platformAlias='NCC.DEMO';s.platformAliases=['NCC.DEMO'];s.tab=role==='student'?'payments':'coachStudents';await a.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
   },role);};
   const shot=async name=>page.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-'+name+'.png')});
-  const science=()=>page.locator('.pilot-nav [data-tab=nutritionScience]').click();
+  const science=async()=>{await page.locator('.pilot-nav [data-tab=nutritionScience]').click();await page.waitForFunction(()=>window.__NCC_R4_FULLAPP__.state.tab==='nutritionScience'&&window.__NCC_NAV_TEST__.rendered===window.__NCC_NAV_TEST__.active);};
   const roster=async()=>{if(role==='admin'){await page.locator('.pilot-nav [data-tab=testCoach]').click();await page.locator('#nccCoachHomeSections [data-workspace-tab=students]').click();await page.locator('[data-tab=coachStudents]:visible').first().click();}else await page.locator('.pilot-nav [data-tab=coachStudents]').click();await page.locator('#coachRosterSearch').waitFor();};
   const browse=async prefix=>{
    await page.locator('[data-rosterfilter=plan]').click();await page.locator('#coachRosterSearch').fill('Fabio');await page.evaluate(()=>window.scrollTo({top:480,behavior:'instant'}));const y=await page.evaluate(()=>scrollY);assert.ok(y>100);await shot(prefix+'-leaving');
@@ -77,10 +79,15 @@ try{for(const engine of ['chromium','webkit']){
   await page.locator('.pilot-nav [data-tab=home]').click();
   await page.locator('.ncc-day-plan-shortcut').click();await page.locator('[data-planmode=both]').click();await page.locator('[data-plannerslot=cena]').click();await page.locator('#nccPlannerFood-cena [data-workspace-tab=protein]').click();
   const qty=page.locator('[id="planQty_cena|protein"]');await qty.fill('123');const selected=await page.locator('[data-planselect="cena|protein"]').inputValue();
-  await page.evaluate(()=>window.scrollTo({top:300,behavior:'instant'}));const plannerY=await page.evaluate(()=>scrollY);await shot('planner-leaving');await science();
+  await page.evaluate(()=>window.scrollTo({top:300,behavior:'instant'}));await shot('planner-leaving');
+  // Playwright can scroll the page to reveal the bottom nav before dispatching a
+  // click. Compare the position at the actual navigation event, as the app does,
+  // rather than the earlier position preceding the automation's auto-scroll.
+  await page.locator('.pilot-nav [data-tab=nutritionScience]').evaluate(el=>el.addEventListener('click',()=>{window.__NCC_NAV_DEPART_Y__=scrollY;},{capture:true,once:true}));
+  await science();const plannerY=await page.evaluate(()=>window.__NCC_NAV_DEPART_Y__);assert.ok(Number.isFinite(plannerY));
   if(await page.locator('.pilot-nav [data-tab=planner]').count())await page.locator('.pilot-nav [data-tab=planner]').click();
   else{await page.locator('.pilot-nav [data-tab='+ (role==='admin'?'adminMore':'studentMore')+']').click();await page.locator('[data-tab=planner]:visible').first().click();}
-  await qty.waitFor();await page.waitForTimeout(100);assert.equal(await qty.inputValue(),'123');assert.equal(await page.locator('[data-planselect="cena|protein"]').inputValue(),selected);assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'true');await shot('planner-returned');const returnedY=await page.evaluate(()=>scrollY);assert.ok(Math.abs(returnedY-plannerY)<=3,'Planner position '+JSON.stringify({expected:plannerY,actual:returnedY,engine,width,role}));
+  await qty.waitFor();await page.waitForTimeout(100);assert.equal(await qty.inputValue(),'123');assert.equal(await page.locator('[data-planselect="cena|protein"]').inputValue(),selected);assert.equal(await page.locator('#nccPlanDestinationSections [data-workspace-tab=planning]').getAttribute('aria-pressed'),'true');await shot('planner-returned');const restored=await page.evaluate(()=>({y:scrollY,rendered:window.__NCC_NAV_TEST__.rendered,active:window.__NCC_NAV_TEST__.active,memory:window.__NCC_NAV_TEST__.memory})),returnedY=restored.y;assert.ok(Math.abs(returnedY-plannerY)<=3,'Planner position '+JSON.stringify({expected:plannerY,actual:returnedY,engine,width,role,restored}));
   // Explicit shortcut remains an explicit destination even after a remembered balance tab.
   await page.locator('#nccPlannerSections [data-workspace-tab=balance]').click();await page.locator('.pilot-nav [data-tab=home]').click();await page.locator('.ncc-day-plan-shortcut').click();assert.equal(await page.locator('#nccPlannerSections [data-workspace-tab=choose]').getAttribute('aria-pressed'),'true');assert.equal(await qty.inputValue(),'123');await shot('direct-shortcut');
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),diary);assert.equal(await page.evaluate(()=>window.__NCC_COACH_ACTIONS_FIXTURE__.writes.length),0);

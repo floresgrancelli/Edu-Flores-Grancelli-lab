@@ -1,4 +1,4 @@
-import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {normalizeGuidedCountableQuantity} from './guided-countable-portions.js?v=ncc-catalog-batch-r1-20261113';
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 // EFG Nutrition Pro · Coach private draft client (PR37, OFF until backend/JWT/legal QA).
 // Only the server's RLS and transactional RPC enforce access; UI guards help avoid accidents.

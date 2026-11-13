@@ -2,9 +2,9 @@
 // This module does not read or store health data. The caller must supply a CURRENT,
 // consented and server-authorized profile; this is not a medical decision engine.
 // The existing food catalog is reused in full, never filtered for a student's diary.
-import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
+import {GUIDE_MEALS,rebalanceGuidedDay,guideDeviation,guidedPortionBounds} from './guided-day.js?v=ncc-catalog-batch-r1-20261113';
 
-import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
+import {normalizeGuidedCountableQuantity} from "./guided-countable-portions.js?v=ncc-catalog-batch-r1-20261113";
 
 export const SIX_GUIDE_SLOTS=Object.freeze([
  ['desayuno','Desayuno'],['media_manana','Media mañana'],

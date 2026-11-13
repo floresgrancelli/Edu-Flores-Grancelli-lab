@@ -17,11 +17,11 @@ let owner=null,epoch=0,revision=0,legal=null,preferencePending=false,editVersion
 const current=t=>t===epoch&&!!owner;
 const identity=async()=>{const {data,error}=await sb.auth.getUser();if(error||!data?.user)throw Object.assign(Error(errors.auth_required),{code:'auth_required'});return data.user.id;};
 async function transport(body,t=epoch){
- const id=await identity();if(!current(t)||id!==owner)throw Error('Cambió la sesión.');
+ const id=await identity();if(!current(t)||id!==owner)throw Object.assign(Error('Cambió la sesión. Ingresá nuevamente.'),{code:'session_changed'});
  const {data,error}=await sb.auth.getSession();if(error||data.session?.user?.id!==id)throw Error(errors.auth_required);
  const response=await fetch(SELF_MANAGEMENT_URL,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token,apikey:SELF_PUBLISHABLE_KEY},body:JSON.stringify(body)});
  const value=await response.json();
- if(!current(t)||await identity()!==owner)throw Error('Cambió la sesión.');
+ if(!current(t)||await identity()!==owner)throw Object.assign(Error('Cambió la sesión. Ingresá nuevamente.'),{code:'session_changed'});
  if(!response.ok)throw Object.assign(Error(errors[value.error]||'No pudimos completar la solicitud. Revisá la ficha e intentá nuevamente.'),{code:value.error});
  if(value.userId!==owner)throw Error('La respuesta no corresponde a tu cuenta.');return value;
 }
@@ -76,10 +76,13 @@ form.addEventListener('submit',async event=>{
   if(!current(t)||id!==owner||edit!==editVersion)return;
   showPlan(generated);status.textContent='Guía guardada en tu cuenta. Podés volver a abrirla cuando quieras.';
   result.scrollIntoView({behavior:'smooth',block:'start'});
- }catch(e){if(current(t))status.textContent=e.message;}
+ }catch(e){if(current(t)){if(['auth_required','session_changed'].includes(e.code)){clearPrivate();accountStatus.textContent=e.message;}else status.textContent=e.message;}}
  finally{button.disabled=false;form.inert=false;}
 });
 document.getElementById('clear').onclick=()=>boot();
 document.getElementById('logout').onclick=async()=>{clearPrivate();await sb.auth.signOut();location.href='./';};
-sb.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada. Volvé a ingresar desde la app.';}});
+sb.auth.onAuthStateChange((event,session)=>{
+ if(event==='SIGNED_OUT'){clearPrivate();accountStatus.textContent='Sesión cerrada. Volvé a ingresar desde la app.';}
+ else if(owner&&session?.user?.id&&session.user.id!==owner){clearPrivate();accountStatus.textContent='La cuenta cambió. Verificando el acceso…';setTimeout(()=>boot(),0);}
+});
 await boot();

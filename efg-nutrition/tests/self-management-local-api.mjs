@@ -80,6 +80,10 @@ try{
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    await page.screenshot({path:resolve(out,width+'-guia.png'),fullPage:true});
    await page.reload();await page.locator('#result').waitFor({state:'visible'});assert.equal(await page.locator('[name=consent]').isChecked(),false);
+   await page.locator('[name=scope]').check();await page.locator('[name=consent]').check();
+   await page.evaluate(session=>{globalThis.__QA_SELF_SESSION__=session;},{id:b.id,token:b.token});
+   await page.locator('#generate').click();await page.getByText('Cambió la sesión. Ingresá nuevamente.',{exact:true}).waitFor();
+   assert.equal(await page.locator('#result').isVisible(),false);assert.equal(await page.locator('#intake').isVisible(),false);
    // A real deleted/absent session clears every private field on reload.
    await page.evaluate(()=>{globalThis.__QA_SELF_SESSION__=null;});
    await page.route('**/__qa-sdk.js',async route=>{const r=await route.fetch();await route.fulfill({response:r,body:(await r.text()).replace('export function createClient(){','globalThis.__QA_SELF_SESSION__=null;export function createClient(){')});});

@@ -42,7 +42,7 @@ try{for(const engine of ['chromium','webkit']){
  const saved=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
  for(const role of ['student','coach','admin']){
   await page.evaluate(async role=>{const v=window.__NCC_R4_FULLAPP__;v.state.profile.role=role;v.state.selfManagementOwn=null;await v.render();},role);
-  const block=page.locator('.ncc-micronutrients').first();assert.equal(await block.locator('[data-micronutrient]').count(),7);assert.equal(await block.locator('[data-scale=unscaled]').count(),7);
+  const block=page.locator('.ncc-micronutrients').first();assert.equal(await block.locator('[data-micronutrient]').count(),7);assert.equal(await block.locator('.ncc-micro-rows [data-scale=unscaled]').count(),7);
   assert.equal(await block.locator('.ncc-micro-food').count(),0);assert.ok((await block.textContent()).includes('sin referencia'));
   const backgrounds=await block.locator('.ncc-micro-track').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundImage));assert.ok(backgrounds.every(x=>x.includes('gradient')));
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-barras-sin-referencia.png')});

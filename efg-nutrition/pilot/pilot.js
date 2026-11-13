@@ -1857,7 +1857,7 @@ function homeView(){
  // El coach/admin puede utilizar sus propios gráficos semanales con la meta
  // personal. Jamás se lee un alumno aquí ni se inventan metas históricas.
  const isPersonalProfessional=state.profile.role==="coach"||state.profile.role==="admin";
- const ownTarget=state.personalTargets;
+ const ownTarget=ownSelfManagement()?.goal||state.personalTargets;
  const personalStart=ownTarget?.updated_at?new Intl.DateTimeFormat("sv-SE",{timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(ownTarget.updated_at)):today();
  const history=isPersonalProfessional&&ownTarget?
  [{start_on:personalStart,approved_at:ownTarget.updated_at,kcal:ownTarget.kcal,protein_g:ownTarget.protein_g}]:state.goals||[];
@@ -1891,7 +1891,7 @@ const cons=state.consent,showConsent=state.profile.role==="student";
  '<div class="field"><label for="dayComment">Tu comentario para el coach</label><textarea id="dayComment" rows="4" maxlength="1000" placeholder="Ej.: tuve una reunión y me salteé la media mañana.">'+escapeHTML(dayComment(d))+'</textarea></div>'+
  '<div class="meal-actions"><button type="button" class="btn small light" data-act="saveDayComment">Guardar comentario</button></div>'+
  '<p class="pilot-hint">El día se cierra automáticamente a las 23:59 (hora de Argentina). Hasta entonces podés registrar y corregir comidas. No hace falta cerrar nada manualmente.</p></div>':'';
- const goalForm=state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
+ const goalForm=ownSelfManagement()?'<section class="card"><h2>Mis objetivos de autogestión</h2><p>Se calculan desde tu ficha. Actualizá las medidas o el objetivo y generá una nueva guía para modificarlos.</p>'+selfManagementLink()+'</section>':state.profile.role!=="student"?'<section class="card" style="margin-top:17px"><h2>Mis objetivos personales</h2><p class="pilot-hint">Estos objetivos pertenecen a tu cuenta personal. No modifican los planes de los alumnos.</p><div class="pilot-form"><div class="field-row">'+[
  ["selfK","Calorías",goal?.k||2200],["selfP","Proteínas",goal?.p||160],["selfC","Hidratos",goal?.c||230],["selfF","Grasas",goal?.f||70],["selfFi","Fibra",goal?.fi||30]
  ].map(x=>'<div class="field"><label>'+x[1]+'</label><input type="number" min="0" id="'+x[0]+'" value="'+x[2]+'"></div>').join("")+'</div><button class="btn" data-act="setSelfGoals">Guardar mis objetivos</button></div></section>':'';
   const studentDay=state.profile.role==="student";
@@ -4864,6 +4864,7 @@ async function saveActivity(){
   (estimate.activeKcal===null?". Agregá tu peso para estimar calorías.":" · "+num(estimate.activeKcal)+" kcal activas estimadas."));
 }
 async function savePersonalTargets(){
+ if(ownSelfManagement())throw Error("Actualizá tu ficha de autogestión para recalcular las metas junto con tu guía.");
  let n=id=>{const input=document.getElementById(id);return input.value.trim()===''?NaN:Number(input.value);};
  let vals={user_id:state.session.user.id,kcal:n("selfK"),protein_g:n("selfP"),carb_g:n("selfC"),fat_g:n("selfF"),fiber_g:n("selfFi"),updated_at:new Date().toISOString()};
  if(!Number.isFinite(vals.kcal)||vals.kcal<1200||vals.kcal>10000||Object.values(vals).slice(2,6).some(v=>!Number.isFinite(v)||v<0))throw new Error("Objetivos personales fuera de rango.");
@@ -5105,6 +5106,7 @@ if(el.dataset.foodbulk){
  group.querySelectorAll('input[data-coachfood]').forEach(x=>x.checked=checked);
  updateCoachFoodCount();return;
 }
+ if(el.dataset.act==="openPersonalGoals"&&ownSelfManagement()){location.href="./autogestion.html";return;}
  if(el.dataset.act==="openPersonalGoals"&&state.profile.role!=="student"){state.tab="home";await render();for(const id of ["nccDayTools","nccDayGoals"]){const node=document.getElementById(id);if(node)node.open=true;}document.getElementById("nccDayGoals")?.scrollIntoView({block:"start"});return;}
  if(el.dataset.scrollplan){document.getElementById("planSuggestionCard")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  if(el.dataset.act==="replyWeeklyReport"){

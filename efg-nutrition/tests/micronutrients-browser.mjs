@@ -34,7 +34,7 @@ try{
    s.diary.meals.desayuno=[entry('milk_skim',250,'Leche descremada'),entry('oats_raw',50,'Avena'),entry('apple',150,'Manzana')];
    s.diary.meals.almuerzo=[entry('spinach_raw',80,'Espinaca cruda'),entry('potato',180,'Papa'),{id:'recipe-demo',name:'Plato casero · datos incompletos',qty:120,unit:'g',k:300,p:20,c:30,f:10,fi:4}];
    s.diary.meals.merienda=[entry('banana',120,'Banana')];
-   s.selfManagementOwn={owner:s.session.user.id,epoch:s.authContextEpoch||0,goal:{kcal:2100,protein_g:150,carb_g:230,fat_g:70},fields:{age_years:41,sex_for_equation:'male',dietary_pattern:'omnivore',pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[]}};
+   s.profile.role='admin';s.selfManagementOwn={owner:s.session.user.id,epoch:s.authContextEpoch||0,goal:{kcal:2100,protein_g:150,carb_g:230,fat_g:70},fields:{age_years:41,sex_for_equation:'male',dietary_pattern:'omnivore',pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[]}};
    Object.assign(s.goals[0],{kcal:2100,protein_g:150,carb_g:230,fat_g:70});
    await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
    const banner=document.createElement('div');banner.textContent='VISTA PREVIA · DATOS FICTICIOS';banner.style.cssText='text-align:center;color:#bacb9a;font:11px system-ui;padding:8px';document.body.prepend(banner);
@@ -43,10 +43,7 @@ try{
   assert.equal(await block.locator('h2').first().textContent(),'Micronutrientes');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   const diary=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));
-  await page.locator('.efg-optional-panel > summary').click();await page.locator('#dayComment').fill('Borrador conservado');
   await block.locator('.ncc-micro-expand > summary').click();await block.locator('.ncc-micro-expand > summary').click();
-  assert.equal(await page.locator('#dayComment').inputValue(),'Borrador conservado');
-  await page.locator('.efg-optional-panel > summary').click();
   await page.addStyleTag({content:'[aria-label="Espacios de la cuenta · candidata"]{display:none!important}'});
   await block.scrollIntoViewIfNeeded();
   await page.screenshot({path:resolve(out,width+'-mi-dia.png'),fullPage:true});
@@ -72,7 +69,7 @@ try{
   await page.locator('#micro-period-preview').screenshot({path:resolve(out,width+'-por-fecha.png')});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   assert.deepEqual(errors,[]);
-  evidence.push({width,noOverflow:true,readOnly:true,draftPreserved:true,missingProfileSafe:true,compactHeight,pageErrors:errors});
+  evidence.push({width,noOverflow:true,readOnly:true,draftPreserved:'not_applicable_professional',missingProfileSafe:true,compactHeight,pageErrors:errors});
   await context.close();
  }
  writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));

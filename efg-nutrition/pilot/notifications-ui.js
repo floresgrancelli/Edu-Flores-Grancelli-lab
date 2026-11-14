@@ -23,24 +23,27 @@ export function notificationAction(n){
 // Polls the RLS-protected table; never reloads the page or queries someone else's inbox.
 export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}}){
  const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- let records=[],open=false,loadedUser=null,inFlight=false,pendingRefresh=false,status="ok",failureType="network",filter="all",actionError="",opening=null;
+ let records=[],open=false,loadedUser=null,inFlight=false,pendingRefresh=false,status="ok",failureType="network",filter="all",actionError="",opening=null,markingAll=false,readEpoch=0;
  const host=document.createElement("aside");
  host.id="efgNotifications";host.className="efg-notifications";
  host.setAttribute("aria-label","Notificaciones de Nutrición Con-Ciencia");
  document.body.append(host);
  function filtersMarkup(){
   const unread=records.filter(n=>!n.is_read).length;
-  return '<nav class="ncc-notify-filters" aria-label="Filtrar notificaciones">'+[["all","Todos",records.length],["unread","Sin leer",unread],["read","Leídos",records.length-unread]].map(([id,label,count])=>'<button type="button" data-efg-filter="'+id+'" aria-pressed="'+(filter===id)+'">'+label+' <span>'+count+'</span></button>').join("")+'</nav>';
+  return '<nav class="ncc-notify-filters" aria-label="Filtrar notificaciones">'+[["all","Todos",records.length],["unread","Sin leer",unread],["read","Leídos",records.length-unread]].map(([id,label,count])=>'<button type="button" data-efg-filter="'+id+'" aria-pressed="'+(filter===id)+'">'+label+' <span>'+count+'</span></button>').join("")+'</nav>'+bulkMarkup();
+ }
+ function bulkMarkup(){
+  return '<div class="ncc-notify-bulk"><button type="button" data-efg-action="read-all" '+(markingAll||opening?'disabled':'')+'>'+(markingAll?'Marcando…':'Marcar todas como leídas')+'</button><small>Se conservan en el historial.</small></div>';
  }
  function listMarkup(){
   const items=records.filter(n=>filter==="all"||(filter==="read"?n.is_read:!n.is_read));
-  return items.length?items.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'" '+(opening?'disabled':'')+'><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})+'</small></span><span>'+esc(n.body)+'</span><span class="ncc-notify-footer"><small>'+(n.is_read?'Leída':'Sin leer')+'</small><strong>'+(opening===n.id?'Abriendo…':notificationAction(n))+' →</strong></span></button>').join(""):'<p class="efg-notify-empty">'+(filter==="unread"?'Estás al día. No hay avisos sin leer.':filter==="read"?'Todavía no hay avisos leídos.':'Todavía no hay avisos.')+'</p>';
+  return items.length?items.map(n=>'<button class="efg-notify-item '+(n.is_read?'read':'unread')+'" type="button" data-efg-id="'+esc(n.id)+'" '+(opening||markingAll?'disabled':'')+'><span class="efg-notify-item-top"><b>'+esc(n.title)+'</b><small>'+new Date(n.created_at).toLocaleDateString("es-AR",{timeZone:"America/Argentina/Buenos_Aires"})+'</small></span><span>'+esc(n.body)+'</span><span class="ncc-notify-footer"><small>'+(n.is_read?'Leída':'Sin leer')+'</small><strong>'+(opening===n.id?'Abriendo…':notificationAction(n))+' →</strong></span></button>').join(""):'<p class="efg-notify-empty">'+(filter==="unread"?'Estás al día. No hay avisos sin leer.':filter==="read"?'Todavía no hay avisos leídos.':'Todavía no hay avisos.')+'</p>';
  }
 
  function paint(){
   // Never render alerts cached for a different authenticated identity.
   const visibleUser=getUserId();
-  if(visibleUser!==loadedUser){records=[];open=false;loadedUser=visibleUser;status="ok";failureType="network";filter="all";actionError="";opening=null;}
+  if(visibleUser!==loadedUser){records=[];open=false;loadedUser=visibleUser;status="ok";failureType="network";filter="all";actionError="";opening=null;markingAll=false;readEpoch++;}
   const count=records.filter(n=>!n.is_read).length;
   const reason=failureType==="access"?"Revisá tu sesión y volvé a intentar.":failureType==="schema"?"El servicio de avisos no está disponible temporalmente.":"Comprobá tu conexión e intentá nuevamente.";
   const warning=status==="ok"?"":'<div class="efg-inbox-warning" role="status">No pudimos actualizar los avisos. Se muestran los últimos disponibles. '+reason+' <button type="button" data-efg-action="retry">Reintentar</button></div>';
@@ -56,21 +59,22 @@ export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}})
  async function refresh(){
   const userId=getUserId();
   // Identity change must clear old content BEFORE an outstanding request can defer a fetch.
-  if(userId!==loadedUser){records=[];open=false;loadedUser=userId;status="ok";failureType="network";filter="all";actionError="";opening=null;paint();}
+  if(userId!==loadedUser){records=[];open=false;loadedUser=userId;status="ok";failureType="network";filter="all";actionError="";opening=null;markingAll=false;readEpoch++;paint();}
   if(!userId){records=[];open=false;status="ok";paint();return;}
-  if(inFlight){pendingRefresh=true;return;}
+  if(inFlight||markingAll){pendingRefresh=true;return;}
   inFlight=true;
+  const epoch=readEpoch;
   try{
    const {data,error}=await sb.from("efg_notifications")
      .select("id,kind,event_key,title,body,target_tab,target_student,created_at,is_read")
      .eq("recipient_id",userId).order("created_at",{ascending:false}).limit(80);
    if(error)throw error;
-   if(getUserId()!==userId)return;
+   if(getUserId()!==userId||epoch!==readEpoch)return;
    status="ok";failureType="network";records=data||[];paint();
   }catch(err){
    console.warn("EFG inbox:",err.message);
    // Offline, expired sessions and schema failures are not equivalent. Never hide saved alerts.
-   if(getUserId()===userId){
+   if(getUserId()===userId&&epoch===readEpoch){
     const code=String(err.code||""),http=Number(err.status||0);
     failureType=["42P01","PGRST205"].includes(code)?"schema":(["42501","PGRST301"].includes(code)||http===401||http===403)?"access":"network";
     status="stale";paint();
@@ -78,7 +82,7 @@ export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}})
   }finally{
    inFlight=false;
    // A login switch during a request must not wait for the 25-second polling interval.
-   if(pendingRefresh||getUserId()!==userId){
+   if(!markingAll&&(pendingRefresh||getUserId()!==userId)){
     pendingRefresh=false;
     queueMicrotask(()=>refresh().catch(console.warn));
    }
@@ -90,9 +94,25 @@ export function createNotificationInbox({sb,getUserId,navigate,validate=()=>{}})
   if(button.dataset.efgAction==="toggle"){open=!open;paint();return;}
   if(button.dataset.efgAction==="retry"){await refresh();return;}
   if(button.dataset.efgFilter){filter=button.dataset.efgFilter;actionError="";paint();return;}
-  if(opening)return;
+  if(opening||markingAll)return;
   const clickedUser=getUserId();
   if(!clickedUser||clickedUser!==loadedUser)return;
+  if(button.dataset.efgAction==="read-all"){
+   const cutoff=new Date().toISOString(),epoch=++readEpoch;
+   markingAll=true;actionError="";paint();
+   try{
+    // All existing unread rows for this recipient, including rows outside the 80-row view.
+    const {error}=await sb.from("efg_notifications")
+     .update({is_read:true,read_at:cutoff})
+     .eq("recipient_id",clickedUser).eq("is_read",false).lte("created_at",cutoff);
+    if(error)throw error;
+   }catch(err){
+    if(getUserId()===clickedUser&&readEpoch===epoch)actionError="No pudimos marcar los avisos como leídos. Volvé a intentar.";
+   }finally{
+    if(getUserId()===clickedUser&&readEpoch===epoch){markingAll=false;paint();await refresh();}
+   }
+   return;
+  }
   const n=records.find(x=>x.id===button.dataset.efgId);if(!n)return;
   try{
    opening=n.id;actionError="";paint();

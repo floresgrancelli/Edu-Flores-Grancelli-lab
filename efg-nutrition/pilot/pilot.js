@@ -76,7 +76,7 @@ import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validat
 import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-quinoa-r1-20261114";
 import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-quinoa-r1-20261114";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notifications-r1-20261112";
+import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notify-read-all-r1-20261114";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createMessagesCenter} from "./messages-ui.js?v=ncc-notifications-r1-20261112";
 import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-quinoa-r1-20261114";

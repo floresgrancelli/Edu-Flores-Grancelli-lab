@@ -3569,5 +3569,11 @@
   "tahini_roasted": {
     "src": "./assets/food-specific/identity-r3/tahini_roasted-r1.webp",
     "label": "Tahini de semillas de sésamo tostadas"
+  },
+  "milanesa_quinoa_home_baked": {
+    "atlas": "prepared",
+    "cell": 5,
+    "columns": 4,
+    "label": "Milanesa de quinoa casera al horno (con huevo y pan rallado)"
   }
 }

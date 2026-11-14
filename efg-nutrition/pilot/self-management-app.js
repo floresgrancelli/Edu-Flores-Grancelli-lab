@@ -1,7 +1,7 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.118.0';
 import {SELF_MANAGEMENT_URL,SELF_SUPABASE_URL,SELF_PUBLISHABLE_KEY} from './self-management-config.js?v=ncc-self-live-r1-20261113';
 import {reuseOwnSelfIntake} from './self-management-intake.js?v=ncc-self-live-r1-20261113';
-import {showSelfManagedResult} from './self-management-presenter.js?v=ncc-alcohol-r1-20261114';
+import {showSelfManagedResult} from './self-management-presenter.js?v=ncc-restaurants-r1-20261114';
 const sb=createClient(SELF_SUPABASE_URL,SELF_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const form=document.getElementById('intake'),status=document.getElementById('status'),result=document.getElementById('result');
 const accountStatus=document.getElementById('accountStatus'),button=document.getElementById('generate');

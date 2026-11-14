@@ -1,7 +1,7 @@
 // Explicit standalone, countable foods. Catalog equivalences remain authoritative.
 // Do not infer units from names: scoops, bowls, recipe servings and handfuls stay
 // divisible. Recipe components retain their exact ingredient quantities.
-import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-alcohol-r1-20261114';
+import {FOOD_UNIT_PORTIONS} from './food-catalog.js?v=ncc-restaurants-r1-20261114';
 // Practical per-meal counts, not clinical limits. Bread allows two real slices
 // (60 g), instead of the former 50 g ceiling that produced 1.67 slices.
 const wholeFoods=Object.freeze(Object.fromEntries(Object.entries({

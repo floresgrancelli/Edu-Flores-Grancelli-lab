@@ -1,3 +1,4 @@
+import {RESTAURANT_VISUALS} from './food-restaurants-20261114.js?v=ncc-restaurants-r1-20261114';
 import {ALCOHOL_FOODS} from './food-alcohol-20261114.js?v=ncc-alcohol-r1-20261114';
 // Explicit catalog identities: recipe words never select an ingredient photo.
 // Generated illustrative photography only; never nutrition, portion or suitability data.
@@ -8,6 +9,7 @@ const aliases = { 'dulce de membrillo':'quince','queso crema':'cream_cheese_regu
 for(const [name,id] of Object.entries(aliases)) names.set(name,FOOD_PHOTO_MAP[id]);
 const alcoholVisuals=new Map(ALCOHOL_FOODS.map(f=>[f.id,{label:f.name,icon:f.beverageKind==='beer'?'🍺':f.beverageKind==='spirit'?'🥃':f.beverageKind.includes('wine')?'🍷':'🍹'}]));
 export function resolveFoodVisual(food){
+ if(Object.hasOwn(RESTAURANT_VISUALS,food?.id))return RESTAURANT_VISUALS[food.id];
  if(alcoholVisuals.has(food?.id))return alcoholVisuals.get(food.id);
  const exact = Object.hasOwn(FOOD_PHOTO_MAP,food?.id) ? FOOD_PHOTO_MAP[food.id] : names.get(normalize(food?.name));
  if(exact) return exact;

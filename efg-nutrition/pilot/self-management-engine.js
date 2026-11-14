@@ -1,7 +1,7 @@
 // Shared Web/Android engine. No coach authorization, network or diary mutations.
 import { estimateMacros } from './macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import { generateFlexibleGuidedDay, guideFoodSignal } from './guided-day-v2.js?v=ncc-alcohol-r1-20261114';
-import { guideTotals, guideDeviation, validateGuidedDay } from './guided-day.js?v=ncc-alcohol-r1-20261114';
+import { generateFlexibleGuidedDay, guideFoodSignal } from './guided-day-v2.js?v=ncc-restaurants-r1-20261114';
+import { guideTotals, guideDeviation, validateGuidedDay } from './guided-day.js?v=ncc-restaurants-r1-20261114';
 
 export const SELF_MANAGEMENT_VERSION = 'self-management-r1-20261113';
 export const SELF_PATTERNS = Object.freeze(['omnivore', 'vegetarian', 'vegan']);

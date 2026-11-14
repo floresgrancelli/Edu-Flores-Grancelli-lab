@@ -37,7 +37,9 @@ const total=(id,qty)=>estimate({diary:{log_day:'2026-11-14',meals:{cena:[{id,qty
 for(const id of ['fish_salmon','milk_soy_unsweet','medialuna_butter','rest_mc_big_mac','helado_palito_crema']){
  const a=total(id,100),b=total(id,50);for(let i=0;i<a.length;i++)assert.equal(b[i].total,a[i].total===null?null:a[i].total/2);
 }
-assert.equal(c.foods.milk_skim.perUnit.ala,null,'Trace is not numerical zero');
+assert.equal(c.foods.milk_skim.perUnit.ala,0,'Explicit numeric AFCD value, not a converted CoFID trace');
+assert.equal(c.foods.milk_skim.nutrientProvenance.ala.source,'FSANZ AFCD Release 3');
+assert.equal(c.foods.herbal_tea.perUnit.ala,null,'Unmatched herbal tea remains unknown');
 assert.equal(c.foods.chinchulines_grilled.perUnit.b12,null,'Unmatched B12 remains unknown');
 const complete=foods=>Object.values(foods).filter(f=>Object.values(f.perUnit).every(v=>v!==null)&&!f.incompleteNutrients?.length).length;
 console.log(JSON.stringify({changedValues:changed,changedFoods,completeBefore:complete(before),completeAfter:complete(c.foods),partialAfter:853-complete(c.foods)}));

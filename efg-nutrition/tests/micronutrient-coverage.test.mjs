@@ -238,6 +238,10 @@ test('every independently added nutrient matches the frozen named column and dec
    const sheet=key==='b12'?'1.5 Vitamins':'1.12 (PUFA per 100gFood)',col={ala:16,epa:28,dha:40,b12:19}[key];
    const cell=evidence.rows[sheet][p.foodCode][col];assert.match(String(cell),/^\d+(\.\d+)?$/);
    expected=Number(cell)*(key==='epa'||key==='dha'?1000:1);
+  }else if(p.source==='FSANZ AFCD Release 3'){
+   const evidence=JSON.parse(readFileSync(new URL('../docs/micronutrients-afcd-20261114/selected-records.json',import.meta.url)));
+   const col={ala:209,epa:222,dha:229,b12:93}[key],cell=evidence.rows[p.foodCode][col];
+   assert.equal(typeof cell,'number');assert.ok(cell>=0);expected=cell;
   }else{assert.equal(p.source,'USDA SR Legacy');const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
   assert.ok(Math.abs(f.perUnit[key]-expected*(f.gramsPerMl||1)/100)<1e-9,id+':'+key);
  }

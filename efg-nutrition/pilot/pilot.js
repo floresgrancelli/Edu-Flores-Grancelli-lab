@@ -109,7 +109,7 @@ import {createCoachRosterRefresh} from "./coach-roster-freshness.js?v=ncc-pilot-
 
 import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-plan.js?v=ncc-self-live-r1-20261113";
 import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
-import {MICRONUTRIENT_CATALOG} from "./micronutrient-expanded-catalog.js?v=ncc-micro-gaps-r1-20261114";
+import {MICRONUTRIENT_CATALOG} from "./micronutrient-expanded-catalog.js?v=ncc-micro-afcd-r1-20261114";
 import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-micro-enriched-20261114";
 import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-micro-enriched-20261114";
 if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-micro-enriched-20261114";document.head.append(link);}

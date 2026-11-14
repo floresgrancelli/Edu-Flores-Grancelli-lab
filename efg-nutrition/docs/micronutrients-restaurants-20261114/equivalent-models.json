@@ -23,14 +23,26 @@
         "iron": 0.0002,
         "zinc": 0.0001,
         "b12": 0.0002,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "168746",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168746/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, beer, regular, all"
+      "sourceDescription": "Alcoholic beverage, beer, regular, all",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Beer, full strength (alcohol 4-4.9% v/v)",
+          "foodCode": "F000994",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:beer_light": {
       "perUnit": {
@@ -39,14 +51,26 @@
         "iron": 0.0003,
         "zinc": 0.0001,
         "b12": 0.0002,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "168749",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168749/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, beer, light"
+      "sourceDescription": "Alcoholic beverage, beer, light",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Beer, light (alcohol 1-2.9% v/v)",
+          "foodCode": "F001004",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Beer, light (alcohol 1-2.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:beer_ipa": {
       "perUnit": {
@@ -55,14 +79,26 @@
         "iron": 0.0003,
         "zinc": 0.0001,
         "b12": 0.0002,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "171906",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/171906/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverages, beer, higher alcohol"
+      "sourceDescription": "Alcoholic beverages, beer, higher alcohol",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Beer, high alcohol (5% v/v & above)",
+          "foodCode": "F000996",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Beer, high alcohol (5% v/v & above). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:beer_stout": {
       "perUnit": {
@@ -71,14 +107,26 @@
         "iron": 0.0002,
         "zinc": 0.0001,
         "b12": 0.0002,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "168746",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168746/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, beer, regular, all"
+      "sourceDescription": "Alcoholic beverage, beer, regular, all",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Beer, full strength (alcohol 4-4.9% v/v)",
+          "foodCode": "F000994",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:beer_wheat": {
       "perUnit": {
@@ -87,14 +135,26 @@
         "iron": 0.0002,
         "zinc": 0.0001,
         "b12": 0.0002,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "168746",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168746/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, beer, regular, all"
+      "sourceDescription": "Alcoholic beverage, beer, regular, all",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Beer, full strength (alcohol 4-4.9% v/v)",
+          "foodCode": "F000994",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:red": {
       "perUnit": {
@@ -103,14 +163,26 @@
         "iron": 0.0046,
         "zinc": 0.0014000000000000002,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173190",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173190/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, table, red"
+      "sourceDescription": "Alcoholic beverage, wine, table, red",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, red",
+          "foodCode": "F009571",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, red. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:white": {
       "perUnit": {
@@ -119,14 +191,26 @@
         "iron": 0.0027,
         "zinc": 0.0012,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174837",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174837/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, table, white"
+      "sourceDescription": "Alcoholic beverage, wine, table, white",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, white",
+          "foodCode": "F009581",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, white. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:rose": {
       "perUnit": {
@@ -135,14 +219,26 @@
         "iron": 0.002,
         "zinc": 0.0011,
         "b12": 0.0001,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "171908",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/171908/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverages, wine, rose"
+      "sourceDescription": "Alcoholic beverages, wine, rose",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, rose",
+          "foodCode": "F009579",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, rose. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:sweet_red": {
       "perUnit": {
@@ -167,14 +263,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, white, sweet dessert style",
+          "foodCode": "F009592",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, white, sweet dessert style. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:brut": {
       "perUnit": {
@@ -183,14 +291,26 @@
         "iron": 0.0027,
         "zinc": 0.0012,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174837",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174837/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, table, white"
+      "sourceDescription": "Alcoholic beverage, wine, table, white",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, white, sparkling",
+          "foodCode": "F009590",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, white, sparkling. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:demi": {
       "perUnit": {
@@ -199,14 +319,26 @@
         "iron": 0.0027,
         "zinc": 0.0012,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174837",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174837/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, table, white"
+      "sourceDescription": "Alcoholic beverage, wine, table, white",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, white, sparkling",
+          "foodCode": "F009590",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, white, sparkling. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:port": {
       "perUnit": {
@@ -215,14 +347,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "173176",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/173176/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, sweet",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, port",
+          "foodCode": "F009566",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, fortified, port. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:sherry": {
       "perUnit": {
@@ -231,14 +375,26 @@
         "iron": 0.0024,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "175112",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/175112/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, wine, dessert, dry"
+      "sourceDescription": "Alcoholic beverage, wine, dessert, dry",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Wine, fortified, sherry, dry style (~1% sugars)",
+          "foodCode": "F009567",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Wine, fortified, sherry, dry style (~1% sugars). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cider": {
       "perUnit": {
@@ -247,14 +403,26 @@
         "iron": 0.0006,
         "zinc": 0.0002,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174146",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174146/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, AMBER, hard cider"
+      "sourceDescription": "Beverages, AMBER, hard cider",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Cider, apple (alcohol ~4-5% v/v)",
+          "foodCode": "F002955",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Cider, apple (alcohol ~4-5% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:whisky": {
       "perUnit": {
@@ -263,14 +431,26 @@
         "iron": 0.0002,
         "zinc": 0.0002,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174819",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174819/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, whiskey, 86 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, whiskey, 86 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:bourbon": {
       "perUnit": {
@@ -279,14 +459,26 @@
         "iron": 0.0002,
         "zinc": 0.0002,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174819",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174819/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, whiskey, 86 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, whiskey, 86 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:vodka": {
       "perUnit": {
@@ -295,14 +487,26 @@
         "iron": 0.0001,
         "zinc": 0.0,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174818",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174818/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, vodka, 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, vodka, 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:gin": {
       "perUnit": {
@@ -311,14 +515,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:rum": {
       "perUnit": {
@@ -327,14 +543,26 @@
         "iron": 0.0012,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174817",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174817/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, rum, 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, rum, 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:tequila": {
       "perUnit": {
@@ -343,14 +571,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:pisco": {
       "perUnit": {
@@ -359,14 +599,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cachaca": {
       "perUnit": {
@@ -375,14 +627,26 @@
         "iron": 0.0012,
         "zinc": 0.0007000000000000001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174817",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174817/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, rum, 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, rum, 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cognac": {
       "perUnit": {
@@ -391,14 +655,26 @@
         "iron": 0.0004,
         "zinc": 0.0004,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174815",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174815/nutrients",
       "unit": "g",
-      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof"
+      "sourceDescription": "Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)",
+          "foodCode": "F000051",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:coffee_liqueur": {
       "perUnit": {
@@ -487,14 +763,26 @@
         "iron": 0.0002,
         "zinc": 0.0009,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174852",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174852/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, carbonated, cola, regular"
+      "sourceDescription": "Beverages, carbonated, cola, regular",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, cola flavour",
+          "foodCode": "F008402",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, cola flavour. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:zero": {
       "perUnit": {
@@ -503,14 +791,26 @@
         "iron": 0.0,
         "zinc": 0.0,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174826",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174826/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, ZEVIA, cola, caffeine free"
+      "sourceDescription": "Beverages, ZEVIA, cola, caffeine free",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, cola flavour, intense sweetened or diet",
+          "foodCode": "F008404",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, cola flavour, intense sweetened or diet. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:lemon_soda": {
       "perUnit": {
@@ -519,14 +819,26 @@
         "iron": 0.0018,
         "zinc": 0.0005,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174846",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174846/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, carbonated, ginger ale"
+      "sourceDescription": "Beverages, carbonated, ginger ale",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, fruit flavours",
+          "foodCode": "F008438",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, fruit flavours. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:tonic": {
       "perUnit": {
@@ -535,14 +847,26 @@
         "iron": 0.0001,
         "zinc": 0.001,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "171869",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/171869/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, carbonated, tonic water"
+      "sourceDescription": "Beverages, carbonated, tonic water",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, tonic water",
+          "foodCode": "F008460",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, tonic water. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:grapefruit_soda": {
       "perUnit": {
@@ -551,14 +875,26 @@
         "iron": 0.0018,
         "zinc": 0.0005,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174846",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174846/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, carbonated, ginger ale"
+      "sourceDescription": "Beverages, carbonated, ginger ale",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, fruit flavours",
+          "foodCode": "F008438",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, fruit flavours. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:ginger_beer": {
       "perUnit": {
@@ -567,14 +903,26 @@
         "iron": 0.0018,
         "zinc": 0.0005,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174846",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174846/nutrients",
       "unit": "g",
-      "sourceDescription": "Beverages, carbonated, ginger ale"
+      "sourceDescription": "Beverages, carbonated, ginger ale",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Soft drink, dry ginger ale or ginger beer, regular",
+          "foodCode": "F008411",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Soft drink, dry ginger ale or ginger beer, regular. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:pineapple": {
       "perUnit": {
@@ -615,14 +963,26 @@
         "iron": 0.0009,
         "zinc": 0.0008,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "168156",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/168156/nutrients",
       "unit": "g",
-      "sourceDescription": "Lime juice, raw"
+      "sourceDescription": "Lime juice, raw",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Juice, lime",
+          "foodCode": "F004729",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Juice, lime. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:cream": {
       "perUnit": {
@@ -647,14 +1007,26 @@
         "iron": 0.0,
         "zinc": 0.0,
         "b12": 0.0,
-        "ala": null,
+        "ala": 0.0,
         "epa": 0.0,
         "dha": 0.0
       },
       "sourceId": "174158",
       "sourceUrl": "https://fdc.nal.usda.gov/food-details/174158/nutrients",
       "unit": "g",
-      "sourceDescription": "Water, bottled, generic"
+      "sourceDescription": "Water, bottled, generic",
+      "nutrientProvenance": {
+        "ala": {
+          "source": "FSANZ AFCD Release 3",
+          "food": "Water, soda",
+          "foodCode": "F008377",
+          "sourceUrl": "https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+          "sourceUnit": "g/100g",
+          "capturePath": "docs/micronutrients-afcd-20261114/selected-records.json",
+          "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+          "note": "ESTIMACIÓN por referencia comparable. FSANZ AFCD 3 (Australia). Equivalente genérico de Water, soda. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas. Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero."
+        }
+      }
     },
     "drink:bitters": {
       "perUnit": {
@@ -1515,5 +1887,17 @@
       "yield": 100,
       "note": "Equivalente genérico independiente de {'nuggets_pollo_fritos': 100}. Para helados no modela coberturas ni cono; para hamburguesas no reproduce proporciones exactas, salsas o fortificación. Calorías y macros oficiales se conservan."
     }
-  }
+  },
+  "additionalDataLicenses": [
+    {
+      "source": "Food Standards Australia New Zealand (FSANZ), Australian Food Composition Database, Release 3",
+      "sourceUrl": "https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/data-files",
+      "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+      "license": "FSANZ Data User Licence Agreement, based on CC BY-SA 3.0 Australia",
+      "scope": "AFCD source extracts and AFCD-derived composition values and recipe contributions retain this licence. Independent software and independently sourced values are separate works.",
+      "changes": "Selected records, Spanish food equivalences, native-unit scaling and missing-cell enrichment; derived recipe calculations. Not endorsed by FSANZ.",
+      "countryStatement": "This work is based on Australian data. Australian data may not be appropriate for use in other countries.",
+      "limitationOfDataStatement": "There are limitations associated with food composition databases. Food composition data used in the database or databases may represent an average of the nutrient content of a particular sample of foods and ingredients, determined at a particular time. The nutrient composition of foods and ingredients can vary substantially between batches and brands because of a number of factors, including changes in season, processing practices and ingredient source, and methods of calculation."
+    }
+  ]
 }

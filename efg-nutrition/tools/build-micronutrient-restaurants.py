@@ -12,6 +12,8 @@ for k,id in {'orange':'orange_juice_raw_weight','lemon':'lemon_juice_raw_weight'
 for k,id,factor in [('syrup','sugar',.62),('honey_syrup','honey',.65),('grenadine','sugar',.65),('coconut_cream','milk_coconut_unsweet',1)]:
  refs['drink:'+k]={**base[id],'perUnit':{n:(v*factor if v is not None else None) for n,v in base[id]['perUnit'].items()},'mappingNote':'Equivalente orientativo para '+k+'; concentración supuesta '+str(factor)}
 assert set(data['components'])=={k.removeprefix('drink:') for k in refs if k.startswith('drink:')}
+from micronutrient_afcd import fill_afcd, load_afcd
+fill_afcd(root, refs, drinks=True)
 new={};models={r['key']:r for r in data['models']};modelsOut={}
 def make(f,parts,yieldq,kind,note):
  per={};incomplete=[]
@@ -21,6 +23,10 @@ def make(f,parts,yieldq,kind,note):
    incomplete.append(n)
    if all(ref['perUnit'].get(n) is None for ref,_,_ in parts):per[n]=None
  row=dict(name=f['name'],unit=f['unit'],perUnit=per,incompleteNutrients=incomplete,sourceId='estimated-'+f['id'],catalogSourceId=f.get('sourceId',''),sourceUrl=f['sourceUrl'],sourceDescription='Modelo orientativo por ingredientes y equivalentes genéricos USDA/SARA del catálogo',approximation=True,matchType=kind,mappingNote='ESTIMACIÓN DE MICRONUTRIENTES; no análisis ni tabla oficial de la cadena o marca. '+note+' Densidad de líquidos aproximada a 1 g/ml; rendimiento y dilución según modelo. Los componentes sin dato generan aporte parcial, no cero confirmado.',ingredients=[dict(id=id,quantity=q,sourceId=ref['sourceId'],sourceUrl=ref.get('sourceUrl',''),unit=ref['unit']) for ref,q,id in parts],yieldQuantity=yieldq)
+ for n in keys:
+  supplements=[(id,ref['nutrientProvenance'][n]) for ref,q,id in parts if ref.get('nutrientProvenance',{}).get(n,{}).get('source')=='FSANZ AFCD Release 3']
+  if supplements:
+   row.setdefault('nutrientProvenance',{})[n]={'source':'recipe_components','sourceUrl':supplements[0][1]['sourceUrl'],'note':'Aportes estimados completados con FSANZ AFCD 3 (Australia) para '+', '.join(id for id,p in supplements)+'. Equivalentes genéricos, no formulaciones de marca.','partial':n in incomplete}
  new[f['id']]=row
 for f in data['foods']:
  if f.get('alcohol'):
@@ -48,8 +54,8 @@ for f in data['foods']:
   parts=[(base.get(id) or refs[id],q,id) for id,q in quantities.items()];make(f,parts,den,kind,note)
 D=root/'docs/micronutrients-restaurants-20261114';D.mkdir(exist_ok=True)
 (D/'new-usda-records.json').write_text(json.dumps(list(captured.values()),ensure_ascii=False,separators=(',',':'))+'\n')
-(D/'equivalent-models.json').write_text(json.dumps({'drinkReferences':refs,'restaurantEquivalents':modelsOut},ensure_ascii=False,indent=2)+'\n')
+(D/'equivalent-models.json').write_text(json.dumps({'drinkReferences':refs,'restaurantEquivalents':modelsOut,'additionalDataLicenses':[load_afcd(root)[0]['licensing']]},ensure_ascii=False,indent=2)+'\n')
 body=json.dumps(new,ensure_ascii=False,separators=(',',':'));version='ncc-micro-'+hashlib.sha256(body.encode()).hexdigest()[:16]
-(root/'pilot/micronutrient-expanded-catalog.js').write_text('import {MICRONUTRIENT_CATALOG as base} from "./micronutrient-catalog.js?v=ncc-micro-gaps-r1-20261114";\nexport const NEW_MICRONUTRIENT_ESTIMATES='+body+';\nexport const MICRONUTRIENT_CATALOG={...base,version:"'+version+'",foodCount:base.foodCount+Object.keys(NEW_MICRONUTRIENT_ESTIMATES).length,foods:{...base.foods,...NEW_MICRONUTRIENT_ESTIMATES}};\n')
+(root/'pilot/micronutrient-expanded-catalog.js').write_text('import {MICRONUTRIENT_CATALOG as base} from "./micronutrient-catalog.js?v=ncc-micro-afcd-r1-20261114";\nexport const NEW_MICRONUTRIENT_ESTIMATES='+body+';\nexport const MICRONUTRIENT_CATALOG={...base,version:"'+version+'",foodCount:base.foodCount+Object.keys(NEW_MICRONUTRIENT_ESTIMATES).length,foods:{...base.foods,...NEW_MICRONUTRIENT_ESTIMATES}};\n')
 (D/'README.md').write_text('Se añaden 235 perfiles estimados: 161 platos de cadenas y 74 bebidas. Nueve combos de sushi usan las mezclas ya declaradas, por combo completo y fracciones. Los 618 perfiles anteriores se conservan.\n\nLos modelos reutilizan las composiciones congeladas USDA/SARA de ingredientes; se conservan capturas nuevas USDA SR Legacy en new-usda-records.json y correspondencias en equivalent-models.json. Fuente: https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip. SHA256 del archivo original: 0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef.\n\nDensidades líquidas supuestas a 1 g/ml. Licores y aperitivos sin referencia específica usan equivalentes; no son análisis de marca. McDonald’s conserva sus macros oficiales y recibe aproximaciones de micronutrientes por equivalente genérico, con limitaciones detalladas en cada perfil. Conos/coberturas y salsas no se modelan en los equivalentes de helado. Los faltantes se marcan como parciales, no como cero. No se cambian metas ni recomendaciones diarias.\n')
 print('Generated',len(new),'profiles,',len(captured),'new frozen reference records',version)

@@ -1,0 +1,35 @@
+name: NCC micronutrient coverage QA
+on:
+  push:
+    branches: [work/ncc-micronutrient-coverage-20261114]
+permissions:
+  contents: read
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: |
+          python efg-nutrition/tools/build-micronutrient-catalog.py
+          git diff --exit-code -- efg-nutrition/pilot/micronutrient-catalog.js efg-nutrition/docs/micronutrients-20261114/coverage.json
+          node --test efg-nutrition/tests/micronutrient-coverage.test.mjs efg-nutrition/tests/micronutrients.test.mjs
+          node efg-nutrition/tests/approved-release-flags.mjs
+      - run: |
+          sudo install -d -m 0777 /workspace
+          npm install --prefix /tmp/ncc-micro-qa --save-exact playwright@1.62.1
+          node /tmp/ncc-micro-qa/node_modules/playwright/cli.js install --with-deps chromium webkit
+      - name: Lomo and achuras in real app, Chromium and WebKit
+        env:
+          NCC_PLAYWRIGHT_MODULE: /tmp/ncc-micro-qa/node_modules/playwright/index.mjs
+        run: node efg-nutrition/tests/micronutrient-coverage-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ncc-micronutrient-coverage-preview
+          path: artifacts/micronutrient-coverage-preview/

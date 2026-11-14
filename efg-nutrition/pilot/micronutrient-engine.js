@@ -72,7 +72,7 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog}={}){
  for(const entry of foods){
   const composition=catalog.foods[entry?.id];
   const usable=composition&&entry.unit===composition.unit&&finite(entry.qty)&&entry.qty>0&&
-   (!entry.sourceId||String(entry.sourceId)===composition.sourceId);
+   (!entry.sourceId||String(entry.sourceId)===(composition.catalogSourceId??composition.sourceId));
   for(const n of MICRO_NUTRIENTS){
    const row=rows[n.id],per=usable?composition.perUnit:null;
    const amount=n.id==='epa_dha'?(finite(per?.epa)&&finite(per?.dha)?(per.epa+per.dha)*entry.qty:null):

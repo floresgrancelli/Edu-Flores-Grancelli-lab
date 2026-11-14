@@ -21,6 +21,8 @@ jobs:
       PGPASSWORD: local_qa_only
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -33,14 +35,19 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: npm install --no-save --no-package-lock playwright@1.56.1
       - run: node efg-nutrition/tests/version-notice-opt-in.mjs
       - run: node efg-nutrition/tests/team-update-browser.mjs
+      - run: node efg-nutrition/tests/notice-review-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ncc-team-update-preview
-          path: artifacts/team-update/
+          path: |
+            artifacts/team-update/
+            artifacts/notice-review/

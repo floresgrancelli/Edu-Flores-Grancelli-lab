@@ -86,7 +86,7 @@ import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPla
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-restaurants-r1-20261114";
 import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {createVersionNotice} from "./version-notice.js?v=ncc-team-update-r1-20261114";
+import {createVersionNotice} from "./version-notice.js?v=ncc-update-loop-r1-20261114";
 import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {RELEASE_COMMUNICATIONS_ENABLED,renderMajorReleaseAnnouncement,renderWhatsNew} from "./release-communications.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {MAJOR_RELEASE_FLOW_ENABLED,readMajorRelease,acknowledgeMajorRelease} from "./major-release-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";

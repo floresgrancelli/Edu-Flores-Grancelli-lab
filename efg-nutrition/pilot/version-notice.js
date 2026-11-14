@@ -6,7 +6,13 @@ export function createVersionNotice({
  reload=()=>{const url=new URL(window.location.href);url.searchParams.set("ncc_updated",String(Date.now()));window.location.replace(url.toString());}
 }={}){
  const headVersion=document.querySelector('meta[name="efg-build"]')?.content||String(currentVersion||"");
- const stylesheetSignature=(doc)=>[...doc.querySelectorAll('link[rel="stylesheet"]')].map(el=>el.getAttribute("href")||"").sort();
+ const stylesheetSignature=(doc)=>{
+  const links=[...doc.querySelectorAll('link[rel="stylesheet"]')];
+  // Runtime modules append styles before this initializer. Only compare the
+  // release-owned links that also exist in the fetched, unexecuted HTML.
+  const releaseLinks=links.filter(el=>el.getAttribute("data-ncc-release-style")==="true");
+  return (releaseLinks.length?releaseLinks:links).map(el=>el.getAttribute("href")||"").sort();
+ };
  const signature=doc=>JSON.stringify({
   entry:doc.querySelector('script[type="module"][src*="pilot.js"]')?.getAttribute("src")||"",
   css:stylesheetSignature(doc)

@@ -162,6 +162,23 @@ assert.equal(silent.getStatus().hasUpdate,true,"Asset URL changes are detected e
 assert.equal(silentHost.hidden,true,"An asset-only hotfix remains silent");
 assert.equal(reloads,0,"Asset-only updates never reload edited forms");
 silent.dispose();
+// Regression: modules already appended runtime styles before initialization.
+const originalLinks=document.querySelectorAll;
+document.querySelectorAll=selector=>selector==='link[rel="stylesheet"]'?
+ [{getAttribute:key=>key==='data-ncc-release-style'?'true':'/pilot/pilot.css?v='+current},
+  {getAttribute:key=>key==='href'?'/pilot/student-plan-r1.css?v=runtime':null}]:[];
+const OriginalParser=globalThis.DOMParser;
+globalThis.DOMParser=class {parseFromString(){return {
+ querySelector:selector=>selector==='meta[name="efg-build"]'?{getAttribute:()=>available}:selector.includes('pilot.js')?{getAttribute:()=>'/pilot/pilot.js?v='+(availableAsset||available)}:null,
+ querySelectorAll:()=>[{getAttribute:key=>key==='data-ncc-release-style'?'true':'/pilot/pilot.css?v='+available}]
+};}};
+available=current;availableAsset=null;
+const reloaded=createVersionNotice({currentVersion:current,intervalMs:3600000});
+await reloaded.check({force:true});assert.equal(reloaded.getStatus().hasUpdate,false,'Runtime CSS must not advertise an update after reload');
+await reloaded.check({force:true});assert.equal(reloaded.getStatus().hasUpdate,false,'Repeated checks remain current');
+availableAsset=current+'-next';await reloaded.check({force:true});assert.equal(reloaded.getStatus().hasUpdate,true,'A genuine new entry still announces an update');
+availableAsset=null;available=current+'-css';await reloaded.check({force:true});assert.equal(reloaded.getStatus().hasUpdate,true,'Release CSS changes remain detectable');
+reloaded.dispose();document.querySelectorAll=originalLinks;globalThis.DOMParser=OriginalParser;
 // 09-02/09-03: an old async version response cannot reopen a discarded
 // component after navigating away/logging out or recreating the PWA shell.
 let finishStaleFetch,staleFetches=0;

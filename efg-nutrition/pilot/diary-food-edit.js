@@ -5,7 +5,7 @@ export function resizeDiaryFood(item,quantity){
  const grams=Number(item?.qty)*next/previous;
  const max=item?.unit==='porción'?20:5000;
  if(!Number.isFinite(previous)||previous<=0||!Number.isFinite(next)||next<=0||
-    !Number.isFinite(grams)||grams<=0||grams>max||(units&&(!Number.isInteger(next)||next>100)))
+    !Number.isFinite(grams)||grams<=0||grams>max||(units&&(!Number.isInteger(next*2)||next<0.5||next>100)))
   throw Error('Revisá la cantidad: debe ser mayor que cero y respetar la unidad del alimento.');
  const ratio=next/previous,out={...item,qty:grams};
  for(const key of ['k','p','c','f','fi']){

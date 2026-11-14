@@ -1,3 +1,5 @@
+Estado actual: ver [COMPLETION-617.md](COMPLETION-617.md), 617 identidades con estimaciones. Los lotes anteriores quedan como historial.
+
 # Ampliación de micronutrientes — candidata
 
 Base de esta tanda: producción PR127, 2b08fca6d20c4c6906d0471a930306e98f7cdc74. Las primeras dos tandas y las barras generales ya están publicadas; la tercera tanda aún no.

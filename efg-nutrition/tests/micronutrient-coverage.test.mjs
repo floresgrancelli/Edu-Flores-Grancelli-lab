@@ -17,7 +17,7 @@ const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,319);
+ assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,617);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -45,8 +45,10 @@ test('all six achuras have mineral data; uncertain B12 stays null; recipe propag
  }
  assert.equal(c.foods.morcilla_vasca_estimate.perUnit.iron,Math.round((.85*c.foods.morcilla_cooked.perUnit.iron+.10*c.foods.raisins.perUnit.iron+.05*c.foods.walnuts.perUnit.iron)*1e10)/1e10);
 });
-test('unknown branded product remains unknown, never inferred from common milk',()=>{
- assert.equal(c.foods.milk,undefined);const n=totals([{id:'milk',qty:200,unit:'ml'}]).find(n=>n.id==='iron');assert.equal(n.total,null);
+test('protein milk uses disclosed SARA generic reference; unknown identity stays unknown',()=>{
+ const f=c.foods.milk;assert.match(f.sourceDescription,/50%/);assert.equal(f.approximation,true);
+ assert.equal(f.perUnit.b12,null);assert.ok(Math.abs(f.perUnit.calcium-1.21*1.03)<1e-10);
+ const n=totals([{id:'unverified_brand_not_in_catalog',qty:200,unit:'ml'}]).find(n=>n.id==='iron');assert.equal(n.total,null);
 });
 
 test('second batch preserves all 218 prior compositions and scales all 25 reviewed foods',()=>{
@@ -155,4 +157,47 @@ test('sixth batch preserves all 307 profiles and checks sources, raw preparation
   assert.ok(Math.abs(totals([entry(id,80)]).find(n=>n.id==='epa_dha').food-(v.epa+v.dha)*80)<1e-9);
  }
  for(const [a,b]of [['medialuna_butter','factura_medialuna_manteca'],['galleta_agua','galletitas_agua'],['arroz_leche','arroz_con_leche'],['palomitas_dulces','pochoclos_dulces_acaramelados_genericos']])assert.deepEqual(c.foods[a].perUnit,c.foods[b].perUnit);
+});
+
+test('full completion preserves all 319 prior profiles and the canonical macro catalog byte for byte',()=>{
+ const baseline='7402b8541ef647cea4becf1166fdbec383086179';
+ const text=execFileSync('git',['show',baseline+':efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const before=JSON.parse(text.slice(text.indexOf('= ')+2).replace(/;\s*$/,''));
+ assert.equal(Object.keys(before.foods).length,319);
+ for(const [id,f]of Object.entries(before.foods))assert.deepEqual(c.foods[id],f,id);
+ const macro=readFileSync(new URL('../catalog/guide-catalog.json',import.meta.url));
+ assert.deepEqual(macro,execFileSync('git',['show',baseline+':efg-nutrition/catalog/guide-catalog.json'],{cwd:root}));
+ const catalog=JSON.parse(macro);assert.deepEqual(Object.keys(c.foods).sort(),Object.keys(catalog.foods).sort());
+ for(const f of Object.values(c.foods))for(const v of Object.values(f.perUnit))assert.ok(v===null||Number.isFinite(v)&&v>=0);
+});
+test('all completion source and assumption files have frozen manifest hashes',()=>{
+ const folder=new URL('../docs/micronutrients-20261114/',import.meta.url);
+ const manifest=JSON.parse(readFileSync(new URL('completion-manifest.json',folder)));
+ for(const [name,hash]of Object.entries(manifest.files))assert.equal(createHash('sha256').update(readFileSync(new URL(name,folder))).digest('hex'),hash,name);
+ const inventory=JSON.parse(readFileSync(new URL('coverage.json',folder)));
+ assert.equal(inventory.filter(f=>f.status==='pending').length,0);
+ for(const f of inventory)if(f.incomplete.length)assert.equal(f.status,'partial');
+});
+test('chia recipe and lactose-free milk convert native millilitres exactly once',()=>{
+ const expected=(18*c.foods.chia.perUnit.calcium+82/1.03*c.foods.milk_skim.perUnit.calcium)/100;
+ assert.ok(Math.abs(c.foods.chia_pudding.perUnit.calcium-expected)<1e-9);
+ assert.ok(Math.abs(c.foods.milk_lactosefree.perUnit.calcium-c.foods.milk_skim.perUnit.calcium)<1e-9);
+ const single={id:'milk_lactosefree',qty:250,unit:'ml'};
+ const n=totals([single]).find(n=>n.id==='calcium');assert.ok(Math.abs(n.total-250*c.foods.milk_skim.perUnit.calcium)<1e-8);
+});
+test('unknown dry nori and unquantified cake ingredients retain known contributions but mark them partial',()=>{
+ const ids=Object.keys(c.foods).filter(id=>c.foods[id].ingredients?.some(i=>i.id==='@nori'));
+ assert.ok(ids.length>0);
+ for(const id of [...ids,'cake']){
+  const food=c.foods[id];assert.ok(food.incompleteNutrients.includes('iron'),id);
+  const n=totals([entry(id,100)]).find(n=>n.id==='iron');assert.ok(n.total>0,id);
+  assert.equal(n.partial,true);assert.equal(n.foodPartial,1);assert.equal(n.foodKnown+n.foodUnknown,1);
+  assert.equal(n.difference,null);assert.equal(n.status,'partial');
+ }
+});
+test('named brand approximations never claim to be a manufacturer label',()=>{
+ for(const id of ['arcor_chocolate_aguila_familiar','arcor_chocolate_blanco_porcion','arcor_chocolate_leche_porcion','colonial_chocolate_organico_80_cacao','arcor_mini_alfajor_aguila_chocolate','arcor_saladix_jamon','milanesa_soy_gobinda']){
+  const f=c.foods[id];assert.equal(f.approximation,true);assert.match(f.mappingNote,/NO RÓTULO/);
+  const n=totals([entry(id,100)]).find(n=>n.id==='calcium');assert.equal(n.contributors[0].mappingNote,f.mappingNote);
+ }
 });

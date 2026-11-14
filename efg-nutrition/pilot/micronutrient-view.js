@@ -19,9 +19,10 @@ function dailyRows(model){
   '<div class="ncc-micro-breakdown"><span>Alimentos: '+(n.foodKnown?amount(n,n.food):'Sin estimación')+'</span><span>Suplementos: '+(n.supplementKnown?amount(n,n.supplements):n.supplementUnknown?'Etiqueta pendiente':'Sin aporte registrado')+'</span></div>'+
   '<p class="ncc-micro-explain">'+(n.difference!==null?'Hasta la referencia: '+amount(n,n.difference)+'. ':n.partial?'No calculamos faltantes con datos incompletos. ':'')+
   (n.reference.value===null||model.referenceMode==='general'?esc(n.reference.note)+' ':'')+
+  (n.foodPartial?n.foodPartial+' registro(s) con ingredientes sin datos. ':'')+
   n.foodKnown+' de '+(n.foodKnown+n.foodUnknown)+' registros de alimentos con composición para este nutriente.</p>'+
   (n.upperLimitExceeded?'<p class="ncc-micro-caution">El aporte conocido supera el límite superior de referencia'+(n.reference.upperScope==='supplements'?' para suplementos':'')+'. Revisá la etiqueta y la pertinencia individual con un profesional.</p>':'')+
-  (n.contributors.length?'<details class="ncc-micro-sources"><summary>Alimentos que aportaron</summary><ul>'+n.contributors.map(c=>'<li><span>'+esc(c.name)+'</span><strong>'+amount(n,c.value)+'</strong></li>').join('')+'</ul></details>':'')+
+  (n.contributors.length?'<details class="ncc-micro-sources"><summary>Alimentos que aportaron</summary><ul>'+n.contributors.map(c=>'<li><span>'+esc(c.name)+'</span><strong>'+amount(n,c.value)+'</strong></li>').join('')+'</ul>'+n.contributors.filter(c=>c.mappingNote).map(c=>'<details><summary>Estimación de '+esc(c.name)+'</summary><p>'+esc(c.mappingNote)+'</p></details>').join('')+'</details>':'')+
   '<a class="ncc-micro-reference" href="'+esc(n.reference.sourceUrl||'https://ods.od.nih.gov/factsheets/'+encodeURIComponent(n.source)+'-HealthProfessional/')+'" target="_blank" rel="noopener noreferrer">Referencia '+esc(n.reference.sourceLabel||'NIH/ODS')+' ↗</a></article>').join('');
 }
 export function renderMicronutrients(model,{expanded=false}={}){

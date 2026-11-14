@@ -72,6 +72,20 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-detalle.png')});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),saved);
  }
+ // Newly completed catalog: volume conversion, standard recipe, brand proxy and unknown ingredient.
+ for(const [id,nutrient,partial]of [['milk_lactosefree','calcium',false],['chia_pudding','calcium',false],['arcor_chocolate_blanco_porcion','calcium',false],['cake','iron',true]]){
+  await page.evaluate(async id=>{const v=window.__NCC_R4_FULLAPP__,s=v.state;const {MICRONUTRIENT_CATALOG:c}=await import('./micronutrient-catalog.js');const f=c.foods[id];for(const key of Object.keys(s.diary.meals))s.diary.meals[key]=[];s.diary.meals.almuerzo=[{id,name:f.name,qty:100,unit:f.unit,k:200,p:10,c:20,f:8,fi:2,sourceId:f.catalogSourceId}];await v.render();},id);
+  const block=page.locator('.ncc-micronutrients').first();
+  assert.doesNotMatch(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-value').textContent(),/Sin datos/);
+  if(partial)assert.match(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-progress').textContent(),/parcial/);
+  await block.locator('.ncc-micro-expand > summary').click();
+  const detail=block.locator('[data-micro-detail='+nutrient+']');
+  await detail.locator('.ncc-micro-sources > summary').click();
+  await detail.locator('.ncc-micro-sources details > summary').first().click();
+  if(id.startsWith('arcor'))assert.match(await detail.textContent(),/NO RÓTULO/);
+  await detail.screenshot({path:resolve(out,engine+'-'+width+'-full-'+id+'.png')});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ }
  assert.deepEqual(errors,[]);evidence.push({engine,width,allSevenVisible:true,sevenColors:true,referenceFillRecalculates:true,generalReferencesWithoutProfile:true,threeRoles:true,detailsPreserved:true,readOnly:true});await context.close();
  }}finally{await browser.close();}
 }writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence));

@@ -79,7 +79,7 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog,referenc
  if(!diary||!validDay(diary.log_day)||!diary.meals)throw Error('Registro diario inválido.');
  const references=referenceMode==="general"?generalMicronutrientReferences():micronutrientReferences(profile);
  const rows=Object.fromEntries(MICRO_NUTRIENTS.map(n=>[n.id,{...n,food:0,supplements:0,
-  foodKnown:0,foodUnknown:0,supplementKnown:0,supplementUnknown:0,contributors:[]} ]));
+  foodKnown:0,foodUnknown:0,foodPartial:0,supplementKnown:0,supplementUnknown:0,contributors:[]} ]));
  const foods=Object.entries(diary.meals).filter(([slot])=>!diary.skipped?.[slot]).flatMap(([,items])=>Array.isArray(items)?items:[]);
  for(const entry of foods){
   const composition=catalog.foods[entry?.id];
@@ -91,7 +91,9 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog,referenc
     finite(per?.[n.id])?per[n.id]*entry.qty:null;
    if(amount===null){row.foodUnknown++;continue;}
    row.food+=amount;row.foodKnown++;
-   row.contributors.push({name:entry.name||composition.name,value:amount,sourceId:composition.sourceId,sourceUrl:composition.sourceUrl});
+   const incomplete=composition.incompleteNutrients||[];
+   if(n.id==='epa_dha'?incomplete.includes('epa')||incomplete.includes('dha'):incomplete.includes(n.id))row.foodPartial++;
+   row.contributors.push({name:entry.name||composition.name,value:amount,sourceId:composition.sourceId,sourceUrl:composition.sourceUrl,mappingNote:composition.mappingNote||null,approximation:composition.approximation===true});
   }
  }
  const supplements=Array.isArray(diary.sports)?diary.sports.filter(x=>x?.kind==='supplement'||magnesiumIds.has(x?.id)||own(isolated,x?.id)||['omega3','multivitamin'].includes(x?.id)):[];
@@ -107,7 +109,7 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog,referenc
  const nutrients=MICRO_NUTRIENTS.map(n=>{
   const row=rows[n.id],reference=references[n.id];row.foodUnknown+=extras;
   const known=row.foodKnown+row.supplementKnown,unknown=row.foodUnknown+row.supplementUnknown;
-  const total=known?row.food+row.supplements:null,partial=unknown>0;
+  const total=known?row.food+row.supplements:null,partial=unknown>0||row.foodPartial>0;
   const percent=total!==null&&reference.value!==null?100*total/reference.value:null;
   const limitAmount=reference.upperScope==='supplements'?row.supplements:total;
   return {...row,total,reference,percent,partial,status:!known?'unknown':partial?'partial':'estimated',

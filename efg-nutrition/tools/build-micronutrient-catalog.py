@@ -138,10 +138,13 @@ for fid, ingredients in {'fruit_salad_basic': {'apple':.25,'banana':.25,'orange'
         'ingredientsByMass':ingredients,'perUnit':values,
         'derivationCodes':{k:'recipe_weighted' for k,v in values.items() if v is not None}}
 
+from micronutrient_completion import complete_catalog
+complete_catalog(ROOT, catalog, foods, NUTRIENTS)
+
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()
 result = {'version': 'ncc-micro-' + digest[:16], 'macroCatalogVersion': catalog['version'],
-          'basis': 'Frozen USDA exact IDs and explicitly reviewed generic food/preparation references; SARA 2 minerals',
+          'basis': 'Frozen USDA/SARA/TBCA references and explicitly documented standard recipe approximations; null means unknown',
           'foodCount': len(foods), 'foods': foods}
 output = ROOT / 'pilot/micronutrient-catalog.js'
 output.write_text('// Generated offline; missing nutrients are null, never inferred zero.\nexport const MICRONUTRIENT_CATALOG = ' +
@@ -154,5 +157,5 @@ for fid, food in sorted(catalog['foods'].items()):
     f = foods.get(fid)
     known = [key for key in NUTRIENTS if f and f['perUnit'].get(key) is not None]
     reason = None if known else ('requires_product_label' if food.get('sourceType') in ('manufacturer_web_label','etiqueta_fabricante') else 'requires_recipe_or_matching_preparation_source')
-    coverage.append({'id':fid,'name':food['name'],'known':known,'missing':[k for k in NUTRIENTS if k not in known],'status':'complete' if len(known)==8 else 'partial' if known else 'pending','blocker':reason})
+    coverage.append({'id':fid,'name':food['name'],'known':known,'missing':[k for k in NUTRIENTS if k not in known],'incomplete':f.get('incompleteNutrients',[]) if f else [],'status':'complete' if len(known)==8 and not f.get('incompleteNutrients') else 'partial' if known else 'pending','blocker':reason})
 (ROOT / 'docs/micronutrients-20261114/coverage.json').write_text(json.dumps(coverage,ensure_ascii=False,indent=2)+'\n')

@@ -2,19 +2,21 @@
   {
     "id": "abadejo_cocido",
     "name": "Abadejo cocido sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "acelga_cooked",
@@ -31,6 +33,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -49,6 +52,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -67,25 +71,28 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "alfajor_chocolate_triple",
     "name": "Alfajor triple de chocolate relleno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "alfajor_ddl",
@@ -102,6 +109,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -120,6 +128,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -138,6 +147,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -155,6 +165,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -173,6 +184,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -191,6 +203,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -209,6 +222,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -227,6 +241,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -245,14 +260,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "arcor_bon_o_bon_blanco",
     "name": "Bon o Bon blanco — bombón",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -262,14 +277,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "arcor_chocolate_aguila_familiar",
     "name": "Chocolate familiar Águila — tableta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -279,31 +297,34 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "arcor_chocolate_blanco_porcion",
     "name": "Chocolate blanco Arcor — porción justa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "arcor_chocolate_leche_porcion",
     "name": "Chocolate con leche Arcor — porción justa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -313,31 +334,34 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "arcor_mini_alfajor_aguila_chocolate",
     "name": "Mini alfajor Águila chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "arcor_saladix_jamon",
     "name": "Saladix Jamón — galletitas saladas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -347,14 +371,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "arrollado_primavera",
     "name": "Arrolladito primavera frito",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -364,8 +389,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "arroz_con_leche",
@@ -381,14 +408,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "arroz_integral_vegetables",
     "name": "Arroz integral con verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -398,8 +425,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "arroz_leche",
@@ -415,6 +446,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -433,6 +465,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -451,6 +484,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -469,6 +503,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -487,6 +522,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -504,6 +540,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -522,6 +559,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -540,6 +578,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -558,6 +597,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -576,59 +616,66 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "barrita_cereal",
     "name": "Barrita de cereal genérica",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "barrita_cereal_choco",
     "name": "Barrita de cereal y chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "barrita_chocolate_oblea",
     "name": "Barrita de chocolate con oblea",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "beans_black",
@@ -645,6 +692,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -663,6 +711,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -681,6 +730,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -699,6 +749,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -716,14 +767,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "beef_meatballs",
     "name": "Albóndigas de carne caseras con salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -733,8 +784,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "beef_tenderloin",
@@ -750,6 +805,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -768,6 +824,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -786,65 +843,71 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "berenjena_escabeche",
     "name": "Berenjenas en escabeche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "berenjenas_rellenas",
     "name": "Berenjena rellena de carne, queso y verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "besugo_cocido",
     "name": "Besugo al horno sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "bife_chorizo",
     "name": "Bife de chorizo a la plancha",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -854,42 +917,48 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "bizcocho_grasa",
     "name": "Bizcochitos de grasa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "black_bean_burger_home",
     "name": "Hamburguesa casera de porotos negros y avena, horneada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "blackberries_raw",
@@ -906,6 +975,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -924,14 +994,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "bombon_chocolate",
     "name": "Bombón de chocolate surtido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -941,25 +1011,29 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "bondiola_pork",
     "name": "Bondiola de cerdo al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brazil_nuts",
@@ -975,6 +1049,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -992,14 +1067,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "bread_glutenfree",
     "name": "Pan sin gluten genérico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1009,8 +1084,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "bread_rye",
@@ -1027,6 +1104,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1044,6 +1122,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1062,14 +1141,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "brocoli_gratinado",
     "name": "Brócoli gratinado con queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1079,42 +1158,50 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brocoli_vapor",
     "name": "Brócoli al vapor sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brotola_cocida",
     "name": "Brótola cocida al horno sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brown_rice_dry",
@@ -1130,42 +1217,47 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "brownie",
     "name": "Brownie de chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brownie_chocolate",
     "name": "Brownie de chocolate con manteca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "brownrice",
@@ -1181,6 +1273,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1199,6 +1292,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1217,31 +1311,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "budin_marmolado",
     "name": "Budín marmolado tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "budin_pan",
     "name": "Budín de pan con caramelo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1251,8 +1347,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "bulgur_cooked",
@@ -1269,6 +1369,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1287,14 +1388,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "burger_bread_cheese",
     "name": "Hamburguesa con pan y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1304,8 +1405,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "butter",
@@ -1321,6 +1426,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1339,14 +1445,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "cake",
     "name": "Budín proteico casero Edu",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1356,31 +1462,47 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "calabaza_rellena",
     "name": "Calabaza rellena con carne magra",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "calzone_jamon_queso",
     "name": "Calzone de jamón y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1390,8 +1512,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "camarones_cocidos",
@@ -1408,14 +1537,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "canelones_spinach",
     "name": "Canelones de verdura con salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1425,14 +1554,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "canelones_verdura",
     "name": "Canelones de verdura y ricota con salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1442,8 +1574,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "canola_oil",
@@ -1459,6 +1595,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1477,25 +1614,32 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "carbonada",
     "name": "Carbonada criolla",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "carrot_cooked",
@@ -1512,6 +1656,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1530,6 +1675,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1548,6 +1694,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1566,25 +1713,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "cedron_tea",
     "name": "Infusión de cedrón",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "celery",
@@ -1601,42 +1751,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "centolla_cocida",
     "name": "Centolla cocida, carne limpia",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chamomile_tea",
     "name": "Infusión de manzanilla",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chard_raw",
@@ -1653,6 +1808,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1670,6 +1826,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1688,14 +1845,14 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "cheesecake_frutos",
     "name": "Cheesecake de frutos rojos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1705,8 +1862,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "cherries",
@@ -1723,6 +1884,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1741,14 +1903,14 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "chia_pudding",
     "name": "Pudding de chía con leche descremada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1758,8 +1920,14 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chicken",
@@ -1776,6 +1944,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1793,6 +1962,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1811,6 +1981,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1828,14 +1999,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "chicken_meatballs",
     "name": "Albóndigas de pollo al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -1845,8 +2016,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chicken_noodle_soup_diluted",
@@ -1863,6 +2038,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1881,6 +2057,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1899,6 +2076,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -1916,6 +2094,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -1934,42 +2113,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "chickpea_omelette_home",
     "name": "Tortilla de harina de garbanzo, cocida con aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chickpea_pasta_dry_generic",
     "name": "Pasta seca de garbanzos, sin salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chickpeas_canned_drained",
@@ -1986,6 +2170,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2004,6 +2189,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2022,6 +2208,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2040,14 +2227,14 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "chipa",
     "name": "Chipá tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2057,8 +2244,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "choclo_hervido",
@@ -2075,6 +2266,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2093,6 +2285,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2110,6 +2303,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -2128,6 +2322,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2145,6 +2340,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -2162,6 +2358,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -2180,14 +2377,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "chocolate_relleno_ddl",
     "name": "Chocolate relleno de dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2197,14 +2394,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chocotorta",
     "name": "Chocotorta con queso crema y dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2214,14 +2417,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "choripan",
     "name": "Choripán con pan francés",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2231,8 +2440,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chorizo_cooked",
@@ -2249,25 +2462,28 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "chupetin_dulce",
     "name": "Chupetín azucarado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "cocoa_unsweetened",
@@ -2284,6 +2500,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2301,14 +2518,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "coffee_black",
     "name": "Café solo sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2318,14 +2535,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "coffee_cortado",
     "name": "Café cortado (personalizable)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2335,14 +2553,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "coffee_decaf",
     "name": "Café descafeinado solo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2352,14 +2571,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "coffee_milk",
     "name": "Café con leche (personalizable)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2369,31 +2589,34 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "coliflor_vapor",
     "name": "Coliflor al vapor sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "colonial_chocolate_organico_80_cacao",
     "name": "Chocolate Colonial orgánico 80% cacao — tableta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2403,8 +2626,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "corn_cooked",
@@ -2421,25 +2646,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "corn_flakes",
     "name": "Copos de maíz sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "corn_tortilla_ready",
@@ -2456,25 +2684,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "corvina_cocida",
     "name": "Corvina cocida al horno sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "cottage_cheese",
@@ -2491,6 +2722,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2509,6 +2741,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2527,6 +2760,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2544,6 +2778,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -2561,25 +2796,28 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "crema_chantilly",
     "name": "Crema chantilly azucarada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "cucumber",
@@ -2596,6 +2834,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2614,6 +2853,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2632,6 +2872,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2650,6 +2891,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2668,6 +2910,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2685,6 +2928,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -2703,6 +2947,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2721,6 +2966,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2739,6 +2985,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2757,6 +3004,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -2775,14 +3023,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "empanada_atun_horno",
     "name": "Empanada de atún al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2792,14 +3040,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_beef_baked",
     "name": "Empanada de carne al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2809,14 +3061,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_beef_fried",
     "name": "Empanada de carne frita",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2826,14 +3082,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_caprese",
     "name": "Empanada caprese al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2843,14 +3103,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_carne_horno_extra",
     "name": "Empanada de carne al horno, tamaño grande",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2860,14 +3124,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_chicken_baked",
     "name": "Empanada de pollo al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2877,14 +3145,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_corn",
     "name": "Empanada de humita al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2894,14 +3166,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_ham_cheese",
     "name": "Empanada de jamón y queso al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2911,14 +3187,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_humita_horno",
     "name": "Empanada de humita al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2928,14 +3210,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_jamon_queso_horno",
     "name": "Empanada de jamón y queso al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2945,14 +3231,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_tuna",
     "name": "Empanada de atún al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2962,14 +3254,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_vegetable",
     "name": "Empanada de verdura al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2979,14 +3275,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "empanada_verdura_horno",
     "name": "Empanada de espinaca y queso al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2996,31 +3296,37 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_caprese",
     "name": "Ensalada caprese con mozzarella",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_cesar",
     "name": "Ensalada César con pollo y aderezo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3030,65 +3336,74 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_legumbres",
     "name": "Ensalada de lentejas con verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_mixta_aceite",
     "name": "Ensalada mixta con aceite de oliva incluido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_papa_huevo",
     "name": "Ensalada de papa y huevo sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_rusa",
     "name": "Ensalada rusa con mayonesa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3098,14 +3413,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_rusa_mayonesa",
     "name": "Ensalada rusa con mayonesa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3115,31 +3433,36 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ensalada_verduras",
     "name": "Ensalada mixta sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "entrania_beef",
     "name": "Entraña vacuna asada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3149,8 +3472,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "escarole_boiled_unsalted",
@@ -3167,6 +3492,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3185,59 +3511,70 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "factura_bola_fraile",
     "name": "Bola de fraile rellena de dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "factura_churro_relleno",
     "name": "Churro relleno de dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "factura_cream",
     "name": "Factura con crema pastelera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "factura_donut",
@@ -3253,25 +3590,28 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "factura_dulce",
     "name": "Factura con dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "factura_medialuna_manteca",
@@ -3288,76 +3628,85 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "factura_vigilante",
     "name": "Factura vigilante azucarada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "faina",
     "name": "Fainá",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "faina_tradicional",
     "name": "Fainá de harina de garbanzo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "falafel_baked",
     "name": "Falafel al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "fava_beans_cooked",
@@ -3374,6 +3723,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3392,6 +3742,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3410,6 +3761,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3428,6 +3780,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3446,25 +3799,28 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "fish_mackerel",
     "name": "Caballa al natural escurrida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "fish_salmon",
@@ -3481,25 +3837,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "fish_sardines",
     "name": "Sardinas al natural escurridas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "fish_shrimp",
@@ -3516,59 +3875,70 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "flan_caramel",
     "name": "Flan casero con caramelo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "flan_dulce_leche",
     "name": "Flan con dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "flan_huevo_caramelo",
     "name": "Flan casero de huevo con caramelo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "flaxseed",
@@ -3585,6 +3955,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3603,6 +3974,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3620,6 +3992,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -3637,6 +4010,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -3654,6 +4028,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -3672,6 +4047,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3689,6 +4065,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -3707,6 +4084,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3725,6 +4103,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3743,31 +4122,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "gnocchi_potato",
     "name": "Ñoquis de papa cocidos sin salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "gnocchi_ricotta",
     "name": "Ñoquis de ricota cocidos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3777,42 +4158,50 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "gomitas_acidas",
     "name": "Gomitas ácidas azucaradas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "gomitas_frutales",
     "name": "Gomitas frutales con azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "granola",
@@ -3829,6 +4218,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3847,6 +4237,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3865,6 +4256,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3883,6 +4275,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3901,25 +4294,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "grisines",
     "name": "Grisines",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ground_beef_90_10_raw",
@@ -3935,6 +4331,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -3953,6 +4350,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -3971,31 +4369,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "guiso_lentils",
     "name": "Guiso de lentejas con verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "guiso_noodles",
     "name": "Guiso de fideos con carne",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4005,25 +4405,38 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "guiso_rice",
     "name": "Guiso de arroz con carne",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ham_cooked",
@@ -4040,14 +4453,14 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "hamburguesa_completa",
     "name": "Hamburguesa completa con pan, queso y vegetales",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4057,14 +4470,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "hamburguesa_doble",
     "name": "Hamburguesa doble carne, pan y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4074,8 +4490,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "hazelnuts",
@@ -4092,31 +4512,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "helado_agua",
     "name": "Helado de agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_banana_split",
     "name": "Helado banana split con salsa y crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4126,8 +4548,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_chocolate",
@@ -4144,25 +4573,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "helado_crema",
     "name": "Helado de crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_crema_americana",
@@ -4179,42 +4611,51 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "helado_dulce_leche",
     "name": "Helado de dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_frutilla_agua",
     "name": "Helado de frutilla al agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_frutilla_crema",
@@ -4231,14 +4672,14 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "helado_granizado",
     "name": "Helado granizado con chips de chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4248,31 +4689,36 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_limon_agua",
     "name": "Helado de limón al agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_mascarpone_frutos",
     "name": "Helado de mascarpone y frutos rojos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4282,48 +4728,56 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_palito_agua",
     "name": "Helado palito de agua sabor fruta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_palito_crema",
     "name": "Helado palito de crema bañado chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_pistacho",
     "name": "Helado de pistacho",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4333,14 +4787,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "helado_tramontana",
     "name": "Helado tramontana con dulce de leche y chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4350,25 +4808,34 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "herbal_tea",
     "name": "Infusión de hierbas (manzanilla, tilo, menta, etc.)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "homemade_burger",
@@ -4385,6 +4852,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4403,14 +4871,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "hotdog",
     "name": "Pancho con salchicha",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4420,8 +4888,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "huevo_frito",
@@ -4438,25 +4908,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "huevo_frito_fritolim",
     "name": "Huevo frito con Fritolín / Fritolim (rocío vegetal mínimo)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "hummus",
@@ -4473,6 +4946,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4491,6 +4965,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4509,6 +4984,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4527,14 +5003,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "kefir",
     "name": "Kéfir natural",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4544,8 +5020,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "kidney_beef_grilled",
@@ -4562,6 +5040,7 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4580,14 +5059,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "lasagna_beef",
     "name": "Lasaña de carne casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4597,14 +5076,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lasaña_bolognesa",
     "name": "Lasaña de carne con salsa blanca y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4614,8 +5096,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lean_ground_beef",
@@ -4632,6 +5118,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4650,6 +5137,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4668,6 +5156,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4685,6 +5174,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -4703,6 +5193,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4721,42 +5212,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "lentil_burger",
     "name": "Hamburguesa casera de lentejas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lentil_pasta_dry_generic",
     "name": "Pasta seca de lentejas, sin salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lentils_cooked",
@@ -4773,25 +5269,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "lentils_red_cooked",
     "name": "Lentejas rojas cocidas, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lettuce",
@@ -4808,6 +5307,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4826,14 +5326,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "locro",
     "name": "Locro criollo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4843,14 +5343,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lomito_sandwich",
     "name": "Lomito completo en sándwich",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -4860,8 +5366,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "lupines_cooked",
@@ -4878,6 +5391,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4896,6 +5410,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4914,6 +5429,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4932,6 +5448,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -4950,42 +5467,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mani_chocolate",
     "name": "Maní bañado en chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mani_garrapinado",
     "name": "Maní garrapiñado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "matambre_beef",
@@ -5002,59 +5524,66 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mate_cocido",
     "name": "Mate cocido sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mate_cocido_milk",
     "name": "Mate cocido con leche (personalizable)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mate_plain",
     "name": "Mate cebado sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mayonnaise",
@@ -5070,14 +5599,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "medallon_cerdo_rebozado",
     "name": "Medallón de cerdo rebozado, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5087,14 +5616,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_cerdo_simple",
     "name": "Medallón de cerdo sin rebozar, a la plancha (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5104,14 +5636,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "medallon_cerdo_vegetales",
     "name": "Medallón de cerdo con vegetales sin rebozar (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5121,14 +5654,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_pescado_rebozado",
     "name": "Medallón de pescado rebozado, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5138,48 +5674,56 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_pescado_simple",
     "name": "Medallón de pescado sin rebozar, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_pollo_espinaca",
     "name": "Medallón de pollo con espinaca sin rebozar (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_pollo_rebozado",
     "name": "Medallón de pollo rebozado, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5189,42 +5733,50 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_pollo_simple",
     "name": "Medallón de pollo sin rebozar, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medallon_salmon_simple",
     "name": "Medallón de salmón sin rebozar, al horno (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medialuna_butter",
@@ -5241,25 +5793,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "medialuna_fat",
     "name": "Medialuna de grasa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mejillones_cocidos",
@@ -5276,6 +5831,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5294,6 +5850,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5312,6 +5869,7 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5330,14 +5888,14 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "merluza_rebozada",
     "name": "Merluza rebozada al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5347,8 +5905,13 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mermelada_azucar",
@@ -5365,25 +5928,28 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mermelada_sugarfree",
     "name": "Mermelada sin azúcar agregado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mero_cocido",
@@ -5400,6 +5966,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5418,14 +5985,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "milanesa_beef_baked",
     "name": "Milanesa de carne al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5435,14 +6002,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_beef_fried",
     "name": "Milanesa de carne frita",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5452,14 +6025,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_chicken_baked",
     "name": "Milanesa de pollo al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5469,14 +6048,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_chicken_fried",
     "name": "Milanesa de pollo frita",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5486,14 +6068,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_eggplant_baked",
     "name": "Milanesa de berenjena al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5503,14 +6088,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_napo_beef",
     "name": "Milanesa de carne napolitana al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5520,14 +6108,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_napo_chicken",
     "name": "Milanesa de pollo napolitana al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5537,14 +6131,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_soy_baked",
     "name": "Milanesa de soja al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5554,14 +6154,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milanesa_soy_gobinda",
     "name": "Milanesa de soja Gobinda - simple (marca sugerida)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5571,31 +6175,37 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_product_label"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk",
     "name": "Leche Protein descremada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk_almond_unsweet",
     "name": "Bebida de almendras sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5605,14 +6215,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "milk_coconut_unsweet",
     "name": "Bebida de coco sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5622,8 +6233,13 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk_condensed_sweetened",
@@ -5640,6 +6256,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5658,42 +6275,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "milk_lactosefree",
     "name": "Leche descremada sin lactosa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk_oat_unsweet",
     "name": "Bebida de avena sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk_powder_skim_instant",
@@ -5710,6 +6332,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5728,6 +6351,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5746,25 +6370,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "milk_soy_unsweet",
     "name": "Bebida de soja sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
+      "b12"
+    ],
+    "missing": [
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "milk_whole",
@@ -5781,6 +6408,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5799,6 +6427,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5817,6 +6446,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5835,25 +6465,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mint_tea",
     "name": "Infusión de menta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mixed_nuts",
@@ -5870,14 +6503,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mondongo",
     "name": "Guiso de mondongo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5887,8 +6520,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "morcilla_cooked",
@@ -5905,6 +6542,7 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5923,25 +6561,28 @@
       "b12",
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "mousse_chocolate",
     "name": "Mousse de chocolate con crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mozzarella",
@@ -5958,6 +6599,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5976,6 +6618,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -5994,6 +6637,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6012,6 +6656,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6029,6 +6674,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6047,25 +6693,28 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "naranja_azucarada_cascara_confitada_granel",
     "name": "Naranja azucarada — cáscara de naranja confitada en tiras (a granel)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "nectarine_raw",
@@ -6082,6 +6731,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6100,6 +6750,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6117,14 +6768,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "noquis_papa_salsa",
     "name": "Ñoquis de papa con salsa de tomate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6134,14 +6785,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "nuggets_pollo_fritos",
     "name": "Nuggets de pollo fritos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6151,8 +6806,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "oat_bran_raw",
@@ -6169,6 +6826,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6187,6 +6845,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6204,6 +6863,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6222,6 +6882,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6240,6 +6901,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6258,25 +6920,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "omelette_cheese",
     "name": "Omelette de huevo con queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "onion",
@@ -6293,6 +6958,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6311,6 +6977,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6329,6 +6996,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6347,6 +7015,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6365,6 +7034,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6383,6 +7053,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6401,6 +7072,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6419,6 +7091,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6437,6 +7110,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6455,6 +7129,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6472,6 +7147,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6490,6 +7166,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6508,6 +7185,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6526,31 +7204,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "pancakes_oat",
     "name": "Panqueques de avena caseros",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pancho_completo",
     "name": "Pancho con pan, salchicha y aderezos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6560,14 +7240,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "panqueque_dulce",
     "name": "Panqueques con dulce de leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6577,14 +7260,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "papas_bravas",
     "name": "Papas bravas con salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6594,25 +7283,31 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "papas_fritas",
     "name": "Papas fritas tradicionales",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "papaya",
@@ -6629,6 +7324,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6646,6 +7342,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6664,6 +7361,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6681,14 +7379,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "pasta_bolognese",
     "name": "Fideos con salsa boloñesa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6698,14 +7396,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pasta_cream",
     "name": "Fideos con salsa crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6715,8 +7416,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "pasta_dry",
@@ -6732,14 +7435,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "pasta_tomato_sauce",
     "name": "Fideos con salsa de tomate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6749,14 +7452,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pastafrola_membrillo",
     "name": "Pastafrola de dulce de membrillo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6766,31 +7472,43 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pastel_calabaza",
     "name": "Pastel de calabaza con carne",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pastel_papa",
     "name": "Pastel de papas con carne",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6800,25 +7518,31 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pastillas_menta",
     "name": "Pastillas de menta con azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "peach",
@@ -6835,6 +7559,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6853,6 +7578,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6870,6 +7596,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6887,6 +7614,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -6905,6 +7633,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6923,6 +7652,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6941,6 +7671,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6959,6 +7690,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6977,6 +7709,7 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -6995,6 +7728,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7013,6 +7747,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7031,6 +7766,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7049,6 +7785,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7067,14 +7804,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "pizza_calabresa",
     "name": "Pizza con calabresa y muzzarella",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7084,14 +7821,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_cuatro_quesos",
     "name": "Pizza cuatro quesos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7101,14 +7842,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_fugazza",
     "name": "Fugazza de cebolla sin queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7118,14 +7865,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_fugazzeta",
     "name": "Pizza fugazzeta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7135,14 +7886,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_hawaiana",
     "name": "Pizza con jamón y ananá",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7152,14 +7907,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_integral_veggie",
     "name": "Pizza integral de verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7169,14 +7930,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_jamon",
     "name": "Pizza de jamón y muzzarella",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7186,14 +7950,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_jamon_morron",
     "name": "Pizza de jamón y morrones",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7203,14 +7973,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_jamon_morrones",
     "name": "Pizza de jamón, morrones y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7220,14 +7996,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_margarita",
     "name": "Pizza margarita, queso y tomate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7237,14 +8019,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_muzzarella",
     "name": "Pizza de muzzarella",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7254,14 +8040,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_napolitana",
     "name": "Pizza napolitana",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7271,14 +8061,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_roquefort",
     "name": "Pizza de roquefort y muzzarella",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7288,14 +8082,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_rucula_jamon",
     "name": "Pizza de rúcula y jamón crudo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7305,14 +8103,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pizza_vegana",
     "name": "Pizza de vegetales sin queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7322,8 +8124,13 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "plum",
@@ -7340,6 +8147,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7358,42 +8166,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "polenta_cooked",
     "name": "Polenta cocida con agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pollo_estofado",
     "name": "Pollo estofado con verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pollo_grill",
@@ -7409,25 +8222,28 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "pollo_wok",
     "name": "Pollo al wok con vegetales",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pomegranate",
@@ -7444,6 +8260,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7461,6 +8278,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -7478,6 +8296,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -7495,6 +8314,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -7512,6 +8332,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -7530,6 +8351,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7548,42 +8370,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "potato_fried",
     "name": "Papas fritas caseras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "potato_oven_oil",
     "name": "Papas al horno con aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "potato_salad_home",
@@ -7600,14 +8427,14 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "protein_bar_generic",
     "name": "Barra proteica genérica",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7617,14 +8444,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "protein_pasta",
     "name": "Fideos proteicos cocidos (estimación)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7634,8 +8464,13 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "provolone",
@@ -7652,6 +8487,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7670,25 +8506,32 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "puchero",
     "name": "Puchero de carne y verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pulpo_cocido",
@@ -7705,6 +8548,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7723,6 +8567,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7740,31 +8585,37 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "pure_mixed",
     "name": "Puré mixto de papa y calabaza",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pure_potato",
     "name": "Puré de papas con leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7774,8 +8625,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pure_pumpkin",
@@ -7792,6 +8647,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7810,6 +8666,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7828,6 +8685,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7846,6 +8704,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7864,6 +8723,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7882,6 +8742,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7900,6 +8761,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7918,6 +8780,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -7936,42 +8799,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "quinoa_inflada_pop_granel",
     "name": "Quinoa inflada (quinoa pop) — a granel",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rabas_rebozadas_fritas",
     "name": "Rabas de calamar rebozadas fritas (genérico)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rabbit_roasted",
@@ -7988,6 +8856,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8006,6 +8875,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8024,6 +8894,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8041,6 +8912,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -8058,6 +8930,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -8076,14 +8949,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "ravioles_ricota",
     "name": "Ravioles de ricota cocidos con salsa de tomate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8093,14 +8966,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ravioles_ricotta",
     "name": "Ravioles de ricota cocidos sin salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8110,14 +8986,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "ravioles_verdura",
     "name": "Ravioles de verdura cocidos sin salsa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8127,8 +9004,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "red_cabbage_raw",
@@ -8145,6 +9026,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8163,6 +9045,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8181,6 +9064,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8199,6 +9083,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8217,6 +9102,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8235,25 +9121,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "rice_chicken",
     "name": "Arroz con pollo casero",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rice_dry",
@@ -8270,25 +9159,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "rice_vegetables",
     "name": "Arroz con verduras casero",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ricotta_light",
@@ -8305,6 +9197,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8322,14 +9215,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "risotto_hongos",
     "name": "Risotto de hongos y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8339,14 +9232,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "roast_beef_cooked",
     "name": "Roast beef vacuno cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8356,25 +9252,29 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "roasted_chickpeas_no_oil",
     "name": "Garbanzos tostados al horno sin aceite añadido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rocket",
@@ -8391,14 +9291,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "salsa_blanca",
     "name": "Salsa blanca casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8408,48 +9308,55 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "salsa_bolognesa",
     "name": "Salsa boloñesa casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "salsa_fileto",
     "name": "Salsa fileto casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_chicken",
     "name": "Sándwich de pollo casero",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8459,14 +9366,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_miga_ham_cheese",
     "name": "Sándwich de miga de jamón y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8476,14 +9386,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_mila_beef",
     "name": "Sándwich de milanesa de carne",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8493,14 +9409,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_mila_chicken",
     "name": "Sándwich de milanesa de pollo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8510,14 +9432,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_milanesa",
     "name": "Sándwich de milanesa con lechuga y tomate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8527,14 +9452,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sandwich_tuna",
     "name": "Sándwich de atún casero",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8544,8 +9475,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sardines_oil_drained",
@@ -8562,6 +9497,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8580,42 +9516,47 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "scrambled_eggs",
     "name": "Huevos revueltos con poco aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "seitan_cooked",
     "name": "Seitán cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "semolina_dry_unenriched",
@@ -8632,6 +9573,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8650,6 +9592,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8668,6 +9611,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8686,65 +9630,79 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "soda_zero",
     "name": "Gaseosa zero",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sopa_pumpkin",
     "name": "Sopa de calabaza sin crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sopa_vegetables",
     "name": "Sopa casera de verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sorrentinos_ham_cheese",
     "name": "Sorrentinos de jamón y queso cocidos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8754,8 +9712,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_beans_cooked",
@@ -8772,31 +9737,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "soy_textured_dry",
     "name": "Soja texturizada seca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_textured_hydrated",
     "name": "Soja texturizada rehidratada con agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8806,14 +9773,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_tvp_burger_home",
     "name": "Hamburguesa casera de soja texturizada rehidratada, horneada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8823,14 +9794,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_tvp_meatballs_home",
     "name": "Albóndigas veganas de soja texturizada, horneadas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8840,25 +9815,32 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_yogurt_plain_generic",
     "name": "Yogur de soja natural sin azúcar, genérico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "spinach_cooked",
@@ -8875,6 +9857,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8893,25 +9876,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "squid_cooked",
     "name": "Calamar cocido sin rebozar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "squid_raw",
@@ -8928,6 +9914,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8946,6 +9933,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8964,6 +9952,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -8982,6 +9971,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9000,14 +9990,14 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "sushi_california",
     "name": "Sushi California roll, arroz y kanikama",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9017,14 +10007,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_ebi",
     "name": "Sushi ebi roll de langostino",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9034,14 +10034,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_gunkan",
     "name": "Gunkan de atún picante, arroz y alga",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9051,14 +10061,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_hot_roll",
     "name": "Sushi hot roll rebozado y frito",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9068,14 +10088,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_maki_atun",
     "name": "Sushi maki de atún y arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9085,14 +10115,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_maki_salmon",
     "name": "Sushi maki de salmón y arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9102,14 +10142,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_maki_vegetal",
     "name": "Sushi maki vegetariano con arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9119,14 +10169,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_nigiri_atun",
     "name": "Nigiri de atún con arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9136,31 +10196,36 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_nigiri_langostino",
     "name": "Nigiri de langostino con arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_nigiri_salmon",
     "name": "Nigiri de salmón con arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9170,14 +10235,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_philadelphia",
     "name": "Sushi Philadelphia roll, salmón y queso crema",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9187,8 +10255,19 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_sashimi_atun",
@@ -9204,6 +10283,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -9221,14 +10301,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "sushi_spicy_tuna",
     "name": "Sushi spicy tuna roll con mayonesa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9238,14 +10318,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_temaki_salmon",
     "name": "Temaki de salmón, arroz y palta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9255,14 +10345,24 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_uramaki_palta",
     "name": "Uramaki de salmón y palta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9272,8 +10372,19 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "magnesium",
+      "calcium",
+      "iron",
+      "zinc",
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sweetbreads_beef_grilled",
@@ -9290,6 +10401,7 @@
     "missing": [
       "b12"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9308,6 +10420,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9326,6 +10439,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9344,48 +10458,52 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "tapa_empanada",
     "name": "Tapa de empanada al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tapa_tarta",
     "name": "Masa para tarta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_atun_horno",
     "name": "Tarta de atún con huevo, cebolla y masa, al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9395,14 +10513,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_atun_light",
     "name": "Tarta de atún sin tapa superior, al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9412,14 +10534,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_brocoli",
     "name": "Tarta de brócoli y ricota, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9429,14 +10555,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_calabaza",
     "name": "Tarta de calabaza y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9446,14 +10576,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_chicken",
     "name": "Tarta de pollo casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9463,14 +10599,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_choclo",
     "name": "Tarta de choclo y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9480,14 +10620,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_ham_cheese",
     "name": "Tarta de jamón y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9497,14 +10641,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_jamon_queso",
     "name": "Tarta de jamón y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9514,14 +10664,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_pollo",
     "name": "Tarta de pollo y verduras, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9531,14 +10687,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_puerro",
     "name": "Tarta de puerro y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9548,14 +10708,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_pumpkin",
     "name": "Tarta de calabaza",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9565,14 +10729,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_spinach",
     "name": "Tarta de acelga o espinaca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9582,14 +10752,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_tuna",
     "name": "Tarta de atún",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9599,14 +10773,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_vegetable",
     "name": "Tarta de verduras mixta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9616,14 +10794,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_verdura_acelga",
     "name": "Tarta de acelga, huevo y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9633,14 +10815,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_verdura_espinaca",
     "name": "Tarta de espinaca, ricota y queso, con masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9650,14 +10836,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_zapallito",
     "name": "Tarta de zapallito con queso y masa",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9667,14 +10857,18 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tarta_zucchini",
     "name": "Tarta de zapallitos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9684,59 +10878,70 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tea_green",
     "name": "Té verde sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tea_milk",
     "name": "Té con leche (personalizable)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tea_plain",
     "name": "Té negro sin azúcar",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tempeh",
@@ -9753,6 +10958,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9770,31 +10976,33 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "tilo_tea",
     "name": "Infusión de tilo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tiramisu",
     "name": "Tiramisú clásico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9804,14 +11012,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "toast_glutenfree",
     "name": "Tostadas sin gluten genéricas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9821,8 +11032,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "toast_whole",
@@ -9839,76 +11052,88 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "tofu_ahumado_generic",
     "name": "Tofu ahumado, sin aceite añadido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tofu_firm",
     "name": "Tofu firme",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tofu_scramble_no_oil",
     "name": "Revuelto de tofu con verduras, sin aceite añadido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tofu_sedoso_generic",
     "name": "Tofu sedoso natural",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tomato",
@@ -9925,6 +11150,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9943,6 +11169,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -9960,14 +11187,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "torta_manzana",
     "name": "Torta de manzana casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9977,14 +11204,17 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "torta_ricota",
     "name": "Torta de ricota tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9994,42 +11224,51 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tortilla_potato",
     "name": "Tortilla de papas casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tortilla_spinach",
     "name": "Tortilla de espinaca casera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tortilla_wheat",
@@ -10045,14 +11284,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "tostada_pan_miga",
     "name": "Tostada de pan de miga",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10062,14 +11301,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "tostado_ham_cheese",
     "name": "Tostado de jamón y queso",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10079,14 +11319,20 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tostado_jamon_queso",
     "name": "Tostado de jamón y queso con pan de miga",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10096,8 +11342,15 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "trucha_cocida",
@@ -10114,6 +11367,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10131,6 +11385,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -10149,6 +11404,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10167,6 +11423,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10184,6 +11441,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -10201,6 +11459,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -10219,25 +11478,28 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "turron_mani",
     "name": "Turrón de maní azucarado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "vacio_beef",
@@ -10254,6 +11516,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10272,42 +11535,51 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "vegetable_cream_soup",
     "name": "Sopa crema de verduras con leche",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [
+      "b12",
+      "epa",
+      "dha"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "vegetable_wok",
     "name": "Vegetales al wok con poco aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "vieiras_cocidas",
@@ -10324,6 +11596,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10342,6 +11615,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10360,6 +11634,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10378,31 +11653,33 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "whey_powder",
     "name": "Proteína whey en polvo (1 scoop = 30 g, genérica)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "wrap_chicken",
     "name": "Wrap de pollo y verduras",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10412,8 +11689,12 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "yamani_rice_cooked",
@@ -10430,31 +11711,33 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "yogur_descremado_fruta",
     "name": "Yogur descremado sabor fruta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "yogur_frutilla_entero",
     "name": "Yogur entero sabor frutilla",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10464,8 +11747,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "yogurt",
@@ -10482,6 +11767,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10499,6 +11785,7 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
@@ -10516,14 +11803,14 @@
       "dha"
     ],
     "missing": [],
+    "incomplete": [],
     "status": "complete",
     "blocker": null
   },
   {
     "id": "yogurt_high_protein",
     "name": "Yogur proteico natural genérico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10533,8 +11820,10 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "incomplete": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "yogurt_whole",
@@ -10551,6 +11840,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10569,6 +11859,7 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10587,6 +11878,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10605,42 +11897,47 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "zapallito_relleno_carne",
     "name": "Zapallito relleno con carne y arroz, al horno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallo_anco_hervido",
     "name": "Zapallo anco hervido, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallo_anco_horno",
@@ -10657,42 +11954,47 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "zapallo_cabutia_hervido",
     "name": "Zapallo cabutiá hervido, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallo_cabutia_horno",
     "name": "Zapallo cabutiá al horno, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "zapallo_criollo_hervido",
@@ -10709,6 +12011,7 @@
       "epa",
       "dha"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
@@ -10727,24 +12030,27 @@
     "missing": [
       "ala"
     ],
+    "incomplete": [],
     "status": "partial",
     "blocker": null
   },
   {
     "id": "zucchini_plancha",
     "name": "Zucchini a la plancha sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "incomplete": [],
+    "status": "partial",
+    "blocker": null
   }
 ]

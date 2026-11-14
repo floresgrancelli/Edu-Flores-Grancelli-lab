@@ -78,10 +78,13 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
   const block=page.locator('.ncc-micronutrients').first();
   assert.doesNotMatch(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-value').textContent(),/Sin datos/);
   if(partial)assert.match(await block.locator('[data-micronutrient='+nutrient+'] .ncc-micro-progress').textContent(),/parcial/);
-  await block.locator('.ncc-micro-expand > summary').click();
+  const outer=block.locator('.ncc-micro-expand');
+  if(await outer.getAttribute('open')===null)await outer.locator(':scope > summary').click();
   const detail=block.locator('[data-micro-detail='+nutrient+']');
-  await detail.locator('.ncc-micro-sources > summary').click();
-  await detail.locator('.ncc-micro-sources details > summary').first().click();
+  const sources=detail.locator('.ncc-micro-sources');
+  if(await sources.getAttribute('open')===null)await sources.locator(':scope > summary').click();
+  const provenance=sources.locator('details').first();
+  if(await provenance.getAttribute('open')===null)await provenance.locator(':scope > summary').click();
   if(id.startsWith('arcor'))assert.match(await detail.textContent(),/NO RÓTULO/);
   await detail.screenshot({path:resolve(out,engine+'-'+width+'-full-'+id+'.png')});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);

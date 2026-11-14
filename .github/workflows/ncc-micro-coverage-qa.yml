@@ -1,7 +1,7 @@
 name: NCC micronutrient coverage QA
 on:
   push:
-    branches: [work/ncc-micronutrient-coverage-20261114, work/ncc-micro-next-20261114, work/ncc-micro-fifth-20261114]
+    branches: [work/ncc-micronutrient-coverage-20261114, work/ncc-micro-next-20261114, work/ncc-micro-fifth-20261114, work/ncc-geomagnesium-20261114]
 permissions:
   contents: read
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - run: |
           python efg-nutrition/tools/build-micronutrient-catalog.py
           git diff --exit-code -- efg-nutrition/pilot/micronutrient-catalog.js efg-nutrition/docs/micronutrients-20261114/coverage.json
-          node --test efg-nutrition/tests/micronutrient-coverage.test.mjs efg-nutrition/tests/micronutrients.test.mjs
+          node --test efg-nutrition/tests/micronutrient-coverage.test.mjs efg-nutrition/tests/micronutrients.test.mjs efg-nutrition/tests/geomagnesium.test.mjs
           node efg-nutrition/tests/approved-release-flags.mjs
       - run: |
           sudo install -d -m 0777 /workspace

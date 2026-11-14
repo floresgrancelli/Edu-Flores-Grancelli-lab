@@ -17,7 +17,7 @@ const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,218);
+ assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,243);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -47,4 +47,23 @@ test('all six achuras have mineral data; uncertain B12 stays null; recipe propag
 });
 test('unknown branded product remains unknown, never inferred from common milk',()=>{
  assert.equal(c.foods.milk,undefined);const n=totals([{id:'milk',qty:200,unit:'ml'}]).find(n=>n.id==='iron');assert.equal(n.total,null);
+});
+
+test('second batch preserves all 218 prior compositions and scales all 25 reviewed foods',()=>{
+ const priorText=execFileSync('git',['show','6e9dcbc3da4025ceb12ee8e324b929714af429d3:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const baseline=JSON.parse(priorText.slice(priorText.indexOf('= ')+2).replace(/;\s*$/,''));
+ for(const [id,f]of Object.entries(baseline.foods)) assert.deepEqual(c.foods[id].perUnit,f.perUnit,id);
+ const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-two.json',import.meta.url)));
+ assert.equal(Object.keys(batch).length,25);
+ const identities={magnesium:[1090,1],calcium:[1087,1],iron:[1089,1],zinc:[1095,1],b12:[1178,1],ala:[1404,1],epa:[1278,1000],dha:[1272,1000]};
+ for(const [id,fdc]of Object.entries(batch)){
+  assert.equal(c.foods[id].sourceId,String(fdc));
+  for(const [key,[nutrient,scale]]of Object.entries(identities)){
+   const original=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
+   if(!original){assert.equal(c.foods[id].perUnit[key],null);continue;}
+   assert.ok(Math.abs(c.foods[id].perUnit[key]-original.amount*scale/100)<1e-9,id+':'+key);
+  }
+  const result=totals([entry(id,75)]).find(n=>n.id==='iron');
+  assert.ok(Math.abs(result.food-c.foods[id].perUnit.iron*75)<1e-9,id);
+ }
 });

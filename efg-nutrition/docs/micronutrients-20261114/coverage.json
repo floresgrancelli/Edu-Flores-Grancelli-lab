@@ -176,19 +176,20 @@
   {
     "id": "anchovies_canned",
     "name": "Anchoas en conserva escurridas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "apple",
@@ -1878,19 +1879,20 @@
   {
     "id": "chicken_roasted",
     "name": "Pollo al horno con piel",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chicken_thigh_cooked",
@@ -1912,19 +1914,20 @@
   {
     "id": "chickpea_flour",
     "name": "Harina de garbanzo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "chickpea_omelette_home",
@@ -2398,19 +2401,20 @@
   {
     "id": "corn_cooked",
     "name": "Choclo cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "corn_flakes",
@@ -4402,19 +4406,20 @@
   {
     "id": "huevo_frito",
     "name": "Huevo frito con aceite (aceite estimado incluido)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "huevo_frito_fritolim",
@@ -4487,19 +4492,20 @@
   {
     "id": "kale",
     "name": "Kale o col rizada",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "kefir",
@@ -5927,19 +5933,20 @@
   {
     "id": "mung_beans_cooked",
     "name": "Porotos mung cocidos, sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "mushrooms",
@@ -6153,8 +6160,7 @@
   {
     "id": "oatmeal_cooked",
     "name": "Avena cocida con agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6164,8 +6170,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "oats_raw",
@@ -6206,19 +6213,20 @@
   {
     "id": "olives",
     "name": "Aceitunas verdes",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "omelette_cheese",
@@ -6294,19 +6302,20 @@
   {
     "id": "pallares_cooked",
     "name": "Porotos pallares cocidos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "palomitas_dulces",
@@ -7589,36 +7598,38 @@
   {
     "id": "provolone",
     "name": "Queso provolone",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "prunes",
     "name": "Ciruelas pasas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "puchero",
@@ -7675,8 +7686,7 @@
   {
     "id": "pumpkin_seeds",
     "name": "Semillas de zapallo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -7686,8 +7696,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "pure_mixed",
@@ -7863,19 +7874,20 @@
   {
     "id": "quinoa_dry",
     "name": "Quinoa seca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "quinoa_inflada_pop_granel",
@@ -7950,19 +7962,20 @@
   {
     "id": "radish",
     "name": "Rabanitos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rainbow_trout_raw",
@@ -8124,19 +8137,20 @@
   {
     "id": "repollo_cooked",
     "name": "Repollo cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rice",
@@ -8227,25 +8241,25 @@
   {
     "id": "ricotta_light",
     "name": "Ricota magra",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "ricotta_whole",
     "name": "Ricota entera",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -8255,8 +8269,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "risotto_hongos",
@@ -8312,19 +8327,20 @@
   {
     "id": "rocket",
     "name": "Rúcula",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "salsa_blanca",
@@ -8500,19 +8516,20 @@
   {
     "id": "scallion",
     "name": "Cebolla de verdeo",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "scrambled_eggs",
@@ -8691,19 +8708,20 @@
   {
     "id": "soy_beans_cooked",
     "name": "Porotos de soja cocidos",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "soy_textured_dry",
@@ -8918,19 +8936,20 @@
   {
     "id": "sunflower_seeds",
     "name": "Semillas de girasol",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "sushi_california",
@@ -10048,8 +10067,7 @@
   {
     "id": "tuna",
     "name": "Atún al natural escurrido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10059,8 +10077,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "tuna_fresh",
@@ -10100,8 +10119,7 @@
   {
     "id": "turkey_breast_cooked",
     "name": "Pechuga de pavo cocida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10111,8 +10129,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "turkey_breast_raw",
@@ -10134,19 +10153,20 @@
   {
     "id": "turnip_cooked",
     "name": "Nabo cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "turron_mani",

@@ -1114,5 +1114,230 @@
     "sourceDescription": "Figs, raw",
     "matchType": "reviewed_generic_reference",
     "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "chicken_roasted",
+    "fdcId": "171450",
+    "expectedName": "Pollo al horno con piel",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, broilers or fryers, meat and skin, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "turkey_breast_cooked",
+    "fdcId": "171496",
+    "expectedName": "Pechuga de pavo cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Turkey, whole, breast, meat only, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "tuna",
+    "fdcId": "173709",
+    "expectedName": "Atún al natural escurrido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tuna, light, canned in water, drained solids (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "anchovies_canned",
+    "fdcId": "174183",
+    "expectedName": "Anchoas en conserva escurridas",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, anchovy, european, canned in oil, drained solids",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. Anchoa en aceite escurrida; no representa conserva en salmuera. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "pumpkin_seeds",
+    "fdcId": "170556",
+    "expectedName": "Semillas de zapallo",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, pumpkin and squash seed kernels, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "sunflower_seeds",
+    "fdcId": "170562",
+    "expectedName": "Semillas de girasol",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, sunflower seed kernels, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "provolone",
+    "fdcId": "170850",
+    "expectedName": "Queso provolone",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, provolone",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "ricotta_whole",
+    "fdcId": "170851",
+    "expectedName": "Ricota entera",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, ricotta, whole milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "ricotta_light",
+    "fdcId": "171248",
+    "expectedName": "Ricota magra",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, ricotta, part skim milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. Ricota parcialmente descremada; no representa una marca ni una ricota sin grasa. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "prunes",
+    "fdcId": "168162",
+    "expectedName": "Ciruelas pasas",
+    "expectedUnit": "g",
+    "sourceDescription": "Plums, dried (prunes), uncooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "quinoa_dry",
+    "fdcId": "168874",
+    "expectedName": "Quinoa seca",
+    "expectedUnit": "g",
+    "sourceDescription": "Quinoa, uncooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "rocket",
+    "fdcId": "169387",
+    "expectedName": "Rúcula",
+    "expectedUnit": "g",
+    "sourceDescription": "Arugula, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "scallion",
+    "fdcId": "170005",
+    "expectedName": "Cebolla de verdeo",
+    "expectedUnit": "g",
+    "sourceDescription": "Onions, spring or scallions (includes tops and bulb), raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "radish",
+    "fdcId": "169276",
+    "expectedName": "Rabanitos",
+    "expectedUnit": "g",
+    "sourceDescription": "Radishes, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "turnip_cooked",
+    "fdcId": "170058",
+    "expectedName": "Nabo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Turnips, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "kale",
+    "fdcId": "168421",
+    "expectedName": "Kale o col rizada",
+    "expectedUnit": "g",
+    "sourceDescription": "Kale, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "mung_beans_cooked",
+    "fdcId": "174257",
+    "expectedName": "Porotos mung cocidos, sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Mung beans, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "pallares_cooked",
+    "fdcId": "174253",
+    "expectedName": "Porotos pallares cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Lima beans, large, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "huevo_frito",
+    "fdcId": "173423",
+    "expectedName": "Huevo frito con aceite (aceite estimado incluido)",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, whole, cooked, fried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "olives",
+    "fdcId": "169096",
+    "expectedName": "Aceitunas verdes",
+    "expectedUnit": "g",
+    "sourceDescription": "Olives, pickled, canned or bottled, green",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "repollo_cooked",
+    "fdcId": "169976",
+    "expectedName": "Repollo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Cabbage, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "corn_cooked",
+    "fdcId": "169999",
+    "expectedName": "Choclo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Corn, sweet, yellow, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "oatmeal_cooked",
+    "fdcId": "173905",
+    "expectedName": "Avena cocida con agua",
+    "expectedUnit": "g",
+    "sourceDescription": "Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "soy_beans_cooked",
+    "fdcId": "174271",
+    "expectedName": "Porotos de soja cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Soybeans, mature cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "chickpea_flour",
+    "fdcId": "174288",
+    "expectedName": "Harina de garbanzo",
+    "expectedUnit": "g",
+    "sourceDescription": "Chickpea flour (besan)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
   }
 ]

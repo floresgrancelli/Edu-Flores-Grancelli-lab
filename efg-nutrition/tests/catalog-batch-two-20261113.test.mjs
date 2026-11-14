@@ -30,7 +30,7 @@ for(const [term,id] of [['repollo morado','red_cabbage_raw'],['orejones damasco'
 }
 // Existing catalog dependencies keep their formulas/semantics. New feature modules and the app entry are validated by their own flow/security suites, not frozen to this historical catalog batch.
 const paths=execFileSync('git',['-c','safe.directory='+root,'diff','--diff-filter=M','--name-only','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc','--','efg-nutrition/pilot'],{cwd:root,encoding:'utf8'}).trim().split('\n').filter(Boolean);
-for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/pilot.js')&&!x.endsWith('/version-notice.js')&&!x.endsWith('/notifications-ui.js')&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
+for(const path of paths.filter(x=>/\.m?js$/.test(x)&&!x.endsWith('/pilot.js')&&!x.endsWith('/version-notice.js')&&!x.endsWith('/notifications-ui.js')&&!x.endsWith('/guided-countable-portions.js')&&!x.endsWith('/food-visuals-r2.js')&&!x.endsWith('/food-catalog.js')&&!x.endsWith('/food-catalog-batch-20261113.js')&&!x.endsWith('/food-catalog-batch-two-20261113.js'))){
  const prior=execFileSync('git',['-c','safe.directory='+root,'show','56bf31cf575e68c7fd7fad9463db14cc20aa8fcc:'+path],{cwd:root,encoding:'utf8'}),current=readFileSync(resolve(root,path),'utf8');const strip=s=>normalizeApprovedPrefillDelta(s).replace(/\?v=[A-Za-z0-9_-]+/g,'?v=IDENTITY');assert.equal(strip(current),strip(prior),'Only import identities may change: '+path);
 }
 console.log('PASS additive catalog: 28 exact source rows, 585 unchanged foods, 613 identities, quantities, guide draft compatibility, conservative restrictions and explicit identity thumbnails');

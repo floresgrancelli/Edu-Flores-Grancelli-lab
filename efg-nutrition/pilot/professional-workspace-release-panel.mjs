@@ -1,4 +1,4 @@
-import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-restaurants-r1-20261114';
+import {mountProfessionalCoachTools} from './professional-coach-tools-panel.mjs?v=ncc-micro-restaurants-r1-20261114';
 import {createProfessionalReleaseAdapter,PROFESSIONAL_RELEASE_ENABLED} from './professional-release-adapter.mjs?v=ncc-dual-role-release-r5-20261107';
 import {createProfessionalWorkspaceReleaseClient} from './professional-workspace-release-client.mjs?v=ncc-dual-role-release-r5-20261107';
 import {createProfessionalTermsSdkTransport} from './professional-terms-sdk-transport.mjs?v=ncc-dual-role-release-r5-20261107';

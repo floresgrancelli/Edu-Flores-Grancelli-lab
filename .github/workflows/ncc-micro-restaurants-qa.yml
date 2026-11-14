@@ -34,6 +34,7 @@ jobs:
       - run: node efg-nutrition/tests/micronutrient-gaps.test.mjs
       - run: node efg-nutrition/tests/micronutrient-afcd.test.mjs
       - run: node efg-nutrition/tests/micronutrient-nori.test.mjs
+      - run: node efg-nutrition/tests/micronutrient-vinegar.test.mjs
       - run: mkdir -p /workspace
       - run: node efg-nutrition/tests/micronutrient-restaurants-browser.mjs
         env:

@@ -32,3 +32,10 @@ node efg-nutrition/tests/approved-release-flags.mjs
 ```
 
 Pruebas locales aprobadas: cálculo independiente de todas las celdas añadidas, preservación de valores completos, códigos/unidades, hashes, licencia y cantidades (25 g, 12,5 g, líquidos). Los generadores son reproducibles. CI específico de la candidata anterior aprobado en Chromium y WebKit: run 43644836772. Este lote amplía el recorrido visual con cajú, pistacho y lentejas rojas; requiere un nuevo pase sobre el commit final. Sin publicación ni escrituras en diarios reales.
+
+
+## Lote vinagre, pita y tortilla — 2026-11-14
+
+Completa ALA de pita integral comercial (F001404, 0,07 g/100 g) y tortilla de maíz comercial (F009854, 0,02 g/100 g). Para el ingrediente interno @vinegar conserva la identidad USDA 172237 y los siete valores previos, completando únicamente ALA con el cero numérico publicado en AFCD F009498 (vinagre excepto balsámico). Es una equivalencia genérica de vinagre, no de aderezo preparado. No convierte valores ausentes ni trazas en cero y no afirma ausencia absoluta.
+
+Las 47 recetas derivadas conservan sus cantidades, rendimientos y aporte numérico de ALA: cambia su cobertura de parcial a completa porque se resuelve el ingrediente desconocido. La procedencia AFCD y licencia se conservan en `afcdVinegar`, también en combos, junto con la atribución MEXT del nori. B12/DHA del nori siguen pendientes. Total: 49 perfiles mejorados frente a 2dcf6b8, 678 completos y 175 parciales. Prueba específica conserva todos los valores completos anteriores, ingredientes y medias porciones. Sin publicar.

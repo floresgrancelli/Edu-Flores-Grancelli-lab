@@ -53,3 +53,36 @@ def fill_afcd(root, foods, drinks=False):
                         (' Cero numérico publicado a la precisión de la tabla; no significa ausencia absoluta ni convierte un dato desconocido en cero.' if value == 0 else '')}
             changed += 1
     return changed
+
+
+def fill_vinegar(root, internal):
+    """Only the missing ALA cell of the existing generic vinegar ingredient."""
+    data, _ = load_afcd(root)
+    f = internal['@vinegar']
+    row = data['rows']['F009498']
+    if str(f['sourceId']) != '172237' or f['perUnit']['ala'] is not None:
+        raise ValueError('Vinegar baseline identity or missing cell changed')
+    if data['header'][209] != COLUMNS['ala'][1] or row[209] != 0:
+        raise ValueError('Vinegar published ALA reference changed')
+    f['perUnit']['ala'] = row[209] / 100
+
+
+def annotate_vinegar(root, foods, internal):
+    data, _ = load_afcd(root)
+    all_foods = {**internal, **foods}
+    memo = {}
+    def contains(fid):
+        if fid == '@vinegar': return True
+        if fid in memo: return memo[fid]
+        f = all_foods[fid]
+        ids = [p['id'] for p in f.get('ingredients', [])] or list(f.get('ingredientsByMass', {}))
+        memo[fid] = any(contains(i) for i in ids)
+        return memo[fid]
+    for fid, f in foods.items():
+        if not contains(fid): continue
+        p = f.get('nutrientProvenance', {}).get('ala')
+        if not p or p['source'] != 'recipe_components': continue
+        p['afcdVinegar'] = {'foodCode': 'F009498', 'sourceUrl': data['sourceUrl'],
+                           'sourceUnit': 'g/100g', 'value': 0,
+                           'licenseUrl': data['licensing']['licenseUrl']}
+        p['note'] += ' Vinagre genérico: ALA completado con cero numérico publicado en FSANZ AFCD 3 F009498; no ausencia absoluta, ni vinagre balsámico o aderezo. Misma cantidad de ingrediente.'

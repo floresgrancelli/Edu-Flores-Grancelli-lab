@@ -719,5 +719,25 @@
       "dha"
     ],
     "note": "Galletita comercial con chips o cobertura de chocolate como equivalente para EPA/DHA; receta y grasa pueden variar. Conserva los demás valores previos."
+  },
+  {
+    "target": "pita_wholewheat",
+    "expectedName": "Pan pita integral de trigo",
+    "expectedUnit": "g",
+    "code": "F001404",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente comercial genérico del mismo cereal y estado; la receta de cada fabricante puede variar."
+  },
+  {
+    "target": "corn_tortilla_ready",
+    "expectedName": "Tortilla de maíz comercial, lista para cocinar",
+    "expectedUnit": "g",
+    "code": "F009854",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Equivalente comercial genérico del mismo cereal y estado; la receta de cada fabricante puede variar."
   }
 ]

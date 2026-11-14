@@ -832,10 +832,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -2562,14 +2560,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7406,14 +7403,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9461,7 +9457,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9483,7 +9478,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9505,7 +9499,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9527,7 +9520,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9549,7 +9541,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9571,7 +9562,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9593,7 +9583,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9614,10 +9603,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9634,10 +9621,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9654,10 +9639,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9675,7 +9658,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9733,7 +9715,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9755,7 +9736,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],
@@ -9777,7 +9757,6 @@
     ],
     "missing": [],
     "incomplete": [
-      "ala",
       "b12",
       "dha"
     ],

@@ -144,13 +144,15 @@ from micronutrient_enrichment import enrich_catalog
 enrich_catalog(ROOT, foods, internal, NUTRIENTS)
 from micronutrient_gaps import fill_gaps
 fill_gaps(ROOT, foods)
-from micronutrient_afcd import fill_afcd, load_afcd
+from micronutrient_afcd import fill_afcd, load_afcd, fill_vinegar, annotate_vinegar
 fill_afcd(ROOT, foods)
+fill_vinegar(ROOT, internal)
 from micronutrient_nori import fill_nori, annotate_nori
 fill_nori(ROOT, internal)
 # Propagate newly documented ingredient values through incomplete recipes only.
 enrich_catalog(ROOT, foods, internal, NUTRIENTS)
 annotate_nori(ROOT, foods, internal)
+annotate_vinegar(ROOT, foods, internal)
 
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()

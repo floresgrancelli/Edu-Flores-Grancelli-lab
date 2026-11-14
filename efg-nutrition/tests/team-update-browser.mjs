@@ -36,6 +36,7 @@ try{for(const engine of ['chromium','webkit']){
  const snap=async name=>{
  await page.waitForTimeout(120);
  await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo({top:0,left:0,behavior:'instant'});for(const e of document.querySelectorAll('#app,.pilot-layout,.pilot-main'))e.scrollTo({top:0,left:0,behavior:'instant'});});
+ if(name==='coach-coachIntake'){await page.locator('.coach-intake-steps').evaluate(e=>{e.open=true;e.scrollIntoView({block:'start',behavior:'instant'});});await page.evaluate(()=>window.scrollBy({top:-85,behavior:'instant'}));}
  if(name==='coach-intake'){await page.locator('.coach-profile-tabs').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await page.evaluate(()=>window.scrollBy({top:-80,behavior:'instant'}));}
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name+' overflow');
  const tabFit=await page.locator('.ncc-workspace-tabs button:visible').evaluateAll(els=>els.every(e=>e.scrollWidth<=e.clientWidth+1));assert.equal(tabFit,true,name+' complete tab labels');

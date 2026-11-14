@@ -292,6 +292,10 @@
     "orange_juice_raw_weight",
     "lemon_juice_raw_weight",
     "sesame_oil",
-    "tahini_roasted"
+    "tahini_roasted",
+    "chinchulines_grilled",
+    "kidney_beef_grilled",
+    "sweetbreads_beef_grilled",
+    "morcilla_vasca_estimate"
   ]
 }

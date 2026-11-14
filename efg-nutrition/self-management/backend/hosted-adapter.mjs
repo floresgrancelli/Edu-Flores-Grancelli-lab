@@ -1,5 +1,6 @@
 import {createSelfManagementHandler} from './api.mjs';
 import {createSelfManagementRepository} from './supabase-repository.mjs';
+import {createPilotAccessManager} from './pilot-access.mjs';
 export const SELF_LEGAL_VERSION='ncc-self-legal-20261113';
 const fail=code=>{throw Object.assign(new Error(code),{code});};
 export function createHostedSelfHandler({client,catalog,ownerEmail='floresgrancelli@gmail.com',allowedOrigins}={}){
@@ -8,7 +9,7 @@ export function createHostedSelfHandler({client,catalog,ownerEmail='floresgrance
   let verified=null;
   const verifyBearer=async token=>{
    const {data,error}=await client.auth.getUser(token);
-   if(error||!data?.user||data.user.is_anonymous===true)return null;
+   if(error||!data?.user||data.user.is_anonymous===true||!data.user.email_confirmed_at)return null;
    verified=data.user;return {id:verified.id};
   };
   const requireAccess=async id=>{
@@ -27,7 +28,7 @@ export function createHostedSelfHandler({client,catalog,ownerEmail='floresgrance
    return {version:SELF_LEGAL_VERSION,accepted:data?.user_id===id&&data.version===SELF_LEGAL_VERSION&&!data.revoked_at};
   };
   return createSelfManagementHandler({enabled:true,verifyBearer,repository,readCatalog:async()=>catalog,allowedOrigins,
-   requireAccess,readLegalStatus,
+   requireAccess,readLegalStatus,managePilotAccess:createPilotAccessManager(client,{ownerEmail}),
    requireLegalReceipt:async id=>{if(!(await readLegalStatus(id)).accepted)fail('legal_required');return SELF_LEGAL_VERSION;},
    acceptLegal:async(id,version)=>{
     if(version!==SELF_LEGAL_VERSION)fail('legal_required');

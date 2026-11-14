@@ -1,13 +1,14 @@
+import {resolveIndependentEntry} from './self-management-entry.js?v=ncc-self-entry-r1-20261113';
 import {createOperationNotices,showSavingFeedback} from './operation-notices.js?v=ncc-save-feedback-r1-20261112';
 import {resolveFoodVisual,foodPhotoHTML} from './food-visuals-r2.js?v=ncc-food-identity-photos-r1-20261113';
-import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-navigation-continuity-r1-20261112';
+import {mountWorkspaceTabs} from './workspace-tabs.js?v=ncc-self-entry-r1-20261113';
 import {mountCoachReportFlow} from './coach-report-flow.js?v=ncc-report-flow-r1-20261112';
 import {renderMacroGaps} from './report-macro-gaps-view.js?v=ncc-color-system-r1-20261112';
 const studentGuideStyles=document.createElement('link');studentGuideStyles.rel='stylesheet';studentGuideStyles.href='./student-plan-r1.css?v=ncc-report-gaps-r1-20261112';document.head.append(studentGuideStyles);
 const mealEntryStyles=document.createElement('link');mealEntryStyles.rel='stylesheet';mealEntryStyles.href='./day-tools-r1.css?v=ncc-food-entry-batch-r1-20261112';document.head.append(mealEntryStyles);
 const recipeLibraryStyles=document.createElement('link');recipeLibraryStyles.rel='stylesheet';recipeLibraryStyles.href='./recipes-library-r1.css?v=ncc-recipes-search-r1-20261112';document.head.append(recipeLibraryStyles);
 import {resizeDiaryFood} from './diary-food-edit.js?v=ncc-day-food-actions-r1-20261111';
-import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-catalog-batch-two-r1-20261113';
+import {createProfessionalWorkspaceReleaseFrame} from './professional-workspace-release-frame.mjs?v=ncc-achuras-r1-20261113';
 import {PROFESSIONAL_WORKSPACE_RELEASE_ENABLED,PROFESSIONAL_WORKSPACE_RELEASE_BACKEND} from './professional-workspace-release-config.mjs?v=ncc-dual-role-release-r5-20261107';
 import {PROFESSIONAL_RECONCILIATION_ENABLED,createProfessionalMutationJournal,createIndexedDBJournalDriver} from './professional-mutation-journal.mjs?v=ncc-professional-reconciliation-r1-20261107';
 import {createProfessionalContextualTransport} from './professional-screens-transport.mjs?v=ncc-professional-reconciliation-r1-20261107';
@@ -16,7 +17,7 @@ import {createDualWorkspaceFrame,isDualWorkspaceField} from './dual-workspace-fr
 import {reportCoachName} from './coach-report-models.js?v=ncc-color-system-r1-20261112';
 import {withReportFoodFrequency} from './report-food-frequency.js?v=ncc-weekly-preview-r11-20261106';
 import {resolveCoachGuideWindow,coachGuideWindowControl,guideWindowLabel,validGuideWindow,assertGuideWindowApplied} from "./coach-guide-schedule.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-catalog-batch-two-r1-20261113";
+import {guidedCountablePortion} from "./guided-countable-portions.js?v=ncc-achuras-r1-20261113";
 import {loadCoachCatalogGuide as loadPilotReviewedGuide} from "./coach-catalog-guide.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createPeriodReportHistory} from "./period-report-history.js?v=ncc-weekly-preview-r11-20261106";
 import {loadReportTrendGoals as loadPeriodReportGoals} from "./report-trend-goals.js?v=ncc-weekly-preview-r11-20261106";
@@ -32,19 +33,19 @@ import {qaReviewedSourcesAllowed,applyQaReviewedSources} from "./qa-reviewed-sou
 import {createAuthHydrationGate} from "./auth-hydration-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {sameRecipeIngredients} from "./recipe-ingredients-equal.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {PILOT_GUIDE_INSTALL} from './pilot-guide-install-config.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106';
-import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-catalog-batch-two-r1-20261113';
-import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-catalog-batch-two-r1-20261113';
-import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-catalog-batch-two-r1-20261113';
-import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-catalog-batch-two-r1-20261113';
-import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-catalog-batch-two-r1-20261113";
-import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-catalog-batch-two-r1-20261113";
+import {createPilotGuideLifecycle} from './pilot-guide-lifecycle.js?v=ncc-achuras-r1-20261113';
+import {createPersistedGuideProvider} from './persisted-guide-provider.js?v=ncc-achuras-r1-20261113';
+import {createBoundGuidePublication} from './bound-guide-publication-client.js?v=ncc-achuras-r1-20261113';
+import {CLINICAL_GUIDE_CONNECTION_ENABLED} from './clinical-guide-connection.js?v=ncc-achuras-r1-20261113';
+import {createCoachGuideConnection} from "./coach-guide-connection.js?v=ncc-achuras-r1-20261113";
+import {COACH_ADAPTED_GUIDE_PREVIEW_ENABLED,createCoachAdaptedWorkspace} from "./coach-adapted-workspace.js?v=ncc-achuras-r1-20261113";
 import {COACH_VERSIONED_INTAKE_ENABLED} from "./coach-versioned-mode.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.118.0";
 import {studentDayWelcome,studentDayDashboard,compactDaySummary} from "./student-day-presentation-3770ec2f7790.js?v=ncc-color-system-r1-20261112";
 import {pastelDaySummary} from "./pastel-day.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {calculateWeeklyConsistency,weeklyConsistencyPanel,weeklyLogsWithCurrent} from "./weekly-consistency.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_GROUPS,FOOD_DEFAULTS,MEAL_ORDER,optionsFor,allPlannerFoods,makePlan,plannerEnergyBreakdown,projectNutritionBalance} from "./planner.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-catalog-batch-two-r1-20261113";
+import {EXTRA_FOODS,FOOD_CATEGORIES,LEGACY_CATEGORIES,FOOD_UNIT_PORTIONS,foodSearchText} from "./food-catalog.js?v=ncc-achuras-r1-20261113";
 import {GUIDED_MEAL_GROUPS,isGuidedMealSlot,guidedMealGroupFor,guidedMealTotals,guidedMealMarks} from "./guided-meal-picker.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FOOD_COMPATIBILITY_ENABLED} from "./food-compatibility.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {profilePatternForCompatibility,loadReviewedFoodEvidence,describeTrafficLight} from "./food-compatibility-adapter.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -62,7 +63,7 @@ import {createLuxuryWeeklyEditor} from "./weekly-luxury-editor.js?v=ncc-pilot-3a
 import {recordedProgress,progressDashboard} from "./progress-charts.js?v=ncc-progress-r1-20261112";
 import {FIT_RECIPES,recipeTotals} from "./fit-recipes.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {recipeCatalogEntries} from "./recipe-catalog-bridge.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-catalog-batch-two-r1-20261113";
+import {addCoachRecipeServing,recipeIngredientLimits} from "./coach-guide-recipe-serving.js?v=ncc-achuras-r1-20261113";
 import {COACH_SHARED_STUDENT_RECIPES_UI_ENABLED,coachRecipeScopeMatches,loadCoachSharedStudentRecipes} from "./coach-shared-recipes-read-client.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {FIT_RECIPE_PHOTOS} from "./fit-recipe-photos.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {estimateMacros,ACTIVITY_LEVELS,RECOMP_STRATEGIES} from "./macro-engine.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -71,19 +72,19 @@ import {motivationOfTheDay} from "./daily-motivation.js?v=ncc-pilot-3a40474052be
 import {nutritionTipDisclosureHTML} from "./nutrition-daily-tip.js?v=ncc-daily-tips-compact-r2-20261112";
 import {isNutritionDayClosed,argentinaClock} from "./day-lifecycle.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {adjustNutritionGoal,goalForDate} from "./goal-adjustments.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-catalog-batch-two-r1-20261113";
-import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-catalog-batch-two-r1-20261113";
-import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-catalog-batch-two-r1-20261113";
+import {generateGuidedDay,guideTotals,guideDeviation,guideQuantityRanges,validateGuidedDay,summarizeBaseline,guidedFoodAlternatives,guidedPortionBounds,swapGuidedFood,rebalanceGuidedDay,describeGuidedMeal} from "./guided-day.js?v=ncc-achuras-r1-20261113";
+import {generateFlexibleGuidedDay,removeFlexibleMeal,removeFlexibleFood,addFlexibleFood,replaceFlexibleFood,guideFoodSignal} from "./guided-day-v2.js?v=ncc-achuras-r1-20261113";
+import {readVerifiedCoachRestrictionScope,reviewCoachGuideFoodChange} from "./coach-guide-restriction-scope.js?v=ncc-achuras-r1-20261113";
 import {createStudentFoodRestrictionReader} from "./student-food-restrictions.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createNotificationInbox,notificationDestination} from "./notifications-ui.js?v=ncc-notifications-r1-20261112";
 import {habitualShortLabel,habitualPreviewHTML} from "./habitual-preview.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createMessagesCenter} from "./messages-ui.js?v=ncc-notifications-r1-20261112";
-import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-catalog-batch-two-r1-20261113";
+import {createCoachIntakeFlow,intakeSaveButtonLabel} from "./coach-intake-flow.js?v=ncc-achuras-r1-20261113";
 import {createCoachCalculatorPrefill,coachGuidePreviewAllowed} from "./coach-intake-prefill.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {assertCoachGoalWriteSafe} from "./coach-goal-write-gate.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-catalog-batch-two-r1-20261113";
+import {COACH_ATOMIC_PLAN_UI_ENABLED,createCoachPlanDraftClient,validateCoachPlanProposal} from "./coach-plan-draft-client.js?v=ncc-achuras-r1-20261113";
 import {approvedFoodGuide,coachFoodChoicesFromDom} from "./coach-food-selection.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
-import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-catalog-batch-two-r1-20261113";
+import {assessCoachDraftPublication,verifyCoachDraftReadback,coachDraftWorkspaceCurrent,coachDraftSourceCurrent} from "./coach-draft-review.js?v=ncc-achuras-r1-20261113";
 import {createPullToRefresh} from "./pull-refresh.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {createVersionNotice} from "./version-notice.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
 import {signOutCurrentDevice} from "./logout-session.js?v=ncc-pilot-3a40474052be-reports-guide-r10-20261106";
@@ -110,8 +111,8 @@ import {readOwnSelfManagedPlan,selfManagementLink} from "./self-management-own-p
 import {MICRONUTRIENTS_ENABLED} from "./micronutrients-config.js?v=ncc-self-live-r1-20261113";
 import {MICRONUTRIENT_CATALOG} from "./micronutrient-catalog.js?v=ncc-self-live-r1-20261113";
 import {estimateDailyMicronutrients,micronutrientPeriod} from "./micronutrient-engine.js?v=ncc-self-live-r1-20261113";
-import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-micros-mi-dia-r1-20261113";
-if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-self-live-r1-20261113";document.head.append(link);}
+import {renderMicronutrients,renderMicronutrientPeriod} from "./micronutrient-view.js?v=ncc-microbars-r1-20261113";
+if(MICRONUTRIENTS_ENABLED){const link=document.createElement("link");link.rel="stylesheet";link.href="./micronutrients.css?v=ncc-microbars-r1-20261113";document.head.append(link);}
 const SUPABASE_URL="https://cyjvddhimbsfipjfctsl.supabase.co";
 const SUPABASE_PUBLISHABLE="sb_publishable_85h68iKEFdxLTWM86Z8svg_a4s349CZ";
 const sb=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
@@ -1398,7 +1399,7 @@ function loginView(message=""){
   :'<form id="pilot-login-form"><div class="field"><label for="loginEmail">Tu correo electrónico autorizado</label><input type="email" id="loginEmail" required placeholder="tu@email.com" autocomplete="email" maxlength="200"></div><button type="submit" class="btn block" '+(state.loggingIn?'disabled':'')+'>'+(state.loggingIn?"Enviando…":"Enviarme un código")+'</button></form><div class="pilot-footnote">Tu sesión se guarda en este navegador. Si volvés a entrar desde Safari normal, sin modo privado, no deberías necesitar otro código. Los navegadores internos de WhatsApp y otros navegadores no comparten la sesión.</div>';
  root.innerHTML='<div class="pilot-login"><div class="pilot-login-art"><img class="efg-login-brandmark" src="./assets/serotonina-acuarela.avif" width="100" height="56" alt="" aria-hidden="true" decoding="async"><div class="eyebrow">CIENCIA • HÁBITOS • ENTRENAMIENTO</div><h1>Tu nutrición,<br>tu evolución.</h1><p>Alimentación, macros y seguimiento privado para entrenadores y alumnos autorizados.</p></div><div class="pilot-login-form"><div class="pilot-login-card"><div class="eyebrow">BIENVENIDO A Nutrición Con-Ciencia</div><h2>'+title+'</h2><p>'+details+'</p>'+
  (message?'<div class="pilot-alert" style="margin-top:20px">'+escapeHTML(message)+'</div>':'')+
- form+'<p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
+ form+'<a class="btn block ghost" href="./autogestion.html" style="margin-top:16px">Ingresar sin coach · Autogestión</a><p class="pilot-footnote" style="margin-top:22px">🔒 Tu información solo se muestra a usuarios autorizados. Nunca utilizamos tu dirección IP para identificarte.</p></div></div></div>';
 }
 async function requestOtp(email){
  if(state.loggingIn)return;
@@ -3914,6 +3915,7 @@ function adminView(){
  const orgs=state.orgs;
  return rootText("Organizaciones y licencias","Gestioná entrenadores, cupos y permisos sin acceder a la información nutricional privada.")+
  '<div class="efg-roster-summary"><span class="pilot-pill">'+orgs.length+' entrenadores registrados</span><button type="button" class="btn small light" data-tab="admin">Volver al inicio</button></div>'+
+ '<div class="card" id="nccAdminSelf"><h2>Autogestión · Piloto</h2><p class="pilot-hint">Habilitá o renová el acceso por correo, sin asignar coach ni cambiar roles.</p><a class="btn light" href="./autogestion-admin.html">Administrar accesos</a></div>'+
  '<div class="pilot-kpis" id="nccAdminMetrics"><div class="card"><div class="metric-label">ENTRENADORES</div><div class="metric-value">'+orgs.length+'</div></div><div class="card"><div class="metric-label">LICENCIAS ACTIVAS</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&['active','grace'].includes(o.status)).length+'</div></div><div class="card"><div class="metric-label">LICENCIAS PENDIENTES</div><div class="metric-value">'+orgs.filter(o=>!o.is_test&&o.status==="trial").length+'</div></div><div class="card"><div class="metric-label">CUPO CONTRATADO TOTAL</div><div class="metric-value">'+orgs.reduce((n,o)=>n+(o.is_test?0:o.seat_limit),0)+'</div></div><div class="card"><div class="metric-label">ALUMNOS VISIBLES POR EFG</div><div class="metric-value">0</div><p class="subtle">Privacidad por diseño</p></div></div>'+
  '<div class="pilot-two"><div class="pilot-stack"><div class="card" id="nccAdminCoaches"><h2>Entrenadores habilitados</h2>'+(orgs.length?orgs.map(org=>'<div class="pilot-record"><div class="between"><div><strong>'+escapeHTML(org.name)+'</strong><small>'+num(org.seat_limit)+' cupos · '+(org.license_fee_ars?num(org.license_fee_ars,2)+' ARS/mes · ':'Sin precio mensual · ')+escapeHTML(org.is_test?'Piloto gratuito · sin facturación':org.status==='active'&&org.paid_through>=today()?'Activa hasta '+org.paid_through:'Pendiente de pago / suspendida')+' · '+(org.coach_id?'Ingreso registrado':'Pendiente de ingreso')+'</small></div><div class="pilot-toolbar">'+(org.is_test?'<span class="pilot-pill">'+num(org.seat_limit)+' cupos de prueba</span>':
   '<button class="btn small light" data-contract="'+org.id+'">Cambiar plan</button>'+
@@ -4663,13 +4665,20 @@ async function refresh(){
   if(!currentSession.error&&currentSession.data?.session?.user?.id!==id)throw Error("AUTH_IDENTITY_MISMATCH");
   setCoachSessionIdentity(currentSession.error?null:currentSession.data?.session,result.data.user);
   const bootstrap=await contextRead(dualWorkspaceBootstrap.resolve(result.data.user));
+  const openIndependent=async()=>{
+   if(await contextRead(resolveIndependentEntry(sb,{userId:id,current:()=>authHydration.current(ticket)}))){
+    state.profile=null;location.replace('./autogestion.html');return true;
+   }
+   return false;
+  };
   if(!bootstrap.skipLegacyClaim){
    let claim=await contextRead(sb.rpc("efg_claim_invitation"));
-   if(claim.error){state.profile=null;return unauthorized(claim.error.message);}
+   if(claim.error){if(await openIndependent())return;state.profile=null;return unauthorized(claim.error.message);}
   }
   let p=bootstrap.profile?{data:bootstrap.profile,error:null}:
-   await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).single());
+   await contextRead(sb.from("efg_profiles").select("*").eq("user_id",id).maybeSingle());
   if(p.error)throw p.error;
+  if(!p.data){if(await openIndependent())return;state.profile=null;return unauthorized();}
   state.profile=p.data;
   state.dualCandidateCoach=bootstrap.mode==="candidate_coach";
   if(state.dualCandidateCoach){state.tab="home";return contextRead(render());}

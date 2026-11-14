@@ -93,3 +93,12 @@ test('invalid calendar dates and duplicate dates are rejected',()=>{
  assert.throws(()=>micronutrientPeriod({logs:[],catalog,profile,from:'2026-02-30',to:'2026-03-01'}));
  assert.throws(()=>micronutrientPeriod({logs:[diary(),diary()],catalog,profile,from:'2026-11-13',to:'2026-11-13'}));
 });
+test('collapsed card exposes all seven nutrients; missing reference has a distinct unscaled bar',()=>{
+ const d=diary([food('oats_raw',50),food('unknown',100)]);
+ const html=renderMicronutrients(model(d));
+ for(const id of ['magnesium','calcium','iron','zinc','b12','ala','epa_dha'])assert.ok(html.includes('data-micronutrient="'+id+'"'));
+ assert.ok(html.includes('data-scale="reference"'));assert.ok(html.includes('al menos'));
+ const without=renderMicronutrients(model(d,null));
+ assert.ok(without.includes('data-scale="unscaled"'));assert.ok(!without.includes('data-scale="reference"'));assert.ok(!without.includes('0% de la referencia'));
+ assert.ok(without.includes('sin referencia de cobertura'));assert.ok(without.includes('Detalle y fuentes'));
+});

@@ -19,7 +19,13 @@ for(const x of spec.records){
 }
 assert.equal(hashes.size,51);assert.equal(paths.size,51);assert.ok(bytes<1536000);
 const prior=p=>execFileSync('git',['-c','safe.directory='+fileURLToPath(root).replace(/\/$/,''),'show',base+':'+p],{cwd:root,encoding:'utf8'});
-for(const p of ['efg-nutrition/catalog/guide-catalog.json','efg-nutrition/pilot/food-catalog.js','efg-nutrition/pilot/food-catalog-batch-20261113.js','efg-nutrition/pilot/food-catalog-batch-two-20261113.js'])assert.equal(read(p).toString(),prior(p),'Nutritional bytes unchanged: '+p);
+// Photo-only release must not change nutrition. Later additive catalog releases
+// preserve every historical food, while their own contracts check new rows.
+const priorFoods=JSON.parse(prior('efg-nutrition/catalog/guide-catalog.json')).foods;
+const currentFoods=JSON.parse(read('efg-nutrition/catalog/guide-catalog.json')).foods;
+for(const [id,food] of Object.entries(priorFoods))assert.deepEqual(currentFoods[id],food,'Historical nutritional row unchanged: '+id);
+for(const p of ['efg-nutrition/pilot/food-catalog-batch-20261113.js','efg-nutrition/pilot/food-catalog-batch-two-20261113.js'])assert.equal(read(p).toString(),prior(p),'Nutritional bytes unchanged: '+p);
+
 const resolver=s=>s.slice(s.indexOf(');\nconst normalize'));
 assert.equal(resolver(read('efg-nutrition/pilot/food-visuals-r2.js').toString()),resolver(prior('efg-nutrition/pilot/food-visuals-r2.js')),'Exact resolver implementation unchanged');
 for(const name of ['Ensalada de espinaca inventada','Garbanzos con salsa desconocida','Mi receta de atún'])assert.equal(resolveFoodVisual({id:'custom-unmapped',name}).placeholder,true);

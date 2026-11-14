@@ -55,7 +55,7 @@ try{for(const engine of ['chromium','webkit']){
   await page.locator('#mealEditorQty').dispatchEvent('input');assert.equal(await save.isDisabled(),true,'Input refresh cannot reenable a pending save');
   await page.evaluate(()=>document.querySelector('[data-act=saveSelectedMeal]').click());assert.equal(await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes),1,'Repeated tap does not enqueue a second write');await shot('saving');
   await page.evaluate(()=>{const c=window.__NCC_FOOD_ENTRY_FIXTURE__;c.hold=false;c.release();});await page.locator('.meal-popup').waitFor({state:'detached'});await toast.waitFor({state:'visible'});
-  await toast.evaluate(e=>e.scrollIntoView({block:'center'}));await page.mouse.move(0,0);
+  await toast.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await page.mouse.move(0,0);
   assert.equal(await toast.evaluate(e=>getComputedStyle(e).position),'static');assert.equal(await toast.getAttribute('data-notice-kind'),'success');
   assert.equal(await page.locator('#pilot-toast').count(),1);
   const overlaps=await toast.evaluate(e=>{const a=e.getBoundingClientRect();return [...document.querySelectorAll('.pilot-main button,.pilot-nav')].filter(b=>!e.contains(b)&&b.getClientRects().length).filter(b=>{const r=b.getBoundingClientRect();return a.left<r.right&&a.right>r.left&&a.top<r.bottom&&a.bottom>r.top;}).map(b=>b.outerHTML.slice(0,100));});assert.deepEqual(overlaps,[],'Confirmation has its own line, clear of actions/navigation');
@@ -81,7 +81,7 @@ try{for(const engine of ['chromium','webkit']){
   page.once('dialog',dialog=>dialog.accept());const habitual=page.locator('.meal-popup [data-habitualapply=desayuno]');await habitual.click();await page.waitForFunction(n=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes===n+1,habitualWrites);
   assert.equal(await habitual.innerText(),'Guardando…');assert.equal(await habitual.getAttribute('aria-busy'),'true');assert.equal(await habitual.isDisabled(),true);await shot('habitual-saving');
   await page.evaluate(()=>{const c=window.__NCC_FOOD_ENTRY_FIXTURE__;c.hold=false;c.release();});await page.locator('.meal-popup').waitFor({state:'detached'});
-  assert.equal(await toast.getAttribute('data-notice-kind'),'success');assert.match(await toast.innerText(),/Habitual/);await toast.evaluate(e=>e.scrollIntoView({block:'center'}));await shot('habitual-confirmed');
+  assert.equal(await toast.getAttribute('data-notice-kind'),'success');assert.match(await toast.innerText(),/Habitual/);await toast.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await shot('habitual-confirmed');
   const afterRetry=await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary));await page.locator('[data-daymeal=desayuno]').focus();await page.mouse.move(0,0);await page.clock.fastForward(5000);assert.equal(await toast.isVisible(),false);
   assert.equal(await page.evaluate(()=>JSON.stringify(window.__NCC_R4_FULLAPP__.state.diary)),afterRetry,'Notice expiry never writes diary');
   if(engine==='chromium'&&width===390&&role==='student'){

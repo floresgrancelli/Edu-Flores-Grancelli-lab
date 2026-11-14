@@ -1,7 +1,7 @@
 name: NCC independent real Auth integration
 on:
   push:
-    branches: [work/ncc-self-release-20261113]
+    branches: [work/ncc-self-release-20261113, work/ncc-self-entry-20261113]
     paths:
       - 'efg-nutrition/self-management/**'
       - 'efg-nutrition/pilot/self-management-*'

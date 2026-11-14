@@ -325,7 +325,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "a6c2de30d3b746c17a7d6c35a0c4e7ad044159aa33ce7296e040136b605de6e9",
+    "efg-nutrition/pilot/index.html": "a3da6f5490ad6fba98582ebca2c059eb2afe20c71b88ea5c092e9805ac99b702",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -362,7 +362,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "53e59f36a6887e583467cd44c015f2976b8ca48f5ee2949417feb9cbf6d49a60",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "8529a6368beab39cf5bbf3f5eace6ded2d1f81d32d6dcdd826b58f098066c383",
+    "efg-nutrition/pilot/pilot.js": "b21ff9e4488fe19886d6036de9cc5fd024c7cc25512a85cf86c005553e553fb6",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "91a90988c7022caee26bddbd5d6b4002a4c74fa364bbf0756385499493c0d69f",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "bed7fdc9a4bdf6fca0e63a4f2650d487a2cf216c38dfe44da942da980760cbc4",
@@ -440,7 +440,7 @@
     "efg-nutrition/pilot/food-achuras-20261113.js": "f9d39f951341bb219744336dd46a37e5c90fc5923f23a6d8ad0b0e7970e547e9",
     "efg-nutrition/catalog/guide-catalog.json": "27fe705a4ab1a9424b5a4d400532ed8307ba73ea2a0cda7863818106d7790bed",
     "efg-nutrition/pilot/notifications-ui.css": "a753ef1b3938e2ba56773bcf94e0ca35be9b5ae48ea5ee5535bf7b425ac356cd",
-    "efg-nutrition/pilot/food-alcohol-20261114.js": "31d8c95940f6cc5585c79db61f76f6d7ce317aef00fb86c3fb3e308e51f7695b"
+    "efg-nutrition/pilot/food-alcohol-20261114.js": "51ef4f1637b7f8e68c8e9aac0201810f449cc15c316cc782e4d92f240ee3422f"
   },
   "stylesheets": [
     {

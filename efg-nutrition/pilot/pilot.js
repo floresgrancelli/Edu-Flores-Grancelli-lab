@@ -3307,7 +3307,7 @@ function currentCoachRecipeScope(){
 function coachGuidePickerFoods(){
  const scoped=COACH_ATOMIC_PLAN_UI_ENABLED&&COACH_SHARED_STUDENT_RECIPES_UI_ENABLED&&
   coachRecipeScopeMatches(currentCoachRecipeScope(),state.coachSharedRecipeScope);
- return foods.concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
+ return foods.filter(f=>!f.diaryOnly).concat(recipeCatalogEntries({foods,fitRecipes:FIT_RECIPES,
   personalRecipes:scoped?state.coachSharedRecipes:[],
   userId:scoped?state.selectedStudent:null}));
 }

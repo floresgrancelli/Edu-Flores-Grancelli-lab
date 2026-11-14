@@ -87,7 +87,7 @@ function makeDrink([id,name,servingMl,beverageKind,recipeParts,aliases],isCockta
  const components=Object.entries(amounts).map(([part,amount])=>amount+(part==='sugar'?' g ':' ml ')+(names[part]||part)).join(', ');
  const sourceUrl=sources[id]?'https://iba-world.com/iba-cocktail/'+sources[id]+'/':ALCOHOL_MODEL.energySource;
  const componentAssumptions=Object.entries(amounts).map(([key])=>`${names[key]||key}: ${DRINK_COMPONENTS[key][0]}% vol, ${DRINK_COMPONENTS[key][1]} g HC/100 ${key==='sugar'?'g':'ml'}`).join('; ');
- return {id:'alc_'+id,name,category:'alcohol',unit:'ml',k:k/servingMl,p:p/servingMl,c:c/servingMl,f:f/servingMl,fi:0,alcohol:true,ethanol_g_per_ml:ethanol/servingMl,servingMl,beverageKind,recipeParts:amounts,aliases,
+ return {id:'alc_'+id,name,category:'alcohol',unit:'ml',k:k/servingMl,p:p/servingMl,c:c/servingMl,f:f/servingMl,fi:0,alcohol:true,diaryOnly:true,ethanol_g_per_ml:ethanol/servingMl,servingMl,beverageKind,recipeParts:amounts,aliases,
  sourceType:isCocktail?'recipe_estimate':'generic_estimate',validationStatus:isCocktail?'receta_estimado':'generico_pendiente',sourceUrl,
  source:'ESTIMACIÓN, no etiqueta de fabricante. '+(isCocktail?'Receta de referencia: '+components+'. Rendimiento supuesto '+servingMl+' ml, con dilución del hielo. No cuenta decoración; jengibre/menta aromáticos no cuantificados. ':'Porción de referencia '+servingMl+' ml. ')+
  'Alcohol y HC asumidos: '+componentAssumptions+'. Energía incluye etanol: 7 kcal/g (densidad 0,789 g/ml), además de proteínas, hidratos y grasas. '+(sources[id]?'Proporciones basadas en IBA; nutrientes y rendimiento son estimados, no datos nutricionales IBA. ':'Modelo genérico orientativo; ajustar a marca y preparación. ')+

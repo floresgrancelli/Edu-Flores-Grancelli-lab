@@ -37,6 +37,7 @@ try{
    await page.locator('#mealEditorQty').fill('0.5');
    assert.match(await page.locator('#mealEditorHint').innerText(),/125 ml/);
    assert.doesNotMatch(await page.locator('#mealEditorHint').innerText(),/aceite/);
+   await page.locator('.ncc-quantity-options > summary').click();
    await page.locator('#mealEditorHint summary').click();
    assert.match(await page.locator('#mealEditorHint').innerText(),/7 kcal/);
    await page.locator('#mealEditorHint summary').click();

@@ -327,6 +327,10 @@ foods.push(...RAW_STATE_FOODS);
 // Suplementos declarados por el alumno. Las cantidades son las del producto consumido,
 // nunca sugerencias terapéuticas. Las sales de magnesio se registran en Mg elemental.
 const SUPPLEMENTS=[
+ {id:"omega3_gentech_epa_dha",name:"Omega 3 EPA DHA Gentech",unit:"cápsulas",k:9,p:0,c:0,f:1,fi:0,
+  sourceType:"user_provided_label",sourceId:"gentech-omega3-epa-dha-label-20261114",validationStatus:"label_transcribed",
+  source:"Etiqueta enviada: por 2 cápsulas, EPA 920 mg, DHA 360 mg, omega-3 total 1350 mg, grasas 2 g y 18 kcal. Una cápsula aporta EPA 460 mg + DHA 180 mg = 640 mg de EPA+DHA, grasas 1 g y 9 kcal. La barra suma EPA+DHA, no el omega-3 total ni el peso del aceite. Registrá la cantidad realmente consumida.",
+  micronutrientLabel:{confirmed:true,source:"Omega 3 EPA DHA Gentech, 60 cápsulas. Rótulo en imágenes enviadas por el usuario el 14/11/2026; porción de 2 cápsulas. Transcripción de composición declarada, no certificación de pureza.",doseQuantity:2,doseUnit:"cápsulas",amounts:{epa:{value:920,unit:"mg"},dha:{value:360,unit:"mg"}},totalOmega3:{value:1350,unit:"mg"}}},
  {id:"geomagnesium_bisglycinate_1400",name:"GeoMagnesium Bisglicinato 1400 — Geonat",unit:"comprimidos",k:0,p:0,c:0,f:0,fi:0,
   sourceType:"user_provided_label",sourceId:"geonat-geomagnesium-1400-label-20261114",validationStatus:"label_transcribed",
   source:"Etiqueta del envase: 2 comprimidos aportan 197 mg de magnesio elemental, B1 10 mg, B6 5 mg y B12 500 µg; 0 kcal. Los 1400 mg corresponden al bisglicinato, no al magnesio elemental. Registrá los comprimidos realmente consumidos.",

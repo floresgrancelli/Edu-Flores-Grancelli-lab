@@ -1339,5 +1339,86 @@
     "sourceDescription": "Chickpea flour (besan)",
     "matchType": "reviewed_generic_reference",
     "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "bread",
+    "fdcId": "172688",
+    "expectedName": "Pan integral",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "pan_lactal_integral",
+    "fdcId": "172688",
+    "expectedName": "Pan lactal integral",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "toast_whole",
+    "fdcId": "172689",
+    "expectedName": "Tostadas integrales",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, whole-wheat, commercially prepared, toasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "pan_arabe",
+    "fdcId": "172816",
+    "expectedName": "Pan árabe",
+    "expectedUnit": "g",
+    "sourceDescription": "Bread, pita, white, unenriched",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. La formulación y fortificación del pan pueden diferir del producto local."
+  },
+  {
+    "foodId": "mayonnaise",
+    "fdcId": "171009",
+    "expectedName": "Mayonesa común",
+    "expectedUnit": "g",
+    "sourceDescription": "Salad dressing, mayonnaise, regular",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "mustard",
+    "fdcId": "172234",
+    "expectedName": "Mostaza",
+    "expectedUnit": "g",
+    "sourceDescription": "Mustard, prepared, yellow",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "queso_port_salut",
+    "fdcId": "170849",
+    "expectedName": "Queso Port Salut tradicional",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, port de salut",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca."
+  },
+  {
+    "foodId": "chocolate_dark",
+    "fdcId": "170273",
+    "expectedName": "Chocolate amargo 70%",
+    "expectedUnit": "g",
+    "sourceDescription": "Chocolate, dark, 70-85% cacao solids",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. Referencia de chocolate 70–85 % cacao para la entrada genérica 70 %; el porcentaje y la marca modifican la composición."
+  },
+  {
+    "foodId": "rice_cakes",
+    "fdcId": "170250",
+    "expectedName": "Galletas de arroz sin sal",
+    "expectedUnit": "g",
+    "sourceDescription": "Snacks, rice cakes, brown rice, plain, unsalted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Promedio de referencia USDA para la preparación indicada; no es una etiqueta argentina ni análisis de marca. Referencia de galletas de arroz integral simples, sin sal."
   }
 ]

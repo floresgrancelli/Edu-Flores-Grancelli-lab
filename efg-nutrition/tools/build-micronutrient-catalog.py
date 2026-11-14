@@ -95,21 +95,24 @@ for fid, food in sorted(catalog['foods'].items()):
         **({'mappingNote': mapped['note']} if mapped else {}),
         **({'gramsPerMl': DENSITY[fid]} if unit == 'ml' else {}),
     }
-# SARA 2 cooked achuras: minerals transcribed from the visually reviewed
-# tables. B12 is withheld because the printed heading says mg; no silent
+# SARA 2 explicitly reviewed local foods: minerals and named fatty acids.
+# Source values are transcribed from the reviewed table pages. B12 is withheld because the printed heading says mg; no silent
 # reinterpretation as micrograms. Fatty acids are not inferred from total fat.
 sara_path = 'docs/micronutrients-20261114/sara2-reviewed.json'
 for row in json.loads((ROOT / sara_path).read_text()):
     fid = row['foodId']; food = catalog['foods'][fid]
-    if food['name'] != row['expectedName']: raise ValueError('SARA mapping drift')
+    if food['name'] != row['expectedName'] or food['unit'] != 'g': raise ValueError('SARA mapping drift')
     values = {key: None for key in NUTRIENTS}
-    for key, amount in row['per100g'].items(): values[key] = amount / 100
+    for key, amount in row['per100g'].items():
+        if key not in NUTRIENTS or isinstance(amount,bool) or not isinstance(amount,(int,float)) or not math.isfinite(amount) or amount < 0: raise ValueError('Invalid SARA amount')
+        values[key] = amount / 100
     foods[fid] = {'name': food['name'], 'unit': 'g', 'sourceId': row['sourceId'],
         'catalogSourceId': str(food.get('sourceId', '')), 'sourceUrl': row['sourceUrl'],
         'sourceDescription': row['sourceDescription'], 'capturePath': sara_path,
         'recordSha256': hashlib.sha256(json.dumps(row,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
         'matchType': 'reviewed_generic_reference', 'perUnit': values,
-        'derivationCodes': {k: 'SARA2_compilation' for k in row['per100g']}}
+        'derivationCodes': {k: 'SARA2_compilation' for k in row['per100g']},
+        **({'fattyAcidEvidence':row['fattyAcidEvidence']} if 'fattyAcidEvidence' in row else {})}
 
 # Only mixtures already defined by mass in the existing food catalogue.
 for fid, ingredients in {'fruit_salad_basic': {'apple':.25,'banana':.25,'orange':.25,'mandarin':.25},

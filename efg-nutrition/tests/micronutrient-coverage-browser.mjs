@@ -29,7 +29,7 @@ try{for(const engine of ['chromium','webkit']){
   const {MICRONUTRIENT_CATALOG:c}=await import('./micronutrient-catalog.js');
   const entry=(id,qty)=>({id,name:c.foods[id].name,qty,unit:c.foods[id].unit,k:qty*1.1,p:qty*.06,c:qty*.12,f:qty*.03,fi:qty*.01,sourceId:c.foods[id].catalogSourceId??c.foods[id].sourceId});
   s.diary.meals.desayuno=[entry('milk_skim',250),entry('oats_raw',50),entry('apple',150)];
-  s.diary.meals.almuerzo=[entry('beef_tenderloin',150),entry('kidney_beef_grilled',100),entry('spinach_raw',80),{id:'recipe-demo',name:'Plato casero · datos incompletos',qty:120,unit:'g',k:300,p:20,c:30,f:10,fi:4}];
+  s.diary.meals.almuerzo=[entry('beef_tenderloin',150),entry('kidney_beef_grilled',100),entry('spinach_raw',80),entry('fish_hake',150),entry('ham_cooked',50),{id:'recipe-demo',name:'Plato casero · datos incompletos',qty:120,unit:'g',k:300,p:20,c:30,f:10,fi:4}];
   s.profile.role='admin';s.selfManagementOwn={owner:s.session.user.id,epoch:s.authContextEpoch||0,fields:{age_years:41,sex_for_equation:'male',dietary_pattern:'omnivore',pregnantOrBreastfeeding:false,clinicalCareRequired:false,eatingDisorderHistory:false,restrictionDeclaration:'none_declared',health_flags:[]}};
   await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
  });
@@ -48,7 +48,7 @@ try{for(const engine of ['chromium','webkit']){
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-referencia-general.png')});
   await block.locator('.ncc-micro-expand > summary').click();assert.equal(await block.locator('[data-micro-detail]').count(),7);
   assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Lomo vacuno cocido/);
-  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);
+  assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Riñón/);assert.match(await block.locator('[data-micro-detail=iron]').textContent(),/Merluza cocida/);assert.match(await block.locator('[data-micronutrient=epa_dha] .ncc-micro-value').textContent(),/250 mg/);
   await block.locator('[data-micro-detail=iron] .ncc-micro-sources > summary').click();
   await block.locator('[data-micro-detail=iron]').screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-hierro-lomo.png')});
   await block.screenshot({path:resolve(out,engine+'-'+width+'-'+role+'-detalle.png')});

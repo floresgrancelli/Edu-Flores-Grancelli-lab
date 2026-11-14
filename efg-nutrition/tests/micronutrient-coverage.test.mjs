@@ -17,7 +17,7 @@ const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,243);
+ assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,264);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -52,7 +52,7 @@ test('unknown branded product remains unknown, never inferred from common milk',
 test('second batch preserves all 218 prior compositions and scales all 25 reviewed foods',()=>{
  const priorText=execFileSync('git',['show','6e9dcbc3da4025ceb12ee8e324b929714af429d3:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
  const baseline=JSON.parse(priorText.slice(priorText.indexOf('= ')+2).replace(/;\s*$/,''));
- for(const [id,f]of Object.entries(baseline.foods)) assert.deepEqual(c.foods[id].perUnit,f.perUnit,id);
+ for(const [id,f]of Object.entries(baseline.foods)) for(const [key,value]of Object.entries(f.perUnit)) if(value!==null) assert.equal(c.foods[id].perUnit[key],value,id+':'+key);
  const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-two.json',import.meta.url)));
  assert.equal(Object.keys(batch).length,25);
  const identities={magnesium:[1090,1],calcium:[1087,1],iron:[1089,1],zinc:[1095,1],b12:[1178,1],ala:[1404,1],epa:[1278,1000],dha:[1272,1000]};
@@ -65,5 +65,26 @@ test('second batch preserves all 218 prior compositions and scales all 25 review
   }
   const result=totals([entry(id,75)]).find(n=>n.id==='iron');
   assert.ok(Math.abs(result.food-c.foods[id].perUnit.iron*75)<1e-9,id);
+ }
+});
+
+test('third batch preserves every published known value and verifies SARA scaling and fatty-acid units',()=>{
+ const text=execFileSync('git',['show','2b08fca6d20c4c6906d0471a930306e98f7cdc74:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const baseline=JSON.parse(text.slice(text.indexOf('= ')+2).replace(/;\s*$/,''));
+ for(const [id,f]of Object.entries(baseline.foods))for(const [key,value]of Object.entries(f.perUnit))if(value!==null)assert.equal(c.foods[id].perUnit[key],value,id+':'+key);
+ const sara=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/sara2-reviewed.json',import.meta.url)));
+ for(const row of sara){
+  const f=c.foods[row.foodId];assert.equal(f.perUnit.b12,null);
+  for(const [key,value]of Object.entries(row.per100g))assert.equal(f.perUnit[key],value/100);
+  assert.ok(Math.abs(totals([entry(row.foodId,150)]).find(n=>n.id==='iron').food-row.per100g.iron*1.5)<1e-9);
+  if(row.fattyAcidEvidence)for(const key of ['ala','epa','dha'])assert.equal(f.perUnit[key],row.fattyAcidEvidence[key]*(key==='ala'?1:1000)/100);
+ }
+ assert.equal(c.foods.fish_hake.perUnit.epa,1.3);assert.equal(c.foods.fish_hake.perUnit.dha,3.45);
+ assert.ok(Math.abs(totals([entry('fish_hake',150)]).find(n=>n.id==='epa_dha').food-712.5)<1e-9);
+ assert.equal(c.foods.chorizo_cooked.perUnit.epa,0);assert.equal(c.foods.alfajor_chocolate.perUnit.epa,null);
+ const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-three.json',import.meta.url)));
+ for(const [id,fdc]of Object.entries(batch.usdaAdditions)){
+  assert.equal(c.foods[id].sourceId,String(fdc));
+  for(const [key,n]of Object.entries({iron:1089,zinc:1095,magnesium:1090,calcium:1087}))assert.ok(Math.abs(c.foods[id].perUnit[key]-records[fdc].foodNutrients.find(x=>x.nutrient.id===n).amount/100)<1e-9);
  }
 });

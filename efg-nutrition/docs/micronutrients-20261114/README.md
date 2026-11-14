@@ -1,8 +1,8 @@
 # Ampliación de micronutrientes — candidata
 
-Base: producción PR126, 8f660da95964021fae389cdf52873e3988f4b10a. No publicada.
+Base de esta tanda: producción PR127, 2b08fca6d20c4c6906d0471a930306e98f7cdc74. Las primeras dos tandas y las barras generales ya están publicadas; la tercera tanda aún no.
 
-El catálogo mantiene los 617 alimentos, sus identidades, macros, cantidades y diarios. La composición de micronutrientes pasa de 63 a 243 identidades: 44 tienen los ocho componentes (EPA y DHA separados); 199 tienen datos parciales. Quedan 374 sin una referencia incorporada. No equivale a 243 alimentos con siete indicadores completos. Coverage.json enumera los 617, nutriente por nutriente; las recetas y marcas pendientes no reciben composiciones supuestas.
+El catálogo mantiene los 617 alimentos, sus identidades, macros, cantidades y diarios. La composición de micronutrientes pasa de 63 a 264 identidades: 49 tienen los ocho componentes (EPA y DHA separados); 215 tienen datos parciales. Quedan 353 sin una referencia incorporada. No equivale a 264 alimentos con siete indicadores completos. Coverage.json enumera los 617, nutriente por nutriente; las recetas y marcas pendientes no reciben composiciones supuestas.
 
 Fuentes: descarga oficial USDA SR Legacy (abril 2018), captura y SHA256 en source-manifest.json, registros completos seleccionados en usda-sr-selected.json.gz. Las fuentes anteriores tienen prioridad: se conserva cada valor no nulo y se completan solo nutrientes ausentes del mismo FDC ID. nutrientSupplementalCaptures identifica el origen del complemento. reviewed-mappings.json es una lista explícita revisada de alimento/preparación, no un emparejamiento automático por nombres. Los promedios genéricos no se presentan como análisis del alimento argentino ni como etiqueta de fabricante. No se modifican los macros para hacerlos coincidir con otra fuente.
 
@@ -12,8 +12,15 @@ Achuras: SARA 2 (Ministerio de Salud, 2022), tabla 7.B, páginas 83, 87 y 89, re
 
 catalogSourceId conserva el vínculo con la identidad nutricional histórica del diario; sourceId describe la evidencia de micronutrientes. Así, la referencia SARA no invalida una achura guardada con su identificador anterior. Una identidad incompatible continúa rechazada. La estimación es de lectura: no reescribe comidas, metas, fichas ni roles.
 
-Validación: 21 contratos locales aprobados, incluidos conservación de cada valor anterior, trazabilidad del archivo, escalado del lomo, seis achuras, propagación de desconocidos y rechazo de sourceId incorrecto. Workflow específico captura la app en Chromium/WebKit, 390/320, tres roles. No cambios al diseño aprobado ni a referencias personales.
+Validación: 23 contratos locales aprobados, incluidos conservación de cada valor anterior, trazabilidad del archivo, escalado del lomo, seis achuras, propagación de desconocidos y rechazo de sourceId incorrecto. Workflow específico captura la app en Chromium/WebKit, 390/320, tres roles. No cambios al diseño aprobado ni a referencias personales.
 
-Pendientes: revisar fuentes locales y preparaciones para las 374 identidades restantes; priorizar carnes locales, merluza y jamón, luego recetas con rendimiento medido y productos con etiqueta. B12 de SARA y ALA requieren validación específica. No presentar los pendientes como cero ni afirmar cobertura total.
+Pendientes: revisar fuentes locales y preparaciones para las 353 identidades restantes; priorizar otras carnes locales, luego recetas con rendimiento medido y productos con etiqueta. B12 de SARA y ALA requieren validación específica. No presentar los pendientes como cero ni afirmar cobertura total.
 
 Segunda tanda: 25 referencias explícitas en batch-two.json. Incluye carnes y pescados con su preparación, ricota entera y parcialmente descremada, semillas sin cáscara, verduras y legumbres cocidas. Se verifica por nutriente contra el registro congelado, escalado a 75 g y conservación de las 218 composiciones anteriores. Anchoas: referencia en aceite escurrido, no salmuera; ricota magra: referencia parcialmente descremada, no etiqueta de marca.
+
+
+Tercera tanda (batch-three.json): 12 referencias SARA 2 locales (merluza, pejerrey, jamón, tres alfajores y seis panes) y 9 referencias USDA (integrales, tostadas, pan árabe, aderezos, Port Salut, chocolate y galletas de arroz). No representa 264 alimentos completos. Las correspondencias de panes y chocolate son promedios genéricos explícitos; fortificación, marca y formulación pueden variar.
+
+ALA/EPA/DHA se completan para chinchulines, chorizo cocido, molleja, morcilla, riñón, merluza y pejerrey desde las columnas identificadas de SARA 2, páginas 82, 86, 88 y 97. La fuente declara g/100 g: ALA conserva gramos y EPA/DHA se convierten a mg. Los ceros son valores explícitos de la tabla, nunca celdas vacías. fattyAcidEvidence retiene página, cantidades originales y conversión. La morcilla vasca solo se completa si todos sus ingredientes aportan ese nutriente. B12 sigue pendiente de unidad verificada. Para merluza y pejerrey se usa la fila preparada, no la fila cruda, cotejada con la tabla 9.A de página 97.
+
+Validación de la tercera tanda: todos los valores previamente conocidos de PR127 se conservan; se verifica cada correspondencia USDA, escala SARA a 150 g y la conversión g→mg de EPA/DHA. La vista aprobada con referencias generales se conserva. Prueba de navegador específica añade merluza y jamón al diario sintético y comprueba contribución de merluza al hierro sin escrituras reales.

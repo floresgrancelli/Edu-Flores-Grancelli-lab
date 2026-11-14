@@ -55,19 +55,20 @@
   {
     "id": "alfajor_chocolate",
     "name": "Alfajor con baño de chocolate",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "alfajor_chocolate_triple",
@@ -89,36 +90,38 @@
   {
     "id": "alfajor_ddl",
     "name": "Alfajor de dulce de leche clásico",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "alfajor_maicena",
     "name": "Alfajor de maicena",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "almejas_cocidas",
@@ -976,8 +979,7 @@
   {
     "id": "bread",
     "name": "Pan integral",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -987,8 +989,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "bread_glutenfree",
@@ -1010,19 +1013,20 @@
   {
     "id": "bread_rye",
     "name": "Pan de centeno",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "bread_white",
@@ -2024,13 +2028,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
-    ],
-    "missing": [
-      "b12",
+      "zinc",
       "ala",
       "epa",
       "dha"
+    ],
+    "missing": [
+      "b12"
     ],
     "status": "partial",
     "blocker": null
@@ -2126,8 +2130,7 @@
   {
     "id": "chocolate_dark",
     "name": "Chocolate amargo 70%",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -2137,8 +2140,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "chocolate_leche",
@@ -2233,13 +2237,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
-    ],
-    "missing": [
-      "b12",
+      "zinc",
       "ala",
       "epa",
       "dha"
+    ],
+    "missing": [
+      "b12"
     ],
     "status": "partial",
     "blocker": null
@@ -3420,19 +3424,20 @@
   {
     "id": "fish_hake",
     "name": "Merluza cocida",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "fish_mackerel",
@@ -4009,19 +4014,20 @@
   {
     "id": "ham_cooked",
     "name": "Jamón cocido",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "hamburguesa_completa",
@@ -4531,13 +4537,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
-    ],
-    "missing": [
-      "b12",
+      "zinc",
       "ala",
       "epa",
       "dha"
+    ],
+    "missing": [
+      "b12"
     ],
     "status": "partial",
     "blocker": null
@@ -5035,8 +5041,7 @@
   {
     "id": "mayonnaise",
     "name": "Mayonesa común",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5046,8 +5051,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "medallon_cerdo_rebozado",
@@ -5866,13 +5872,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
-    ],
-    "missing": [
-      "b12",
+      "zinc",
       "ala",
       "epa",
       "dha"
+    ],
+    "missing": [
+      "b12"
     ],
     "status": "partial",
     "blocker": null
@@ -5884,13 +5890,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
+      "zinc",
+      "epa",
+      "dha"
     ],
     "missing": [
       "b12",
-      "ala",
-      "epa",
-      "dha"
+      "ala"
     ],
     "status": "partial",
     "blocker": null
@@ -5987,8 +5993,7 @@
   {
     "id": "mustard",
     "name": "Mostaza",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -5998,8 +6003,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "nalga_cooked",
@@ -6355,76 +6361,79 @@
   {
     "id": "pan_arabe",
     "name": "Pan árabe",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
+      "b12"
+    ],
+    "missing": [
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pan_campo_panaderia",
     "name": "Pan de campo tradicional de panadería",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pan_frances",
     "name": "Pan francés tipo flauta",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pan_lactal",
     "name": "Pan lactal blanco",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pan_lactal_integral",
     "name": "Pan lactal integral",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -6434,42 +6443,45 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "pan_mignon_panaderia",
     "name": "Pan miñón común de panadería",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pan_salvado",
     "name": "Pan de salvado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
-      "zinc",
+      "zinc"
+    ],
+    "missing": [
       "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "pancake_complete_mix_prepared",
@@ -6925,19 +6937,20 @@
   {
     "id": "pejerrey_cocido",
     "name": "Pejerrey cocido al horno sin aceite",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
-      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "b12"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "persimmon",
@@ -7805,19 +7818,20 @@
   {
     "id": "queso_port_salut",
     "name": "Queso Port Salut tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "queso_sardo",
@@ -8172,19 +8186,20 @@
   {
     "id": "rice_cakes",
     "name": "Galletas de arroz sin sal",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "rice_chicken",
@@ -9230,13 +9245,13 @@
       "magnesium",
       "calcium",
       "iron",
-      "zinc"
-    ],
-    "missing": [
-      "b12",
+      "zinc",
       "ala",
       "epa",
       "dha"
+    ],
+    "missing": [
+      "b12"
     ],
     "status": "partial",
     "blocker": null
@@ -9775,19 +9790,20 @@
   {
     "id": "toast_whole",
     "name": "Tostadas integrales",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "tofu_ahumado_generic",

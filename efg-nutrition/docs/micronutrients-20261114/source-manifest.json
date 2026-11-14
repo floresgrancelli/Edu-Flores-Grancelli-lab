@@ -1,7 +1,7 @@
 {
   "url": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip",
   "downloadSha256": "0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef",
-  "selectedSha256": "81293d390f3b4c3bea67a1f4c8c5ef9fe0a2a211cffad132995524c0ab171309",
+  "selectedSha256": "8f3abcc0790d7e16bb722a252149b245d3771724556c60ef26771f3cdfbb6bce",
   "date": "2026-11-14",
-  "recordCount": 226
+  "recordCount": 232
 }

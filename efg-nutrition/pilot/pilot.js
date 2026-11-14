@@ -2432,7 +2432,7 @@ function mealRecentQuantity(foodId){
  // Drinks and recipes require their existing ingredient/portion review.
  if(!f||!item||BEVERAGE_IDS.has(f.id)||f.privateRecipe||f.unit==='porción')return null;
  const portion=FOOD_UNIT_PORTIONS[f.id],units=Number(item.displayQty),grams=Number(item.qty);
- if(portion&&item.displayUnit===portion.label&&Math.abs(grams-units*portion.grams)<0.01&&Number.isInteger(units*2)&&units>=0.5&&units<=100)return {mode:'units',qty:units,label:num(units,1)+' un. ('+portion.label+')'};
+ if(portion&&item.unit===f.unit&&Math.abs(grams-units*portion.grams)<0.01&&Number.isInteger(units*2)&&units>=0.5&&units<=100)return {mode:'units',qty:units,label:num(units,1)+' un. ('+portion.label+')'};
  if(item.unit===f.unit&&Number.isFinite(grams)&&grams>0&&grams<=5000)return {mode:'weight',qty:grams,label:num(grams,1)+' '+f.unit};
  return null;
 }

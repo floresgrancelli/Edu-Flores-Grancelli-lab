@@ -261,9 +261,9 @@ try{
     'Coach must initially see six guide cards in actual PWA');
    await assertCompactGuideEditor(page);
    await editor.locator('[data-guidecard="almuerzo"] .ncc-guide-add-options > summary').click();
-   const catalogSize=await page.evaluate(()=>window.__EFG_VISUAL_QA__.foods.length);
+   const catalogSize=await page.evaluate(()=>window.__EFG_VISUAL_QA__.foods.filter(f=>!f.diaryOnly).length);
    assert.ok((await editor.locator('[data-guidefoodpick="almuerzo"] option').count())>=catalogSize,
-    'Coach must retain full catalog when editing a guide');
+    'Coach retains every prescribed food; diary-only restaurant/alcohol references stay outside prescriptions');
    assert.equal(await editor.locator('[data-guidefoodpick="almuerzo"] option[value="tofu_firm"]').count(),1);
    await editor.locator('[data-guidereplaceindex="almuerzo"]').selectOption('0');
    await editor.locator('[data-guidefoodpick="almuerzo"]').selectOption('tofu_firm');

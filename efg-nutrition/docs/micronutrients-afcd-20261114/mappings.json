@@ -1,0 +1,723 @@
+[
+  {
+    "target": "cashews",
+    "expectedName": "Castañas de cajú",
+    "expectedUnit": "g",
+    "code": "F006088",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "macadamia_nuts",
+    "expectedName": "Nueces de macadamia",
+    "expectedUnit": "g",
+    "code": "F006099",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "pecans",
+    "expectedName": "Nueces pecán",
+    "expectedUnit": "g",
+    "code": "F006111",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "pistachios",
+    "expectedName": "Pistachos",
+    "expectedUnit": "g",
+    "code": "F006113",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "barley_cooked",
+    "expectedName": "Cebada perlada cocida",
+    "expectedUnit": "g",
+    "code": "F000378",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "buckwheat_cooked",
+    "expectedName": "Trigo sarraceno cocido",
+    "expectedUnit": "g",
+    "code": "F001918",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "millet_dry",
+    "expectedName": "Mijo seco, sin cocinar",
+    "expectedUnit": "g",
+    "code": "F005692",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "millet_cooked",
+    "expectedName": "Mijo cocido",
+    "expectedUnit": "g",
+    "code": "F005690",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "red_lentils_dry",
+    "expectedName": "Lentejas rojas secas, sin cocinar",
+    "expectedUnit": "g",
+    "code": "F005184",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "cottage_cheese",
+    "expectedName": "Queso cottage",
+    "expectedUnit": "g",
+    "code": "F002435",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "milk_powder_whole",
+    "expectedName": "Leche entera en polvo, sin reconstituir",
+    "expectedUnit": "g",
+    "code": "F005650",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "milk_powder_skim_instant",
+    "expectedName": "Leche descremada en polvo instantánea, sin reconstituir",
+    "expectedUnit": "g",
+    "code": "F005652",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "milk_skim",
+    "expectedName": "Leche descremada común (referencia USDA)",
+    "expectedUnit": "ml",
+    "code": "F005637",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "tea_plain",
+    "expectedName": "Té negro sin azúcar",
+    "expectedUnit": "ml",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "tea_green",
+    "expectedName": "Té verde sin azúcar",
+    "expectedUnit": "ml",
+    "code": "F009117",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "apricots_dried_sulfured",
+    "expectedName": "Damascos deshidratados tratados con sulfitos",
+    "expectedUnit": "g",
+    "code": "F000130",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "lime_raw",
+    "expectedName": "Lima fresca, parte comestible",
+    "expectedUnit": "g",
+    "code": "F005199",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "nectarine_raw",
+    "expectedName": "Pelón o nectarina fresca",
+    "expectedUnit": "g",
+    "code": "F006021",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "hummus",
+    "expectedName": "Hummus clásico",
+    "expectedUnit": "g",
+    "code": "F003539",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "caramelos_duros",
+    "expectedName": "Caramelos duros comunes azucarados (referencia USDA)",
+    "expectedUnit": "g",
+    "code": "F005235",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "zapallo_anco_horno",
+    "expectedName": "Zapallo anco al horno sin aceite (referencia USDA)",
+    "expectedUnit": "g",
+    "code": "F007533",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "zapallo_anco_hervido",
+    "expectedName": "Zapallo anco hervido, sin aceite",
+    "expectedUnit": "g",
+    "code": "F007534",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "turnip_cooked",
+    "expectedName": "Nabo cocido",
+    "expectedUnit": "g",
+    "code": "F009339",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "bagel_plain_generic",
+    "expectedName": "Bagel común sin relleno, genérico de referencia",
+    "expectedUnit": "g",
+    "code": "F000233",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Referencia australiana del alimento y estado indicados; no representa una marca ni la porción concreta."
+  },
+  {
+    "target": "buckwheat_roasted_dry",
+    "expectedName": "Trigo sarraceno tostado en grano, seco",
+    "expectedUnit": "g",
+    "code": "F001919",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Trigo sarraceno seco sin tostar como equivalente del tostado seco; puede variar con el tratamiento térmico. No se aplica el valor del grano cocido."
+  },
+  {
+    "target": "tahini_roasted",
+    "expectedName": "Tahini de semillas de sésamo tostadas",
+    "expectedUnit": "g",
+    "code": "F009076",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pasta de sésamo genérica como equivalente del tahini tostado; el origen y tostado pueden variar."
+  },
+  {
+    "target": "potato_baked",
+    "expectedName": "Papa al horno sin aceite",
+    "expectedUnit": "g",
+    "code": "F007314",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Papa de piel clara pelada al horno sin grasa como equivalente genérico; variedad y piel pueden variar."
+  },
+  {
+    "target": "sweetpotato_baked",
+    "expectedName": "Batata al horno sin aceite",
+    "expectedUnit": "g",
+    "code": "F009033",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Batata naranja pelada al horno sin grasa como equivalente de batata al horno; variedad y piel pueden variar."
+  },
+  {
+    "target": "zapallo_cabutia_horno",
+    "expectedName": "Zapallo cabutiá al horno, sin aceite",
+    "expectedUnit": "g",
+    "code": "F011005",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Zapallo japonés Kent/Jap al horno como equivalente de cabutiá; variedad regional y humedad pueden variar."
+  },
+  {
+    "target": "zapallo_cabutia_hervido",
+    "expectedName": "Zapallo cabutiá hervido, sin aceite",
+    "expectedUnit": "g",
+    "code": "F010998",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Zapallo japonés Kent/Jap hervido como equivalente de cabutiá; variedad regional y humedad pueden variar."
+  },
+  {
+    "target": "fish_shrimp",
+    "expectedName": "Langostinos cocidos",
+    "expectedUnit": "g",
+    "code": "F007432",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Langostinos/prawns cocidos desde crudo sin grasa, carne comestible; especie regional puede variar."
+  },
+  {
+    "target": "camarones_cocidos",
+    "expectedName": "Camarones cocidos sin aceite",
+    "expectedUnit": "g",
+    "code": "F007432",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Prawns cocidos sin grasa como equivalente de camarones cocidos; tamaño y especie pueden variar."
+  },
+  {
+    "target": "vieiras_cocidas",
+    "expectedName": "Vieiras cocidas sin aceite",
+    "expectedUnit": "g",
+    "code": "F008165",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Vieira cocida a la sartén sin grasa como equivalente de vieira cocida; diferencias de humedad y método posibles."
+  },
+  {
+    "target": "mani_chocolate",
+    "expectedName": "Maní bañado en chocolate",
+    "expectedUnit": "g",
+    "code": "F003114",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Maní bañado en chocolate, referencia genérica australiana; la proporción y tipo de chocolate pueden variar."
+  },
+  {
+    "target": "drink:beer",
+    "code": "F000994",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:beer_stout",
+    "code": "F000994",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:beer_wheat",
+    "code": "F000994",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Beer, full strength (alcohol 4-4.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:beer_light",
+    "code": "F001004",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Beer, light (alcohol 1-2.9% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:beer_ipa",
+    "code": "F000996",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Beer, high alcohol (5% v/v & above). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:red",
+    "code": "F009571",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, red. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:white",
+    "code": "F009581",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, white. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:rose",
+    "code": "F009579",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, rose. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:brut",
+    "code": "F009590",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, white, sparkling. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:demi",
+    "code": "F009590",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, white, sparkling. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:port",
+    "code": "F009566",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, fortified, port. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:sherry",
+    "code": "F009567",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, fortified, sherry, dry style (~1% sugars). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:sweet_white",
+    "code": "F009592",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Wine, white, sweet dessert style. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:cider",
+    "code": "F002955",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Cider, apple (alcohol ~4-5% v/v). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:whisky",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:bourbon",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:vodka",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:gin",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:rum",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:tequila",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:pisco",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:cachaca",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:cognac",
+    "code": "F000051",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:cola",
+    "code": "F008402",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, cola flavour. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:zero",
+    "code": "F008404",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, cola flavour, intense sweetened or diet. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:lemon_soda",
+    "code": "F008438",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, fruit flavours. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:grapefruit_soda",
+    "code": "F008438",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, fruit flavours. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:ginger_beer",
+    "code": "F008411",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, dry ginger ale or ginger beer, regular. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:tonic",
+    "code": "F008460",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Soft drink, tonic water. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:soda",
+    "code": "F008377",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Water, soda. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:lime",
+    "code": "F004729",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Juice, lime. Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "drink:cream",
+    "code": "F003270",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Equivalente genérico de Cream, thickened, regular fat (~35%). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "whey_powder",
+    "expectedName": "Proteína whey en polvo (1 scoop = 30 g, genérica)",
+    "expectedUnit": "g",
+    "code": "F007493",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Whey genérico sin fortificar, proteína superior al 70%, polvo seco. Solo completa ALA; no extrapola vitaminas de marcas ni dilución."
+  },
+  {
+    "target": "pulpo_cocido",
+    "expectedName": "Pulpo cocido sin aceite",
+    "expectedUnit": "g",
+    "code": "F006148",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pulpo hervido sin grasa: referencia genérica de carne comestible cocida."
+  },
+  {
+    "target": "centolla_cocida",
+    "expectedName": "Centolla cocida, carne limpia",
+    "expectedUnit": "g",
+    "code": "F003243",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Carne de cangrejo cocida como equivalente de centolla limpia; especie y origen pueden variar."
+  },
+  {
+    "target": "tea_milk",
+    "expectedName": "Té con leche (personalizable)",
+    "expectedUnit": "ml",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Solo base de té negro con agua; leche y azúcar deben registrarse aparte, como define el catálogo personalizable."
+  },
+  {
+    "target": "galletitas_chocolate",
+    "expectedName": "Galletitas comerciales con chips de chocolate, con mayor grasa, harina no enriquecida (referencia USDA)",
+    "expectedUnit": "g",
+    "code": "F001170",
+    "nutrients": [
+      "epa",
+      "dha"
+    ],
+    "note": "Galletita comercial con chips o cobertura de chocolate como equivalente para EPA/DHA; receta y grasa pueden variar. Conserva los demás valores previos."
+  }
+]

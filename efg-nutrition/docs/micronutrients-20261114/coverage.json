@@ -248,14 +248,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -539,15 +538,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -577,14 +575,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -596,14 +593,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -764,10 +760,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -858,10 +852,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1253,14 +1245,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1272,14 +1263,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1290,15 +1280,14 @@
       "calcium",
       "iron",
       "zinc",
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "b12"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1369,10 +1358,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1452,10 +1439,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1485,14 +1470,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1558,14 +1542,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1633,14 +1616,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1707,14 +1689,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -1858,10 +1839,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -2621,14 +2600,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -2951,10 +2929,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -2971,10 +2947,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3009,10 +2983,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3464,14 +3436,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3669,14 +3640,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3706,14 +3676,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3725,14 +3694,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3749,10 +3717,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3764,14 +3730,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -3872,15 +3837,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4284,10 +4248,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4304,10 +4266,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4373,14 +4333,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4410,14 +4369,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4555,15 +4513,14 @@
       "calcium",
       "iron",
       "zinc",
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "b12"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4580,10 +4537,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4632,14 +4587,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4687,14 +4641,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4724,14 +4677,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -4891,14 +4843,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5019,15 +4970,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5093,14 +5043,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5169,14 +5118,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5242,15 +5190,14 @@
       "calcium",
       "iron",
       "zinc",
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "b12"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5517,14 +5464,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5536,14 +5482,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5574,14 +5519,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -5725,10 +5669,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6019,14 +5961,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6058,14 +5999,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6077,14 +6017,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6096,14 +6035,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6114,15 +6052,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6152,14 +6089,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6170,15 +6106,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6233,10 +6168,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6378,14 +6311,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6453,14 +6385,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6908,14 +6839,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -6992,10 +6922,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7012,10 +6940,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7104,10 +7030,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7196,10 +7120,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7216,10 +7138,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7377,14 +7297,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -7451,14 +7370,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8003,14 +7921,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8027,10 +7944,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8047,10 +7962,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8086,10 +7999,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8177,14 +8088,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8648,15 +8558,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -8927,10 +8836,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9195,14 +9102,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9557,12 +9463,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9584,12 +9485,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9611,12 +9507,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9638,12 +9529,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9665,12 +9551,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9692,12 +9573,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9719,12 +9595,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9806,12 +9677,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9869,12 +9735,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9896,12 +9757,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9923,12 +9779,7 @@
     "incomplete": [
       "ala",
       "b12",
-      "calcium",
-      "dha",
-      "epa",
-      "iron",
-      "magnesium",
-      "zinc"
+      "dha"
     ],
     "status": "partial",
     "blocker": null
@@ -9978,14 +9829,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -9997,14 +9847,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -10376,14 +10225,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -10395,14 +10243,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -10414,14 +10261,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -10817,14 +10663,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -10927,14 +10772,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11039,14 +10883,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11112,14 +10955,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11352,10 +11194,8 @@
       "dha"
     ],
     "missing": [],
-    "incomplete": [
-      "ala"
-    ],
-    "status": "partial",
+    "incomplete": [],
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11366,15 +11206,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11385,15 +11224,14 @@
       "calcium",
       "iron",
       "zinc",
-      "b12"
-    ],
-    "missing": [
+      "b12",
       "ala",
       "epa",
       "dha"
     ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11405,14 +11243,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {
@@ -11424,14 +11261,13 @@
       "iron",
       "zinc",
       "b12",
+      "ala",
       "epa",
       "dha"
     ],
-    "missing": [
-      "ala"
-    ],
+    "missing": [],
     "incomplete": [],
-    "status": "partial",
+    "status": "complete",
     "blocker": null
   },
   {

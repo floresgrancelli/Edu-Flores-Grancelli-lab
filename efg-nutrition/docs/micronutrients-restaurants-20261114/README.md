@@ -1,0 +1,5 @@
+Se añaden 235 perfiles estimados: 161 platos de cadenas y 74 bebidas. Nueve combos de sushi usan las mezclas ya declaradas, por combo completo y fracciones. Los 618 perfiles anteriores se conservan.
+
+Los modelos reutilizan las composiciones congeladas USDA/SARA de ingredientes; se conservan capturas nuevas USDA SR Legacy en new-usda-records.json y correspondencias en equivalent-models.json. Fuente: https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip. SHA256 del archivo original: 0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef.
+
+Densidades líquidas supuestas a 1 g/ml. Licores y aperitivos sin referencia específica usan equivalentes; no son análisis de marca. McDonald’s conserva sus macros oficiales y recibe aproximaciones de micronutrientes por equivalente genérico, con limitaciones detalladas en cada perfil. Conos/coberturas y salsas no se modelan en los equivalentes de helado. Los faltantes se marcan como parciales, no como cero. No se cambian metas ni recomendaciones diarias.

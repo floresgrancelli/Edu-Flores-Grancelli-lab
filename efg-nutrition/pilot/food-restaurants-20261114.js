@@ -26,7 +26,7 @@ export function buildRestaurantCatalog(baseFoods){
   }
   foods.push({id:'rest_'+r.key,name:r.brand+' · '+r.name+' (estimación)',brand:r.brand,category:'restaurant',unit:r.unit,restaurant:true,diaryOnly:true,comboPieces:r.comboPieces||null,servingGrams:r.portion,recipeParts:r.parts,
   ...Object.fromEntries(Object.entries(totals).map(([k,v])=>[k,v/r.portion])),sourceType:'recipe_estimate',validationStatus:'receta_estimado',sourceUrl:r.menuUrl,
-  source:'ESTIMACIÓN NUTRICIONAL, no tabla de la cadena. Nombre identificado en carta o canal comercial; disponibilidad variable por sucursal. Peso/volumen y cantidades SUPUESTOS: '+parts.join('; ')+'. Rendimiento de referencia: '+r.portion+' '+r.unit+'. Modelo con equivalentes genéricos del catálogo; NO representa la receta exacta del restaurante. '+r.note+' Micronutrientes no estimados. Revisado 14/11/2026.'});
+  source:'ESTIMACIÓN NUTRICIONAL, no tabla de la cadena. Nombre identificado en carta o canal comercial; disponibilidad variable por sucursal. Peso/volumen y cantidades SUPUESTOS: '+parts.join('; ')+'. Rendimiento de referencia: '+r.portion+' '+r.unit+'. Modelo con equivalentes genéricos del catálogo; NO representa la receta exacta del restaurante. '+r.note+' Micronutrientes aproximados por ingredientes o equivalentes genéricos; ver detalle y fuentes en Mi Día. Revisado 14/11/2026.'});
  }
  const portions=Object.fromEntries(foods.map(f=>[f.id,{grams:f.servingGrams,label:(f.comboPieces?'combo de '+f.comboPieces+' piezas':RESTAURANT_VISUALS[f.id].icon==='🍣'?'pieza':f.unit==='ml'?'vaso':'porción')+' de '+f.servingGrams+' '+f.unit}]));
  return {foods,portions};

@@ -1,0 +1,45 @@
+name: NCC restaurant micronutrients QA
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths:
+      - 'efg-nutrition/pilot/micronutrient-expanded-catalog.js'
+      - 'efg-nutrition/tests/micronutrient-restaurants*'
+      - 'efg-nutrition/tests/micronutrient-gaps*'
+      - 'efg-nutrition/tests/micronutrient-afcd*'
+      - 'efg-nutrition/tests/micronutrient-nori*'
+      - 'efg-nutrition/docs/micronutrients-nori-20261114/**'
+      - 'efg-nutrition/docs/micronutrients-afcd-20261114/**'
+      - 'efg-nutrition/docs/micronutrients-gaps-20261114/**'
+      - '.github/workflows/ncc-micro-restaurants-qa.yml'
+permissions:
+  contents: read
+jobs:
+  micronutrients:
+    runs-on: ubuntu-24.04
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    strategy:
+      matrix:
+        browser: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/micronutrient-restaurants.test.mjs
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: node efg-nutrition/tests/micronutrient-gaps.test.mjs
+      - run: node efg-nutrition/tests/micronutrient-afcd.test.mjs
+      - run: node efg-nutrition/tests/micronutrient-nori.test.mjs
+      - run: mkdir -p /workspace
+      - run: node efg-nutrition/tests/micronutrient-restaurants-browser.mjs
+        env:
+          NCC_TEST_ENGINES: ${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: micro-restaurants-${{ matrix.browser }}
+          path: artifacts/micronutrient-restaurants-preview/

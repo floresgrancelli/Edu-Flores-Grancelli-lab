@@ -524,6 +524,15 @@
     "rest_subway_bbq_15",
     "rest_subway_bbq_30",
     "rest_subway_milanesa_15",
-    "rest_subway_milanesa_30"
+    "rest_subway_milanesa_30",
+    "rest_sushiclub_combo_15",
+    "rest_sushiclub_combo_30",
+    "rest_sushiclub_combo_45",
+    "rest_fabric_combo_15",
+    "rest_fabric_combo_30",
+    "rest_ishidan_combo_clasicos_10",
+    "rest_ishidan_combo_salmon_12",
+    "rest_ishidan_combo_vegetariano_12",
+    "rest_ishidan_combo_caliente_15"
   ]
 }

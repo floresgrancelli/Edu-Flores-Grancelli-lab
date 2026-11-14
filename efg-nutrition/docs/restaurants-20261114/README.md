@@ -13,3 +13,7 @@
 Archivos de auditoría: `mcdonalds-official.json` (hechos nutricionales y enlaces individuales), `reference-models.json` (supuestos), `food-restaurants-20261114.js` (composición ejecutable).
 
 Validación: contratos de identidad, porciones, procedencia y energía; integración en registro/edición, búsquedas de las 15 cadenas y frutos secos pesados en gramos, mediante Chromium/WebKit con datos sintéticos. No equivale a ensayo físico iPhone/Android ni altera cuentas reales.
+
+
+## Combos de sushi
+Se agregan nueve combinados de SushiClub, Fabric e Ishidan, con número de piezas publicado y porción de un combo completo o fracción. Las cantidades y mezclas nutricionales son modelos ilustrativos por equivalencia; no recetas oficiales. Las bebidas y salsas extra se registran aparte.

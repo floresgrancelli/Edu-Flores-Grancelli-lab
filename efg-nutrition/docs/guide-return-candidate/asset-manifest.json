@@ -363,7 +363,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "5162d5bb918cc9175327ac297e740f007ad433c9b8884c1a635263ab0a56c54e",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "c4354b458c9f5a457671d1eedbadd800af2d5286ff852d72bd167a216788ed6a",
+    "efg-nutrition/pilot/pilot.js": "916854850ab17554cd75d3d626ec6fdb99f15b5a7eee83a65c90c95e53ac15c4",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "18fe538e368f9defe755e99e098b9b482f1d2e6dc4ea64597423e092765ed834",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "a35bdef9a884095bca83a5474d0384b6646cccfe940953ea7edb8b4eccac4fc3",
@@ -442,7 +442,7 @@
     "efg-nutrition/catalog/guide-catalog.json": "27fe705a4ab1a9424b5a4d400532ed8307ba73ea2a0cda7863818106d7790bed",
     "efg-nutrition/pilot/notifications-ui.css": "a753ef1b3938e2ba56773bcf94e0ca35be9b5ae48ea5ee5535bf7b425ac356cd",
     "efg-nutrition/pilot/food-alcohol-20261114.js": "51ef4f1637b7f8e68c8e9aac0201810f449cc15c316cc782e4d92f240ee3422f",
-    "efg-nutrition/pilot/food-restaurants-20261114.js": "ba3f973b8495f174d96094c7d4345790daff24c8f021bc67aa0a3403409ef955"
+    "efg-nutrition/pilot/food-restaurants-20261114.js": "f7eda3e482382ce1b4751d7652acec1037d2956ee757d95fc886b038f382fc38"
   },
   "stylesheets": [
     {

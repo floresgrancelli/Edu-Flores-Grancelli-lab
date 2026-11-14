@@ -1629,5 +1629,171 @@
     "kind": "sandwich",
     "note": "Pan, relleno y aderezos de referencia. Ajustar a los ingredientes elegidos en el local.",
     "menuUrl": "https://www.subway.com/es-ar"
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_15",
+    "name": "Combinado SushiClub · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 90,
+      "sushi_ebi": 54,
+      "sushi_sashimi_salmon": 115,
+      "avocado": 15,
+      "cream_cheese_regular": 39,
+      "sesame": 6,
+      "egg_boiled": 24,
+      "sushi_maki_salmon": 60,
+      "honey": 6,
+      "sushi_nigiri_salmon": 60
+    },
+    "unit": "g",
+    "portion": 469,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 15
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_30",
+    "name": "Combinado SushiClub · 30 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 150,
+      "sushi_ebi": 90,
+      "sushi_sashimi_salmon": 225,
+      "avocado": 25,
+      "cream_cheese_regular": 65,
+      "sesame": 10,
+      "egg_boiled": 40,
+      "sushi_maki_salmon": 150,
+      "honey": 15,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 920,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 30
+  },
+  {
+    "brand": "SushiClub",
+    "key": "sushiclub_combo_45",
+    "name": "Combinado SushiClub · 45 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 240,
+      "sushi_ebi": 144,
+      "sushi_sashimi_salmon": 340,
+      "avocado": 40,
+      "cream_cheese_regular": 104,
+      "sesame": 16,
+      "egg_boiled": 64,
+      "sushi_maki_salmon": 210,
+      "honey": 21,
+      "sushi_nigiri_salmon": 210
+    },
+    "unit": "g",
+    "portion": 1389,
+    "kind": "sushi",
+    "menuUrl": "https://www.sushiclub.com.ar/carta.php?sucursal=100&tipo=salon",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Distribución ilustrativa; Placer Real aproximado por roll de salmón y queso. Salsas extra aparte.",
+    "comboPieces": 45
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_combo_15",
+    "name": "Selección Omakase · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 300,
+      "mango": 25,
+      "honey": 10,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 485,
+    "kind": "sushi",
+    "menuUrl": "https://pedidos.masdelivery.com/fabric-sushi-caballito",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Nigiri Lima aproximado por nigiri genérico.",
+    "comboPieces": 15
+  },
+  {
+    "brand": "Fabric Sushi",
+    "key": "fabric_combo_30",
+    "name": "Selección Omakase · 30 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 300,
+      "mango": 25,
+      "honey": 10,
+      "sushi_uramaki_palta": 450,
+      "sushi_nigiri_salmon": 150
+    },
+    "unit": "g",
+    "portion": 935,
+    "kind": "sushi",
+    "menuUrl": "https://pedidos.masdelivery.com/fabric-sushi-caballito",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Spring, Tari Tari y 2 Salmones aproximados por roll genérico de salmón.",
+    "comboPieces": 30
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_clasicos_10",
+    "name": "Combinado de rolls clásicos · 10 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 150,
+      "sushi_uramaki_palta": 150
+    },
+    "unit": "g",
+    "portion": 300,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Steam aproximado por roll genérico; proporciones orientativas.",
+    "comboPieces": 10
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_salmon_12",
+    "name": "Combinado sólo Salmón Rosado · 12 piezas (sin bebida)",
+    "parts": {
+      "sushi_philadelphia": 120,
+      "sushi_uramaki_palta": 120,
+      "sushi_nigiri_salmon": 60,
+      "sushi_sashimi_salmon": 40
+    },
+    "unit": "g",
+    "portion": 340,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Maki aproximado por roll genérico de salmón; distribución ilustrativa.",
+    "comboPieces": 12
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_vegetariano_12",
+    "name": "Combinado Vegetariano · 12 piezas (sin bebida)",
+    "parts": {
+      "sushi_maki_vegetal": 360,
+      "cream_cheese_regular": 60
+    },
+    "unit": "g",
+    "portion": 420,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Media vegetal con queso; revisar selección elegida.",
+    "comboPieces": 12
+  },
+  {
+    "brand": "Ishidan Sushi",
+    "key": "ishidan_combo_caliente_15",
+    "name": "Combinado Sushi Caliente · 15 piezas (sin bebida)",
+    "parts": {
+      "sushi_hot_roll": 525,
+      "cheddar": 60
+    },
+    "unit": "g",
+    "portion": 585,
+    "kind": "sushi",
+    "menuUrl": "https://ishidan.com.ar/categoria/sushi/combinados",
+    "note": "Combo completo. Mezcla y pesos SUPUESTOS, no receta exacta; selección variable. Promedio ilustrativo de piezas calientes rebozadas, no distribución oficial.",
+    "comboPieces": 15
   }
 ]

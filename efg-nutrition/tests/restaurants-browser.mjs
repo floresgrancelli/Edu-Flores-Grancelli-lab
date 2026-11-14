@@ -41,6 +41,9 @@ try{
    for(const [query,id] of [['burguer king whopper','rest_bk_whopper'],['mostaza cuarto','rest_mostaza_cuarto'],['sturbucks latte','rest_starbucks_latte'],['cafe martinez espresso','rest_martinez_espresso'],['tienda de cafe espresso','rest_tienda_espresso'],['havanna alfajor','rest_havanna_alfajor'],['bonafide espresso','rest_bonafide_espresso'],['wendy baconator','rest_wendys_baconator'],['kfc crispy','rest_kfc_strip'],['subway milanesa','rest_subway_milanesa_15'],['sushi club philadelphia','rest_sushiclub_phila'],['fabric roll','rest_fabric_fabric']]){
     await open();await search(query,id);assert.equal(await page.locator('#mealEditorFood').inputValue(),id);assert.equal(await page.locator('#mealEntrySelected .ncc-family-photo').count(),1);await page.locator('[data-act="closeMeal"]').first().click();
    }
+   for(const [query,id,pieces] of [['sushi club combinado','rest_sushiclub_combo_30',30],['fabric omakase','rest_fabric_combo_15',15],['ishidan combinado','rest_ishidan_combo_salmon_12',12]]){
+    await open();await search(query,id);assert.match(await page.locator('#mealEntrySelected').innerText(),new RegExp('combo de '+pieces+' piezas'));await page.locator('#mealEditorQty').fill('0.5');await page.screenshot({path:resolve(out,engine+'-'+width+'-'+id+'.png')});await page.locator('[data-act="saveSelectedMeal"]').click();await page.locator('.meal-popup').waitFor({state:'detached'});const saved=(await snapshot()).meals.cena.at(-1);assert.equal(saved.id,id);assert.equal(saved.displayQty,.5);assert.match(saved.displayUnit,/combo de/);
+   }
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);results.push({engine,width,status:'PASS',scope:'synthetic transport; 15 chains, official energy, estimated rolls, grams and editing'});await context.close();
   }}finally{await browser.close();}
  }

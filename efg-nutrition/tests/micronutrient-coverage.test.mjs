@@ -17,7 +17,7 @@ const totals=items=>estimate({diary:day(items),catalog:c}).nutrients;
 test('every prior known value is preserved; all 617 IDs have a coverage decision',()=>{
  for(const [id,f]of Object.entries(old.foods))for(const [n,v]of Object.entries(f.perUnit))if(v!==null)assert.equal(c.foods[id].perUnit[n],v,id+':'+n);
  const inventory=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/coverage.json',import.meta.url)));
- assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,307);
+ assert.equal(inventory.length,617);assert.equal(new Set(inventory.map(f=>f.id)).size,617);assert.equal(c.foodCount,319);
  for(const f of inventory)assert.equal(f.known.length+f.missing.length,8);
 });
 test('frozen official extract has exact manifest hash and reviewed source descriptions',()=>{
@@ -131,4 +131,28 @@ test('fifth batch checks every nutrient against frozen sources and preserves dia
   assert.equal(JSON.stringify(e),before);
  }
  assert.equal(totals([{...entry('egg_white',100),sourceId:'wrong'}]).find(n=>n.id==='calcium').total,null);
+});
+
+
+test('sixth batch preserves all 307 profiles and checks sources, raw preparation and aliases',()=>{
+ const priorText=execFileSync('git',['show','9e013d9a63b6f069fab0b9c6fe9b929d2a9147d8:efg-nutrition/pilot/micronutrient-catalog.js'],{cwd:root,encoding:'utf8'});
+ const baseline=JSON.parse(priorText.slice(priorText.indexOf('= ')+2).replace(/;\s*$/,''));
+ for(const [id,f]of Object.entries(baseline.foods))assert.deepEqual(c.foods[id],f,id);
+ const batch=JSON.parse(readFileSync(new URL('../docs/micronutrients-20261114/batch-six.json',import.meta.url)));
+ const ids={magnesium:[1090,1],calcium:[1087,1],iron:[1089,1],zinc:[1095,1],b12:[1178,1],ala:[1404,1],epa:[1278,1000],dha:[1272,1000]};
+ for(const [id,fdc] of Object.entries(batch.usdaAdditions)){
+  const f=c.foods[id];assert.equal(f.sourceId,String(fdc));
+  for(const [key,[nutrient,scale]] of Object.entries(ids)){
+   const source=records[fdc].foodNutrients.find(n=>n.nutrient.id===nutrient);
+   if(!source){assert.equal(f.perUnit[key],null);continue;}
+   assert.ok(Math.abs(f.perUnit[key]-source.amount*scale/100)<1e-9,id+':'+key);
+  }
+  assert.ok(Math.abs(totals([entry(id,80)]).find(n=>n.id==='iron').food-f.perUnit.iron*80)<1e-9);
+ }
+ for(const id of ['sushi_sashimi_salmon','sushi_sashimi_atun']){
+  assert.match(c.foods[id].sourceDescription,/raw/);
+  const v=c.foods[id].perUnit;
+  assert.ok(Math.abs(totals([entry(id,80)]).find(n=>n.id==='epa_dha').food-(v.epa+v.dha)*80)<1e-9);
+ }
+ for(const [a,b]of [['medialuna_butter','factura_medialuna_manteca'],['galleta_agua','galletitas_agua'],['arroz_leche','arroz_con_leche'],['palomitas_dulces','pochoclos_dulces_acaramelados_genericos']])assert.deepEqual(c.foods[a].perUnit,c.foods[b].perUnit);
 });

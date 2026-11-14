@@ -2,7 +2,7 @@
 
 Base de esta tanda: producción PR127, 2b08fca6d20c4c6906d0471a930306e98f7cdc74. Las primeras dos tandas y las barras generales ya están publicadas; la tercera tanda aún no.
 
-El catálogo mantiene los 617 alimentos, sus identidades, macros, cantidades y diarios. La composición de micronutrientes pasa de 63 a 307 identidades: 52 tienen los ocho componentes (EPA y DHA separados); 255 tienen datos parciales. Quedan 310 sin una referencia incorporada. No equivale a 307 alimentos con siete indicadores completos. Coverage.json enumera los 617, nutriente por nutriente; las recetas y marcas pendientes no reciben composiciones supuestas.
+El catálogo mantiene los 617 alimentos, sus identidades, macros, cantidades y diarios. La composición de micronutrientes pasa de 63 a 319 identidades: 60 tienen los ocho componentes (EPA y DHA separados); 259 tienen datos parciales. Quedan 298 sin una referencia incorporada. No equivale a 319 alimentos con siete indicadores completos. Coverage.json enumera los 617, nutriente por nutriente; las recetas y marcas pendientes no reciben composiciones supuestas.
 
 Fuentes: descarga oficial USDA SR Legacy (abril 2018), captura y SHA256 en source-manifest.json, registros completos seleccionados en usda-sr-selected.json.gz. Las fuentes anteriores tienen prioridad: se conserva cada valor no nulo y se completan solo nutrientes ausentes del mismo FDC ID. nutrientSupplementalCaptures identifica el origen del complemento. reviewed-mappings.json es una lista explícita revisada de alimento/preparación, no un emparejamiento automático por nombres. Los promedios genéricos no se presentan como análisis del alimento argentino ni como etiqueta de fabricante. No se modifican los macros para hacerlos coincidir con otra fuente.
 
@@ -14,7 +14,7 @@ catalogSourceId conserva el vínculo con la identidad nutricional histórica del
 
 Validación: 25 contratos locales aprobados, incluidos conservación de cada valor anterior, trazabilidad del archivo, escalado del lomo, seis achuras, propagación de desconocidos y rechazo de sourceId incorrecto. Workflow específico captura la app en Chromium/WebKit, 390/320, tres roles. No cambios al diseño aprobado ni a referencias personales.
 
-Pendientes: revisar fuentes locales y preparaciones para las 310 identidades restantes; priorizar otras carnes locales, luego recetas con rendimiento medido y productos con etiqueta. B12 de SARA y ALA requieren validación específica. No presentar los pendientes como cero ni afirmar cobertura total.
+Pendientes: revisar fuentes locales y preparaciones para las 298 identidades restantes; priorizar otras carnes locales, luego recetas con rendimiento medido y productos con etiqueta. B12 de SARA y ALA requieren validación específica. No presentar los pendientes como cero ni afirmar cobertura total.
 
 Segunda tanda: 25 referencias explícitas en batch-two.json. Incluye carnes y pescados con su preparación, ricota entera y parcialmente descremada, semillas sin cáscara, verduras y legumbres cocidas. Se verifica por nutriente contra el registro congelado, escalado a 75 g y conservación de las 218 composiciones anteriores. Anchoas: referencia en aceite escurrido, no salmuera; ricota magra: referencia parcialmente descremada, no etiqueta de marca.
 
@@ -40,3 +40,10 @@ Quinta tanda (batch-five.json): ocho referencias genéricas USDA añadidas, 307/
 Clara: la captura Foundation 747997 sigue sin nutrientes objetivo. La referencia alternativa SR Legacy 172183 se identifica explícitamente como reviewed_generic_reference y conserva catalogSourceId=747997 para el diario. No se atribuyen los datos al registro Foundation ni se modifican macros. Se verifican los ocho componentes contra el extracto oficial y el escalado a 175 g. Los faltantes siguen siendo null. Fuente descargable oficial: https://fdc.nal.usda.gov/download-datasets/ ; SHA256 del archivo original cotejado con el manifiesto existente.
 
 Estado: tandas 3–5 preparadas, sin merge ni despliegue. 25 pruebas de contrato locales aprobadas; validación de navegador de esta revisión pendiente en CI (Chromium no disponible localmente).
+
+
+Sexta tanda (batch-six.json): 12 identidades nuevas, con ocho referencias USDA distintas; cuatro pares son alias del mismo alimento. Cobertura total: 319 de 617 (60 completos para los ocho componentes, 259 parciales, 298 pendientes). Añade sashimi de salmón atlántico de cultivo y atún aleta amarilla, ambos crudos; medialunas de manteca mediante aproximación a croissant; galletitas de agua e integrales; pochoclo acaramelado sin maní; arroz con leche preparado y tortilla de trigo refrigerada. No son análisis de productos argentinos ni etiquetas de marca. Se documentan variaciones de especie, receta y fortificación en cada correspondencia.
+
+Validación local: 26 pruebas aprobadas, conservación exacta de los 307 perfiles anteriores y de los macros, revisión de los ocho componentes por registro, conversión de ácidos grasos, escalado y equivalencia entre alias. El ZIP oficial fue recuperado y su SHA256 coincide con el manifiesto.
+
+Corrección del test de navegador: la tanda previa saturaba la barra de magnesio al 100%; esperar que aumentara su ancho era incorrecto. Ahora se comprueba que la cantidad mostrada cambie aun con la barra llena, y que el ancho aumente con un diario reducido por debajo de la referencia. Se conserva la comprobación de tres roles, dos anchos y ambos motores en CI. La ejecución local está bloqueada por permisos del navegador. También existe un fallo separado en notice-review-browser (confirmación superpuesta con navegación); queda pendiente, no se afirma que toda la candidata esté aprobada. No merge ni despliegue.

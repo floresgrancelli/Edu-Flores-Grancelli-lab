@@ -370,8 +370,7 @@
   {
     "id": "arroz_con_leche",
     "name": "Arroz con leche tradicional azucarado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -381,8 +380,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "arroz_integral_vegetables",
@@ -404,8 +404,7 @@
   {
     "id": "arroz_leche",
     "name": "Arroz con leche tradicional",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -415,8 +414,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "artichoke_cooked",
@@ -3276,19 +3276,20 @@
   {
     "id": "factura_medialuna_manteca",
     "name": "Medialuna de manteca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "factura_vigilante",
@@ -3608,8 +3609,7 @@
   {
     "id": "galleta_agua",
     "name": "Galletitas de agua",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3619,14 +3619,14 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "galleta_integral",
     "name": "Galletitas integrales",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3636,14 +3636,14 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "galletitas_agua",
     "name": "Galletitas de agua saladas",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -3653,8 +3653,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "galletitas_chocolate",
@@ -5228,19 +5229,20 @@
   {
     "id": "medialuna_butter",
     "name": "Medialuna de manteca",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "medialuna_fat",
@@ -6351,19 +6353,20 @@
   {
     "id": "palomitas_dulces",
     "name": "Pochoclo dulce acaramelado",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "palomitas_saladas",
@@ -7343,19 +7346,20 @@
   {
     "id": "pochoclos_dulces_acaramelados_genericos",
     "name": "Pochoclos dulces / acaramelados (estimación genérica)",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
       "zinc",
       "b12",
-      "ala",
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [
+      "ala"
+    ],
+    "status": "partial",
+    "blocker": null
   },
   {
     "id": "polenta_cooked",
@@ -9189,8 +9193,7 @@
   {
     "id": "sushi_sashimi_atun",
     "name": "Sashimi de atún, sin arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9200,14 +9203,14 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "sushi_sashimi_salmon",
     "name": "Sashimi de salmón, sin arroz",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -9217,8 +9220,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "sushi_spicy_tuna",
@@ -10030,8 +10034,7 @@
   {
     "id": "tortilla_wheat",
     "name": "Tortilla de trigo tipo rapidita",
-    "known": [],
-    "missing": [
+    "known": [
       "magnesium",
       "calcium",
       "iron",
@@ -10041,8 +10044,9 @@
       "epa",
       "dha"
     ],
-    "status": "pending",
-    "blocker": "requires_recipe_or_matching_preparation_source"
+    "missing": [],
+    "status": "complete",
+    "blocker": null
   },
   {
     "id": "tostada_pan_miga",

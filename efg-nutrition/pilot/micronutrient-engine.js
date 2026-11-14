@@ -31,6 +31,18 @@ export function micronutrientReferences(profile){
    'Referencia general para personas sanas; no es un diagnóstico ni una dosis de suplemento.'}]));
 }
 
+// Explicit general comparison mode: public adult reference values, not a personal prescription.
+export function generalMicronutrientReferences(){
+ const fda='https://www.fda.gov/food/nutrition-facts-label/daily-value-nutrition-and-supplement-facts-labels';
+ const efsa='https://www.efsa.europa.eu/sites/default/files/2017_09_DRVs_summary_report.pdf';
+ const values={magnesium:420,calcium:1300,iron:18,zinc:11,b12:2.4,ala:1.1,epa_dha:250};
+ return Object.fromEntries(MICRO_NUTRIENTS.map(n=>[n.id,{value:values[n.id],kind:'Referencia general',upperLimit:null,upperScope:null,
+  sourceUrl:['ala','epa_dha'].includes(n.id)?efsa:fda,sourceLabel:['ala','epa_dha'].includes(n.id)?'EFSA':'FDA',
+  note:n.id==='ala'?'EFSA: 0,5 % de energía como ALA. Referencia orientativa de 2.000 kcal: 1,1 g/día (redondeado).':
+   n.id==='epa_dha'?'EFSA: ingesta adecuada general de 250 mg/día de EPA + DHA para adultos.':
+   'Valor diario general de etiquetado FDA. No es una necesidad individual ni un límite máximo.'}]));
+}
+
 const magnesiumIds=new Set(['magnesium','magnesium_bisglycinate','magnesium_citrate','magnesium_oxide',
  'magnesium_chloride','magnesium_malate','magnesium_threonate','magnesium_taurate']);
 const isolated={calcium:'calcium',zinc:'zinc',iron:'iron',vitamin_b12:'b12'};
@@ -62,10 +74,10 @@ function supplementRow(entry){
  return {values,relevant};
 }
 
-export function estimateDailyMicronutrients({diary,profile=null,catalog}={}){
+export function estimateDailyMicronutrients({diary,profile=null,catalog,referenceMode="personal"}={}){
  if(!/^ncc-micro-[a-f0-9]{16}$/.test(catalog?.version||'')||!catalog.foods)throw Error('Catálogo de micronutrientes no verificado.');
  if(!diary||!validDay(diary.log_day)||!diary.meals)throw Error('Registro diario inválido.');
- const references=micronutrientReferences(profile);
+ const references=referenceMode==="general"?generalMicronutrientReferences():micronutrientReferences(profile);
  const rows=Object.fromEntries(MICRO_NUTRIENTS.map(n=>[n.id,{...n,food:0,supplements:0,
   foodKnown:0,foodUnknown:0,supplementKnown:0,supplementUnknown:0,contributors:[]} ]));
  const foods=Object.entries(diary.meals).filter(([slot])=>!diary.skipped?.[slot]).flatMap(([,items])=>Array.isArray(items)?items:[]);
@@ -105,16 +117,16 @@ export function estimateDailyMicronutrients({diary,profile=null,catalog}={}){
  });
  return {day:diary.log_day,catalogVersion:catalog.version,foodEntries:foods.length+extras,
   supplementEntries:supplements.length,hasEntries:foods.length+extras+supplements.length>0,nutrients,
-  referenceNote:'Comparación con la referencia actual de tu ficha; no mide absorción ni diagnostica deficiencias.'};
+  referenceMode,referenceNote:referenceMode==='general'?'Referencias generales orientativas para adultos; no son metas personales ni límites máximos.':'Comparación con la referencia actual de tu ficha; no mide absorción ni diagnostica deficiencias.'};
 }
 
-export function micronutrientPeriod({logs,profile,catalog,from,to}){
+export function micronutrientPeriod({logs,profile,catalog,from,to,referenceMode="personal"}){
  if(!validDay(from)||!validDay(to)||from>to)throw Error('Período inválido.');
  const first=Date.parse(from+'T12:00:00Z'),last=Date.parse(to+'T12:00:00Z');
  if(!Number.isFinite(first)||!Number.isFinite(last)||(last-first)/86400000>89)throw Error('Elegí hasta 90 días.');
  const selected=(logs||[]).filter(d=>d.log_day>=from&&d.log_day<=to),ids=new Set();
  for(const d of selected){if(ids.has(d.log_day))throw Error('Hay registros duplicados de una fecha.');ids.add(d.log_day);}
- const days=selected.sort((a,b)=>a.log_day.localeCompare(b.log_day)).map(d=>estimateDailyMicronutrients({diary:d,profile,catalog}));
+ const days=selected.sort((a,b)=>a.log_day.localeCompare(b.log_day)).map(d=>estimateDailyMicronutrients({diary:d,profile,catalog,referenceMode}));
  const summary=MICRO_NUTRIENTS.map(n=>{
   const all=days.filter(d=>d.hasEntries).map(d=>d.nutrients.find(x=>x.id===n.id));
   const complete=all.filter(x=>x.status==='estimated');

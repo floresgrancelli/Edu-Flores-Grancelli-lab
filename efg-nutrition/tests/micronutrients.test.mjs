@@ -102,3 +102,17 @@ test('collapsed card exposes all seven nutrients; missing reference has a distin
  assert.ok(without.includes('data-scale="unscaled"'));assert.ok(!without.includes('data-scale="reference"'));assert.ok(!without.includes('0% de la referencia'));
  assert.ok(without.includes('sin referencia de cobertura'));assert.ok(without.includes('Detalle y fuentes'));
 });
+
+test('general daily references need no personal profile and retain honest partial and unknown amounts',()=>{
+ const general=d=>estimateDailyMicronutrients({diary:d,catalog,referenceMode:'general'});
+ const m=general(diary([food('oats_raw',50),food('unknown',100)]));
+ assert.deepEqual(Object.fromEntries(m.nutrients.map(n=>[n.id,n.reference.value])),{magnesium:420,calcium:1300,ala:1.1,iron:18,zinc:11,b12:2.4,epa_dha:250});
+ for(const n of m.nutrients){assert.equal(n.reference.upperLimit,null);if(n.total!==null)assert.equal(n.percent,100*n.total/n.reference.value);}
+ const html=renderMicronutrients(m);assert.match(html,/Referencia diaria general/);assert.match(html,/≥ .* % · parcial/);assert.match(html,/FDA/);assert.match(html,/EFSA/);
+ const empty=general(diary([food('unknown',100)]));assert.ok(empty.nutrients.every(n=>n.total===null&&n.percent===null));
+ const emptyHtml=renderMicronutrients(empty);assert.match(emptyHtml,/Sin datos \/ 420 mg/);assert.doesNotMatch(emptyHtml,/0 %/);assert.doesNotMatch(emptyHtml,/data-scale="unscaled"/);
+ const over=general(diary([food('oats_raw',1000)]));assert.ok(nutrient(over,'magnesium').percent>100);
+ assert.match(renderMicronutrients(over),/width:100.00%/);
+ const period=micronutrientPeriod({logs:[diary([food('oats_raw',50)])],catalog,referenceMode:'general',from:'2026-11-13',to:'2026-11-13'});
+ assert.equal(period.days[0].referenceMode,'general');assert.equal(nutrient(period.days[0],'iron').reference.value,18);
+});

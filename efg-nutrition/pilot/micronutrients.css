@@ -40,3 +40,7 @@
 .ncc-micro-track.is-unscaled.has-contribution:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--micro-color);border-radius:4px}
 .ncc-micro-scale-note{font-size:9px!important;line-height:14px!important;color:#b8c4ae;margin:8px 0 0!important}
 @media(prefers-reduced-motion:reduce){.ncc-micro-track>span{transition:none!important}}
+
+/* Daily reference and percentage remain visible without opening details. */
+.ncc-micro-progress{grid-row:4;color:#bdc8b4;font-size:10px;line-height:14px;font-variant-numeric:tabular-nums}
+.ncc-micro-track.is-no-data{background:#384340!important}

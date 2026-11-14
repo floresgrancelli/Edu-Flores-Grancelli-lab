@@ -1,0 +1,1343 @@
+[
+  {
+    "foodId": "beef_tenderloin",
+    "fdcId": "170641",
+    "expectedName": "Lomo vacuno cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Beef, loin, tenderloin steak, boneless, separable lean only, trimmed to 0\" fat, all grades, cooked, grilled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pork",
+    "fdcId": "168250",
+    "expectedName": "Lomo de cerdo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Pork, fresh, loin, tenderloin, separable lean only, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "beef_liver",
+    "fdcId": "168626",
+    "expectedName": "Hígado vacuno cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Beef, variety meats and by-products, liver, cooked, braised",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "chicken_liver_cooked",
+    "fdcId": "171061",
+    "expectedName": "Hígado de pollo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, liver, all classes, cooked, simmered",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "chicken",
+    "fdcId": "171054",
+    "expectedName": "Pollo cocido sin piel (estimación general)",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, broilers or fryers, meat only, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "chicken_oven_skinless",
+    "fdcId": "171054",
+    "expectedName": "Pollo al horno sin piel",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, broilers or fryers, meat only, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pollo_grill",
+    "fdcId": "171534",
+    "expectedName": "Pollo a la plancha, sin piel",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, cooked, grilled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "fish_salmon",
+    "fdcId": "175168",
+    "expectedName": "Salmón cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, salmon, Atlantic, farmed, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "fish_cod",
+    "fdcId": "171956",
+    "expectedName": "Bacalao cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, cod, Atlantic, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "lenguado_cocido",
+    "fdcId": "174197",
+    "expectedName": "Lenguado a la plancha sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, flatfish (flounder and sole species), cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "tilapia_cocida",
+    "fdcId": "175177",
+    "expectedName": "Tilapia cocida sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tilapia, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "trucha_cocida",
+    "fdcId": "172004",
+    "expectedName": "Trucha cocida al horno sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, trout, mixed species, cooked, dry heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "almejas_cocidas",
+    "fdcId": "171975",
+    "expectedName": "Almejas cocidas sin valvas",
+    "expectedUnit": "g",
+    "sourceDescription": "Mollusks, clam, mixed species, cooked, moist heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "mussels_cooked",
+    "fdcId": "174217",
+    "expectedName": "Mejillones cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Mollusks, mussel, blue, cooked, moist heat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "fish_shrimp",
+    "fdcId": "171971",
+    "expectedName": "Langostinos cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Crustaceans, shrimp, mixed species, cooked, moist heat (may contain additives to retain moisture)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "camarones_cocidos",
+    "fdcId": "171971",
+    "expectedName": "Camarones cocidos sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Crustaceans, shrimp, mixed species, cooked, moist heat (may contain additives to retain moisture)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "vieiras_cocidas",
+    "fdcId": "167742",
+    "expectedName": "Vieiras cocidas sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Mollusks, scallop, (bay and sea), cooked, steamed",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "almonds",
+    "fdcId": "170567",
+    "expectedName": "Almendras",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, almonds",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "walnuts",
+    "fdcId": "170187",
+    "expectedName": "Nueces",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, walnuts, english",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cashews",
+    "fdcId": "170162",
+    "expectedName": "Castañas de cajú",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, cashew nuts, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pecans",
+    "fdcId": "170182",
+    "expectedName": "Nueces pecán",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, pecans",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "hazelnuts",
+    "fdcId": "170581",
+    "expectedName": "Avellanas",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, hazelnuts or filberts",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "brazil_nuts",
+    "fdcId": "170569",
+    "expectedName": "Castañas de Brasil",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, brazilnuts, dried, unblanched",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "chia",
+    "fdcId": "170554",
+    "expectedName": "Semillas de chía",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, chia seeds, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "flaxseed",
+    "fdcId": "169414",
+    "expectedName": "Semillas de lino",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, flaxseed",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pistachios",
+    "fdcId": "170184",
+    "expectedName": "Pistachos",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, pistachio nuts, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "macadamia_nuts",
+    "fdcId": "170178",
+    "expectedName": "Nueces de macadamia",
+    "expectedUnit": "g",
+    "sourceDescription": "Nuts, macadamia nuts, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "peanuts",
+    "fdcId": "173806",
+    "expectedName": "Maní tostado sin sal",
+    "expectedUnit": "g",
+    "sourceDescription": "Peanuts, all types, dry-roasted, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "apricot",
+    "fdcId": "171697",
+    "expectedName": "Damasco fresco",
+    "expectedUnit": "g",
+    "sourceDescription": "Apricots, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "blueberry",
+    "fdcId": "171711",
+    "expectedName": "Arándanos",
+    "expectedUnit": "g",
+    "sourceDescription": "Blueberries, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "grapes",
+    "fdcId": "174683",
+    "expectedName": "Uvas",
+    "expectedUnit": "g",
+    "sourceDescription": "Grapes, red or green (European type, such as Thompson seedless), raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "kiwi",
+    "fdcId": "168153",
+    "expectedName": "Kiwi",
+    "expectedUnit": "g",
+    "sourceDescription": "Kiwifruit, green, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "mango",
+    "fdcId": "169910",
+    "expectedName": "Mango",
+    "expectedUnit": "g",
+    "sourceDescription": "Mangos, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "peach",
+    "fdcId": "169928",
+    "expectedName": "Durazno",
+    "expectedUnit": "g",
+    "sourceDescription": "Peaches, yellow, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pear",
+    "fdcId": "169118",
+    "expectedName": "Pera con cáscara",
+    "expectedUnit": "g",
+    "sourceDescription": "Pears, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pineapple",
+    "fdcId": "169124",
+    "expectedName": "Ananá",
+    "expectedUnit": "g",
+    "sourceDescription": "Pineapple, raw, all varieties",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "plum",
+    "fdcId": "169949",
+    "expectedName": "Ciruela",
+    "expectedUnit": "g",
+    "sourceDescription": "Plums, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "watermelon",
+    "fdcId": "167765",
+    "expectedName": "Sandía",
+    "expectedUnit": "g",
+    "sourceDescription": "Watermelon, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "melon",
+    "fdcId": "169092",
+    "expectedName": "Melón",
+    "expectedUnit": "g",
+    "sourceDescription": "Melons, cantaloupe, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cherries",
+    "fdcId": "171719",
+    "expectedName": "Cerezas",
+    "expectedUnit": "g",
+    "sourceDescription": "Cherries, sweet, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "papaya",
+    "fdcId": "169926",
+    "expectedName": "Papaya",
+    "expectedUnit": "g",
+    "sourceDescription": "Papayas, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "pomegranate",
+    "fdcId": "169134",
+    "expectedName": "Granada (semillas)",
+    "expectedUnit": "g",
+    "sourceDescription": "Pomegranates, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "grapefruit",
+    "fdcId": "173033",
+    "expectedName": "Pomelo",
+    "expectedUnit": "g",
+    "sourceDescription": "Grapefruit, raw, pink and red and white, all areas",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "lemon",
+    "fdcId": "167746",
+    "expectedName": "Limón",
+    "expectedUnit": "g",
+    "sourceDescription": "Lemons, raw, without peel",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "orange",
+    "fdcId": "169097",
+    "expectedName": "Naranja",
+    "expectedUnit": "g",
+    "sourceDescription": "Oranges, raw, all commercial varieties",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "mandarin",
+    "fdcId": "169105",
+    "expectedName": "Mandarina",
+    "expectedUnit": "g",
+    "sourceDescription": "Tangerines, (mandarin oranges), raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "strawberry",
+    "fdcId": "167762",
+    "expectedName": "Frutillas",
+    "expectedUnit": "g",
+    "sourceDescription": "Strawberries, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "dates",
+    "fdcId": "168191",
+    "expectedName": "Dátiles deshidratados",
+    "expectedUnit": "g",
+    "sourceDescription": "Dates, medjool",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "lettuce",
+    "fdcId": "169249",
+    "expectedName": "Lechuga",
+    "expectedUnit": "g",
+    "sourceDescription": "Lettuce, green leaf, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cabbage",
+    "fdcId": "169975",
+    "expectedName": "Repollo",
+    "expectedUnit": "g",
+    "sourceDescription": "Cabbage, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cucumber",
+    "fdcId": "168409",
+    "expectedName": "Pepino",
+    "expectedUnit": "g",
+    "sourceDescription": "Cucumber, with peel, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "carrot_raw",
+    "fdcId": "170393",
+    "expectedName": "Zanahoria cruda",
+    "expectedUnit": "g",
+    "sourceDescription": "Carrots, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "zanahoria_rallada",
+    "fdcId": "170393",
+    "expectedName": "Zanahoria rallada fresca",
+    "expectedUnit": "g",
+    "sourceDescription": "Carrots, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "carrot_cooked",
+    "fdcId": "170394",
+    "expectedName": "Zanahoria hervida",
+    "expectedUnit": "g",
+    "sourceDescription": "Carrots, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "onion",
+    "fdcId": "170000",
+    "expectedName": "Cebolla",
+    "expectedUnit": "g",
+    "sourceDescription": "Onions, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "celery",
+    "fdcId": "169988",
+    "expectedName": "Apio",
+    "expectedUnit": "g",
+    "sourceDescription": "Celery, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "mushrooms",
+    "fdcId": "169251",
+    "expectedName": "Champiñones",
+    "expectedUnit": "g",
+    "sourceDescription": "Mushrooms, white, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "broccoli_cooked",
+    "fdcId": "169967",
+    "expectedName": "Brócoli cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Broccoli, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cauliflower",
+    "fdcId": "170397",
+    "expectedName": "Coliflor cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Cauliflower, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "eggplant",
+    "fdcId": "169229",
+    "expectedName": "Berenjena cocida sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Eggplant, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "beets",
+    "fdcId": "169146",
+    "expectedName": "Remolacha cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Beets, cooked, boiled, drained",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "asparagus",
+    "fdcId": "168390",
+    "expectedName": "Espárragos cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Asparagus, cooked, boiled, drained",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "greenbeans",
+    "fdcId": "169141",
+    "expectedName": "Chauchas cocidas",
+    "expectedUnit": "g",
+    "sourceDescription": "Beans, snap, green, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "artichoke_cooked",
+    "fdcId": "168386",
+    "expectedName": "Alcauciles cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Artichokes, (globe or french), cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "bellpepper",
+    "fdcId": "170108",
+    "expectedName": "Morrón rojo",
+    "expectedUnit": "g",
+    "sourceDescription": "Peppers, sweet, red, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "garlic",
+    "fdcId": "169230",
+    "expectedName": "Ajo",
+    "expectedUnit": "g",
+    "sourceDescription": "Garlic, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "tomato",
+    "fdcId": "170457",
+    "expectedName": "Tomate",
+    "expectedUnit": "g",
+    "sourceDescription": "Tomatoes, red, ripe, raw, year round average",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "tomato_cherry",
+    "fdcId": "170457",
+    "expectedName": "Tomate cherry",
+    "expectedUnit": "g",
+    "sourceDescription": "Tomatoes, red, ripe, raw, year round average",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "zucchini",
+    "fdcId": "169292",
+    "expectedName": "Zapallito cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Squash, summer, zucchini, includes skin, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "sweetpotato",
+    "fdcId": "168484",
+    "expectedName": "Batata hervida",
+    "expectedUnit": "g",
+    "sourceDescription": "Sweet potato, cooked, boiled, without skin",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "potato",
+    "fdcId": "170440",
+    "expectedName": "Papa hervida sin piel y sin sal",
+    "expectedUnit": "g",
+    "sourceDescription": "Potatoes, boiled, cooked without skin, flesh, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "lentils_cooked",
+    "fdcId": "172421",
+    "expectedName": "Lentejas cocidas",
+    "expectedUnit": "g",
+    "sourceDescription": "Lentils, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "chickpeas_cooked",
+    "fdcId": "173757",
+    "expectedName": "Garbanzos cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "beans_black",
+    "fdcId": "173735",
+    "expectedName": "Porotos negros cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Beans, black, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "beans_red",
+    "fdcId": "175194",
+    "expectedName": "Porotos colorados cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Beans, kidney, red, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "beans_white",
+    "fdcId": "175203",
+    "expectedName": "Porotos blancos cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Beans, white, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "peas_cooked",
+    "fdcId": "170420",
+    "expectedName": "Arvejas cocidas",
+    "expectedUnit": "g",
+    "sourceDescription": "Peas, green, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "edamame",
+    "fdcId": "168411",
+    "expectedName": "Edamame cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Edamame, frozen, prepared",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "quinoa_cooked",
+    "fdcId": "168917",
+    "expectedName": "Quinoa cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Quinoa, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "brownrice",
+    "fdcId": "169704",
+    "expectedName": "Arroz integral cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "couscous_cooked",
+    "fdcId": "169700",
+    "expectedName": "Cuscús cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Couscous, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "bulgur_cooked",
+    "fdcId": "170287",
+    "expectedName": "Bulgur cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Bulgur, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "barley_cooked",
+    "fdcId": "170285",
+    "expectedName": "Cebada perlada cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Barley, pearled, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "buckwheat_cooked",
+    "fdcId": "170686",
+    "expectedName": "Trigo sarraceno cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Buckwheat groats, roasted, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "millet_cooked",
+    "fdcId": "168871",
+    "expectedName": "Mijo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Millet, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "egg_boiled",
+    "fdcId": "173424",
+    "expectedName": "Huevo duro entero",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, whole, cooked, hard-boiled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "mozzarella",
+    "fdcId": "170845",
+    "expectedName": "Mozzarella",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, mozzarella, whole milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "parmesan",
+    "fdcId": "171247",
+    "expectedName": "Queso rallado tipo parmesano",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, parmesan, grated",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cottage_cheese",
+    "fdcId": "172179",
+    "expectedName": "Queso cottage",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, cottage, creamed, large or small curd",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cream_cheese_regular",
+    "fdcId": "173418",
+    "expectedName": "Queso untable tradicional genérico",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, cream",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "cream_cheese_light",
+    "fdcId": "169079",
+    "expectedName": "Queso untable light genérico",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, cream, low fat",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "yogurt_whole",
+    "fdcId": "171284",
+    "expectedName": "Yogur natural entero",
+    "expectedUnit": "g",
+    "sourceDescription": "Yogurt, plain, whole milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "butter",
+    "fdcId": "173430",
+    "expectedName": "Manteca",
+    "expectedUnit": "g",
+    "sourceDescription": "Butter, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "oil",
+    "fdcId": "171413",
+    "expectedName": "Aceite de oliva (gramos)",
+    "expectedUnit": "g",
+    "sourceDescription": "Oil, olive, salad or cooking",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "canola_oil",
+    "fdcId": "172336",
+    "expectedName": "Aceite de canola",
+    "expectedUnit": "g",
+    "sourceDescription": "Oil, canola",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "sunflower_oil",
+    "fdcId": "171025",
+    "expectedName": "Aceite de girasol",
+    "expectedUnit": "g",
+    "sourceDescription": "Oil, sunflower, linoleic, (approx. 65%)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "honey",
+    "fdcId": "169640",
+    "expectedName": "Miel",
+    "expectedUnit": "g",
+    "sourceDescription": "Honey",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "sugar",
+    "fdcId": "169655",
+    "expectedName": "Azúcar",
+    "expectedUnit": "g",
+    "sourceDescription": "Sugars, granulated",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación de referencia para el alimento y preparación indicados; no es un análisis de la porción ni una etiqueta de marca."
+  },
+  {
+    "foodId": "raisins",
+    "fdcId": "168165",
+    "expectedName": "Pasas de uva",
+    "expectedUnit": "g",
+    "sourceDescription": "Raisins, dark, seedless (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "sesame",
+    "fdcId": "170150",
+    "expectedName": "Semillas de sésamo",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, sesame seeds, whole, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "cocoa_unsweetened",
+    "fdcId": "169593",
+    "expectedName": "Cacao amargo en polvo",
+    "expectedUnit": "g",
+    "sourceDescription": "Cocoa, dry powder, unsweetened",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "rice_dry",
+    "fdcId": "169756",
+    "expectedName": "Arroz blanco largo crudo/seco",
+    "expectedUnit": "g",
+    "sourceDescription": "Rice, white, long-grain, regular, raw, unenriched",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "egg_quail",
+    "fdcId": "172191",
+    "expectedName": "Huevos de codorniz enteros sin cáscara",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, quail, whole, fresh, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "yogurt_greek",
+    "fdcId": "171304",
+    "expectedName": "Yogur griego natural sin azúcar",
+    "expectedUnit": "g",
+    "sourceDescription": "Yogurt, Greek, plain, whole milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "cheddar",
+    "fdcId": "170899",
+    "expectedName": "Queso cheddar",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, cheddar, sharp, sliced",
+    "matchType": "reviewed_generic_reference",
+    "note": "Referencia genérica, no etiqueta de marca; preparación indicada por la fuente."
+  },
+  {
+    "foodId": "pork_chop",
+    "fdcId": "168240",
+    "expectedName": "Costeleta de cerdo magra cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Pork, fresh, loin, center loin (chops), bone-in, separable lean only, cooked, broiled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "lean_ground_beef",
+    "fdcId": "171794",
+    "expectedName": "Carne picada magra cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Beef, ground, 90% lean meat / 10% fat, crumbles, cooked, pan-browned",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "homemade_burger",
+    "fdcId": "171793",
+    "expectedName": "Hamburguesa casera de carne a la plancha",
+    "expectedUnit": "g",
+    "sourceDescription": "Beef, ground, 90% lean meat / 10% fat, patty, cooked, pan-broiled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "sirloin_cooked",
+    "fdcId": "174693",
+    "expectedName": "Bife de cuadril magro cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Beef, loin, top sirloin filet, boneless, separable lean only, trimmed to 0\" fat, all grades, cooked, grilled",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "spinach_cooked",
+    "fdcId": "168463",
+    "expectedName": "Espinaca cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Spinach, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "acelga_cooked",
+    "fdcId": "170401",
+    "expectedName": "Acelga hervida",
+    "expectedUnit": "g",
+    "sourceDescription": "Chard, swiss, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "potato_baked",
+    "fdcId": "170093",
+    "expectedName": "Papa al horno sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Potatoes, baked, flesh and skin, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "sweetpotato_baked",
+    "fdcId": "168483",
+    "expectedName": "Batata al horno sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Sweet potato, cooked, baked in skin, flesh, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "brown_rice_dry",
+    "fdcId": "169703",
+    "expectedName": "Arroz integral seco",
+    "expectedUnit": "g",
+    "sourceDescription": "Rice, brown, long-grain, raw (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "noodles_whole_cooked",
+    "fdcId": "168910",
+    "expectedName": "Fideos integrales cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Pasta, whole-wheat, cooked (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "noodles_egg_cooked",
+    "fdcId": "169762",
+    "expectedName": "Fideos al huevo cocidos sin salsa",
+    "expectedUnit": "g",
+    "sourceDescription": "Noodles, egg, cooked, unenriched, with added salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "lupines_cooked",
+    "fdcId": "172424",
+    "expectedName": "Altramuces o lupines cocidos, escurridos",
+    "expectedUnit": "g",
+    "sourceDescription": "Lupins, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "tempeh",
+    "fdcId": "172467",
+    "expectedName": "Tempeh",
+    "expectedUnit": "g",
+    "sourceDescription": "Tempeh, cooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "coconut_oil",
+    "fdcId": "171412",
+    "expectedName": "Aceite de coco",
+    "expectedUnit": "g",
+    "sourceDescription": "Oil, coconut",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "watercress",
+    "fdcId": "170068",
+    "expectedName": "Berro",
+    "expectedUnit": "g",
+    "sourceDescription": "Watercress, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "leek",
+    "fdcId": "169246",
+    "expectedName": "Puerro",
+    "expectedUnit": "g",
+    "sourceDescription": "Leeks, (bulb and lower leaf-portion), raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "persimmon",
+    "fdcId": "169941",
+    "expectedName": "Caqui",
+    "expectedUnit": "g",
+    "sourceDescription": "Persimmons, japanese, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "passionfruit",
+    "fdcId": "169108",
+    "expectedName": "Maracuyá (pulpa)",
+    "expectedUnit": "g",
+    "sourceDescription": "Passion-fruit, (granadilla), purple, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "fig_fresh",
+    "fdcId": "173021",
+    "expectedName": "Higos frescos",
+    "expectedUnit": "g",
+    "sourceDescription": "Figs, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica de referencia; preparación y parte comestible según descripción de la fuente."
+  },
+  {
+    "foodId": "chicken_roasted",
+    "fdcId": "171450",
+    "expectedName": "Pollo al horno con piel",
+    "expectedUnit": "g",
+    "sourceDescription": "Chicken, broilers or fryers, meat and skin, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "turkey_breast_cooked",
+    "fdcId": "171496",
+    "expectedName": "Pechuga de pavo cocida",
+    "expectedUnit": "g",
+    "sourceDescription": "Turkey, whole, breast, meat only, cooked, roasted",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "tuna",
+    "fdcId": "173709",
+    "expectedName": "Atún al natural escurrido",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, tuna, light, canned in water, drained solids (Includes foods for USDA's Food Distribution Program)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "anchovies_canned",
+    "fdcId": "174183",
+    "expectedName": "Anchoas en conserva escurridas",
+    "expectedUnit": "g",
+    "sourceDescription": "Fish, anchovy, european, canned in oil, drained solids",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. Anchoa en aceite escurrida; no representa conserva en salmuera. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "pumpkin_seeds",
+    "fdcId": "170556",
+    "expectedName": "Semillas de zapallo",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, pumpkin and squash seed kernels, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "sunflower_seeds",
+    "fdcId": "170562",
+    "expectedName": "Semillas de girasol",
+    "expectedUnit": "g",
+    "sourceDescription": "Seeds, sunflower seed kernels, dried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "provolone",
+    "fdcId": "170850",
+    "expectedName": "Queso provolone",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, provolone",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "ricotta_whole",
+    "fdcId": "170851",
+    "expectedName": "Ricota entera",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, ricotta, whole milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "ricotta_light",
+    "fdcId": "171248",
+    "expectedName": "Ricota magra",
+    "expectedUnit": "g",
+    "sourceDescription": "Cheese, ricotta, part skim milk",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. Ricota parcialmente descremada; no representa una marca ni una ricota sin grasa. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "prunes",
+    "fdcId": "168162",
+    "expectedName": "Ciruelas pasas",
+    "expectedUnit": "g",
+    "sourceDescription": "Plums, dried (prunes), uncooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "quinoa_dry",
+    "fdcId": "168874",
+    "expectedName": "Quinoa seca",
+    "expectedUnit": "g",
+    "sourceDescription": "Quinoa, uncooked",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "rocket",
+    "fdcId": "169387",
+    "expectedName": "Rúcula",
+    "expectedUnit": "g",
+    "sourceDescription": "Arugula, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "scallion",
+    "fdcId": "170005",
+    "expectedName": "Cebolla de verdeo",
+    "expectedUnit": "g",
+    "sourceDescription": "Onions, spring or scallions (includes tops and bulb), raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "radish",
+    "fdcId": "169276",
+    "expectedName": "Rabanitos",
+    "expectedUnit": "g",
+    "sourceDescription": "Radishes, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "turnip_cooked",
+    "fdcId": "170058",
+    "expectedName": "Nabo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Turnips, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "kale",
+    "fdcId": "168421",
+    "expectedName": "Kale o col rizada",
+    "expectedUnit": "g",
+    "sourceDescription": "Kale, raw",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "mung_beans_cooked",
+    "fdcId": "174257",
+    "expectedName": "Porotos mung cocidos, sin aceite",
+    "expectedUnit": "g",
+    "sourceDescription": "Mung beans, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "pallares_cooked",
+    "fdcId": "174253",
+    "expectedName": "Porotos pallares cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Lima beans, large, mature seeds, cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "huevo_frito",
+    "fdcId": "173423",
+    "expectedName": "Huevo frito con aceite (aceite estimado incluido)",
+    "expectedUnit": "g",
+    "sourceDescription": "Egg, whole, cooked, fried",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "olives",
+    "fdcId": "169096",
+    "expectedName": "Aceitunas verdes",
+    "expectedUnit": "g",
+    "sourceDescription": "Olives, pickled, canned or bottled, green",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "repollo_cooked",
+    "fdcId": "169976",
+    "expectedName": "Repollo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Cabbage, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "corn_cooked",
+    "fdcId": "169999",
+    "expectedName": "Choclo cocido",
+    "expectedUnit": "g",
+    "sourceDescription": "Corn, sweet, yellow, cooked, boiled, drained, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "oatmeal_cooked",
+    "fdcId": "173905",
+    "expectedName": "Avena cocida con agua",
+    "expectedUnit": "g",
+    "sourceDescription": "Cereals, oats, regular and quick, unenriched, cooked with water (includes boiling and microwaving), without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "soy_beans_cooked",
+    "fdcId": "174271",
+    "expectedName": "Porotos de soja cocidos",
+    "expectedUnit": "g",
+    "sourceDescription": "Soybeans, mature cooked, boiled, without salt",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  },
+  {
+    "foodId": "chickpea_flour",
+    "fdcId": "174288",
+    "expectedName": "Harina de garbanzo",
+    "expectedUnit": "g",
+    "sourceDescription": "Chickpea flour (besan)",
+    "matchType": "reviewed_generic_reference",
+    "note": "Estimación genérica para esta preparación, por 100 g de porción comestible. No es un análisis de la porción ni una etiqueta de fabricante."
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "foodId": "chinchulines_grilled",
+    "expectedName": "Chinchulines a la parrilla · carne vacuna",
+    "sourceId": "SARA2-2022-p83-chinchulines_grilled",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=83",
+    "sourceDescription": "SARA 2 (2022), tabla 7.B, página 83: Chinchulines, tripa gorda (horno/parrilla)",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 15,
+      "iron": 2.25,
+      "magnesium": 10,
+      "zinc": 3.1
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed or inferred"
+    ]
+  },
+  {
+    "foodId": "chorizo_cooked",
+    "expectedName": "Chorizo parrillero cocido",
+    "sourceId": "SARA2-2022-p83-chorizo_cooked",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=83",
+    "sourceDescription": "SARA 2 (2022), tabla 7.B, página 83: Chorizo (horno/parrilla)",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 26,
+      "iron": 1.93,
+      "magnesium": 27,
+      "zinc": 2
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed or inferred"
+    ]
+  },
+  {
+    "foodId": "sweetbreads_beef_grilled",
+    "expectedName": "Molleja a la parrilla · carne vacuna",
+    "sourceId": "SARA2-2022-p87-sweetbreads_beef_grilled",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=87",
+    "sourceDescription": "SARA 2 (2022), tabla 7.B, página 87: Mollejas, a la parrilla",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 10,
+      "iron": 1.49,
+      "magnesium": 10,
+      "zinc": 2.2
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed or inferred"
+    ]
+  },
+  {
+    "foodId": "morcilla_cooked",
+    "expectedName": "Morcilla cocida",
+    "sourceId": "SARA2-2022-p87-morcilla_cooked",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=87",
+    "sourceDescription": "SARA 2 (2022), tabla 7.B, página 87: Morcilla",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 6,
+      "iron": 6.4,
+      "magnesium": 8,
+      "zinc": 1.3
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed or inferred"
+    ]
+  },
+  {
+    "foodId": "kidney_beef_grilled",
+    "expectedName": "Riñón a la parrilla · carne vacuna",
+    "sourceId": "SARA2-2022-p89-kidney_beef_grilled",
+    "sourceUrl": "https://iah.msal.gov.ar/doc/720.pdf#page=89",
+    "sourceDescription": "SARA 2 (2022), tabla 7.B, página 89: Riñón (horno/parrilla)",
+    "pdfSha256": "14706a46e0262e2223b0c44d4c77c31090e3554cf63602fe58ab765f32b81c7f",
+    "per100g": {
+      "calcium": 19,
+      "iron": 5.8,
+      "magnesium": 12,
+      "zinc": 2.84
+    },
+    "withheld": [
+      "B12: printed unit inconsistent; requires independent verification",
+      "ALA/EPA/DHA: not transcribed or inferred"
+    ]
+  }
+]

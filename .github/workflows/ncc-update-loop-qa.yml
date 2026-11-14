@@ -1,0 +1,19 @@
+name: Update loop regression
+on:
+  pull_request:
+    branches: [efg-nutrition-app]
+    paths: ['efg-nutrition/pilot/version-notice.js', 'efg-nutrition/tests/version-update-loop-browser.mjs', '.github/workflows/ncc-update-loop-qa.yml']
+  push:
+    branches: [work/ncc-update-loop]
+jobs:
+  update-loop:
+    runs-on: ubuntu-24.04
+    container: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: node efg-nutrition/tests/version-notice-opt-in.mjs
+      - run: node efg-nutrition/tests/version-update-loop-browser.mjs

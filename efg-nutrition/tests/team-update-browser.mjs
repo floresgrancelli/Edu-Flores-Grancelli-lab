@@ -124,6 +124,8 @@ try{for(const engine of ['chromium','webkit']){
  page.once('dialog',d=>d.dismiss());await page.locator('[data-removestudent]').click();assert.equal(calls,0);
  page.once('dialog',d=>{assert.match(d.message(),/Ana.*equipo/);return d.accept();});await page.locator('[data-removestudent]').click();
  await page.waitForFunction(()=>!!window.__unlinkArgs);assert.equal(calls,1);assert.equal(await page.locator('[data-removestudent]').count(),1,'Failure preserves the student card');
+ await page.evaluate(()=>{const h=window.__NCC_WORKSPACE_HOOKS__,old=h.sb.rpc;h.sb.rpc=async(name,args)=>name==='efg_remove_student_from_team_v1'?{data:true,error:null}:old(name,args);});
+ page.once('dialog',d=>d.accept());await page.locator('[data-removestudent="pupil-a"]').click();await page.locator('[data-removestudent="pupil-a"]').waitFor({state:'detached'});
  // Global notice and update sheet preserve the mounted form. Reload only by explicit click.
  await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;await v.fixture.loginAs('admin');v.state.tab='adminManage';await v.render();});
  await page.locator('#nccAdminSections [data-workspace-tab=new]').click();await page.locator('#newCoachName').fill('Borrador conservado');
@@ -141,5 +143,5 @@ try{for(const engine of ['chromium','webkit']){
  await page.waitForURL(/ncc_updated=/);assert.equal(await page.evaluate(()=>localStorage.getItem('qa-saved-record')),'preserved');
  assert.deepEqual(errors,[]);evidence.push({engine,width,passed:true});await context.close();
  }}finally{await browser.close();}
-}writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify({evidence,contrastIssues:contrastFindings.length}));
+}writeFileSync(resolve(out,'result.json'),JSON.stringify(evidence,null,2));console.log(JSON.stringify({evidence,contrastIssues:contrastFindings.length}));assert.deepEqual(contrastFindings,[],'Every sampled light surface must have readable text');
 }finally{server.close();}

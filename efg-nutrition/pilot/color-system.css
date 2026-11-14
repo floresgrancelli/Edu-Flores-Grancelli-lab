@@ -135,13 +135,13 @@
  html.ncc-lime-theme #pilot-toast.ncc-inline-notice[data-notice-kind=error]>span{color:#ffb7b2!important}
 }
 
-/* Light panels retain their original surface; titles and copy use black ink.
-   Controls retain their own dark/selected colour pairs. */
+/* White/light cards use black text, including inherited title/caption styles. */
 @layer ncc-palette {
- html.ncc-lime-theme #app :is(.coach-intake-steps li,.efg-intake-status,.coach-roster-total,.coach-profile-tabs a:not(.active),.coach-intake-intro,.efg-intake-share-label,.efg-student-intake-state,.efg-legal-check,.efg-release-highlights li,.efg-intake-prefill,.efg-gut-intake,.efg-gut-choice,.efg-gut-consent),
- html.ncc-lime-theme #app :is(.coach-intake-steps li,.efg-intake-status,.coach-intake-intro,.efg-intake-share-label,.efg-student-intake-state,.efg-legal-check,.efg-release-highlights li,.efg-intake-prefill,.efg-gut-intake,.efg-gut-choice,.efg-gut-consent) :where(h1,h2,h3,h4,h5,h6,p,li,label,legend,summary,small,strong,b,span,a,div):not(:where(button *, .btn *,input,select,textarea,.card,.card *)){color:#111!important}
+ html.ncc-lime-theme #app :is(.coach-intake-steps li,.efg-intake-status,.efg-legal-check,.efg-release-highlights li,.efg-student-intake-state){background:#eef3f0!important;color:#111!important}
+ html.ncc-lime-theme #app :is(.coach-intake-steps li,.efg-intake-status,.efg-legal-check,.efg-release-highlights li,.efg-student-intake-state) :where(h1,h2,h3,h4,h5,h6,p,li,label,legend,summary,small,strong,b,span,a,div):not(:where(button *, .btn *,input,select,textarea)){color:#111!important}
  html.ncc-lime-theme #app .coach-intake-steps li::before{color:#111!important}
- html.ncc-lime-theme #app .ncc-remove-student{color:#ffb7b2!important;border-color:#a85b58!important}
+ html.ncc-lime-theme #app .efg-chat-contact .efg-chat-unread{color:#111!important}
+ html.ncc-lime-theme #app .ncc-roster-options .ncc-remove-student{color:#ffb7b2!important;border-color:#a85b58!important}
  html.ncc-lime-theme #app .ncc-roster-options .pilot-toolbar{display:flex;flex-wrap:wrap;gap:8px}
  html.ncc-lime-theme #app .ncc-roster-options .pilot-toolbar>button{min-height:44px}
 }

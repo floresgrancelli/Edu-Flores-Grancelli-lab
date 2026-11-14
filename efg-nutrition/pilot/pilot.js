@@ -5095,7 +5095,10 @@ if(el.dataset.removestudent){
   if(error)throw error;
   if(state.session?.user?.id!==owner||(state.authContextEpoch||0)!==epoch)return;
   if(state.selectedStudent===student.user_id){state.selectedStudent=null;state.consent=null;state.coachLogs=[];state.coachGoals=[];state.coachReportGoals=null;state.coachWeights=[];state.coachActivities=[];state.coachFoodPlan=null;state.coachGuidedDraft=null;state.pendingGoal=null;state.pendingGoalRevision=null;}
-  const names=coachPreferredNames();delete names[student.user_id];localStorage.setItem("efg-coach-names-"+owner,JSON.stringify(names));
+  delete coachRosterConsent[student.user_id];state.roster=state.roster.filter(p=>p.user_id!==student.user_id);
+  for(const key of ['coachIntakeForms','coachIntakeGoals','coachIntakeAccess','coachIntakeDraftStatuses'])if(state[key])delete state[key][student.user_id];
+  coachAdaptedWorkspace.close();state.coachPrivateHistory=null;
+  try{const names=coachPreferredNames();delete names[student.user_id];localStorage.setItem("efg-coach-names-"+owner,JSON.stringify(names));}catch(_){/* Optional local display name must not block confirmed removal. */}
 
   await loadRoleData();await render();notify("Alumno eliminado de tu equipo. Su cuenta y sus registros se conservan.");
  }finally{el.disabled=false;}

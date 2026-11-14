@@ -24,7 +24,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
  await context.route('**/*',r=>new URL(r.request().url()).origin===origin?r.continue():r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/efg-nutrition/pilot/');await page.getByRole('button',{name:'Alumno: vacío',exact:true}).click();await page.locator('.ncc-focus-summary').waitFor();
- for(const [id,quantity,nutrient] of [['rest_sushiclub_combo_30',920,'epa_dha'],['rest_fabric_combo_15',485,'epa_dha'],['rest_ishidan_combo_salmon_12',340,'b12'],['rest_mc_big_mac',214,'iron'],['alc_beer_lager',330,'magnesium'],['rest_starbucks_latte',250,'calcium'],['fish_salmon',150,'ala'],['helado_palito_crema',60,'b12'],['milk_soy_unsweet',200,'ala'],['cashews',25,'ala'],['pistachios',25,'ala'],['red_lentils_dry',60,'ala']]){
+ for(const [id,quantity,nutrient] of [['rest_sushiclub_combo_30',920,'epa_dha'],['rest_fabric_combo_15',485,'epa_dha'],['rest_ishidan_combo_salmon_12',340,'b12'],['rest_mc_big_mac',214,'iron'],['alc_beer_lager',330,'magnesium'],['rest_starbucks_latte',250,'calcium'],['fish_salmon',150,'ala'],['helado_palito_crema',60,'b12'],['milk_soy_unsweet',200,'ala'],['cashews',25,'ala'],['pistachios',25,'ala'],['red_lentils_dry',60,'ala'],['sushi_maki_salmon',224,'iron'],['whey_powder',30,'ala']]){
   for(const role of ['student','coach','admin']){
    await page.evaluate(async({id,quantity,role})=>{
     const v=window.__NCC_R4_FULLAPP__,s=v.state;
@@ -33,7 +33,7 @@ try{for(const engine of (process.env.NCC_TEST_ENGINES||'chromium,webkit').split(
     s.diary.meals.cena=[{id,name:c.foods[id].name,qty:quantity,unit:c.foods[id].unit,k:300,p:15,c:30,f:10,fi:1,sourceId:c.foods[id].catalogSourceId}];
     s.profile.role=role;await v.render();document.querySelector('#ncc-student-day-fixture-controls').hidden=true;
    },{id,quantity,role});
-   const detail=page.locator('[data-micro-detail="'+nutrient+'"]');assert.ok(await detail.locator('.ncc-micro-sources li').count()>0,id+' '+role);assert.match(await detail.textContent(),id.startsWith('rest_')||id.startsWith('alc_')?/ESTIMACIÓN DE MICRONUTRIENTES/:/ESTIMACIÓN por referencia comparable/);
+   const detail=page.locator('[data-micro-detail="'+nutrient+'"]');assert.ok(await detail.locator('.ncc-micro-sources li').count()>0,id+' '+role);assert.match(await detail.textContent(),id.startsWith('rest_')||id.startsWith('alc_')?/ESTIMACIÓN DE MICRONUTRIENTES/:id==='sushi_maki_salmon'?/Nori seco: seis componentes/:/ESTIMACIÓN por referencia comparable/);
    const before=await page.locator('[data-micronutrient="'+nutrient+'"] .ncc-micro-value').first().textContent();
    await page.evaluate(async()=>{const v=window.__NCC_R4_FULLAPP__;v.state.diary.meals.cena[0].qty/=2;await v.render();});
    const after=await page.locator('[data-micronutrient="'+nutrient+'"] .ncc-micro-value').first().textContent();assert.notEqual(after,before,id+' quantity scales visible contribution');

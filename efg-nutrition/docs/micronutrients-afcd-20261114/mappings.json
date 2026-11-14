@@ -668,5 +668,56 @@
       "dha"
     ],
     "note": "Equivalente genérico de Cream, thickened, regular fat (~35%). Se conservan los otros nutrientes del ingrediente y el supuesto previo de densidad 1 g/ml. No se extiende a licores o aperitivos con formulaciones distintas."
+  },
+  {
+    "target": "whey_powder",
+    "expectedName": "Proteína whey en polvo (1 scoop = 30 g, genérica)",
+    "expectedUnit": "g",
+    "code": "F007493",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Whey genérico sin fortificar, proteína superior al 70%, polvo seco. Solo completa ALA; no extrapola vitaminas de marcas ni dilución."
+  },
+  {
+    "target": "pulpo_cocido",
+    "expectedName": "Pulpo cocido sin aceite",
+    "expectedUnit": "g",
+    "code": "F006148",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pulpo hervido sin grasa: referencia genérica de carne comestible cocida."
+  },
+  {
+    "target": "centolla_cocida",
+    "expectedName": "Centolla cocida, carne limpia",
+    "expectedUnit": "g",
+    "code": "F003243",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Carne de cangrejo cocida como equivalente de centolla limpia; especie y origen pueden variar."
+  },
+  {
+    "target": "tea_milk",
+    "expectedName": "Té con leche (personalizable)",
+    "expectedUnit": "ml",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Solo base de té negro con agua; leche y azúcar deben registrarse aparte, como define el catálogo personalizable."
+  },
+  {
+    "target": "galletitas_chocolate",
+    "expectedName": "Galletitas comerciales con chips de chocolate, con mayor grasa, harina no enriquecida (referencia USDA)",
+    "expectedUnit": "g",
+    "code": "F001170",
+    "nutrients": [
+      "epa",
+      "dha"
+    ],
+    "note": "Galletita comercial con chips o cobertura de chocolate como equivalente para EPA/DHA; receta y grasa pueden variar. Conserva los demás valores previos."
   }
 ]

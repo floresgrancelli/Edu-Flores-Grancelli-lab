@@ -223,5 +223,16 @@
     "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
     "nutrient": "ala",
     "note": "Estimación por promedio argentino de carne vacuna magra cocida al horno/parrilla; corte y método pueden variar. Solo completa ALA; no sustituye los demás valores de la preparación específica."
+  },
+  {
+    "foodId": "budin_marmolado",
+    "expectedName": "Budín marmolado tradicional",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-833",
+    "sheet": "1.5 Vitamins",
+    "column": 19,
+    "nutrient": "b12",
+    "note": "Budín comercial tipo loaf como equivalente de budín marmolado; receta y proporción de cacao pueden variar. Solo B12, sin cambiar los demás nutrientes."
   }
 ]

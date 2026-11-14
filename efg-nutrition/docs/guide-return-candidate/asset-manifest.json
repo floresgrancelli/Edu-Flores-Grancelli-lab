@@ -2,7 +2,7 @@
   "baseline": "9aaddfe21d77302224f93ea82be3b215c86769d6",
   "status": "RELEASE_CANDIDATE",
   "build": "ncc-pilot-3a40474052be",
-  "assetVersion": "ncc-micro-afcd-r1-20261114",
+  "assetVersion": "ncc-micro-nori-r1-20261114",
   "noFlagChanges": false,
   "noHostedCalls": true,
   "moduleVersions": {
@@ -81,7 +81,7 @@
     "efg-nutrition/pilot/major-release-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/major-release-reauth-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/messages-ui.js": "ncc-notifications-r1-20261112",
-    "efg-nutrition/pilot/micronutrient-catalog.js": "ncc-micro-afcd-r1-20261114",
+    "efg-nutrition/pilot/micronutrient-catalog.js": "ncc-micro-nori-r1-20261114",
     "efg-nutrition/pilot/micronutrient-engine.js": "ncc-micro-enriched-20261114",
     "efg-nutrition/pilot/micronutrient-view.js": "ncc-micro-enriched-20261114",
     "efg-nutrition/pilot/micronutrients-config.js": "ncc-self-live-r1-20261113",
@@ -108,7 +108,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/pilot-participation-client.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/pilot-participation-demo.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
-    "efg-nutrition/pilot/pilot.js": "ncc-micro-afcd-r1-20261114",
+    "efg-nutrition/pilot/pilot.js": "ncc-micro-nori-r1-20261114",
     "efg-nutrition/pilot/planner.js": "ncc-pilot-3a40474052be-reports-guide-r10-20261106",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "ncc-micro-restaurants-r1-20261114",
@@ -180,7 +180,7 @@
     "efg-nutrition/pilot/food-achuras-20261113.js": "ncc-achuras-r1-20261113",
     "efg-nutrition/pilot/food-alcohol-20261114.js": "ncc-micro-restaurants-r1-20261114",
     "efg-nutrition/pilot/food-restaurants-20261114.js": "ncc-micro-restaurants-r1-20261114",
-    "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "ncc-micro-afcd-r1-20261114"
+    "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "ncc-micro-nori-r1-20261114"
   },
   "sha256": {
     "efg-nutrition/pilot/adapted-guide-editor.js": "dcfcc983c86580873da3f47fc3bc6e5d7dfc11718b6355674d4ba2ea0f8f167a",
@@ -327,7 +327,7 @@
     "efg-nutrition/pilot/guided-meal-picker.js": "e7f8e4a4a4c8cf1a8a7e86456ba677710db4e55b4de842188aed315d1655cc25",
     "efg-nutrition/pilot/gut-clinical-workbench.js": "b902cb22c96c3b6ce422e333877706f56a638ee3104ec58c85a4fea12ec55697",
     "efg-nutrition/pilot/habitual-preview.js": "c2057c93c1d02aa57e7f2b0d262658932785c0c4136c6aec192264b887f599f3",
-    "efg-nutrition/pilot/index.html": "2a8ab975e096407b49018dfaa41d52d81af5709ea7a2ee93b4732eeeed9ad2e0",
+    "efg-nutrition/pilot/index.html": "b6dfb73e09efbab13da3a66d8b0246d2a33d3b53c715d667ab0fc884b7a77e5c",
     "efg-nutrition/pilot/legal-onboarding.js": "990e5197e5e0bfe0c952a849692d3c4a5589577c972f7694ad69e3b4370e3e7a",
     "efg-nutrition/pilot/logout-session.js": "bd9ec0432caee3c825d9b02c328d44ec00d32090583cf94d518129c6ebed361f",
     "efg-nutrition/pilot/macro-engine.js": "a9b6c1f0cec6c05a8d40ae72a5a850f1220addcf8b0e20a7e7314e8b8c2c4c8d",
@@ -335,7 +335,7 @@
     "efg-nutrition/pilot/major-release-reauth-client.js": "3a3c99049afd3803bac5b236cba764e6b6252f452bc0b9b47e118a68991efcc2",
     "efg-nutrition/pilot/meal-entry-context-r2.css": "888e2822a2c0c3581676e20f43b8ec4d843938e1a96b0e00fe810129143ca79a",
     "efg-nutrition/pilot/messages-ui.js": "656ca8f0dd5b8f9b0f0d08301bda57355c88c461bc190ce536965684306d7803",
-    "efg-nutrition/pilot/micronutrient-catalog.js": "583a6156d34ef4564d38b9fa31e40aab1237a2d75b93cc4c98e044d07b774cd7",
+    "efg-nutrition/pilot/micronutrient-catalog.js": "52fc2b170d5e5701e5f54fb4ec26702a1209072324b3570838ce5e3477bd6e36",
     "efg-nutrition/pilot/micronutrient-engine.js": "b03564c1f3c3af69ce5431cb7c818809df3fac161e9b6344409ef60d8a908f14",
     "efg-nutrition/pilot/micronutrient-view.js": "d4a7ba8188fbab895de6d80cbe3e46b9a807eba2862c2e5d3cce813f439956ac",
     "efg-nutrition/pilot/micronutrients-config.js": "001e78b55ab5f508b271d26a8237bf10afb60142683f6d1a3f7d48092bb04459",
@@ -364,7 +364,7 @@
     "efg-nutrition/pilot/pilot-guide-lifecycle.js": "ad3e45d72a4cfb69265c50864ffa2ec89d5abe10ffadd7057454b005144bdbd8",
     "efg-nutrition/pilot/pilot-participation-client.js": "824f0bdb65400d5cd32a717a405420d6a3b3503c38ab16046338d3311569e471",
     "efg-nutrition/pilot/pilot-participation-demo.js": "1fd01f3c5fd9aec222ca52aeb44a4ebb22cc58b1633eb4b6bda518b4fd499e79",
-    "efg-nutrition/pilot/pilot.js": "858641ef1c58550edb02a1cd01a510559283b39d81d0ce4862c760aa3a3d111c",
+    "efg-nutrition/pilot/pilot.js": "d271ace54a779014c49df3f3b26e4e94f8e6e00391a9760046469a32b5de6730",
     "efg-nutrition/pilot/planner.js": "67903f571810125d8469230f88fe4c4162fcb79cc1934a1c70bdd7ed4e0cf277",
     "efg-nutrition/pilot/professional-coach-tools-panel.mjs": "4d49490d47d1a69fc4db75a683134fd57d62f45e12caec5a8d37406657496384",
     "efg-nutrition/pilot/professional-coach-tools.mjs": "29fc49695b2db3b6dc1e6f5bf95c83490831d12a2591ddaf33abf7fed50c942c",
@@ -444,7 +444,7 @@
     "efg-nutrition/pilot/notifications-ui.css": "a753ef1b3938e2ba56773bcf94e0ca35be9b5ae48ea5ee5535bf7b425ac356cd",
     "efg-nutrition/pilot/food-alcohol-20261114.js": "eb350cdc65511fdd39d4810afd50126e027da250235329f7be43764f10ab96d4",
     "efg-nutrition/pilot/food-restaurants-20261114.js": "bdc0a6fbd8e3d484bbc9eacf29542f1728940616d8d503a80c5bea50b90ae332",
-    "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "ce996768c19b45762c74dd487370a8718c683449c536370327397f12c84a96d8"
+    "efg-nutrition/pilot/micronutrient-expanded-catalog.js": "4e736e650fb3c0f1e46c789fef7d66100e8dcd779d8d542f8e6c07ac6400fa3b"
   },
   "stylesheets": [
     {

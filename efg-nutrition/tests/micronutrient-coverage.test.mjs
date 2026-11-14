@@ -191,15 +191,15 @@ test('chia recipe and lactose-free milk convert native millilitres exactly once'
  const single={id:'milk_lactosefree',qty:250,unit:'ml'};
  const n=totals([single]).find(n=>n.id==='calcium');assert.ok(Math.abs(n.total-250*c.foods.milk_skim.perUnit.calcium)<1e-8);
 });
-test('unknown dry nori and unquantified cake ingredients retain known contributions but mark them partial',()=>{
+test('dry nori completes minerals while unresolved components and cake remain partial',()=>{
  const ids=Object.keys(c.foods).filter(id=>c.foods[id].ingredients?.some(i=>i.id==='@nori'));
  assert.ok(ids.length>0);
- for(const id of [...ids,'cake']){
-  const food=c.foods[id];assert.ok(food.incompleteNutrients.includes('iron'),id);
-  const n=totals([entry(id,100)]).find(n=>n.id==='iron');assert.ok(n.total>0,id);
-  assert.equal(n.partial,true);assert.equal(n.foodPartial,1);assert.equal(n.foodKnown+n.foodUnknown,1);
-  assert.equal(n.difference,null);assert.equal(n.status,'partial');
+ for(const id of ids){
+  const food=c.foods[id];assert.ok(!food.incompleteNutrients.includes('iron'),id);
+  const iron=totals([entry(id,100)]).find(n=>n.id==='iron');assert.ok(iron.total>0);assert.equal(iron.partial,false);
+  for(const key of ['b12','epa_dha']){const n=totals([entry(id,100)]).find(n=>n.id===key);assert.equal(n.partial,true);assert.equal(n.difference,null);}
  }
+ const n=totals([entry('cake',100)]).find(n=>n.id==='iron');assert.ok(n.total>0);assert.equal(n.partial,true);assert.equal(n.difference,null);
 });
 test('named brand approximations never claim to be a manufacturer label',()=>{
  for(const id of ['arcor_chocolate_aguila_familiar','arcor_chocolate_blanco_porcion','arcor_chocolate_leche_porcion','colonial_chocolate_organico_80_cacao','arcor_mini_alfajor_aguila_chocolate','arcor_saladix_jamon','milanesa_soy_gobinda']){

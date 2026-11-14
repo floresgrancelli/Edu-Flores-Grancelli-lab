@@ -1,0 +1,61 @@
+{
+  "foodCode": "09003",
+  "foodName": "ALGAE/purple laver, dried",
+  "species": "Porphyra spp.",
+  "source": "MEXT, Standard Tables of Food Composition in Japan, eighth revision, 2023 supplement",
+  "pages": {
+    "0": {
+      "url": "https://fooddb.mext.go.jp/details/details.pl?ITEM_NO=9_09003_7&MODE=0",
+      "htmlSha256": "b1de23958238efbf6cfbda84d35e02a44b7e8b7051c92d747bc5c12ac2fe5664",
+      "weightGrams": 100,
+      "rows": [
+        "カルシウム 140 mg",
+        "マグネシウム 340 mg",
+        "鉄 11.0 mg",
+        "亜鉛 3.7 mg",
+        "ビタミンB12 39.6 μg"
+      ]
+    },
+    "4": {
+      "url": "https://fooddb.mext.go.jp/details/details.pl?ITEM_NO=9_09003_7&MODE=4",
+      "htmlSha256": "0c80c3d713ad1b5755a3f98c8328610e82df05a362116dbe678ccf7d42a40d66",
+      "weightGrams": 100,
+      "rows": [
+        "18:3 n-3 α−リノレン酸 4 mg",
+        "20:5 n-3 イコサペンタエン酸 1200 mg",
+        "22:6 n-3 ドコサヘキサエン酸 - mg"
+      ]
+    }
+  },
+  "usedPer100g": {
+    "calcium": {
+      "value": 140,
+      "unit": "mg"
+    },
+    "magnesium": {
+      "value": 340,
+      "unit": "mg"
+    },
+    "iron": {
+      "value": 11,
+      "unit": "mg"
+    },
+    "zinc": {
+      "value": 3.7,
+      "unit": "mg"
+    },
+    "ala": {
+      "value": 4,
+      "unit": "mg"
+    },
+    "epa": {
+      "value": 1200,
+      "unit": "mg"
+    }
+  },
+  "withheld": {
+    "b12": "No se incorpora en este lote: referencias de nori seco discrepantes (MEXT 39.6 µg/100g, CoFID 27.5 y AFCD 0), pendientes de revisión de muestra y método; no se promedian.",
+    "dha": "MEXT informa guion, no un cero numérico; se conserva desconocido."
+  },
+  "note": "Referencia de nori seco sin condimentos. No sustituye alga fresca, no representa el análisis de una marca ni predice absorción. Nutrientes parciales se conservan por componente."
+}

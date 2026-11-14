@@ -233,7 +233,12 @@ test('every independently added nutrient matches the frozen named column and dec
    const row=sara[p.food];
    if(key==='b12'){assert.equal(Number(row.micro.cells[17].replace(',','.')),0);expected=0;}
    else{const col={ala:11,epa:13,dha:14}[key];assert.notEqual(row.macro.cells[col],'');expected=Number(row.macro.cells[col].replace(',','.'))*(key==='ala'?1:1000);}
-  }else{const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
+  }else if(p.source==='CoFID 2021'){
+   const evidence=JSON.parse(readFileSync(new URL('../docs/micronutrients-gaps-20261114/cofid-selected.json',import.meta.url)));
+   const sheet=key==='b12'?'1.5 Vitamins':'1.12 (PUFA per 100gFood)',col={ala:16,epa:28,dha:40,b12:19}[key];
+   const cell=evidence.rows[sheet][p.foodCode][col];assert.match(String(cell),/^\d+(\.\d+)?$/);
+   expected=Number(cell)*(key==='epa'||key==='dha'?1000:1);
+  }else{assert.equal(p.source,'USDA SR Legacy');const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
   assert.ok(Math.abs(f.perUnit[key]-expected*(f.gramsPerMl||1)/100)<1e-9,id+':'+key);
  }
 });

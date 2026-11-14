@@ -1,0 +1,227 @@
+[
+  {
+    "foodId": "fish_salmon",
+    "expectedName": "Salmón cocido",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "16-359",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Salmón de cultivo al horno: referencia británica comparable a salmón cocido con calor seco; variación por origen y alimentación."
+  },
+  {
+    "foodId": "trucha_cocida",
+    "expectedName": "Trucha cocida al horno sin aceite",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "16-396",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Trucha arcoíris al horno: equivalente genérico de trucha cocida, no análisis de la porción."
+  },
+  {
+    "foodId": "mejillones_cocidos",
+    "expectedName": "Mejillones cocidos sin valvas",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "16-390",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Mejillones cocidos comprados: equivalente genérico de carne comestible, sin valvas."
+  },
+  {
+    "foodId": "mussels_cooked",
+    "expectedName": "Mejillones cocidos",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "16-390",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Mejillones cocidos comprados: equivalente genérico de carne comestible, sin valvas."
+  },
+  {
+    "foodId": "factura_medialuna_manteca",
+    "expectedName": "Medialuna de manteca",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-988",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Croissant comercial como equivalente aproximado de medialuna de manteca; receta y proporción de manteca pueden variar."
+  },
+  {
+    "foodId": "medialuna_butter",
+    "expectedName": "Medialuna de manteca",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-988",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Croissant comercial como equivalente aproximado de medialuna de manteca; receta y proporción de manteca pueden variar."
+  },
+  {
+    "foodId": "barley_pearled_dry",
+    "expectedName": "Cebada perlada seca, sin cocinar",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-002",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Cebada perlada seca; no aplicar a cebada cocida sin conversión de rendimiento."
+  },
+  {
+    "foodId": "huevo_frito",
+    "expectedName": "Huevo frito con aceite (aceite estimado incluido)",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-944",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Huevo frito en aceite de girasol como referencia del huevo con aceite incluido; el aporte depende del aceite y su absorción."
+  },
+  {
+    "foodId": "helado_crema_americana",
+    "expectedName": "Helado crema americana / vainilla tradicional (referencia USDA)",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-508",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Helado lácteo de vainilla: equivalente comercial, con receta y grasa variables."
+  },
+  {
+    "foodId": "helado_chocolate",
+    "expectedName": "Helado de chocolate tradicional (referencia USDA)",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-511",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Helado lácteo de chocolate/caramelo como aproximación del helado de chocolate; no etiqueta de marca."
+  },
+  {
+    "foodId": "flan_caramel",
+    "expectedName": "Flan casero con caramelo",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-397",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Flan con caramelo comercial como equivalente aproximado del flan casero; proporciones de huevo y leche variables."
+  },
+  {
+    "foodId": "flan_huevo_caramelo",
+    "expectedName": "Flan casero de huevo con caramelo",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-397",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Flan con caramelo comercial como equivalente aproximado del flan casero; proporciones de huevo y leche variables."
+  },
+  {
+    "foodId": "galletitas_chocolate",
+    "expectedName": "Galletitas comerciales con chips de chocolate, con mayor grasa, harina no enriquecida (referencia USDA)",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-816",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Cookies con chips de chocolate estilo americano como equivalente del producto genérico de mayor grasa; no etiqueta de marca."
+  },
+  {
+    "foodId": "milk_soy_unsweet",
+    "expectedName": "Bebida de soja sin azúcar",
+    "expectedUnit": "ml",
+    "source": "CoFID 2021",
+    "code": "12-524",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Bebida de soja sin azúcar, referencia británica fortificada. Solo se toma ALA; no se extrapolan vitaminas o minerales fortificados. Se conserva la densidad del modelo existente."
+  },
+  {
+    "foodId": "milk_soy_unsweet",
+    "expectedName": "Bebida de soja sin azúcar",
+    "expectedUnit": "ml",
+    "source": "CoFID 2021",
+    "code": "12-524",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 28,
+    "nutrient": "epa",
+    "note": "Cero numérico informado por CoFID para bebida de soja sin azúcar; solo EPA, sin extrapolar fortificación."
+  },
+  {
+    "foodId": "milk_soy_unsweet",
+    "expectedName": "Bebida de soja sin azúcar",
+    "expectedUnit": "ml",
+    "source": "CoFID 2021",
+    "code": "12-524",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 40,
+    "nutrient": "dha",
+    "note": "Cero numérico informado por CoFID para bebida de soja sin azúcar; solo DHA, sin extrapolar fortificación."
+  },
+  {
+    "foodId": "pancake_complete_mix_prepared",
+    "expectedName": "Pancakes de premezcla completa, ya preparados",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "11-544",
+    "sheet": "1.12 (PUFA per 100gFood)",
+    "column": 16,
+    "nutrient": "ala",
+    "note": "Pancake comercial dulce como equivalente de premezcla preparada; aceite y receta pueden variar."
+  },
+  {
+    "foodId": "helado_palito_crema",
+    "expectedName": "Helado palito de crema bañado chocolate",
+    "expectedUnit": "g",
+    "source": "CoFID 2021",
+    "code": "12-510",
+    "sheet": "1.5 Vitamins",
+    "column": 19,
+    "nutrient": "b12",
+    "note": "Helado lácteo en barra bañado en chocolate: equivalente genérico para B12, no formulación de marca."
+  },
+  {
+    "foodId": "homemade_burger",
+    "expectedName": "Hamburguesa casera de carne a la plancha",
+    "expectedUnit": "g",
+    "source": "SARA 2",
+    "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
+    "nutrient": "ala",
+    "note": "Estimación por promedio argentino de carne vacuna magra cocida al horno/parrilla; corte y método pueden variar. Solo completa ALA; no sustituye los demás valores de la preparación específica."
+  },
+  {
+    "foodId": "lean_ground_beef",
+    "expectedName": "Carne picada magra cocida",
+    "expectedUnit": "g",
+    "source": "SARA 2",
+    "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
+    "nutrient": "ala",
+    "note": "Estimación por promedio argentino de carne vacuna magra cocida al horno/parrilla; corte y método pueden variar. Solo completa ALA; no sustituye los demás valores de la preparación específica."
+  },
+  {
+    "foodId": "sirloin_cooked",
+    "expectedName": "Bife de cuadril magro cocido",
+    "expectedUnit": "g",
+    "source": "SARA 2",
+    "saraName": "Vacuno, cortes magros**, PROMEDIO, horno/parrilla",
+    "nutrient": "ala",
+    "note": "Estimación por promedio argentino de carne vacuna magra cocida al horno/parrilla; corte y método pueden variar. Solo completa ALA; no sustituye los demás valores de la preparación específica."
+  }
+]

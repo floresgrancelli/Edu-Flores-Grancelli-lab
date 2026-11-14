@@ -142,6 +142,10 @@ from micronutrient_completion import complete_catalog
 internal = complete_catalog(ROOT, catalog, foods, NUTRIENTS)
 from micronutrient_enrichment import enrich_catalog
 enrich_catalog(ROOT, foods, internal, NUTRIENTS)
+from micronutrient_gaps import fill_gaps
+fill_gaps(ROOT, foods)
+# Propagate newly documented ingredient values through incomplete recipes only.
+enrich_catalog(ROOT, foods, internal, NUTRIENTS)
 
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()

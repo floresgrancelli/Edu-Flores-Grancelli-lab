@@ -191,15 +191,15 @@ test('chia recipe and lactose-free milk convert native millilitres exactly once'
  const single={id:'milk_lactosefree',qty:250,unit:'ml'};
  const n=totals([single]).find(n=>n.id==='calcium');assert.ok(Math.abs(n.total-250*c.foods.milk_skim.perUnit.calcium)<1e-8);
 });
-test('unknown dry nori and unquantified cake ingredients retain known contributions but mark them partial',()=>{
+test('reviewed nori and explicit cake equivalent have complete estimates',()=>{
  const ids=Object.keys(c.foods).filter(id=>c.foods[id].ingredients?.some(i=>i.id==='@nori'));
  assert.ok(ids.length>0);
- for(const id of [...ids,'cake']){
-  const food=c.foods[id];assert.ok(food.incompleteNutrients.includes('iron'),id);
-  const n=totals([entry(id,100)]).find(n=>n.id==='iron');assert.ok(n.total>0,id);
-  assert.equal(n.partial,true);assert.equal(n.foodPartial,1);assert.equal(n.foodKnown+n.foodUnknown,1);
-  assert.equal(n.difference,null);assert.equal(n.status,'partial');
+ for(const id of ids){
+  const food=c.foods[id];assert.ok(!food.incompleteNutrients.includes('iron'),id);
+  const iron=totals([entry(id,100)]).find(n=>n.id==='iron');assert.ok(iron.total>0);assert.equal(iron.partial,false);
+  for(const key of ['b12','epa_dha']){const n=totals([entry(id,100)]).find(n=>n.id===key);assert.equal(n.partial,false);}
  }
+ const n=totals([entry('cake',100)]).find(n=>n.id==='iron');assert.ok(n.total>0);assert.equal(n.partial,false);
 });
 test('named brand approximations never claim to be a manufacturer label',()=>{
  for(const id of ['arcor_chocolate_aguila_familiar','arcor_chocolate_blanco_porcion','arcor_chocolate_leche_porcion','colonial_chocolate_organico_80_cacao','arcor_mini_alfajor_aguila_chocolate','arcor_saladix_jamon','milanesa_soy_gobinda']){
@@ -214,7 +214,7 @@ test('gap enrichment keeps every previously complete estimate and increases only
  for(const [id,f]of Object.entries(baseline.foods))for(const [key,v]of Object.entries(f.perUnit)){
   const n=c.foods[id].perUnit[key];
   if(v!==null&&!f.incompleteNutrients?.includes(key))assert.equal(n,v,id+':'+key);
-  else if(v!==null)assert.ok(n>=v-1e-9,id+':'+key);
+  else if(v!==null&&id!=='cake')assert.ok(n>=v-1e-9,id+':'+key);else if(id==='cake')assert.match(c.foods[id].compositionOverrideNote,/equivalente/);
   if(n!==v){assert.ok(c.foods[id].nutrientProvenance?.[key],id+':'+key);additions++;}
  }
  assert.ok(additions>=600);
@@ -233,7 +233,16 @@ test('every independently added nutrient matches the frozen named column and dec
    const row=sara[p.food];
    if(key==='b12'){assert.equal(Number(row.micro.cells[17].replace(',','.')),0);expected=0;}
    else{const col={ala:11,epa:13,dha:14}[key];assert.notEqual(row.macro.cells[col],'');expected=Number(row.macro.cells[col].replace(',','.'))*(key==='ala'?1:1000);}
-  }else{const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
+  }else if(p.source==='CoFID 2021'){
+   const evidence=JSON.parse(readFileSync(new URL('../docs/micronutrients-gaps-20261114/cofid-selected.json',import.meta.url)));
+   const sheet=key==='b12'?'1.5 Vitamins':'1.12 (PUFA per 100gFood)',col={ala:16,epa:28,dha:40,b12:19}[key];
+   const cell=evidence.rows[sheet][p.foodCode][col];assert.match(String(cell),/^\d+(\.\d+)?$/);
+   expected=Number(cell)*(key==='epa'||key==='dha'?1000:1);
+  }else if(p.source==='FSANZ AFCD Release 3'){
+   const evidence=JSON.parse(readFileSync(new URL('../docs/micronutrients-afcd-20261114/selected-records.json',import.meta.url)));
+   const col={ala:209,epa:222,dha:229,b12:93,magnesium:64,calcium:55,iron:62,zinc:75}[key],cell=evidence.rows[p.foodCode][col];
+   assert.equal(typeof cell,'number');assert.ok(cell>=0);expected=cell;
+  }else if(p.source==='MEXT 2023'||p.source==='MEXT 11098'){const data=JSON.parse(readFileSync(new URL('../docs/micronutrients-bulk-20261114/mext.json',import.meta.url)));assert.equal(data[id].weightGrams,100);const row=data[id].rows.find(x=>x.startsWith(({ala:'18:3 n-3',epa:'20:5 n-3',dha:'22:6 n-3',b12:'ビタミンB12'})[key]+' '));assert.ok(row);const words=row.split(' ');expected=Number(words.at(-2).replace(/[()]/g,''))*(key==='ala'?.001:1);assert.equal(words.at(-1),key==='b12'?'μg':'mg');}else{assert.equal(p.source,'USDA SR Legacy');const nutrient=records[p.fdcId].foodNutrients.find(n=>n.nutrient.id===ids[key]);assert.equal(nutrient.nutrient.unitName,key==='b12'?'µg':'mg');expected=nutrient.amount;}
   assert.ok(Math.abs(f.perUnit[key]-expected*(f.gramsPerMl||1)/100)<1e-9,id+':'+key);
  }
 });

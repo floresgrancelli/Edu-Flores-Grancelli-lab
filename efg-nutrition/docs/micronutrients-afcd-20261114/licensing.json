@@ -1,0 +1,10 @@
+{
+  "source": "Food Standards Australia New Zealand (FSANZ), Australian Food Composition Database, Release 3",
+  "sourceUrl": "https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/data-files",
+  "licenseUrl": "https://www.foodstandards.gov.au/science-data/monitoringnutrients/afcd/datauserlicenceagreement",
+  "license": "FSANZ Data User Licence Agreement, based on CC BY-SA 3.0 Australia",
+  "scope": "AFCD source extracts and AFCD-derived composition values and recipe contributions retain this licence. Independent software and independently sourced values are separate works.",
+  "changes": "Selected records, Spanish food equivalences, native-unit scaling and missing-cell enrichment; derived recipe calculations. Not endorsed by FSANZ.",
+  "countryStatement": "This work is based on Australian data. Australian data may not be appropriate for use in other countries.",
+  "limitationOfDataStatement": "There are limitations associated with food composition databases. Food composition data used in the database or databases may represent an average of the nutrient content of a particular sample of foods and ingredients, determined at a particular time. The nutrient composition of foods and ingredients can vary substantially between batches and brands because of a number of factors, including changes in season, processing practices and ingredient source, and methods of calculation."
+}

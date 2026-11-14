@@ -1,5 +1,5 @@
-import {buildRestaurantCatalog,RESTAURANT_ALIASES} from './food-restaurants-20261114.js?v=ncc-restaurants-r1-20261114';
-import {ALCOHOL_FOODS,ALCOHOL_PORTIONS,ALCOHOL_ALIASES} from './food-alcohol-20261114.js?v=ncc-alcohol-r1-20261114';
+import {buildRestaurantCatalog,RESTAURANT_ALIASES} from './food-restaurants-20261114.js?v=ncc-micro-restaurants-r1-20261114';
+import {ALCOHOL_FOODS,ALCOHOL_PORTIONS,ALCOHOL_ALIASES} from './food-alcohol-20261114.js?v=ncc-micro-restaurants-r1-20261114';
 import {ACHURAS_FOODS,ACHURAS_PORTIONS,ACHURAS_ALIASES} from './food-achuras-20261113.js?v=ncc-achuras-r1-20261113';
 import {CATALOG_BATCH_TWO_FOODS,CATALOG_BATCH_TWO_PORTIONS,CATALOG_BATCH_TWO_ALIASES} from "./food-catalog-batch-two-20261113.js?v=ncc-catalog-batch-two-r1-20261113";
 import {CATALOG_BATCH_FOODS,CATALOG_BATCH_PORTIONS,CATALOG_BATCH_ALIASES} from "./food-catalog-batch-20261113.js?v=ncc-catalog-batch-r1-20261113";

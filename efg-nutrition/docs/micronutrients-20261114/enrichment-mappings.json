@@ -1668,5 +1668,17 @@
     "note": "Referencia genérica SARA 2 del alimento y preparación indicados; puede variar respecto de la variedad o receta concreta.",
     "expectedName": "Zapallito cocido",
     "expectedUnit": "g"
+  },
+  "orange_juice_raw_weight": {
+    "expectedName": "Jugo de naranja exprimido, sin azúcar añadida",
+    "expectedUnit": "g",
+    "saraName": "Jugo de naranja, exprimido",
+    "note": "Jugo de naranja exprimido sin azúcar agregada, referencia argentina por 100 g; conserva la unidad de masa del catálogo."
+  },
+  "helado_frutilla_crema": {
+    "expectedName": "Helado de frutilla a la crema clásico (referencia USDA)",
+    "expectedUnit": "g",
+    "saraName": "Helado de crema (heladería)",
+    "note": "ESTIMACIÓN por referencia comparable: helado de crema genérico como equivalente para omega-3 del helado de frutilla a la crema. El sabor, receta y grasa de cada heladería pueden variar; no aplica a helados de agua."
   }
 }

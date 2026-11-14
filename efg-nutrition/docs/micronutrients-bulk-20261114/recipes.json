@@ -1,0 +1,124 @@
+[
+  {
+    "target": "gnocchi_potato",
+    "scope": "food",
+    "nutrients": [
+      "b12"
+    ],
+    "parts": {
+      "F007320": 75,
+      "F004007": 20,
+      "F003721": 5
+    },
+    "note": "Modelo orientativo por 100 g cocidos: 75 g papa cocida, 20 g harina y 5 g huevo. No receta universal ni versión vegana.",
+    "expectedSourceId": "SARA2-Ñoquis de papa frescos, artesanal, hervidos"
+  },
+  {
+    "target": "potato_salad_home",
+    "scope": "food",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "parts": {
+      "F007320": 85,
+      "F005441": 15
+    },
+    "note": "Ensalada de papa orientativa con 85% papa cocida y 15% mayonesa tradicional. El aderezo puede cambiar mucho el aporte.",
+    "expectedSourceId": "169269"
+  },
+  {
+    "target": "lemon_pie",
+    "scope": "food",
+    "nutrients": [
+      "ala"
+    ],
+    "parts": {
+      "F004007": 20,
+      "F001971": 10,
+      "F003721": 10,
+      "F008976": 35,
+      "F005174": 10,
+      "F009527": 15
+    },
+    "note": "Modelo genérico por 100 g finales: harina 20, manteca 10, huevo 10, azúcar 35, limón 10 y agua 15 g. Relleno/merengue reales variables.",
+    "expectedSourceId": "172785"
+  },
+  {
+    "target": "mousse_chocolate",
+    "scope": "food",
+    "nutrients": [
+      "ala"
+    ],
+    "parts": {
+      "F003270": 45,
+      "F002921": 25,
+      "F003706": 15,
+      "F008976": 15
+    },
+    "note": "Mousse genérica: crema 45%, chocolate 25%, clara 15%, azúcar 15%. Receta orientativa.",
+    "expectedSourceId": "168777"
+  },
+  {
+    "target": "minestrone_canned_ready",
+    "scope": "food",
+    "nutrients": [
+      "ala"
+    ],
+    "parts": {
+      "F009527": 60,
+      "F000437": 10,
+      "F009193": 10,
+      "F002275": 10,
+      "F007320": 10
+    },
+    "note": "Sopa minestrone orientativa: caldo acuoso 60%, porotos blancos cocidos 10%, tomate 10%, zanahoria 10%, papa 10%. Sin aceite añadido en este modelo.",
+    "expectedSourceId": "171550"
+  },
+  {
+    "target": "rabas_rebozadas_fritas",
+    "scope": "food",
+    "nutrients": [
+      "ala"
+    ],
+    "parts": {
+      "F008825": 70,
+      "F004007": 20,
+      "F003721": 5,
+      "F006189": 5
+    },
+    "note": "Modelo orientativo de rabas: calamar cocido 70%, harina 20%, huevo 5%, aceite de girasol 5%. El aceite de fritura puede cambiar sustancialmente ALA; baja confianza.",
+    "expectedSourceId": "171982"
+  },
+  {
+    "target": "drink:cream_liqueur",
+    "scope": "drink",
+    "nutrients": [
+      "ala"
+    ],
+    "parts": {
+      "F003270": 40,
+      "F000051": 20,
+      "F008976": 20,
+      "F009527": 20
+    },
+    "note": "Licor de crema genérico: crema 40%, destilado 20%, azúcar 20%, agua 20%. Densidad previa 1 g/ml; formulación de marca desconocida.",
+    "expectedSourceId": "175098"
+  },
+  {
+    "target": "lupines_cooked",
+    "scope": "food",
+    "expectedSourceId": "172424",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "parts": {
+      "F005250": 32,
+      "F009527": 68
+    },
+    "note": "Modelo orientativo de hidratación: 32 g de lupín seco entero por 100 g de producto cocido, resto agua; retención de ácidos grasos supuesta 100%. El remojo/cocción real puede variar."
+  }
+]

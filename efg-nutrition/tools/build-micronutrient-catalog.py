@@ -142,12 +142,27 @@ from micronutrient_completion import complete_catalog
 internal = complete_catalog(ROOT, catalog, foods, NUTRIENTS)
 from micronutrient_enrichment import enrich_catalog
 enrich_catalog(ROOT, foods, internal, NUTRIENTS)
+from micronutrient_gaps import fill_gaps
+fill_gaps(ROOT, foods)
+from micronutrient_afcd import fill_afcd, load_afcd, fill_vinegar, annotate_vinegar
+fill_afcd(ROOT, foods)
+fill_vinegar(ROOT, internal)
+from micronutrient_nori import fill_nori, annotate_nori
+fill_nori(ROOT, internal)
+from micronutrient_bulk import fill_bulk, annotate_bulk, complete_cake
+bulk_applied = fill_bulk(ROOT, foods, internal)
+# Propagate newly documented ingredient values through incomplete recipes only.
+enrich_catalog(ROOT, foods, internal, NUTRIENTS)
+annotate_nori(ROOT, foods, internal)
+annotate_vinegar(ROOT, foods, internal)
+complete_cake(ROOT, foods, bulk_applied)
+annotate_bulk(foods, internal, bulk_applied)
 
 canonical = json.dumps(foods, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
 digest = hashlib.sha256(canonical.encode()).hexdigest()
 result = {'version': 'ncc-micro-' + digest[:16], 'macroCatalogVersion': catalog['version'],
           'basis': 'Frozen USDA/SARA/TBCA references and explicitly documented standard recipe approximations; null means unknown',
-          'foodCount': len(foods), 'foods': foods}
+          'foodCount': len(foods), 'foods': foods, 'additionalDataLicenses': [load_afcd(ROOT)[0]['licensing']]}
 output = ROOT / 'pilot/micronutrient-catalog.js'
 output.write_text('// Generated offline; missing nutrients are null, never inferred zero.\nexport const MICRONUTRIENT_CATALOG = ' +
                   json.dumps(result, ensure_ascii=False, separators=(',', ':')) + ';\n')

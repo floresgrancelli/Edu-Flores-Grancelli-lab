@@ -1,0 +1,545 @@
+[
+  {
+    "target": "@flour",
+    "scope": "internal",
+    "expectedSourceId": "169761",
+    "code": "F004007",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@water",
+    "scope": "internal",
+    "expectedSourceId": "173647",
+    "code": "F009527",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@tapioca",
+    "scope": "internal",
+    "expectedSourceId": "169717",
+    "code": "F009090",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@cocoa_cookie",
+    "scope": "internal",
+    "expectedSourceId": "172714",
+    "code": "F001182",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@quinoa_recipe_168917",
+    "scope": "internal",
+    "expectedSourceId": "168917",
+    "code": "F007596",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@quinoa_recipe_174928",
+    "scope": "internal",
+    "expectedSourceId": "174928",
+    "code": "F001683",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@ketchup",
+    "scope": "internal",
+    "expectedSourceId": "168556",
+    "code": "F008083",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@salami",
+    "scope": "internal",
+    "expectedSourceId": "172938",
+    "code": "F007817",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@blue_cheese",
+    "scope": "internal",
+    "expectedSourceId": "172175",
+    "code": "F002405",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@gluten",
+    "scope": "internal",
+    "expectedSourceId": "168147",
+    "code": "F004220",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@cocoa",
+    "scope": "internal",
+    "expectedSourceId": "169593",
+    "code": "F002980",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Ingrediente genérico comparable en el mismo estado; conserva cantidades y rendimiento de la receta. Diferencias de marca o formulación pueden cambiar la estimación."
+  },
+  {
+    "target": "@ham_raw",
+    "scope": "internal",
+    "expectedSourceId": "SARA2-Jamón crudo",
+    "code": "F007459",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Prosciutto como equivalente de jamón crudo curado; estimación genérica, no marca."
+  },
+  {
+    "target": "@nori",
+    "scope": "internal",
+    "expectedSourceId": "MEXT-09003-dried",
+    "code": "F008204",
+    "nutrients": [
+      "dha"
+    ],
+    "note": "Nori seco: DHA cero numérico publicado en AFCD; no se interpreta el guion de MEXT como cero. Se conserva EPA de MEXT."
+  },
+  {
+    "target": "veal_cutlet_cooked",
+    "scope": "food",
+    "expectedSourceId": "174880",
+    "code": "F009369",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Corte magro de ternera cocido a la parrilla sin grasa añadida."
+  },
+  {
+    "target": "rabbit_roasted",
+    "scope": "food",
+    "expectedSourceId": "172522",
+    "code": "F007602",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Conejo cocido sin grasa añadida como equivalente; la referencia es estofada, no asada, y la humedad puede variar."
+  },
+  {
+    "target": "oat_flour",
+    "scope": "food",
+    "expectedSourceId": "169741",
+    "code": "F006143",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Avena seca arrollada como equivalente para ALA de harina de avena: molienda y extracción pueden modificar el valor."
+  },
+  {
+    "target": "chicken_noodle_soup_diluted",
+    "scope": "food",
+    "expectedSourceId": "172909",
+    "code": "F008513",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Sopa de pollo y fideos reconstituida con agua como equivalente de sopa en conserva diluida; receta y dilución pueden variar."
+  },
+  {
+    "target": "peaches_syrup_drained",
+    "scope": "food",
+    "expectedSourceId": "168181",
+    "code": "F006554",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Durazno en conserva escurrido como equivalente para ALA; referencia en jugo de pera, no almíbar. Se conservan azúcares y macros existentes."
+  },
+  {
+    "target": "soy_yogurt_plain_generic",
+    "scope": "food",
+    "expectedSourceId": "167722",
+    "code": "F009738",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Yogur de soja de grasa regular como equivalente solo para ALA; referencia sabor frutos rojos. No extrapola fortificación, azúcar ni vitaminas."
+  },
+  {
+    "target": "medialuna_fat",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Facturas simples",
+    "code": "F003305",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Croissant genérico como equivalente orientativo de B12 de medialuna; cambia según masa, grasa y receta."
+  },
+  {
+    "target": "factura_vigilante",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Facturas simples",
+    "code": "F003305",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Masa de croissant como equivalente de B12 de factura simple; estimación orientativa dependiente de receta."
+  },
+  {
+    "target": "factura_bola_fraile",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Facturas rellenas",
+    "code": "F003575",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Donut relleno como equivalente de B12 de bola de fraile; referencia con mermelada, no dulce de leche. Estimación orientativa."
+  },
+  {
+    "target": "factura_cream",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Facturas rellenas",
+    "code": "F009102",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Pastelería con crema/custard como equivalente orientativo de B12; proporción del relleno puede variar."
+  },
+  {
+    "target": "factura_dulce",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Facturas rellenas",
+    "code": "F003305",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Croissant genérico como aproximación de B12 de la masa; relleno de dulce de leche variable, equivalencia de baja confianza."
+  },
+  {
+    "target": "alfajor_chocolate",
+    "scope": "food",
+    "expectedSourceId": "SARA2-2022-p107-alfajor_chocolate",
+    "code": "F001167",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Galleta rellena de caramelo y cubierta de chocolate como equivalente genérico de B12. Estimación de baja confianza: no tabla oficial de alfajor, receta ni marca; relleno/cobertura pueden variar."
+  },
+  {
+    "target": "alfajor_ddl",
+    "scope": "food",
+    "expectedSourceId": "SARA2-2022-p107-alfajor_ddl",
+    "code": "F001167",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Galleta rellena de caramelo y cubierta de chocolate como equivalente genérico de B12. Estimación de baja confianza: no tabla oficial de alfajor, receta ni marca; relleno/cobertura pueden variar."
+  },
+  {
+    "target": "alfajor_maicena",
+    "scope": "food",
+    "expectedSourceId": "SARA2-2022-p107-alfajor_maicena",
+    "code": "F001167",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Galleta rellena de caramelo y cubierta de chocolate como equivalente genérico de B12. Estimación de baja confianza: no tabla oficial de alfajor, receta ni marca; relleno/cobertura pueden variar."
+  },
+  {
+    "target": "alfajor_chocolate_triple",
+    "scope": "food",
+    "expectedSourceId": "SARA2-Alfajor de chocolate",
+    "code": "F001167",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Galleta rellena de caramelo y cubierta de chocolate como equivalente genérico de B12. Estimación de baja confianza: no tabla oficial de alfajor, receta ni marca; relleno/cobertura pueden variar."
+  },
+  {
+    "target": "arcor_mini_alfajor_aguila_chocolate",
+    "scope": "food",
+    "expectedSourceId": "standard-recipe-arcor_mini_alfajor_aguila_chocolate",
+    "code": "F001167",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Galleta rellena de caramelo y cubierta de chocolate como equivalente genérico de B12. Estimación de baja confianza: no tabla oficial de alfajor, receta ni marca; relleno/cobertura pueden variar."
+  },
+  {
+    "target": "cedron_tea",
+    "scope": "food",
+    "expectedSourceId": "173232",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Infusión acuosa sin leche ni azúcar: té negro como equivalente orientativo solo para ALA, no análisis específico de esta hierba. Cero publicado a precisión de tabla."
+  },
+  {
+    "target": "chamomile_tea",
+    "scope": "food",
+    "expectedSourceId": "174156",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Infusión acuosa sin leche ni azúcar: té negro como equivalente orientativo solo para ALA, no análisis específico de esta hierba. Cero publicado a precisión de tabla."
+  },
+  {
+    "target": "herbal_tea",
+    "scope": "food",
+    "expectedSourceId": "173232",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Infusión acuosa sin leche ni azúcar: té negro como equivalente orientativo solo para ALA, no análisis específico de esta hierba. Cero publicado a precisión de tabla."
+  },
+  {
+    "target": "mint_tea",
+    "scope": "food",
+    "expectedSourceId": "173232",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Infusión acuosa sin leche ni azúcar: té negro como equivalente orientativo solo para ALA, no análisis específico de esta hierba. Cero publicado a precisión de tabla."
+  },
+  {
+    "target": "tilo_tea",
+    "scope": "food",
+    "expectedSourceId": "173232",
+    "code": "F009125",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Infusión acuosa sin leche ni azúcar: té negro como equivalente orientativo solo para ALA, no análisis específico de esta hierba. Cero publicado a precisión de tabla."
+  },
+  {
+    "target": "mate_plain",
+    "scope": "food",
+    "expectedSourceId": "TBCA-113H",
+    "code": "F009125",
+    "nutrients": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Infusión acuosa no fortificada como equivalente de baja confianza: té negro, no medición de yerba mate. Solo infusión; leche/azúcar se registran aparte. Ceros publicados a precisión de tabla."
+  },
+  {
+    "target": "mate_cocido",
+    "scope": "food",
+    "expectedSourceId": "TBCA-113H",
+    "code": "F009125",
+    "nutrients": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Infusión acuosa no fortificada como equivalente de baja confianza: té negro, no medición de yerba mate. Solo infusión; leche/azúcar se registran aparte. Ceros publicados a precisión de tabla."
+  },
+  {
+    "target": "mate_cocido_milk",
+    "scope": "food",
+    "expectedSourceId": "TBCA-113H",
+    "code": "F009125",
+    "nutrients": [
+      "b12",
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Infusión acuosa no fortificada como equivalente de baja confianza: té negro, no medición de yerba mate. Solo infusión; leche/azúcar se registran aparte. Ceros publicados a precisión de tabla."
+  },
+  {
+    "target": "tuna_fresh",
+    "scope": "food",
+    "expectedSourceId": "173707",
+    "code": "F009304",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "besugo_cocido",
+    "scope": "food",
+    "expectedSourceId": "173694",
+    "code": "F001885",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "corvina_cocida",
+    "scope": "food",
+    "expectedSourceId": "173694",
+    "code": "F005932",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "brotola_cocida",
+    "scope": "food",
+    "expectedSourceId": "173694",
+    "code": "F001278",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "abadejo_cocido",
+    "scope": "food",
+    "expectedSourceId": "174198",
+    "code": "F001278",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "mero_cocido",
+    "scope": "food",
+    "expectedSourceId": "171963",
+    "code": "F008360",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "lenguado_cocido",
+    "scope": "food",
+    "expectedSourceId": "174197",
+    "code": "F003974",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Pescado cocido sin grasa añadida como equivalente orientativo solo para ALA; especie y cocción de la referencia pueden diferir. Se conservan EPA/DHA, B12 y minerales originales."
+  },
+  {
+    "target": "escarole_boiled_unsalted",
+    "scope": "food",
+    "expectedSourceId": "168413",
+    "code": "F002883",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Achicoria/escarola hervida y escurrida como equivalente de la misma familia; cultivar variable."
+  },
+  {
+    "target": "radicchio_raw",
+    "scope": "food",
+    "expectedSourceId": "168564",
+    "code": "F002884",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Achicoria cruda como equivalente de radicchio; variedad roja puede diferir."
+  },
+  {
+    "target": "malvaviscos",
+    "scope": "food",
+    "expectedSourceId": "167995",
+    "code": "F005236",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Golosina de azúcar y gelatina como equivalente de ALA de malvavisco; receta variable."
+  },
+  {
+    "target": "fish_cod",
+    "scope": "food",
+    "expectedSourceId": "171956",
+    "code": "F001278",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Hoki cocido sin grasa como equivalente orientativo solo de ALA de bacalao; especies distintas."
+  },
+  {
+    "target": "peas_canned_unsalted_drained",
+    "scope": "food",
+    "expectedSourceId": "170104",
+    "code": "F006535",
+    "nutrients": [
+      "ala",
+      "epa",
+      "dha"
+    ],
+    "note": "Arveja verde cocida escurrida como equivalente de conserva escurrida solo para omega-3; no se altera sodio."
+  },
+  {
+    "target": "almejas_cocidas",
+    "scope": "food",
+    "expectedSourceId": "171975",
+    "code": "F005968",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Mejillón cocido como equivalente de bivalvo cocido solo para ALA. Baja confianza: especie y origen diferentes."
+  },
+  {
+    "target": "pejerrey_cocido",
+    "scope": "food",
+    "expectedSourceId": "SARA2-2022-p98-pejerrey_cocido",
+    "code": "F009561",
+    "nutrients": [
+      "b12"
+    ],
+    "note": "Filete de pescado blanco cocido sin grasa como equivalente solo para B12 de pejerrey. Baja confianza: especie diferente."
+  },
+  {
+    "target": "milk_evaporated_skim",
+    "scope": "food",
+    "expectedSourceId": "170878",
+    "code": "F005637",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Leche descremada como equivalente solo para ALA; el cero publicado es una aproximación por muy bajo contenido graso, no medición de leche evaporada."
+  },
+  {
+    "target": "@orange_peel",
+    "scope": "internal",
+    "expectedSourceId": "169103",
+    "code": "F006277",
+    "nutrients": [
+      "ala"
+    ],
+    "note": "Naranja cruda como equivalente orientativo de ALA de cáscara; parte comestible diferente, estimación de baja confianza. No extrapola aceites esenciales, fibra ni otros nutrientes."
+  }
+]

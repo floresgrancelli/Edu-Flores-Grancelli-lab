@@ -1,7 +1,7 @@
 // Coach 01-05 — private health declaration mapping, client-side defense in depth.
 // The server must independently enforce identity, relationship, legal/health
 // processing consent, organization and RLS. Clinical module remains OFF.
-import {guideFoodSignal} from './guided-day-v2.js?v=ncc-restaurants-r1-20261114';
+import {guideFoodSignal} from './guided-day-v2.js?v=ncc-micro-restaurants-r1-20261114';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CODES=new Set(['celiac','lactose_intolerance','food_allergy','sibo','diabetes','hypertension','dyslipidemia','fatty_liver']);
 const STATUSES=new Set(['confirmed','suspected','not_reported']);

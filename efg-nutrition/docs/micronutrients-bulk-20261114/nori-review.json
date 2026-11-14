@@ -1,0 +1,10 @@
+{
+  "b12Per100gUg": 39.6,
+  "source": "MEXT dry purple laver 09003",
+  "rationale": "Use specific dry nori reference as an estimate, not a generic plant zero or average across incompatible references.",
+  "supportingStudies": [
+    "https://pubmed.ncbi.nlm.nih.gov/37369571/",
+    "https://pubmed.ncbi.nlm.nih.gov/39352476/"
+  ],
+  "limits": "Product variability; no universal concentration or guaranteed bioavailability; do not use to prescribe replacement of B12 supplementation."
+}

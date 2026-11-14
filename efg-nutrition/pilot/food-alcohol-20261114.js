@@ -91,7 +91,7 @@ function makeDrink([id,name,servingMl,beverageKind,recipeParts,aliases],isCockta
  sourceType:isCocktail?'recipe_estimate':'generic_estimate',validationStatus:isCocktail?'receta_estimado':'generico_pendiente',sourceUrl,
  source:'ESTIMACIÓN, no etiqueta de fabricante. '+(isCocktail?'Receta de referencia: '+components+'. Rendimiento supuesto '+servingMl+' ml, con dilución del hielo. No cuenta decoración; jengibre/menta aromáticos no cuantificados. ':'Porción de referencia '+servingMl+' ml. ')+
  'Alcohol y HC asumidos: '+componentAssumptions+'. Energía incluye etanol: 7 kcal/g (densidad 0,789 g/ml), además de proteínas, hidratos y grasas. '+(sources[id]?'Proporciones basadas en IBA; nutrientes y rendimiento son estimados, no datos nutricionales IBA. ':'Modelo genérico orientativo; ajustar a marca y preparación. ')+
- 'La versión Zero cambia el mezclador; conserva calorías del alcohol y del aperitivo. Micronutrientes no estimados.'};
+ 'La versión Zero cambia el mezclador; conserva calorías del alcohol y del aperitivo. Micronutrientes aproximados por ingredientes o equivalentes genéricos; ver detalle y fuentes en Mi Día.'};
 }
 export const ALCOHOL_FOODS=[...bases.map(r=>makeDrink(r,false)),...cocktails.map(r=>makeDrink(r,true))];
 // Legacy quantity multiplier is named grams; for liquid rows it stores ml, with unit=ml.

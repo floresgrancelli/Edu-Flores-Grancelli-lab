@@ -57,10 +57,10 @@ try{
    assert.equal(await page.locator('[data-act="saveSelectedMeal"]').isDisabled(),true);
    assert.equal(await page.locator('#mealQuantityCard').isVisible(),false,'Quantity only appears after selection');
    if(width===390)assert.equal(await page.locator('.pilot-nav').isVisible(),false,'Bottom menu yields to registration');
-   await search('huevo','egg');await page.locator('#mealEditorQty').fill('2');
+   await search('huevo','egg');await page.locator('#mealEditorQty').fill('0.5');
    assert.equal(await page.locator('#mealEntryMode').inputValue(),'units');
    await page.locator('#mealEntrySlot').selectOption('media_manana');
-   assert.equal(await page.locator('#mealEditorFood').inputValue(),'egg');assert.equal(await page.locator('#mealEditorQty').inputValue(),'2');
+   assert.equal(await page.locator('#mealEditorFood').inputValue(),'egg');assert.equal(await page.locator('#mealEditorQty').inputValue(),'0.5');
    await page.evaluate(()=>{window.__NCC_FOOD_ENTRY_FIXTURE__.hold=true;});
    await page.locator('[data-act="saveSelectedMeal"]').click();
    await page.waitForFunction(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes===1);
@@ -69,12 +69,13 @@ try{
    await page.evaluate(()=>{const c=window.__NCC_FOOD_ENTRY_FIXTURE__;c.hold=false;c.release();});
    await page.locator('.meal-popup').waitFor({state:'detached'});
    assert.equal(await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes),1);
-   let saved=await snapshot();assert.equal(saved.meals.media_manana.length,1);assert.equal(saved.meals.media_manana[0].displayQty,2);assert.equal(saved.totals.k,saved.meals.media_manana[0].k);
+   let saved=await snapshot();assert.equal(saved.meals.media_manana.length,1);assert.equal(saved.meals.media_manana[0].displayQty,0.5);assert.equal(saved.totals.k,saved.meals.media_manana[0].k);
    await page.reload();await page.getByRole('button',{name:'Recuperar registro ficticio',exact:true}).click();
    assert.equal(await page.evaluate(()=>window.__NCC_R4_FULLAPP__.state.diary.meals.media_manana.length),1);
    await open('media_manana');await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').count(),1);
    await page.locator('#mealEntryShortcuts [data-mealsuggestion="egg"]').click();
    assert.equal(await page.locator('.ncc-shortcut-choice #mealQuantityCard').count(),1,'Selected recent expands its own quantity card');
+   assert.equal(await page.locator('#mealEditorQty').inputValue(),'0.5','Recent foods preserve half units');
    await page.locator('#mealEditorQty').fill('3');
    await page.locator('[data-mealsource="recipes"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3','Source navigation preserves quantity');
    await page.locator('[data-mealsource="recent"]').click();assert.equal(await page.locator('#mealEditorQty').inputValue(),'3');
@@ -100,7 +101,7 @@ try{
    // Correct a recorded portion in place, keeping the existing diary writer and scope.
    const originalSushi=structuredClone(saved.meals.cena[0]);
    const editButton=page.locator('[data-editfood="cena:0"]');
-   await editButton.click();assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears before editing');await page.locator('#diaryFoodQty').fill('8');
+   await editButton.click();assert.equal(await page.locator('#pilot-toast').isVisible(),false,'Previous confirmation clears before editing');await page.locator('#diaryFoodQty').fill('8.5');
    if(width===390){
     await page.setViewportSize({width,height:460});await page.locator('[data-savefood]').scrollIntoViewIfNeeded();
     assert.equal(await page.locator('[data-savefood]').evaluate(el=>{const r=el.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return r.y>=0&&r.bottom<=innerHeight&&(hit===el||el.contains(hit));}),true,'Quantity save remains reachable above a keyboard-height viewport');
@@ -108,21 +109,21 @@ try{
    }
    await page.keyboard.press('Escape');assert.deepEqual((await snapshot()).meals.cena[0],originalSushi);
    assert.equal(await editButton.evaluate(el=>el===document.activeElement),true);
-   await editButton.click();await page.locator('#diaryFoodQty').fill('2.5');
+   await editButton.click();await page.locator('#diaryFoodQty').fill('2.25');
    const writesBeforeEdit=await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes);
    await page.locator('[data-savefood]').click();assert.match(await page.locator('#diaryFoodError').innerText(),/cantidad/);
-   assert.equal(await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes),writesBeforeEdit,'Fractional countable units cannot be stored');
-   await page.locator('#diaryFoodQty').fill('8');
+   assert.equal(await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes),writesBeforeEdit,'Quarter units cannot be stored');
+   await page.locator('#diaryFoodQty').fill('8.5');
    await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.fail=true);
    await page.locator('[data-savefood]').click();await page.waitForFunction(()=>!document.querySelector('[data-savefood]').disabled);
-   assert.equal(await page.locator('#diaryFoodQty').inputValue(),'8');assert.deepEqual((await snapshot()).meals.cena[0],originalSushi);
+   assert.equal(await page.locator('#diaryFoodQty').inputValue(),'8.5');assert.deepEqual((await snapshot()).meals.cena[0],originalSushi);
    await page.evaluate(()=>{window.__NCC_FOOD_ENTRY_FIXTURE__.fail=false;window.__NCC_FOOD_ENTRY_FIXTURE__.hold=true;});
    await page.locator('[data-savefood]').click();await page.waitForFunction(()=>document.querySelector('[data-savefood]').disabled);
    await page.keyboard.press('Escape');assert.equal(await page.locator('.ncc-food-edit').isVisible(),true,'Pending write keeps editor mounted');
    await page.evaluate(()=>{document.querySelector('[data-savefood]').click();const c=window.__NCC_FOOD_ENTRY_FIXTURE__;c.hold=false;c.release();});
    await page.locator('.ncc-food-edit').waitFor({state:'detached'});
-   saved=await snapshot();assert.equal(saved.meals.cena.length,1);assert.equal(saved.meals.cena[0].displayQty,8);assert.equal(saved.meals.cena[0].qty,originalSushi.qty*8/6);
-   assert.equal(saved.meals.cena[0].k,Math.round(originalSushi.k*8/6*100)/100);
+   saved=await snapshot();assert.equal(saved.meals.cena.length,1);assert.equal(saved.meals.cena[0].displayQty,8.5);assert.equal(saved.meals.cena[0].qty,originalSushi.qty*8.5/6);
+   assert.equal(saved.meals.cena[0].k,Math.round(originalSushi.k*8.5/6*100)/100);
    assert.equal(await page.locator('[data-daymealpanel]:visible').getAttribute('data-daymealpanel'),'cena');
    assert.equal(await page.evaluate(()=>window.__NCC_FOOD_ENTRY_FIXTURE__.writes),writesBeforeEdit+2,'One rejected write plus one successful write');
    await page.screenshot({path:resolve(out,engine+'-'+width+'-edited-quantity.png'),fullPage:true});
